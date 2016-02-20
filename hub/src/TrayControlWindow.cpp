@@ -25,13 +25,13 @@ TrayControlWindow::~TrayControlWindow()
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_quit = new QAction(tr("&Quit"), this);
+  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("&Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-  m_act_hub = new QAction(tr("Show &Hub"), this);
+  m_act_hub = new QAction(QIcon(":/hub/tray.png"), tr("Show &Hub"), this);
   connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
-  m_act_vbox = new QAction(tr("Show &Virtual Machines"), this);
+  m_act_vbox = new QAction(QIcon(":/hub/virtual.png"), tr("Show &Virtual Machines"), this);
   connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
 }
 ////////////////////////////////////////////////////////////////////////////

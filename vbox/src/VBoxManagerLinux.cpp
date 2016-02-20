@@ -54,7 +54,7 @@ CVBoxManagerLinux::~CVBoxManagerLinux() {
   m_virtual_box = nsnull;
   m_event_listener = nsnull;
   m_event_source = nsnull;
-  //com::Shutdown(); should be called in main thread?
+  shutdown_com();
 }
 ////////////////////////////////////////////////////////////////////////////
 

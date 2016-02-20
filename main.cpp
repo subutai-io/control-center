@@ -20,6 +20,5 @@ int main(int argc, char *argv[]) {
   CVBoxManagerSingleton::Instance()->init_com();
   TrayControlWindow tcw;
   int result = a.exec();
-  CVBoxManagerSingleton::Instance()->shutdown_com();
   return result;
 }

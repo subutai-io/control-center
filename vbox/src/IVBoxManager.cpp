@@ -59,9 +59,8 @@ nsresult IVBoxManager::handle_event(VBoxEventType_T e_type, IEvent *event) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-//do nothing, because com initializes in constructor
 void IVBoxManager::init_com() {
-
+//do nothing, because com initializes in constructor
 }
 ////////////////////////////////////////////////////////////////////////////
 

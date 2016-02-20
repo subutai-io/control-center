@@ -14,8 +14,8 @@
    <string>Hub Account Login</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
-    <normaloff>:/hub/test.png</normaloff>:/hub/test.png</iconset>
+   <iconset resource="../../resources/resources.qrc">
+    <normaloff>:/hub/log_in.png</normaloff>:/hub/log_in.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -121,7 +121,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
