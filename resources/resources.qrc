@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/hub">
+        <file>log_in.png</file>
+        <file>log_out.png</file>
+        <file>tray.png</file>
+    </qresource>
+</RCC>
