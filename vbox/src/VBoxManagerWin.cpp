@@ -46,9 +46,10 @@ CVBoxManagerWin::CVBoxManagerWin() :
     pListener.createObject();
     pListener->init(new CEventListenerWin, this);
 
-    SAFEARRAYBOUND bound;
-    bound.lLbound = 0;
-    bound.cElements = (ULONG) m_dct_event_handlers.size();
+    /*why do we need this? comment for now*/
+//    SAFEARRAYBOUND bound;
+//    bound.lLbound = 0;
+//    bound.cElements = (ULONG) m_dct_event_handlers.size();
 
     com::SafeArray<VBoxEventType_T> safe_interested;
     for (auto i = m_dct_event_handlers.cbegin(); i != m_dct_event_handlers.cend(); ++i) {

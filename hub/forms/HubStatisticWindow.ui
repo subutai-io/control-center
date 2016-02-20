@@ -159,6 +159,10 @@ QTreeView::item:selected:!active {
    <addaction name="menu_main"/>
   </widget>
   <action name="ma_settings">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/hub/settings.png</normaloff>:/hub/settings.png</iconset>
+   </property>
    <property name="text">
     <string>Settings</string>
    </property>
@@ -167,12 +171,18 @@ QTreeView::item:selected:!active {
    </property>
   </action>
   <action name="ma_quit">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/hub/log_out.png</normaloff>:/hub/log_out.png</iconset>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
