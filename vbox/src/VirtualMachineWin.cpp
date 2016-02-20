@@ -31,6 +31,7 @@ nsresult CVirtualMachineWin::launch_vm(vb_launch_mode_t mode,
                                        IProgress **progress) {
   BSTR str_mode = SysAllocString(CCommons::VM_lauch_mode_to_wstr(mode));
 
+  m_session->UnlockMachine();
   nsresult rc = m_internal_machine->LaunchVMProcess(m_session,
                                                     str_mode,
                                                     NULL,
@@ -48,6 +49,7 @@ nsresult CVirtualMachineWin::save_state(IProgress **progress) {
 
 nsresult CVirtualMachineWin::turn_off(IProgress **progress) {
   IConsole* console = NULL;
+  m_session->UnlockMachine();
   nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
 
   if (FAILED(rc)) return rc;

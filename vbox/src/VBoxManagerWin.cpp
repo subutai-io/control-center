@@ -196,7 +196,12 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc;
+  rc = m_dct_machines[vm_id]->state();
 
+  if (rc == VMS_Running) {
+      qDebug() << "turned _on already \n" ;//+ vm_id;
+      return 1;\
+  }
   IProgress* progress = NULL;
   rc = m_dct_machines[vm_id]->launch_vm(lm,
                                         &progress);
@@ -216,6 +221,11 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
     return 1;
 
   nsresult rc;
+  rc = m_dct_machines[vm_id]->state();
+  if (rc != VMS_Running) {
+      qDebug() << "turned _off already \n" ;//+ vm_id;
+      return 1;\
+  }
 
   if (save_state) {
     IProgress* progress;
