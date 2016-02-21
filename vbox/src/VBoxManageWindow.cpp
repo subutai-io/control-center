@@ -118,12 +118,12 @@ void VBoxManageWindow::vmc_turn_released(const com::Bstr &vm_id) {
     int lr = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     m_dct_vm_controls[vm_id]->set_progress_bar_visible(false);
     if (!lr) return;
-
-    QMessageBox msg(QMessageBox::Critical,
-                    "Launch VM error",
-                    QString("Launch VM failed. Error code : %1").arg(lr),
-                    QMessageBox::Ok);
-    msg.exec();
+    show_err(lr);
+//    QMessageBox msg(QMessageBox::Critical,
+//                    "Launch VM error",
+//                    QString("Launch VM failed. Error code : %1").arg(lr),
+//                    QMessageBox::Ok);
+//    msg.exec();
     return;
   } //turn on
 
@@ -134,11 +134,12 @@ void VBoxManageWindow::vmc_turn_released(const com::Bstr &vm_id) {
   m_dct_vm_controls[vm_id]->set_progress_bar_visible(false);
   if (!tor) return;
 
-  QMessageBox msg(QMessageBox::Critical,
-                  "Shutdown VM error",
-                  QString("Shutdown VM failed. Error code : %1").arg(tor),
-                  QMessageBox::Ok);
-  msg.exec();
+  show_err(tor);
+//  QMessageBox msg(QMessageBox::Critical,
+//                  "Shutdown VM error",
+//                  QString("Shutdown VM failed. Error code : %1").arg(tor),
+//                  QMessageBox::Ok);
+//  msg.exec();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -161,6 +162,36 @@ void VBoxManageWindow::closeEvent(QCloseEvent *event) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////
+
+void VBoxManageWindow::show_err(int code) {
+  QString messg;
+  switch (code) {
+  case 1:   messg = "Machine is in Aborted state";
+            break;
+  case 2:   messg = "Machine is in Stack state";
+            break;
+  case 3:   messg = "Machine is in Running state";
+            break;
+  case 9:   messg = "Machine is starting, please wait a minute";
+            break;
+  case 11:  messg = "Machine is in Aborted state, check";
+            break;
+  case 13:  messg = "Machine is in Powered off state";
+            break;
+  case 14:  messg = "Save state fialed";
+            break;
+  case 19:  messg = "Machine is stopping, please wait a minute";
+            break;
+  default:  messg = "Action is impossible with this machine state";
+            break;
+  }
+  QMessageBox msg(QMessageBox::Critical,
+                  "Execution error: ",
+                  messg,
+                  QMessageBox::Ok);
+  msg.exec();
+}
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////

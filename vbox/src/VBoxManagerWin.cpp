@@ -196,20 +196,32 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
                                vb_launch_mode_t lm) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
-  nsresult rc;
+  nsresult rc, state;
   rc = m_dct_machines[vm_id]->state();
 
-  if (rc == VMS_Running) {
-      qDebug() << "turned _on already \n" ;//+ vm_id;
-      return 1;\
+//  if (state == VMS_Aborted) {
+//      ;//aborted machine will run
+//  }
+
+  if (state == VMS_Stuck) {
+      return 2;
+  }
+
+  if (  state == VMS_Running
+              || state == VMS_Teleporting
+              || state == VMS_LiveSnapshotting
+              || state == VMS_Paused
+              || state == VMS_TeleportingPausedVM
+             ) {
+      qDebug() << "turned on already \n" ;//+ vm_id;
+      return 3;//1;
   }
   IProgress* progress = NULL;
   rc = m_dct_machines[vm_id]->launch_vm(lm,
                                         &progress);
 
   if (FAILED(rc)) {   
-    qDebug() << rc;
-    return 2;
+     return 9;
   }
   HANDLE_PROGRESS(vm_launch_progress, progress);
   return 0;
@@ -220,28 +232,43 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
                               bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
-
-  nsresult rc;
+  IProgress* progress;
+  nsresult rc, state;
   rc = m_dct_machines[vm_id]->state();
-  if (rc != VMS_Running) {
-      qDebug() << "turned _off already \n" ;//+ vm_id;
-      return 1;\
+  if (state == VMS_Aborted) {
+      //
+      rc = m_dct_machines[vm_id]->launch_vm(VBML_HEADLESS, &progress);
+      if (FAILED(rc))
+           return 11;
+  }
+
+  if (state == VMS_Stuck) {
+      return 2;
+  }
+
+  if (  state == VMS_PoweredOff
+              || state == VMS_Teleporting
+              || state == VMS_LiveSnapshotting
+              || state == VMS_Paused
+              || state == VMS_TeleportingPausedVM
+             ) {
+      qDebug() << "turned on already \n" ;//+ vm_id;
+      return 13;//1;
   }
 
   if (save_state) {
     IProgress* progress;
     rc = m_dct_machines[vm_id]->save_state(&progress);
     if (FAILED(rc)) {      
-      return 2;
+      return 19;
     }
 
     HANDLE_PROGRESS(vm_save_state_progress, progress);
   }
 
-  IProgress* progress;
   rc = m_dct_machines[vm_id]->turn_off(&progress);
   if (FAILED(rc)) {
-    return 3;
+    return 15;
   }
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;

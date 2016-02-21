@@ -62,6 +62,7 @@ public:
   explicit VBoxManageWindow(QWidget *parent = 0);
   ~VBoxManageWindow();
   void init_machines();
+  void show_err(int code);
 
 private:
   std::map<com::Bstr, CVmControl*> m_dct_vm_controls;
