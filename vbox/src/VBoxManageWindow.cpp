@@ -110,11 +110,12 @@ void VBoxManageWindow::vm_session_state_changed(const com::Bstr &vm_id) {
 void VBoxManageWindow::vmc_turn_released(const com::Bstr &vm_id) {
   if (m_dct_vm_controls.find(vm_id) == m_dct_vm_controls.end()) return;
 
-  bool on = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() == VMS_PoweredOff;
+  bool on = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() < 5 ;//== VMS_PoweredOff;
 
   if (on) {
     m_dct_vm_controls[vm_id]->set_progress_bar_visible(true);
     m_dct_vm_controls[vm_id]->set_progress_bar_value(0);
+
     int lr = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     m_dct_vm_controls[vm_id]->set_progress_bar_visible(false);
     if (!lr) return;
@@ -169,21 +170,22 @@ void VBoxManageWindow::show_err(int code) {
   switch (code) {
   case 1:   messg = "Machine is in Aborted state";
             break;
-  case 2:   messg = "Machine is in Stack state";
+  case 2:   messg = "Machine is in Stack state (corrupted), need to be recovered from last working saved state";
             break;
-  case 3:   messg = "Machine is in Running state";
+  case 3:   messg = "Machine is in Online state (already running)";
             break;
+  case 4:   messg = "Machine is in Transition state (is busy), please wait";
+            break;
+  case 5:   messg = "Machine is in Offline (Powered off) state";
+            break;
+
   case 9:   messg = "Machine is starting, please wait a minute";
             break;
-  case 11:  messg = "Machine is in Aborted state, check";
-            break;
-  case 13:  messg = "Machine is in Powered off state";
-            break;
-  case 14:  messg = "Save state fialed";
+  case 10:  messg = "Save state failed";
             break;
   case 19:  messg = "Machine is stopping, please wait a minute";
             break;
-  default:  messg = "Action is impossible with this machine state";
+  default:  messg = "Machine is busy, please wait";
             break;
   }
   QMessageBox msg(QMessageBox::Critical,

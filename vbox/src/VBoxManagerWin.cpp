@@ -198,27 +198,34 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
     return 1;
   nsresult rc, state;
   rc = m_dct_machines[vm_id]->state();
-
-//  if (state == VMS_Aborted) {
-//      ;//aborted machine will run
-//  }
+  if (state == VMS_Aborted) {
+      //return 1;//aborted machine will run
+  }
 
   if (state == VMS_Stuck) {
       return 2;
   }
 
-  if (  state == VMS_Running
-              || state == VMS_Teleporting
-              || state == VMS_LiveSnapshotting
-              || state == VMS_Paused
-              || state == VMS_TeleportingPausedVM
-             ) {
+  if( (int)state >= 8 && (int)state <= 23 ) //transition
+  {
+      qDebug() << "transition \n" ;//+ vm_id;
+      return 4;//1;
+  }
+
+  if( (int)state >= 5 && (int)state <= 19 )
+    {
+//  if (  state == VMS_Running
+//              || state == VMS_Teleporting
+//              || state == VMS_LiveSnapshotting
+//              || state == VMS_Paused
+//              || state == VMS_TeleportingPausedVM
+//             ) {
       qDebug() << "turned on already \n" ;//+ vm_id;
       return 3;//1;
   }
+
   IProgress* progress = NULL;
-  rc = m_dct_machines[vm_id]->launch_vm(lm,
-                                        &progress);
+  rc = m_dct_machines[vm_id]->launch_vm(lm, &progress);
 
   if (FAILED(rc)) {   
      return 9;
@@ -239,28 +246,36 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
       //
       rc = m_dct_machines[vm_id]->launch_vm(VBML_HEADLESS, &progress);
       if (FAILED(rc))
-           return 11;
+           return 1;
   }
 
   if (state == VMS_Stuck) {
       return 2;
   }
 
-  if (  state == VMS_PoweredOff
-              || state == VMS_Teleporting
-              || state == VMS_LiveSnapshotting
-              || state == VMS_Paused
-              || state == VMS_TeleportingPausedVM
-             ) {
-      qDebug() << "turned on already \n" ;//+ vm_id;
-      return 13;//1;
+  if( (int)state >= 8 && (int)state <= 23 ) //transition
+  {
+      qDebug() << "transition \n" ;//+ vm_id;
+      return 4;//1;
+  }
+
+  if( (int)state >= 0 && (int)state <= 4 )
+  {
+
+//  if (  state == VMS_PoweredOff
+//              || state == VMS_Teleporting
+//              || state == VMS_LiveSnapshotting
+//              || state == VMS_TeleportingPausedVM
+//             ) {
+      qDebug() << "turned off already \n" ;//+ vm_id;
+      return 5;//1;
   }
 
   if (save_state) {
     IProgress* progress;
     rc = m_dct_machines[vm_id]->save_state(&progress);
     if (FAILED(rc)) {      
-      return 19;
+      return 10;
     }
 
     HANDLE_PROGRESS(vm_save_state_progress, progress);
@@ -268,7 +283,7 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
 
   rc = m_dct_machines[vm_id]->turn_off(&progress);
   if (FAILED(rc)) {
-    return 15;
+    return 19;
   }
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;
