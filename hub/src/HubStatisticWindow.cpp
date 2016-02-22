@@ -50,14 +50,16 @@ void HubStatisticWindow::adjust_lbl_font_size(QLabel *lbl) {
 ////////////////////////////////////////////////////////////////////////////
 
 void HubStatisticWindow::refresh_timer_timeout() {
-  int err_code = 0;
+  int err_code = EL_SUCCESS;
+  int http_code = 200;
+
   //do nothing yet
-  std::vector<CSSEnvironment> lst_env = CRestWorker::get_environments(err_code);
+  std::vector<CSSEnvironment> lst_env = CRestWorker::get_environments(http_code, err_code);
   if (err_code == 0) {
   }
 
   err_code = 0;
-  CSSContainer cont_data = CRestWorker::get_containers(err_code);
+  CSSContainer cont_data = CRestWorker::get_containers(http_code, err_code);
   if (err_code == 0) {
     if (m_cont_model == NULL || m_cont_model->container_changed(cont_data)) {
       m_cont_model = new CTreeModelCSSContainer(cont_data);
@@ -67,7 +69,7 @@ void HubStatisticWindow::refresh_timer_timeout() {
   }
 
   err_code = 0;
-  CSSPeerUser user_data = CRestWorker::get_peer_users(err_code);
+  CSSPeerUser user_data = CRestWorker::get_peer_users(http_code, err_code);
   if (err_code == 0) {
     if (m_peer_user_model == NULL || m_peer_user_model->peer_user_changed(user_data)) {
       m_peer_user_model = new CTreeModelSSPeerUser(user_data);
@@ -77,7 +79,7 @@ void HubStatisticWindow::refresh_timer_timeout() {
   }
 
   err_code = 0;
-  CSSBalance balance = CRestWorker::get_balance(err_code);
+  CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
   if (err_code == 0) {
     ui->lbl_balance->setText(QString("Balance: %1").arg(balance.value()));
   }
