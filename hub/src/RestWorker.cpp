@@ -20,7 +20,10 @@ int CRestWorker::login(const QString& login, const QString& password)
   int err_code;
 
   QByteArray arr = post_request(request, http_code, err_code);
+  qDebug() << QString(arr).mid(1, arr.length()-2);
   m_id = QString(arr).mid(1, arr.length()-2); //hack.
+  if (m_id	== "Wrong email or password.")
+    return EL_LOGIN_OR_EMAIL;
   return err_code;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -87,7 +90,7 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
                                      int& err_code)
 {
   err_code = EL_SUCCESS;
-  static QNetworkAccessManager qnam;
+  QNetworkAccessManager qnam;
 
   QEventLoop loop;
   QTimer timer(&loop);
@@ -97,20 +100,17 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
   QNetworkReply* reply =
       get ? qnam.get(req) : qnam.post(req, QByteArray());
 
-  QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
   QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-  QObject::connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-                   &loop, SLOT(quit()));
+  QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
 
   loop.exec();
 
-  QObject::disconnect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
   QObject::disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-  QObject::disconnect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-                      &loop, SLOT(quit()));
+  QObject::disconnect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
 
   //timer active is timout didn't fire
   if (timer.isActive()) {
+
     if (reply->error() != QNetworkReply::NoError) {
       err_code = reply->error();
       return QByteArray();
@@ -118,9 +118,9 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
     bool parsed = false;
     http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
-    return reply->readAll();
+    QByteArray arr = reply->readAll();
+    return arr;
   } else {
-    qDebug() << "timeout";
     reply->abort();
     err_code = EL_TIMEOUT;
     return QByteArray();
