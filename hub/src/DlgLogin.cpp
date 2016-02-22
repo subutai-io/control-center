@@ -34,16 +34,30 @@ void DlgLogin::btn_ok_released()
   CSettingsManager::Instance().set_password(ui->le_password->text());
   CSettingsManager::Instance().set_remember_me(ui->cb_save_credentials->checkState() == Qt::Checked);
 
-  if (CRestWorker::login(ui->le_login->text(), ui->le_password->text()) == 0/* ||
-      (ui->le_login->text() == "ff" && ui->le_password->text() == "ff")*/) {
-    ui->lbl_status->setText("");
-    ui->lbl_status->setVisible(false);
-    if (CSettingsManager::Instance().remember_me())
-      CSettingsManager::Instance().save_all();
-    QDialog::accept();
-  } else {
-    ui->lbl_status->setVisible(true);
-    ui->lbl_status->setText("<font color='red'>Wong login or password. Try again!</font>");
+  int login_res = CRestWorker::login(ui->le_login->text(), ui->le_password->text());
+
+  switch (login_res) {
+    case EL_SUCCESS:
+      ui->lbl_status->setText("");
+      ui->lbl_status->setVisible(false);
+      if (CSettingsManager::Instance().remember_me())
+        CSettingsManager::Instance().save_all();
+      QDialog::accept();
+      break;
+    case EL_LOGIN_OR_EMAIL:
+      ui->lbl_status->setVisible(true);
+      ui->lbl_status->setText("<font color='red'>Wrong login or password. Try again!</font>");
+      break;
+    case EL_HTTP:
+      ui->lbl_status->setVisible(true);
+      ui->lbl_status->setText("<font color='red'>HTTP error. Check settings, please!</font>");
+      break;
+    case EL_TIMEOUT:
+      ui->lbl_status->setVisible(true);
+      ui->lbl_status->setText("<font color='red'>Timeout. Check internet connection, please!</font>");
+      break;
+    default:
+      break;
   }
 }
 ////////////////////////////////////////////////////////////////////////////

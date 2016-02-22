@@ -15,6 +15,15 @@
 #include <QJsonArray>
 #include <vector>
 
+typedef enum error_login {
+  EL_SUCCESS = 0,
+  EL_HTTP = 1,
+  EL_LOGIN_OR_EMAIL = 2,
+  EL_TIMEOUT = 3,
+  EL_NOT_JSON_DOC = 4,
+  EL_NOT_JSON_OBJECT = 5
+} error_login_t;
+
 class CSSEnvironment {
 private:
   QString m_name;
@@ -95,10 +104,10 @@ private:
 
   static QString m_id; //hack. will fixed on server part. we got it after login.
 
-  static QByteArray send_request(const QNetworkRequest& req, bool get);
-  static QByteArray get_request(const QNetworkRequest& req);
-  static QByteArray post_request(const QNetworkRequest& req);
-  static QJsonObject get_request_object(int& err_code, const QString& link);
+  static QByteArray send_request(const QNetworkRequest& req, bool get, int &http_status_code, int &err_code);
+  static QByteArray get_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
+  static QByteArray post_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
+  static QJsonObject get_request_object(const QString& link, int& http_code, int &err_code);
 
   CRestWorker();
   CRestWorker(const QString& login,
@@ -108,10 +117,10 @@ private:
 public:
 
   static int login(const QString& login, const QString& password);
-  static std::vector<CSSEnvironment> get_environments(int& err_code);
-  static CSSContainer get_containers(int& err_code);
-  static CSSPeerUser get_peer_users(int& err_code);
-  static CSSBalance get_balance(int& err_code);
+  static std::vector<CSSEnvironment> get_environments(int &http_code, int& err_code);
+  static CSSContainer get_containers(int &http_code, int& err_code);
+  static CSSPeerUser get_peer_users(int &http_code, int& err_code);
+  static CSSBalance get_balance(int &http_code, int& err_code);
 };
 
 #endif // CRESTWORKER_H
