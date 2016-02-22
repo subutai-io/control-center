@@ -99,13 +99,23 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
   QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
   QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+  QObject::connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                   &loop, SLOT(quit()));
 
   loop.exec();
+
   QObject::disconnect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
   QObject::disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+  QObject::disconnect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                      &loop, SLOT(quit()));
 
   //timer active is timout didn't fire
   if (timer.isActive()) {
+    if (reply->error() != QNetworkReply::NoError) {
+      err_code = reply->error();
+      return QByteArray();
+    }
+
     bool parsed = false;
     http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
     return reply->readAll();

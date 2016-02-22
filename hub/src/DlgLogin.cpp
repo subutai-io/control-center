@@ -57,6 +57,8 @@ void DlgLogin::btn_ok_released()
       ui->lbl_status->setText("<font color='red'>Timeout. Check internet connection, please!</font>");
       break;
     default:
+      ui->lbl_status->setVisible(true);
+      ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").arg(login_res));
       break;
   }
 }
