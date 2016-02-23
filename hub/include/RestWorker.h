@@ -102,8 +102,6 @@ public:
 class CRestWorker {
 private:
 
-  static QString m_id; //hack. will fixed on server part. we got it after login.
-
   static QByteArray send_request(const QNetworkRequest& req, bool get, int &http_status_code, int &err_code);
   static QByteArray get_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
   static QByteArray post_request(const QNetworkRequest& req, int &http_status_code, int &err_code);

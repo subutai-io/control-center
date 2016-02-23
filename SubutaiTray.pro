@@ -42,7 +42,8 @@ SOURCES += \
     vbox/glue/src/EventQueue.cpp \
     vbox/glue/src/initterm.cpp \
     vbox/glue/src/NativeEventQueue.cpp \
-    vbox/glue/src/string.cpp
+    vbox/glue/src/string.cpp \
+    hub/src/SystemCallWrapper.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -60,7 +61,8 @@ HEADERS  += \
     vbox/include/VBoxCommonsPlatform.h \
     vbox/include/IVBoxManager.h \
     vbox/include/IVirtualMachine.h \
-    vbox/include/VBoxManageWindow.h
+    vbox/include/VBoxManageWindow.h \
+    hub/include/SystemCallWrapper.h
 
 
 FORMS    += \

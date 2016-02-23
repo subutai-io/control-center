@@ -4,8 +4,6 @@
 #include "SettingsManager.h"
 #include "RestWorker.h"
 
-QString CRestWorker::m_id = "";
-
 int CRestWorker::login(const QString& login, const QString& password)
 {
   QUrl url_login(CSettingsManager::Instance().post_url().arg("login"));
@@ -20,9 +18,10 @@ int CRestWorker::login(const QString& login, const QString& password)
   int err_code;
 
   QByteArray arr = post_request(request, http_code, err_code);
-  qDebug() << QString(arr).mid(1, arr.length()-2);
-  m_id = QString(arr).mid(1, arr.length()-2); //hack.
-  if (m_id	== "Wrong email or password.")
+
+  qDebug() << QString(arr);
+
+  if (QString(arr).mid(1, arr.length()-2)	!= "OK")
     return EL_LOGIN_OR_EMAIL;
   return err_code;
 }
@@ -31,7 +30,7 @@ int CRestWorker::login(const QString& login, const QString& password)
 QJsonObject CRestWorker::get_request_object(const QString &link,
                                             int &http_code,
                                             int &err_code) {
-  QUrl url_env(CSettingsManager::Instance().get_url().arg(m_id).arg(link));
+  QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = get_request(req, http_code, err_code);
@@ -90,7 +89,7 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
                                      int& err_code)
 {
   err_code = EL_SUCCESS;
-  QNetworkAccessManager qnam;
+  static QNetworkAccessManager qnam;
 
   QEventLoop loop;
   QTimer timer(&loop);
@@ -113,14 +112,17 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
     if (reply->error() != QNetworkReply::NoError) {
       err_code = reply->error();
+      qDebug() << "reply error " << err_code;
+      qDebug() << reply->errorString();
+      qDebug() << QString(reply->readAll());
       return QByteArray();
     }
 
     bool parsed = false;
     http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
-    QByteArray arr = reply->readAll();
-    return arr;
+    return reply->readAll();
   } else {
+    qDebug() << "reply timeout";
     reply->abort();
     err_code = EL_TIMEOUT;
     return QByteArray();
