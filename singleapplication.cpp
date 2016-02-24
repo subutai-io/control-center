@@ -4,7 +4,8 @@
 #include <QLocalServer>
 #include <QMutex>
 #include <cstdlib>
-
+#include <QDebug>
+#include <qmessagebox.h>
 #ifdef Q_OS_UNIX
     #include <signal.h>
     #include <unistd.h>
@@ -129,5 +130,16 @@ void SingleApplication::slotConnectionEstablished()
     QLocalSocket *socket = d_ptr->server->nextPendingConnection();
     socket->close();
     delete socket;
+    emit messageReceived("Hey You");
     emit showUp();
+}
+
+void SingleApplication::handleMessage(const QString&)
+{
+    QMessageBox msg(QMessageBox::Critical,
+                    "Execution error: ",
+                    "One instance of this application already running. Check tray.",
+                    QMessageBox::Ok);
+    msg.exec();
+    qDebug() << "*********************\n";
 }

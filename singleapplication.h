@@ -22,9 +22,11 @@ class SingleApplication : public QAPPLICATION_CLASS
 public:
   explicit SingleApplication(int&, char *[]);
   ~SingleApplication();
-
+public slots:
+    void handleMessage(const QString&);
 signals:
   void showUp();
+  void  messageReceived(const QString&);
 
 private slots:
   void slotConnectionEstablished();

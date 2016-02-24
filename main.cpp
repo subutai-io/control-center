@@ -8,6 +8,8 @@
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "SystemCallWrapper.h"
+#include <QObject>
+
 
 int main(int argc, char *argv[]) {
 
@@ -16,7 +18,6 @@ int main(int argc, char *argv[]) {
   //QApplication a(argc, argv);
 
   SingleApplication  a(argc, argv);
-
 
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
@@ -28,6 +29,13 @@ int main(int argc, char *argv[]) {
 
   CVBoxManagerSingleton::Instance()->init_com();
   TrayControlWindow tcw;
+
+  QObject::connect(QApplication::instance(), SIGNAL(showUp()), &tcw, SLOT(raise())); // window is your QWindow instance
+
+//  MainClass mainObj;
+  QObject::connect(&a, SIGNAL(messageReceived(const QString&)),
+                      &a, SLOT(handleMessage(const QString&)));
+
   int result = a.exec();
   return result;
 }
