@@ -30,7 +30,7 @@ CSettingsManager::CSettingsManager() :
   m_terminal_path("iterm"),
   m_p2p_path("p2p")
   #elif RT_OS_WINDOWS
-  m_terminal_path("cmd"),
+  m_terminal_path("start cmd"),
   m_p2p_path("p2p.exe")
   #endif
 {
