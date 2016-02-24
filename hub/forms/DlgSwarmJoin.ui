@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>190</height>
+    <width>325</width>
+    <height>213</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,9 +19,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout_3" rowstretch="3,1">
+    <layout class="QGridLayout" name="gridLayout_3" rowstretch="5,1">
      <item row="0" column="0">
-      <layout class="QGridLayout" name="gridLayout" columnstretch="1,3">
+      <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="lbl_hash">
          <property name="text">
@@ -51,6 +51,40 @@
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="le_ip">
+         <property name="inputMask">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lbl_container_ip">
+         <property name="text">
+          <string>Container IP</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="le_container_ip">
+         <property name="inputMask">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="lbl_ip_3">
+         <property name="text">
+          <string>SSH User Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="le_ssh_user_name">
          <property name="inputMask">
           <string/>
          </property>

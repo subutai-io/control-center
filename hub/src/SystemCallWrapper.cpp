@@ -68,9 +68,10 @@ void CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
                 " -e \"ssh " << user << "@" << ip << "\" &";
-#elif RT_OS_LINUX
+#elif RT_OS_WINDOWS
   str_stream <<
-                CSettingsManager::Instance().terminal_path().toStdString().c_str();
+                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+                " /k ssh " << user << "@" << ip;
 #endif
   ssystem(str_stream.str().c_str());
 }
