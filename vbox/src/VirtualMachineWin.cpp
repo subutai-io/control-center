@@ -50,7 +50,7 @@ nsresult CVirtualMachineWin::save_state(IProgress **progress) {
 nsresult CVirtualMachineWin::turn_off(IProgress **progress) {
   IConsole* console = NULL;
   m_session->UnlockMachine();
-  nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+  nresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
 
   if (FAILED(rc)) return rc;
 
