@@ -68,6 +68,9 @@ void CSystemCallWrapper::run_terminal()
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
                 " &";
+#elif RT_OS_LINUX
+  str_stream <<
+                CSettingsManager::Instance().terminal_path().toStdString().c_str();
 #endif
   ssystem(str_stream.str().c_str());
 }
