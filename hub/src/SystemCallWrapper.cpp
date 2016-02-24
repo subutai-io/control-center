@@ -57,17 +57,17 @@ std::vector<std::string> CSystemCallWrapper::p2p_swarms_presented()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CSystemCallWrapper::run_terminal()
+void CSystemCallWrapper::run_ssh_in_terminal(const char* user,
+                                             const char* ip)
 {
   std::ostringstream str_stream;
 #ifdef UNIX_MAC
-  str_stream << "open " <<
-                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " &";
+  str_stream << "osascript -e \'Tell application \"Terminal\" to do script \"" <<
+                "ssh " << user << "@" << ip << "\"\'";
 #elif UNIX_NOT_MAC
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " &";
+                " -e \"ssh " << user << "@" << ip << "\" &";
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str();

@@ -67,7 +67,7 @@ void DlgSwarmJoin::btn_join_released()
                                             ui->le_key->text().toStdString().c_str(),
                                             ui->le_ip->text().toStdString().c_str());
 
-  CSystemCallWrapper::run_terminal();
+//  CSystemCallWrapper::run_ssh_in_terminal();
   QDialog::accept();
 }
 ////////////////////////////////////////////////////////////////////////////

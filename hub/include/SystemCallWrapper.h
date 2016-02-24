@@ -39,7 +39,7 @@ public:
 
   static std::vector<std::string> p2p_swarms_presented();
 
-  static void run_terminal();
+  static void run_ssh_in_terminal(const char *user, const char *ip);
 };
 
 #endif // SYSTEMCALLWRAPPER_H
