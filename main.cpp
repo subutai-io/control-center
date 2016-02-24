@@ -1,3 +1,4 @@
+#include "singleapplication.h"
 #include <QApplication>
 
 /*need this include to register meta type com::Bstr*/
@@ -10,7 +11,13 @@
 
 int main(int argc, char *argv[]) {
 
-  QApplication a(argc, argv);
+  QApplication::setApplicationName("SubutaiTray");
+  QApplication::setOrganizationName("subut.ai");
+  //QApplication a(argc, argv);
+
+  SingleApplication  a(argc, argv);
+
+
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
   DlgLogin dlg;

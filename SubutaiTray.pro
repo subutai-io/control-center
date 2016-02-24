@@ -21,6 +21,8 @@ INCLUDEPATH += vbox/sdk_includes/xpcom
 INCLUDEPATH += vbox/sdk_includes/nsprpub
 INCLUDEPATH += vbox/sdk_includes/string
 INCLUDEPATH += vbox/sdk_includes/ipcd
+INCLUDEPATH += sapp/include
+
 
 SOURCES += \
     main.cpp \
@@ -44,7 +46,8 @@ SOURCES += \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
     hub/src/SystemCallWrapper.cpp \
-    hub/src/DlgSwarmJoin.cpp
+    hub/src/DlgSwarmJoin.cpp \
+    singleapplication.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -64,7 +67,11 @@ HEADERS  += \
     vbox/include/IVirtualMachine.h \
     vbox/include/VBoxManageWindow.h \
     hub/include/SystemCallWrapper.h \
-    hub/include/DlgSwarmJoin.h
+    hub/include/DlgSwarmJoin.h \
+    singleapplication.h
+
+
+
 
 
 FORMS    += \
