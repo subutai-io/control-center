@@ -19,6 +19,9 @@ private:
   static const QString SM_GET_URL;
   static const QString SM_REFRESH_TIME;
 
+  static const QString SM_TERMINAL_PATH;
+  static const QString SM_P2P_PATH;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -29,6 +32,8 @@ private:
   QString m_post_url;
   QString m_get_url;
   int32_t m_refresh_time_sec;
+  QString m_terminal_path;
+  QString m_p2p_path;
 
 public:
   static CSettingsManager& Instance(void) {
@@ -46,6 +51,8 @@ public:
   const QString& get_url() const {return m_get_url;}
   const QString& post_url() const {return m_post_url;}
   int32_t refresh_time_sec() const {return m_refresh_time_sec;}
+  const QString& terminal_path() const {return m_terminal_path;}
+  const QString& p2p_path() const {return m_p2p_path;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -75,6 +82,16 @@ public:
   void set_refresh_time_sec(int32_t refresh_time_sec) {
     m_refresh_time_sec = refresh_time_sec;
     m_settings.setValue(SM_REFRESH_TIME, m_refresh_time_sec);
+  }
+
+  void set_terminal_path(const QString& ssh_term_path) {
+    m_terminal_path = ssh_term_path;
+    m_settings.setValue(SM_TERMINAL_PATH, m_terminal_path);
+  }
+
+  void set_p2p_path(const QString& p2p_path) {
+    m_p2p_path = p2p_path;
+    m_settings.setValue(SM_P2P_PATH, m_p2p_path);
   }
 };
 

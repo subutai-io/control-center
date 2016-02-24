@@ -1,3 +1,4 @@
+#include <QFileDialog>
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
@@ -8,8 +9,17 @@ DlgSettings::DlgSettings(QWidget *parent) :
 {
   ui->setupUi(this);
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
+  ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
+  ui->le_terminal_command->setText(CSettingsManager::Instance().terminal_path());
+
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
+
+  connect(ui->btn_terminal_file_dialog, SIGNAL(released()),
+          this, SLOT(btn_terminal_file_dialog_released()));
+
+  connect(ui->btn_p2p_file_dialog, SIGNAL(released()),
+          this, SLOT(btn_p2p_file_dialog_released()));
 }
 
 DlgSettings::~DlgSettings()
@@ -21,6 +31,10 @@ DlgSettings::~DlgSettings()
 void DlgSettings::btn_ok_released()
 {
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
+  if (ui->le_p2p_command->text() != "")
+    CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
+  if (ui->le_terminal_command->text() != "")
+    CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
   CSettingsManager::Instance().save_all();
   QDialog::accept();
 }
@@ -29,5 +43,21 @@ void DlgSettings::btn_ok_released()
 void DlgSettings::btn_cancel_released()
 {
   QDialog::reject();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_terminal_file_dialog_released()
+{
+  QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
+  if (fn == "") return;
+  ui->le_terminal_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_p2p_file_dialog_released()
+{
+  QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
+  if (fn == "") return;
+  ui->le_p2p_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////

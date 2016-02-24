@@ -30,11 +30,10 @@ private:
   /*vbox end*/
 
   /*tray icon*/
-  QAction *m_act_minimize;
-  QAction *m_act_restore;
   QAction *m_act_quit;
   QAction *m_act_hub;
   QAction *m_act_vbox;
+  QAction *m_act_swarm_join;
 
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
@@ -46,8 +45,7 @@ private:
 private slots:
   void show_hub();
   void show_vbox();
-  void minimize_all();
-  void restore_all();  
+  void join_to_swarm();
 };
 
 #endif // TRAYCONTROLWINDOW_H

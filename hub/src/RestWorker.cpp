@@ -47,11 +47,18 @@ std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& e
   std::vector<CSSEnvironment> lst_res;
   QJsonObject obj = get_request_object("environments", http_code, err_code);
   if (err_code != 0) return lst_res;
-  QJsonArray env_arr = obj["environments"].toArray();
+
+  //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //QJsonArray env_arr = obj["environments"].toArray();
+  QJsonArray env_arr;
+  env_arr.push_back(obj);
+  env_arr.push_back(obj);
+
   for (int i = 0; i < env_arr.count(); ++i) {
     QJsonValue val = env_arr.at(i);
-    lst_res.push_back(CSSEnvironment(val.toString()));
+    lst_res.push_back(CSSEnvironment(val.toObject()));
   }
+
   return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
