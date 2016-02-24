@@ -4,12 +4,18 @@
 #include "ui_TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "IVBoxManager.h"
+#include "DlgSwarmJoin.h"
 
 #include <QDebug>
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
-  ui(new Ui::TrayControlWindow) {
+  ui(new Ui::TrayControlWindow),
+  m_act_quit(NULL),
+  m_act_hub(NULL),
+  m_act_vbox(NULL),
+  m_act_swarm_join(NULL)
+{
   ui->setupUi(this);
   create_tray_actions();
   create_tray_icon();
@@ -25,14 +31,17 @@ TrayControlWindow::~TrayControlWindow()
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("&Quit"), this);
+  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-  m_act_hub = new QAction(QIcon(":/hub/tray.png"), tr("Show &Hub"), this);
+  m_act_hub = new QAction(QIcon(":/hub/tray.png"), tr("Show Hub"), this);
   connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
-  m_act_vbox = new QAction(QIcon(":/hub/virtual.png"), tr("Show &Virtual Machines"), this);
+  m_act_vbox = new QAction(QIcon(":/hub/virtual.png"), tr("Show Virtual Machines"), this);
   connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+
+  m_act_swarm_join = new QAction(QIcon(":/hub/join_swarm.png"), tr("Join to swarm"), this);
+  connect(m_act_swarm_join, SIGNAL(triggered()), this, SLOT(join_to_swarm()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +50,7 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu = new QMenu(this);
   m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
+  m_tray_menu->addAction(m_act_swarm_join);
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
@@ -80,12 +90,8 @@ void TrayControlWindow::show_vbox() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::minimize_all() {
-  qDebug() << "Minimize all";
-}
-////////////////////////////////////////////////////////////////////////////
-
-void TrayControlWindow::restore_all() {
-  qDebug() << "Restore all";
+void TrayControlWindow::join_to_swarm() {
+  DlgSwarmJoin dlg;
+  dlg.exec();
 }
 ////////////////////////////////////////////////////////////////////////////

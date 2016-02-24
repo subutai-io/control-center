@@ -32,11 +32,14 @@ public:
         Time until specified key will be available
 
   */
-
   static std::vector<std::string> join_to_p2p_swarm (const char* hash,
                                                      const char* key,
-                                                     const char* ip,
-                                                     const char* p2p);
+                                                     const char* ip);
+
+
+  static std::vector<std::string> p2p_swarms_presented();
+
+  static void run_ssh_in_terminal(const char *user, const char *ip);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

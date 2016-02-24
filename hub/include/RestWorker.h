@@ -27,12 +27,26 @@ typedef enum error_login {
 class CSSEnvironment {
 private:
   QString m_name;
+  QString m_hash;
+  QString m_aes_key;
+  QString m_local_ip;
+  QString m_remote_ip;
 public:
   CSSEnvironment() : m_name(""){}
-  explicit CSSEnvironment(const QString& name) : m_name(name) {
+  explicit CSSEnvironment(const QJsonObject& obj) {
+    m_name = obj["Name"].toString();
+    m_hash = obj["hash"].toString();
+    m_aes_key = obj["key"].toString();
+    m_local_ip = obj["localIP"].toString();
+    m_remote_ip = obj["remoteIP"].toString();
   }
-  ~CSSEnvironment(void){}
-  const QString& name(void) const {return m_name;}
+  ~CSSEnvironment(){}
+
+  const QString& name() const {return m_name;}
+  const QString& hash() const {return m_hash;}
+  const QString& key() const {return m_aes_key;}
+  const QString& local_ip() const {return m_local_ip;}
+  const QString& remote_ip() const {return m_remote_ip;}
 };
 ////////////////////////////////////////////////////////////////////////////
 

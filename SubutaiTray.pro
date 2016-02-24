@@ -43,7 +43,8 @@ SOURCES += \
     vbox/glue/src/initterm.cpp \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
-    hub/src/SystemCallWrapper.cpp
+    hub/src/SystemCallWrapper.cpp \
+    hub/src/DlgSwarmJoin.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -62,7 +63,8 @@ HEADERS  += \
     vbox/include/IVBoxManager.h \
     vbox/include/IVirtualMachine.h \
     vbox/include/VBoxManageWindow.h \
-    hub/include/SystemCallWrapper.h
+    hub/include/SystemCallWrapper.h \
+    hub/include/DlgSwarmJoin.h
 
 
 FORMS    += \
@@ -70,7 +72,8 @@ FORMS    += \
     hub/forms/DlgSettings.ui \
     hub/forms/HubStatisticWindow.ui \
     hub/forms/TrayControlWindow.ui \
-    vbox/forms/VBoxManageWindow.ui
+    vbox/forms/VBoxManageWindow.ui \
+    hub/forms/DlgSwarmJoin.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -79,6 +82,7 @@ unix:!macx {
   QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP RT_OS_LINUX
   DEFINES += VBOX_WITH_XPCOM IN_RING3
+  DEFINES += UNIX_NOT_MAC
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
@@ -100,6 +104,7 @@ macx: {
   DEFINES += RT_OS_LINUX #don't know why linux is here. I think that's just for not using NativeEventQueue.
   DEFINES += VBOX_WITH_XPCOM
   DEFINES += IN_RING3
+  DEFINES += UNIX_MAC
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
