@@ -5,7 +5,6 @@
 #include <nsIEventQueue.h>
 #include <nsEventQueueUtils.h>
 #include "VirtualMachineLinux.h"
-#include <QDebug>
 
 CVirtualMachineLinux::CVirtualMachineLinux(IMachine *xpcom_machine,
                                            ISession* session) {
@@ -32,16 +31,10 @@ CVirtualMachineLinux::~CVirtualMachineLinux() {
 nsresult CVirtualMachineLinux::launch_vm(vb_launch_mode_t mode,
                                          IProgress **progress)
 {  
-
-     nsresult rc = m_session->UnlockMachine();
-     if (FAILED(rc))  qDebug() << "turn on unlock failed \n";
-     rc = m_internal_machine->LaunchVMProcess(m_session,
+  return m_internal_machine->LaunchVMProcess(m_session,
                                              com::Bstr(CCommons::VM_launch_mode_to_str(mode)).raw(),
                                              com::Bstr("").raw(),
                                              progress);
-     if (FAILED(rc))  qDebug() << "turn on failed " << rc << "\n";
-     m_session->UnlockMachine();
-     return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -51,21 +44,11 @@ nsresult CVirtualMachineLinux::save_state(IProgress **progress) {
 ////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineLinux::turn_off(IProgress **progress) {
-
-  nsresult rc = m_session->UnlockMachine();
-  if (FAILED(rc)) {
-       qDebug() << "turn off unlock 1 failed " << rc << "\n";
-  }
-  rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
-  if (FAILED(rc)) qDebug() << "turn on lock failed " << rc << "\n";
+  nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
   nsCOMPtr<IConsole> console;
   m_session->GetConsole(getter_AddRefs(console));
   rc = console->PowerDown(progress);
-  if (FAILED(rc))  qDebug() << "turn off failed " << rc << "\n";
-  nsresult rc1 = m_session->UnlockMachine();
-  if (FAILED(rc1)) {
-       qDebug() << "turn off unlock 2 failed " << rc1 << "\n";
-  }
+  m_session->UnlockMachine();
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -75,7 +58,6 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
                                            const char *password,
                                            int argc,
                                            const char **argv) {
-
 
   nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
   nsCOMPtr<IConsole> console;

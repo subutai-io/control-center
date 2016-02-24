@@ -168,7 +168,7 @@ void VBoxManageWindow::closeEvent(QCloseEvent *event) {
 void VBoxManageWindow::show_err(int code) {
   QString messg;
   switch (code) {
-  case 1:   messg = "No machines found";
+  case 1:   messg = "Machine is in Aborted state";
             break;
   case 2:   messg = "Machine is in Stack state (corrupted), need to be recovered from last working saved state";
             break;
@@ -179,13 +179,11 @@ void VBoxManageWindow::show_err(int code) {
   case 5:   messg = "Machine is in Offline (Powered off) state";
             break;
 
-  case 9:   messg = "Can not turn on, please wait";
+  case 9:   messg = "Machine is busy, please wait";
             break;
   case 10:  messg = "Save state failed";
             break;
-  case 11:   messg = "Machine is in Aborted state";
-            break;
-  case 19:  messg = "Can not turn off, please wait  ";
+  case 19:  messg = "Machine is busy, please wait a minute";
             break;
   default:  messg = "Machine is busy, please wait";
             break;
