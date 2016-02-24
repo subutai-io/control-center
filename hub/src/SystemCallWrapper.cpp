@@ -60,7 +60,15 @@ std::vector<std::string> CSystemCallWrapper::p2p_swarms_presented()
 void CSystemCallWrapper::run_terminal()
 {
   std::ostringstream str_stream;
-  str_stream << CSettingsManager::Instance().terminal_path().toStdString().c_str() << " &";
+#ifdef UNIX_MAC
+  str_stream << "open " <<
+                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+                " &";
+#elif UNIX_NOT_MAC
+  str_stream <<
+                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+                " &";
+#endif
   ssystem(str_stream.str().c_str());
 }
 ////////////////////////////////////////////////////////////////////////////
