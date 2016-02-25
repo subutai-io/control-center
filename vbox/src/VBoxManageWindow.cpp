@@ -120,11 +120,6 @@ void VBoxManageWindow::vmc_turn_released(const com::Bstr &vm_id) {
     m_dct_vm_controls[vm_id]->set_progress_bar_visible(false);
     if (!lr) return;
     show_err(lr);
-//    QMessageBox msg(QMessageBox::Critical,
-//                    "Launch VM error",
-//                    QString("Launch VM failed. Error code : %1").arg(lr),
-//                    QMessageBox::Ok);
-//    msg.exec();
     return;
   } //turn on
 
@@ -134,13 +129,7 @@ void VBoxManageWindow::vmc_turn_released(const com::Bstr &vm_id) {
   int tor = CVBoxManagerSingleton::Instance()->turn_off(vm_id, false);
   m_dct_vm_controls[vm_id]->set_progress_bar_visible(false);
   if (!tor) return;
-
   show_err(tor);
-//  QMessageBox msg(QMessageBox::Critical,
-//                  "Shutdown VM error",
-//                  QString("Shutdown VM failed. Error code : %1").arg(tor),
-//                  QMessageBox::Ok);
-//  msg.exec();
 }
 ////////////////////////////////////////////////////////////////////////////
 

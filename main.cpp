@@ -10,14 +10,12 @@
 #include "SystemCallWrapper.h"
 #include <QObject>
 
-
 int main(int argc, char *argv[]) {
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
-  //QApplication a(argc, argv);
-
-  SingleApplication  a(argc, argv);
+//  SingleApplication app(argc, argv);
+  QApplication app(argc, argv);
 
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
@@ -30,12 +28,9 @@ int main(int argc, char *argv[]) {
   CVBoxManagerSingleton::Instance()->init_com();
   TrayControlWindow tcw;
 
-  QObject::connect(QApplication::instance(), SIGNAL(showUp()), &tcw, SLOT(raise())); // window is your QWindow instance
+//  QObject::connect(QApplication::instance(), SIGNAL(showUp()), &tcw, SLOT(raise())); // window is your QWindow instance
+//  QObject::connect(&app, SIGNAL(messageReceived(const QString&)),
+//                      &app, SLOT(handleMessage(const QString&)));
 
-//  MainClass mainObj;
-  QObject::connect(&a, SIGNAL(messageReceived(const QString&)),
-                      &a, SLOT(handleMessage(const QString&)));
-
-  int result = a.exec();
-  return result;
+  return app.exec();
 }

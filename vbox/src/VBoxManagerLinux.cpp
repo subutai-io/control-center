@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <assert.h>
+#include <QDebug>
 
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
@@ -119,7 +120,12 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
 //TODO check if we need this :)
 void CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
   ISessionStateChangedEvent* ssc_event;
-  event->QueryInterface(ISessionStateChangedEvent::GetIID(), (void**)&ssc_event);
+  nsresult rc = event->QueryInterface(ISessionStateChangedEvent::GetIID(), (void**)&ssc_event);
+  if (NS_FAILED(rc)) {
+    qDebug() << "query_interface failed " << rc;
+    return;
+  }
+
   uint32_t state;
   ssc_event->GetState(&state);
   com::Bstr str_machine_id = machine_id_from_machine_event(event);

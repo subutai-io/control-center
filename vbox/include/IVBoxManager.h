@@ -1,15 +1,16 @@
 #ifndef VBOXMANAGER_H
 #define VBOXMANAGER_H
 
-#include "VirtualBoxHdr.h"
-#include "VBoxCommons.h"
 
 #include <VBox/com/string.h>
 #include <stdint.h>
-#include <QObject>
 #include <map>
+#include <QObject>
 
-class IVirtualMachine;
+#include "VirtualBoxHdr.h"
+#include "VBoxCommons.h"
+#include "IVirtualMachine.h"
+
 class CVBoxManagerSingleton;
 
 class IVBoxManager : public QObject {
@@ -29,7 +30,6 @@ protected:
   std::map<com::Bstr, IVirtualMachine*> m_dct_machines;
   typedef void (IVBoxManager::*pf_event_handle)(IEvent*);
   std::map<uint32_t, pf_event_handle> m_dct_event_handlers;
-
 
   virtual void on_machine_state_changed(IEvent* event) = 0;
   virtual void on_machine_registered(IEvent* event) = 0;

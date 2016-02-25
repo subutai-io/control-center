@@ -3,13 +3,36 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include <VBox/com/string.h>
+#include "IVirtualMachine.h"
 
 #include "HubStatisticWindow.h"
-#include "VBoxManageWindow.h"
 
 namespace Ui {
   class TrayControlWindow;
 }
+
+
+class CVboxMenu : public QObject {
+  Q_OBJECT
+private:
+  com::Bstr m_id;
+  QAction* m_act;
+
+public:
+  CVboxMenu(const IVirtualMachine *vm, QWidget *parent);
+  virtual ~CVboxMenu();
+  void set_machine_stopped(bool stopped);
+  QAction* action() {return m_act;}
+
+signals:
+  void vbox_menu_act_triggered(const com::Bstr& vm_id);
+
+private slots:
+  void act_triggered();
+};
+////////////////////////////////////////////////////////////////////////////
+
 
 class TrayControlWindow : public QMainWindow
 {
@@ -26,15 +49,17 @@ private:
   /*hub end*/
 
   /*vbox*/
-  VBoxManageWindow m_vbox_window;
+  std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
+  void add_vm_menu(const com::Bstr &vm_id);
+  void remove_vm_menu(const com::Bstr &vm_id);
   /*vbox end*/
 
   /*tray icon*/
-  QAction *m_act_quit;
-  QAction *m_act_hub;
-  QAction *m_act_vbox;
-  QAction *m_act_swarm_join;
+  QAction *m_hub_section;
+  QAction *m_vbox_section;
+  QAction *m_quit_section;
 
+  QAction *m_act_quit;
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
@@ -43,9 +68,18 @@ private:
   /*tray icon end*/
 
 private slots:
+  /*tray slots*/
   void show_hub();
-  void show_vbox();
   void join_to_swarm();
+
+  /*virtualbox slots*/
+  void vm_added(const com::Bstr& vm_id);
+  void vm_removed(const com::Bstr& vm_id);
+  void vm_state_changed(const com::Bstr& vm_id);
+  void vm_session_state_changed(const com::Bstr& vm_id);
+  void vmc_act_released(const com::Bstr& vm_id);
+
+  /*hub slots*/
 };
 
 #endif // TRAYCONTROLWINDOW_H

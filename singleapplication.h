@@ -25,7 +25,7 @@ public:
 public slots:
     void handleMessage(const QString&);
 signals:
-  void showUp();
+  void  showUp();
   void  messageReceived(const QString&);
 
 private slots:
