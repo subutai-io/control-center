@@ -50,7 +50,7 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   if (vm == NULL) return;
 
   CVboxMenu* menu = new CVboxMenu(vm, this);
-  m_tray_menu->insertAction(m_vbox_section,
+  m_vbox_menu->insertAction(m_vbox_section,
                             menu->action());
   connect(menu, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
           this, SLOT(vmc_act_released(const com::Bstr&)));
@@ -60,7 +60,7 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
-  m_tray_menu->removeAction(it->second->action());
+  m_vbox_menu->removeAction(it->second->action());
   disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
              this, SLOT(vmc_act_released(const com::Bstr&)));
   delete it->second;
@@ -79,11 +79,15 @@ void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
 
-  m_vbox_section = m_tray_menu->addSection("vbox_section");
-  m_hub_section =  m_tray_menu->addSection("hub_section");
-  m_quit_section = m_tray_menu->addSection("quit_section");
+  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
+  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
 
-  m_tray_menu->insertAction(m_quit_section, m_act_quit);
+  m_hub_section  = m_hub_menu->addSection("");
+  m_vbox_section = m_vbox_menu->addSection("");
+
+  m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_quit);
+
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));

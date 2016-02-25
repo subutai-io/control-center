@@ -55,6 +55,8 @@ private:
   /*vbox end*/
 
   /*tray icon*/
+  QMenu *m_hub_menu;
+  QMenu *m_vbox_menu;
   QAction *m_hub_section;
   QAction *m_vbox_section;
   QAction *m_quit_section;
