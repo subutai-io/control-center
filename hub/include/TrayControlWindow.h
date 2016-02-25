@@ -4,14 +4,16 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <VBox/com/string.h>
-#include "IVirtualMachine.h"
+#include <QTimer>
 
+#include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
+#include "RestWorker.h"
+
 
 namespace Ui {
   class TrayControlWindow;
 }
-
 
 class CVboxMenu : public QObject {
   Q_OBJECT
@@ -33,6 +35,14 @@ private slots:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+class CHubMenu : public QObject {
+  Q_OBJECT
+private:
+public:
+signals:
+private slots:
+};
+////////////////////////////////////////////////////////////////////////////
 
 class TrayControlWindow : public QMainWindow
 {
@@ -45,7 +55,10 @@ public:
 private:
   Ui::TrayControlWindow *ui;
   /*hub*/
-  HubStatisticWindow m_hub_window;
+//  HubStatisticWindow m_hub_window;
+  QTimer m_refresh_timer;
+  std::vector<CSSEnvironment> m_lst_environments;
+
   /*hub end*/
 
   /*vbox*/
@@ -71,8 +84,8 @@ private:
 
 private slots:
   /*tray slots*/
-  void show_hub();
-  void join_to_swarm();
+//  void show_hub();
+//  void join_to_swarm();
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
@@ -82,6 +95,7 @@ private slots:
   void vmc_act_released(const com::Bstr& vm_id);
 
   /*hub slots*/
+  void refresh_timer_timeout();
 };
 
 #endif // TRAYCONTROLWINDOW_H

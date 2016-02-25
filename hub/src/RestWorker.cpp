@@ -27,7 +27,7 @@ int CRestWorker::login(const QString& login, const QString& password)
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QJsonObject CRestWorker::get_request_object(const QString &link,
+QJsonDocument CRestWorker::get_request_json_document(const QString &link,
                                             int &http_code,
                                             int &err_code) {
   QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
@@ -35,9 +35,8 @@ QJsonObject CRestWorker::get_request_object(const QString &link,
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = get_request(req, http_code, err_code);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
-  if (doc.isNull()) {err_code = EL_NOT_JSON_DOC; return QJsonObject();}
-  if (!doc.isObject()) {err_code = EL_NOT_JSON_OBJECT; return QJsonObject();}
-  return doc.object();
+  if (doc.isNull()) {err_code = EL_NOT_JSON_DOC; return QJsonDocument();}
+  return doc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -45,47 +44,49 @@ QJsonObject CRestWorker::get_request_object(const QString &link,
 std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& err_code)
 {
   std::vector<CSSEnvironment> lst_res;
-  QJsonObject obj = get_request_object("environments", http_code, err_code);
+  QJsonDocument doc = get_request_json_document("environments", http_code, err_code);
   if (err_code != 0) return lst_res;
+  QJsonArray arr = doc.array();
 
-  //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  //QJsonArray env_arr = obj["environments"].toArray();
-  QJsonArray env_arr;
-  env_arr.push_back(obj);
-  env_arr.push_back(obj);
-
-  for (int i = 0; i < env_arr.count(); ++i) {
-    QJsonValue val = env_arr.at(i);
-    lst_res.push_back(CSSEnvironment(val.toObject()));
+  for (size_t i = 0; i < arr.size(); ++i) {
+    QJsonValue val = arr.at(i);
+    QJsonObject obj = val.toObject();
+    CSSEnvironment env(obj);
+    lst_res.push_back(env);
   }
-
   return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-CSSContainer CRestWorker::get_containers(int& http_code, int& err_code)
-{
-  QJsonObject container = get_request_object("containers", http_code, err_code);
-  if (err_code != 0)
-    return CSSContainer();
-  QJsonObject cont_val = container["containers"].toObject();
-  return CSSContainer(cont_val);
-}
+//CSSContainer CRestWorker::get_containers(int& http_code, int& err_code)
+//{
+//  QJsonDocument doc = get_request_json_document("containers", http_code, err_code);
+//  //todo check
+//  QJsonObject container = get_request_json_document("containers", http_code, err_code);
+//  if (err_code != 0)
+//    return CSSContainer();
+//  QJsonObject cont_val = container["containers"].toObject();
+//  return CSSContainer(cont_val);
+//  return CSSContainer();
+//}
 ////////////////////////////////////////////////////////////////////////////
 
 CSSPeerUser CRestWorker::get_peer_users(int& http_code, int& err_code)
 {
-  QJsonObject peer_users = get_request_object("peerusers", http_code, err_code);
-  if (err_code != 0) return CSSPeerUser();
-  QJsonObject cont_val = peer_users["peerusers"].toObject();
-  return CSSPeerUser(cont_val);
+//  QJsonObject peer_users = get_request_json_document("peerusers", http_code, err_code);
+//  if (err_code != 0) return CSSPeerUser();
+//  QJsonObject cont_val = peer_users["peerusers"].toObject();
+//  return CSSPeerUser(cont_val);
+  return CSSPeerUser();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 CSSBalance CRestWorker::get_balance(int& http_code, int& err_code)
 {
-  QJsonObject balance = get_request_object("balance", http_code, err_code);
+  QJsonDocument doc = get_request_json_document("balance", http_code, err_code);
   if (err_code != 0) return CSSBalance();
+  if (!doc.isObject()) { err_code = EL_NOT_JSON_OBJECT; return CSSBalance(); }
+  QJsonObject balance = doc.object();
   return CSSBalance(balance["currentBalance"].toString());
 }
 ////////////////////////////////////////////////////////////////////////////

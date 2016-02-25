@@ -6,6 +6,7 @@
 #include "DlgSwarmJoin.h"
 #include "IVBoxManager.h"
 #include "IVBoxManager.h"
+#include "SettingsManager.h"
 
 #include <QDebug>
 
@@ -22,7 +23,11 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   create_tray_icon();
   m_sys_tray_icon->show();
 //  show_hub();
+  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()*1000);
+  m_refresh_timer.start();
 
+  connect(&m_refresh_timer, SIGNAL(timeout()),
+          this, SLOT(refresh_timer_timeout()));
 
   connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_add(const com::Bstr&)),
           this, SLOT(vm_added(const com::Bstr&)));
@@ -37,6 +42,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
       add_vm_menu(i->first);
     }
   }
+  /***/
+
 }
 
 TrayControlWindow::~TrayControlWindow()
@@ -94,20 +101,20 @@ void TrayControlWindow::create_tray_icon()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_hub() {
-  static bool logged_in = false;
-  if (!logged_in) {
-    logged_in = true;
-    m_hub_window.init_form();
-  }
-  m_hub_window.show();
-}
+//void TrayControlWindow::show_hub() {
+//  static bool logged_in = false;
+//  if (!logged_in) {
+//    logged_in = true;
+//    m_hub_window.init_form();
+//  }
+//  m_hub_window.show();
+//}
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::join_to_swarm() {
-  DlgSwarmJoin dlg;
-  dlg.exec();
-}
+//void TrayControlWindow::join_to_swarm() {
+//  DlgSwarmJoin dlg;
+//  dlg.exec();
+//}
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*** Vbox slots  ***/
@@ -150,6 +157,28 @@ void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
   int tor = CVBoxManagerSingleton::Instance()->turn_off(vm_id, false);
   if (!tor) return;
   //show_err(tor);
+}
+////////////////////////////////////////////////////////////////////////////
+
+/*** Refresh ***/
+void TrayControlWindow::refresh_timer_timeout() {
+  m_refresh_timer.stop();
+  int http_code, err_code;
+  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
+  if (res == m_lst_environments) return;
+
+  m_hub_menu->clear();
+  m_lst_environments = res;
+
+  for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+    QMenu* env_menu = m_hub_menu->addMenu(i->name());
+    for (auto j = i->containers().begin(); j != i->containers().end(); ++j) {
+      QAction* act = new QAction(j->name(), this);
+      env_menu->addAction(act);
+    }
+  }
+
+  m_refresh_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////

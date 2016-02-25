@@ -9,21 +9,21 @@
 #include "TreeViewItem.h"
 #include "ITreeModel.h"
 
-class CTreeModelCSSContainer : public ITreeModel
-{
-private:
-  CSSContainer m_cont;
+//class CTreeModelCSSContainer : public ITreeModel
+//{
+//private:
+//  CSSContainer m_cont;
 
-protected:
-  virtual void init_model();
+//protected:
+//  virtual void init_model();
 
-public:
-  CTreeModelCSSContainer(const CSSContainer& cont);
-  virtual ~CTreeModelCSSContainer();
+//public:
+//  CTreeModelCSSContainer(const CSSContainer& cont);
+//  virtual ~CTreeModelCSSContainer();
 
-  bool container_changed(const CSSContainer& cont) {
-    return m_cont != cont;
-  }
-};
+//  bool container_changed(const CSSContainer& cont) {
+//    return m_cont != cont;
+//  }
+//};
 
 #endif // CREEMODELCSSCONTAINER_H
