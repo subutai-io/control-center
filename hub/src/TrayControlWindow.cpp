@@ -57,10 +57,14 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   if (vm == NULL) return;
 
   CVboxMenu* menu = new CVboxMenu(vm, this);
+
   m_vbox_menu->insertAction(m_vbox_section,
                             menu->action());
   connect(menu, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
           this, SLOT(vmc_act_released(const com::Bstr&)));
+  VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  if ((int)state < 5)
+      menu->set_machine_stopped(FALSE);
   m_dct_vm_menus[vm_id] = menu;
 }
 
@@ -132,7 +136,11 @@ void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
   VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-  it->second->set_machine_stopped(ns == VMS_Aborted || ns == VMS_PoweredOff);
+  if (ns < 5) {
+    it->second->set_machine_stopped(FALSE);
+  } else {
+    it->second->set_machine_stopped(TRUE);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
