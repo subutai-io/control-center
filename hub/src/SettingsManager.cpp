@@ -14,7 +14,7 @@ const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_TERMINAL_PATH("Terminal_Path");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
-static const int def_timeout = 120;
+static const int def_timeout = 10;//120;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
   m_login(m_settings.value(SM_LOGIN).toString()),
