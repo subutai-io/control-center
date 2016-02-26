@@ -29,6 +29,7 @@ CVirtualMachineWin::~CVirtualMachineWin() {
 
 nsresult CVirtualMachineWin::launch_vm(vb_launch_mode_t mode,
                                        IProgress **progress) {
+
   BSTR str_mode = SysAllocString(CCommons::VM_lauch_mode_to_wstr(mode));
 
   m_session->UnlockMachine();

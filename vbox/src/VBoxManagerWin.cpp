@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <stdint.h>
-#include <comutil.h>
+//#include <comutil.h>
 #include <VBox/com/com.h>
 #include <VBox/com/ptr.h>
 #include <VBox/com/array.h>
@@ -197,7 +197,7 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
-  rc = m_dct_machines[vm_id]->state();
+  state = m_dct_machines[vm_id]->state();
   if (state == VMS_Aborted) {
       //return 1;//aborted machine will run
   }
@@ -208,19 +208,13 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
 
   if( (int)state >= 8 && (int)state <= 23 ) //transition
   {
-      qDebug() << "transition \n" ;//+ vm_id;
-      return 4;//1;
+      qDebug() << "transition state\n" ;
+      return 4;
   }
 
   if( (int)state >= 5 && (int)state <= 19 )
     {
-//  if (  state == VMS_Running
-//              || state == VMS_Teleporting
-//              || state == VMS_LiveSnapshotting
-//              || state == VMS_Paused
-//              || state == VMS_TeleportingPausedVM
-//             ) {
-      qDebug() << "turned on already \n" ;//+ vm_id;
+      qDebug() << "turned on already \n" ;
       return 3;//1;
   }
 
@@ -241,7 +235,7 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
     return 1;
   IProgress* progress;
   nsresult rc, state;
-  rc = m_dct_machines[vm_id]->state();
+  state = m_dct_machines[vm_id]->state();
   if (state == VMS_Aborted) {
       //
       rc = m_dct_machines[vm_id]->launch_vm(VBML_HEADLESS, &progress);
@@ -255,20 +249,15 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
 
   if( (int)state >= 8 && (int)state <= 23 ) //transition
   {
-      qDebug() << "transition \n" ;//+ vm_id;
+      qDebug() << "transition \n" ;
       return 4;//1;
   }
 
-  if( (int)state >= 0 && (int)state <= 4 )
+  if( (int)state >= 2 && (int)state <= 4 )
   {
 
-//  if (  state == VMS_PoweredOff
-//              || state == VMS_Teleporting
-//              || state == VMS_LiveSnapshotting
-//              || state == VMS_TeleportingPausedVM
-//             ) {
-      qDebug() << "turned off already \n" ;//+ vm_id;
-      return 5;//1;
+      qDebug() << "turned off already \n" ;
+      return 5;
   }
 
   if (save_state) {
