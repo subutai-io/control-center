@@ -22,7 +22,6 @@ INCLUDEPATH += vbox/sdk_includes/nsprpub
 INCLUDEPATH += vbox/sdk_includes/string
 INCLUDEPATH += vbox/sdk_includes/ipcd
 INCLUDEPATH += sapp/include
-DEFINES += __STDC_LIMIT_MACROS
 
 SOURCES += \
     main.cpp \

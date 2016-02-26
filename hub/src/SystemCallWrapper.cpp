@@ -35,16 +35,24 @@ std::vector<std::string> CSystemCallWrapper::ssystem(const char *command) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-
+#include <QDebug>
 bool CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                                            const char *key,
                                            const char *ip)
 {
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
-                ip << " -key " << key << " -hash " << hash << " &"; //todo CHECK & !!!!!!!!!!!!!!
+                ip << " -key " << key << " -hash " << hash;
+#ifndef RT_OS_WINDOWS
+  str_stream << " &";
+#endif
   std::string command = str_stream.str();
+  qDebug() << command.c_str();
   std::vector<std::string> res = ssystem(command.c_str());
+
+  for (auto i = res.begin(); i != res.end(); ++i)
+    qDebug() << i->c_str();
+
   return true; //TODO CHECK RESULT!!!!
 }
 ////////////////////////////////////////////////////////////////////////////
