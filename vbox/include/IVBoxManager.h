@@ -2,8 +2,8 @@
 #define VBOXMANAGER_H
 
 
-#include <VBox/com/string.h>
 #include <stdint.h>
+#include <VBox/com/string.h>
 #include <map>
 #include <QObject>
 

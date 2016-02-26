@@ -26,27 +26,30 @@ typedef enum error_login {
 
 class CHubContainer {
 private:
-  std::pair<QString, QString> m_ip_name;
+  QString m_name;
+  QString m_ip;
 
 public:
   explicit CHubContainer(QJsonObject obj) :
-     m_ip_name(obj["ip"].toString(), obj["name"].toString())
+    m_name(obj["name"].toString()),
+    m_ip(obj["ip"].toString())
   {
   }
 
   ~CHubContainer(){}
 
-  const QString& ip() const { return m_ip_name.first; }
-  const QString& name() const { return m_ip_name.second; }
+  const QString& ip() const { return m_ip; }
+  const QString& name() const { return m_name; }
 
   bool operator==(const CHubContainer& arg) const {
-    return m_ip_name == arg.m_ip_name;
+    return m_ip == arg.m_ip &&
+        m_name == arg.m_name;
   }
-
   bool operator!=(const CHubContainer& arg) const {
     return !(this->operator ==(arg));
   }
 };
+////////////////////////////////////////////////////////////////////////////
 
 class CSSEnvironment {
 private:
@@ -64,7 +67,7 @@ public:
     m_ttl = obj["ttl"].toString();
 
     QJsonArray arr = obj["containers"].toArray();
-    for (size_t i = 0; i < arr.size(); ++i) {
+    for (int i = 0; i < arr.size(); ++i) {
       QJsonObject item = arr.at(i).toObject();
       m_lst_containers.push_back(CHubContainer(item));
     }
@@ -91,56 +94,6 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-//class CSSContainer {
-//private:
-//  std::map<QString, std::vector<QString> > m_dct_env_containers;
-//public:
-//  CSSContainer(){}
-//  explicit CSSContainer(const QJsonObject& json_obj) {
-//    for (int i = 0; i < json_obj.keys().count(); ++i) {
-//      QJsonArray arr = json_obj[json_obj.keys().at(i)].toArray();
-//      for (int j = 0; j < arr.size(); ++j) {
-//        m_dct_env_containers[json_obj.keys().at(i)].push_back(arr.at(j).toString());
-//      }
-//    }
-//  }
-//  explicit CSSContainer(const std::map<QString, std::vector<QString> >& dct) : m_dct_env_containers(dct) {}
-//  ~CSSContainer(void){}
-//  const std::map<QString, std::vector<QString> >& dct_env_containers() const {return m_dct_env_containers;}
-//  bool operator==(const CSSContainer& arg) {
-//    return m_dct_env_containers == arg.m_dct_env_containers;
-//  }
-//  bool operator!=(const CSSContainer& arg) {
-//    return !(this->operator ==(arg));
-//  }
-//};
-////////////////////////////////////////////////////////////////////////////
-
-class CSSPeerUser {
-private:
-  std::map<QString, std::vector<QString> > m_dct_peer_users;
-public:
-  CSSPeerUser(){}
-  explicit CSSPeerUser(const QJsonObject& json_obj) {
-    for (int i = 0; i < json_obj.keys().count(); ++i) {
-      QJsonArray arr = json_obj[json_obj.keys().at(i)].toArray();
-      for (int j = 0; j < arr.size(); ++j) {
-        m_dct_peer_users[json_obj.keys().at(i)].push_back(arr.at(j).toString());
-      }
-    }
-  }
-  explicit CSSPeerUser(const std::map<QString, std::vector<QString> >& dct) : m_dct_peer_users(dct) {}
-  ~CSSPeerUser() {}
-  const std::map<QString, std::vector<QString> >& dct_peer_users() const {return m_dct_peer_users;}
-  bool operator==(const CSSPeerUser& arg) {
-    return m_dct_peer_users == arg.m_dct_peer_users;
-  }
-  bool operator!=(const CSSPeerUser& arg) {
-    return !(this->operator ==(arg));
-  }
-};
-////////////////////////////////////////////////////////////////////////////
-
 class CSSBalance {
 private:
   QString m_balance;
@@ -158,8 +111,8 @@ class CRestWorker {
 private:
 
   static QByteArray send_request(const QNetworkRequest& req, bool get, int &http_status_code, int &err_code);
-  static QByteArray get_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
-  static QByteArray post_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
+  static QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
+  static QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
   static QJsonDocument get_request_json_document(const QString& link, int& http_code, int &err_code);
 
   CRestWorker();
@@ -167,12 +120,11 @@ private:
               const QString& password);
   CRestWorker(const CRestWorker& worker);
   ~CRestWorker(void);
+
 public:
 
   static int login(const QString& login, const QString& password);
   static std::vector<CSSEnvironment> get_environments(int &http_code, int& err_code);
-//  static CSSContainer get_containers(int &http_code, int& err_code);
-  static CSSPeerUser get_peer_users(int &http_code, int& err_code);
   static CSSBalance get_balance(int &http_code, int& err_code);
 };
 

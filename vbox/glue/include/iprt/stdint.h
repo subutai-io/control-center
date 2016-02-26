@@ -210,35 +210,35 @@ typedef uint64_t            uintptr_t;
  * For In C++ source the system stdint.h may have skipped these if it was
  * included before we managed to define __STDC_LIMIT_MACROS. (Kludge alert!)
  */
-#if !defined(INT8_MIN) \
- || !defined(INT16_MIN) \
- || !defined(INT32_MIN) \
- || !defined(INT64_MIN) \
- || !defined(INT8_MAX) \
- || !defined(INT16_MAX) \
- || !defined(INT32_MAX) \
- || !defined(INT64_MAX) \
- || !defined(UINT8_MAX) \
- || !defined(UINT16_MAX) \
- || !defined(UINT32_MAX) \
- || !defined(UINT64_MAX)
-# define INT8_MIN           (INT8_C(-0x7f)                - 1)
-# define INT16_MIN          (INT16_C(-0x7fff)             - 1)
-# define INT32_MIN          (INT32_C(-0x7fffffff)         - 1)
-# define INT64_MIN          (INT64_C(-0x7fffffffffffffff) - 1)
-# define INT8_MAX           INT8_C(0x7f)
-# define INT16_MAX          INT16_C(0x7fff)
-# define INT32_MAX          INT32_C(0x7fffffff)
-# define INT64_MAX          INT64_C(0x7fffffffffffffff)
-# define UINT8_MAX          UINT8_C(0xff)
-# define UINT16_MAX         UINT16_C(0xffff)
-# define UINT32_MAX         UINT32_C(0xffffffff)
-# define UINT64_MAX         UINT64_C(0xffffffffffffffff)
+//#if !defined(INT8_MIN) \
+// || !defined(INT16_MIN) \
+// || !defined(INT32_MIN) \
+// || !defined(INT64_MIN) \
+// || !defined(INT8_MAX) \
+// || !defined(INT16_MAX) \
+// || !defined(INT32_MAX) \
+// || !defined(INT64_MAX) \
+// || !defined(UINT8_MAX) \
+// || !defined(UINT16_MAX) \
+// || !defined(UINT32_MAX) \
+// || !defined(UINT64_MAX)
+//# define INT8_MIN           (INT8_C(-0x7f)                - 1)
+//# define INT16_MIN          (INT16_C(-0x7fff)             - 1)
+//# define INT32_MIN          (INT32_C(-0x7fffffff)         - 1)
+//# define INT64_MIN          (INT64_C(-0x7fffffffffffffff) - 1)
+//# define INT8_MAX           INT8_C(0x7f)
+//# define INT16_MAX          INT16_C(0x7fff)
+//# define INT32_MAX          INT32_C(0x7fffffff)
+//# define INT64_MAX          INT64_C(0x7fffffffffffffff)
+//# define UINT8_MAX          UINT8_C(0xff)
+//# define UINT16_MAX         UINT16_C(0xffff)
+//# define UINT32_MAX         UINT32_C(0xffffffff)
+//# define UINT64_MAX         UINT64_C(0xffffffffffffffff)
 
-# define INTMAX_MIN         INT64_MIN
-# define INTMAX_MAX         INT64_MAX
-# define UINTMAX_MAX        UINT64_MAX
-#endif
+//# define INTMAX_MIN         INT64_MIN
+//# define INTMAX_MAX         INT64_MAX
+//# define UINTMAX_MAX        UINT64_MAX
+//#endif
 
 #endif
 

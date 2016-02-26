@@ -35,12 +35,24 @@ private slots:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-class CHubMenu : public QObject {
+class CHubEnvironmentMenuItem : public QObject {
   Q_OBJECT
 private:
+  const CSSEnvironment* m_hub_environment;
+  const CHubContainer* m_hub_container;
+
 public:
+  explicit CHubEnvironmentMenuItem(const CSSEnvironment* env,
+                                   const CHubContainer* cont) :
+    m_hub_environment(env), m_hub_container(cont){}
+
+  ~CHubEnvironmentMenuItem(){}
+
 signals:
-private slots:
+  void action_triggered(const CSSEnvironment*, const CHubContainer*);
+
+public slots:
+  void internal_action_triggered();
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +70,7 @@ private:
 //  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
   std::vector<CSSEnvironment> m_lst_environments;
-
+  std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
 
   /*vbox*/
@@ -96,6 +108,8 @@ private slots:
 
   /*hub slots*/
   void refresh_timer_timeout();
+  void hub_menu_item_triggered(const CSSEnvironment *env,
+                               const CHubContainer *cont);
 };
 
 #endif // TRAYCONTROLWINDOW_H

@@ -1,9 +1,9 @@
 #ifndef CSETTINGSMANAGER_H
 #define CSETTINGSMANAGER_H
 
+#include <stdint.h>
 #include <QSettings>
 #include <QString>
-#include <stdint.h>
 
 class CSettingsManager
 {

@@ -32,9 +32,9 @@ public:
         Time until specified key will be available
 
   */
-  static std::vector<std::string> join_to_p2p_swarm (const char* hash,
-                                                     const char* key,
-                                                     const char* ip);
+  static bool join_to_p2p_swarm (const char* hash,
+                                 const char* key,
+                                 const char* ip);
 
 
   static std::vector<std::string> p2p_swarms_presented();

@@ -129,6 +129,7 @@ bool AutoLockHoldsLocksInClass(VBoxLockingClass lockClass)
     return RTLockValidatorHoldsLocksInClass(NIL_RTTHREAD,
                                             g_mapLockValidationClasses[lockClass]);
 #else /* !VBOX_WITH_MAIN_LOCK_VALIDATION */
+    (void)lockClass;
     return false;
 #endif /* !VBOX_WITH_MAIN_LOCK_VALIDATION */
 }
@@ -410,6 +411,7 @@ AutoLockBase::AutoLockBase(uint32_t cHandles,
                            COMMA_LOCKVAL_SRC_POS_DECL)
 {
     Assert(cHandles == 1);
+    (void)cHandles;
     m = new Data(1
                  COMMA_LOCKVAL_SRC_POS_ARGS);
     m->aHandles[0] = pHandle;

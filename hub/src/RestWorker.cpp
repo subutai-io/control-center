@@ -17,11 +17,8 @@ int CRestWorker::login(const QString& login, const QString& password)
   int http_code;
   int err_code;
 
-  QByteArray arr = post_request(request, http_code, err_code);
-
-  qDebug() << QString(arr);
-
-  if (QString(arr).mid(1, arr.length()-2)	!= "OK")
+  QByteArray arr = send_post_request(request, http_code, err_code);
+  if (QString(arr).mid(1, arr.length()-2) != "OK")
     return EL_LOGIN_OR_EMAIL;
   return err_code;
 }
@@ -33,12 +30,11 @@ QJsonDocument CRestWorker::get_request_json_document(const QString &link,
   QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = get_request(req, http_code, err_code);
+  QByteArray arr = send_get_request(req, http_code, err_code);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {err_code = EL_NOT_JSON_DOC; return QJsonDocument();}
   return doc;
 }
-
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& err_code)
@@ -48,36 +44,13 @@ std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& e
   if (err_code != 0) return lst_res;
   QJsonArray arr = doc.array();
 
-  for (size_t i = 0; i < arr.size(); ++i) {
+  for (int i = 0; i < arr.size(); ++i) {
     QJsonValue val = arr.at(i);
     QJsonObject obj = val.toObject();
     CSSEnvironment env(obj);
     lst_res.push_back(env);
   }
   return lst_res;
-}
-////////////////////////////////////////////////////////////////////////////
-
-//CSSContainer CRestWorker::get_containers(int& http_code, int& err_code)
-//{
-//  QJsonDocument doc = get_request_json_document("containers", http_code, err_code);
-//  //todo check
-//  QJsonObject container = get_request_json_document("containers", http_code, err_code);
-//  if (err_code != 0)
-//    return CSSContainer();
-//  QJsonObject cont_val = container["containers"].toObject();
-//  return CSSContainer(cont_val);
-//  return CSSContainer();
-//}
-////////////////////////////////////////////////////////////////////////////
-
-CSSPeerUser CRestWorker::get_peer_users(int& http_code, int& err_code)
-{
-//  QJsonObject peer_users = get_request_json_document("peerusers", http_code, err_code);
-//  if (err_code != 0) return CSSPeerUser();
-//  QJsonObject cont_val = peer_users["peerusers"].toObject();
-//  return CSSPeerUser(cont_val);
-  return CSSPeerUser();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -117,15 +90,10 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
   //timer active is timout didn't fire
   if (timer.isActive()) {
-
     if (reply->error() != QNetworkReply::NoError) {
-      err_code = reply->error();
-      qDebug() << "reply error " << err_code;
-      qDebug() << reply->errorString();
-      qDebug() << QString(reply->readAll());
+      err_code = reply->error();      
       return QByteArray();
     }
-
     bool parsed = false;
     http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
     return reply->readAll();
@@ -137,7 +105,7 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
   }
 }
 
-QByteArray CRestWorker::get_request(const QNetworkRequest &req,
+QByteArray CRestWorker::send_get_request(const QNetworkRequest &req,
                                     int& http_status_code,
                                     int& err_code)
 {
@@ -145,7 +113,7 @@ QByteArray CRestWorker::get_request(const QNetworkRequest &req,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QByteArray CRestWorker::post_request(const QNetworkRequest &req,
+QByteArray CRestWorker::send_post_request(const QNetworkRequest &req,
                                      int& http_status_code,
                                      int& err_code)
 {

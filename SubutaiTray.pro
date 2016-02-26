@@ -22,7 +22,7 @@ INCLUDEPATH += vbox/sdk_includes/nsprpub
 INCLUDEPATH += vbox/sdk_includes/string
 INCLUDEPATH += vbox/sdk_includes/ipcd
 INCLUDEPATH += sapp/include
-
+DEFINES += __STDC_LIMIT_MACROS
 
 SOURCES += \
     main.cpp \
@@ -30,8 +30,6 @@ SOURCES += \
     hub/src/DlgLogin.cpp \
     hub/src/SettingsManager.cpp \
     hub/src/DlgSettings.cpp \
-    hub/src/TreeModelCSSContainer.cpp \
-    hub/src/TreeModelSSPeerUser.cpp \
     hub/src/ITreeModel.cpp \
     hub/src/HubStatisticWindow.cpp \
     hub/src/TrayControlWindow.cpp \
@@ -54,9 +52,7 @@ HEADERS  += \
     hub/include/DlgLogin.h \
     hub/include/SettingsManager.h \
     hub/include/DlgSettings.h \
-    hub/include/TreeModelCSSContainer.h \
     hub/include/TreeViewItem.h \
-    hub/include/TreeModelSSPeerUser.h \
     hub/include/ITreeModel.h \
     hub/include/HubStatisticWindow.h \
     hub/include/TrayControlWindow.h \
@@ -69,10 +65,6 @@ HEADERS  += \
     hub/include/SystemCallWrapper.h \
     hub/include/DlgSwarmJoin.h \
     singleapplication.h
-
-
-
-
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

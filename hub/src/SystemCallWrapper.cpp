@@ -36,7 +36,7 @@ std::vector<std::string> CSystemCallWrapper::ssystem(const char *command) {
 ////////////////////////////////////////////////////////////////////////////
 
 
-std::vector<std::string> CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
+bool CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                                                                const char *key,
                                                                const char *ip)
 {
@@ -44,7 +44,8 @@ std::vector<std::string> CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
                 ip << " -key " << key << " -hash " << hash << " &"; //todo CHECK & !!!!!!!!!!!!!!
   std::string command = str_stream.str();
-  return ssystem(command.c_str());
+  std::vector<std::string> res = ssystem(command.c_str());
+  return true; //TODO CHECK RESULT!!!!
 }
 ////////////////////////////////////////////////////////////////////////////
 

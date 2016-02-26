@@ -22,7 +22,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   create_tray_actions();
   create_tray_icon();
   m_sys_tray_icon->show();
-//  show_hub();
+
+  refresh_timer_timeout(); //update data on start. hack
   m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()*1000);
   m_refresh_timer.start();
 
@@ -41,9 +42,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
       add_vm_menu(i->first);
     }
-  }
-  /***/
-
+  }  
 }
 
 TrayControlWindow::~TrayControlWindow()
@@ -168,17 +167,38 @@ void TrayControlWindow::refresh_timer_timeout() {
   if (res == m_lst_environments) return;
 
   m_hub_menu->clear();
+  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
+    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
+               this, SLOT(hub_menu_item_triggered(CSSEnvironment*,CHubContainer*)));
+    delete *i;
+  }
+  m_lst_hub_menu_items.clear();
   m_lst_environments = res;
 
-  for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
-    QMenu* env_menu = m_hub_menu->addMenu(i->name());
-    for (auto j = i->containers().begin(); j != i->containers().end(); ++j) {
-      QAction* act = new QAction(j->name(), this);
+  for (auto env = m_lst_environments.begin(); env != m_lst_environments.end(); ++env) {
+    QMenu* env_menu = m_hub_menu->addMenu(env->name());
+    for (auto cont = env->containers().begin(); cont != env->containers().end(); ++cont) {
+      QAction* act = new QAction(cont->name(), this);
+      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont));
+      connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
+      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
+                 this, SLOT(hub_menu_item_triggered(const CSSEnvironment*, const CHubContainer*)));
       env_menu->addAction(act);
     }
   }
 
   m_refresh_timer.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
+                                                const CHubContainer *cont) {
+  qDebug() << "TRIGGERED !!! ";
+  qDebug() << env->name();
+  qDebug() << env->hash();
+  qDebug() << env->key();
+  qDebug() << cont->name();
+  qDebug() << cont->ip();
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -205,3 +225,8 @@ void CVboxMenu::act_triggered() {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
+
+/*hub menu*/
+void CHubEnvironmentMenuItem::internal_action_triggered() {
+  emit action_triggered(m_hub_environment, m_hub_container);
+}

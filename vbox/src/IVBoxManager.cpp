@@ -42,11 +42,11 @@ int IVBoxManager::launch_process(const com::Bstr &vm_id,
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
 
-  m_dct_machines[vm_id]->run_process(path,
-                                     user,
-                                     password,
-                                     argc,
-                                     argv);
+  return m_dct_machines[vm_id]->run_process(path,
+                                            user,
+                                            password,
+                                            argc,
+                                            argv);
 }
 ////////////////////////////////////////////////////////////////////////////
 
