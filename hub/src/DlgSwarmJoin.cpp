@@ -71,13 +71,13 @@ void DlgSwarmJoin::btn_join_released()
     return;
   }
 
-  std::vector<std::string> lst_join_res =
-      CSystemCallWrapper::join_to_p2p_swarm(ui->le_hash->text().toStdString().c_str(),
-                                            ui->le_key->text().toStdString().c_str(),
-                                            ui->le_ip->text().toStdString().c_str());
+//  std::vector<std::string> lst_join_res =
+//      CSystemCallWrapper::join_to_p2p_swarm(ui->le_hash->text().toStdString().c_str(),
+//                                            ui->le_key->text().toStdString().c_str(),
+//                                            ui->le_ip->text().toStdString().c_str());
 
-  CSystemCallWrapper::run_ssh_in_terminal(ui->le_ssh_user_name->text().toStdString().c_str(),
-                                          ui->le_container_ip->text().toStdString().c_str());
+//  CSystemCallWrapper::run_ssh_in_terminal(ui->le_ssh_user_name->text().toStdString().c_str(),
+//                                          ui->le_container_ip->text().toStdString().c_str());
   QDialog::accept();
 }
 ////////////////////////////////////////////////////////////////////////////

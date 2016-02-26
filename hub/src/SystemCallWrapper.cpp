@@ -37,8 +37,8 @@ std::vector<std::string> CSystemCallWrapper::ssystem(const char *command) {
 
 
 bool CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
-                                                               const char *key,
-                                                               const char *ip)
+                                           const char *key,
+                                           const char *ip)
 {
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<

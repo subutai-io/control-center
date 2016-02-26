@@ -7,6 +7,7 @@
 #include "IVBoxManager.h"
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
+#include "SystemCallWrapper.h"
 
 #include <QDebug>
 
@@ -193,12 +194,15 @@ void TrayControlWindow::refresh_timer_timeout() {
 
 void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
                                                 const CHubContainer *cont) {
-  qDebug() << "TRIGGERED !!! ";
-  qDebug() << env->name();
-  qDebug() << env->hash();
-  qDebug() << env->key();
-  qDebug() << cont->name();
-  qDebug() << cont->ip();
+  bool connected_to_p2p = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
+                                                                env->key().toStdString().c_str(),
+                                                                "10.10.10.15");
+  if (!connected_to_p2p) {
+    qDebug() << "not connected to p2p";
+    return;
+  }
+
+  CSystemCallWrapper::run_ssh_in_terminal("ubuntu", cont->ip().toStdString().c_str());
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
