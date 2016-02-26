@@ -87,6 +87,7 @@ private:
   QAction *m_quit_section;
 
   QAction *m_act_quit;
+  QAction *m_act_settings;
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
@@ -96,8 +97,7 @@ private:
 
 private slots:
   /*tray slots*/
-//  void show_hub();
-//  void join_to_swarm();
+  void show_settings_dialog();
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
