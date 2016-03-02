@@ -83,12 +83,18 @@ void TrayControlWindow::create_tray_actions()
 {
   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+  m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
+  connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
+
+  m_tray_menu->addAction(m_act_settings);
+  m_tray_menu->addSeparator();
 
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
@@ -105,20 +111,15 @@ void TrayControlWindow::create_tray_icon()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-//void TrayControlWindow::show_hub() {
-//  static bool logged_in = false;
-//  if (!logged_in) {
-//    logged_in = true;
-//    m_hub_window.init_form();
-//  }
-//  m_hub_window.show();
-//}
-////////////////////////////////////////////////////////////////////////////
+#include "DlgSettings.h"
+#include <QFileDialog>
+void TrayControlWindow::show_settings_dialog() {
+  this->show();
+  DlgSettings dlg(this);
+  dlg.exec();
+  this->hide();
+}
 
-//void TrayControlWindow::join_to_swarm() {
-//  DlgSwarmJoin dlg;
-//  dlg.exec();
-//}
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*** Vbox slots  ***/
