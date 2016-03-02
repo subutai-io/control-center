@@ -80,8 +80,8 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
-   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+//   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+//   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
    m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
    connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
@@ -134,9 +134,10 @@ void TrayControlWindow::create_tray_icon()
 
 void TrayControlWindow::show_vbox() {
   //m_act_vbox->setMenu(m_tray_menu);
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 300);
-  m_vbox_menu->exec(curpos);
+//  QPoint curpos = QCursor::pos();
+//  curpos.setX(curpos.x() - 300);
+//  m_vbox_menu->exec(curpos);
+    m_vbox_menu->exec();
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -153,17 +154,11 @@ void TrayControlWindow::show_settings_dialog() {
 
 void TrayControlWindow::show_hub() {
 
-  m_hub_menu->exec(QCursor::pos());
-//  static bool logged_in = false;
-//  if (!logged_in) {
-//    logged_in = true;
-//    m_hub_window.init_form();
-//  }
-//  m_hub_window.show();
+  //m_hub_menu->exec(QCursor::pos());
+  m_hub_menu->exec();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 /*** Vbox slots  ***/
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
