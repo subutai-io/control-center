@@ -10,11 +10,9 @@ private:
 
   CVirtualMachineLinux(const CVirtualMachineLinux &vm);
   CVirtualMachineLinux& operator=(const CVirtualMachineLinux& vm);
-  nsCOMPtr<nsIComponentManager> m_component_man;
 
 public:
-  //explicit CVirtualMachineLinux(IMachine* xpcom_machine, ISession *session);
-  explicit CVirtualMachineLinux(IMachine* xpcom_machine, nsCOMPtr<nsIComponentManager> m_comp_man);
+  explicit CVirtualMachineLinux(IMachine* xpcom_machine, ISession *session);
   virtual ~CVirtualMachineLinux(void);
 
   virtual nsresult launch_vm(vb_launch_mode_t mode,
