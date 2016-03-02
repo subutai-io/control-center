@@ -88,16 +88,25 @@ private:
 
   QAction *m_act_quit;
   QAction *m_act_settings;
+  QAction *m_act_vbox;
+  QAction *m_act_hub;
+
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
   void create_tray_actions();
   void create_tray_icon();
+
+  int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
 
 private slots:
   /*tray slots*/
   void show_settings_dialog();
+  void show_hub();
+//  void join_to_swarm();
+  void show_vbox();
+
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);

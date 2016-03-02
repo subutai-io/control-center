@@ -1,10 +1,12 @@
 #include <QApplication>
 #include <assert.h>
 #include <QDebug>
+#include <thread>
 
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
 #include <VBox/com/com.h>
+using namespace com;
 
 CVBoxManagerLinux::CVBoxManagerLinux() :
   m_service_manager(nsnull),
@@ -170,6 +172,8 @@ int CVBoxManagerLinux::init_machines() {
     m_dct_machines[vm->id()] = vm;
   } while (count != 0);
 
+  std::thread t(StartEventThread, m_event_source, m_event_listener1);
+  t.detach();
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -251,3 +255,28 @@ NS_IMETHODIMP CVBoxManagerLinux::CEventListenerLinux::HandleEvent(IEvent *event)
   return m_instance->handle_event(e_type, event);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS, nsCOMPtr<IEventListener> eL){
+
+//    nsCOMPtr<IEventSource> m_event_source;
+//    nsCOMPtr<IEventListener> m_event_listener, m_event_listener1;
+
+ static bool volatile terminateEThread = false;
+ nsCOMPtr<nsIEventQueue> eQ;
+
+ nsresult rc;
+// rc = NS_GetMainEventQ(getter_AddRefs(m_eventQ));
+// if (rc == VBE_GET_MAIN_EVENT_QUEUE){
+
+// }
+
+ while (!terminateEThread) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        IEvent *event;
+        rc = eS->GetEvent( eL, 0,&event);
+
+ }
+}
+
+

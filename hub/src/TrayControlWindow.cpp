@@ -5,7 +5,6 @@
 #include "DlgLogin.h"
 #include "DlgSwarmJoin.h"
 #include "IVBoxManager.h"
-#include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 
@@ -81,11 +80,20 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
-  connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-  m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
-  connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
+   m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
+   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
+
+    m_act_vbox = new QAction(tr("Virtual machines"), this);
+    connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+    m_act_hub = new QAction(tr("Environments"), this);
+    connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
+
+    m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+    connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -96,18 +104,40 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
 
-  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
-  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+//  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
+//  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
 
-  m_hub_section  = m_hub_menu->addSection("");
-  m_vbox_section = m_vbox_menu->addSection("");
 
+  m_hub_menu = new QMenu(m_tray_menu);
+  m_vbox_menu = new QMenu(m_tray_menu);
+
+//  m_hub_section  = m_hub_menu->addSection("");
+//  m_vbox_section = m_vbox_menu->addSection("");
+
+  m_tray_menu->addAction(m_act_hub);
+  m_tray_menu->addAction(m_act_vbox);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
+
+//  m_tray_menu->insertMenu(tr("Environments"),m_hub_menu);
+//  m_tray_menu->insertMenu(m_act_vbox,m_vbox_menu);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
+
+//  m_act_vbox->setMenu(m_tray_menu);
+//  m_act_hub->setMenu(m_hub_menu);
+
+ }
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::show_vbox() {
+  //m_act_vbox->setMenu(m_tray_menu);
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 300);
+  m_vbox_menu->exec(curpos);
+
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -119,6 +149,19 @@ void TrayControlWindow::show_settings_dialog() {
   dlg.exec();
   this->hide();
 }
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::show_hub() {
+
+  m_hub_menu->exec(QCursor::pos());
+//  static bool logged_in = false;
+//  if (!logged_in) {
+//    logged_in = true;
+//    m_hub_window.init_form();
+//  }
+//  m_hub_window.show();
+}
+////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -219,7 +262,7 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
   m_id(vm->id()) {
   QString name = QString::fromUtf16((ushort*)vm->name().raw());
-  m_act = new QAction(QIcon(":/hub/play.png"), name, parent);
+  m_act = new QAction(QIcon(":/hub/play.png"), name, parent);//////////////////
   connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
 }
 
