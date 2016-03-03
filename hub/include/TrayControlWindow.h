@@ -107,7 +107,6 @@ private slots:
 //  void join_to_swarm();
   void show_vbox();
 
-
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
   void vm_removed(const com::Bstr& vm_id);

@@ -104,40 +104,46 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
 
-//  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
-//  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-
-
+//////////// Do not forget to remove defs after fixing on linux!/////////////////
+#ifdef RT_OS_LINUX
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
+#endif
 
-//  m_hub_section  = m_hub_menu->addSection("");
-//  m_vbox_section = m_vbox_menu->addSection("");
+#ifndef RT_OS_LINUX
+  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
+  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+#endif
+
+  m_hub_section  = m_hub_menu->addSection("");
+  m_vbox_section = m_vbox_menu->addSection("");
 
   m_tray_menu->addAction(m_act_hub);
+
+#ifdef RT_OS_LINUX
   m_tray_menu->addAction(m_act_vbox);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
+  //  m_tray_menu->insertMenu(tr("Environments"),m_hub_menu);
+  //  m_tray_menu->insertMenu(m_act_vbox,m_vbox_menu);
 
-//  m_tray_menu->insertMenu(tr("Environments"),m_hub_menu);
-//  m_tray_menu->insertMenu(m_act_vbox,m_vbox_menu);
+  //  m_act_vbox->setMenu(m_tray_menu);
+  //  m_act_hub->setMenu(m_hub_menu);
+#endif
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
-
-//  m_act_vbox->setMenu(m_tray_menu);
-//  m_act_hub->setMenu(m_hub_menu);
 
  }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_vbox() {
   //m_act_vbox->setMenu(m_tray_menu);
-//  QPoint curpos = QCursor::pos();
-//  curpos.setX(curpos.x() - 300);
-//  m_vbox_menu->exec(curpos);
-    m_vbox_menu->exec();
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+  m_vbox_menu->exec(curpos);
+  //  m_vbox_menu->exec();
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -154,8 +160,8 @@ void TrayControlWindow::show_settings_dialog() {
 
 void TrayControlWindow::show_hub() {
 
-  //m_hub_menu->exec(QCursor::pos());
-  m_hub_menu->exec();
+ m_hub_menu->exec(QCursor::pos());
+  //m_hub_menu->exec();
 }
 ////////////////////////////////////////////////////////////////////////////
 
