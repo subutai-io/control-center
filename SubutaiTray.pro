@@ -75,12 +75,12 @@ FORMS    += \
 
 RESOURCES += \
     resources/resources.qrc
+#////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
   QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP RT_OS_LINUX
   DEFINES += VBOX_WITH_XPCOM IN_RING3
-  DEFINES += UNIX_NOT_MAC
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
@@ -97,22 +97,23 @@ unix:!macx {
 
 macx: {
   QMAKE_CXXFLAGS += -fshort-wchar
+#  seems like clang compiler can't resolve some functions presented in nsXPCOM.h
+#  but it uses VBoxXPCOM.dylib
 #  DEFINES += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP
-#  DEFINES  += RT_OS_DARWIN
-  DEFINES += RT_OS_LINUX #don't know why linux is here. I think that's just for not using NativeEventQueue.
+
+  DEFINES += RT_OS_DARWIN
   DEFINES += VBOX_WITH_XPCOM
   DEFINES += IN_RING3
-  DEFINES += UNIX_MAC
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
-
   SOURCES +=  vbox/src/VBoxManagerLinux.cpp \
               vbox/src/VirtualMachineLinux.cpp
 
-  QMAKE_LIBDIR += /Applications/VirtualBox.app/Contents/MacOS/
+  QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxXPCOM.dylib
   LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxRT.dylib
+  LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
 }
 #////////////////////////////////////////////////////////////////////////////

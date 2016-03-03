@@ -71,7 +71,7 @@ void IVBoxManager::shutdown_com() {
 
 IVBoxManager *CVBoxManagerSingleton::Instance() {
   if (p_instance == NULL) {
-#ifdef RT_OS_LINUX
+#if defined(RT_OS_LINUX) || defined(RT_OS_DARWIN)
     p_instance = new CVBoxManagerLinux;
     p_destructor.Init(p_instance);
 #elif RT_OS_WINDOWS
