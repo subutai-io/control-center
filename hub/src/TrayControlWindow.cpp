@@ -129,6 +129,7 @@ void TrayControlWindow::create_tray_icon()
   //  m_act_vbox->setMenu(m_tray_menu);
   //  m_act_hub->setMenu(m_hub_menu);
 #endif
+
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
 

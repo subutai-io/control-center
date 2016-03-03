@@ -233,11 +233,47 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
                               bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
-  IProgress* progress;
+
   nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if (state == VMS_Aborted) {
+      return 11;//Impossible
+  }
+
+  if (state == VMS_Stuck) {
+      return 2;
+  }
+
+  if( (int)state >= 8 && (int)state <= 23 ) //transition
+  {
+      qDebug() << "transition state\n" ;
+      return 4;
+  }
+
+  if( (int)state < 5 )
+    {
+      qDebug() << "turned on already \n" ;
+      return 5;//1;
+  }
+
+  if (save_state) {
+      IProgress* progress;
+      rc = m_dct_machines[vm_id]->save_state(&progress);
+      if (FAILED(rc)){
+          return 10;
+      }
+     HANDLE_PROGRESS(vm_save_staqte_progress, progress);
+  }
+
+  IProgress* progress;
+  rc = m_dct_machines[vm_id]->turn_off(&progress);
+  if (FAILED(rc)){
+      return 19;
+  }
 
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;
+}
 }
 ////////////////////////////////////////////////////////////////////////////
 

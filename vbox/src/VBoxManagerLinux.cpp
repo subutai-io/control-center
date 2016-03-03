@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <thread>
-
+#include <QDebug>
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
 #include <VBox/com/com.h>
@@ -198,15 +198,34 @@ int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
 
-  nsresult rc = NS_OK;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if (state == VMS_Aborted) {
+      //return 1;//aborted machine will run
+  }
 
+  if (state == VMS_Stuck) {
+      return 2;
+  }
+
+  if( (int)state >= 8 && (int)state <= 23 ) //transition
+  {
+      qDebug() << "transition state\n" ;
+      return 4;
+  }
+
+  if( (int)state >= 5 && (int)state <= 19 )
+    {
+      qDebug() << "turned on already \n" ;
+      return 3;//1;
+  }
 
   nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->launch_vm(lm,
                                         getter_AddRefs(progress));
 
   if (NS_FAILED(rc))
-    return 2;
+    return 9;
 
   HANDLE_PROGRESS(vm_launch_progress, progress);
   return 0;
@@ -216,22 +235,41 @@ int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
 int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
-
-  nsresult rc;
-
-  if (save_state) {
-    nsCOMPtr<IProgress> progress;
-    rc = m_dct_machines[vm_id]->save_state(getter_AddRefs(progress));
-    if (NS_FAILED(rc)) {
-      return 2;
-    }
-    HANDLE_PROGRESS(vm_save_state_progress, progress);
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if (state == VMS_Aborted) {
+      return 11;//Impossible
   }
 
-  nsCOMPtr<IProgress> progress;
+  if (state == VMS_Stuck) {
+      return 2;
+  }
+
+  if( (int)state >= 8 && (int)state <= 23 ) //transition
+  {
+      qDebug() << "transition state\n" ;
+      return 4;
+  }
+
+  if( (int)state < 5 )
+    {
+      qDebug() << "turned on already \n" ;
+      return 5;//1;
+  }
+
+  if (save_state) {
+      nsCOMPtr<IProgress> progress;
+      rc = m_dct_machines[vm_id]->save_state(getter_AddRefs(progress));
+      if (FAILED(rc)){
+          return 10;
+      }
+     HANDLE_PROGRESS(vm_save_state_progress, progress);
+  }
+
+   nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->turn_off(getter_AddRefs(progress));
   if (NS_FAILED(rc)) {
-    return 3;
+    return 19;
   }
 
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
@@ -261,18 +299,8 @@ NS_IMETHODIMP CVBoxManagerLinux::CEventListenerLinux::HandleEvent(IEvent *event)
 
 void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS, nsCOMPtr<IEventListener> eL){
 
-//    nsCOMPtr<IEventSource> m_event_source;
-//    nsCOMPtr<IEventListener> m_event_listener, m_event_listener1;
-
  static bool volatile terminateEThread = false;
- nsCOMPtr<nsIEventQueue> eQ;
-
  nsresult rc;
-// rc = NS_GetMainEventQ(getter_AddRefs(m_eventQ));
-// if (rc == VBE_GET_MAIN_EVENT_QUEUE){
-
-// }
-
  while (!terminateEThread) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -281,5 +309,5 @@ void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS, nsCOMPtr<IEv
 
  }
 }
-
+////////////////////////////////////////////////////////////////////////////
 
