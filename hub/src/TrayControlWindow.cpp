@@ -118,18 +118,19 @@ void TrayControlWindow::create_tray_icon()
   m_hub_section  = m_hub_menu->addSection("");
   m_vbox_section = m_vbox_menu->addSection("");
 
-  m_tray_menu->addAction(m_act_hub);
 
 #ifdef RT_OS_LINUX
+  m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
-  m_tray_menu->addSeparator();
-  m_tray_menu->addAction(m_act_quit);
+
   //  m_tray_menu->insertMenu(tr("Environments"),m_hub_menu);
   //  m_tray_menu->insertMenu(m_act_vbox,m_vbox_menu);
 
   //  m_act_vbox->setMenu(m_tray_menu);
   //  m_act_hub->setMenu(m_hub_menu);
 #endif
+  m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_quit);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
