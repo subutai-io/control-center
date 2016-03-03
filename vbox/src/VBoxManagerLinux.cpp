@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <assert.h>
-#include <QDebug>
+#include <iostream>
 #include <thread>
 
 #include "VBoxManagerLinux.h"
@@ -14,7 +14,11 @@ CVBoxManagerLinux::CVBoxManagerLinux() :
   m_component_manager(nsnull),
   m_event_source(nsnull),
   m_event_listener(nsnull) {
-#define CHECK_RES(x) if (NS_FAILED(m_last_error)) {m_last_vb_error = x; break;}
+#define CHECK_RES(x) if (NS_FAILED(m_last_error)) { \
+    m_last_vb_error = x;\
+    std::cout << m_last_error << " " << m_last_vb_error << std::endl;\
+    break;\
+}
   do {
     m_last_error = com::Initialize(true);
     CHECK_RES(VBE_INIT_XPCOM2);
@@ -124,7 +128,6 @@ void CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
   ISessionStateChangedEvent* ssc_event;
   nsresult rc = event->QueryInterface(ISessionStateChangedEvent::GetIID(), (void**)&ssc_event);
   if (NS_FAILED(rc)) {
-    qDebug() << "query_interface failed " << rc;
     return;
   }
 

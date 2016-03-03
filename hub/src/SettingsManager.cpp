@@ -23,10 +23,10 @@ CSettingsManager::CSettingsManager() :
   m_post_url("https://hub.subut.ai/rest/v1/tray/%1"),
   m_get_url("https://hub.subut.ai/rest/v1/tray/%1"),
   m_refresh_time_sec(def_timeout),
-  #ifdef UNIX_NOT_MAC
+  #ifdef RT_OS_LINUX
   m_terminal_path("xterm"),
   m_p2p_path("p2p")
-  #elif UNIX_MAC
+  #elif RT_OS_DARWIN
   m_terminal_path("iterm"),
   m_p2p_path("p2p")
   #elif RT_OS_WINDOWS

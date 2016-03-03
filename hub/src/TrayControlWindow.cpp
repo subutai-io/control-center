@@ -13,8 +13,8 @@
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
-  m_vbox_section(NULL),
   m_hub_section(NULL),
+  m_vbox_section(NULL),
   m_quit_section(NULL),
   m_act_quit(NULL)
 {
