@@ -262,7 +262,7 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
       if (FAILED(rc)){
           return 10;
       }
-     HANDLE_PROGRESS(vm_save_staqte_progress, progress);
+     HANDLE_PROGRESS(vm_save_state_progress, progress);
   }
 
   IProgress* progress;
@@ -273,7 +273,6 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
 
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;
-}
 }
 ////////////////////////////////////////////////////////////////////////////
 
