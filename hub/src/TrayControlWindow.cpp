@@ -42,7 +42,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
       add_vm_menu(i->first);
     }
-  }  
+  }
 }
 
 TrayControlWindow::~TrayControlWindow()
@@ -62,8 +62,7 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   connect(menu, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
           this, SLOT(vmc_act_released(const com::Bstr&)));
   VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-  if ((int)state < 5)
-      menu->set_machine_stopped(FALSE);
+  menu->set_machine_stopped((int)state < 5);
   m_dct_vm_menus[vm_id] = menu;
 }
 
@@ -80,19 +79,19 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-//   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
-//   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+  //   m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+  //   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-   m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
-   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
+  m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
+  connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 
-    m_act_vbox = new QAction(tr("Virtual machines"), this);
-    connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
-    m_act_hub = new QAction(tr("Environments"), this);
-    connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
+  m_act_vbox = new QAction(tr("Virtual machines"), this);
+  connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+  m_act_hub = new QAction(tr("Environments"), this);
+  connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
-    m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
-    connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+  connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -104,7 +103,7 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
 
-//////////// Do not forget to remove defs after fixing on linux!/////////////////
+  //////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
@@ -137,7 +136,7 @@ void TrayControlWindow::create_tray_icon()
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
 
- }
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_vbox() {
@@ -162,7 +161,7 @@ void TrayControlWindow::show_settings_dialog() {
 
 void TrayControlWindow::show_hub() {
 
- m_hub_menu->exec(QCursor::pos());
+  m_hub_menu->exec(QCursor::pos());
   //m_hub_menu->exec();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -183,11 +182,7 @@ void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
   VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-  if (ns < 5) {
-    it->second->set_machine_stopped(FALSE);
-  } else {
-    it->second->set_machine_stopped(TRUE);
-  }
+  it->second->set_machine_stopped(ns < 5);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -238,7 +233,7 @@ void TrayControlWindow::refresh_timer_timeout() {
       CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont));
       connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
       connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
-                 this, SLOT(hub_menu_item_triggered(const CSSEnvironment*, const CHubContainer*)));
+              this, SLOT(hub_menu_item_triggered(const CSSEnvironment*, const CHubContainer*)));
       env_menu->addAction(act);
     }
   }
