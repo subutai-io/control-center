@@ -210,7 +210,7 @@ typedef uint64_t            uintptr_t;
  * For In C++ source the system stdint.h may have skipped these if it was
  * included before we managed to define __STDC_LIMIT_MACROS. (Kludge alert!)
  */
-//#if !defined(INT8_MIN) \
+/*#if !defined(INT8_MIN) \
 // || !defined(INT16_MIN) \
 // || !defined(INT32_MIN) \
 // || !defined(INT64_MIN) \
@@ -238,7 +238,7 @@ typedef uint64_t            uintptr_t;
 //# define INTMAX_MIN         INT64_MIN
 //# define INTMAX_MAX         INT64_MAX
 //# define UINTMAX_MAX        UINT64_MAX
-//#endif
+//#endif*/
 
 #endif
 
