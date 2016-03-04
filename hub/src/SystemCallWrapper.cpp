@@ -1,36 +1,27 @@
 
-#include <iostream>
-#include <fstream>
 #include <sstream>
+#include <stdio.h>
+#include <iostream>
+
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
+
+#include <QDebug>
 
 //check if it is crossplatform. should be because of using std.
 std::vector<std::string> CSystemCallWrapper::ssystem(const char *command) {
   std::vector<std::string> res;
-  //create temp file
-  char tmpname[L_tmpnam];
-  std::tmpnam(tmpname);
+  FILE* pf = popen(command, "r");
+  if (pf) {
+    char * line = NULL;
+    size_t len = 0;
 
-  //run command > temp file
-  std::string scommand = command;
-  std::string cmd = scommand + " >> " + tmpname;
-  std::system(cmd.c_str());
-
-  //collect results from tmp file
-  std::ifstream file(tmpname, std::ios::in);
-
-  if (file) {
-    while (!file.eof()) {
-      std::string line;
-      file >> line;
-      res.push_back(line);
+    while(getline(&line, &len, pf) != -1) {
+      qDebug() << line;
+      res.push_back(std::string(line, len));
     }
-    file.close();
+    pclose(pf);
   }
-
-  //remove tmp file
-  std::remove(tmpname);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
