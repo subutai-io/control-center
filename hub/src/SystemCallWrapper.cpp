@@ -1,7 +1,6 @@
 
-#include <sstream>
 #include <stdio.h>
-#include <iostream>
+#include <sstream>
 
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
@@ -20,23 +19,24 @@
 
 #pragma message ("Read comment to this function. Don't use this function for launching long time processes")
 
-CSystemCallWrapper::system_call_error_t
+system_call_wrapper_error_t
 CSystemCallWrapper::ssystem(const char *command,
                             std::vector<std::string>& lst_output) {
 #ifndef RT_OS_WINDOWS
   FILE* pf = popen(command, "r");
   if (pf) {
-    char * line = NULL;
+    char *line = NULL;
     size_t len = 0;
-
-    while(getline(&line, &len, pf) != -1) {
+    while(getline(&line, &len, pf) != -1)
       lst_output.push_back(std::string(line, len));
-    }
     pclose(pf);
+
+    if (lst_output.empty())
+      return SCWE_SHELL_ERROR;
   } else {
-    return SCE_PIPE;
+    return SCWE_PIPE;
   }
-  return SCE_SUCCESS;
+  return SCWE_SUCCESS;
 #else
   HANDLE h_cso_r; //child std out read
   HANDLE h_cso_w; //child std out write pipes
@@ -48,11 +48,11 @@ CSystemCallWrapper::ssystem(const char *command,
   sa_attrs.lpSecurityDescriptor = NULL;
 
   if (!CreatePipe(&h_cso_r, &h_cso_w, &sa_attrs, 0))
-    return SCE_PIPE;
+    return SCWE_PIPE;
 
   do {
     if (!SetHandleInformation(h_cso_r, HANDLE_FLAG_INHERIT, 0)) {
-      res = SCE_SET_HANDLE_INFO;
+      res = SCWE_SET_HANDLE_INFO;
       break;
     }
 
@@ -83,7 +83,7 @@ CSystemCallWrapper::ssystem(const char *command,
                   &pi);          // receives PROCESS_INFORMATION
 
     if (!b_success) {
-      res = SCE_CREATE_PROCESS;
+      res = SCWE_CREATE_PROCESS;
       break;
     } else {
       WaitForSingleObject(pi.hProcess, INFINITE);
@@ -96,8 +96,9 @@ CSystemCallWrapper::ssystem(const char *command,
     char r_buff[4096] = {0};
     b_success = FALSE;
     b_success = ReadFile( h_cso_r, r_buff, 256, &dw_read, NULL);
-    if(!b_success || dw_read == 0)
+    if(!b_success || dw_read == 0) {
       break;
+    }
 
     unsigned int f, l; //first last
     f = l = 0;
@@ -116,49 +117,61 @@ CSystemCallWrapper::ssystem(const char *command,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
-                                           const char *key,
-                                           const char *ip)
-{
-  std::ostringstream str_stream;
-  str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
-                ip << " -key " << key << " -hash " << hash;
-#ifndef RT_OS_WINDOWS
-  str_stream << " &";
-#endif
-  std::string command = str_stream.str();
-  std::vector<std::string> lst_out;
-  int res = ssystem(command.c_str(), lst_out);
-  return true; //TODO CHECK RESULT!!!!
-}
-////////////////////////////////////////////////////////////////////////////
-
-std::vector<std::string> CSystemCallWrapper::p2p_swarms_presented()
-{
+bool
+CSystemCallWrapper::is_in_swarm(const char *hash) {
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " show";
   std::string command = str_stream.str();
 
-  int res = 0;
   std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
+  if (res != SCWE_SUCCESS) {
+    //todo log error
+    return res;
+  }
 
-  res = ssystem(command.c_str(), lst_out);
-  //TODO CHECK RESULT!!!
-  return lst_out;
+  bool is_in = false;
+  for (auto i = lst_out.begin(); i != lst_out.end() && !is_in; ++i) {
+    is_in |= (i->find(hash) != std::string::npos);
+  }
+  return is_in;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CSystemCallWrapper::run_ssh_in_terminal(const char* user,
-                                             const char* ip)
+system_call_wrapper_error_t
+CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
+                                      const char *key,
+                                      const char *ip)
+{
+  if (is_in_swarm(hash)) return SCWE_SUCCESS;
+
+  std::ostringstream str_stream;
+  str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
+                ip << " -key " << key << " -hash " << hash;
+  std::string command = str_stream.str();
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
+  if (res != SCWE_SUCCESS)
+    return res;
+
+  return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::run_ssh_in_terminal(const char* user,
+                                        const char* ip)
 {
   std::ostringstream str_stream;
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\" to do script \"" <<
                 "ssh " << user << "@" << ip << "\"\'";
+  return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"ssh " << user << "@" << ip << "\" &";
+                " -e \"ssh " << user << "@" << ip << ";bash\" &";
+  return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
@@ -183,11 +196,8 @@ void CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                  NULL,
                  &si,
                  &pi);
-  return;
+  return SCWE_SUCCESS;
 
 #endif
-  int res;
-  std::vector<std::string> lst_out;
-  res = ssystem(str_stream.str().c_str(), lst_out);
 }
 ////////////////////////////////////////////////////////////////////////////
