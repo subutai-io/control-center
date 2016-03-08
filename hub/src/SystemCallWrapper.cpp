@@ -164,8 +164,11 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 {
   std::ostringstream str_stream;
 #ifdef RT_OS_DARWIN
-  str_stream << "osascript -e \'Tell application \"Terminal\" to do script \"" <<
-                "ssh " << user << "@" << ip << "\"\'";
+  str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
+                "  Activate\n" <<
+                "  do script \"" <<
+                "ssh " << user << "@" << ip << "\"\n" <<
+                " end tell\'";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
