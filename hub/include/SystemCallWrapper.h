@@ -7,7 +7,14 @@
 class CSystemCallWrapper {
 public:
 
-  static std::vector<std::string> ssystem (const char *command);
+  enum system_call_error_t {
+    SCE_SUCCESS = 0,
+    SCE_PIPE = 1,
+    SCE_SET_HANDLE_INFO = 2,
+    SCE_CREATE_PROCESS = 3,
+  };
+
+  static system_call_error_t ssystem(const char *command, std::vector<std::string> &lst_output);
 
   /*
     -dev interface name
@@ -38,7 +45,6 @@ public:
 
 
   static std::vector<std::string> p2p_swarms_presented();
-
   static void run_ssh_in_terminal(const char *user, const char *ip);
 };
 
