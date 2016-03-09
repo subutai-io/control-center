@@ -12,6 +12,26 @@
 #endif
 
 /*
+ * enum system_call_wrapper_error_t {
+  SCWE_SUCCESS = 0,
+  SCWE_SHELL_ERROR,
+  SCWE_PIPE,
+  SCWE_SET_HANDLE_INFO,
+  SCWE_CREATE_PROCESS,
+
+  SCWE_CANT_JOIN_SWARM,
+
+  SCWE_SSH_LAUNCH_FAILED,
+};
+*/
+static QString error_strings[] = {
+  "Success", "Shell error",
+  "Pipe error", "Set handle info error",
+  "Create process error", "Cant join to swarm",
+  "SSH launch error"
+};
+
+/*
  * On Windows we can't launch long time processes by calling this method.
  * BE CAREFUL!!! ATENTION!!! WARNING!!! ACHTUNG!!!!
 */
@@ -124,8 +144,9 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
   if (res != SCWE_SUCCESS) {
-    //todo log error
-    return res;
+    CNotifiactionObserver::NotifyAboutError(
+                error_strings[res]);
+    return false;
   }
 
   bool is_in = false;
@@ -141,7 +162,8 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                                       const char *key,
                                       const char *ip)
 {
-  if (is_in_swarm(hash)) return SCWE_SUCCESS;
+  if (is_in_swarm(hash))
+      return SCWE_SUCCESS;
 
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
@@ -149,12 +171,14 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   std::string command = str_stream.str();
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
-  if (res != SCWE_SUCCESS)
+  if (res != SCWE_SUCCESS) {
+    CNotifiactionObserver::NotifyAboutError(
+                QString("Join to p2p failed. Error : %1").arg(res));
     return res;
+  }
 
   if (lst_out.size() == 1 &&
-      lst_out[0].find("[ERROR]") != std::string::npos) {
-    //todo log
+      lst_out[0].find("[ERROR]") != std::string::npos) {        
     CNotifiactionObserver::NotifyAboutError(QString::fromStdString(lst_out[0]));
     return SCWE_CANT_JOIN_SWARM;
   }
