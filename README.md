@@ -13,4 +13,4 @@ Also ssh should be available from system command promt.
 Development & branching model
 -------------------
 
-UNDER CONSTRUCTION. Should be master for stable version and dev for developers. All branches should be based on dev branch.
+Should be master for stable version and dev for developers. All branches should be based on dev branch.

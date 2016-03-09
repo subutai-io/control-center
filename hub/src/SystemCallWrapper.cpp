@@ -4,13 +4,12 @@
 
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
+#include "NotifiactionObserver.h"
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
 #include <Process.h>
 #endif
-
-#include <QDebug>
 
 /*
  * On Windows we can't launch long time processes by calling this method.
@@ -113,7 +112,6 @@ CSystemCallWrapper::ssystem(const char *command,
   CloseHandle(h_cso_w);
   return res;
 #endif
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -154,6 +152,13 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (res != SCWE_SUCCESS)
     return res;
 
+  if (lst_out.size() == 1 &&
+      lst_out[0].find("[ERROR]") != std::string::npos) {
+    //todo log
+    CNotifiactionObserver::NotifyAboutError(QString::fromStdString(lst_out[0]));
+    return SCWE_CANT_JOIN_SWARM;
+  }
+
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -189,17 +194,17 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   char str_com[256] = {0};
   memcpy(str_com, str_stream.str().c_str(), str_stream.str().size());
 
-  CreateProcessA(NULL,
-                 str_com,
-                 NULL,
-                 NULL,
-                 FALSE,
-                 CREATE_NEW_CONSOLE,
-                 NULL,
-                 NULL,
-                 &si,
-                 &pi);
-  return SCWE_SUCCESS;
+  BOOL success = CreateProcessA(NULL,
+                                str_com,
+                                NULL,
+                                NULL,
+                                FALSE,
+                                CREATE_NEW_CONSOLE,
+                                NULL,
+                                NULL,
+                                &si,
+                                &pi);
+  return success ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
 
 #endif
 }

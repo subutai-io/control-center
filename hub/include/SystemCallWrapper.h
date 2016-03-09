@@ -13,6 +13,7 @@ enum system_call_wrapper_error_t {
   SCWE_CREATE_PROCESS,
 
   /*p2p errors*/
+  SCWE_CANT_JOIN_SWARM,
 
   /*ssh errors*/
   SCWE_SSH_LAUNCH_FAILED,

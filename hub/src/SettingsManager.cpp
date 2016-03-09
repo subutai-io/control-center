@@ -14,6 +14,8 @@ const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_TERMINAL_PATH("Terminal_Path");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
+const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
+
 static const int def_timeout = 10;//120;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
@@ -25,14 +27,15 @@ CSettingsManager::CSettingsManager() :
   m_refresh_time_sec(def_timeout),
   #ifdef RT_OS_LINUX
   m_terminal_path("xterm"),
-  m_p2p_path("p2p")
+  m_p2p_path("p2p"),
   #elif RT_OS_DARWIN
   m_terminal_path("iterm"),
-  m_p2p_path("p2p")
+  m_p2p_path("p2p"),
   #elif RT_OS_WINDOWS
   m_terminal_path("cmd"),
-  m_p2p_path("p2p.exe")
+  m_p2p_path("p2p.exe"),
   #endif
+  m_notification_delay_sec(5)
 {
   if (!m_settings.value(SM_POST_URL).isNull())
     m_post_url = m_settings.value(SM_POST_URL).toString();
@@ -51,5 +54,12 @@ CSettingsManager::CSettingsManager() :
 
   if (!m_settings.value(SM_P2P_PATH).isNull())
     m_p2p_path = m_settings.value(SM_P2P_PATH).toString();
+
+  if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {
+    bool parsed = false;
+    uint32_t nd = m_settings.value(SM_NOTIFICATION_DELAY_SEC).toUInt(&parsed);
+    if (parsed)
+      set_notification_delay_sec(nd);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////

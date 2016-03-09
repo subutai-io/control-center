@@ -11,6 +11,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
   ui->le_terminal_command->setText(CSettingsManager::Instance().terminal_path());
+  ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
+  ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
+  ui->sb_notification_delay->setValue(CSettingsManager::Instance().notification_delay_sec());
 
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));

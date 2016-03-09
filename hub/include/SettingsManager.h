@@ -22,6 +22,8 @@ private:
   static const QString SM_TERMINAL_PATH;
   static const QString SM_P2P_PATH;
 
+  static const QString SM_NOTIFICATION_DELAY_SEC;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -34,8 +36,12 @@ private:
   int32_t m_refresh_time_sec;
   QString m_terminal_path;
   QString m_p2p_path;
+  uint32_t m_notification_delay_sec;
 
 public:
+  static const int NOTIFICATION_DELAY_MIN = 3;
+  static const int NOTIFICATION_DELAY_MAX = 300;
+
   static CSettingsManager& Instance(void) {
     static CSettingsManager instance;
     return instance;
@@ -53,6 +59,7 @@ public:
   int32_t refresh_time_sec() const {return m_refresh_time_sec;}
   const QString& terminal_path() const {return m_terminal_path;}
   const QString& p2p_path() const {return m_p2p_path;}
+  uint32_t notification_delay_sec() const {return m_notification_delay_sec;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -92,6 +99,13 @@ public:
   void set_p2p_path(const QString& p2p_path) {
     m_p2p_path = p2p_path;
     m_settings.setValue(SM_P2P_PATH, m_p2p_path);
+  }
+
+  void set_notification_delay_sec(uint32_t delay_sec) {
+    m_notification_delay_sec = delay_sec;
+    if (delay_sec > NOTIFICATION_DELAY_MAX) m_notification_delay_sec = NOTIFICATION_DELAY_MAX;
+    if (delay_sec < NOTIFICATION_DELAY_MIN) m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
+    m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
   }
 };
 
