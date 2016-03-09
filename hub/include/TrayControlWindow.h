@@ -9,7 +9,7 @@
 #include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
 #include "RestWorker.h"
-
+#include "NotifiactionObserver.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -104,6 +104,8 @@ private slots:
   /*tray slots*/
   void show_settings_dialog();
   void show_hub();
+  void notification_received(notification_level_t level,
+                             const QString& msg);
 //  void join_to_swarm();
   void show_vbox();
 

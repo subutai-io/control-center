@@ -8,6 +8,7 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 
+
 #include <QDebug>
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
@@ -36,6 +37,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(vm_removed(const com::Bstr&)));
   connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const com::Bstr&)),
           this, SLOT(vm_state_changed(const com::Bstr&)));
+
+  connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
+                                                    this, SLOT(notification_received(notification_level_t, const QString&)));
 
   if (CVBoxManagerSingleton::Instance()->init_machines() == 0) {
     for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
@@ -166,6 +170,23 @@ void TrayControlWindow::show_hub() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void TrayControlWindow::notification_received(notification_level_t level,
+                                              const QString &msg) {
+  static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
+
+  //3rd element is warning, because critical shows messagebox when we need only notification.
+  //we will show message box when critical errors appears
+  static const QSystemTrayIcon::MessageIcon icons[] = {
+    QSystemTrayIcon::Information, QSystemTrayIcon::Warning,
+    QSystemTrayIcon::Warning, QSystemTrayIcon::Critical
+  };
+  m_sys_tray_icon->showMessage(titles[level],
+                               msg,
+                               icons[level],
+                               CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+}
+////////////////////////////////////////////////////////////////////////////
+
 ////////////////////////////////////////////////////////////////////////////
 /*** Vbox slots  ***/
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
@@ -244,15 +265,17 @@ void TrayControlWindow::refresh_timer_timeout() {
 
 void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
                                                 const CHubContainer *cont) {
-  bool connected_to_p2p = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
-                                                                env->key().toStdString().c_str(),
-                                                                "10.10.10.15");
-  if (!connected_to_p2p) {
-    qDebug() << "not connected to p2p";
+  system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
+                                                                          env->key().toStdString().c_str(),
+                                                                          "10.10.10.15");
+  if (err != SCWE_SUCCESS) {    
     return;
   }
 
-  CSystemCallWrapper::run_ssh_in_terminal("ubuntu", cont->ip().toStdString().c_str());
+  err = CSystemCallWrapper::run_ssh_in_terminal("ubuntu", cont->ip().toStdString().c_str());
+  if (err == SCWE_SUCCESS) return;
+
+  CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -267,6 +290,7 @@ CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
 CVboxMenu::~CVboxMenu() {
 
 }
+////////////////////////////////////////////////////////////////////////////
 
 void CVboxMenu::set_machine_stopped(bool stopped) {
   QString str_icon = stopped ? ":/hub/play.png" : ":/hub/stop.png";
