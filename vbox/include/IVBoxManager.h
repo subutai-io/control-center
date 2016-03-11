@@ -63,6 +63,10 @@ public:
                      const char** argv,
                      int argc);
 
+  virtual int pause(const com::Bstr& vm_id) = 0;
+  virtual int resume(const com::Bstr& vm_id) = 0;
+
+
   nsresult handle_event(VBoxEventType_T e_type,
                         IEvent *event);
   void init_com();

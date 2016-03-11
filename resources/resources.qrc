@@ -8,5 +8,10 @@
         <file>join_swarm.png</file>
         <file>play.png</file>
         <file>stop.png</file>
+        <file>pause_green.png</file>
+        <file>stop_disabled.png</file>
+        <file>record.png</file>
+        <file>play_disabled.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

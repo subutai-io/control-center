@@ -277,6 +277,55 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if( (int)state != 5 && (int)state != 8 && (int)state != 9 )
+  {
+    qDebug() << "not in running state \n" ;
+    return 6;//1;
+  }
+
+
+  //nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->pause();
+  if (NS_FAILED(rc)) {
+    return 19;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state != 6  )
+  {
+    qDebug() << "not in paused state \n" ;
+    return 6;//1;
+  }
+
+
+  //nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->resume();
+  if (NS_FAILED(rc)) {
+    return 21;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_ISUPPORTS1(CVBoxManagerLinux::CEventListenerLinux, IEventListener)
@@ -306,6 +355,7 @@ void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS,
     std::this_thread::sleep_for(std::chrono::seconds(1));
     IEvent *event;
     eS->GetEvent( eL, 100, &event);
+
   }
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -167,14 +167,18 @@ void VBoxManageWindow::show_err(int code) {
             break;
   case 5:   messg = "Machine is in Offline (Powered off) state";
             break;
+  case 6:   messg = "Machine is not in Running State";
+            break;
 
   case 9:   messg = "Cannot turn on, machine is busy, please wait";
             break;
   case 10:  messg = "Save state failed";
-  case 11:   messg = "Machine is in Aborted state";
             break;
+  case 11:  messg = "Machine is in Aborted state";
             break;
   case 19:  messg = "Cannot turn off, machine is busy, please wait";
+            break;
+  case 21:  messg = "Cannot resume, machine is busy, please wait";
             break;
   default:  messg = "Machine is busy, please wait";
             break;

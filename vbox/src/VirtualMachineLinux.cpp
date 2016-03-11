@@ -43,6 +43,30 @@ nsresult CVirtualMachineLinux::save_state(IProgress **progress) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+nsresult CVirtualMachineLinux::pause() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      nsCOMPtr<IConsole> console;
+      m_session->GetConsole(getter_AddRefs(console));
+      rc = console->Pause();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineLinux::resume() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      nsCOMPtr<IConsole> console;
+      m_session->GetConsole(getter_AddRefs(console));
+      rc = console->Resume();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 nsresult CVirtualMachineLinux::turn_off(IProgress **progress) {
   nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
   nsCOMPtr<IConsole> console;

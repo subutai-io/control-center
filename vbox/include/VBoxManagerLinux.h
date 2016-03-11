@@ -48,6 +48,8 @@ public:
   virtual int init_machines(void);
   virtual int launch_vm(const com::Bstr& vm_id, vb_launch_mode_t lm = VBML_HEADLESS);
   virtual int turn_off(const com::Bstr& vm_id, bool save_state = false);
+  virtual int pause(const com::Bstr &vm_id);
+  virtual int resume(const com::Bstr &vm_id);
 
 };
 
