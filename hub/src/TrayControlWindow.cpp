@@ -106,18 +106,29 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 //  add_player_menu(vm_id);
 //  qDebug() << "player menu added for " << " \n";
 //  menu->addMenu(m_player_menus[vm_id]);
-  m_dct_vm_menus[vm_id] = menu;
+//  m_dct_vm_menus[vm_id] = menu;
   m_dct_player_menus[vm_id] = pl;
 }
 
 void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
-  auto it = m_dct_vm_menus.find(vm_id);
-  if (it == m_dct_vm_menus.end()) return;
-  m_vbox_menu->removeAction(it->second->action());
-  disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
-             this, SLOT(vmc_act_released(const com::Bstr&)));
+  //auto it = m_dct_vm_menus.find(vm_id);
+  //if (it == m_dct_vm_menus.end()) return;
+
+  auto it = m_dct_player_menus.find(vm_id);
+  if (it == m_dct_player_menus.end()) return;
+  m_w_Player->remove(it->second);
+
+  disconnect(it->second, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
+              this, &TrayControlWindow::vbox_menu_btn_play_triggered);
+
+  connect(it->second, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
+              this, &TrayControlWindow::vbox_menu_btn_stop_triggered);
+
+//  m_vbox_menu->removeAction(it->second->action());
+//  disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
+//             this, SLOT(vmc_act_released(const com::Bstr&)));
   delete it->second;
-  m_dct_vm_menus.erase(it);
+  m_dct_player_menus.erase(it);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -151,11 +162,7 @@ void TrayControlWindow::create_tray_icon()
 //  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
 //  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
 
-
-  qDebug() << "fill vbox before \n";
   fill_vm_menu();
-  qDebug() << "fill vbox after \n";
-
 
   QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
   wAction->setDefaultWidget(m_w_Player);
@@ -187,9 +194,11 @@ void TrayControlWindow::create_tray_icon()
 #ifndef RT_OS_LINUX
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-  m_hub_section  = m_hub_menu->addSection("");
-  m_vbox_section = m_vbox_menu->addSection("");
+  fill_vm_menu();
 
+  QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
+  wAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(wAction);
 #endif
 
    m_hub_section  = m_hub_menu->addSection("");
@@ -263,14 +272,15 @@ void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
-  auto it = m_dct_vm_menus.find(vm_id);
-  if (it == m_dct_vm_menus.end()) return;
+//  auto it = m_dct_vm_menus.find(vm_id);
+//  if (it == m_dct_vm_menus.end()) return;
+  qDebug()<< "vm_state changed\n";
   auto ip = m_dct_player_menus.find(vm_id);
   if (ip == m_dct_player_menus.end()) return;
   VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-  it->second->set_machine_stopped(ns < 5);
-  qDebug()<< "set_machine_stopped\n";
-  ip->second->set_buttons(ns);
+//  it->second->set_machine_stopped(ns < 5);
+
+  ip->second->set_buttons((ushort)ns);
   qDebug()<< "set_buttons\n";
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -490,6 +500,13 @@ void CVBPlayer::add(CVBPlayerItem* pItem){
     p_v_Layout->addWidget(pItem);
 }
 
+void CVBPlayer::remove(CVBPlayerItem* pItem){
+    p_v_Layout->removeWidget(pItem);
+            //addWidget(pItem);
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
@@ -532,6 +549,18 @@ m_vm_player_item_id(vm->id()){
 }
 
 CVBPlayerItem::~CVBPlayerItem(){
+    p_h_Layout->removeWidget(pLabelName);
+    p_h_Layout->removeWidget(pLabelState);
+
+    disconnect(pPlay, SIGNAL(released()),
+            this, SLOT(vbox_menu_btn_play_released()));
+    disconnect(pStop, SIGNAL(released()),
+            this, SLOT(vbox_menu_btn_stop_released()));
+
+    p_h_Layout->removeWidget(pPlay);
+    p_h_Layout->removeWidget(pStop);
+    //p_h_Layout->removeMargin(2);
+    //p_h_Layout->removeObjectName(name);
 
 }
 
@@ -586,11 +615,12 @@ qDebug()<< "buttons " << state << "pPlay " << "\n";
 
 //Slots////////////////////////////////////////////////////////////////////
 void CVBPlayerItem::vbox_menu_btn_play_released() {
+    qDebug() << "Emit signal vbox_menu_btn_play released_signal("<< m_vm_player_item_id.raw()  <<") \n";
     emit(CVBPlayerItem::vbox_menu_btn_play_released_signal(m_vm_player_item_id));
 }
 
 void CVBPlayerItem::vbox_menu_btn_stop_released() {
-    qDebug() << "Emit signalvbox_menu_btn_released_signal("<< m_vm_player_item_id.raw()  <<") \n";
+    qDebug() << "Emit signal vbox_menu_btn_stop released_signal("<< m_vm_player_item_id.raw()  <<") \n";
     emit(CVBPlayerItem::vbox_menu_btn_stop_released_signal(m_vm_player_item_id));
 }
 

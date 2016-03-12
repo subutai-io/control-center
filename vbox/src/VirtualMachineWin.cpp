@@ -65,6 +65,32 @@ nsresult CVirtualMachineWin::turn_off(IProgress **progress) {
   return rc;
 }
 
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::pause() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      IConsole* console;
+      m_session->get_Console(&console);
+      rc = console->Pause();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::resume() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      IConsole* console;
+      m_session->get_Console(&console);
+      rc = console->Resume();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 nsresult CVirtualMachineWin::run_process(const char *path,
                                          const char *user,
                                          const char *password,

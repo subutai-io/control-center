@@ -276,6 +276,56 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+int CVBoxManagerWin::pause(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if( (int)state != 5 && (int)state != 8 && (int)state != 9 )
+  {
+    qDebug() << "not in running state \n" ;
+    return 6;//1;
+  }
+
+
+  //nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->pause();
+  if (FAILED(rc)) {
+    return 19;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state != 6  )
+  {
+    qDebug() << "not in paused state \n" ;
+    return 6;//1;
+  }
+
+  //nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->resume();
+  if (FAILED(rc)) {
+    return 21;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 HRESULT CEventListenerWin::HandleEvent(VBoxEventType e_type, IEvent *pEvent) {
   return m_vbox_manager->handle_event(e_type, pEvent);
 }

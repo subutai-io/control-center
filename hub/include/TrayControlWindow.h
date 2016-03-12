@@ -64,6 +64,7 @@ public:
     CVBPlayer(QWidget *parent);
     virtual ~CVBPlayer();
     void add(CVBPlayerItem* pItem);
+    void remove(CVBPlayerItem* pItem);
 };
 
 
