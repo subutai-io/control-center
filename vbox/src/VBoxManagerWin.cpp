@@ -172,8 +172,8 @@ int CVBoxManagerWin::init_machines() {
     machines[count]->get_Accessible(&accesible);
     if (accesible == FALSE) continue;
 
-    PRUnichar *vm_name;
-    machines[count]->GetName(&vm_name);
+    BSTR vm_name;
+    machines[count]->get_Name(&vm_name);
 
     QString name = QString::fromUtf16((ushort*)vm_name);
     qDebug() << "machine name " << name << "\n";

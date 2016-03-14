@@ -359,7 +359,7 @@ void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
 void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   nsresult rc;
   rc = CVBoxManagerSingleton::Instance()->remove(vm_id);
-  if (NS_FAILED(rc))
+  if (FAILED(rc))
       qDebug() << "cannot remove\n";
 }
 
@@ -549,7 +549,6 @@ void CVBPlayerItem::set_buttons(ushort state){
     //str_icon = ":/hub/PauseHot.png";
     pLabelState->setText(GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/play.png"));
-    qDebug()<< "buttons " << state << " \n";
     pStop->setIcon(QIcon(":/hub/stop.png"));
     return;
   }
