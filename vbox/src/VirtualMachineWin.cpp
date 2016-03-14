@@ -94,10 +94,8 @@ nsresult CVirtualMachineWin::resume() {
 ////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineWin::remove(IProgress **progress) {
-//  IConsole* console = NULL;
-//  m_session->UnlockMachine();
+
    nsresult rc;
-//   IMedium *aMedia;
    com::SafeArray<IMedium**> saMedia;
    rc = m_internal_machine->Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
    if (FAILED(rc)) return rc;

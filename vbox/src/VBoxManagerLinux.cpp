@@ -6,6 +6,8 @@
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
 #include <VBox/com/com.h>
+
+#include <nsString.h>
 using namespace com;
 
 CVBoxManagerLinux::CVBoxManagerLinux() :
@@ -333,47 +335,20 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 // Machine can be Removed if State < 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
-    return 1;
+    return 1; //no machine
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if(  (int)state != 6  )
+  if(  (int)state > 4  )
   {
-    qDebug() << "not in paused state \n" ;
+    qDebug() << "not in off-line state \n" ;
     return 6;//1;
   }
 
+  nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
 
-
-
-
-  //nsCOMPtr<IProgress> progress;
-  rc = m_dct_machines[vm_id]->remove();
-
-
-
-  IMedium **aMedia;
-      PRUint32 cMedia;
-      rc = machine->Unregister((CleanupMode_T)CleanupMode_DetachAllReturnHardDisksOnly,
-                               &cMedia, &aMedia);
-      if (NS_FAILED(rc))
-          printf("Unregistering the machine failed! rc=%#x\n", rc);
-      else
-      {
-          nsCOMPtr<IProgress> pProgress;
-          rc = machine->DeleteConfig(cMedia, aMedia, getter_AddRefs(pProgress));
-          if (NS_FAILED(rc))
-              printf("Deleting of machine failed! rc=%#x\n", rc);
-          else
-          {
-              rc = pProgress->WaitForCompletion(-1);
-              PRInt32 resultCode;
-              pProgress->GetResultCode(&resultCode);
-              if (NS_FAILED(rc) || NS_FAILED(resultCode))
-                  printf("Failed to delete the machine! rc=%#x\n",
-                         NS_FAILED(rc) ? rc : resultCode);
-          }
-      }
   if (FAILED(rc)) {
+    qDebug() << "failed to remove machine \n" ;
     return 23;
   }
 
@@ -384,69 +359,44 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
+int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actually here
 // Machine can be Removed if State < 5
 
 //dialog?
 
-  nsCOMPtr<IProgress> progress;
+//  nsCOMPtr<IProgress> progress;
 
   nsresult rc;
   nsCOMPtr<IMachine> newmachine;
-  rc = virtualBox->CreateMachine(NULL,        /* settings file */
-                                  NS_LITERAL_STRING("A brand new name").get(),
+  rc = m_virtual_box->CreateMachine(NULL,        /* settings file */
+                                  NS_LITERAL_STRING("test-lin-add").get(),
                                   0, nsnull,   /* groups (safearray)*/
                                   nsnull,      /* ostype */
                                   nsnull,      /* create flags */
-                                  getter_AddRefs(machine));
+                                  getter_AddRefs(newmachine));
    if (NS_FAILED(rc))
    {
-       return 31;
+       return 23;
    }
 
-   /*
-    * Set some properties
-    */
-   /* alternative to illustrate the use of string classes */
-   rc = machine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
-   rc = machine->SetMemorySize(128);
+   rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
+   rc = newmachine->SetMemorySize(128);
 
-
-   nsCOMPtr<IGuestOSType> osType;
-   rc = virtualBox->GetGuestOSType(NS_LITERAL_STRING("Windows2000").get(),
-                                   getter_AddRefs(osType));
-   if (NS_FAILED(rc))
-   {
-       printf("Error: could not find guest OS type! rc=%#x\n", rc);
-   }
-   else
-   {
-       machine->SetOSTypeId(NS_LITERAL_STRING("Windows2000").get());
-   }
-   rc = virtualBox->RegisterMachine(machine);
+   rc = m_virtual_box->RegisterMachine(newmachine);
       if (NS_FAILED(rc))
       {
-          printf("Error: could not register machine! rc=%#x\n", rc);
-          printErrorInfo();
-          return;
+          qDebug() << "could not register machine! \n";
+          return rc;
       }
 
-      rc = sessionMachine->SaveSettings();
-         if (NS_FAILED(rc))
-             printf("Could not save machine settings! rc=%#x\n", rc);
+//   rc = session->SaveSettings(); //need to save when going to be used!
+//         if (NS_FAILED(rc)){
+//            qDebug() << "could not save machine settings!\n";
+//            return rc;
+//         }
+//    session->UnlockMachine();
 
-         /*
-          * It is always important to close the open session when it becomes not
-          * necessary any more.
-          */
-         session->UnlockMachine();
-
-
-  if (FAILED(rc)) {
-    return 23;
-  }
-
-  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
 

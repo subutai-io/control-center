@@ -69,9 +69,9 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
- CVboxMenu* menu = new CVboxMenu(vm, this);
+ //CVboxMenu* menu = new CVboxMenu(vm, this);
 
- VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+ //VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
  CVBPlayerItem *pl = new CVBPlayerItem(CVBoxManagerSingleton::Instance()->vm_by_id(vm_id), this);
  m_w_Player->add(pl);
  connect(pl, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
@@ -135,15 +135,6 @@ void TrayControlWindow::create_tray_icon()
   m_vbox_menu = new QMenu(m_tray_menu);
 //  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
 //  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-
-//  fill_vm_menu();
-
-//  QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
-//  wAction->setDefaultWidget(m_w_Player);
-//  m_vbox_menu->addAction(wAction);
-
-  }
-
 #endif
 
 #ifndef RT_OS_LINUX
@@ -152,6 +143,7 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
   fill_vm_menu();
+
   QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
   wAction->setDefaultWidget(m_w_Player);
   m_vbox_menu->addAction(wAction);

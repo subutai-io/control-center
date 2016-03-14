@@ -20,8 +20,9 @@ public:
 
   virtual nsresult save_state(IProgress** progress);
   virtual nsresult turn_off(IProgress** progress);
-  virtual nsresult pause() ;
-  virtual nsresult resume() ;
+  virtual nsresult pause();
+  virtual nsresult resume();
+  virtual nsresult remove(IProgress** progress) ;
   virtual nsresult run_process(const char* path,
                                const char* user,
                                const char* password,
