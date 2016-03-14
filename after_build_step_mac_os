@@ -1,0 +1,2 @@
+install_name_tool -change @executable_path/../Frameworks/VBoxRT.dylib /Applications/VirtualBox.app/Contents/MacOS/VBoxRT.dylib SubutaiTray
+install_name_tool -change @executable_path/../Frameworks/VBoxXPCOM.dylib /Applications/VirtualBox.app/Contents/MacOS/VBoxXPCOM.dylib SubutaiTray

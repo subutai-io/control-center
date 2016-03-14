@@ -12,7 +12,6 @@ int main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
-
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
   DlgLogin dlg;

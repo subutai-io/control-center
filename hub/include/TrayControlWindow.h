@@ -15,7 +15,7 @@
 #include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
 #include "RestWorker.h"
-
+#include "NotifiactionObserver.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -27,10 +27,6 @@ class CVBPlayerItem : public QWidget {
 private:
     com::Bstr m_vm_player_item_id;
     QAction* m_player_item_act;
-//    QLabel *pLabelName;
-//    QLabel *pLabelState;
-//    QPushButton *pPlay;
-//    QPushButton *pStop;
 
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
@@ -42,15 +38,20 @@ public:
     QLabel *pLabelState;
     QPushButton *pPlay;
     QPushButton *pStop;
+    QPushButton *pAdd;
+    QPushButton *pRem;
 
 signals:
     void vbox_menu_btn_play_released_signal(const com::Bstr& vm_id);
     void vbox_menu_btn_stop_released_signal(const com::Bstr& vm_id);
+    void vbox_menu_btn_add_released_signal(const com::Bstr& vm_id);
+    void vbox_menu_btn_rem_released_signal(const com::Bstr& vm_id);
+
 public slots:
     void vbox_menu_btn_play_released();
     void vbox_menu_btn_stop_released();
-//    void vbox_menu_btn_play(const com::Bstr& vm_id);
-//    void vbox_menu_btn_stop(const com::Bstr& vm_id);
+    void vbox_menu_btn_add_released();
+    void vbox_menu_btn_rem_released();
 };
 
 class CVBPlayer : public QWidget{
@@ -73,7 +74,6 @@ class CVboxMenu : public QMenu {
 private:
   com::Bstr m_id;
   QAction* m_act;
-//  QAction* m_player_act;
 
 public:
   CVboxMenu(const IVirtualMachine *vm, QWidget *parent);
@@ -88,25 +88,6 @@ private slots:
   void act_triggered();
 
 };
-
-////////////////////////////////////////////////////////////////////////
-//class VBoxPlayerMenu : public QMenu {
-//  Q_OBJECT
-//private:
-//  com::Bstr m_player_id;
-//  QAction* m_player_act;
-
-//public:
-//  VBoxPlayerMenu(const IVirtualMachine *vm, QWidget *parent);
-//  virtual ~VBoxPlayerMenu();
-//  void set_machine_state(int state);
-//  QAction* action() {return m_player_act;}
-
-//signals:
-//  void vbox_play_act_triggered(const com::Bstr& vm_id);
-//private slots:
-//  void act_play_triggered();
-//};
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -153,11 +134,9 @@ private:
 
   /*vbox*/
   std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
-//  std::map<com::Bstr, VBoxPlayerMenu*> m_player_menus;
   std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const com::Bstr &vm_id);
   void remove_vm_menu(const com::Bstr &vm_id);
-
   /*vbox end*/
 
   /*tray icon*/
@@ -187,6 +166,8 @@ private slots:
   /*tray slots*/
   void show_settings_dialog();
   void show_hub();
+  void notification_received(notification_level_t level,
+                             const QString& msg);
 //  void join_to_swarm();
   void show_vbox();
 
@@ -199,6 +180,8 @@ private slots:
   void vmc_player_act_released(const com::Bstr& vm_id);
   void vbox_menu_btn_play_triggered(const com::Bstr& vm_id);
   void vbox_menu_btn_stop_triggered(const com::Bstr& vm_id);
+  void vbox_menu_btn_add_triggered(const com::Bstr& vm_id);
+  void vbox_menu_btn_rem_triggered(const com::Bstr& vm_id);
 
   /*hub slots*/
   void refresh_timer_timeout();

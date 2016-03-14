@@ -42,6 +42,7 @@ public:
                                const char** argv) = 0;
   virtual nsresult pause() = 0;
   virtual nsresult resume() = 0;
+  virtual nsresult remove(IProgress** progress) = 0;
 };
 
 #endif // IVIRTUALMACHINE

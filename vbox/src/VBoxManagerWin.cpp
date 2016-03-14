@@ -314,7 +314,6 @@ int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
     return 6;//1;
   }
 
-  //nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->resume();
   if (FAILED(rc)) {
     return 21;
@@ -323,6 +322,82 @@ int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
+// Machine can be Removed if State < 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  IProgress* progress;
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state > 4  )
+  {
+    qDebug() << "not in poweroff state \n" ;
+    return 6;//1;
+  }
+  rc = m_dct_machines[vm_id]->remove(&progress);
+  if (FAILED(rc)) {
+    return 23;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::add(const com::Bstr &vm_id) {
+// Machine can be Removed if State < 5
+
+//dialog?
+  IProgress* progress;
+  nsresult rc;
+  IMachine *newmachine = NULL;
+  BSTR vm_idd = SysAllocString(L"test-add");
+  if (m_dct_machines.find(vm_id)!= m_dct_machines.end()){
+    qDebug() << "vm exists \n" ;
+    //return 23;//vm exists
+  }
+  rc = m_virtual_box->CreateMachine(NULL,
+                                    vm_idd,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    &newmachine);
+  if (FAILED(rc)) {
+      qDebug() << "create failed \n" ;
+    return 23;
+  }
+  rc = newmachine->put_MemorySize(128);
+  if (FAILED(rc)) {
+      qDebug() << "memsize failed \n" ;
+    return 23;
+  }
+
+//          virtual HRESULT STDMETHODCALLTYPE CreateMachine(
+//              /* [in] */ BSTR aSettingsFile,
+//              /* [in] */ BSTR aName,
+//              /* [in] */ SAFEARRAY * aGroups,
+//              /* [in] */ BSTR aOsTypeId,
+//              /* [in] */ BSTR aFlags,
+//              /* [retval][out] */ IMachine **aMachine) = 0;
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  rc = m_virtual_box->RegisterMachine(newmachine);
+  if (FAILED(rc)) {
+      qDebug() << "register failed \n" ;
+    return 23;
+  }
+
+  return rc;
+}
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 

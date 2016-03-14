@@ -1,6 +1,8 @@
 #include "VirtualMachineWin.h"
 #include <stdint.h>
 #include <assert.h>
+#include <VBox/com/ptr.h>
+#include <VBox/com/array.h>
 
 CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
   assert(com_machine != NULL);
@@ -87,6 +89,24 @@ nsresult CVirtualMachineWin::resume() {
       rc = console->Resume();
       m_session->UnlockMachine();
       return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::remove(IProgress **progress) {
+//  IConsole* console = NULL;
+//  m_session->UnlockMachine();
+   nsresult rc;
+//   IMedium *aMedia;
+   com::SafeArray<IMedium**> saMedia;
+   rc = m_internal_machine->Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   if (FAILED(rc)) return rc;
+
+   rc = m_internal_machine->DeleteConfig(ComSafeArrayAsInParam(saMedia), progress);
+           //Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   if (FAILED(rc)) return rc;
+
+   return rc;
 }
 
 ////////////////////////////////////////////////////////////////////////////

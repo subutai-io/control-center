@@ -75,6 +75,17 @@ nsresult CVirtualMachineLinux::turn_off(IProgress **progress) {
   m_session->UnlockMachine();
   return rc;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineLinux::remove(Iprogress **progress) {
+  nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+  nsCOMPtr<IConsole> console;
+  m_session->GetConsole(getter_AddRefs(console));
+  rc = console->PowerDown(progress);
+  m_session->UnlockMachine();
+  return rc;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineLinux::run_process(const char *path,
