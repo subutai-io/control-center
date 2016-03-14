@@ -79,8 +79,8 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   connect(pl, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_stop_triggered);
 
-  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
-          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
+//  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
+//          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_rem_triggered);
@@ -155,12 +155,6 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
 
-  // m_tray_menu->insertMenu(tr("Environments"),m_hub_menu);
-  //m_tray_menu->insertMenu(m_act_vbox,m_vbox_menu);
-
-
-  //  m_act_vbox->setMenu(m_tray_menu);
-  //    m_act_hub->setMenu(m_hub_menu);
 #endif
 
   m_tray_menu->addSeparator();
@@ -171,18 +165,12 @@ void TrayControlWindow::create_tray_icon()
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
 
-
-  //  m_sys_tray_icon->setContextMenu(m_hub_menu);
-  //  m_sys_tray_icon->setContextMenu(m_vbox_menu);
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_vbox() {
-  //m_act_vbox->setMenu(m_tray_menu);
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
-  //m_vbox_menu->exec(curpos);
   m_vbox_menu->popup(curpos,m_act_hub);
   //  m_vbox_menu->exec();
 
@@ -201,8 +189,7 @@ void TrayControlWindow::show_settings_dialog() {
 
 void TrayControlWindow::show_hub() {
 
-  //m_hub_menu->exec(QCursor::pos());
-  m_hub_menu->popup(QCursor::pos(),m_act_hub);
+   m_hub_menu->popup(QCursor::pos(),m_act_hub);
   //m_hub_menu->exec();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -236,12 +223,11 @@ void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
-  qDebug()<< "vm_state changed\n";
   auto ip = m_dct_player_menus.find(vm_id);
   if (ip == m_dct_player_menus.end()) return;
   VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
   ip->second->set_buttons((ushort)ns);
-  qDebug()<< "set_buttons\n";
+
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -348,7 +334,6 @@ void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
 
   if (state == 6 || state == 8 || state == 9) { //Paused
     rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
-    qDebug() << "resume result : " << rc << "\n";
     return;
   }
   return;
@@ -362,7 +347,6 @@ void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
   }
 
   rc = CVBoxManagerSingleton::Instance()->turn_off(vm_id);
-  qDebug() << "turn_off result : " << rc << "\n";
   return;
 
 }
@@ -370,13 +354,13 @@ void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
 void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
   nsresult rc;
   rc = CVBoxManagerSingleton::Instance()->add(vm_id);
-  qDebug() << "add result : " << rc << "\n";
 }
 
 void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   nsresult rc;
   rc = CVBoxManagerSingleton::Instance()->remove(vm_id);
-  qDebug() << "remove result : " << rc << "\n";
+  if (NS_FAILED(rc))
+      qDebug() << "cannot remove\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -398,11 +382,6 @@ CVboxMenu::~CVboxMenu(){
 
 }
 ////////////////////////////////////////////////////////////////////////////
-
-//void CVboxMenu::set_machine_stopped(bool stopped) {
-//  QString str_icon = stopped ? ":/hub/play.png" : ":/hub/stop.png";
-//  m_act->setIcon(QIcon(str_icon));
-//}
 
 void CVboxMenu::act_triggered() {
   emit vbox_menu_act_triggered(m_id);
@@ -500,29 +479,37 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   pPlay->setIcon(QIcon(":/hub/play.png"));
   pStop->setIcon(QIcon(":/hub/stop.png"));
 
+  pPlay->setToolTip("Play/Resume");
+  pStop->setToolTip("Power off");
   connect(pPlay, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_play_released()));
   connect(pStop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()));
 
-  pAdd = new QPushButton("Add", this);
-  pRem = new QPushButton("Rem", this);
-  //    pAdd->setIcon(QIcon(":/hub/play.png"));
-  //    pRem->setIcon(QIcon(":/hub/stop.png"));
+//  pAdd = new QPushButton("Add", this);
+//  pAdd->setIcon(QIcon(":/hub/play.png"));
+//  connect(pAdd, SIGNAL(released()),
+//          this, SLOT(vbox_menu_btn_add_released()));
 
-  connect(pAdd, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_add_released()));
+  pRem = new QPushButton("", this);
+  pRem->setIcon(QIcon(":/hub/delete.png"));
+  pRem->setToolTip("Attention! Removes VM. All files will be deleted");
+
+
   connect(pRem, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_rem_released()));
 
   set_buttons(state);
   p_h_Layout->addWidget(pLabelName);
   p_h_Layout->addWidget(pLabelState);
+
+  p_h_Layout->addWidget(pRem);
+
   p_h_Layout->addWidget(pPlay);
   p_h_Layout->addWidget(pStop);
 
-  p_h_Layout->addWidget(pAdd);
-  p_h_Layout->addWidget(pRem);
+  //p_h_Layout->addWidget(pAdd);
+
 
   p_h_Layout->setMargin(2);
   p_h_Layout->setObjectName(name);
@@ -543,12 +530,11 @@ CVBPlayerItem::~CVBPlayerItem(){
 }
 
 void CVBPlayerItem::set_buttons(ushort state){
-  qDebug()<< "buttons " << state << "pPlay " << "\n";
   if (state < 5) { //turned off
     //str_icon = ":/hub/play.png";
     pLabelState->setText(GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/play.png"));
-    pStop->setIcon(QIcon(":/hub/stop_disabled.png"));qDebug()<< "buttons <5" << state << " \n";
+    pStop->setIcon(QIcon(":/hub/stop_disabled.png"));
     return;
   }
 
@@ -556,7 +542,7 @@ void CVBPlayerItem::set_buttons(ushort state){
     //str_icon =   ":/hub/stop.png";//Add PauseNormalRed
     pLabelState->setText(GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/pause_green.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));qDebug()<< "buttons ==5" << state << " \n";
+    pStop->setIcon(QIcon(":/hub/stop.png"));
     return;
   }
   if (state == 6) {//Paused
@@ -564,7 +550,7 @@ void CVBPlayerItem::set_buttons(ushort state){
     pLabelState->setText(GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/play.png"));
     qDebug()<< "buttons " << state << " \n";
-    pStop->setIcon(QIcon(":/hub/stop.png"));qDebug()<< "buttons ==6" << state << " \n";
+    pStop->setIcon(QIcon(":/hub/stop.png"));
     return;
   }
   if (state == 7) {//Stuck, Gurumeditation, only power off
@@ -593,23 +579,19 @@ void CVBPlayerItem::set_buttons(ushort state){
 
 //Slots////////////////////////////////////////////////////////////////////
 void CVBPlayerItem::vbox_menu_btn_play_released() {
-  qDebug() << "Emit signal vbox_menu_btn_play released_signal("<< m_vm_player_item_id.raw()  <<") \n";
   emit(CVBPlayerItem::vbox_menu_btn_play_released_signal(m_vm_player_item_id));
 }
 
 void CVBPlayerItem::vbox_menu_btn_stop_released() {
-  qDebug() << "Emit signal vbox_menu_btn_stop released_signal("<< m_vm_player_item_id.raw()  <<") \n";
   emit(CVBPlayerItem::vbox_menu_btn_stop_released_signal(m_vm_player_item_id));
 }
 
 void CVBPlayerItem::vbox_menu_btn_add_released() {
-  qDebug() << "Emit signal vbox_menu_btn_play released_signal("<< m_vm_player_item_id.raw()  <<") \n";
   emit(CVBPlayerItem::vbox_menu_btn_add_released_signal(m_vm_player_item_id));
 }
 
 void CVBPlayerItem::vbox_menu_btn_rem_released() {
-  qDebug() << "Emit signal vbox_menu_btn_stop released_signal("<< m_vm_player_item_id.raw()  <<") \n";
-  emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
+   emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 
 ///////////////////////////////////////////////////////////////////////////

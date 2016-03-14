@@ -8,6 +8,8 @@
 #include <QDebug>
 #include "VBoxManagerWin.h"
 #include "VirtualMachineWin.h"
+#include <QMessageBox>
+
 typedef BOOL WINBOOL;
 
 CVBoxManagerWin::CVBoxManagerWin() :
@@ -169,6 +171,14 @@ int CVBoxManagerWin::init_machines() {
     WINBOOL accesible = FALSE;
     machines[count]->get_Accessible(&accesible);
     if (accesible == FALSE) continue;
+
+    PRUnichar *vm_name;
+    machines[count]->GetName(&vm_name);
+
+    QString name = QString::fromUtf16((ushort*)vm_name);
+    qDebug() << "machine name " << name << "\n";
+//    if (!name.contains("subutai"))
+//        continue;
 
     IVirtualMachine* vm = new CVirtualMachineWin(machines[count]);
     m_dct_machines[vm->id()] = vm;
@@ -332,6 +342,28 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
     return 1;
   nsresult rc, state;
   IProgress* progress;
+
+  QMessageBox msg;
+  msg.setIcon(QMessageBox::Question);
+  msg.setText("Virtual machine will be removed! ");
+  msg.setInformativeText("Are You sure?");
+  msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+  msg.setDefaultButton(QMessageBox::Cancel);
+  int mret = msg.exec();
+  switch (mret) {
+  case QMessageBox::Cancel:
+      qDebug() << "cancel pressed \n";
+      return 23;
+      break;
+  case QMessageBox::Ok:
+      qDebug() << "ok pressed \n";
+      break;
+  default:
+      return 23;
+      break;
+  }
+
+
   state = m_dct_machines[vm_id]->state();
   if(  (int)state > 4  )
   {

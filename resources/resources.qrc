@@ -12,6 +12,7 @@
         <file>stop_disabled.png</file>
         <file>record.png</file>
         <file>play_disabled.png</file>
+        <file>delete.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

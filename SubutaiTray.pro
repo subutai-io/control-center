@@ -131,3 +131,7 @@ win32: {
               vbox/include/VBoxManagerWin.h
 }
 #////////////////////////////////////////////////////////////////////////////
+
+DISTFILES += \
+    resources/add.png \
+    resources/delete.png

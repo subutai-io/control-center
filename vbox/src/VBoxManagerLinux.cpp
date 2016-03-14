@@ -6,8 +6,9 @@
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
 #include <VBox/com/com.h>
-
 #include <nsString.h>
+#include <QMessageBox>
+
 using namespace com;
 
 CVBoxManagerLinux::CVBoxManagerLinux() :
@@ -164,6 +165,13 @@ int CVBoxManagerLinux::init_machines() {
     machines[count]->GetAccessible(&is_accesible);
 
     if (!is_accesible) continue;
+    PRUnichar *vm_name;
+    machines[count]->GetName(&vm_name);
+
+    QString name = QString::fromUtf16((ushort*)vm_name);
+    qDebug() << "machine name " << name << "\n";
+//    if (!name.contains("subutai"))
+//        continue;
 
     ISession* session;
     rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
@@ -333,27 +341,50 @@ int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
 
 int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 // Machine can be Removed if State < 5
+    QMessageBox msg;
+    msg.setIcon(QMessageBox::Question);
+    msg.setText(tr("Virtual machine will be removed!"));
+    msg.setInformativeText(tr("Are You sure?"));
+    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msg.setDefaultButton(QMessageBox::Cancel);
+    int mret = msg.exec();
+    switch (mret) {
+    case QMessageBox::No:
+        qDebug() << "no pressed \n";
+        return 23;
+    case QMessageBox::Yes:
+        qDebug() << "yes pressed \n";
+        break;
+    default:
+        return 23;
+    }
+    qDebug() << "ok pressed go further \n";
+    if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+        return 1; //no machine
+    nsresult rc, state;
+    state = m_dct_machines[vm_id]->state();
+    if(  (int)state > 4  )
+    {
+        qDebug() << "not in off-line state \n" ;
+        msg.setIcon(QMessageBox::Information);
+        msg.setText(tr("Virtual machine can not be removed!"));
+        msg.setInformativeText(tr("Power off machine first"));
+        msg.setStandardButtons(QMessageBox::Ok);
+        mret = msg.exec();
 
-  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
-    return 1; //no machine
-  nsresult rc, state;
-  state = m_dct_machines[vm_id]->state();
-  if(  (int)state > 4  )
-  {
-    qDebug() << "not in off-line state \n" ;
-    return 6;//1;
-  }
+        return 6;//1;
+    }
 
-  nsCOMPtr<IProgress> progress;
-  rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
+    nsCOMPtr<IProgress> progress;
+    rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
 
-  if (FAILED(rc)) {
-    qDebug() << "failed to remove machine \n" ;
-    return 23;
-  }
+    if (FAILED(rc)) {
+        qDebug() << "failed to remove machine \n" ;
+        return 23;
+    }
 
-  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
-  return rc;
+    //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+    return rc;
 }
 
 
