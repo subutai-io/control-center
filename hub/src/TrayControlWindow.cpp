@@ -353,7 +353,9 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 void TrayControlWindow::launch_Hub() {
   //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
   QString browser = "/etc/alternatives/x-www-browser";
-  QString hub_url = "https://hub.subut.ai";
+  QString hub_url;
+//  QStringList hub_url;
+//  hub_url << "https://hub.subut.ai";
 
 //    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
 //                                      browser, hub_url);
@@ -367,14 +369,16 @@ void TrayControlWindow::launch_Hub() {
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_SS() {
-  //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
-  QString browser; // "/etc/alternatives/x-www-browser";
-#if defined(RT_OS_LINUX) || defined(RT_OS_DARWIN)
-  browser = "/usr/bin/chrome";
+    QString browser; // "/etc/alternatives/x-www-browser";
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+#endif
+#if defined (RT_OS_DARWIN)
+  browser = "/Applications/Google\ Chrome.app""; //need to be checked
 #elif RT_OS_WINDOWS
-  //browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
-  //browser = "chrome.exe";
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
+
 #endif
   QStringList hub_url;
   hub_url << "https://localhost:9999";
@@ -387,7 +391,7 @@ void TrayControlWindow::launch_SS() {
       qDebug() << browser << "no " << (int)err << "\n";
       return;
   }
-  qDebug() << browser << "no " << (int)err << "\n";
+  qDebug() << browser << "yes " << (int)err << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
