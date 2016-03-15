@@ -4,6 +4,7 @@
 #include <SystemCallWrapper.h>
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
+#include <QProcess>
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -221,3 +222,14 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 #endif
 }
 ////////////////////////////////////////////////////////////////////////////
+
+ system_call_wrapper_error_t CSystemCallWrapper::fork_process(int argc, const QString argv1, const QString argv2){
+
+
+  if  (QProcess::startDetached(argv1 + " " +argv2)){
+       return SCWE_SUCCESS;
+  } else {
+       return SCWE_CREATE_PROCESS;
+  }
+
+}

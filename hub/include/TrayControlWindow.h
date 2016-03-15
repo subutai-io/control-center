@@ -111,6 +111,29 @@ public slots:
   void internal_action_triggered();
 
 };
+
+////////////////////////////////////////////////////////////////////////////
+
+//class CLaunchMenuItem : public QObject {
+// Q_OBJECT
+//private:
+//  const CSSEnvironment* m_hub_environment;
+//  const CHubContainer* m_hub_container;
+
+//public:
+//  explicit CLaunchMenuItem(const CSSEnvironment* env,
+//                                   const CHubContainer* cont) :
+//    m_hub_environment(env), m_hub_container(cont){}
+
+//  ~CHubEnvironmentMenuItem(){}
+
+//signals:
+//  void action_triggered(const CSSEnvironment*, const CHubContainer*);
+
+//public slots:
+//  void internal_action_triggered();
+
+//};
 ////////////////////////////////////////////////////////////////////////////
 
 class TrayControlWindow : public QMainWindow
@@ -143,14 +166,21 @@ private:
   QMenu *m_hub_menu;
   QMenu *m_vbox_menu;
   QMenu *m_player_menu;
+  QMenu *m_launch_menu;
+
   QAction *m_hub_section;
   QAction *m_vbox_section;
+  QAction *m_launch_section;
   QAction *m_quit_section;
+
 
   QAction *m_act_quit;
   QAction *m_act_settings;
   QAction *m_act_vbox;
   QAction *m_act_hub;
+  QAction *m_act_launch;
+  QAction *m_act_launch_SS;
+  QAction *m_act_launch_Hub;
 
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
@@ -158,6 +188,7 @@ private:
   void create_tray_actions();
   void create_tray_icon();
   void fill_vm_menu();
+  void fill_launch_menu();
 
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
@@ -166,10 +197,12 @@ private slots:
   /*tray slots*/
   void show_settings_dialog();
   void show_hub();
+  void show_vbox();
+  void show_launch();
   void notification_received(notification_level_t level,
                              const QString& msg);
 //  void join_to_swarm();
-  void show_vbox();
+
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
@@ -182,6 +215,8 @@ private slots:
   void vbox_menu_btn_stop_triggered(const com::Bstr& vm_id);
   void vbox_menu_btn_add_triggered(const com::Bstr& vm_id);
   void vbox_menu_btn_rem_triggered(const com::Bstr& vm_id);
+  void launch_Hub();
+  void launch_SS();
 
   /*hub slots*/
   void refresh_timer_timeout();

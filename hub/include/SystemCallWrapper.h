@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <QString>
 
 enum system_call_wrapper_error_t {
   /*common errors*/
@@ -19,8 +20,6 @@ enum system_call_wrapper_error_t {
   SCWE_SSH_LAUNCH_FAILED,
 };
 ////////////////////////////////////////////////////////////////////////////
-
-
 
 class CSystemCallWrapper {
 private:
@@ -59,6 +58,7 @@ public:
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
                                                          const char *ip);
+  static system_call_wrapper_error_t fork_process(int argc, const QString argv1, const QString argv2);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

@@ -18,6 +18,7 @@
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
+  m_launch_section(NULL),
   m_hub_section(NULL),
   m_vbox_section(NULL),
   m_quit_section(NULL),
@@ -42,7 +43,6 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(vm_removed(const com::Bstr&)));
   connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const com::Bstr&)),
           this, SLOT(vm_state_changed(const com::Bstr&)));
-
   connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
           this, SLOT(notification_received(notification_level_t, const QString&)));
 }
@@ -61,6 +61,22 @@ void TrayControlWindow::fill_vm_menu(){
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::fill_launch_menu(){
+    m_act_launch_SS = new QAction(tr("Launch SS console"), this);
+    connect(m_act_launch, SIGNAL(triggered()), this, SLOT(launch_SS()));
+
+    m_act_launch_Hub = new QAction(tr("Launch Hub website"), this);
+    connect(m_act_launch, SIGNAL(triggered()), this, SLOT(launch_Hub()));
+
+    m_launch_menu->addAction(m_act_launch_SS);
+    m_launch_menu->addAction(m_act_launch_Hub);
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
@@ -105,6 +121,9 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
+  m_act_launch = new QAction(QIcon(":/hub/record.png"), tr("Launch"), this);
+  connect(m_act_launch, SIGNAL(triggered()), this, SLOT(show_launch()));
+
   m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 
@@ -124,33 +143,40 @@ void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
 
+  m_tray_menu->addAction(m_act_launch);
+  m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
+
 
   //////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
-  //  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
-  //  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+  m_launch_menu = new QMenu(m_tray_menu);
 #endif
 
 #ifndef RT_OS_LINUX
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+  m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
+
 #endif
 
   fill_vm_menu();
+  fill_launch_menu();
 
   QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
   wAction->setDefaultWidget(m_w_Player);
   m_vbox_menu->addAction(wAction);
 
-
+  m_launch_section = m_launch_menu->addSection("");
   m_hub_section  = m_hub_menu->addSection("");
   m_vbox_section = m_vbox_menu->addSection("");
 
+
 #ifdef RT_OS_LINUX
+  m_tray_menu->insertAction(m_act_settings, m_act_launch);
   m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
 
@@ -191,6 +217,16 @@ void TrayControlWindow::show_hub() {
    m_hub_menu->popup(QCursor::pos(),m_act_hub);
   //m_hub_menu->exec();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::show_launch() {
+
+   m_launch_menu->popup(QCursor::pos(),m_act_launch);
+  //m_hub_menu->exec();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(notification_level_t level,
@@ -301,6 +337,7 @@ void TrayControlWindow::refresh_timer_timeout() {
 
 void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
                                                 const CHubContainer *cont) {
+
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
                                                                           "10.10.10.15");
@@ -314,7 +351,36 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
   CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
 }
 
+////////////////////////////////////////////////////////////////////////////
+void TrayControlWindow::launch_Hub() {
+    //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
+    QString browser = "/etc/alternatives/x-www-browser";
+    QString hub_url = "https://hub.subut.ai";
 
+
+    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
+                                      browser, hub_url);
+    if (err != SCWE_SUCCESS) {
+        return;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////
+void TrayControlWindow::launch_SS() {
+    //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
+    QString browser = "/etc/alternatives/x-www-browser";
+    QString hub_url = "https://192.168.1.101:8443";
+
+
+    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
+                                      browser, hub_url);
+    if (err != SCWE_SUCCESS) {
+        return;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
   nsresult rc;
   ushort state = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
@@ -590,3 +656,8 @@ void CVBPlayerItem::vbox_menu_btn_rem_released() {
 }
 
 ///////////////////////////////////////////////////////////////////////////
+
+//CLaunchMenuItem::CLaunchMenuItem() :
+//    m_lm_id:{
+
+//        }
