@@ -177,8 +177,8 @@ int CVBoxManagerWin::init_machines() {
 
     QString name = QString::fromUtf16((ushort*)vm_name);
     qDebug() << "machine name " << name << "\n";
-//    if (!name.contains("subutai"))
-//        continue;
+    if (!name.contains("subutai"))
+        continue;
 
     IVirtualMachine* vm = new CVirtualMachineWin(machines[count]);
     m_dct_machines[vm->id()] = vm;

@@ -13,7 +13,6 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 
-
 #include <QDebug>
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
@@ -273,7 +272,6 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
 
 /*** Refresh ***/
 void TrayControlWindow::refresh_timer_timeout() {
-  m_refresh_timer.stop();
   int http_code, err_code;
   std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
   if (res == m_lst_environments) return;
@@ -298,8 +296,6 @@ void TrayControlWindow::refresh_timer_timeout() {
       env_menu->addAction(act);
     }
   }
-
-  m_refresh_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
