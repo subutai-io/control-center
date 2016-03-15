@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <sstream>
+#include <QDebug>
 
 #include <SystemCallWrapper.h>
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
 #include <QProcess>
+#include <QDesktopServices>
+#include <QUrl>
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -223,13 +226,36 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 }
 ////////////////////////////////////////////////////////////////////////////
 
- system_call_wrapper_error_t CSystemCallWrapper::fork_process(int argc, const QString argv1, const QString argv2){
+ system_call_wrapper_error_t CSystemCallWrapper::fork_process(const QString program, const QStringList argv){
 
-
-  if  (QProcess::startDetached(argv1 + " " +argv2)){
+  QProcess *p = new QProcess();
+  QString command;
+  command = "\"" + program +"\" ";
+  for (int i = 0; i < argv.count(); ++i){
+      command += " ";
+      command += argv[i];
+  }
+  qDebug() << "command " << command << "\n";
+//  p->start(program, argv);
+  if  (QProcess::startDetached(command)){
        return SCWE_SUCCESS;
   } else {
        return SCWE_CREATE_PROCESS;
   }
 
 }
+
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::open_url(QString s_url){
+  //@bool QDesktopServices::openUrl ( const QUrl & url ) [static]@
+  QUrl q_url =QUrl(s_url);
+  if (QDesktopServices::openUrl(q_url)) {
+        return SCWE_SUCCESS;
+   } else {
+        return SCWE_CREATE_PROCESS;
+   }
+}
+
+
+
+

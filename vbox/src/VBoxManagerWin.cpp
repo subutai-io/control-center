@@ -428,8 +428,21 @@ int CVBoxManagerWin::add(const com::Bstr &vm_id) {
   return rc;
 }
 
+////////////////////////////////////////////////////////////////////////////
 
-
+//int CVBoxManagerWin::find_net_address(const com::Bstr &vm_id) {
+//  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+//      return 1;
+//  nsresult rc, state;
+//  IMachine *m =  m_dct_machines[vm_id];
+//  state = m_dct_machines[vm_id]->state();
+//  if( (int)state != 5 )
+//  {
+//    qDebug() << "not in running state \n" ;
+//    return 6;//1;
+//  }
+// m->
+//}
 
 ////////////////////////////////////////////////////////////////////////////
 

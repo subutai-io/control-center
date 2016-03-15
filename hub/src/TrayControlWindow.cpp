@@ -66,10 +66,10 @@ void TrayControlWindow::fill_vm_menu(){
 
 void TrayControlWindow::fill_launch_menu(){
     m_act_launch_SS = new QAction(tr("Launch SS console"), this);
-    connect(m_act_launch, SIGNAL(triggered()), this, SLOT(launch_SS()));
+    connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
 
     m_act_launch_Hub = new QAction(tr("Launch Hub website"), this);
-    connect(m_act_launch, SIGNAL(triggered()), this, SLOT(launch_Hub()));
+    connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
 
     m_launch_menu->addAction(m_act_launch_SS);
     m_launch_menu->addAction(m_act_launch_Hub);
@@ -121,7 +121,7 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_launch = new QAction(QIcon(":/hub/record.png"), tr("Launch"), this);
+  m_act_launch = new QAction(tr("Launch"), this);
   connect(m_act_launch, SIGNAL(triggered()), this, SLOT(show_launch()));
 
   m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
@@ -143,24 +143,24 @@ void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
 
-  m_tray_menu->addAction(m_act_launch);
-  m_tray_menu->addSeparator();
-  m_tray_menu->addAction(m_act_settings);
-  m_tray_menu->addSeparator();
-
 
   //////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
   m_launch_menu = new QMenu(m_tray_menu);
+//  m_tray_menu->addAction(m_act_launch);
+
+
 #endif
+//  m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_settings);
+  m_tray_menu->addSeparator();
 
 #ifndef RT_OS_LINUX
+  m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-  m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
-
 #endif
 
   fill_vm_menu();
@@ -174,7 +174,6 @@ void TrayControlWindow::create_tray_icon()
   m_hub_section  = m_hub_menu->addSection("");
   m_vbox_section = m_vbox_menu->addSection("");
 
-
 #ifdef RT_OS_LINUX
   m_tray_menu->insertAction(m_act_settings, m_act_launch);
   m_tray_menu->addAction(m_act_hub);
@@ -185,7 +184,6 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
   //  m_tray_menu->addMenu(m_vbox_menu);
-
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
@@ -353,32 +351,44 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_Hub() {
-    //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
-    QString browser = "/etc/alternatives/x-www-browser";
-    QString hub_url = "https://hub.subut.ai";
+  //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
+  QString browser = "/etc/alternatives/x-www-browser";
+  QString hub_url = "https://hub.subut.ai";
 
-
-    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
-                                      browser, hub_url);
-    if (err != SCWE_SUCCESS) {
-        return;
-    }
+//    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
+//                                      browser, hub_url);
+  system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
+  if (err != SCWE_SUCCESS) {
+      qDebug() << "no " << (int)err << "\n";
+      return;
+  }
+  qDebug() << "yes " << (int)err << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_SS() {
-    //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
-    QString browser = "/etc/alternatives/x-www-browser";
-    QString hub_url = "https://192.168.1.101:8443";
+  //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
+  QString browser; // "/etc/alternatives/x-www-browser";
+#if defined(RT_OS_LINUX) || defined(RT_OS_DARWIN)
+  browser = "/usr/bin/chrome";
+#elif RT_OS_WINDOWS
+  //browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
+  //browser = "chrome.exe";
+#endif
+  QStringList hub_url;
+  hub_url << "https://localhost:9999";
 
-
-    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
+  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
                                       browser, hub_url);
-    if (err != SCWE_SUCCESS) {
-        return;
-    }
-}
 
+  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
+  if (err != SCWE_SUCCESS) {
+      qDebug() << browser << "no " << (int)err << "\n";
+      return;
+  }
+  qDebug() << browser << "no " << (int)err << "\n";
+}
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
