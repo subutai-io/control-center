@@ -171,8 +171,8 @@ int CVBoxManagerLinux::init_machines() {
 
     QString name = QString::fromUtf16((ushort*)vm_name);
     qDebug() << "machine name " << name << "\n";
-//    if (!name.contains("subutai"))
-//        continue;
+    if (!name.contains("subutai"))
+        continue;
 
     ISession* session;
     rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
