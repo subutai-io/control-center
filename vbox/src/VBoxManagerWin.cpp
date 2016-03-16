@@ -8,6 +8,7 @@
 #include <QDebug>
 #include "VBoxManagerWin.h"
 #include "VirtualMachineWin.h"
+#include "NotifiactionObserver.h"
 #include <QMessageBox>
 
 typedef BOOL WINBOOL;
@@ -368,6 +369,13 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
   if(  (int)state > 4  )
   {
     qDebug() << "not in poweroff state \n" ;
+    qDebug() << "not in off-line state \n" ;
+//  CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
+    msg.setIcon(QMessageBox::Information);
+    msg.setText(tr("Virtual machine can not be removed!"));
+    msg.setInformativeText(tr("Power off machine first"));
+    msg.setStandardButtons(QMessageBox::Ok);
+    mret = msg.exec();
     return 6;//1;
   }
   rc = m_dct_machines[vm_id]->remove(&progress);

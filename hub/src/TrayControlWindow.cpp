@@ -153,9 +153,6 @@ void TrayControlWindow::create_tray_icon()
 
 
 #endif
-//  m_tray_menu->addSeparator();
-  m_tray_menu->addAction(m_act_settings);
-  m_tray_menu->addSeparator();
 
 #ifndef RT_OS_LINUX
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
@@ -180,7 +177,9 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_vbox);
 
 #endif
-
+//  m_tray_menu->addSeparator();
+  m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
   //  m_tray_menu->addMenu(m_vbox_menu);
