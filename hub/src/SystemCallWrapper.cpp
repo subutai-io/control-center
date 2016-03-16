@@ -226,22 +226,35 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 }
 ////////////////////////////////////////////////////////////////////////////
 
- system_call_wrapper_error_t CSystemCallWrapper::fork_process(const QString program, const QStringList argv){
+ system_call_wrapper_error_t CSystemCallWrapper::fork_process(const QString program,
+                                                         const QStringList argv){
 
-  QProcess *p = new QProcess();
-  QString command;
-  command = "\"" + program +"\" ";
-  for (int i = 0; i < argv.count(); ++i){
-      command += " ";
-      command += argv[i];
-  }
-  qDebug() << "command " << command << "\n";
-//  p->start(program, argv);
-  if  (QProcess::startDetached(command)){
-       return SCWE_SUCCESS;
+  QObject *parent = new QObject;
+  QProcess *p = new QProcess(parent);
+
+  QString folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  QString program1 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  //QString folder = "C:\\";
+//  QString command;
+//  command = "\"" + program +"\" ";
+//  for (int i = 0; i < argv.count(); ++i){
+//      command += " ";
+//      command += argv[i];
+//  }
+//  qDebug() << "command " << command << "\n";
+
+  if (p->startDetached(program, argv, folder))
+  {
+      return SCWE_SUCCESS;
   } else {
-       return SCWE_CREATE_PROCESS;
+      return SCWE_CREATE_PROCESS;
   }
+
+//  if  (QProcess::startDetached(command)){
+//       return SCWE_SUCCESS;
+//  } else {
+//       return SCWE_CREATE_PROCESS;
+//  }
 
 }
 

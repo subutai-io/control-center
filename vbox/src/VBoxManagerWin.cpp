@@ -441,7 +441,10 @@ int CVBoxManagerWin::add(const com::Bstr &vm_id) {
 //    qDebug() << "not in running state \n" ;
 //    return 6;//1;
 //  }
-// m->
+//  BSTR pvalue;
+//  BSTR pproperty = SysAllocString(L"test-add");
+//  QString name = QString::fromUtf16((ushort*)vm_name);
+//  m->GetGuestPropertyValue();
 //}
 
 ////////////////////////////////////////////////////////////////////////////

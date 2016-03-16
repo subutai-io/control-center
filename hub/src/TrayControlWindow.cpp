@@ -351,20 +351,29 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_Hub() {
-  //system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2, "/usr/bin/chromium-browser");
   QString browser = "/etc/alternatives/x-www-browser";
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+#endif
+#if defined (RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app; //need to be checked if need \ for spaces
+#elif RT_OS_WINDOWS
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
+#endif
   QString hub_url;
-//  QStringList hub_url;
-//  hub_url << "https://hub.subut.ai";
+  hub_url = "https://hub.subut.ai";
 
-//    system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(2,
-//                                      browser, hub_url);
-  system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
+  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
+              browser,
+              QStringList() << hub_url);
+
+  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
       qDebug() << "no " << (int)err << "\n";
       return;
   }
-  qDebug() << "yes " << (int)err << "\n";
+  qDebug() << browser << "yes " << (int)err << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -376,15 +385,14 @@ void TrayControlWindow::launch_SS() {
 #if defined (RT_OS_DARWIN)
   browser = "/Applications/Google\ Chrome.app""; //need to be checked
 #elif RT_OS_WINDOWS
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
-
+  //browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
 #endif
-  QStringList hub_url;
-  hub_url << "https://localhost:9999";
+  QString hub_url;
+  hub_url = "https://localhost:9999"; //<< "http://www.kg";
 
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-                                      browser, hub_url);
+                                      browser, QStringList() << hub_url);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
@@ -671,7 +679,3 @@ void CVBPlayerItem::vbox_menu_btn_rem_released() {
 
 ///////////////////////////////////////////////////////////////////////////
 
-//CLaunchMenuItem::CLaunchMenuItem() :
-//    m_lm_id:{
-
-//        }
