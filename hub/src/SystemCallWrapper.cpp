@@ -233,8 +233,8 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   QProcess *p = new QProcess(parent);
 
   QString folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  QString program1 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  //QString folder = "C:\\";
+//  QString program1 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+//  QString folder = "C:\\";
 //  QString command;
 //  command = "\"" + program +"\" ";
 //  for (int i = 0; i < argv.count(); ++i){
@@ -243,6 +243,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 //  }
 //  qDebug() << "command " << command << "\n";
 
+//  if (p->startDetached(program, argv, folder))
   if (p->startDetached(program, argv, folder))
   {
       return SCWE_SUCCESS;
@@ -269,6 +270,6 @@ system_call_wrapper_error_t CSystemCallWrapper::open_url(QString s_url){
    }
 }
 
-
+////////////////////////////////////////////////////////////////////////////
 
 

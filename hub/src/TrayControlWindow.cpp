@@ -370,7 +370,7 @@ void TrayControlWindow::launch_Hub() {
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
-      qDebug() << "no " << (int)err << "\n";
+      CNotifiactionObserver::NotifyAboutError(QString("Launch hub website failed. Error code : %1").arg((int)err));
       return;
   }
   qDebug() << browser << "yes " << (int)err << "\n";
@@ -385,8 +385,8 @@ void TrayControlWindow::launch_SS() {
 #if defined (RT_OS_DARWIN)
   browser = "/Applications/Google\ Chrome.app""; //need to be checked
 #elif RT_OS_WINDOWS
-  //browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
 #endif
   QString hub_url;
   hub_url = "https://localhost:9999"; //<< "http://www.kg";
@@ -394,9 +394,9 @@ void TrayControlWindow::launch_SS() {
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
                                       browser, QStringList() << hub_url);
 
-  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
+  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
-      qDebug() << browser << "no " << (int)err << "\n";
+      CNotifiactionObserver::NotifyAboutError(QString("Run SS console failed. Error code : %1").arg((int)err));
       return;
   }
   qDebug() << browser << "yes " << (int)err << "\n";
