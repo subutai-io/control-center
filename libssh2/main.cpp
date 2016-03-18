@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#define SOCKET_ERROR (-1)
 #endif
 
 #include <string>
@@ -98,7 +99,7 @@ int run_ssh_command(const char* str_host,
 #ifdef _WIN32
   ioctlsocket(sock, FIONBIO, &mode);
 #else
-  int flags = fcntl(fd, F_GETFL, 0);
+  int flags = fcntl(sock, F_GETFL, 0);
   flags |= O_NONBLOCK;
 #endif
   connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
@@ -205,7 +206,12 @@ int run_ssh_command(const char* str_host,
   libssh2_session_disconnect(session,
     "Normal Shutdown, Thank you for playing");
   libssh2_session_free(session);
+
+#ifdef _WIN32
   closesocket(sock);
+#else
+  close(sock);
+#endif;
 
   return RUE_SUCCESS;
 }
