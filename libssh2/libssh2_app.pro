@@ -4,8 +4,15 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 
+unix:!macx {
+  LIBS += -L$$PWD/lib/linux/ -lssh2
+}
 
-LIBS += -L$$PWD/lib/linux/ -lssh2
+macx {
+  LIBS += -L/usr/local/opt/libssh2/lib/ -lssh2
+}
+
+
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
 
