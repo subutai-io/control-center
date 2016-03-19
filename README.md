@@ -13,4 +13,10 @@ Requirenments
 Development & branching model
 -------------------
 
+### Building
+
+TODO
+
+### Branching Model 
+
 We use [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/)
