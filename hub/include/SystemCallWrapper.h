@@ -58,8 +58,16 @@ public:
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
                                                          const char *ip);
+
+  static system_call_wrapper_error_t run_ss_updater(const char* host,
+                                                    const char* port,
+                                                    const char* user,
+                                                    const char* pass,
+                                                    const char* cmd);
+
   static system_call_wrapper_error_t fork_process(const QString program,
-                                                  const QStringList argv);
+                                                  const QStringList argv,
+                                                  const QString& folder);
   static system_call_wrapper_error_t open_url(QString s_url);
 };
 

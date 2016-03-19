@@ -23,6 +23,9 @@ private:
   static const QString SM_P2P_PATH;
 
   static const QString SM_NOTIFICATION_DELAY_SEC;
+  static const QString SM_SS_UPDATER_PATH;
+
+  static const QString SS_UPDATER_APP_NAME;
 
   CSettingsManager();
 
@@ -36,6 +39,8 @@ private:
   int32_t m_refresh_time_sec;
   QString m_terminal_path;
   QString m_p2p_path;
+  QString m_ss_updater_path;
+
   uint32_t m_notification_delay_sec;
 
 public:
@@ -60,6 +65,7 @@ public:
   const QString& terminal_path() const {return m_terminal_path;}
   const QString& p2p_path() const {return m_p2p_path;}
   uint32_t notification_delay_sec() const {return m_notification_delay_sec;}
+  const QString& ss_updater_path() const {return m_ss_updater_path;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -106,6 +112,11 @@ public:
     if (delay_sec > NOTIFICATION_DELAY_MAX) m_notification_delay_sec = NOTIFICATION_DELAY_MAX;
     if (delay_sec < NOTIFICATION_DELAY_MIN) m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
+  }
+
+  void set_ss_updater_path(const QString& ss_path) {
+    m_ss_updater_path = ss_path;
+    m_settings.setValue(SM_SS_UPDATER_PATH, m_ss_updater_path);
   }
 };
 

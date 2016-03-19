@@ -137,7 +137,7 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
   if (res != SCWE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutError(
-                error_strings[res]);
+          error_strings[res]);
     return false;
   }
 
@@ -155,7 +155,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                                       const char *ip)
 {
   if (is_in_swarm(hash))
-      return SCWE_SUCCESS;
+    return SCWE_SUCCESS;
 
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
@@ -165,12 +165,12 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out);
   if (res != SCWE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutError(
-                QString("Join to p2p failed. Error : %1").arg(res));
+          QString("Join to p2p failed. Error : %1").arg(res));
     return res;
   }
 
   if (lst_out.size() == 1 &&
-      lst_out[0].find("[ERROR]") != std::string::npos) {        
+      lst_out[0].find("[ERROR]") != std::string::npos) {
     CNotifiactionObserver::NotifyAboutError(QString::fromStdString(lst_out[0]));
     return SCWE_CANT_JOIN_SWARM;
   }
@@ -226,50 +226,72 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 }
 ////////////////////////////////////////////////////////////////////////////
 
- system_call_wrapper_error_t CSystemCallWrapper::fork_process(const QString program,
-                                                         const QStringList argv){
+system_call_wrapper_error_t CSystemCallWrapper::run_ss_updater(const char *host,
+                                                               const char *port,
+                                                               const char *user,
+                                                               const char *pass,
+                                                               const char *cmd) {
+  std::ostringstream str_stream;
+#ifdef RT_OS_DARWIN
+  str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
+                "  Activate\n" <<
+                "  do script \"" <<
+                CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
+                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass <<
+                "\"" << " \"" << cmd << "\"" << "\"\n" <<
+                " end tell\'";
+  return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
+#elif RT_OS_LINUX
+  str_stream << CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+                " -e \"" <<
+                CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
+                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass <<
+                "\"" << " \"" << cmd << "\"" << ";bash\" &";
+  qDebug() << str_stream.str().c_str();
+  return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
+#elif RT_OS_WINDOWS
+  str_stream <<
+                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+                " /k " << CSettingsManager::ss_updater_path() << " \"" << host << "\"" <<
+                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass <<
+                "\"" << " \"" << cmd << "\"";
+  PROCESS_INFORMATION pi;
+  STARTUPINFOA si;
+  ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
+  ZeroMemory( &si, sizeof(STARTUPINFO) );
+  si.cb = sizeof(STARTUPINFO);
+  si.lpTitle = (LPSTR)"Subutai SSH";
+
+  char str_com[256] = {0};
+  memcpy(str_com, str_stream.str().c_str(), str_stream.str().size());
+
+  BOOL success = CreateProcessA(NULL,
+                                str_com,
+                                NULL,
+                                NULL,
+                                FALSE,
+                                CREATE_NEW_CONSOLE,
+                                NULL,
+                                NULL,
+                                &si,
+                                &pi);
+  return success ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+#endif
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::fork_process(const QString program,
+                                                             const QStringList argv,
+                                                             const QString& folder){
 
   QObject *parent = new QObject;
   QProcess *p = new QProcess(parent);
-
-  QString folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-//  QString program1 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-//  QString folder = "C:\\";
-//  QString command;
-//  command = "\"" + program +"\" ";
-//  for (int i = 0; i < argv.count(); ++i){
-//      command += " ";
-//      command += argv[i];
-//  }
-//  qDebug() << "command " << command << "\n";
-
-//  if (p->startDetached(program, argv, folder))
-  if (p->startDetached(program, argv, folder))
-  {
-      return SCWE_SUCCESS;
-  } else {
-      return SCWE_CREATE_PROCESS;
-  }
-
-//  if  (QProcess::startDetached(command)){
-//       return SCWE_SUCCESS;
-//  } else {
-//       return SCWE_CREATE_PROCESS;
-//  }
-
+  return p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::open_url(QString s_url){
-  //@bool QDesktopServices::openUrl ( const QUrl & url ) [static]@
   QUrl q_url =QUrl(s_url);
-  if (QDesktopServices::openUrl(q_url)) {
-        return SCWE_SUCCESS;
-   } else {
-        return SCWE_CREATE_PROCESS;
-   }
+  return QDesktopServices::openUrl(q_url) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
 }
-
 ////////////////////////////////////////////////////////////////////////////
-
-

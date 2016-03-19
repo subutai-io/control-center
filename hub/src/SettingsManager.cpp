@@ -1,4 +1,6 @@
 #include "SettingsManager.h"
+#include <QApplication>
+#include <QDir>
 
 const QString CSettingsManager::ORG_NAME("Optimal-dynamics");
 const QString CSettingsManager::APP_NAME("SS_Tray");
@@ -15,6 +17,15 @@ const QString CSettingsManager::SM_TERMINAL_PATH("Terminal_Path");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
+const QString CSettingsManager::SM_SS_UPDATER_PATH("Ss_Updater_Path");
+
+#ifdef RT_OS_LINUX
+const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app");
+#elif RT_OS_WINDOWS
+const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app.exe");
+#elif RT_OS_DARWIN
+const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app");
+#endif
 
 static const int def_timeout = 10;//120;
 CSettingsManager::CSettingsManager() :
@@ -30,11 +41,12 @@ CSettingsManager::CSettingsManager() :
   m_p2p_path("p2p"),
   #elif RT_OS_DARWIN
   m_terminal_path("iterm"),
-  m_p2p_path("p2p"),
+  m_p2p_path("p2p"),  
   #elif RT_OS_WINDOWS
   m_terminal_path("cmd"),
   m_p2p_path("p2p.exe"),
   #endif
+  m_ss_updater_path(QApplication::applicationDirPath() + QDir::separator() + SS_UPDATER_APP_NAME),
   m_notification_delay_sec(5)
 {
   if (!m_settings.value(SM_POST_URL).isNull())
@@ -61,5 +73,8 @@ CSettingsManager::CSettingsManager() :
     if (parsed)
       set_notification_delay_sec(nd);
   }
+
+  if (!m_settings.value(SM_SS_UPDATER_PATH).isNull())
+    m_ss_updater_path = m_settings.value(SM_SS_UPDATER_PATH).toString();
 }
 ////////////////////////////////////////////////////////////////////////////

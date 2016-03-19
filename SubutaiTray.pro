@@ -62,7 +62,8 @@ HEADERS  += \
     vbox/include/VBoxManageWindow.h \
     hub/include/SystemCallWrapper.h \
     hub/include/DlgSwarmJoin.h \
-    hub/include/NotifiactionObserver.h
+    hub/include/NotifiactionObserver.h \
+    libssh2/UpdateErrors.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

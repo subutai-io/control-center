@@ -65,14 +65,14 @@ void TrayControlWindow::fill_vm_menu(){
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::fill_launch_menu(){
-    m_act_launch_SS = new QAction(tr("Launch SS console"), this);
-    connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
+  m_act_launch_SS = new QAction(tr("Launch SS console"), this);
+  connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
 
-    m_act_launch_Hub = new QAction(tr("Launch Hub website"), this);
-    connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
+  m_act_launch_Hub = new QAction(tr("Launch Hub website"), this);
+  connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
 
-    m_launch_menu->addAction(m_act_launch_SS);
-    m_launch_menu->addAction(m_act_launch_Hub);
+  m_launch_menu->addAction(m_act_launch_SS);
+  m_launch_menu->addAction(m_act_launch_Hub);
 
 }
 
@@ -94,8 +94,8 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   connect(pl, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_stop_triggered);
 
-//  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
-//          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
+  //  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
+  //          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_rem_triggered);
@@ -149,7 +149,7 @@ void TrayControlWindow::create_tray_icon()
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
   m_launch_menu = new QMenu(m_tray_menu);
-//  m_tray_menu->addAction(m_act_launch);
+  //  m_tray_menu->addAction(m_act_launch);
 
 
 #endif
@@ -177,7 +177,7 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_vbox);
 
 #endif
-//  m_tray_menu->addSeparator();
+  //  m_tray_menu->addSeparator();
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
@@ -211,7 +211,7 @@ void TrayControlWindow::show_settings_dialog() {
 
 void TrayControlWindow::show_hub() {
 
-   m_hub_menu->popup(QCursor::pos(),m_act_hub);
+  m_hub_menu->popup(QCursor::pos(),m_act_hub);
   //m_hub_menu->exec();
 }
 
@@ -219,7 +219,7 @@ void TrayControlWindow::show_hub() {
 
 void TrayControlWindow::show_launch() {
 
-   m_launch_menu->popup(QCursor::pos(),m_act_launch);
+  m_launch_menu->popup(QCursor::pos(),m_act_launch);
   //m_hub_menu->exec();
 }
 
@@ -351,6 +351,7 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser";
+  QString folder;
 #if defined(RT_OS_LINUX)
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
 #endif
@@ -358,26 +359,28 @@ void TrayControlWindow::launch_Hub() {
   browser = "/Applications/Google\\ Chrome.app"; //need to be checked if need \ for spaces
 #elif RT_OS_WINDOWS
   browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
 #endif
   QString hub_url;
   hub_url = "https://hub.subut.ai";
 
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-              browser,
-              QStringList() << hub_url);
+                                      browser,
+                                      QStringList() << hub_url,
+                                      folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
-      CNotifiactionObserver::NotifyAboutError(QString("Launch hub website failed. Error code : %1").arg((int)err));
-      return;
+    CNotifiactionObserver::NotifyAboutError(QString("Launch hub website failed. Error code : %1").arg((int)err));
+    return;
   }
   qDebug() << browser << "yes " << (int)err << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::launch_SS() {
-    QString browser; // "/etc/alternatives/x-www-browser";
+  QString browser; // "/etc/alternatives/x-www-browser";
+  QString folder;
 #if defined(RT_OS_LINUX)
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
 #endif
@@ -385,18 +388,19 @@ void TrayControlWindow::launch_SS() {
   browser = "/Applications/Google\\ Chrome.app"; //need to be checked
 #elif RT_OS_WINDOWS
   browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  //browser = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";//works fine without \spaces
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
 #endif
   QString hub_url;
   hub_url = "https://localhost:9999"; //<< "http://www.kg";
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-                                      browser, QStringList() << hub_url);
+  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
+                                                                     QStringList() << hub_url,
+                                                                     folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
-      CNotifiactionObserver::NotifyAboutError(QString("Run SS console failed. Error code : %1").arg((int)err));
-      return;
+    CNotifiactionObserver::NotifyAboutError(QString("Run SS console failed. Error code : %1").arg((int)err));
+    return;
   }
   qDebug() << browser << "yes " << (int)err << "\n";
 }
@@ -443,7 +447,7 @@ void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   nsresult rc;
   rc = CVBoxManagerSingleton::Instance()->remove(vm_id);
   if (FAILED(rc))
-      qDebug() << "cannot remove\n";
+    qDebug() << "cannot remove\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -569,10 +573,10 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   connect(pStop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()));
 
-//  pAdd = new QPushButton("Add", this);
-//  pAdd->setIcon(QIcon(":/hub/play.png"));
-//  connect(pAdd, SIGNAL(released()),
-//          this, SLOT(vbox_menu_btn_add_released()));
+  //  pAdd = new QPushButton("Add", this);
+  //  pAdd->setIcon(QIcon(":/hub/play.png"));
+  //  connect(pAdd, SIGNAL(released()),
+  //          this, SLOT(vbox_menu_btn_add_released()));
 
   pRem = new QPushButton("", this);
   pRem->setIcon(QIcon(":/hub/delete.png"));
@@ -673,7 +677,7 @@ void CVBPlayerItem::vbox_menu_btn_add_released() {
 }
 
 void CVBPlayerItem::vbox_menu_btn_rem_released() {
-   emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
+  emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 
 ///////////////////////////////////////////////////////////////////////////
