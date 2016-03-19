@@ -29,7 +29,7 @@ private:
     QAction* m_player_item_act;
 
 public:
-    CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
+    CVBPlayerItem(const IVirtualMachine* vm, QWidget*);
     virtual ~CVBPlayerItem();
     void set_buttons(ushort state);
     QAction* action() {return m_player_item_act;}
@@ -76,7 +76,7 @@ private:
   QAction* m_act;
 
 public:
-  CVboxMenu(const IVirtualMachine *vm, QWidget *parent);
+  CVboxMenu(const IVirtualMachine *vm, QWidget *);
   virtual ~CVboxMenu();
   void set_machine_stopped(bool stopped);
   QAction* action() {return m_act;}

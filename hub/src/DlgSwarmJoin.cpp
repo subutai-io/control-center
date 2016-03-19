@@ -21,6 +21,7 @@ DlgSwarmJoin::~DlgSwarmJoin()
 
 bool DlgSwarmJoin::is_joined_to_swarm(const QString &hash)
 {
+  (void)(hash);
 //  std::vector<std::string> lst_swarms =
 //      CSystemCallWrapper::p2p_swarms_presented();
 //  if (lst_swarms.size() == 1 &&
@@ -39,38 +40,38 @@ bool DlgSwarmJoin::is_joined_to_swarm(const QString &hash)
 
 void DlgSwarmJoin::btn_join_released()
 {
-  QLineEdit* les[] = {ui->le_hash,
-                      ui->le_ip,
-                      ui->le_key,
-                      ui->le_container_ip,
-                      ui->le_ssh_user_name};
-  //check not empty
-  for (size_t i = 0; i < sizeof(les)/sizeof(QLineEdit*); ++i) {
-    if (les[i]->text() == "") {
-      les[i]->setFocus();
-      return;
-    }
-  }
+//  QLineEdit* les[] = {ui->le_hash,
+//                      ui->le_ip,
+//                      ui->le_key,
+//                      ui->le_container_ip,
+//                      ui->le_ssh_user_name};
+//  //check not empty
+//  for (size_t i = 0; i < sizeof(les)/sizeof(QLineEdit*); ++i) {
+//    if (les[i]->text() == "") {
+//      les[i]->setFocus();
+//      return;
+//    }
+//  }
 
-  //check ip
-  QLineEdit* les_ip[] = {ui->le_ip, ui->le_container_ip};
-  for (size_t i = 0; i < sizeof(les_ip)/sizeof(QLineEdit*); ++i) {
-    QHostAddress addr(les_ip[i]->text());
-    if (addr.isNull()) {
-      les_ip[i]->setFocus();
-      return;
-    }
-  }
+//  //check ip
+//  QLineEdit* les_ip[] = {ui->le_ip, ui->le_container_ip};
+//  for (size_t i = 0; i < sizeof(les_ip)/sizeof(QLineEdit*); ++i) {
+//    QHostAddress addr(les_ip[i]->text());
+//    if (addr.isNull()) {
+//      les_ip[i]->setFocus();
+//      return;
+//    }
+//  }
 
-  if (is_joined_to_swarm(ui->le_hash->text())) {
-    QDialog::accept();
-    return;
-  }
+//  if (is_joined_to_swarm(ui->le_hash->text())) {
+//    QDialog::accept();
+//    return;
+//  }
 
-  int lst_join_res =
-      CSystemCallWrapper::join_to_p2p_swarm(ui->le_hash->text().toStdString().c_str(),
-                                            ui->le_key->text().toStdString().c_str(),
-                                            ui->le_ip->text().toStdString().c_str());
+//  int lst_join_res =
+//      CSystemCallWrapper::join_to_p2p_swarm(ui->le_hash->text().toStdString().c_str(),
+//                                            ui->le_key->text().toStdString().c_str(),
+//                                            ui->le_ip->text().toStdString().c_str());
 
 //  CSystemCallWrapper::run_ssh_in_terminal(ui->le_ssh_user_name->text().toStdString().c_str(),
 //                                          ui->le_container_ip->text().toStdString().c_str());

@@ -18,9 +18,9 @@
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
-  m_launch_section(NULL),
   m_hub_section(NULL),
   m_vbox_section(NULL),
+  m_launch_section(NULL),
   m_quit_section(NULL),
   m_act_quit(NULL)
 {
@@ -423,6 +423,8 @@ void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
     rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
     return;
   }
+  //todo use rc
+  (void)rc;
   return;
 }
 
@@ -434,35 +436,26 @@ void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
   }
 
   rc = CVBoxManagerSingleton::Instance()->turn_off(vm_id);
+  //todo check rc
+  (void)rc;
   return;
-
 }
 
 void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
-  nsresult rc;
-  rc = CVBoxManagerSingleton::Instance()->add(vm_id);
+  //todo check result
+  CVBoxManagerSingleton::Instance()->add(vm_id);
 }
 
 void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
-  nsresult rc;
-  rc = CVBoxManagerSingleton::Instance()->remove(vm_id);
-  if (FAILED(rc))
-    qDebug() << "cannot remove\n";
+  //todo check result
+  CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
+CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* ) :
   m_id(vm->id()) {
-  QString name = QString::fromUtf16((ushort*)vm->name().raw());
-  //QString state = QString::fromUtf16((ushort*)vm->state());
-  VM_State state = vm->state();
-  QString sstate = QString::number((int)state);
-
-  //  m_act = new QAction(QIcon(":/hub/play.png"), name, parent);//////////////////
-  //  connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
-  //  qDebug() << "state creating action for CVBoxMenu: " << state <<"\n";
 }
 
 CVboxMenu::~CVboxMenu(){
@@ -542,7 +535,7 @@ void CVBPlayer::remove(CVBPlayerItem* pItem){
 
 ///////////////////////////////////////////////////////////////////////////
 
-CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
+CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* ) :
   m_vm_player_item_id(vm->id()){
 
   pLabelName = new QLabel(this);

@@ -23,7 +23,9 @@ enum system_call_wrapper_error_t {
 
 class CSystemCallWrapper {
 private:
-  static system_call_wrapper_error_t ssystem(const char *command, std::vector<std::string> &lst_output);
+  static system_call_wrapper_error_t ssystem(const char *command,
+                                             std::vector<std::string> &lst_output,
+                                             int& exit_code);
 
 public:
   /*
@@ -63,7 +65,7 @@ public:
                                                     const char* port,
                                                     const char* user,
                                                     const char* pass,
-                                                    const char* cmd);
+                                                    const char* cmd, int &exit_code);
 
   static system_call_wrapper_error_t fork_process(const QString program,
                                                   const QStringList argv,

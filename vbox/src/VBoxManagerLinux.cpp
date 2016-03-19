@@ -172,7 +172,7 @@ int CVBoxManagerLinux::init_machines() {
     QString name = QString::fromUtf16((ushort*)vm_name);
     qDebug() << "machine name " << name << "\n";
     if (!name.contains("subutai"))
-        continue;
+      continue;
 
     ISession* session;
     rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
@@ -290,7 +290,7 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
-// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+  // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -315,7 +315,7 @@ int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
-// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+  // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -341,95 +341,93 @@ int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
-// Machine can be Removed if State < 5
-    QMessageBox msg;
-    msg.setIcon(QMessageBox::Question);
-    msg.setText(tr("Virtual machine will be removed!"));
-    msg.setInformativeText(tr("Are You sure?"));
-    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msg.setDefaultButton(QMessageBox::Cancel);
-    int mret = msg.exec();
-    switch (mret) {
+  // Machine can be Removed if State < 5
+  QMessageBox msg;
+  msg.setIcon(QMessageBox::Question);
+  msg.setText(tr("Virtual machine will be removed!"));
+  msg.setInformativeText(tr("Are You sure?"));
+  msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+  msg.setDefaultButton(QMessageBox::Cancel);
+  int mret = msg.exec();
+  switch (mret) {
     case QMessageBox::No:
-        qDebug() << "no pressed \n";
-        return 23;
+      qDebug() << "no pressed \n";
+      return 23;
     case QMessageBox::Yes:
-        qDebug() << "yes pressed \n";
-        break;
+      qDebug() << "yes pressed \n";
+      break;
     default:
-        return 23;
-    }
-    qDebug() << "ok pressed go further \n";
-    if (m_dct_machines.find(vm_id) == m_dct_machines.end())
-        return 1; //no machine
-    nsresult rc, state;
-    state = m_dct_machines[vm_id]->state();
-    if(  (int)state > 4  )
-    {
-        qDebug() << "not in off-line state \n" ;
-//        CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
-        msg.setIcon(QMessageBox::Information);
-        msg.setText(tr("Virtual machine can not be removed!"));
-        msg.setInformativeText(tr("Power off machine first"));
-        msg.setStandardButtons(QMessageBox::Ok);
-        mret = msg.exec();
+      return 23;
+  }
+  qDebug() << "ok pressed go further \n";
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1; //no machine
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state > 4  )
+  {
+    qDebug() << "not in off-line state \n" ;
+    //        CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
+    msg.setIcon(QMessageBox::Information);
+    msg.setText(tr("Virtual machine can not be removed!"));
+    msg.setInformativeText(tr("Power off machine first"));
+    msg.setStandardButtons(QMessageBox::Ok);
+    mret = msg.exec();
 
-        return 6;//1;
-    }
+    return 6;//1;
+  }
 
-    nsCOMPtr<IProgress> progress;
-    rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
+  nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
 
-    if (FAILED(rc)) {
-        qDebug() << "failed to remove machine \n" ;
-        return 23;
-    }
+  if (FAILED(rc)) {
+    qDebug() << "failed to remove machine \n" ;
+    return 23;
+  }
 
-    //HANDLE_PROGRESS(vm_turn_off_progress, progress);
-    return rc;
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actually here
-// Machine can be Removed if State < 5
-
-//dialog?
-
-//  nsCOMPtr<IProgress> progress;
-
+  // Machine can be Removed if State < 5
+  //dialog?
+  //  nsCOMPtr<IProgress> progress;
+  UNUSED_ARG(vm_id);
   nsresult rc;
   nsCOMPtr<IMachine> newmachine;
   rc = m_virtual_box->CreateMachine(NULL,        /* settings file */
-                                  NS_LITERAL_STRING("test-lin-add").get(),
-                                  0, nsnull,   /* groups (safearray)*/
-                                  nsnull,      /* ostype */
-                                  nsnull,      /* create flags */
-                                  getter_AddRefs(newmachine));
-   if (NS_FAILED(rc))
-   {
-       return 23;
-   }
+                                    NS_LITERAL_STRING("test-lin-add").get(),
+                                    0, nsnull,   /* groups (safearray)*/
+                                    nsnull,      /* ostype */
+                                    nsnull,      /* create flags */
+                                    getter_AddRefs(newmachine));
+  if (NS_FAILED(rc))
+  {
+    return 23;
+  }
 
-   rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
-   rc = newmachine->SetMemorySize(128);
+  rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
+  rc = newmachine->SetMemorySize(128);
 
-   rc = m_virtual_box->RegisterMachine(newmachine);
-      if (NS_FAILED(rc))
-      {
-          qDebug() << "could not register machine! \n";
-          return rc;
-      }
+  rc = m_virtual_box->RegisterMachine(newmachine);
+  if (NS_FAILED(rc))
+  {
+    qDebug() << "could not register machine! \n";
+    return rc;
+  }
 
-//   rc = session->SaveSettings(); //need to save when going to be used!
-//         if (NS_FAILED(rc)){
-//            qDebug() << "could not save machine settings!\n";
-//            return rc;
-//         }
-//    session->UnlockMachine();
+  //   rc = session->SaveSettings(); //need to save when going to be used!
+  //         if (NS_FAILED(rc)){
+  //            qDebug() << "could not save machine settings!\n";
+  //            return rc;
+  //         }
+  //    session->UnlockMachine();
 
-   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
 

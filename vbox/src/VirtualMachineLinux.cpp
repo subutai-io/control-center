@@ -91,10 +91,7 @@ nsresult CVirtualMachineLinux::remove(IProgress **progress) {
   nsCOMPtr<IProgress> pProgress;
   rc = m_internal_machine->DeleteConfig(cMedia, aMedia, progress);
 //          DeleteConfig(cMedia, aMedia, getter_AddRefs(progress));
-  if (NS_FAILED(rc)) {
-     //qDebug() << "Deleting of machine failed \n";
-     return rc;
-  }
+  return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -6,12 +6,15 @@
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
+#include "SystemCallWrapper.h"
 
 int main(int argc, char *argv[]) {
 
+
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
-  QApplication app(argc, argv);
+  QApplication app(argc, argv);;
+
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
