@@ -13,4 +13,4 @@ Requirenments
 Development & branching model
 -------------------
 
-We use gitflow http://nvie.com/posts/a-successful-git-branching-model/
+We use [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/)
