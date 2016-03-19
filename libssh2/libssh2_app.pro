@@ -9,7 +9,7 @@ unix:!macx {
 }
 
 macx {
-  LIBS += -L/usr/local/opt/libssh2/lib/ -lssh2
+  LIBS += -L/usr/local/lib/ -lssh2
 }
 
 
