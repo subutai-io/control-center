@@ -151,6 +151,7 @@ private:
   /*hub*/
 //  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
+  QTimer m_ss_updater_timer;
   std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
@@ -222,6 +223,9 @@ private slots:
   void refresh_timer_timeout();
   void hub_menu_item_triggered(const CSSEnvironment *env,
                                const CHubContainer *cont);
+
+  /*updater*/
+  void updater_timer_timeout();
 };
 
 #endif // TRAYCONTROLWINDOW_H

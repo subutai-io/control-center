@@ -12,7 +12,7 @@
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
-
+#include "libssh2/UpdateErrors.h"
 #include <QDebug>
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
@@ -34,6 +34,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()*1000);
   m_refresh_timer.start();
 
+  m_ss_updater_timer.setInterval(3*60*60*1000); //3 hours
+  m_ss_updater_timer.start();
+
   connect(&m_refresh_timer, SIGNAL(timeout()),
           this, SLOT(refresh_timer_timeout()));
 
@@ -45,6 +48,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(vm_state_changed(const com::Bstr&)));
   connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
           this, SLOT(notification_received(notification_level_t, const QString&)));
+
+  connect(&m_ss_updater_timer, SIGNAL(timeout()),
+          this, SLOT(updater_timer_timeout()));
 }
 
 TrayControlWindow::~TrayControlWindow()
@@ -347,8 +353,28 @@ void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
 
   CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::updater_timer_timeout() {
+  m_ss_updater_timer.stop();
+  int exit_code = 0;
+
+  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().updater_host().toStdString().c_str(),
+                                     CSettingsManager::Instance().updater_port().toStdString().c_str(),
+                                     CSettingsManager::Instance().updater_user().toStdString().c_str(),
+                                     CSettingsManager::Instance().updater_pass().toStdString().c_str(),
+                                     "subutai-update",
+                                     exit_code);
+
+  if (exit_code == RUE_SUCCESS) {
+    CNotifiactionObserver::NotifyAboutInfo("Update command succesfull finished");
+  } else {
+    CNotifiactionObserver::NotifyAboutError(QString("Update command failed with exit code : %1").arg(exit_code));
+  }
+  m_ss_updater_timer.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser";
   QString folder;
