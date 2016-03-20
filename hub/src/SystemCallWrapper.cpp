@@ -80,6 +80,7 @@ CSystemCallWrapper::ssystem(const char *command,
     /*create child process*/
     char str_com[256] = {0};
     memcpy(str_com, command, strlen(command));
+    qDebug() << str_com;
     b_success = CreateProcessA(
                   NULL,          // no module name. use command line
                   str_com,       // command line
@@ -96,7 +97,10 @@ CSystemCallWrapper::ssystem(const char *command,
       res = SCWE_CREATE_PROCESS;
       break;
     } else {
+      DWORD ec = 0;
       WaitForSingleObject(pi.hProcess, INFINITE);
+      GetExitCodeProcess(pi.hProcess, &ec);
+      exit_code = (int)ec;
       CloseHandle(pi.hProcess);
       CloseHandle(pi.hThread);
     }

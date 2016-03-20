@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
 #ifdef _DEBUG
   system("pause");
 #endif
-
+  std::cout << rc << std::endl;
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
