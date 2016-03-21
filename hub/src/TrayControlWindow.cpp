@@ -493,14 +493,16 @@ void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
 ////////////////////////////////////////////////////////////////////////////
 QString  TrayControlWindow::read_balance() {
     int http_code, err_code;
-    QString str_balance;
+//    QString str_balance;
     CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
-    if (err_code != 0){
-        str_balance = tr("Not defined");
-    }
-    str_balance = QString("Balance:\t     $%1").arg(balance.value());
-    qDebug() << "m_balance " << m_balance << "\n";
-    return str_balance;
+    return err_code ? tr("Not defined") : QString("Balance:\t     $%1").arg(balance.value());
+//    if (err_code != 0){
+//        str_balance = tr("Not defined");
+//        return str_balance;
+//    }
+//    str_balance = QString("Balance:\t     $%1").arg(balance.value());
+//    qDebug() << "m_balance " << m_balance << "\n";
+//    return str_balance;
 }
 ////////////////////////////////////////////////////////////////////////////
 
