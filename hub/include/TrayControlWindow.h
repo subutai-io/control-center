@@ -146,6 +146,7 @@ public:
 
 private:
   Ui::TrayControlWindow *ui;
+  QString m_balance;
   QVBoxLayout *m_w_Layout;
   CVBPlayer *m_w_Player;
   /*hub*/
@@ -168,15 +169,17 @@ private:
   QMenu *m_vbox_menu;
   QMenu *m_player_menu;
   QMenu *m_launch_menu;
+  QMenu *m_info_menu;
 
   QAction *m_hub_section;
   QAction *m_vbox_section;
   QAction *m_launch_section;
+  QAction *m_info_section;
   QAction *m_quit_section;
-
 
   QAction *m_act_quit;
   QAction *m_act_settings;
+  QAction *m_act_info;
   QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;
@@ -190,6 +193,7 @@ private:
   void create_tray_icon();
   void fill_vm_menu();
   void fill_launch_menu();
+  QString read_balance();
 
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
@@ -202,6 +206,7 @@ private slots:
   void show_launch();
   void notification_received(notification_level_t level,
                              const QString& msg);
+
 //  void join_to_swarm();
 
 
