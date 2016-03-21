@@ -395,7 +395,7 @@ void TrayControlWindow::launch_Hub() {
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
 #endif
 #if defined (RT_OS_DARWIN)
-  browser = "/Applications/Google\\ Chrome.app"; //need to be checked if need \ for spaces
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked if need \ for spaces
 #elif RT_OS_WINDOWS
   browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
   folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
@@ -424,7 +424,7 @@ void TrayControlWindow::launch_SS() {
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
 #endif
 #if defined (RT_OS_DARWIN)
-  browser = "/Applications/Google\\ Chrome.app"; //need to be checked
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
 #elif RT_OS_WINDOWS
   browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
   folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";

@@ -94,7 +94,6 @@ int run_ssh_command(const char* str_host,
   sin.sin_addr.s_addr = ul_host_addr;
 
   //todo in parallel thread with timeout
-  u_long mode = 1;
   sock = socket(AF_INET, SOCK_STREAM, 0);
 #ifdef _WIN32
   ioctlsocket(sock, FIONBIO, &mode);
@@ -211,7 +210,7 @@ int run_ssh_command(const char* str_host,
   closesocket(sock);
 #else
   close(sock);
-#endif;
+#endif
 
   return RUE_SUCCESS;
 }
