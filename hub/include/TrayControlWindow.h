@@ -29,7 +29,7 @@ private:
     QAction* m_player_item_act;
 
 public:
-    CVBPlayerItem(const IVirtualMachine* vm, QWidget*);
+    CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
     void set_buttons(ushort state);
     QAction* action() {return m_player_item_act;}
@@ -143,6 +143,7 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
+  static const QString GetStateName(ushort st);
 
 private:
   Ui::TrayControlWindow *ui;
@@ -161,7 +162,10 @@ private:
   std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
   std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const com::Bstr &vm_id);
+  void add_vm_menu_simple(const com::Bstr &vm_id);
+
   void remove_vm_menu(const com::Bstr &vm_id);
+  void remove_vm_menu_simple(const com::Bstr &vm_id);
   /*vbox end*/
 
   /*tray icon*/
