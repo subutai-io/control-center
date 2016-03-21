@@ -96,6 +96,7 @@ int run_ssh_command(const char* str_host,
   //todo in parallel thread with timeout
   sock = socket(AF_INET, SOCK_STREAM, 0);
 #ifdef _WIN32
+  u_long mode = 1;
   ioctlsocket(sock, FIONBIO, &mode);
 #else
   int flags = fcntl(sock, F_GETFL, 0);

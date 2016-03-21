@@ -164,7 +164,7 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
 #ifndef RT_OS_LINUX
-  m_info_menu =  m_tray_menu->addMenu(tr(m_balance));
+  m_info_menu =  m_tray_menu->addMenu(m_balance);
   m_tray_menu->addSeparator();
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));

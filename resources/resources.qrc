@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/hub">
-        <file>log_in.png</file>
         <file>log_out.png</file>
         <file>tray.png</file>
         <file>settings.png</file>
@@ -13,6 +12,14 @@
         <file>record.png</file>
         <file>play_disabled.png</file>
         <file>delete.png</file>
+        <file>add.png</file>
+        <file>log_in.png</file>
+        <file>pause_disabled.png</file>
+        <file>pause_red.png</file>
+        <file>resources.qrc</file>
+        <file>stop_blue.png</file>
+        <file>stop_green.png</file>
+        <file>stop_red.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
