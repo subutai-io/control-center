@@ -653,7 +653,7 @@ void CHubEnvironmentMenuItem::internal_action_triggered() {
 CVBPlayer::CVBPlayer(QWidget* parent) :
   m_vm_player_id() {
   p_v_Layout = new QVBoxLayout(parent);
-  p_v_Layout->setSpacing(1);
+  p_v_Layout->setSpacing(5);
   //p_v_Layout->setStretchFactor(3);
   //this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   this->setLayout(p_v_Layout);
@@ -732,6 +732,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   //p_h_Layout->addWidget(pAdd);
 
   p_h_Layout->setMargin(1);
+  p_h_Layout->setSpacing(2);
   p_h_Layout->setObjectName(name);
   this->setLayout(p_h_Layout);
 }
