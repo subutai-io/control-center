@@ -30,6 +30,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 {
   ui->setupUi(this);
   m_w_Player = new CVBPlayer(this);
+
   create_tray_actions();
   create_tray_icon();
   m_sys_tray_icon->show();
@@ -184,7 +185,6 @@ void TrayControlWindow::create_tray_actions()
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
   m_act_info = new QAction(m_balance, this);
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +207,6 @@ void TrayControlWindow::create_tray_icon()
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-
 #endif
 
   fill_vm_menu();
@@ -264,20 +263,15 @@ void TrayControlWindow::show_settings_dialog() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_hub() {
-
   m_hub_menu->popup(QCursor::pos(),m_act_hub);
   //m_hub_menu->exec();
 }
-
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_launch() {
-
   m_launch_menu->popup(QCursor::pos(),m_act_launch);
   //m_hub_menu->exec();
 }
-
-
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(notification_level_t level,
@@ -375,6 +369,7 @@ void TrayControlWindow::refresh_timer_timeout() {
 
   update_balance();
   m_act_info->setText(m_balance);
+  m_info_menu->setTitle(m_balance);
 
   std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
   if (res == m_lst_environments) return;
