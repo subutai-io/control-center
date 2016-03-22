@@ -14,13 +14,11 @@ Development & branching model
 -------------------
 
 
-### Building
+Building
 
 TODO
 
 ### Branching Model 
 
 We use [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/)
-=======
-Should be master for stable version and dev for developers. All branches should be based on dev branch.
 
