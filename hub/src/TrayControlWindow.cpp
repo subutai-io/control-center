@@ -169,19 +169,19 @@ void TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_launch = new QAction(tr("Launch"), this);
+  m_act_launch = new QAction(QIcon(":/hub/Launch-07.png"),tr("Launch"), this);
   connect(m_act_launch, SIGNAL(triggered()), this, SLOT(show_launch()));
 
-  m_act_settings = new QAction(QIcon(":/hub/settings.png"), tr("Settings"), this);
+  m_act_settings = new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 
-  m_act_vbox = new QAction(tr("Virtual machines"), this);
+  m_act_vbox = new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
   connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
 
-  m_act_hub = new QAction(tr("Environments"), this);
+  m_act_hub = new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
   connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
-  m_act_quit = new QAction(QIcon(":/hub/log_out"), tr("Quit"), this);
+  m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
   m_act_info = new QAction(m_balance, this);
@@ -587,7 +587,7 @@ CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
 
     QString s_state = TrayControlWindow::GetStateName(state);
 //    m_act = new QAction(QIcon(":/hub/play.png"), name + " " + s_state, parent);
-    m_act = new QAction(QIcon(":/hub/play.png"), name, parent);
+    m_act = new QAction(QIcon(":/hub/Launch-07.png"), name, parent);
     connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
 }
 
@@ -596,7 +596,7 @@ CVboxMenu::~CVboxMenu(){
 }
 
 void CVboxMenu::set_machine_stopped(bool stopped) {
-  QString str_icon = stopped ? ":/hub/play.png" : ":/hub/stop.png";
+  QString str_icon = stopped ? ":/hub/Launch-07.png" : ":/hub/Stop-07.png";
   m_act->setIcon(QIcon(str_icon));
 }
 
@@ -697,10 +697,10 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   pLabelName->setText(name);
   pLabelState->setText(TrayControlWindow::GetStateName(state));
 
-  pPlay->setIcon(QIcon(":/hub/play.png"));
-  pStop->setIcon(QIcon(":/hub/stop.png"));
+  pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
+  pStop->setIcon(QIcon(":/hub/Stop-07.png"));
 
-  pPlay->setToolTip("Play/Resume");
+  pPlay->setToolTip("Play/Pause/Resume");
   pStop->setToolTip("Power off");
   connect(pPlay, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_play_released()), Qt::QueuedConnection);
@@ -713,7 +713,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   //          this, SLOT(vbox_menu_btn_add_released()));
 
   pRem = new QPushButton("", this);
-  pRem->setIcon(QIcon(":/hub/delete.png"));
+  pRem->setIcon(QIcon(":/hub/Delete-07.png"));
   pRem->setToolTip("Attention! Removes VM. All files will be deleted");
 
 
@@ -751,46 +751,42 @@ CVBPlayerItem::~CVBPlayerItem(){
 
 void CVBPlayerItem::set_buttons(ushort state){
   if (state < 5) { //turned off
-    //str_icon = ":/hub/play.png";
     pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/play.png"));
-    pStop->setIcon(QIcon(":/hub/stop_disabled.png"));
+    pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
+    pStop->setIcon(QIcon(":/hub/stop.png"));
     return;
   }
 
   if (state == 5) {
-    //str_icon =   ":/hub/stop.png";//Add PauseNormalRed
     pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/pause_green.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));
+    pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
+    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
     return;
   }
   if (state == 6) {//Paused
-    //str_icon = ":/hub/PauseHot.png";
     pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/play.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));
+    pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
+    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
     return;
   }
   if (state == 7) {//Stuck, Gurumeditation, only power off
     pLabelState->setText(TrayControlWindow::GetStateName(state));
-    //str_icon = ":/hub/PauseHot.png";
-    pPlay->setIcon(QIcon(":/hub/play_disabled.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));
+    pPlay->setIcon(QIcon(":/hub/play.png"));//Change to Play_Disabled
+    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
     return;
   }
   if (state == 8 || state == 9) {//Teleporting or LiveSnapshotting
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     //str_icon = ":/hub/PauseHot.png";
-    pPlay->setIcon(QIcon(":/hub/pause_green.png"));
-    pStop->setIcon(QIcon(":/hub/stop_disabled.png"));
+    pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
+    pStop->setIcon(QIcon(":/hub/stop.png"));//Change to Stop_disabled
     return;
   }
 
   if (state >= 10 && state < 24) {//Teleporting or LiveSnapshotting
     //str_icon = ":/hub/PauseHot.png";
     pPlay->setIcon(QIcon(":/hub/pause_disabled.png"));
-    pStop->setIcon(QIcon(":/hub/stop_disabled.png"));
+    pStop->setIcon(QIcon(":/hub/stop.png"));//Change to Stop_disabled
     return;
   }
 
