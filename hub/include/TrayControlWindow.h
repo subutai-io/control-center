@@ -197,7 +197,7 @@ private:
   void create_tray_icon();
   void fill_vm_menu();
   void fill_launch_menu();
-  QString read_balance();
+  void update_balance();
 
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/

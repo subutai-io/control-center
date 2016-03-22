@@ -16,10 +16,12 @@
 #include "RestWorker.h"
 
 #include <QDebug>
+#define UNDEFINED_BALANCE "Undefined balance"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
+  m_balance(UNDEFINED_BALANCE),
   m_hub_section(NULL),
   m_vbox_section(NULL),
   m_launch_section(NULL),
@@ -28,7 +30,6 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 {
   ui->setupUi(this);
   m_w_Player = new CVBPlayer(this);
-  m_balance = read_balance();
   create_tray_actions();
   create_tray_icon();
   m_sys_tray_icon->show();
@@ -371,6 +372,10 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
 /*** Refresh ***/
 void TrayControlWindow::refresh_timer_timeout() {
   int http_code, err_code;
+
+  update_balance();
+  m_act_info->setText(m_balance);
+
   std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
   if (res == m_lst_environments) return;
 
@@ -382,9 +387,6 @@ void TrayControlWindow::refresh_timer_timeout() {
   }
   m_lst_hub_menu_items.clear();
   m_lst_environments = res;
-
-  m_balance = read_balance();
-  m_act_info->setText(m_balance);
 
   for (auto env = m_lst_environments.begin(); env != m_lst_environments.end(); ++env) {
     QMenu* env_menu = m_hub_menu->addMenu(env->name());
@@ -540,18 +542,10 @@ void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
 }
 
 ////////////////////////////////////////////////////////////////////////////
-QString  TrayControlWindow::read_balance() {
+void TrayControlWindow::update_balance() {
     int http_code, err_code;
-//    QString str_balance;
     CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
-    return err_code ? tr("Not defined") : QString("Balance:\t     $%1").arg(balance.value());
-//    if (err_code != 0){
-//        str_balance = tr("Not defined");
-//        return str_balance;
-//    }
-//    str_balance = QString("Balance:\t     $%1").arg(balance.value());
-//    qDebug() << "m_balance " << m_balance << "\n";
-//    return str_balance;
+    m_balance = err_code ? tr("Not defined") : QString("Balance: $%1").arg(balance.value());
 }
 ////////////////////////////////////////////////////////////////////////////
 
