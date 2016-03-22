@@ -1,6 +1,8 @@
 #include "VirtualMachineWin.h"
 #include <stdint.h>
 #include <assert.h>
+#include <VBox/com/ptr.h>
+#include <VBox/com/array.h>
 
 CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
   assert(com_machine != NULL);
@@ -64,6 +66,48 @@ nsresult CVirtualMachineWin::turn_off(IProgress **progress) {
 
   return rc;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::pause() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      IConsole* console;
+      m_session->get_Console(&console);
+      rc = console->Pause();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::resume() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      IConsole* console;
+      m_session->get_Console(&console);
+      rc = console->Resume();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineWin::remove(IProgress **progress) {
+
+   nsresult rc;
+   com::SafeArray<IMedium**> saMedia;
+   rc = m_internal_machine->Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   if (FAILED(rc)) return rc;
+
+   rc = m_internal_machine->DeleteConfig(ComSafeArrayAsInParam(saMedia), progress);
+           //Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   if (FAILED(rc)) return rc;
+
+   return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineWin::run_process(const char *path,
                                          const char *user,

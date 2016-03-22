@@ -19,7 +19,10 @@ public:
                      IProgress **progress);
   nsresult save_state(IProgress **progress);
   nsresult turn_off(IProgress **progress);
-
+  nsresult resume(const com::Bstr &vm_id);
+  virtual nsresult pause() ;
+  virtual nsresult resume() ;
+  virtual nsresult remove(IProgress **progress);
   virtual nsresult run_process(const char *path, const char *user, const char *password, int argc, const char **argv);
 };
 

@@ -23,6 +23,7 @@ public:
 private slots:
   void btn_ok_released();
   void btn_cancel_released();
+  void cb_show_pass_state_changed(int st);
 };
 
 #endif // DLGLOGIN_H

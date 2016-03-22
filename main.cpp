@@ -6,6 +6,7 @@
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
+#include "SystemCallWrapper.h"
 
 int main(int argc, char *argv[]) {
 
@@ -13,6 +14,7 @@ int main(int argc, char *argv[]) {
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
 
+  app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");
 
   DlgLogin dlg;

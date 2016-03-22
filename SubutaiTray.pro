@@ -43,8 +43,7 @@ SOURCES += \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
     hub/src/SystemCallWrapper.cpp \
-    hub/src/DlgSwarmJoin.cpp \
-    singleapplication.cpp
+    hub/src/DlgSwarmJoin.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -63,7 +62,8 @@ HEADERS  += \
     vbox/include/VBoxManageWindow.h \
     hub/include/SystemCallWrapper.h \
     hub/include/DlgSwarmJoin.h \
-    singleapplication.h
+    hub/include/NotifiactionObserver.h \
+    libssh2/UpdateErrors.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

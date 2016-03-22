@@ -106,6 +106,10 @@ public:
   virtual int init_machines();
   virtual int launch_vm(const com::Bstr &vm_id, vb_launch_mode_t lm);
   virtual int turn_off(const com::Bstr &vm_id, bool save_state);
+  virtual int pause(const com::Bstr &vm_id);
+  virtual int resume(const com::Bstr &vm_id);
+  virtual int remove(const com::Bstr &vm_id);
+  virtual int add(const com::Bstr &vm_id);
 };
 
 typedef ListenerImpl<CEventListenerWin, IVBoxManager*> CEventListenerWinImpl;

@@ -8,6 +8,9 @@
 #include <QDebug>
 #include "VBoxManagerWin.h"
 #include "VirtualMachineWin.h"
+#include "NotifiactionObserver.h"
+#include <QMessageBox>
+
 typedef BOOL WINBOOL;
 
 CVBoxManagerWin::CVBoxManagerWin() :
@@ -170,6 +173,14 @@ int CVBoxManagerWin::init_machines() {
     machines[count]->get_Accessible(&accesible);
     if (accesible == FALSE) continue;
 
+    BSTR vm_name;
+    machines[count]->get_Name(&vm_name);
+
+    QString name = QString::fromUtf16((ushort*)vm_name);
+    qDebug() << "machine name " << name << "\n";
+    if (!name.contains("subutai"))
+        continue;
+
     IVirtualMachine* vm = new CVirtualMachineWin(machines[count]);
     m_dct_machines[vm->id()] = vm;
   } while (count != 0);
@@ -274,6 +285,176 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;
 }
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::pause(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if( (int)state != 5 && (int)state != 8 && (int)state != 9 )
+  {
+    qDebug() << "not in running state \n" ;
+    return 6;//1;
+  }
+
+
+  //nsCOMPtr<IProgress> progress;
+  rc = m_dct_machines[vm_id]->pause();
+  if (FAILED(rc)) {
+    return 19;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
+// Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state != 6  )
+  {
+    qDebug() << "not in paused state \n" ;
+    return 6;//1;
+  }
+
+  rc = m_dct_machines[vm_id]->resume();
+  if (FAILED(rc)) {
+    return 21;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
+// Machine can be Removed if State < 5
+
+  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+    return 1;
+  nsresult rc, state;
+  IProgress* progress;
+
+  QMessageBox msg;
+  msg.setIcon(QMessageBox::Question);
+  msg.setText("Virtual machine will be removed! ");
+  msg.setInformativeText("Are You sure?");
+  msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+  msg.setDefaultButton(QMessageBox::Cancel);
+  int mret = msg.exec();
+  switch (mret) {
+  case QMessageBox::Cancel:
+      qDebug() << "cancel pressed \n";
+      return 23;
+      break;
+  case QMessageBox::Ok:
+      qDebug() << "ok pressed \n";
+      break;
+  default:
+      return 23;
+      break;
+  }
+
+
+  state = m_dct_machines[vm_id]->state();
+  if(  (int)state > 4  )
+  {
+    qDebug() << "not in poweroff state \n" ;
+    qDebug() << "not in off-line state \n" ;
+//  CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
+    msg.setIcon(QMessageBox::Information);
+    msg.setText(tr("Virtual machine can not be removed!"));
+    msg.setInformativeText(tr("Power off machine first"));
+    msg.setStandardButtons(QMessageBox::Ok);
+    mret = msg.exec();
+    return 6;//1;
+  }
+  rc = m_dct_machines[vm_id]->remove(&progress);
+  if (FAILED(rc)) {
+    return 23;
+  }
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  return rc;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+int CVBoxManagerWin::add(const com::Bstr &vm_id) {
+// Machine can be Removed if State < 5
+
+//dialog?
+  IProgress* progress;
+  nsresult rc;
+  IMachine *newmachine = NULL;
+  BSTR vm_idd = SysAllocString(L"test-add");
+  if (m_dct_machines.find(vm_id)!= m_dct_machines.end()){
+    qDebug() << "vm exists \n" ;
+    //return 23;//vm exists
+  }
+  rc = m_virtual_box->CreateMachine(NULL,
+                                    vm_idd,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    &newmachine);
+  if (FAILED(rc)) {
+      qDebug() << "create failed \n" ;
+    return 23;
+  }
+  rc = newmachine->put_MemorySize(128);
+  if (FAILED(rc)) {
+      qDebug() << "memsize failed \n" ;
+    return 23;
+  }
+
+//          virtual HRESULT STDMETHODCALLTYPE CreateMachine(
+//              /* [in] */ BSTR aSettingsFile,
+//              /* [in] */ BSTR aName,
+//              /* [in] */ SAFEARRAY * aGroups,
+//              /* [in] */ BSTR aOsTypeId,
+//              /* [in] */ BSTR aFlags,
+//              /* [retval][out] */ IMachine **aMachine) = 0;
+
+  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+  rc = m_virtual_box->RegisterMachine(newmachine);
+  if (FAILED(rc)) {
+      qDebug() << "register failed \n" ;
+    return 23;
+  }
+
+  return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+//int CVBoxManagerWin::find_net_address(const com::Bstr &vm_id) {
+//  if (m_dct_machines.find(vm_id) == m_dct_machines.end())
+//      return 1;
+//  nsresult rc, state;
+//  IMachine *m =  m_dct_machines[vm_id];
+//  state = m_dct_machines[vm_id]->state();
+//  if( (int)state != 5 )
+//  {
+//    qDebug() << "not in running state \n" ;
+//    return 6;//1;
+//  }
+//  BSTR pvalue;
+//  BSTR pproperty = SysAllocString(L"test-add");
+//  QString name = QString::fromUtf16((ushort*)vm_name);
+//  m->GetGuestPropertyValue();
+//}
+
 ////////////////////////////////////////////////////////////////////////////
 
 HRESULT CEventListenerWin::HandleEvent(VBoxEventType e_type, IEvent *pEvent) {

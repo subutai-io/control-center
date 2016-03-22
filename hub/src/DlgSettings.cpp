@@ -11,6 +11,14 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
   ui->le_terminal_command->setText(CSettingsManager::Instance().terminal_path());
+  ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
+  ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
+  ui->sb_notification_delay->setValue(CSettingsManager::Instance().notification_delay_sec());
+  ui->le_updater_command->setText(CSettingsManager::Instance().ss_updater_path());
+  ui->le_updater_user->setText(CSettingsManager::Instance().updater_user());
+  ui->le_updater_host->setText(CSettingsManager::Instance().updater_host());
+  ui->le_updater_password->setText(CSettingsManager::Instance().updater_pass());
+  ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
 
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));

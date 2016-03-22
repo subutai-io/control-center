@@ -43,12 +43,54 @@ nsresult CVirtualMachineLinux::save_state(IProgress **progress) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+nsresult CVirtualMachineLinux::pause() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      nsCOMPtr<IConsole> console;
+      m_session->GetConsole(getter_AddRefs(console));
+      rc = console->Pause();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineLinux::resume() {
+      nsresult rc;
+      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+      nsCOMPtr<IConsole> console;
+      m_session->GetConsole(getter_AddRefs(console));
+      rc = console->Resume();
+      m_session->UnlockMachine();
+      return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 nsresult CVirtualMachineLinux::turn_off(IProgress **progress) {
   nsresult rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
   nsCOMPtr<IConsole> console;
   m_session->GetConsole(getter_AddRefs(console));
   rc = console->PowerDown(progress);
   m_session->UnlockMachine();
+  return rc;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+nsresult CVirtualMachineLinux::remove(IProgress **progress) {
+  nsresult rc;
+  IMedium **aMedia;
+  PRUint32 cMedia;
+  rc = m_internal_machine->Unregister((CleanupMode_T)CleanupMode_Full,  //DetachAllReturnHardDisksOnly,
+                           &cMedia, &aMedia);
+  if (NS_FAILED(rc)){
+     //qDebug() << "Unregistering the machine failed! \n";
+     return rc;
+  }
+  nsCOMPtr<IProgress> pProgress;
+  rc = m_internal_machine->DeleteConfig(cMedia, aMedia, progress);
+//          DeleteConfig(cMedia, aMedia, getter_AddRefs(progress));
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////

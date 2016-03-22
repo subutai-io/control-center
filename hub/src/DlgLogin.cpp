@@ -20,6 +20,7 @@ DlgLogin::DlgLogin(QWidget *parent) :
 
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel,  SIGNAL(released()), this, SLOT(btn_cancel_released()));
+  connect(ui->cb_show_pass, SIGNAL(stateChanged(int)), this, SLOT(cb_show_pass_state_changed(int)));
 }
 
 DlgLogin::~DlgLogin()
@@ -68,5 +69,12 @@ void DlgLogin::btn_cancel_released()
 {
   this->setResult(QDialog::Rejected);
   QDialog::reject();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgLogin::cb_show_pass_state_changed(int st)
+{
+  ui->le_password->setEchoMode(st == Qt::Checked ?
+                                 QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
