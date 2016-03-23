@@ -190,7 +190,7 @@ void TrayControlWindow::create_tray_actions()
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-  m_act_info = new QAction(m_balance, this);
+  m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), m_balance, this);
 }
 ////////////////////////////////////////////////////////////////////////////
 
