@@ -171,8 +171,8 @@ void TrayControlWindow::create_tray_actions()
 {
   QIcon icon;
   QSize size;
-  size.setWidth(10);
-  size.setHeight(10);
+  size.setWidth(20);
+  size.setHeight(20);
 
   icon.addFile(":/hub/Launch-07.png", size);
 
@@ -305,6 +305,8 @@ void TrayControlWindow::notification_received(notification_level_t level,
 /*** Vbox slots  ***/
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
   add_vm_menu(vm_id);
+  m_vbox_menu->hide();
+//  m_vbox_menu->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -735,11 +737,9 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   p_h_Layout->addWidget(pLabelName);
   p_h_Layout->addWidget(pLabelState);
 
-  p_h_Layout->addWidget(pRem);
-
   p_h_Layout->addWidget(pPlay);
   p_h_Layout->addWidget(pStop);
-
+  p_h_Layout->addWidget(pRem);
   //p_h_Layout->addWidget(pAdd);
 
   p_h_Layout->setMargin(1);
