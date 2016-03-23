@@ -169,7 +169,15 @@ void TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
 
 void TrayControlWindow::create_tray_actions()
 {
-  m_act_launch = new QAction(QIcon(":/hub/Launch-07.png"),tr("Launch"), this);
+  QIcon icon;
+  QSize size;
+  size.setWidth(10);
+  size.setHeight(10);
+
+  icon.addFile(":/hub/Launch-07.png", size);
+
+  //m_act_launch = new QAction(QIcon(":/hub/Launch-07.png"),tr("Launch"), this);
+  m_act_launch = new QAction(icon,tr("Launch"), this);
   connect(m_act_launch, SIGNAL(triggered()), this, SLOT(show_launch()));
 
   m_act_settings = new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
@@ -205,8 +213,11 @@ void TrayControlWindow::create_tray_icon()
   m_info_menu =  m_tray_menu->addMenu(m_balance);
   m_tray_menu->addSeparator();
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
+  m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
+  m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+  m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 #endif
 
   fill_vm_menu();
