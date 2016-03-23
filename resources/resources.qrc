@@ -20,6 +20,9 @@
         <file>Pause-07.png</file>
         <file>Stop-07.png</file>
         <file>tray.png</file>
+        <file>Balance-07.png</file>
+        <file>Hub-07.png</file>
+        <file>SS-07.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

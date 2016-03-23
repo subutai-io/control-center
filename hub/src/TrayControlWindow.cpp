@@ -81,10 +81,10 @@ void TrayControlWindow::fill_vm_menu(){
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::fill_launch_menu(){
-  m_act_launch_SS = new QAction(tr("Launch SS console"), this);
+  m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
   connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
 
-  m_act_launch_Hub = new QAction(tr("Launch Hub website"), this);
+  m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
   connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
 
   m_launch_menu->addAction(m_act_launch_SS);
@@ -97,23 +97,21 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
-  //CVboxMenu* menu = new CVboxMenu(vm, this);
-
-  //VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
   CVBPlayerItem *pl = new CVBPlayerItem(CVBoxManagerSingleton::Instance()->vm_by_id(vm_id), this);
-  m_w_Player->add(pl);
+
   connect(pl, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_play_triggered, Qt::QueuedConnection);
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_stop_triggered, Qt::QueuedConnection);
 
+  // Needed if we decide to have add button
   //  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
   //          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_rem_triggered, Qt::QueuedConnection);
-
+  m_w_Player->add(pl);
   m_dct_player_menus[vm_id] = pl;
 }
 
@@ -210,7 +208,7 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
 #ifndef RT_OS_LINUX
-  m_info_menu =  m_tray_menu->addMenu(m_balance);
+  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), m_balance);
   m_tray_menu->addSeparator();
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
@@ -304,14 +302,16 @@ void TrayControlWindow::notification_received(notification_level_t level,
 
 /*** Vbox slots  ***/
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
-  add_vm_menu(vm_id);
   m_vbox_menu->hide();
-//  m_vbox_menu->show();
+  add_vm_menu(vm_id);
+  //m_vbox_menu->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
+  m_vbox_menu->hide();
   remove_vm_menu(vm_id);
+  //m_vbox_menu->show();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -627,48 +627,13 @@ void CHubEnvironmentMenuItem::internal_action_triggered() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-////static const char *GetStateName(ushort st)
-//QString TrayControlWindow::GetStateName(ushort st)
-//{
-//  switch (st)
-//  {
-//    case 0:                return "<null>";
-//    case 1:            return "PoweredOff";
-//    case 2:                 return "Saved";
-//    case 3:            return "Teleported";
-//    case 4:               return "Aborted";
-//    case 5:               return "Running";
-//    case 6:                return "Paused";
-//    case 7:        return "GuruMeditation";
-//    case 8:           return "Teleporting";
-//    case 9:      return "LiveSnapshotting";
-//    case 10:             return "Starting";
-//    case 11:             return "Stopping";
-//    case 12:               return "Saving";
-//    case 13:            return "Restoring";
-//    case 14:  return "TeleportingPausedVM";
-//    case 15:        return "TeleportingIn";
-//    case 16: return "FaultTolerantSyncing";
-//    case 17: return "DeletingSnapshotOnline";
-//    case 18: return "DeletingSnapshotPaused";
-//    case 19:    return "OnlineSnapshotting";
-//    case 20:     return "RestoringSnapshot";
-//    case 21:      return "DeletingSnapshot";
-//    case 22:             return "SettingUp";
-//    case 23:          return "Snapshotting";
-//    default:              return "no idea";
-//  }
-//}
-
-///////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 CVBPlayer::CVBPlayer(QWidget* parent) :
   m_vm_player_id() {
   p_v_Layout = new QVBoxLayout(parent);
   p_v_Layout->setSpacing(5);
-  //p_v_Layout->setStretchFactor(3);
-  //this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
   this->setLayout(p_v_Layout);
 }
 
@@ -682,11 +647,8 @@ void CVBPlayer::add(CVBPlayerItem* pItem){
 
 void CVBPlayer::remove(CVBPlayerItem* pItem){
   p_v_Layout->removeWidget(pItem);
-  //addWidget(pItem);
+  this->setLayout(p_v_Layout);
 }
-
-
-
 ///////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
