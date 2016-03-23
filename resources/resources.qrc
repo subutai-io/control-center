@@ -1,25 +1,25 @@
 <RCC>
     <qresource prefix="/hub">
         <file>log_out.png</file>
-        <file>tray.png</file>
         <file>settings.png</file>
         <file>virtual.png</file>
         <file>join_swarm.png</file>
         <file>play.png</file>
         <file>stop.png</file>
-        <file>pause_green.png</file>
         <file>stop_disabled.png</file>
-        <file>record.png</file>
-        <file>play_disabled.png</file>
-        <file>delete.png</file>
-        <file>add.png</file>
         <file>log_in.png</file>
         <file>pause_disabled.png</file>
-        <file>pause_red.png</file>
         <file>resources.qrc</file>
-        <file>stop_blue.png</file>
-        <file>stop_green.png</file>
         <file>stop_red.png</file>
+        <file>Launch-07.png</file>
+        <file>Environmetns-07.png</file>
+        <file>VM-07.png</file>
+        <file>Settings-07.png</file>
+        <file>Exit-07.png</file>
+        <file>Delete-07.png</file>
+        <file>Pause-07.png</file>
+        <file>Stop-07.png</file>
+        <file>tray.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
