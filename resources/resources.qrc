@@ -23,6 +23,10 @@
         <file>Balance-07.png</file>
         <file>Hub-07.png</file>
         <file>SS-07.png</file>
+        <file>Launch_na-07.png</file>
+        <file>Delete_na-07.png</file>
+        <file>Pause_na-07.png</file>
+        <file>Stop_na-07.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

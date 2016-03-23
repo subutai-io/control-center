@@ -640,10 +640,27 @@ CVBPlayer::CVBPlayer(QWidget* parent) :
 CVBPlayer::~CVBPlayer(){
 
 }
+
 void CVBPlayer::add(CVBPlayerItem* pItem){
   p_v_Layout->addWidget(pItem);
   this->setLayout(p_v_Layout);
 }
+
+//void CVBPlayer::add1(CVBPlayerItem* pItem){
+//  setAttribute( Qt::WA_DontShowOnScreen, true );
+//  setAttribute( Qt::WA_WState_ExplicitShowHide, true);
+//  setAttribute( Qt::WA_WState_Hidden, true);
+//  int cnt = p_v_Layout->layout()->count();
+//  p_v_Layout->addWidget(pItem);
+//  this->setMinimumHeight(40*(cnt+1));
+//  this->setLayout(p_v_Layout);
+////  this->adjustSize();
+//  setAttribute( Qt::WA_WState_Hidden, false);
+//  setAttribute( Qt::WA_WState_ExplicitShowHide, false);
+//  setAttribute( Qt::WA_DontShowOnScreen, false );
+//  this->setVisible(true);
+//}
+
 
 void CVBPlayer::remove(CVBPlayerItem* pItem){
   p_v_Layout->removeWidget(pItem);
@@ -727,7 +744,8 @@ void CVBPlayerItem::set_buttons(ushort state){
   if (state < 5) { //turned off
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));
+    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete-07.png"));
     return;
   }
 
@@ -735,32 +753,37 @@ void CVBPlayerItem::set_buttons(ushort state){
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
     pStop->setIcon(QIcon(":/hub/Stop-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
     return;
   }
   if (state == 6) {//Paused
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
     pStop->setIcon(QIcon(":/hub/Stop-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
     return;
   }
   if (state == 7) {//Stuck, Gurumeditation, only power off
     pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/play.png"));//Change to Play_Disabled
+    pPlay->setIcon(QIcon(":/hub/Launch_na-07.png"));//Change to Play_Disabled
     pStop->setIcon(QIcon(":/hub/Stop-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete-07.png"));
     return;
   }
   if (state == 8 || state == 9) {//Teleporting or LiveSnapshotting
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     //str_icon = ":/hub/PauseHot.png";
     pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));//Change to Stop_disabled
+    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
     return;
   }
 
   if (state >= 10 && state < 24) {//Teleporting or LiveSnapshotting
     //str_icon = ":/hub/PauseHot.png";
-    pPlay->setIcon(QIcon(":/hub/pause_disabled.png"));
-    pStop->setIcon(QIcon(":/hub/stop.png"));//Change to Stop_disabled
+    pPlay->setIcon(QIcon(":/hub/Pause_na-07.png"));
+    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
+    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
     return;
   }
 
