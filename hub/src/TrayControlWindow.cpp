@@ -169,8 +169,8 @@ void TrayControlWindow::create_tray_actions()
 {
   QIcon icon;
   QSize size;
-  size.setWidth(20);
-  size.setHeight(20);
+  size.setWidth(32);
+  size.setHeight(32);
 
   icon.addFile(":/hub/Launch-07.png", size);
 
@@ -222,9 +222,14 @@ void TrayControlWindow::create_tray_icon()
   fill_launch_menu();
 
 #ifndef RT_OS_DARWIN
-  QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
-  wAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(wAction);
+//  QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
+//  wAction->setDefaultWidget(m_w_Player);
+//  m_vbox_menu->addAction(wAction);
+
+  vboxAction = new QWidgetAction(m_vbox_menu);
+  vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(vboxAction);
+
 #endif
 
   m_info_section = m_info_menu->addSection("");
@@ -303,15 +308,21 @@ void TrayControlWindow::notification_received(notification_level_t level,
 /*** Vbox slots  ***/
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
   m_vbox_menu->hide();
+  m_vbox_menu->removeAction(vboxAction);
   add_vm_menu(vm_id);
-  //m_vbox_menu->show();
+  vboxAction = new QWidgetAction(m_vbox_menu);
+  vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(vboxAction);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
   m_vbox_menu->hide();
+  m_vbox_menu->removeAction(vboxAction);
   remove_vm_menu(vm_id);
-  //m_vbox_menu->show();
+  vboxAction = new QWidgetAction(m_vbox_menu);
+  vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(vboxAction);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -618,7 +629,6 @@ void CVboxMenu::act_triggered() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
 ////////////////////////////////////////////////////////////////////////////
 
 /*hub menu*/
@@ -631,40 +641,37 @@ void CHubEnvironmentMenuItem::internal_action_triggered() {
 
 CVBPlayer::CVBPlayer(QWidget* parent) :
   m_vm_player_id() {
-  p_v_Layout = new QVBoxLayout(parent);
+  p_v_Layout = new QVBoxLayout(0);
   p_v_Layout->setSpacing(5);
   this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
   this->setLayout(p_v_Layout);
 }
 
 CVBPlayer::~CVBPlayer(){
-
 }
 
 void CVBPlayer::add(CVBPlayerItem* pItem){
+
   p_v_Layout->addWidget(pItem);
+  int cnt = p_v_Layout->layout()->count();
+
+  this->setMinimumHeight(35*(cnt+1));
+  this->setMaximumHeight(35*(cnt+1));
+
   this->setLayout(p_v_Layout);
+  this->setVisible(true);
 }
 
-//void CVBPlayer::add1(CVBPlayerItem* pItem){
-//  setAttribute( Qt::WA_DontShowOnScreen, true );
-//  setAttribute( Qt::WA_WState_ExplicitShowHide, true);
-//  setAttribute( Qt::WA_WState_Hidden, true);
-//  int cnt = p_v_Layout->layout()->count();
-//  p_v_Layout->addWidget(pItem);
-//  this->setMinimumHeight(40*(cnt+1));
-//  this->setLayout(p_v_Layout);
-////  this->adjustSize();
-//  setAttribute( Qt::WA_WState_Hidden, false);
-//  setAttribute( Qt::WA_WState_ExplicitShowHide, false);
-//  setAttribute( Qt::WA_DontShowOnScreen, false );
-//  this->setVisible(true);
-//}
-
-
 void CVBPlayer::remove(CVBPlayerItem* pItem){
+
   p_v_Layout->removeWidget(pItem);
+  int cnt = p_v_Layout->layout()->count();
+
+  this->setMinimumHeight(35*(cnt+1));
+  this->setMaximumHeight(35*(cnt+1));
+
   this->setLayout(p_v_Layout);
+  this->setVisible(true);
 }
 ///////////////////////////////////////////////////////////////////////////
 

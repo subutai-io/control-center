@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QWidgetAction>
 
 #include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
@@ -144,12 +145,13 @@ public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
   static const QString GetStateName(ushort st);
+  CVBPlayer *m_w_Player;
 
 private:
   Ui::TrayControlWindow *ui;
   QString m_balance;
   QVBoxLayout *m_w_Layout;
-  CVBPlayer *m_w_Player;
+//  CVBPlayer *m_w_Player;
   /*hub*/
 //  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
@@ -159,6 +161,7 @@ private:
   /*hub end*/
 
   /*vbox*/
+  QWidgetAction *vboxAction;
   std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
   std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const com::Bstr &vm_id);
