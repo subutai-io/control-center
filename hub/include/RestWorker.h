@@ -1,8 +1,11 @@
 #ifndef CRESTWORKER_H
 #define CRESTWORKER_H
 
+#include <QHostAddress>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QObject>
-#include <QString>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
@@ -10,9 +13,7 @@
 #include <QtNetwork/QSslConfiguration>
 #include <QUrl>
 #include <QUrlQuery>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QString>
 #include <vector>
 
 typedef enum error_login {
@@ -28,22 +29,32 @@ class CHubContainer {
 private:
   QString m_name;
   QString m_ip;
+  QString m_id;
+  QString m_port;
 
 public:
   explicit CHubContainer(QJsonObject obj) :
-    m_name(obj["name"].toString()),
-    m_ip(obj["ip"].toString())
+    m_name(obj["container_name"].toString()),
+    m_ip(obj["container_ip"].toString()),
+    m_id(obj["container_id"].toString())
   {
+    QHostAddress addr(m_ip.split("/")[0]);
+    if (!addr.isNull()) {
+      quint32 ip = addr.toIPv4Address();
+      quint8 port = ip & 0x000000ff; //last octet
+      m_port = QString("%1").arg(10000+port);
+    }
   }
 
   ~CHubContainer(){}
 
-  const QString& ip() const { return m_ip; }
-  const QString& name() const { return m_name; }
+  const QString& ip() const { return m_ip;}
+  const QString& name() const { return m_name;}
+  const QString& id() const {return m_id;}
+  const QString& port() const {return m_port;}
 
   bool operator==(const CHubContainer& arg) const {
-    return m_ip == arg.m_ip &&
-        m_name == arg.m_name;
+    return m_id == arg.m_id;
   }
   bool operator!=(const CHubContainer& arg) const {
     return !(this->operator ==(arg));
@@ -61,12 +72,12 @@ private:
 public:
   CSSEnvironment() : m_name(""){}
   explicit CSSEnvironment(const QJsonObject& obj) {
-    m_name = obj["name"].toString();
-    m_hash = obj["hash"].toString();
-    m_aes_key = obj["key"].toString();
-    m_ttl = obj["ttl"].toString();
+    m_name = obj["environment_name"].toString();
+    m_hash = obj["environment_hash"].toString();
+    m_aes_key = obj["environment_key"].toString();
+    m_ttl = obj["environment_ttl"].toString();
 
-    QJsonArray arr = obj["containers"].toArray();
+    QJsonArray arr = obj["environment_containers"].toArray();
     for (int i = 0; i < arr.size(); ++i) {
       QJsonObject item = arr.at(i).toObject();
       m_lst_containers.push_back(CHubContainer(item));
@@ -107,6 +118,60 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+class CCHInfo {
+private:
+  QString m_id;
+  QString m_ch_ip;
+public:
+  explicit CCHInfo(const QJsonObject& obj) {
+    m_id = obj["container_id"].toString();
+    m_ch_ip = obj["container_ip"].toString();
+  }
+
+  const QString& id() const {return m_id;}
+  const QString& ch_ip() const {return m_ch_ip;}
+
+  bool operator==(const CCHInfo& arg) const {
+    return m_id==arg.m_id;
+  }
+
+  bool operator!=(const CCHInfo& arg) const {
+    return !(this->operator ==(arg));
+  }
+};
+
+class CRHInfo {
+private:
+  QString m_id;
+  QString m_rh_ip;
+  std::vector<CCHInfo> m_lst_ch;
+public:
+  explicit CRHInfo(const QJsonObject& obj) {
+    m_id = obj["peer_id"].toString();
+    m_rh_ip = obj["peer_ip"].toString();
+
+    QJsonArray arr_containers = obj["peer_containers"].toArray();
+    for (int i = 0; i < arr_containers.size(); ++i) {
+      QJsonValue val = arr_containers.at(i);
+      CCHInfo ch(val.toObject());
+      m_lst_ch.push_back(ch);
+    }
+  }
+
+  const QString& id() const {return m_id;}
+  const QString& rh_ip() const {return m_rh_ip;}
+  const std::vector<CCHInfo>& lst_containers() const {return m_lst_ch;}
+
+  bool operator==(const CRHInfo& arg) const {
+    return m_id==arg.m_id;
+  }
+
+  bool operator!=(const CRHInfo& arg) const {
+    return !(this->operator ==(arg));
+  }
+};
+////////////////////////////////////////////////////////////////////////////
+
 class CRestWorker {
 private:
 
@@ -126,6 +191,7 @@ public:
   static int login(const QString& login, const QString& password);
   static std::vector<CSSEnvironment> get_environments(int &http_code, int& err_code);
   static CSSBalance get_balance(int &http_code, int& err_code);
+  static std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code);
 };
 
 #endif // CRESTWORKER_H
