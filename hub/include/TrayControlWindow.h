@@ -158,6 +158,7 @@ private:
   QTimer m_ss_updater_timer;
   std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
+  std::vector<CRHInfo> m_lst_resource_hosts;
   /*hub end*/
 
   /*vbox*/
@@ -200,7 +201,10 @@ private:
   void create_tray_icon();
   void fill_vm_menu();
   void fill_launch_menu();
-  void update_balance();
+
+  void refresh_balance();
+  void refresh_environments();
+  void refresh_containers(); //to make ssh work
 
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
@@ -233,7 +237,7 @@ private slots:
 
   /*hub slots*/
   void refresh_timer_timeout();
-  void hub_menu_item_triggered(const CSSEnvironment *env,
+  void hub_container_mi_triggered(const CSSEnvironment *env,
                                const CHubContainer *cont);
 
   /*updater*/

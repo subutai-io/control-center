@@ -54,13 +54,40 @@ std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& e
 }
 ////////////////////////////////////////////////////////////////////////////
 
-CSSBalance CRestWorker::get_balance(int& http_code, int& err_code)
+CSSBalance CRestWorker::get_balance(int& http_code,
+                                    int& err_code)
 {
   QJsonDocument doc = get_request_json_document("balance", http_code, err_code);
   if (err_code != 0) return CSSBalance();
   if (!doc.isObject()) { err_code = EL_NOT_JSON_OBJECT; return CSSBalance(); }
   QJsonObject balance = doc.object();
   return CSSBalance(balance["currentBalance"].toString());
+}
+////////////////////////////////////////////////////////////////////////////
+
+std::vector<CRHInfo> CRestWorker::get_ssh_containers(int &http_code,
+                                                           int &err_code)
+{
+  QJsonDocument doc = get_request_json_document("containers", http_code, err_code);
+  if (err_code != 0) return std::vector<CRHInfo>();
+
+  if (!doc.isArray()) {
+    err_code = EL_NOT_JSON_OBJECT;
+    return std::vector<CRHInfo>();
+  }
+
+  std::vector<CRHInfo> lst_res;
+  QJsonArray ssh_containers = doc.array();
+  for (int i = 0; i < ssh_containers.size(); ++i) {
+    if (!ssh_containers.at(i).isObject()) {
+      qDebug() << "ssh_container is not json object. error";
+      continue;
+    }
+
+    CRHInfo cont(ssh_containers.at(i).toObject());
+    lst_res.push_back(cont);
+  }
+  return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -70,9 +70,9 @@ void TrayControlWindow::fill_vm_menu(){
     for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
 #ifdef RT_OS_DARWIN
-    add_vm_menu_simple(i->first);
+      add_vm_menu_simple(i->first);
 #else
-    add_vm_menu(i->first);
+      add_vm_menu(i->first);
 #endif
     }
   }
@@ -146,9 +146,9 @@ void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
 
   VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
   if ((int)state < 5){
-      menu->set_machine_stopped(TRUE);
+    menu->set_machine_stopped(TRUE);
   } else {
-      menu->set_machine_stopped(FALSE);
+    menu->set_machine_stopped(FALSE);
   }
 
   m_dct_vm_menus[vm_id] = menu;
@@ -261,7 +261,7 @@ void TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
   //m_vbox_menu->popup(curpos,m_act_hub);
-    m_vbox_menu->exec(QCursor::pos());
+  m_vbox_menu->exec(QCursor::pos());
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -382,59 +382,48 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
     qDebug() << "pausing result : " << lr << "\n";
     return;
   } //turn on
-
 }
 ////////////////////////////////////////////////////////////////////////////
-
 
 /*** Refresh ***/
 void TrayControlWindow::refresh_timer_timeout() {
-  int http_code, err_code;
-
-  update_balance();
-  m_act_info->setText(m_balance);
-  m_info_menu->setTitle(m_balance);
-
-  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
-  if (res == m_lst_environments) return;
-
-  m_hub_menu->clear();
-  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
-    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
-               this, SLOT(hub_menu_item_triggered(CSSEnvironment*,CHubContainer*)));
-    delete *i;
-  }
-  m_lst_hub_menu_items.clear();
-  m_lst_environments = res;
-
-  for (auto env = m_lst_environments.begin(); env != m_lst_environments.end(); ++env) {
-    QMenu* env_menu = m_hub_menu->addMenu(env->name());
-    for (auto cont = env->containers().begin(); cont != env->containers().end(); ++cont) {
-      QAction* act = new QAction(cont->name(), this);
-      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont));
-      connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
-      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
-              this, SLOT(hub_menu_item_triggered(const CSSEnvironment*, const CHubContainer*)));
-      env_menu->addAction(act);
-    }
-  }
+  /*balance*/
+  refresh_balance();
+  refresh_environments();
+  refresh_containers();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_menu_item_triggered(const CSSEnvironment *env,
-                                                const CHubContainer *cont) {
+void TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
+                                                   const CHubContainer *cont) {
 
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
-                                                                          "10.10.10.15");
+                                                                          "dhcp");
   if (err != SCWE_SUCCESS) {
+    qDebug() << "Failed to join to p2p network. Error : " << err;
+    CNotifiactionObserver::NotifyAboutError(QString("Failed to join to p2p network. Error : %1").arg(err));
     return;
   }
 
-  err = CSystemCallWrapper::run_ssh_in_terminal("ubuntu", cont->ip().toStdString().c_str());
-  if (err == SCWE_SUCCESS) return;
+  typedef std::vector<CRHInfo>::const_iterator rh_iter;
+  typedef std::vector<CCHInfo>::const_iterator ch_iter;
 
-  CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
+  for (rh_iter i = m_lst_resource_hosts.begin(); i != m_lst_resource_hosts.end(); ++i) {
+    for (ch_iter j = i->lst_containers().begin(); j != i->lst_containers().end(); ++j) {
+      if (j->id() == cont->id()) {
+        qDebug() << QString("ssh -p %1@%2 -p %3").arg("subutai").arg(i->rh_ip()).arg(cont->port());
+        qDebug() << cont->ip();
+        err = CSystemCallWrapper::run_ssh_in_terminal("subutai",
+                                                      i->rh_ip().toStdString().c_str(),
+                                                      cont->port().toStdString().c_str());
+        if (err == SCWE_SUCCESS) return;
+
+        CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
+        return;
+      }
+    }
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -559,12 +548,62 @@ void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   //todo check result
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
-
 ////////////////////////////////////////////////////////////////////////////
-void TrayControlWindow::update_balance() {
-    int http_code, err_code;
-    CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
-    m_balance = err_code ? tr("Not defined") : QString("Balance: $%1").arg(balance.value());
+
+void TrayControlWindow::refresh_balance() {
+  int http_code, err_code;
+  CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
+  m_balance = err_code ? tr("Not defined") : QString("Balance: $%1").arg(balance.value());
+  m_act_info->setText(m_balance);
+  m_info_menu->setTitle(m_balance);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::refresh_environments() {
+  int http_code, err_code;
+  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
+
+  if (err_code) {
+    CNotifiactionObserver::NotifyAboutError(QString("Refresh environments error : %1").arg(err_code));
+    return;
+  }
+
+  if (res == m_lst_environments) return;
+
+  m_hub_menu->clear();
+  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
+    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
+               this, SLOT(hub_container_mi_triggered(CSSEnvironment*,CHubContainer*)));
+    delete *i;
+  }
+  m_lst_hub_menu_items.clear();
+  m_lst_environments = res;
+
+  for (auto env = m_lst_environments.begin(); env != m_lst_environments.end(); ++env) {
+    QMenu* env_menu = m_hub_menu->addMenu(env->name());
+    for (auto cont = env->containers().begin(); cont != env->containers().end(); ++cont) {
+      QAction* act = new QAction(cont->name(), this);
+      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont));
+      connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
+      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
+              this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*)));
+      env_menu->addAction(act);
+    }
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::refresh_containers() {
+  int http_code, err_code;
+  std::vector<CRHInfo> res = CRestWorker::get_ssh_containers(http_code, err_code);
+  if (err_code) {
+    CNotifiactionObserver::NotifyAboutError(QString("Refresh containers info error : %1").arg(err_code));
+    return;
+  }
+
+  if (res == m_lst_resource_hosts)
+    return;
+  m_lst_resource_hosts = res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -604,15 +643,15 @@ const QString TrayControlWindow::GetStateName(ushort st)
 ///////////////////////////////////////////////////////////////////////////
 
 CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
-    m_id(vm->id()) {
-    QString name = QString::fromUtf16((ushort*)vm->name().raw());
-    ushort state = (ushort)vm->state();
-           // CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  m_id(vm->id()) {
+  QString name = QString::fromUtf16((ushort*)vm->name().raw());
+  ushort state = (ushort)vm->state();
+  // CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
 
-    QString s_state = TrayControlWindow::GetStateName(state);
-//    m_act = new QAction(QIcon(":/hub/play.png"), name + " " + s_state, parent);
-    m_act = new QAction(QIcon(":/hub/Launch-07.png"), name, parent);
-    connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
+  QString s_state = TrayControlWindow::GetStateName(state);
+  //    m_act = new QAction(QIcon(":/hub/play.png"), name + " " + s_state, parent);
+  m_act = new QAction(QIcon(":/hub/Launch-07.png"), name, parent);
+  connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
 }
 
 CVboxMenu::~CVboxMenu(){

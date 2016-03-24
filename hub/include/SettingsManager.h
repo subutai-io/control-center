@@ -49,9 +49,9 @@ private:
   uint32_t m_notification_delay_sec;
 
   //todo remove it from settings after getting it somehow from somewhere
+  QString m_updater_host;
   QString m_updater_user;
   QString m_updater_pass;
-  QString m_updater_host;
   QString m_updater_port;
 
 public:
