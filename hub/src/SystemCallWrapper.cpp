@@ -194,7 +194,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
                 "  do script \"" <<
-                "ssh " << user << "@" << ip << << " -p " << port << "\"\n" <<
+                "ssh " << user << "@" << ip << " -p " << port << "\"\n" <<
                 " end tell\'";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX

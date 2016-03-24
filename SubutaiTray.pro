@@ -115,6 +115,7 @@ macx: {
   LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxRT.dylib
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
+  ICON = $$PWD/resources/tray_logo.icns
 }
 #////////////////////////////////////////////////////////////////////////////
 
