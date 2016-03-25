@@ -186,25 +186,26 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::run_ssh_in_terminal(const char* user,
-                                        const char* ip)
+                                        const char* ip,
+                                        const char *port)
 {
   std::ostringstream str_stream;
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
                 "  do script \"" <<
-                "ssh " << user << "@" << ip << "\"\n" <<
+                "ssh " << user << "@" << ip << " -p " << port << "\"\n" <<
                 " end tell\'";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"ssh " << user << "@" << ip << ";bash\" &";
+                " -e \"ssh " << " " << user << "@" << ip << " -p " << port << ";bash\" &";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " /k ssh " << user << "@" << ip;
+                " /k ssh " << user << "@" << ip << " -p " << port;
   PROCESS_INFORMATION pi;
   STARTUPINFOA si;
   ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );

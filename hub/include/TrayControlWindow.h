@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QWidgetAction>
 
 #include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
@@ -144,21 +145,24 @@ public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
   static const QString GetStateName(ushort st);
+  CVBPlayer *m_w_Player;
 
 private:
   Ui::TrayControlWindow *ui;
   QString m_balance;
   QVBoxLayout *m_w_Layout;
-  CVBPlayer *m_w_Player;
+//  CVBPlayer *m_w_Player;
   /*hub*/
 //  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
   QTimer m_ss_updater_timer;
   std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
+  std::vector<CRHInfo> m_lst_resource_hosts;
   /*hub end*/
 
   /*vbox*/
+  QWidgetAction *vboxAction;
   std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
   std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const com::Bstr &vm_id);
@@ -197,7 +201,10 @@ private:
   void create_tray_icon();
   void fill_vm_menu();
   void fill_launch_menu();
-  void update_balance();
+
+  void refresh_balance();
+  void refresh_environments();
+  void refresh_containers(); //to make ssh work
 
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
@@ -230,7 +237,7 @@ private slots:
 
   /*hub slots*/
   void refresh_timer_timeout();
-  void hub_menu_item_triggered(const CSSEnvironment *env,
+  void hub_container_mi_triggered(const CSSEnvironment *env,
                                const CHubContainer *cont);
 
   /*updater*/
