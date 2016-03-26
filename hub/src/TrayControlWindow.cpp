@@ -448,23 +448,26 @@ void TrayControlWindow::updater_timer_timeout() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::launch_Hub() {
-  QString browser = "/etc/alternatives/x-www-browser";
+  QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
-#endif
-#if defined (RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked if need \ for spaces
-#elif RT_OS_WINDOWS
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-#endif
   QString hub_url;
   hub_url = "https://hub.subut.ai";
+  QStringList args;
 
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+  args << "--new-window";
+#elif defined(RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked if need \ for spaces
+#elif defined(RT_OS_WINDOWS)
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  args << "--new-window";
+#endif
+  args << hub_url;
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
                                       browser,
-                                      QStringList() << hub_url,
+                                      args,
                                       folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
@@ -479,20 +482,23 @@ void TrayControlWindow::launch_Hub() {
 void TrayControlWindow::launch_SS() {
   QString browser; // "/etc/alternatives/x-www-browser";
   QString folder;
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
-#endif
-#if defined (RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
-#elif RT_OS_WINDOWS
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-#endif
   QString hub_url;
   hub_url = "https://localhost:9999";
+  QStringList args;
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
-                                                                     QStringList() << hub_url,
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+  args << "--new-window";
+#elif defined(RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
+#elif defined(RT_OS_WINDOWS)
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  args << "--new-window";
+#endif
+args << hub_url;
+system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
+                                                                     args,
                                                                      folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
