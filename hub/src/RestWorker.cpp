@@ -18,8 +18,10 @@ int CRestWorker::login(const QString& login, const QString& password)
   int err_code;
 
   QByteArray arr = send_post_request(request, http_code, err_code);
-  if (QString(arr).mid(1, arr.length()-2) != "OK")
+  if (QString(arr).mid(1, arr.length()-2) != "OK") {
+    qDebug() << arr;
     return EL_LOGIN_OR_EMAIL;
+  }
   return err_code;
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network websockets
 CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -43,7 +43,9 @@ SOURCES += \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
     hub/src/SystemCallWrapper.cpp \
-    hub/src/DlgSwarmJoin.cpp
+    hub/src/DlgSwarmJoin.cpp \
+    hub/src/TrayWebSocketServer.cpp \
+    hub/src/HubController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -63,7 +65,9 @@ HEADERS  += \
     hub/include/SystemCallWrapper.h \
     hub/include/DlgSwarmJoin.h \
     hub/include/NotifiactionObserver.h \
-    libssh2/UpdateErrors.h
+    libssh2/UpdateErrors.h \
+    hub/include/TrayWebSocketServer.h \
+    hub/include/HubController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

@@ -1,5 +1,4 @@
 #include <QApplication>
-
 /*need this include to register meta type com::Bstr*/
 #include <VBox/com/string.h>
 
@@ -7,6 +6,7 @@
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "SystemCallWrapper.h"
+#include "TrayWebSocketServer.h"
 
 int main(int argc, char *argv[]) {
 
@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
   if (dlg.result() == QDialog::Rejected)
     return 0;
 
+  CTrayServer::Instance()->Init();
   CVBoxManagerSingleton::Instance()->init_com();
   TrayControlWindow tcw;
   return app.exec();

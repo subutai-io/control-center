@@ -1,7 +1,7 @@
 #include "DlgLogin.h"
 #include "ui_DlgLogin.h"
 #include "SettingsManager.h"
-
+#include "HubController.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -43,6 +43,7 @@ void DlgLogin::btn_ok_released()
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())
         CSettingsManager::Instance().save_all();
+      CHubController::Instance().set_current_user(ui->le_login->text());
       QDialog::accept();
       break;
     case EL_LOGIN_OR_EMAIL:
