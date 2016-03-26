@@ -209,7 +209,7 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
 #ifndef RT_OS_LINUX
-  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), m_balance);
+  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
   m_tray_menu->addSeparator();
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
