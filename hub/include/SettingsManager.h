@@ -32,6 +32,8 @@ private:
   static const QString SM_UPDATER_HOST;
   static const QString SM_UPDATER_PORT;
 
+  static const QString SM_PLUGIN_PORT;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -53,6 +55,8 @@ private:
   QString m_updater_user;
   QString m_updater_pass;
   QString m_updater_port;
+
+  uint16_t m_plugin_port;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -81,6 +85,7 @@ public:
   const QString& updater_pass() const{return m_updater_pass;}
   const QString& updater_host() const{return m_updater_host;}
   const QString& updater_port() const{return m_updater_port;}
+  uint16_t plugin_port() const {return m_plugin_port;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -152,6 +157,11 @@ public:
   void set_updater_port(const QString& updater_port) {
     m_updater_port = updater_port;
     m_settings.setValue(SM_UPDATER_PORT, m_updater_port);
+  }
+
+  void set_plugin_port(uint16_t plugin_port) {
+    m_plugin_port = plugin_port;
+    m_settings.setValue(SM_PLUGIN_PORT, m_plugin_port);
   }
 };
 

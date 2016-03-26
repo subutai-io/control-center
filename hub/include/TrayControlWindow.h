@@ -22,7 +22,6 @@ namespace Ui {
   class TrayControlWindow;
 }
 
-
 class CVBPlayerItem : public QWidget {
     Q_OBJECT
 private:
@@ -114,27 +113,6 @@ public slots:
 };
 
 ////////////////////////////////////////////////////////////////////////////
-
-//class CLaunchMenuItem : public QObject {
-// Q_OBJECT
-//private:
-//  const CSSEnvironment* m_hub_environment;
-//  const CHubContainer* m_hub_container;
-
-//public:
-//  explicit CLaunchMenuItem(const CSSEnvironment* env,
-//                                   const CHubContainer* cont) :
-//    m_hub_environment(env), m_hub_container(cont){}
-
-//  ~CHubEnvironmentMenuItem(){}
-
-//signals:
-//  void action_triggered(const CSSEnvironment*, const CHubContainer*);
-
-//public slots:
-//  void internal_action_triggered();
-
-//};
 ////////////////////////////////////////////////////////////////////////////
 
 class TrayControlWindow : public QMainWindow
@@ -149,16 +127,12 @@ public:
 
 private:
   Ui::TrayControlWindow *ui;
-  QString m_balance;
   QVBoxLayout *m_w_Layout;
 //  CVBPlayer *m_w_Player;
   /*hub*/
-//  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
   QTimer m_ss_updater_timer;
-  std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
-  std::vector<CRHInfo> m_lst_resource_hosts;
   /*hub end*/
 
   /*vbox*/
@@ -200,15 +174,12 @@ private:
   void create_tray_actions();
   void create_tray_icon();
   void fill_vm_menu();
-  void fill_launch_menu();
-
-  void refresh_balance();
-  void refresh_environments();
-  void refresh_containers(); //to make ssh work
-
+  void fill_launch_menu();  
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
 
+  void refresh_balance();
+  void refresh_environments();
 private slots:
   /*tray slots*/
   void show_settings_dialog();
@@ -217,9 +188,6 @@ private slots:
   void show_launch();
   void notification_received(notification_level_t level,
                              const QString& msg);
-
-//  void join_to_swarm();
-
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
