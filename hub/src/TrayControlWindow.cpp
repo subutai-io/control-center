@@ -198,6 +198,9 @@ void TrayControlWindow::create_tray_actions()
 void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
+    m_sys_tray_icon = new QSystemTrayIcon(this);
+    m_sys_tray_icon->setContextMenu(m_tray_menu);
+    m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
 
   //////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
@@ -205,7 +208,7 @@ void TrayControlWindow::create_tray_icon()
   m_hub_menu = new QMenu(m_tray_menu);
   m_vbox_menu = new QMenu(m_tray_menu);
   m_launch_menu = new QMenu(m_tray_menu);
-
+  m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 #endif
 
 #ifndef RT_OS_LINUX
@@ -242,18 +245,19 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->insertAction(m_act_settings, m_act_info);
   m_tray_menu->insertAction(m_act_settings, m_act_launch);
   m_tray_menu->addAction(m_act_hub);
+  m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
 #endif
 
-  //  m_tray_menu->addSeparator();
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_quit);
-  //  m_tray_menu->addMenu(m_vbox_menu);
-  m_sys_tray_icon = new QSystemTrayIcon(this);
-  m_sys_tray_icon->setContextMenu(m_tray_menu);
-  m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
+//  m_tray_menu->addMenu(m_vbox_menu);
+
+//  m_sys_tray_icon = new QSystemTrayIcon(this);
+//  m_sys_tray_icon->setContextMenu(m_tray_menu);
+//  m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -262,27 +266,36 @@ void TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
   //m_vbox_menu->popup(curpos,m_act_hub);
-  m_vbox_menu->exec(QCursor::pos());
+  m_vbox_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_settings_dialog() {
   this->show();
   DlgSettings dlg(this);
+
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+
+  dlg.move(curpos.x(), 0);
   dlg.exec();
   this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_hub() {
-  m_hub_menu->popup(QCursor::pos(),m_act_hub);
-  //m_hub_menu->exec();
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+  //m_hub_menu->popup(curpos,m_act_hub);
+  m_hub_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::show_launch() {
-  m_launch_menu->popup(QCursor::pos(),m_act_launch);
-  //m_hub_menu->exec();
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+//m_launch_menu->popup(QCursor::pos(),m_act_launch);
+   m_launch_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
 
