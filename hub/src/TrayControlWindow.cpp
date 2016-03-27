@@ -198,11 +198,12 @@ void TrayControlWindow::create_tray_actions()
 void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
-    m_sys_tray_icon = new QSystemTrayIcon(this);
-    m_sys_tray_icon->setContextMenu(m_tray_menu);
-    m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
 
-  //////////// Do not forget to remove defs after fixing on linux!/////////////////
+  m_sys_tray_icon = new QSystemTrayIcon(this);
+  m_sys_tray_icon->setContextMenu(m_tray_menu);
+  m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
+
+//////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
   m_info_menu = new QMenu(m_tray_menu);
   m_hub_menu = new QMenu(m_tray_menu);
@@ -212,7 +213,9 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
 #ifndef RT_OS_LINUX
-  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
+//  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
+  m_info_menu = new QMenu(m_tray_menu);
+  m_tray_menu->addAction(m_act_info);
   m_tray_menu->addSeparator();
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
@@ -220,6 +223,8 @@ void TrayControlWindow::create_tray_icon()
   m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
+
+  m_tray_menu->insertSeparator(m_act_settings);
 #endif
 
   fill_vm_menu();
@@ -241,13 +246,20 @@ void TrayControlWindow::create_tray_icon()
   m_hub_section  = m_hub_menu->addSection("");
   m_vbox_section = m_vbox_menu->addSection("");
 
+//  m_tray_menu->insertAction(m_act_settings, m_act_info);
 #ifdef RT_OS_LINUX
-  m_tray_menu->insertAction(m_act_settings, m_act_info);
   m_tray_menu->insertAction(m_act_settings, m_act_launch);
   m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_hub);
   m_tray_menu->addAction(m_act_vbox);
+
+  m_tray_menu->insertAction(m_act_launch, m_act_info);
+  m_tray_menu->insertSeparator(m_act_launch);
 #endif
+//  //Will be changed when info menu action added - show transactions history
+//  m_info_menu = new QMenu(m_tray_menu);
+//  m_tray_menu->addAction(m_act_info);
+//  m_tray_menu->addSeparator();
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
