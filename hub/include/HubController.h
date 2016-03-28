@@ -37,8 +37,8 @@ public:
   int ssh_to_container(const CSSEnvironment *env,
                         const CHubContainer *cont);
 
-  int ssh_to_container_str(const QString& env_name,
-                            const QString& cont_name);
+  int ssh_to_container_str(const QString& env_id,
+                            const QString& cont_id);
 
   static const QString& ssh_launch_err_to_str(int err);
 

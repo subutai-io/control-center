@@ -16,19 +16,24 @@ CHubController::~CHubController() {
 ////////////////////////////////////////////////////////////////////////////
 
 int CHubController::refresh_balance() {
-  int http_code, err_code;
-  CSSBalance balance = CRestWorker::get_balance(http_code, err_code);
+  int http_code, err_code, network_error;
+  CSSBalance balance = CRestWorker::get_balance(http_code, err_code, network_error);
   m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: $%1").arg(balance.value());
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 int CHubController::refresh_environments() {
-  int http_code, err_code;
-  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code);
+  int http_code, err_code, network_error;
+  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code, network_error);
 
   if (err_code) {
     CNotifiactionObserver::NotifyAboutError(QString("Refresh environments error : %1").arg(err_code));
+    return 1;
+  }
+
+  if (network_error != 0) {
+    CNotifiactionObserver::NotifyAboutError(QString("Refresh environments network error : %1").arg(network_error));
     return 1;
   }
 
@@ -40,11 +45,16 @@ int CHubController::refresh_environments() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_containers() {
-  int http_code, err_code;
-  std::vector<CRHInfo> res = CRestWorker::get_ssh_containers(http_code, err_code);
+  int http_code, err_code, network_error;
+  std::vector<CRHInfo> res = CRestWorker::get_ssh_containers(http_code, err_code, network_error);
 
   if (err_code) {
     CNotifiactionObserver::NotifyAboutError(QString("Refresh containers info error : %1").arg(err_code));
+    return;
+  }
+
+  if (network_error != 0) {
+    CNotifiactionObserver::NotifyAboutError(QString("Refresh containers network error : %1").arg(network_error));
     return;
   }
 
@@ -55,7 +65,7 @@ void CHubController::refresh_containers() {
 ////////////////////////////////////////////////////////////////////////////
 
 int CHubController::ssh_to_container(const CSSEnvironment *env,
-                                      const CHubContainer *cont) {
+                                     const CHubContainer *cont) {
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
                                                                           "dhcp");
@@ -82,29 +92,21 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CHubController::ssh_to_container_str(const QString &env_name,
-                                          const QString &cont_name) {
+int CHubController::ssh_to_container_str(const QString &env_id,
+                                         const QString &cont_id) {
   CSSEnvironment *env = NULL;
   for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
-    if (i->name() == env_name) {
-      env = &(*i); break;
-    }
+    if (i->id() != env_id) continue;
+    env = &(*i); break;
   }
-  if (env == NULL) {
-    return SLE_ENV_NOT_FOUND;
-  }
+  if (env == NULL) {return SLE_ENV_NOT_FOUND;}
 
   const CHubContainer *cont = NULL;
   for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
-    if (j->name() == cont_name) {
-      cont = &(*j); break;
-    }
+    if (j->id() != cont_id) continue;
+    cont = &(*j); break;
   }
-
-  if (cont == NULL) {
-    return SLE_CONT_NOT_FOUND;
-  }
-
+  if (cont == NULL) { return SLE_CONT_NOT_FOUND;}
   return ssh_to_container(env, cont);
 }
 ////////////////////////////////////////////////////////////////////////////
