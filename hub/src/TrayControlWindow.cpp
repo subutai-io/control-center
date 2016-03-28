@@ -201,7 +201,7 @@ void TrayControlWindow::create_tray_icon()
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
-  m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
+  m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 
 //////////// Do not forget to remove defs after fixing on linux!/////////////////
 #ifdef RT_OS_LINUX
@@ -285,11 +285,11 @@ void TrayControlWindow::show_vbox() {
 void TrayControlWindow::show_settings_dialog() {
   this->show();
   DlgSettings dlg(this);
-
+#ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
-
   dlg.move(curpos.x(), 0);
+#endif
   dlg.exec();
   this->hide();
 }

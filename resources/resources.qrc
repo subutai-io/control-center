@@ -27,6 +27,7 @@
         <file>Delete_na-07.png</file>
         <file>Pause_na-07.png</file>
         <file>Stop_na-07.png</file>
+        <file>Tray_icon_set-07.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

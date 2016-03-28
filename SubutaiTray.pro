@@ -137,3 +137,6 @@ win32: {
               vbox/include/VBoxManagerWin.h
 }
 #////////////////////////////////////////////////////////////////////////////
+
+DISTFILES += \
+    resources/Tray_icon_set-07.png
