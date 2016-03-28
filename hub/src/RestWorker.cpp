@@ -4,7 +4,11 @@
 #include "SettingsManager.h"
 #include "RestWorker.h"
 
-int CRestWorker::login(const QString& login, const QString& password)
+void CRestWorker::login(const QString& login,
+                        const QString& password,
+                        int &http_code,
+                        int &err_code,
+                        int &network_error)
 {
   QUrl url_login(CSettingsManager::Instance().post_url().arg("login"));
   QUrlQuery query_login;
@@ -13,36 +17,35 @@ int CRestWorker::login(const QString& login, const QString& password)
   url_login.setQuery(query_login);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  QByteArray arr = send_post_request(request, http_code, err_code, network_error);
 
-  int http_code;
-  int err_code;
-
-  QByteArray arr = send_post_request(request, http_code, err_code);
+  if (err_code != EL_SUCCESS)
+    return;
   if (QString(arr).mid(1, arr.length()-2) != "OK") {
-    qDebug() << arr;
-    return EL_LOGIN_OR_EMAIL;
+    err_code = EL_LOGIN_OR_EMAIL;
+    return;
   }
-  return err_code;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 QJsonDocument CRestWorker::get_request_json_document(const QString &link,
-                                            int &http_code,
-                                            int &err_code) {
+                                                     int &http_code,
+                                                     int &err_code,
+                                                     int &network_error) {
   QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = send_get_request(req, http_code, err_code);
+  QByteArray arr = send_get_request(req, http_code, err_code, network_error);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {err_code = EL_NOT_JSON_DOC; return QJsonDocument();}
   return doc;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& err_code)
+std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& err_code, int& network_error)
 {
   std::vector<CSSEnvironment> lst_res;
-  QJsonDocument doc = get_request_json_document("environments", http_code, err_code);
+  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);
   if (err_code != 0) return lst_res;
   QJsonArray arr = doc.array();
 
@@ -57,9 +60,10 @@ std::vector<CSSEnvironment> CRestWorker::get_environments(int& http_code, int& e
 ////////////////////////////////////////////////////////////////////////////
 
 CSSBalance CRestWorker::get_balance(int& http_code,
-                                    int& err_code)
+                                    int& err_code,
+                                    int& network_error)
 {
-  QJsonDocument doc = get_request_json_document("balance", http_code, err_code);
+  QJsonDocument doc = get_request_json_document("balance", http_code, err_code, network_error);
   if (err_code != 0) return CSSBalance();
   if (!doc.isObject()) { err_code = EL_NOT_JSON_OBJECT; return CSSBalance(); }
   QJsonObject balance = doc.object();
@@ -68,9 +72,10 @@ CSSBalance CRestWorker::get_balance(int& http_code,
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<CRHInfo> CRestWorker::get_ssh_containers(int &http_code,
-                                                           int &err_code)
+                                                     int &err_code,
+                                                     int &network_error)
 {
-  QJsonDocument doc = get_request_json_document("containers", http_code, err_code);
+  QJsonDocument doc = get_request_json_document("containers", http_code, err_code, network_error);
   if (err_code != 0) return std::vector<CRHInfo>();
 
   if (!doc.isArray()) {
@@ -96,9 +101,11 @@ std::vector<CRHInfo> CRestWorker::get_ssh_containers(int &http_code,
 QByteArray CRestWorker::send_request(const QNetworkRequest &req,
                                      bool get,
                                      int& http_status_code,
-                                     int& err_code)
+                                     int& err_code,
+                                     int &network_error)
 {
   err_code = EL_SUCCESS;
+  network_error = 0;
   static QNetworkAccessManager qnam;
 
   QEventLoop loop;
@@ -120,14 +127,13 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
   //timer active is timout didn't fire
   if (timer.isActive()) {
     if (reply->error() != QNetworkReply::NoError) {
-      err_code = reply->error();      
+      err_code = EL_NETWORK_ERROR;
       return QByteArray();
     }
     bool parsed = false;
     http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
     return reply->readAll();
   } else {
-    qDebug() << "reply timeout";
     reply->abort();
     err_code = EL_TIMEOUT;
     return QByteArray();
@@ -135,17 +141,19 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 }
 
 QByteArray CRestWorker::send_get_request(const QNetworkRequest &req,
-                                    int& http_status_code,
-                                    int& err_code)
+                                         int& http_status_code,
+                                         int& err_code,
+                                         int &network_error)
 {
-  return send_request(req, true, http_status_code, err_code);
+  return send_request(req, true, http_status_code, err_code, network_error);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray CRestWorker::send_post_request(const QNetworkRequest &req,
-                                     int& http_status_code,
-                                     int& err_code)
+                                          int& http_status_code,
+                                          int& err_code,
+                                          int& network_error)
 {
-  return send_request(req, false, http_status_code, err_code);
+  return send_request(req, false, http_status_code, err_code, network_error);
 }
 ////////////////////////////////////////////////////////////////////////////

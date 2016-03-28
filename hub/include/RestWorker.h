@@ -22,7 +22,8 @@ typedef enum error_login {
   EL_LOGIN_OR_EMAIL = 2,
   EL_TIMEOUT = 3,
   EL_NOT_JSON_DOC = 4,
-  EL_NOT_JSON_OBJECT = 5
+  EL_NOT_JSON_OBJECT = 5,
+  EL_NETWORK_ERROR = 6
 } error_login_t;
 
 class CHubContainer {
@@ -68,6 +69,7 @@ private:
   QString m_hash;
   QString m_aes_key;
   QString m_ttl;
+  QString m_id;
   std::vector<CHubContainer> m_lst_containers;
 public:
   CSSEnvironment() : m_name(""){}
@@ -76,6 +78,7 @@ public:
     m_hash = obj["environment_hash"].toString();
     m_aes_key = obj["environment_key"].toString();
     m_ttl = obj["environment_ttl"].toString();
+    m_id = obj["environment_id"].toString();
 
     QJsonArray arr = obj["environment_containers"].toArray();
     for (int i = 0; i < arr.size(); ++i) {
@@ -86,6 +89,7 @@ public:
 
   ~CSSEnvironment(){}
 
+  //todo use id
   bool operator==(const CSSEnvironment& arg) const {
     return m_name == arg.m_name &&
         m_hash == arg.m_hash &&
@@ -101,6 +105,7 @@ public:
   const QString& name() const {return m_name;}
   const QString& hash() const {return m_hash;}
   const QString& key() const {return m_aes_key;}
+  const QString& id() const {return m_id;}
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -175,10 +180,13 @@ public:
 class CRestWorker {
 private:
 
-  static QByteArray send_request(const QNetworkRequest& req, bool get, int &http_status_code, int &err_code);
-  static QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
-  static QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code, int &err_code);
-  static QJsonDocument get_request_json_document(const QString& link, int& http_code, int &err_code);
+  static QByteArray send_request(const QNetworkRequest& req, bool get,
+                                 int &http_status_code, int &err_code, int& network_error);
+  static QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code,
+                                     int &err_code, int& network_error);
+  static QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code,
+                                      int &err_code, int& network_error);
+  static QJsonDocument get_request_json_document(const QString& link, int& http_code, int &err_code, int &network_error);
 
   CRestWorker();
   CRestWorker(const QString& login,
@@ -188,10 +196,14 @@ private:
 
 public:
 
-  static int login(const QString& login, const QString& password);
-  static std::vector<CSSEnvironment> get_environments(int &http_code, int& err_code);
-  static CSSBalance get_balance(int &http_code, int& err_code);
-  static std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code);
+  static void login(const QString& login,
+                   const QString& password,
+                   int &http_code,
+                   int &err_code,
+                   int &network_error);
+  static std::vector<CSSEnvironment> get_environments(int &http_code, int& err_code, int &network_error);
+  static CSSBalance get_balance(int &http_code, int& err_code, int &network_error);
+  static std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code, int &network_error);
 };
 
 #endif // CRESTWORKER_H
