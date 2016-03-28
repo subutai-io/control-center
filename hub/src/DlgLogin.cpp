@@ -66,6 +66,7 @@ void DlgLogin::btn_ok_released()
     case EL_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").arg(network_err));
+      break;
     default:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>Unknown error. Code: %1!</font>").arg(err_code));

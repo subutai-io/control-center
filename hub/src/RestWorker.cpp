@@ -124,9 +124,10 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
   QObject::disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   QObject::disconnect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
 
-  //timer active is timout didn't fire
+  //timer active if timeout didn't fire
   if (timer.isActive()) {
     if (reply->error() != QNetworkReply::NoError) {
+      network_error = reply->error();
       err_code = EL_NETWORK_ERROR;
       return QByteArray();
     }
