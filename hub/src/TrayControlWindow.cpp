@@ -69,11 +69,12 @@ void TrayControlWindow::fill_vm_menu(){
   if (CVBoxManagerSingleton::Instance()->init_machines() == 0) {
     for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
-#ifdef RT_OS_DARWIN
-      add_vm_menu_simple(i->first);
-#else
-      add_vm_menu(i->first);
-#endif
+            add_vm_menu(i->first);
+//#ifdef RT_OS_DARWIN
+//      add_vm_menu_simple(i->first);
+//#else
+//      add_vm_menu(i->first);
+//#endif
     }
   }
 }
@@ -130,7 +131,7 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   m_dct_player_menus.erase(it);
 }
 ////////////////////////////////////////////////////////////////////////////
-
+////////// Delete it after approval! ///////////////////////////////////////
 void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
@@ -154,7 +155,7 @@ void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
   m_dct_vm_menus[vm_id] = menu;
 }
 ////////////////////////////////////////////////////////////////////////////
-
+////////// Delete it after approval! ///////////////////////////////////////
 void TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
@@ -198,48 +199,39 @@ void TrayControlWindow::create_tray_actions()
 void TrayControlWindow::create_tray_icon()
 {
   m_tray_menu = new QMenu(this);
-
-  m_sys_tray_icon = new QSystemTrayIcon(this);
-  m_sys_tray_icon->setContextMenu(m_tray_menu);
-  m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
-
-//////////// Do not forget to remove defs after fixing on linux!/////////////////
-#ifdef RT_OS_LINUX
-  m_info_menu = new QMenu(m_tray_menu);
-  m_hub_menu = new QMenu(m_tray_menu);
-  m_vbox_menu = new QMenu(m_tray_menu);
-  m_launch_menu = new QMenu(m_tray_menu);
-  m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
-#endif
-
-#ifndef RT_OS_LINUX
-//  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
   m_info_menu = new QMenu(m_tray_menu);
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addSeparator();
+
+//////////// Do not forget to remove defs after fixing on linux!/////////////////
+//////////// Init submenus Launch and Environments
+#ifdef RT_OS_LINUX
+  m_launch_menu = new QMenu(m_tray_menu);
+  m_hub_menu = new QMenu(m_tray_menu);
+
+  m_tray_menu->addAction(m_act_launch);
+  m_tray_menu->addAction(m_act_hub);
+#else
+//  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
+#endif
+//////////// Init vbox menu
+#ifdef RT_OS_WINDOWS
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-  m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
-
-  m_tray_menu->insertSeparator(m_act_settings);
+#else
+  m_vbox_menu = new QMenu(m_tray_menu);
 #endif
 
+  m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
   fill_vm_menu();
   fill_launch_menu();
-
-#ifndef RT_OS_DARWIN
-//  QWidgetAction *wAction = new QWidgetAction(m_vbox_menu);
-//  wAction->setDefaultWidget(m_w_Player);
-//  m_vbox_menu->addAction(wAction);
 
   vboxAction = new QWidgetAction(m_vbox_menu);
   vboxAction->setDefaultWidget(m_w_Player);
   m_vbox_menu->addAction(vboxAction);
-
-#endif
 
   m_info_section = m_info_menu->addSection("");
   m_launch_section = m_launch_menu->addSection("");
@@ -247,16 +239,11 @@ void TrayControlWindow::create_tray_icon()
   m_vbox_section = m_vbox_menu->addSection("");
 
 //  m_tray_menu->insertAction(m_act_settings, m_act_info);
-#ifdef RT_OS_LINUX
-  m_tray_menu->insertAction(m_act_settings, m_act_launch);
-  m_tray_menu->addAction(m_act_hub);
-  m_tray_menu->addAction(m_act_hub);
+#ifndef RT_OS_WINDOWS
   m_tray_menu->addAction(m_act_vbox);
-
-  m_tray_menu->insertAction(m_act_launch, m_act_info);
-  m_tray_menu->insertSeparator(m_act_launch);
 #endif
-//  //Will be changed when info menu action added - show transactions history
+
+////Will be changed when info menu action added - show transactions history
 //  m_info_menu = new QMenu(m_tray_menu);
 //  m_tray_menu->addAction(m_act_info);
 //  m_tray_menu->addSeparator();
@@ -267,9 +254,14 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_quit);
 //  m_tray_menu->addMenu(m_vbox_menu);
 
-//  m_sys_tray_icon = new QSystemTrayIcon(this);
-//  m_sys_tray_icon->setContextMenu(m_tray_menu);
-//  m_sys_tray_icon->setIcon(QIcon(":/hub/tray.png"));
+/////  Testing submenus, temporary, will be DELETED
+//  QMenu* temp_menu =  new QMenu("temorary test", m_tray_menu);
+//  temp_menu->addAction(m_act_quit);
+//  m_tray_menu->addMenu(temp_menu);
+
+  m_sys_tray_icon = new QSystemTrayIcon(this);
+  m_sys_tray_icon->setContextMenu(m_tray_menu);
+  m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 
 }
 ////////////////////////////////////////////////////////////////////////////
