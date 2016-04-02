@@ -17,7 +17,9 @@ CTrayServer::CTrayServer(quint16 port,
   if (m_web_socket_server->listen(QHostAddress::Any, port)) {
   connect(m_web_socket_server, SIGNAL(newConnection()), this, SLOT(on_new_connection()));
   } else {
-    CNotifiactionObserver::NotifyAboutError(QString("Can't listen websocket on port : %1").arg(port));
+    QString err_msg = QString("Can't listen websocket on port : %1").arg(port);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -61,9 +63,8 @@ void CTrayServer::process_text_msg(QString msg) {
                        .arg(lr==SLE_SUCCESS ? "" : CHubController::ssh_launch_err_to_str(lr))
                        .arg(lr==SLE_SUCCESS ? CHubController::ssh_launch_err_to_str(lr) : "");
     pClient->sendTextMessage(responce);
-    qDebug() << responce << " sent";
   } else {
-    qDebug() << "!!!!!!!!!!!!!!!!!!!" << msg;
+    //todo unknown command responce
   }
 }
 ////////////////////////////////////////////////////////////////////////////

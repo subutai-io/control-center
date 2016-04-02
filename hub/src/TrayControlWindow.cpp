@@ -17,7 +17,6 @@
 #include "RestWorker.h"
 #include "DlgSettings.h"
 #include <QFileDialog>
-#include <QDebug>
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -374,7 +373,6 @@ void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
 
   if (on) {
     int lr = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
-    qDebug() << "launch result : " << lr;
     return;
   } //turn on
 
@@ -393,7 +391,6 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
 
   if (on) {
     int lr = CVBoxManagerSingleton::Instance()->pause(vm_id);
-    qDebug() << "pausing result : " << lr << "\n";
     return;
   } //turn on
 }
@@ -428,8 +425,11 @@ void TrayControlWindow::updater_timer_timeout() {
 
   if (exit_code == RUE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutInfo("Update command succesfull finished");
+    qDebug() << "Update command succesfull finished";
   } else {
-    CNotifiactionObserver::NotifyAboutError(QString("Update command failed with exit code : %1").arg(exit_code));
+    QString err_msg = QString("Update command failed with exit code : %1").arg(exit_code);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
   }
   m_ss_updater_timer.start();
 }
@@ -460,10 +460,11 @@ void TrayControlWindow::launch_Hub() {
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(QString("Launch hub website failed. Error code : %1").arg((int)err));
+    QString err_msg = QString("Launch hub website failed. Error code : %1").arg((int)err);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return;
   }
-  qDebug() << browser << "yes " << (int)err << "\n";
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -491,10 +492,11 @@ system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(QString("Run SS console failed. Error code : %1").arg((int)err));
+    QString err_msg = QString("Run SS console failed. Error code : %1").arg((int)err);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return;
   }
-  qDebug() << browser << "yes " << (int)err << "\n";
 }
 ////////////////////////////////////////////////////////////////////////////
 
