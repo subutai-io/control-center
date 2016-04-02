@@ -1,6 +1,5 @@
 #include <QTimer>
 #include <QEventLoop>
-#include <QDebug>
 #include "SettingsManager.h"
 #include "RestWorker.h"
 
@@ -87,7 +86,7 @@ std::vector<CRHInfo> CRestWorker::get_ssh_containers(int &http_code,
   QJsonArray ssh_containers = doc.array();
   for (int i = 0; i < ssh_containers.size(); ++i) {
     if (!ssh_containers.at(i).isObject()) {
-      qDebug() << "ssh_container is not json object. error";
+      qCritical() << "ssh_container is not json object. error";
       continue;
     }
 
@@ -110,6 +109,7 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
   QEventLoop loop;
   QTimer timer(&loop);
+  SslErrorCollector collector;
   timer.setSingleShot(true);
   timer.start(15000);
 
@@ -118,11 +118,13 @@ QByteArray CRestWorker::send_request(const QNetworkRequest &req,
 
   QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+  QObject::connect(reply, SIGNAL(sslErrors(QList<QSslError>)), &collector, SLOT(ssl_errors_appeared(QList<QSslError>)));
 
   loop.exec();
 
   QObject::disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   QObject::disconnect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+  QObject::disconnect(reply, SIGNAL(sslErrors(QList<QSslError>)), &collector, SLOT(ssl_errors_appeared(QList<QSslError>)));
 
   //timer active if timeout didn't fire
   if (timer.isActive()) {
@@ -158,3 +160,10 @@ QByteArray CRestWorker::send_post_request(const QNetworkRequest &req,
   return send_request(req, false, http_status_code, err_code, network_error);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void SslErrorCollector::ssl_errors_appeared(QList<QSslError> lst_errors) {
+  for (int i = 0; i < lst_errors.size(); ++i) {
+    qCritical() << lst_errors.at(i).error();
+    qCritical() << lst_errors.at(i).errorString();
+  }
+}

@@ -55,7 +55,7 @@ public:
   const QString& port() const {return m_port;}
 
   bool operator==(const CHubContainer& arg) const {
-    return m_id == arg.m_id;
+    return m_id == arg.m_id && m_ip == arg.m_ip && m_port == arg.m_port;
   }
   bool operator!=(const CHubContainer& arg) const {
     return !(this->operator ==(arg));
@@ -91,7 +91,8 @@ public:
 
   //todo use id
   bool operator==(const CSSEnvironment& arg) const {
-    return m_name == arg.m_name &&
+    return m_id == m_id &&
+        m_name == arg.m_name &&
         m_hash == arg.m_hash &&
         m_aes_key == arg.m_aes_key &&
         m_ttl == arg.m_ttl &&
@@ -137,7 +138,7 @@ public:
   const QString& ch_ip() const {return m_ch_ip;}
 
   bool operator==(const CCHInfo& arg) const {
-    return m_id==arg.m_id;
+    return m_id==arg.m_id && m_ch_ip == arg.m_ch_ip;
   }
 
   bool operator!=(const CCHInfo& arg) const {
@@ -168,12 +169,19 @@ public:
   const std::vector<CCHInfo>& lst_containers() const {return m_lst_ch;}
 
   bool operator==(const CRHInfo& arg) const {
-    return m_id==arg.m_id;
+    return m_id==arg.m_id && m_rh_ip == arg.m_rh_ip;
   }
 
   bool operator!=(const CRHInfo& arg) const {
     return !(this->operator ==(arg));
   }
+};
+////////////////////////////////////////////////////////////////////////////
+
+class SslErrorCollector : public QObject {
+  Q_OBJECT
+public slots:
+  void ssl_errors_appeared(QList<QSslError> lst_errors);
 };
 ////////////////////////////////////////////////////////////////////////////
 

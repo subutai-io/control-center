@@ -10,8 +10,6 @@
 
 #include "IVirtualMachine.h"
 #include "IVBoxManager.h"
-#include <QDebug>
-
 
 VBoxManageWindow::VBoxManageWindow(QWidget *parent) :
   QMainWindow(parent),

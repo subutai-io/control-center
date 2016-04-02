@@ -28,12 +28,16 @@ int CHubController::refresh_environments() {
   std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code, network_error);
 
   if (err_code) {
-    CNotifiactionObserver::NotifyAboutError(QString("Refresh environments error : %1").arg(err_code));
+    QString err_msg = QString("Refresh environments error : %1").arg(err_code);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return 1;
   }
 
   if (network_error != 0) {
-    CNotifiactionObserver::NotifyAboutError(QString("Refresh environments network error : %1").arg(network_error));
+    QString err_msg = QString("Refresh environments network error : %1").arg(network_error);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return 1;
   }
 
@@ -49,12 +53,16 @@ void CHubController::refresh_containers() {
   std::vector<CRHInfo> res = CRestWorker::get_ssh_containers(http_code, err_code, network_error);
 
   if (err_code) {
-    CNotifiactionObserver::NotifyAboutError(QString("Refresh containers info error : %1").arg(err_code));
+    QString err_msg = QString("Refresh containers info error : %1").arg(err_code);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return;
   }
 
   if (network_error != 0) {
-    CNotifiactionObserver::NotifyAboutError(QString("Refresh containers network error : %1").arg(network_error));
+    QString err_msg = QString("Refresh containers network error : %1").arg(network_error);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return;
   }
 
@@ -70,7 +78,9 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
                                                                           env->key().toStdString().c_str(),
                                                                           "dhcp");
   if (err != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(QString("Failed to join to p2p network. Error : %1").arg(err));
+    QString err_msg = QString("Failed to join to p2p network. Error : %1").arg(err);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return SLE_JOIN_TO_SWARM_FAILED;
   }
 
@@ -83,7 +93,9 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
         if (err == SCWE_SUCCESS)
           return SLE_SUCCESS;
 
-        CNotifiactionObserver::NotifyAboutError(QString("Run SSH failed. Error code : %1").arg((int)err));
+        QString err_msg = QString("Run SSH failed. Error code : %1").arg((int)err);
+        CNotifiactionObserver::NotifyAboutError(err_msg);
+        qCritical() << err_msg;
         return SLE_SYSTEM_CALL_FAILED;
       }
     }

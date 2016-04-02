@@ -80,7 +80,6 @@ CSystemCallWrapper::ssystem(const char *command,
     /*create child process*/
     char str_com[256] = {0};
     memcpy(str_com, command, strlen(command));
-    qDebug() << str_com;
     b_success = CreateProcessA(
                   NULL,          // no module name. use command line
                   str_com,       // command line
@@ -140,8 +139,8 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   int exit_code = 0;
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out, exit_code);
   if (res != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(
-          error_strings[res]);
+    CNotifiactionObserver::NotifyAboutError(error_strings[res]);
+    qCritical() << error_strings[res];
     return false;
   }
 
@@ -169,14 +168,17 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   int exit_code;
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out, exit_code);
   if (res != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(
-          QString("Join to p2p failed. Error : %1").arg(res));
+    QString err_msg = QString("Join to p2p failed. Error : %1").arg(res);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return res;
   }
 
   if (lst_out.size() == 1 &&
       lst_out[0].find("[ERROR]") != std::string::npos) {
-    CNotifiactionObserver::NotifyAboutError(QString::fromStdString(lst_out[0]));
+    QString err_msg = QString::fromStdString(lst_out[0]);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    qCritical() << err_msg;
     return SCWE_CANT_JOIN_SWARM;
   }
 

@@ -174,7 +174,6 @@ int CVBoxManagerLinux::init_machines() {
     machines[count]->GetName(&vm_name);
 
     QString name = QString::fromUtf16((ushort*)vm_name);
-    qDebug() << "machine name " << name << "\n";
     if (!name.contains("subutai"))
       continue;
     rh_count++;
