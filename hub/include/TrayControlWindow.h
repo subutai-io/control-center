@@ -27,7 +27,6 @@ class CVBPlayerItem : public QWidget {
 private:
     com::Bstr m_vm_player_item_id;
     QAction* m_player_item_act;
-
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
@@ -60,12 +59,16 @@ private:
     com::Bstr m_vm_player_id;
     QVBoxLayout *p_v_Layout;
     QAction* m_player_act;
+    QLabel *labelHeader;
+    QHBoxLayout *p_h_HeaderLayout;
+    void empty();
 
 public:
     CVBPlayer(QWidget *parent);
     virtual ~CVBPlayer();
     void add(CVBPlayerItem* pItem);
     void remove(CVBPlayerItem* pItem);
+    int vm_count;
 };
 
 
@@ -86,7 +89,6 @@ signals:
   void vbox_menu_act_triggered(const com::Bstr& vm_id);
 private slots:
   void act_triggered();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -173,7 +175,7 @@ private:
 
   void create_tray_actions();
   void create_tray_icon();
-  void fill_vm_menu();
+  int fill_vm_menu();
   void fill_launch_menu();  
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/

@@ -128,6 +128,21 @@ void CVBoxManagerWin::on_machine_registered(IEvent *event) {
   rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
   if (FAILED(rc)) return;
 
+  BOOL accessible = FALSE;
+  machine->get_Accessible(&accessible);
+  if (accessible == FALSE) {
+      qDebug() << "not accessible\n";
+      return;
+  }
+
+  BSTR vm_name;
+  machine->get_Name(&vm_name);
+
+  QString name = QString::fromUtf16((ushort*)vm_name);
+  qDebug() << "machine name " << name << "\n";
+  if (!name.contains("subutai"))
+      return;
+
   IVirtualMachine *vm = new CVirtualMachineWin(machine);
   m_dct_machines[vm->id()] = vm;
   emit vm_add(vm->id());
@@ -154,7 +169,7 @@ int CVBoxManagerWin::init_machines() {
   IMachine **machines;
   nsresult rc;
   SAFEARRAY* safe_machines = NULL;
-  uint32_t count;
+  uint32_t count, rh_count = 0;
 
   if (m_last_vb_error != VBE_SUCCESS)
     return m_last_vb_error;
@@ -163,6 +178,9 @@ int CVBoxManagerWin::init_machines() {
   if (FAILED(rc)) return VBE_GET_MACHINES;
 
   count = safe_machines->rgsabound[0].cElements;
+  if (count == 0)
+    return -1;
+
   rc = SafeArrayAccessData(safe_machines, (void**) &machines);
   if (FAILED(rc)) return VBE_SAFE_ARRAY_ACCESS_DATA;
 
@@ -180,14 +198,14 @@ int CVBoxManagerWin::init_machines() {
     qDebug() << "machine name " << name << "\n";
     if (!name.contains("subutai"))
         continue;
-
+    rh_count++;
     IVirtualMachine* vm = new CVirtualMachineWin(machines[count]);
     m_dct_machines[vm->id()] = vm;
   } while (count != 0);
 
   SafeArrayUnaccessData(safe_machines);
-//  SafeArrayDestroy(safe_machines);
-  return 0;
+  //SafeArrayDestroy(safe_machines);
+  return (rh_count == 0) ? 1 : 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -300,8 +318,6 @@ int CVBoxManagerWin::pause(const com::Bstr &vm_id) {
     return 6;//1;
   }
 
-
-  //nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->pause();
   if (FAILED(rc)) {
     return 19;
@@ -342,7 +358,6 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
-  IProgress* progress;
 
   QMessageBox msg;
   msg.setIcon(QMessageBox::Question);
@@ -363,13 +378,12 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
       return 23;
       break;
   }
-
-
   state = m_dct_machines[vm_id]->state();
+  qDebug() << " state: " << (int)state << "\n" ;
   if(  (int)state > 4  )
   {
     qDebug() << "not in poweroff state \n" ;
-    qDebug() << "not in off-line state \n" ;
+
 //  CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
     msg.setIcon(QMessageBox::Information);
     msg.setText(tr("Virtual machine can not be removed!"));
@@ -378,7 +392,11 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
     mret = msg.exec();
     return 6;//1;
   }
+
+  IProgress* progress;
+  qDebug() << "VBoxManagerWin before remove vm " << "\n";
   rc = m_dct_machines[vm_id]->remove(&progress);
+  qDebug() << "VBoxManagerWin after remove \n";
   if (FAILED(rc)) {
     return 23;
   }

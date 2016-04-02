@@ -148,7 +148,7 @@ void CVBoxManagerLinux::on_machine_event(IEvent *event) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::init_machines() {
-  uint32_t count;
+  uint32_t count, rh_count = 0;
   IMachine **machines;
   nsresult rc;
 
@@ -156,6 +156,10 @@ int CVBoxManagerLinux::init_machines() {
     return m_last_vb_error;
 
   rc = m_virtual_box->GetMachines(&count, &machines);
+
+  if (count == 0)
+    return -1;
+
   if (NS_FAILED(rc)) return VBE_GET_MACHINES;
 
   do {
@@ -173,7 +177,7 @@ int CVBoxManagerLinux::init_machines() {
     qDebug() << "machine name " << name << "\n";
     if (!name.contains("subutai"))
       continue;
-
+    rh_count++;
     ISession* session;
     rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
                                                          nsnull,
@@ -188,7 +192,8 @@ int CVBoxManagerLinux::init_machines() {
 
   std::thread t(StartEventThread, m_event_source, m_el_passive);
   t.detach();
-  return 0;
+
+  return (rh_count == 0) ? 1 : 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 

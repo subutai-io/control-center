@@ -65,18 +65,21 @@ TrayControlWindow::~TrayControlWindow()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::fill_vm_menu(){
-  if (CVBoxManagerSingleton::Instance()->init_machines() == 0) {
-    for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
+int TrayControlWindow::fill_vm_menu(){
+  if (CVBoxManagerSingleton::Instance()->init_machines() != 0)
+    return 0;
+  ushort rh_count = 0;
+  for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
             add_vm_menu(i->first);
+            rh_count++;
 //#ifdef RT_OS_DARWIN
 //      add_vm_menu_simple(i->first);
 //#else
 //      add_vm_menu(i->first);
 //#endif
-    }
   }
+  return rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -119,6 +122,8 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
   if (it == m_dct_player_menus.end()) return;
+  qDebug()<<" id found\n";
+
   m_w_Player->remove(it->second);
 
   disconnect(it->second, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
@@ -129,6 +134,7 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
   delete it->second;
   m_dct_player_menus.erase(it);
+  qDebug()<<"after m_dct_player_menus erased\n";
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
@@ -226,7 +232,10 @@ void TrayControlWindow::create_tray_icon()
 #endif
 
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
-  fill_vm_menu();
+
+  qDebug()<<"before fill_vm_menu \n";
+  int rc = fill_vm_menu();
+  qDebug()<<"after fill_vm_menu rc = " <<rc <<"\n";
   fill_launch_menu();
 
   vboxAction = new QWidgetAction(m_vbox_menu);
@@ -270,7 +279,9 @@ void TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
   //m_vbox_menu->popup(curpos,m_act_hub);
-  m_vbox_menu->exec(curpos);
+
+  if (m_w_Player->vm_count > 0)
+    m_vbox_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -324,6 +335,7 @@ void TrayControlWindow::notification_received(notification_level_t level,
 void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
   m_vbox_menu->hide();
   m_vbox_menu->removeAction(vboxAction);
+
   add_vm_menu(vm_id);
   vboxAction = new QWidgetAction(m_vbox_menu);
   vboxAction->setDefaultWidget(m_w_Player);
@@ -543,6 +555,7 @@ void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
 
 void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   //todo check result
+  qDebug() << "TrayControlWindow before remove \n";
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -657,9 +670,17 @@ void CHubEnvironmentMenuItem::internal_action_triggered() {
 CVBPlayer::CVBPlayer(QWidget* parent) :
   m_vm_player_id() {
   UNUSED_ARG(parent);
+  vm_count = 0;
+//  empty();
+  labelHeader = new QLabel(this);
+  labelHeader->setText("No resource hosts registered");
+  labelHeader->setMinimumWidth(180);
+  labelHeader->setSizePolicy(QSizePolicy::Preferred,
+                             QSizePolicy::Minimum);
   p_v_Layout = new QVBoxLayout(0);
-  p_v_Layout->setSpacing(5);
-  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+  p_v_Layout->setSpacing(2);
+  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+  p_v_Layout->addWidget(labelHeader);
   this->setLayout(p_v_Layout);
 }
 
@@ -669,14 +690,20 @@ CVBPlayer::~CVBPlayer(){
 
 void CVBPlayer::add(CVBPlayerItem* pItem){
 
+  if (vm_count == 0){
+      labelHeader->setText("Resource hosts registered:");
+      labelHeader->setVisible(false);
+  }
   p_v_Layout->addWidget(pItem);
   int cnt = p_v_Layout->layout()->count();
 
-  this->setMinimumHeight(35*(cnt+1));
-  this->setMaximumHeight(35*(cnt+1));
+  this->setMinimumHeight(30*(cnt+1));
+  this->setMaximumHeight(30*(cnt+1));
 
+  vm_count++;
   this->setLayout(p_v_Layout);
   this->setVisible(true);
+  qDebug() << "added vm_count=" << vm_count << "\n";
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -685,12 +712,35 @@ void CVBPlayer::remove(CVBPlayerItem* pItem){
   p_v_Layout->removeWidget(pItem);
   int cnt = p_v_Layout->layout()->count();
 
-  this->setMinimumHeight(35*(cnt+1));
-  this->setMaximumHeight(35*(cnt+1));
+  this->setMinimumHeight(30*(cnt+1));
+  this->setMaximumHeight(30*(cnt+1));
 
+  vm_count--;
+
+  if (vm_count == 0){
+      labelHeader->setText("No resource hosts registered:");
+      labelHeader->setVisible(true);
+  }
   this->setLayout(p_v_Layout);
   this->setVisible(true);
+  qDebug() << "removed vm_count=" << vm_count << "\n";
 }
+/////////////////////////////////////////////////////////////////////////////
+
+void CVBPlayer::empty(){
+  labelHeader = new QLabel(this);
+  labelHeader->setText("No resource hosts registered");
+  labelHeader->setMinimumWidth(180);
+  p_h_HeaderLayout = new QHBoxLayout(this);
+  p_h_HeaderLayout->addWidget(labelHeader);
+  p_v_Layout = new QVBoxLayout(0);
+  p_v_Layout->setSpacing(5);
+//  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  p_v_Layout->addLayout(p_h_HeaderLayout);
+  this->setLayout(p_v_Layout);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
@@ -698,7 +748,8 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
 
   UNUSED_ARG(parent);
   pLabelName = new QLabel(this);
-  pLabelState = new QLabel(this); pPlay = new QPushButton("", this);
+  pLabelState = new QLabel(this);
+  pPlay = new QPushButton("", this);
   pStop = new QPushButton("", this);
 
   p_h_Layout = new QHBoxLayout(NULL);
