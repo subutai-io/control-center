@@ -1,6 +1,5 @@
 #include <QApplication>
 #include <stdint.h>
-//#include <comutil.h>
 #include <VBox/com/com.h>
 #include <VBox/com/ptr.h>
 #include <VBox/com/array.h>

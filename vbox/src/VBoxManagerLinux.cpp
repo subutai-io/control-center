@@ -113,6 +113,21 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
   if (NS_FAILED(rc)) return;
 
+  BOOL accessible = FALSE;
+  machine->GetAccessible(&accessible);
+  if (accessible == FALSE) {
+      qDebug() << "not accessible\n";
+      return;
+  }
+
+  BSTR vm_name;
+  machine->GetName(&vm_name);
+
+  QString name = QString::fromUtf16((ushort*)vm_name);
+  qDebug() << "machine name " << name << "\n";
+  if (!name.contains("subutai"))
+      return;
+
   ISession* session;
   rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
                                                        nsnull,
@@ -392,8 +407,6 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
-
-
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actually here
