@@ -16,6 +16,22 @@
 
 void hub_msg_log(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
+static const char* date_format = "dd_MM_yyyy";
+typedef struct msg_function_handler {
+  QString file_prefix;
+  QString msg_prefix;
+} msg_function_handler_t;
+
+QMap<QtMsgType, msg_function_handler_t> dct_lh;
+void init_dct_lg() {
+  dct_lh[QtDebugMsg] = {"debug_", "[DEBUG:]"};
+  dct_lh[QtWarningMsg] = {"warning_", "[WARNING:]"};
+  dct_lh[QtCriticalMsg] = {"critical_", "[CRITICAL:]"};
+  dct_lh[QtFatalMsg] = {"fatal_", "[FATAL:]"};
+  dct_lh[QtInfoMsg] = {"info_", "[INFO:]"};
+  dct_lh[QtSystemMsg] = {"system_", "[SYSTEM:]"};
+}
+
 int main(int argc, char *argv[]) {
 
   QApplication::setApplicationName("SubutaiTray");
@@ -31,6 +47,8 @@ int main(int argc, char *argv[]) {
   QCommandLineOption use_log_files_opt("d", QApplication::translate("main", "Use files for debug logs"));
   cmd_parser.addOption(use_log_files_opt);
   cmd_parser.parse(QApplication::arguments());
+
+  init_dct_lg();
 
   bool d_flag = cmd_parser.isSet(use_log_files_opt);
   if (d_flag)
@@ -50,22 +68,6 @@ int main(int argc, char *argv[]) {
   TrayControlWindow tcw;
   return app.exec();
 }
-////////////////////////////////////////////////////////////////////////////
-
-static const char* date_format = "dd_MM_yyyy";
-typedef struct msg_function_handler {
-  QString file_prefix;
-  QString msg_prefix;
-} msg_function_handler_t;
-
-static QMap<QtMsgType, msg_function_handler_t> dct_lh{
-      {QtDebugMsg, {"debug_", "[DEBUG:]"}},
-      {QtWarningMsg, {"warning_", "[WARNING:]"}},
-      {QtCriticalMsg, {"critical_", "[CRITICAL:]"}},
-      {QtFatalMsg, {"fatal_", "[FATAL:]"}},
-      {QtInfoMsg, {"info_", "[INFO:]"}},
-      {QtSystemMsg, {"system_", "[SYSTEM:]"}},
-};
 ////////////////////////////////////////////////////////////////////////////
 
 void hub_msg_log(QtMsgType type,
