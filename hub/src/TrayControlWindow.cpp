@@ -72,7 +72,7 @@ int TrayControlWindow::fill_vm_menu(){
          i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
             add_vm_menu(i->first);
             rh_count++;
-//#ifdef RT_OS_DARWIN
+// vbox/src/VBoxManagerWin.cpp
 //      add_vm_menu_simple(i->first);
 //#else
 //      add_vm_menu(i->first);
