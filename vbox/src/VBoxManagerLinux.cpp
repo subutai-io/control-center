@@ -366,7 +366,7 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 #ifndef RT_OS_DARWIN
   msg.setText(tr("Virtual machine and all files will be removed!"));
 #else
-  msg.setText(tr("Virtual machine will be removed!Please delete files manualy."));
+  msg.setText(tr("Virtual machine will be removed!Please delete files manually"));
 #endif
   msg.setInformativeText(tr("Are You sure?"));
   msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
