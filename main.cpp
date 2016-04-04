@@ -82,14 +82,15 @@ void hub_msg_log(QtMsgType type,
   QFile file(file_name);
   if (!file.open(QIODevice::ReadWrite))
     return;
-  QString log_msg = QString("%1 %2 %3 %4 %5").
+  QString log_msg = QString("%1 %2 %3 %4 %5 %6\n").
+                    arg(QTime::currentTime().toString("hh:mm:ss")).
                     arg(dct_lh[type].msg_prefix).
                     arg(msg).
                     arg(context.file).
                     arg(context.line).
                     arg(context.function);
 
-  file.seek(file.size() - 1);
+  file.seek(file.size());
   file.write(log_msg.toUtf8());
   file.flush();
   file.close();
