@@ -130,8 +130,8 @@ private:
   QString m_ch_ip;
 public:
   explicit CCHInfo(const QJsonObject& obj) {
-    m_id = obj["container_id"].toString();
-    m_ch_ip = obj["container_ip"].toString();
+    m_id = obj["id"].toString();
+    m_ch_ip = obj["ip"].toString();
   }
 
   const QString& id() const {return m_id;}
@@ -154,9 +154,9 @@ private:
 public:
   explicit CRHInfo(const QJsonObject& obj) {
     m_id = obj["peer_id"].toString();
-    m_rh_ip = obj["peer_ip"].toString();
+    m_rh_ip = obj["rh_ip"].toString();
 
-    QJsonArray arr_containers = obj["peer_containers"].toArray();
+    QJsonArray arr_containers = obj["containers"].toArray();
     for (int i = 0; i < arr_containers.size(); ++i) {
       QJsonValue val = arr_containers.at(i);
       CCHInfo ch(val.toObject());
