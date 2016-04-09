@@ -36,7 +36,11 @@ QJsonDocument CRestWorker::get_request_json_document(const QString &link,
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = send_get_request(req, http_code, err_code, network_error);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
-  if (doc.isNull()) {err_code = EL_NOT_JSON_DOC; return QJsonDocument();}
+  if (doc.isNull()) {
+    err_code = EL_NOT_JSON_DOC;
+    qWarning() << "Not json document : " << QString(arr);
+    return QJsonDocument();
+  }
   return doc;
 }
 ////////////////////////////////////////////////////////////////////////////

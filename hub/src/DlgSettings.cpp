@@ -5,7 +5,8 @@
 
 DlgSettings::DlgSettings(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::DlgSettings)
+  ui(new Ui::DlgSettings),
+  m_tab_resize_filter(NULL)
 {
   ui->setupUi(this);
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
@@ -20,6 +21,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_updater_password->setText(CSettingsManager::Instance().updater_pass());
   ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
 
+  m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
+  ui->tabWidget->installEventFilter(m_tab_resize_filter);
+
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
 
@@ -32,6 +36,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
 DlgSettings::~DlgSettings()
 {
+  if (m_tab_resize_filter) delete m_tab_resize_filter;
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
