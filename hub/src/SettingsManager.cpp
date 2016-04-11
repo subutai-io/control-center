@@ -49,7 +49,7 @@ CSettingsManager::CSettingsManager() :
   m_p2p_path("p2p"),
   #elif RT_OS_DARWIN
   m_terminal_path("iterm"),
-  m_p2p_path("p2p"),  
+  m_p2p_path("/Applications/Subutai/p2p"),
   #elif RT_OS_WINDOWS
   m_terminal_path("cmd"),
   m_p2p_path("p2p.exe"),
