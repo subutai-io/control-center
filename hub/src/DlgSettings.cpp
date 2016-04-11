@@ -21,6 +21,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_updater_password->setText(CSettingsManager::Instance().updater_pass());
   ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
 
+  ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
 
@@ -32,6 +33,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   connect(ui->btn_p2p_file_dialog, SIGNAL(released()),
           this, SLOT(btn_p2p_file_dialog_released()));
+
+  connect(ui->btn_ssh_command, SIGNAL(released()),
+          this, SLOT(btn_ssh_command_released()));
 }
 
 DlgSettings::~DlgSettings()
@@ -48,6 +52,8 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   if (ui->le_terminal_command->text() != "")
     CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
+  if (ui->le_ssh_command->text() != "")
+    CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().save_all();
   QDialog::accept();
 }
@@ -72,5 +78,13 @@ void DlgSettings::btn_p2p_file_dialog_released()
   QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_ssh_command_released()
+{
+  QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
+  if (fn == "") return;
+  ui->le_ssh_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////

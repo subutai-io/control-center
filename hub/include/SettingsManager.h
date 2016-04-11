@@ -33,6 +33,7 @@ private:
   static const QString SM_UPDATER_PORT;
 
   static const QString SM_PLUGIN_PORT;
+  static const QString SM_SSH_PATH;
 
   CSettingsManager();
 
@@ -57,6 +58,7 @@ private:
   QString m_updater_port;
 
   uint16_t m_plugin_port;
+  QString m_ssh_path;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -86,6 +88,7 @@ public:
   const QString& updater_host() const{return m_updater_host;}
   const QString& updater_port() const{return m_updater_port;}
   uint16_t plugin_port() const {return m_plugin_port;}
+  const QString& ssh_path() const {return m_ssh_path;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -162,6 +165,11 @@ public:
   void set_plugin_port(uint16_t plugin_port) {
     m_plugin_port = plugin_port;
     m_settings.setValue(SM_PLUGIN_PORT, m_plugin_port);
+  }
+
+  void set_ssh_path(const QString& ssh_path) {
+    m_ssh_path = ssh_path;
+    m_settings.setValue(SM_SSH_PATH, m_ssh_path);
   }
 };
 
