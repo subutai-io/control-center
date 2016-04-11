@@ -196,18 +196,21 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
                 "  do script \"" <<
-                "ssh " << user << "@" << ip << " -p " << port << "\"\n" <<
+                CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
+                " " << user << "@" << ip << " -p " << port << "\"\n" <<
                 " end tell\'";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"ssh " << " " << user << "@" << ip << " -p " << port << ";bash\" &";
+                " -e \"" << CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
+                " " << user << "@" << ip << " -p " << port << ";bash\" &";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
   str_stream <<
-                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " /k ssh " << user << "@" << ip << " -p " << port;
+             CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+             " /k " << CSettingsManager::Instance().ssh_path().toStdString().c_str() << " "
+             << user << "@" << ip << " -p " << port;
   PROCESS_INFORMATION pi;
   STARTUPINFOA si;
   ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
