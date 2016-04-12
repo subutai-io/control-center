@@ -2,6 +2,7 @@
 #include <QEventLoop>
 #include "SettingsManager.h"
 #include "RestWorker.h"
+#include "ApplicationLog.h"
 
 void CRestWorker::login(const QString& login,
                         const QString& password,
@@ -90,7 +91,7 @@ std::vector<CRHInfo> CRestWorker::get_ssh_containers(int &http_code,
   QJsonArray ssh_containers = doc.array();
   for (int i = 0; i < ssh_containers.size(); ++i) {
     if (!ssh_containers.at(i).isObject()) {
-      qCritical() << "ssh_container is not json object. error";
+      CApplicationLog::Instance()->LogError("ssh_container is not json object");
       continue;
     }
 
@@ -167,7 +168,8 @@ QByteArray CRestWorker::send_post_request(const QNetworkRequest &req,
 
 void SslErrorCollector::ssl_errors_appeared(QList<QSslError> lst_errors) {
   for (int i = 0; i < lst_errors.size(); ++i) {
-    qCritical() << lst_errors.at(i).error();
-    qCritical() << lst_errors.at(i).errorString();
+    CApplicationLog::Instance()->LogError("ssl_error_code : %d, msg : %s",
+                                          lst_errors.at(i).error(),
+                                          lst_errors.at(i).errorString().toStdString().c_str());
   }
 }
