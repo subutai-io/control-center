@@ -7,6 +7,26 @@
 
 class CApplicationLog
 {
+public:
+  enum LOG_TYPE {
+    LT_TRACE = 0,
+    LT_INFO,
+    LT_ERROR,
+    LT_LAST
+  };
+
+  void SetDirectory(const char *directory);
+  void SetLogLevel(LOG_TYPE lt) {m_log_level = lt;}
+
+  void LogTrace( const char* format, ... );
+  void LogInfo ( const char* format, ... );
+  void LogError( const char* format, ... );
+
+  static CApplicationLog* Instance(){
+    static CApplicationLog m_instance;
+    return &m_instance;
+  }
+
 private:
   static const int BUFFER_SIZE = 2048;
   static const char* LOG_FILE_DELIMITER;
@@ -14,14 +34,10 @@ private:
   char m_messageBuffer[BUFFER_SIZE];
   std::string m_directory;
 
-  typedef enum LOG_TYPE {
-    TRACE = 0, INFO, ERROR, LOG_TYPE_LAST
-  } LOG_TYPE;
-  std::string m_lst_files_by_log_type[LOG_TYPE_LAST];
 
+  std::string m_lst_files_by_log_type[LT_LAST];
   CEventLoop* m_logEventLoop;
-  /*todo change to min level and dictionary of handlers*/
-  bool m_enabled;
+  LOG_TYPE m_log_level;
 
   CApplicationLog(void);
   ~CApplicationLog(void);
@@ -30,23 +46,10 @@ private:
   void operator=(const CApplicationLog&);
 
   static int AppendLog(const char *str, std::string &logFileName);
-  void UpdateLogFilesNames(void);
-
-
+  void UpdateLogFilesNames(void);  
   void Log(CApplicationLog::LOG_TYPE log_type, std::string msg);
 
-public:
-
-  void SetDirectory(const char *directory);
-  void LogTrace( const char* format, ...);
-  void LogInfo( const char* format, ... );
-  void LogError( const char* format, ... );
-  void SetEnabled(bool enabled) {m_enabled = enabled;}
-
-  static CApplicationLog* Instance(){
-    static CApplicationLog m_instance;
-    return &m_instance;
-  }
+public:  
 };
 
 #endif //APPLICATION_LOG_H
