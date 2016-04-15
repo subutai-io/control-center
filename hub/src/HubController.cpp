@@ -3,6 +3,7 @@
 #include "NotifiactionObserver.h"
 #include "SystemCallWrapper.h"
 #include "ApplicationLog.h"
+#include "SettingsManager.h"
 #define UNDEFINED_BALANCE "Undefined balance"
 
 CHubController::CHubController() :
@@ -88,7 +89,7 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
   for (auto i = m_lst_resource_hosts.begin(); i != m_lst_resource_hosts.end(); ++i) {
     for (auto j = i->lst_containers().begin(); j != i->lst_containers().end(); ++j) {
       if (j->id() == cont->id()) {
-        err = CSystemCallWrapper::run_ssh_in_terminal("subutai",
+        err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
                                                       i->rh_ip().toStdString().c_str(),
                                                       cont->port().toStdString().c_str());
         if (err == SCWE_SUCCESS)

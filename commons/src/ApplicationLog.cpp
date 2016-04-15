@@ -53,6 +53,7 @@ void CApplicationLog::SetDirectory( const char* directory ) {
 //////////////////////////////////////////////////////////////////////////
 
 void CApplicationLog::Log(CApplicationLog::LOG_TYPE log_type, std::string msg) {
+#ifndef RT_OS_WINDOWS
   if (log_type < m_log_level) return;
   IFunctor* functor =
       new FunctorWithResult<int, const char*, std::string&>(AppendLog,
@@ -61,6 +62,7 @@ void CApplicationLog::Log(CApplicationLog::LOG_TYPE log_type, std::string msg) {
                                                             "AppendLog");
   if (CEventLoop::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
     qCritical() << "AppendLog failed";
+#endif
 }
 //////////////////////////////////////////////////////////////////////////
 
