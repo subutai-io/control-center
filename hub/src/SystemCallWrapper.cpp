@@ -261,7 +261,9 @@ CSystemCallWrapper::fork_process(const QString program,
 
   QObject *parent = new QObject;
   QProcess *p = new QProcess(parent);
-  return p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  system_call_wrapper_error_t res = p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  delete p;
+  return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////

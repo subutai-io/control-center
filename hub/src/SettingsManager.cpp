@@ -35,6 +35,7 @@ const QString CSettingsManager::SM_UPDATER_PORT("Updater_Port");
 
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
+const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
@@ -62,7 +63,8 @@ CSettingsManager::CSettingsManager() :
   m_updater_pass("password"),
   m_updater_port("22"),
   m_plugin_port(9998),
-  m_ssh_path("ssh")
+  m_ssh_path("ssh"),
+  m_ssh_user("root")
 {
   if (!m_settings.value(SM_POST_URL).isNull())
     m_post_url = m_settings.value(SM_POST_URL).toString();
@@ -104,5 +106,7 @@ CSettingsManager::CSettingsManager() :
     m_plugin_port = m_settings.value(SM_PLUGIN_PORT).toUInt();
   if (!m_settings.value(SM_SSH_PATH).isNull())
     m_ssh_path = m_settings.value(SM_SSH_PATH).toString();
+  if (!m_settings.value(SM_SSH_USER).isNull())
+    m_ssh_user = m_settings.value(SM_SSH_USER).toString();
 }
 ////////////////////////////////////////////////////////////////////////////

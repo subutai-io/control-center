@@ -20,8 +20,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_updater_host->setText(CSettingsManager::Instance().updater_host());
   ui->le_updater_password->setText(CSettingsManager::Instance().updater_pass());
   ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
-
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
+  ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
+
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
 
@@ -54,6 +55,19 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
   if (ui->le_ssh_command->text() != "")
     CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
+  if (ui->le_updater_command->text() != "")
+    CSettingsManager::Instance().set_ss_updater_path(ui->le_updater_command->text());
+  if (ui->le_updater_host->text() != "")
+    CSettingsManager::Instance().set_updater_host(ui->le_updater_host->text());
+  if (ui->le_updater_password->text() != "")
+    CSettingsManager::Instance().set_updater_pass(ui->le_updater_password->text());
+  if (ui->le_updater_port->text() != "")
+    CSettingsManager::Instance().set_updater_port(ui->le_updater_port->text());
+  if (ui->le_updater_user->text() != "")
+    CSettingsManager::Instance().set_updater_user(ui->le_updater_user->text());
+  if (ui->le_ssh_user->text() != "")
+    CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
+
   CSettingsManager::Instance().save_all();
   QDialog::accept();
 }
