@@ -1,6 +1,7 @@
 #ifndef DLGSETTINGS_H
 #define DLGSETTINGS_H
 
+#include <math.h>
 #include <QDialog>
 #include <QTabWidget>
 #include <QEvent>
