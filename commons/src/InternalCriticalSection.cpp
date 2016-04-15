@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include "InternalCriticalSection.h"
 
 void SynchroPrimitives::EnterInternalCriticalSection(LPMCriticalSection lpMcs ) {

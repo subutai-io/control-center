@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <unistd.h>
 #include "EventLoop.h"
 
 using namespace SynchroPrimitives;
@@ -134,7 +133,7 @@ bool CEventLoop::LoopWorker::QueueIsEmpty() {
 
 void CEventLoop::LoopWorker::Run(void) {
   while(!m_isDisposing) {
-    usleep(1000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     while(!QueueIsEmpty()) {
       IFunctor* action = DequeAction();
       InvokeMethod_S(action);
