@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <sstream>
-#include <QDebug>
 
 #include <SystemCallWrapper.h>
 #include "SettingsManager.h"
@@ -13,7 +12,7 @@
 #include <Windows.h>
 #include <Process.h>
 #endif
-
+#include "ApplicationLog.h"
 
 static QString error_strings[] = {
   "Success", "Shell error",
@@ -140,7 +139,7 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out, exit_code);
   if (res != SCWE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutError(error_strings[res]);
-    qCritical() << error_strings[res];
+    CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
     return false;
   }
 
@@ -170,7 +169,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (res != SCWE_SUCCESS) {
     QString err_msg = QString("Join to p2p failed. Error : %1").arg(res);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return res;
   }
 
@@ -178,7 +177,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
       lst_out[0].find("[ERROR]") != std::string::npos) {
     QString err_msg = QString::fromStdString(lst_out[0]);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SCWE_CANT_JOIN_SWARM;
   }
 
@@ -262,7 +261,9 @@ CSystemCallWrapper::fork_process(const QString program,
 
   QObject *parent = new QObject;
   QProcess *p = new QProcess(parent);
-  return p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  system_call_wrapper_error_t res = p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  delete p;
+  return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////

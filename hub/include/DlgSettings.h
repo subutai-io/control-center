@@ -1,10 +1,11 @@
 #ifndef DLGSETTINGS_H
 #define DLGSETTINGS_H
 
+#include <math.h>
 #include <QDialog>
 #include <QTabWidget>
 #include <QEvent>
-
+#include <QDebug>
 namespace Ui {
   class DlgSettings;
 }
@@ -14,10 +15,13 @@ private:
   QTabWidget* m_target;
 
   static void expandingTypeStyleSheet(QTabWidget* tw) {
+    int w = tw->width()-3; //don't know why. but looks ok only with this -3. MAGIC!!!
+    int wb = floor(w / 3.0);
+    int ws = w - wb*2;
     tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
                               "QTabBar::tab:selected {width : %2px;}").
-                      arg(tw->width() / tw->count()-1).
-                      arg(tw->width() / tw->count()-1));
+                      arg(wb).
+                      arg(ws));
   }
 
 public:

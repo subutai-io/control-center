@@ -17,6 +17,7 @@
 #include "RestWorker.h"
 #include "DlgSettings.h"
 #include <QFileDialog>
+#include "ApplicationLog.h"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -121,7 +122,7 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
   if (it == m_dct_player_menus.end()) return;
-  qDebug()<<" id found\n";
+  CApplicationLog::Instance()->LogInfo("id found");
 
   m_w_Player->remove(it->second);
 
@@ -133,7 +134,7 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
   delete it->second;
   m_dct_player_menus.erase(it);
-  qDebug()<<"after m_dct_player_menus erased\n";
+  CApplicationLog::Instance()->LogInfo("after m_dct_player_menus erased");
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
@@ -232,9 +233,9 @@ void TrayControlWindow::create_tray_icon()
 
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
-  qDebug()<<"before fill_vm_menu \n";
+  CApplicationLog::Instance()->LogInfo("before fill_vm_menu");
   int rc = fill_vm_menu();
-  qDebug()<<"after fill_vm_menu rc = " <<rc <<"\n";
+  CApplicationLog::Instance()->LogInfo("after fill_vm_menu rc = %d", rc);
   fill_launch_menu();
 
   vboxAction = new QWidgetAction(m_vbox_menu);
@@ -437,11 +438,11 @@ void TrayControlWindow::updater_timer_timeout() {
 
   if (exit_code == RUE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutInfo("Update command succesfull finished");
-    qDebug() << "Update command succesfull finished";
+    CApplicationLog::Instance()->LogInfo("Update command succesfull finished");
   } else {
     QString err_msg = QString("Update command failed with exit code : %1").arg(exit_code);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
   }
   m_ss_updater_timer.start();
 }
@@ -474,7 +475,7 @@ void TrayControlWindow::launch_Hub() {
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Launch hub website failed. Error code : %1").arg((int)err);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
 }
@@ -506,7 +507,7 @@ system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SS console failed. Error code : %1").arg((int)err);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
 }
@@ -557,7 +558,7 @@ void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
 
 void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
   //todo check result
-  qDebug() << "TrayControlWindow before remove \n";
+  CApplicationLog::Instance()->LogInfo("TrayControlWindow before remove");
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -705,7 +706,7 @@ void CVBPlayer::add(CVBPlayerItem* pItem){
   vm_count++;
   this->setLayout(p_v_Layout);
   this->setVisible(true);
-  qDebug() << "added vm_count=" << vm_count << "\n";
+  CApplicationLog::Instance()->LogInfo("Added vm_count = %d", vm_count);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -725,7 +726,7 @@ void CVBPlayer::remove(CVBPlayerItem* pItem){
   }
   this->setLayout(p_v_Layout);
   this->setVisible(true);
-  qDebug() << "removed vm_count=" << vm_count << "\n";
+  CApplicationLog::Instance()->LogInfo("removed vm_count = %d", vm_count);
 }
 /////////////////////////////////////////////////////////////////////////////
 

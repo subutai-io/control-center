@@ -2,6 +2,7 @@
 #include "HubController.h"
 #include "NotifiactionObserver.h"
 #include "SystemCallWrapper.h"
+#include "ApplicationLog.h"
 #define UNDEFINED_BALANCE "Undefined balance"
 
 CHubController::CHubController() :
@@ -30,14 +31,14 @@ int CHubController::refresh_environments() {
   if (err_code) {
     QString err_msg = QString("Refresh environments error : %1").arg(err_code);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError("Refresh environments error : %d", err_code);
     return 1;
   }
 
   if (network_error != 0) {
     QString err_msg = QString("Refresh environments network error : %1").arg(network_error);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return 1;
   }
 
@@ -55,14 +56,14 @@ void CHubController::refresh_containers() {
   if (err_code) {
     QString err_msg = QString("Refresh containers info error : %1").arg(err_code);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
 
   if (network_error != 0) {
     QString err_msg = QString("Refresh containers network error : %1").arg(network_error);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
 
@@ -80,7 +81,7 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Failed to join to p2p network. Error : %1").arg(err);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    qCritical() << err_msg;
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SLE_JOIN_TO_SWARM_FAILED;
   }
 
@@ -95,7 +96,7 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
 
         QString err_msg = QString("Run SSH failed. Error code : %1").arg((int)err);
         CNotifiactionObserver::NotifyAboutError(err_msg);
-        qCritical() << err_msg;
+        CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
         return SLE_SYSTEM_CALL_FAILED;
       }
     }

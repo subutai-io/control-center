@@ -32,7 +32,7 @@ nsresult CVirtualMachineLinux::launch_vm(vb_launch_mode_t mode,
                                          IProgress **progress)
 {  
   return m_internal_machine->LaunchVMProcess(m_session,
-                                             com::Bstr(CCommons::VM_launch_mode_to_str(mode)).raw(),
+                                             com::Bstr(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
                                              com::Bstr("").raw(),
                                              progress);
 }

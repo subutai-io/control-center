@@ -15,6 +15,7 @@
 #include <QUrlQuery>
 #include <QString>
 #include <vector>
+#include "ApplicationLog.h"
 
 typedef enum error_login {
   EL_SUCCESS = 0,
@@ -79,6 +80,11 @@ public:
     m_aes_key = obj["environment_key"].toString();
     m_ttl = obj["environment_ttl"].toString();
     m_id = obj["environment_id"].toString();
+
+    CApplicationLog::Instance()->LogTrace("Received env: key : %s, hash : %s, id : %s",
+                                          m_aes_key.toStdString().c_str(),
+                                          m_hash.toStdString().c_str(),
+                                          m_id.toStdString().c_str());
 
     QJsonArray arr = obj["environment_containers"].toArray();
     for (int i = 0; i < arr.size(); ++i) {
