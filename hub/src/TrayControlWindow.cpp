@@ -92,7 +92,13 @@ void TrayControlWindow::fill_launch_menu(){
 
   m_launch_menu->addAction(m_act_launch_SS);
   m_launch_menu->addAction(m_act_launch_Hub);
+}
+////////////////////////////////////////////////////////////////////////////
 
+void TrayControlWindow::application_quit()
+{
+  CCommons::QuitAppFlag = true;
+  QApplication::quit();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +202,7 @@ void TrayControlWindow::create_tray_actions()
   connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
-  connect(m_act_quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+  connect(m_act_quit, SIGNAL(triggered()), this, SLOT(application_quit()));
 
   m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
 }
@@ -664,7 +670,10 @@ void CVboxMenu::act_triggered() {
 
 /*hub menu*/
 void CHubEnvironmentMenuItem::internal_action_triggered() {
+  QAction* act = static_cast<QAction*>(sender());
+  act->setEnabled(false);
   emit action_triggered(m_hub_environment, m_hub_container);
+  act->setEnabled(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -52,6 +52,7 @@ public slots:
     void vbox_menu_btn_add_released();
     void vbox_menu_btn_rem_released();
 };
+////////////////////////////////////////////////////////////////////////////
 
 class CVBPlayer : public QWidget{
     Q_OBJECT
@@ -70,7 +71,7 @@ public:
     void remove(CVBPlayerItem* pItem);
     int vm_count;
 };
-
+////////////////////////////////////////////////////////////////////////////
 
 class CVboxMenu : public QMenu {
   Q_OBJECT
@@ -184,6 +185,7 @@ private:
   void refresh_environments();
 private slots:
   /*tray slots*/
+  void application_quit();
   void show_settings_dialog();
   void show_hub();
   void show_vbox();
@@ -213,6 +215,7 @@ private slots:
   /*updater*/
   void updater_timer_timeout();
 };
+////////////////////////////////////////////////////////////////////////////
 
 #endif // TRAYCONTROLWINDOW_H
 

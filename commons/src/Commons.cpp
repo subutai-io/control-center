@@ -1,6 +1,8 @@
 #include "Commons.h"
 #include <time.h>
 
+bool CCommons::QuitAppFlag = false;
+
 static const char* date_format = "%d.%m.%Y.txt";
 static char date_str_buffer[15];
 char *CCommons::CurrentDateFileNameString() {

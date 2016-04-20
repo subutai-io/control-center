@@ -40,10 +40,12 @@ void CTrayServer::on_new_connection() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CTrayServer::process_text_msg(QString msg) {
+  qDebug() << "CTrayServer::process_text_msg " << msg;
   QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
   if (!pClient)
     return;
   if (msg == "cmd:current_user") {
+    qDebug() << "responce:" << CHubController::Instance().current_user();
     pClient->sendTextMessage(CHubController::Instance().current_user());
   } else if (int index_of = msg.indexOf("cmd:ssh") != -1) {
     // 7 is len of cmd::ssh
@@ -53,6 +55,7 @@ void CTrayServer::process_text_msg(QString msg) {
                          .arg(SLE_LAST_ERR+1)
                          .arg(QString("Wrong command \"%1\"").arg(msg))
                          .arg("");
+      qDebug() << "responce:" << responce;
       pClient->sendTextMessage(responce);
       return;
     }
@@ -62,6 +65,7 @@ void CTrayServer::process_text_msg(QString msg) {
                        .arg(lr)
                        .arg(lr==SLE_SUCCESS ? "" : CHubController::ssh_launch_err_to_str(lr))
                        .arg(lr==SLE_SUCCESS ? CHubController::ssh_launch_err_to_str(lr) : "");
+    qDebug() << "responce:" << responce;
     pClient->sendTextMessage(responce);
   } else {
     //todo unknown command responce

@@ -7,6 +7,7 @@ class CCommons {
 public:
   static char* CurrentDateFileNameString(void);
   static char* CurrentDateTimeString(void);
+  static bool QuitAppFlag;
 };
 
 #endif // COMMONS_H
