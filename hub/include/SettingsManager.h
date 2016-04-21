@@ -36,6 +36,11 @@ private:
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
 
+  static const QString SM_RHIP_GETTER_USER;
+  static const QString SM_RHIP_GETTER_PASS;
+  static const QString SM_RHIP_GETTER_HOST;
+  static const QString SM_RHIP_GETTER_PORT;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -61,6 +66,11 @@ private:
   uint16_t m_plugin_port;
   QString m_ssh_path;
   QString m_ssh_user;
+
+  QString m_rhip_getter_host;
+  QString m_rhip_getter_user;
+  QString m_rhip_getter_pass;
+  QString m_rhip_getter_port;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -92,6 +102,11 @@ public:
   uint16_t plugin_port() const {return m_plugin_port;}
   const QString& ssh_path() const {return m_ssh_path;}
   const QString& ssh_user() const {return m_ssh_user;}
+
+  const QString& rhip_getter_user() const {return m_rhip_getter_user;}
+  const QString& rhip_getter_pass() const {return m_rhip_getter_pass;}
+  const QString& rhip_getter_host() const {return m_rhip_getter_host;}
+  const QString& rhip_getter_port() const {return m_rhip_getter_port;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -178,6 +193,26 @@ public:
   void set_ssh_user(const QString& ssh_user) {
     m_ssh_user = ssh_user;
     m_settings.setValue(SM_SSH_USER, m_ssh_user);
+  }
+
+  void set_rhip_getter_user(const QString& rhip_getter_user) {
+    m_rhip_getter_user = rhip_getter_user;
+    m_settings.setValue(SM_RHIP_GETTER_USER, m_rhip_getter_user);
+  }
+
+  void set_rhip_getter_pass(const QString& rhip_getter_pass) {
+    m_rhip_getter_pass = rhip_getter_pass;
+    m_settings.setValue(SM_RHIP_GETTER_PASS, m_rhip_getter_pass);
+  }
+
+  void set_rhip_getter_host(const QString& rhip_getter_host) {
+    m_rhip_getter_host = rhip_getter_host;
+    m_settings.setValue(SM_RHIP_GETTER_HOST, m_rhip_getter_host);
+  }
+
+  void set_rhip_getter_port(const QString& rhip_getter_port) {
+    m_rhip_getter_port = rhip_getter_port;
+    m_settings.setValue(SM_RHIP_GETTER_PORT, m_rhip_getter_port);
   }
 };
 

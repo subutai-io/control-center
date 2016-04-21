@@ -263,19 +263,50 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
+CSystemCallWrapper::run_libssh2_command(const char *host,
+                                        const char *port,
+                                        const char *user,
+                                        const char *pass,
+                                        const char *cmd,
+                                        int& exit_code,
+                                        std::vector<std::string>& lst_output) {
+  std::ostringstream str_stream;
+  str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
+                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
+  qDebug() << str_stream.str().c_str();
+  system_call_wrapper_error_t res =
+      ssystem_th(str_stream.str().c_str(), lst_output, exit_code);
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
 CSystemCallWrapper::run_ss_updater(const char *host,
                                    const char *port,
                                    const char *user,
                                    const char *pass,
-                                   const char *cmd,
                                    int& exit_code) {
-  std::ostringstream str_stream;
   std::vector<std::string> lst_out;
-  str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
-                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
   system_call_wrapper_error_t res =
-      ssystem_th(str_stream.str().c_str(), lst_out, exit_code);
-  //todo check res and lst_out
+      run_libssh2_command(host, port, user, pass, "subutai-update", exit_code, lst_out);
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
+                                                                      const char *port,
+                                                                      const char *user,
+                                                                      const char *pass,
+                                                                      int &exit_code,
+                                                                      std::string &ip)
+{
+  static const char* rh_ip_cmd = "ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'";
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res =
+      run_libssh2_command(host, port, user, pass, rh_ip_cmd, exit_code, lst_out);
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+    ip = lst_out[0];
+  }
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////

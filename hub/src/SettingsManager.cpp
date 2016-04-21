@@ -37,6 +37,17 @@ const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 
+const QString CSettingsManager::SM_RHIP_GETTER_USER("Rhip_Getter_User");
+const QString CSettingsManager::SM_RHIP_GETTER_PASS("Rhip_GetterPass");
+const QString CSettingsManager::SM_RHIP_GETTER_HOST("Rhip_GetterHost");
+const QString CSettingsManager::SM_RHIP_GETTER_PORT("Rhip_GetterPort");
+
+struct str_setting_val {
+  QString& field;
+  QString val;
+};
+////////////////////////////////////////////////////////////////////////////
+
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
@@ -64,49 +75,49 @@ CSettingsManager::CSettingsManager() :
   m_updater_port("22"),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
-  m_ssh_user("root")
+  m_ssh_user("root"),
+  m_rhip_getter_host("127.0.0.1"),
+  m_rhip_getter_user("ubuntu"),
+  m_rhip_getter_pass("ubuntu"),
+  m_rhip_getter_port("4567")
 {
-  if (!m_settings.value(SM_POST_URL).isNull())
-    m_post_url = m_settings.value(SM_POST_URL).toString();
+  QString tmp("");
+  str_setting_val dct_str_vals[] = {
+    {m_post_url, SM_POST_URL},
+    {m_get_url, SM_GET_URL},
+    {m_terminal_path, SM_TERMINAL_PATH},
+    {m_p2p_path, SM_P2P_PATH},
+    {m_ss_updater_path, SM_SS_UPDATER_PATH},
+    {m_updater_host, SM_UPDATER_HOST},
+    {m_updater_user, SM_UPDATER_USER},
+    {m_updater_pass, SM_UPDATER_PASS},
+    {m_updater_port, SM_UPDATER_PORT},
+    {m_ssh_path, SM_SSH_PATH},
+    {m_ssh_user, SM_SSH_USER},
+    {m_rhip_getter_host, SM_RHIP_GETTER_HOST},
+    {m_rhip_getter_pass, SM_RHIP_GETTER_PASS},
+    {m_rhip_getter_port, SM_RHIP_GETTER_PORT},
+    {m_rhip_getter_user, SM_RHIP_GETTER_USER},
+    {tmp, ""}
+  };
 
-  if (!m_settings.value(SM_GET_URL).isNull())
-    m_get_url = m_settings.value(SM_GET_URL).toString();
+  for (int i = 0; dct_str_vals[i].val != "" ; ++i) {
+    if (!m_settings.value(dct_str_vals[i].val).isNull()) {
+      dct_str_vals[i].field = m_settings.value(dct_str_vals[i].val).toString();
+    }
+  }
 
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
     bool ok = false;
     int timeout = m_settings.value(SM_REFRESH_TIME).toInt(&ok);
     m_refresh_time_sec = ok ? timeout : def_timeout;
-  }  
-
-  if (!m_settings.value(SM_TERMINAL_PATH).isNull())
-    m_terminal_path = m_settings.value(SM_TERMINAL_PATH).toString();
-
-  if (!m_settings.value(SM_P2P_PATH).isNull())
-    m_p2p_path = m_settings.value(SM_P2P_PATH).toString();
+  }    
 
   if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {
     bool parsed = false;
     uint32_t nd = m_settings.value(SM_NOTIFICATION_DELAY_SEC).toUInt(&parsed);
     if (parsed)
       set_notification_delay_sec(nd);
-  }
-
-  if (!m_settings.value(SM_SS_UPDATER_PATH).isNull())
-    m_ss_updater_path = m_settings.value(SM_SS_UPDATER_PATH).toString();
-
-  if (!m_settings.value(SM_UPDATER_HOST).isNull())
-    m_updater_host = m_settings.value(SM_UPDATER_HOST).toString();
-  if (!m_settings.value(SM_UPDATER_USER).isNull())
-    m_updater_user = m_settings.value(SM_UPDATER_USER).toString();
-  if (!m_settings.value(SM_UPDATER_PASS).isNull())
-    m_updater_pass = m_settings.value(SM_UPDATER_PASS).toString();
-  if (!m_settings.value(SM_UPDATER_PORT).isNull())
-    m_updater_port = m_settings.value(SM_UPDATER_PORT).toString();
-  if (!m_settings.value(SM_PLUGIN_PORT).isNull())
-    m_plugin_port = m_settings.value(SM_PLUGIN_PORT).toUInt();
-  if (!m_settings.value(SM_SSH_PATH).isNull())
-    m_ssh_path = m_settings.value(SM_SSH_PATH).toString();
-  if (!m_settings.value(SM_SSH_USER).isNull())
-    m_ssh_user = m_settings.value(SM_SSH_USER).toString();
+  }  
 }
 ////////////////////////////////////////////////////////////////////////////

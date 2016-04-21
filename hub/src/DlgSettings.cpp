@@ -22,6 +22,10 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
+  ui->le_rhip_host->setText(CSettingsManager::Instance().rhip_getter_host());
+  ui->le_rhip_password->setText(CSettingsManager::Instance().rhip_getter_pass());
+  ui->le_rhip_port->setText(CSettingsManager::Instance().rhip_getter_port());
+  ui->le_rhip_user->setText(CSettingsManager::Instance().rhip_getter_user());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -37,6 +41,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   connect(ui->btn_ssh_command, SIGNAL(released()),
           this, SLOT(btn_ssh_command_released()));
+
+  connect(ui->btn_updater_command, SIGNAL(released()),
+          this, SLOT(btn_updater_path_dialog_released()));
 }
 
 DlgSettings::~DlgSettings()
@@ -57,6 +64,7 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   if (ui->le_updater_command->text() != "")
     CSettingsManager::Instance().set_ss_updater_path(ui->le_updater_command->text());
+
   if (ui->le_updater_host->text() != "")
     CSettingsManager::Instance().set_updater_host(ui->le_updater_host->text());
   if (ui->le_updater_password->text() != "")
@@ -67,6 +75,15 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_updater_user(ui->le_updater_user->text());
   if (ui->le_ssh_user->text() != "")
     CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
+
+  if (ui->le_rhip_host->text() != "")
+    CSettingsManager::Instance().set_rhip_getter_host(ui->le_rhip_host->text());
+  if (ui->le_rhip_password->text() != "")
+    CSettingsManager::Instance().set_rhip_getter_pass(ui->le_rhip_password->text());
+  if (ui->le_rhip_port->text() != "")
+    CSettingsManager::Instance().set_rhip_getter_port(ui->le_rhip_port->text());
+  if (ui->le_rhip_user->text() != "")
+    CSettingsManager::Instance().set_rhip_getter_user(ui->le_rhip_user->text());
 
   CSettingsManager::Instance().save_all();
   QDialog::accept();
@@ -89,9 +106,17 @@ void DlgSettings::btn_terminal_file_dialog_released()
 
 void DlgSettings::btn_p2p_file_dialog_released()
 {
-  QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
+  QString fn = QFileDialog::getOpenFileName(this, "P2P command");
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_updater_path_dialog_released()
+{
+  QString fn = QFileDialog::getOpenFileName(this, "Libssh2 command");
+  if (fn == "") return;
+  ui->le_updater_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 

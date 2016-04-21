@@ -63,6 +63,13 @@ private:
                                              std::vector<std::string> &lst_output,
                                              int& exit_code);
 
+  static system_call_wrapper_error_t run_libssh2_command(const char *host,
+                                                         const char *port,
+                                                         const char *user,
+                                                         const char *pass,
+                                                         const char *cmd,
+                                                         int& exit_code,
+                                                         std::vector<std::string> &lst_output);
 public:
 
   static bool is_in_swarm(const char* hash);
@@ -79,7 +86,15 @@ public:
                                                     const char* port,
                                                     const char* user,
                                                     const char* pass,
-                                                    const char* cmd, int &exit_code);
+                                                    int &exit_code);
+
+
+  static system_call_wrapper_error_t get_rh_ip_via_libssh2(const char* host,
+                                                           const char* port,
+                                                           const char* user,
+                                                           const char* pass,
+                                                           int &exit_code,
+                                                           std::string& ip);
 
   static system_call_wrapper_error_t fork_process(const QString program,
                                                   const QStringList argv,

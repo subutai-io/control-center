@@ -44,6 +44,7 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Init(CLinuxManualResetEvent *
 //////////////////////////////////////////////////////////////////////////
 
 int SynchroPrimitives::CLinuxManualResetEvent::MRE_Destroy(CLinuxManualResetEvent *lpMre) {
+  (void)lpMre;
   return 0;
 }
 //////////////////////////////////////////////////////////////////////////
