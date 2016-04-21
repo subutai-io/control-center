@@ -1,3 +1,4 @@
+#include <atomic>
 #include <QMessageBox>
 #include <QWidget>
 #include <QHBoxLayout>
@@ -616,7 +617,7 @@ void TrayControlWindow::refresh_environments() {
     QMenu* env_menu = m_hub_menu->addMenu(env->name());
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
       QAction* act = new QAction(cont->name(), this);
-      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont));
+      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
       connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
       connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
               this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*)));
@@ -692,10 +693,15 @@ void CVboxMenu::act_triggered() {
 
 /*hub menu*/
 void CHubEnvironmentMenuItem::internal_action_triggered() {
+  static std::atomic<int> counter(0);
   QAction* act = static_cast<QAction*>(sender());
   act->setEnabled(false);
+  ++counter;
+  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
   emit action_triggered(m_hub_environment, m_hub_container);
   act->setEnabled(true);
+  --counter;
+  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
 }
 
 /////////////////////////////////////////////////////////////////////////////
