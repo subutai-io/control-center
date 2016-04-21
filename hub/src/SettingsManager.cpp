@@ -76,7 +76,7 @@ CSettingsManager::CSettingsManager() :
   m_plugin_port(9998),
   m_ssh_path("ssh"),
   m_ssh_user("root"),
-  m_rhip_getter_host("localhost"),
+  m_rhip_getter_host("127.0.0.1"),
   m_rhip_getter_user("ubuntu"),
   m_rhip_getter_pass("ubuntu"),
   m_rhip_getter_port("4567")

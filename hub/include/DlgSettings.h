@@ -51,6 +51,7 @@ private slots:
   void btn_cancel_released();
   void btn_terminal_file_dialog_released();
   void btn_p2p_file_dialog_released();
+  void btn_updater_path_dialog_released();
   void btn_ssh_command_released();
 };
 

@@ -137,7 +137,7 @@ int run_ssh_command(const char* str_host,
 
     LIBSSH2_CHANNEL *channel;
     while ((channel = libssh2_channel_open_session(session)) == NULL &&
-           libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
+      libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
       wait_ssh_socket_event(sock, session);
     }
 
@@ -146,7 +146,7 @@ int run_ssh_command(const char* str_host,
     }
 
     while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
-           LIBSSH2_ERROR_EAGAIN) {
+      LIBSSH2_ERROR_EAGAIN) {
       wait_ssh_socket_event(sock, session);
     }
 
@@ -162,10 +162,10 @@ int run_ssh_command(const char* str_host,
         rc = libssh2_channel_read(channel, buffer, sizeof(buffer));
 
         if (rc > 0) {
-          //#ifdef LOG_STD_OUT
+//#ifdef LOG_STD_OUT
           std::string str(buffer, rc);
           std::cout << str << std::endl;
-          //#endif
+//#endif
         }
         else {
           if (rc != LIBSSH2_ERROR_EAGAIN) {
@@ -191,7 +191,7 @@ int run_ssh_command(const char* str_host,
     if (rc == 0) {
       exitcode = libssh2_channel_get_exit_status(channel);
       libssh2_channel_get_exit_signal(channel, &exitsignal,
-                                      NULL, NULL, NULL, NULL, NULL);
+        NULL, NULL, NULL, NULL, NULL);
     }
 
     if (exitsignal)
@@ -204,7 +204,7 @@ int run_ssh_command(const char* str_host,
   } while (0);
 
   libssh2_session_disconnect(session,
-                             "Normal Shutdown, Thank you for playing");
+    "Normal Shutdown, Thank you for playing");
   libssh2_session_free(session);
 
 #ifdef _WIN32
