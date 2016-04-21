@@ -207,6 +207,16 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
     return SCWE_CANT_JOIN_SWARM;
   }
 
+  if (exit_code != 0) {
+    QString err_msg = QString("Join to p2p swarm failed. Check p2p path. Code : %1").arg(exit_code);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    return SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "err code = " << res << " exit_code = " << exit_code;
+  for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
+    qDebug() << i->c_str();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
