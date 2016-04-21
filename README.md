@@ -19,6 +19,7 @@ Building
 * You have to install qt sdk. If you want to build from IDE - use qt creator. If you want to build from command line, use commands listed below:
 
 qmake SubutaiTray.pro -r -spec linux-g++
+
 make
 
 ### Branching Model 
