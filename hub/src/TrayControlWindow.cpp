@@ -391,7 +391,8 @@ void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
   bool on = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() < 5 ;//== VMS_PoweredOff;
 
   if (on) {
-    int lr = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
+    /*int lr = */
+    CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     return;
   } //turn on
 
@@ -409,7 +410,8 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
   bool on = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() == 5 ;//== VMS_PoweredOff;
 
   if (on) {
-    int lr = CVBoxManagerSingleton::Instance()->pause(vm_id);
+    /*int lr =*/
+    CVBoxManagerSingleton::Instance()->pause(vm_id);
     return;
   } //turn on
 }
@@ -439,7 +441,6 @@ void TrayControlWindow::updater_timer_timeout() {
                                      CSettingsManager::Instance().updater_port().toStdString().c_str(),
                                      CSettingsManager::Instance().updater_user().toStdString().c_str(),
                                      CSettingsManager::Instance().updater_pass().toStdString().c_str(),
-                                     "subutai-update",
                                      exit_code);
 
   if (exit_code == RUE_SUCCESS) {
@@ -457,9 +458,8 @@ void TrayControlWindow::updater_timer_timeout() {
 void TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;
-  QString hub_url;
-  hub_url = "https://hub.subut.ai";
-  QStringList args;
+  QString hub_url = "https://hub.subut.ai";
+  QStringList args;  
 
 #if defined(RT_OS_LINUX)
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
@@ -473,9 +473,9 @@ void TrayControlWindow::launch_Hub() {
 #endif
   args << hub_url;
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-                                      browser,
-                                      args,
-                                      folder);
+          browser,
+          args,
+          folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
@@ -491,8 +491,29 @@ void TrayControlWindow::launch_SS() {
   QString browser; // "/etc/alternatives/x-www-browser";
   QString folder;
   QString hub_url;
-  hub_url = "https://localhost:9999";
   QStringList args;
+  std::string str_ip;
+
+  hub_url = "https://localhost:9999";
+
+  std::string rh_ip;
+  int ec = 0;
+  system_call_wrapper_error_t err =
+      CSystemCallWrapper::get_rh_ip_via_libssh2(
+        CSettingsManager::Instance().rhip_getter_host().toStdString().c_str(),
+        CSettingsManager::Instance().rhip_getter_port().toStdString().c_str(),
+        CSettingsManager::Instance().rhip_getter_user().toStdString().c_str(),
+        CSettingsManager::Instance().rhip_getter_pass().toStdString().c_str(),
+        ec,
+        rh_ip);
+
+  if (err == SCWE_SUCCESS && ec == 0) {
+    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  } else {
+    CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+        arg(err).
+        arg(ec));
+  }
 
 #if defined(RT_OS_LINUX)
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
@@ -504,10 +525,11 @@ void TrayControlWindow::launch_SS() {
   folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
   args << "--new-window";
 #endif
-args << hub_url;
-system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(browser,
-                                                                     args,
-                                                                     folder);
+
+  args << hub_url;
+  err = CSystemCallWrapper::fork_process(browser,
+                                       args,
+                                       folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {

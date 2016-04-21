@@ -22,6 +22,10 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_updater_port->setText(CSettingsManager::Instance().updater_port());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
+  ui->le_rhip_host->setText(CSettingsManager::Instance().rhip_getter_host());
+  ui->le_rhip_password->setText(CSettingsManager::Instance().rhip_getter_pass());
+  ui->le_rhip_port->setText(CSettingsManager::Instance().rhip_getter_port());
+  ui->le_rhip_user->setText(CSettingsManager::Instance().rhip_getter_user());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
