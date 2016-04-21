@@ -97,13 +97,15 @@ private slots:
 class CHubEnvironmentMenuItem : public QObject {
  Q_OBJECT
 private:
+  QSystemTrayIcon* m_tray_icon;
   const CSSEnvironment* m_hub_environment;
   const CHubContainer* m_hub_container;
 
 public:
   explicit CHubEnvironmentMenuItem(const CSSEnvironment* env,
-                                   const CHubContainer* cont) :
-    m_hub_environment(env), m_hub_container(cont){}
+                                   const CHubContainer* cont,
+                                   QSystemTrayIcon* tray_icon) :
+    m_hub_environment(env), m_hub_container(cont), m_tray_icon(tray_icon){}
 
   ~CHubEnvironmentMenuItem(){}
 
