@@ -79,6 +79,9 @@ int run_ssh_command(const char* str_host,
   struct sockaddr_in sin;
   unsigned long ul_host_addr = 0;
 
+  int exitcode = 0;
+  char *exitsignal = (char*)"none";
+
 #ifndef _WIN32
   int sock;
   ul_host_addr = inet_addr(str_host);
@@ -151,9 +154,6 @@ int run_ssh_command(const char* str_host,
       return RUE_LIBSSH2_CHANNEL_EXEC;
     }
 
-    int exitcode = 0;
-    char *exitsignal = (char*)"none";
-
     for (;;) {
       /* loop until we block */
       int rc;
@@ -213,7 +213,7 @@ int run_ssh_command(const char* str_host,
   close(sock);
 #endif
 
-  return RUE_SUCCESS;
+  return exitcode ? RUE_LIBSSH2_EXIT_CODE_NOT_NULL : RUE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

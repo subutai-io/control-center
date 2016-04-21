@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QWidgetAction>
 
 #include "IVirtualMachine.h"
 #include "HubStatisticWindow.h"
@@ -21,13 +22,11 @@ namespace Ui {
   class TrayControlWindow;
 }
 
-
 class CVBPlayerItem : public QWidget {
     Q_OBJECT
 private:
     com::Bstr m_vm_player_item_id;
     QAction* m_player_item_act;
-
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
@@ -53,6 +52,7 @@ public slots:
     void vbox_menu_btn_add_released();
     void vbox_menu_btn_rem_released();
 };
+////////////////////////////////////////////////////////////////////////////
 
 class CVBPlayer : public QWidget{
     Q_OBJECT
@@ -60,14 +60,18 @@ private:
     com::Bstr m_vm_player_id;
     QVBoxLayout *p_v_Layout;
     QAction* m_player_act;
+    QLabel *labelHeader;
+    QHBoxLayout *p_h_HeaderLayout;
+    void empty();
 
 public:
     CVBPlayer(QWidget *parent);
     virtual ~CVBPlayer();
     void add(CVBPlayerItem* pItem);
     void remove(CVBPlayerItem* pItem);
+    int vm_count;
 };
-
+////////////////////////////////////////////////////////////////////////////
 
 class CVboxMenu : public QMenu {
   Q_OBJECT
@@ -86,7 +90,6 @@ signals:
   void vbox_menu_act_triggered(const com::Bstr& vm_id);
 private slots:
   void act_triggered();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -113,27 +116,6 @@ public slots:
 };
 
 ////////////////////////////////////////////////////////////////////////////
-
-//class CLaunchMenuItem : public QObject {
-// Q_OBJECT
-//private:
-//  const CSSEnvironment* m_hub_environment;
-//  const CHubContainer* m_hub_container;
-
-//public:
-//  explicit CLaunchMenuItem(const CSSEnvironment* env,
-//                                   const CHubContainer* cont) :
-//    m_hub_environment(env), m_hub_container(cont){}
-
-//  ~CHubEnvironmentMenuItem(){}
-
-//signals:
-//  void action_triggered(const CSSEnvironment*, const CHubContainer*);
-
-//public slots:
-//  void internal_action_triggered();
-
-//};
 ////////////////////////////////////////////////////////////////////////////
 
 class TrayControlWindow : public QMainWindow
@@ -144,21 +126,20 @@ public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
   static const QString GetStateName(ushort st);
+  CVBPlayer *m_w_Player;
 
 private:
   Ui::TrayControlWindow *ui;
-  QString m_balance;
   QVBoxLayout *m_w_Layout;
-  CVBPlayer *m_w_Player;
+//  CVBPlayer *m_w_Player;
   /*hub*/
-//  HubStatisticWindow m_hub_window;
   QTimer m_refresh_timer;
   QTimer m_ss_updater_timer;
-  std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
 
   /*vbox*/
+  QWidgetAction *vboxAction;
   std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
   std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const com::Bstr &vm_id);
@@ -195,24 +176,22 @@ private:
 
   void create_tray_actions();
   void create_tray_icon();
-  void fill_vm_menu();
-  void fill_launch_menu();
-  void update_balance();
-
+  int fill_vm_menu();
+  void fill_launch_menu();  
   int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
 
+  void refresh_balance();
+  void refresh_environments();
 private slots:
   /*tray slots*/
+  void application_quit();
   void show_settings_dialog();
   void show_hub();
   void show_vbox();
   void show_launch();
   void notification_received(notification_level_t level,
                              const QString& msg);
-
-//  void join_to_swarm();
-
 
   /*virtualbox slots*/
   void vm_added(const com::Bstr& vm_id);
@@ -230,12 +209,13 @@ private slots:
 
   /*hub slots*/
   void refresh_timer_timeout();
-  void hub_menu_item_triggered(const CSSEnvironment *env,
+  void hub_container_mi_triggered(const CSSEnvironment *env,
                                const CHubContainer *cont);
 
   /*updater*/
   void updater_timer_timeout();
 };
+////////////////////////////////////////////////////////////////////////////
 
 #endif // TRAYCONTROLWINDOW_H
 

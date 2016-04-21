@@ -10,8 +10,6 @@
 
 #include "IVirtualMachine.h"
 #include "IVBoxManager.h"
-#include <QDebug>
-
 
 VBoxManageWindow::VBoxManageWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -94,7 +92,7 @@ void VBoxManageWindow::vm_state_changed(const com::Bstr &vm_id) {
   if (m_dct_vm_controls.find(vm_id) == m_dct_vm_controls.end()) return;
 
   m_dct_vm_controls[vm_id]->m_lbl_state->setText(
-        CCommons::vm_state_to_str(
+        CVBoxCommons::vm_state_to_str(
           CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state()));
   m_dct_vm_controls[vm_id]->m_btn_turn->setText(
         (CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() == VMS_PoweredOff ||
@@ -209,7 +207,7 @@ CVmControl::CVmControl(const IVirtualMachine *vm) :
 {  
   m_lbl_name = new QLabel(QString::fromUtf16((ushort*)vm->name().raw()));
   m_lbl_id = new QLabel(QString::fromUtf16((ushort*)vm->id().raw()));
-  m_lbl_state = new QLabel(CCommons::vm_state_to_str(vm->state()));
+  m_lbl_state = new QLabel(CVBoxCommons::vm_state_to_str(vm->state()));
   m_btn_turn = new QPushButton((vm->state() == VMS_Aborted || vm->state() == VMS_PoweredOff) ? "Start" : "Stop");
   m_pb_launch = new QProgressBar;
   m_pb_launch->setVisible(false);

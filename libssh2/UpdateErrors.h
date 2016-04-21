@@ -13,4 +13,5 @@ typedef enum run_update_erros {
   RUE_SSH_AUTHENTICATION,
   RUE_LIBSSH2_CHANNEL_OPEN,
   RUE_LIBSSH2_CHANNEL_EXEC,
+  RUE_LIBSSH2_EXIT_CODE_NOT_NULL
 } run_update_erros_t;

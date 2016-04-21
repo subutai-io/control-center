@@ -32,6 +32,10 @@ private:
   static const QString SM_UPDATER_HOST;
   static const QString SM_UPDATER_PORT;
 
+  static const QString SM_PLUGIN_PORT;
+  static const QString SM_SSH_PATH;
+  static const QString SM_SSH_USER;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -49,10 +53,14 @@ private:
   uint32_t m_notification_delay_sec;
 
   //todo remove it from settings after getting it somehow from somewhere
+  QString m_updater_host;
   QString m_updater_user;
   QString m_updater_pass;
-  QString m_updater_host;
   QString m_updater_port;
+
+  uint16_t m_plugin_port;
+  QString m_ssh_path;
+  QString m_ssh_user;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -81,6 +89,9 @@ public:
   const QString& updater_pass() const{return m_updater_pass;}
   const QString& updater_host() const{return m_updater_host;}
   const QString& updater_port() const{return m_updater_port;}
+  uint16_t plugin_port() const {return m_plugin_port;}
+  const QString& ssh_path() const {return m_ssh_path;}
+  const QString& ssh_user() const {return m_ssh_user;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -152,6 +163,21 @@ public:
   void set_updater_port(const QString& updater_port) {
     m_updater_port = updater_port;
     m_settings.setValue(SM_UPDATER_PORT, m_updater_port);
+  }
+
+  void set_plugin_port(uint16_t plugin_port) {
+    m_plugin_port = plugin_port;
+    m_settings.setValue(SM_PLUGIN_PORT, m_plugin_port);
+  }
+
+  void set_ssh_path(const QString& ssh_path) {
+    m_ssh_path = ssh_path;
+    m_settings.setValue(SM_SSH_PATH, m_ssh_path);
+  }
+
+  void set_ssh_user(const QString& ssh_user) {
+    m_ssh_user = ssh_user;
+    m_settings.setValue(SM_SSH_USER, m_ssh_user);
   }
 };
 

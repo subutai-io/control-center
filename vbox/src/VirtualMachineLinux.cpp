@@ -32,7 +32,7 @@ nsresult CVirtualMachineLinux::launch_vm(vb_launch_mode_t mode,
                                          IProgress **progress)
 {  
   return m_internal_machine->LaunchVMProcess(m_session,
-                                             com::Bstr(CCommons::VM_launch_mode_to_str(mode)).raw(),
+                                             com::Bstr(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
                                              com::Bstr("").raw(),
                                              progress);
 }
@@ -88,9 +88,11 @@ nsresult CVirtualMachineLinux::remove(IProgress **progress) {
      //qDebug() << "Unregistering the machine failed! \n";
      return rc;
   }
-  nsCOMPtr<IProgress> pProgress;
+//// Delete after fixing Removing vm files on MAC!//////////////////////////
+#ifndef RT_OS_DARWIN
   rc = m_internal_machine->DeleteConfig(cMedia, aMedia, progress);
 //          DeleteConfig(cMedia, aMedia, getter_AddRefs(progress));
+#endif
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////

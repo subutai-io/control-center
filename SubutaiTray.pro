@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network websockets
 CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = SubutaiTray
 TEMPLATE = app
 
+INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 
@@ -43,7 +44,15 @@ SOURCES += \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
     hub/src/SystemCallWrapper.cpp \
-    hub/src/DlgSwarmJoin.cpp
+    hub/src/DlgSwarmJoin.cpp \
+    hub/src/TrayWebSocketServer.cpp \
+    hub/src/HubController.cpp \
+    commons/src/EventLoop.cpp \
+    commons/src/IFunctor.cpp \
+    commons/src/ApplicationLog.cpp \
+    commons/src/InternalCriticalSection.cpp \
+    commons/src/MRE_Linux.cpp \
+    commons/src/Commons.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -63,7 +72,24 @@ HEADERS  += \
     hub/include/SystemCallWrapper.h \
     hub/include/DlgSwarmJoin.h \
     hub/include/NotifiactionObserver.h \
-    libssh2/UpdateErrors.h
+    libssh2/UpdateErrors.h \
+    hub/include/TrayWebSocketServer.h \
+    hub/include/HubController.h \
+    commons/include/ApplicationLog.h \
+    commons/include/EventLoop.h \
+    commons/include/EventLoopException.h \
+    commons/include/EventLoopExceptionInfo.h \
+    commons/include/FileWrapper.h \
+    commons/include/FunctorWithoutResult.h \
+    commons/include/FunctorWithResult.h \
+    commons/include/IFunctor.h \
+    commons/include/InternalCriticalSection.h \
+    commons/include/IRunnable.h \
+    commons/include/Locker.h \
+    commons/include/MRE_Linux.h \
+    commons/include/MRE_Wrapper.h \
+    commons/include/ThreadWrapper.h \
+    commons/include/Commons.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -115,6 +141,7 @@ macx: {
   LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxRT.dylib
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
+  ICON = $$PWD/resources/tray_logo.icns
 }
 #////////////////////////////////////////////////////////////////////////////
 
@@ -132,3 +159,6 @@ win32: {
               vbox/include/VBoxManagerWin.h
 }
 #////////////////////////////////////////////////////////////////////////////
+
+DISTFILES += \
+    resources/Tray_icon_set-07.png

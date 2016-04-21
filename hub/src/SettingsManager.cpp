@@ -33,6 +33,10 @@ const QString CSettingsManager::SM_UPDATER_PASS("Updater_Pass");
 const QString CSettingsManager::SM_UPDATER_HOST("Updater_Host");
 const QString CSettingsManager::SM_UPDATER_PORT("Updater_Port");
 
+const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
+const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
+const QString CSettingsManager::SM_SSH_USER("Ssh_User");
+
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
@@ -47,7 +51,7 @@ CSettingsManager::CSettingsManager() :
   m_p2p_path("p2p"),
   #elif RT_OS_DARWIN
   m_terminal_path("iterm"),
-  m_p2p_path("p2p"),  
+  m_p2p_path("/Applications/Subutai/p2p"),
   #elif RT_OS_WINDOWS
   m_terminal_path("cmd"),
   m_p2p_path("p2p.exe"),
@@ -57,7 +61,10 @@ CSettingsManager::CSettingsManager() :
   m_updater_host("localhost"),
   m_updater_user("local_user"),
   m_updater_pass("password"),
-  m_updater_port("22")
+  m_updater_port("22"),
+  m_plugin_port(9998),
+  m_ssh_path("ssh"),
+  m_ssh_user("root")
 {
   if (!m_settings.value(SM_POST_URL).isNull())
     m_post_url = m_settings.value(SM_POST_URL).toString();
@@ -95,5 +102,11 @@ CSettingsManager::CSettingsManager() :
     m_updater_pass = m_settings.value(SM_UPDATER_PASS).toString();
   if (!m_settings.value(SM_UPDATER_PORT).isNull())
     m_updater_port = m_settings.value(SM_UPDATER_PORT).toString();
+  if (!m_settings.value(SM_PLUGIN_PORT).isNull())
+    m_plugin_port = m_settings.value(SM_PLUGIN_PORT).toUInt();
+  if (!m_settings.value(SM_SSH_PATH).isNull())
+    m_ssh_path = m_settings.value(SM_SSH_PATH).toString();
+  if (!m_settings.value(SM_SSH_USER).isNull())
+    m_ssh_user = m_settings.value(SM_SSH_USER).toString();
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <VBox/com/ptr.h>
 #include <VBox/com/array.h>
+#include <QDebug>
 
 CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
   assert(com_machine != NULL);
@@ -32,7 +33,7 @@ CVirtualMachineWin::~CVirtualMachineWin() {
 nsresult CVirtualMachineWin::launch_vm(vb_launch_mode_t mode,
                                        IProgress **progress) {
 
-  BSTR str_mode = SysAllocString(CCommons::VM_lauch_mode_to_wstr(mode));
+  BSTR str_mode = SysAllocString(CVBoxCommons::VM_lauch_mode_to_wstr(mode));
 
   m_session->UnlockMachine();
   nsresult rc = m_internal_machine->LaunchVMProcess(m_session,
@@ -96,12 +97,29 @@ nsresult CVirtualMachineWin::resume() {
 nsresult CVirtualMachineWin::remove(IProgress **progress) {
 
    nsresult rc;
+   qDebug() << "CVirtualMachineWin start removal\n";
+   //m_session->UnlockMachine();
+   BOOL accessible = FALSE;
+   qDebug() << "CVirtualMachineWin before accessible\n";
+
+   m_internal_machine->get_Accessible(&accessible);
+   qDebug() << "CVirtualMachineWin after accessible\n";
+   if (accessible == FALSE) {
+       qDebug() << "CVirtualMachineWin not accessible\n";
+       return 33;
+   }
    com::SafeArray<IMedium**> saMedia;
-   rc = m_internal_machine->Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   qDebug() << "before VirtualMachineWin unregister \n";
+   rc = m_internal_machine->Unregister(CleanupMode_DetachAllReturnHardDisksOnly,//CleanupMode_Full,
+                           ComSafeArrayAsOutParam(saMedia));
+   qDebug() << "VirtualMachineWin unregister \n";
    if (FAILED(rc)) return rc;
 
+   qDebug() << "VirtualMachineWin before DeleteConfig \n";
    rc = m_internal_machine->DeleteConfig(ComSafeArrayAsInParam(saMedia), progress);
            //Unregister(CleanupMode_Full,ComSafeArrayAsOutParam(saMedia));
+   qDebug() << "VirtualMachineWin after DeleteConfig \n";
+
    if (FAILED(rc)) return rc;
 
    return rc;

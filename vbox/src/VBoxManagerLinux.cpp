@@ -113,6 +113,21 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
   if (NS_FAILED(rc)) return;
 
+  BOOL accessible = FALSE;
+  machine->GetAccessible(&accessible);
+  if (accessible == FALSE) {
+      qDebug() << "not accessible\n";
+      return;
+  }
+
+  BSTR vm_name;
+  machine->GetName(&vm_name);
+
+  QString name = QString::fromUtf16((ushort*)vm_name);
+  qDebug() << "machine name " << name << "\n";
+  if (!name.contains("subutai"))
+      return;
+
   ISession* session;
   rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
                                                        nsnull,
@@ -148,7 +163,7 @@ void CVBoxManagerLinux::on_machine_event(IEvent *event) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::init_machines() {
-  uint32_t count;
+  uint32_t count, rh_count = 0;
   IMachine **machines;
   nsresult rc;
 
@@ -156,6 +171,10 @@ int CVBoxManagerLinux::init_machines() {
     return m_last_vb_error;
 
   rc = m_virtual_box->GetMachines(&count, &machines);
+
+  if (count == 0)
+    return -1;
+
   if (NS_FAILED(rc)) return VBE_GET_MACHINES;
 
   do {
@@ -170,10 +189,9 @@ int CVBoxManagerLinux::init_machines() {
     machines[count]->GetName(&vm_name);
 
     QString name = QString::fromUtf16((ushort*)vm_name);
-    qDebug() << "machine name " << name << "\n";
     if (!name.contains("subutai"))
       continue;
-
+    rh_count++;
     ISession* session;
     rc = m_component_manager->CreateInstanceByContractID(NS_SESSION_CONTRACTID,
                                                          nsnull,
@@ -188,7 +206,8 @@ int CVBoxManagerLinux::init_machines() {
 
   std::thread t(StartEventThread, m_event_source, m_el_passive);
   t.detach();
-  return 0;
+
+  return (rh_count == 0) ? 1 : 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -344,7 +363,11 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
   // Machine can be Removed if State < 5
   QMessageBox msg;
   msg.setIcon(QMessageBox::Question);
-  msg.setText(tr("Virtual machine will be removed!"));
+#ifndef RT_OS_DARWIN
+  msg.setText(tr("Virtual machine and all files will be removed!"));
+#else
+  msg.setText(tr("Virtual machine will be removed!Please delete files manually"));
+#endif
   msg.setInformativeText(tr("Are You sure?"));
   msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   msg.setDefaultButton(QMessageBox::Cancel);
@@ -388,8 +411,6 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
-
-
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actually here

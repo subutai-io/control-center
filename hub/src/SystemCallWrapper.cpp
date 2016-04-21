@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sstream>
-#include <QDebug>
 
+#include <QApplication>
 #include <SystemCallWrapper.h>
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
@@ -9,11 +9,14 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent/QtConcurrentRun>
+
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
 #include <Process.h>
 #endif
-
+#include "ApplicationLog.h"
 
 static QString error_strings[] = {
   "Success", "Shell error",
@@ -22,21 +25,42 @@ static QString error_strings[] = {
   "SSH launch error"
 };
 
-/*
- * On Windows we can't launch long time processes by calling this method.
- * BE CAREFUL!!! ATENTION!!! WARNING!!! ACHTUNG!!!!
-*/
+system_call_wrapper_error_t CSystemCallWrapper::ssystem_th(const char *command,
+                                                           std::vector<std::string> &lst_output,
+                                                           int &exit_code) {
+  QEventLoop el;
+  CSystemCallThreadWrapper sctw(command);
+  QThread* th = new QThread;
+
+  QObject::connect(&sctw, SIGNAL(finished()), &el, SLOT(quit()));
+  QObject::connect(th, SIGNAL(started()), &sctw, SLOT(do_system_call()));
+  QObject::connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+  sctw.moveToThread(th);
+  th->start();
+  el.exec();
+
+  lst_output = std::vector<std::string>(sctw.lst_output());
+  exit_code = sctw.exit_code();
+  return sctw.result();
+}
+////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem(const char *command,
                             std::vector<std::string>& lst_output, int &exit_code) {
 #ifndef RT_OS_WINDOWS
-  FILE* pf = popen(command, "r");
+  std::string str_cmd = " 2>&1 ";
+  str_cmd = std::string(command) + str_cmd;
+  FILE* pf = popen(str_cmd.c_str(), "r");
   if (pf) {
     char *line = NULL;
     size_t len = 0;
-    while(getline(&line, &len, pf) != -1)
+
+    while(getline(&line, &len, pf) != -1 && !CCommons::QuitAppFlag) {
       lst_output.push_back(std::string(line, len));
+    }
+
+    if (CCommons::QuitAppFlag) return SCWE_SUCCESS;
     exit_code = pclose(pf);
     exit_code = WEXITSTATUS(exit_code);
 
@@ -80,7 +104,6 @@ CSystemCallWrapper::ssystem(const char *command,
     /*create child process*/
     char str_com[256] = {0};
     memcpy(str_com, command, strlen(command));
-    qDebug() << str_com;
     b_success = CreateProcessA(
                   NULL,          // no module name. use command line
                   str_com,       // command line
@@ -138,10 +161,11 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
 
   std::vector<std::string> lst_out;
   int exit_code = 0;
-  system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out, exit_code);
-  if (res != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(
-          error_strings[res]);
+
+  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
+  if (res != SCWE_SUCCESS && exit_code != 1) {
+    CNotifiactionObserver::NotifyAboutError(error_strings[res]);
+    CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
     return false;
   }
 
@@ -166,17 +190,20 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                 ip << " -key " << key << " -hash " << hash;
   std::string command = str_stream.str();
   std::vector<std::string> lst_out;
-  int exit_code;
-  system_call_wrapper_error_t res = ssystem(command.c_str(), lst_out, exit_code);
+  int exit_code = 0;
+  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
   if (res != SCWE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutError(
-          QString("Join to p2p failed. Error : %1").arg(res));
+    QString err_msg = QString("Join to p2p failed. Error : %1").arg(res);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return res;
   }
 
   if (lst_out.size() == 1 &&
       lst_out[0].find("[ERROR]") != std::string::npos) {
-    CNotifiactionObserver::NotifyAboutError(QString::fromStdString(lst_out[0]));
+    QString err_msg = QString::fromStdString(lst_out[0]);
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SCWE_CANT_JOIN_SWARM;
   }
 
@@ -186,25 +213,29 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::run_ssh_in_terminal(const char* user,
-                                        const char* ip)
+                                        const char* ip,
+                                        const char *port)
 {
   std::ostringstream str_stream;
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
                 "  do script \"" <<
-                "ssh " << user << "@" << ip << "\"\n" <<
+                CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
+                " " << user << "@" << ip << " -p " << port << "\"\n" <<
                 " end tell\'";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"ssh " << user << "@" << ip << ";bash\" &";
+                " -e \"" << CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
+                " " << user << "@" << ip << " -p " << port << ";bash\" &";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
   str_stream <<
-                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " /k ssh " << user << "@" << ip;
+             CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
+             " /k " << CSettingsManager::Instance().ssh_path().toStdString().c_str() << " "
+             << user << "@" << ip << " -p " << port;
   PROCESS_INFORMATION pi;
   STARTUPINFOA si;
   ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
@@ -243,7 +274,7 @@ CSystemCallWrapper::run_ss_updater(const char *host,
   str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
                 " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
   system_call_wrapper_error_t res =
-      ssystem(str_stream.str().c_str(), lst_out, exit_code);
+      ssystem_th(str_stream.str().c_str(), lst_out, exit_code);
   //todo check res and lst_out
   return res;
 }
@@ -256,7 +287,9 @@ CSystemCallWrapper::fork_process(const QString program,
 
   QObject *parent = new QObject;
   QProcess *p = new QProcess(parent);
-  return p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  system_call_wrapper_error_t res = p->startDetached(program, argv, folder) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+  delete p;
+  return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -264,5 +297,12 @@ system_call_wrapper_error_t
 CSystemCallWrapper::open_url(QString s_url){
   QUrl q_url =QUrl(s_url);
   return QDesktopServices::openUrl(q_url) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void CSystemCallThreadWrapper::do_system_call()
+{
+  m_result = CSystemCallWrapper::ssystem(m_command.c_str(), m_lst_output, m_exit_code);
+  emit finished();
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <QString>
+#include <QObject>
 
 enum system_call_wrapper_error_t {
   /*common errors*/
@@ -21,36 +22,48 @@ enum system_call_wrapper_error_t {
 };
 ////////////////////////////////////////////////////////////////////////////
 
-class CSystemCallWrapper {
+class CSystemCallThreadWrapper : public QObject {
+  Q_OBJECT
 private:
+  system_call_wrapper_error_t m_result;
+  int m_exit_code;
+  std::string m_command;
+  std::vector<std::string> m_lst_output;
+
+public:
+  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0), m_command("") {}
+  CSystemCallThreadWrapper(const char *command, QObject *parent = 0) :
+    QObject(parent),
+    m_result(SCWE_SUCCESS),
+    m_exit_code(0),
+    m_command(command){}
+
+
+  system_call_wrapper_error_t result() const { return m_result;}
+  int exit_code() const {return m_exit_code;}
+  std::vector<std::string> lst_output() const {return m_lst_output;}
+
+public slots:
+  void do_system_call();
+
+signals:
+  void finished();
+};
+////////////////////////////////////////////////////////////////////////////
+
+class CSystemCallWrapper {
+  friend class CSystemCallThreadWrapper;
+private:  
+
+  static system_call_wrapper_error_t ssystem_th(const char *command,
+                                                std::vector<std::string> &lst_output,
+                                                int &exit_code);
+
   static system_call_wrapper_error_t ssystem(const char *command,
                                              std::vector<std::string> &lst_output,
                                              int& exit_code);
 
 public:
-  /*
-    -dev interface name
-        TUN/TAP interface name
-    -dht HOST:PORT
-        Specify DHT bootstrap node address in a form of HOST:PORT
-    -hash Infohash
-        Infohash for environment
-    -ip IP
-        IP address to be used (default "none")
-    -key string
-        AES crypto key
-    -keyfile string
-        Path to yaml file containing crypto key
-    -mac Hardware Address
-        MAC or Hardware Address for a TUN/TAP interface
-    -mask subnet
-        Network mask a.k.a. subnet (default "255.255.255.0")
-    -port Port
-        Port that will be used for p2p communication. Random port number will be generated if no port were specified
-    -ttl string
-        Time until specified key will be available
-
-  */
 
   static bool is_in_swarm(const char* hash);
 
@@ -59,7 +72,8 @@ public:
                                                        const char* ip);
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
-                                                         const char *ip);
+                                                         const char *ip,
+                                                         const char *port);
 
   static system_call_wrapper_error_t run_ss_updater(const char* host,
                                                     const char* port,
