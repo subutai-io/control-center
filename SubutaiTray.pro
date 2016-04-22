@@ -101,6 +101,9 @@ FORMS    += \
 
 RESOURCES += \
     resources/resources.qrc
+
+GIT_VERSION = $$system(git describe)
+DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 #////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
