@@ -30,11 +30,8 @@ SOURCES += \
     hub/src/DlgLogin.cpp \
     hub/src/SettingsManager.cpp \
     hub/src/DlgSettings.cpp \
-    hub/src/ITreeModel.cpp \
-    hub/src/HubStatisticWindow.cpp \
     hub/src/TrayControlWindow.cpp \
     vbox/src/IVBoxManager.cpp \
-    vbox/src/VBoxManageWindow.cpp \
     vbox/glue/src/xpcom/helpers.cpp \
     vbox/glue/src/AutoLock.cpp \
     vbox/glue/src/com.cpp \
@@ -44,7 +41,6 @@ SOURCES += \
     vbox/glue/src/NativeEventQueue.cpp \
     vbox/glue/src/string.cpp \
     hub/src/SystemCallWrapper.cpp \
-    hub/src/DlgSwarmJoin.cpp \
     hub/src/TrayWebSocketServer.cpp \
     hub/src/HubController.cpp \
     commons/src/EventLoop.cpp \
@@ -59,18 +55,13 @@ HEADERS  += \
     hub/include/DlgLogin.h \
     hub/include/SettingsManager.h \
     hub/include/DlgSettings.h \
-    hub/include/TreeViewItem.h \
-    hub/include/ITreeModel.h \
-    hub/include/HubStatisticWindow.h \
     hub/include/TrayControlWindow.h \
     vbox/include/VBoxCommons.h \
     vbox/include/VirtualBoxHdr.h \
     vbox/include/VBoxCommonsPlatform.h \
     vbox/include/IVBoxManager.h \
     vbox/include/IVirtualMachine.h \
-    vbox/include/VBoxManageWindow.h \
     hub/include/SystemCallWrapper.h \
-    hub/include/DlgSwarmJoin.h \
     hub/include/NotifiactionObserver.h \
     libssh2/UpdateErrors.h \
     hub/include/TrayWebSocketServer.h \
@@ -94,10 +85,7 @@ HEADERS  += \
 FORMS    += \
     hub/forms/DlgLogin.ui \
     hub/forms/DlgSettings.ui \
-    hub/forms/HubStatisticWindow.ui \
-    hub/forms/TrayControlWindow.ui \
-    vbox/forms/VBoxManageWindow.ui \
-    hub/forms/DlgSwarmJoin.ui
+    hub/forms/TrayControlWindow.ui
 
 RESOURCES += \
     resources/resources.qrc

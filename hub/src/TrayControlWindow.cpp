@@ -5,11 +5,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QWidgetAction>
+#include <QFileDialog>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
 #include "DlgLogin.h"
-#include "DlgSwarmJoin.h"
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
@@ -17,7 +17,6 @@
 #include "HubController.h"
 #include "RestWorker.h"
 #include "DlgSettings.h"
-#include <QFileDialog>
 #include "ApplicationLog.h"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :

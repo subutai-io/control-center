@@ -14,7 +14,6 @@
 #include <QWidgetAction>
 
 #include "IVirtualMachine.h"
-#include "HubStatisticWindow.h"
 #include "RestWorker.h"
 #include "NotifiactionObserver.h"
 
