@@ -156,8 +156,7 @@ void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
   connect(menu, &CVboxMenu::vbox_menu_act_triggered,
           this, &TrayControlWindow::vmc_act_released);
 
-
-  VM_State state = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  VM_State state = vm->state();
   if ((int)state < 5){
     menu->set_machine_stopped(TRUE);
   } else {
@@ -372,7 +371,12 @@ void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
 #else
   auto ip = m_dct_player_menus.find(vm_id);
   if (ip == m_dct_player_menus.end()) return;
-  VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL) {
+    //todo log
+    return;
+  }
+  VM_State ns = vm->state();
   ip->second->set_buttons((ushort)ns);
 #endif
 
@@ -388,18 +392,21 @@ void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
   if (m_dct_vm_menus.find(vm_id) == m_dct_vm_menus.end())
     return;
 
-  bool on = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() < 5 ;//== VMS_PoweredOff;
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+
+  bool on = (int)vm->state() < 5 ;//== VMS_PoweredOff;
 
   if (on) {
-    /*int lr = */
+    /*todo chack result. int lr = */
     CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     return;
-  } //turn on
+  }
 
   //turn off
   int tor = CVBoxManagerSingleton::Instance()->turn_off(vm_id, false);
   if (!tor) return;
-  //show_err(tor);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -407,7 +414,10 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
   //  if (m_player_menus.find(vm_id) == m_player_menus.end())
   //    return;
 
-  bool on = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state() == 5 ;//== VMS_PoweredOff;
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+  bool on = (int)vm->state() == 5 ;//== VMS_PoweredOff;
 
   if (on) {
     /*int lr =*/
@@ -543,7 +553,10 @@ void TrayControlWindow::launch_SS() {
 
 void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
   nsresult rc;
-  ushort state = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+  ushort state = (int)vm->state();
   if (state < 5) { //Powered off
     rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     return;
@@ -566,7 +579,10 @@ void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
 
 void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
   nsresult rc;
-  ushort state = (int)CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+  ushort state = (int)vm->state();
   if (state < 5) {
     return;
   }
