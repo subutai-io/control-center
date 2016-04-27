@@ -15,9 +15,9 @@ private:
   QTabWidget* m_target;
 
   static void expandingTypeStyleSheet(QTabWidget* tw) {
-    int w = tw->width()-4; //don't know why. but looks ok only with this -3. MAGIC!!!
-    int wb = floor(w / 4.0);
-    int ws = w - wb*3;
+    int w = tw->width()-tw->count(); //don't know why. but looks ok only with this -tw->count(). MAGIC!!!
+    int wb = floor(w / (tw->count()*1.0));
+    int ws = w - wb*(tw->count()-1);
     tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
                               "QTabBar::tab:selected {width : %2px;}").
                       arg(wb).

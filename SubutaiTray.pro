@@ -48,7 +48,8 @@ SOURCES += \
     commons/src/ApplicationLog.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/MRE_Linux.cpp \
-    commons/src/Commons.cpp
+    commons/src/Commons.cpp \
+    hub/src/DlgAbout.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -80,12 +81,14 @@ HEADERS  += \
     commons/include/MRE_Linux.h \
     commons/include/MRE_Wrapper.h \
     commons/include/ThreadWrapper.h \
-    commons/include/Commons.h
+    commons/include/Commons.h \
+    hub/include/DlgAbout.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
     hub/forms/DlgSettings.ui \
-    hub/forms/TrayControlWindow.ui
+    hub/forms/TrayControlWindow.ui \
+    hub/forms/DlgAbout.ui
 
 RESOURCES += \
     resources/resources.qrc

@@ -29,6 +29,7 @@
         <file>Stop_na-07.png</file>
         <file>Tray_icon_set-07.png</file>
         <file>TrayWithWatch.png</file>
+        <file>about.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

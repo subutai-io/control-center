@@ -100,6 +100,10 @@ public:
                                                   const QStringList argv,
                                                   const QString& folder);
   static system_call_wrapper_error_t open_url(QString s_url);
+
+  static system_call_wrapper_error_t p2p_version(std::string& version, int &exit_code);
+  static system_call_wrapper_error_t chrome_version(std::string& version, int &exit_code);
+  static QString virtual_box_version();
 };
 
 #endif // SYSTEMCALLWRAPPER_H

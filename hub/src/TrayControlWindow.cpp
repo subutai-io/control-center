@@ -18,6 +18,7 @@
 #include "RestWorker.h"
 #include "DlgSettings.h"
 #include "ApplicationLog.h"
+#include "DlgAbout.h"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -26,7 +27,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_vbox_section(NULL),
   m_launch_section(NULL),
   m_quit_section(NULL),
-  m_act_quit(NULL)
+  m_act_quit(NULL),
+  m_act_about(NULL)
 {
   ui->setupUi(this);
   m_w_Player = new CVBPlayer(this);
@@ -204,6 +206,9 @@ void TrayControlWindow::create_tray_actions()
   connect(m_act_quit, SIGNAL(triggered()), this, SLOT(application_quit()));
 
   m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
+
+  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
+  connect(m_act_about, SIGNAL(triggered()), this, SLOT(show_about()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -265,6 +270,7 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 //  m_tray_menu->addMenu(m_vbox_menu);
 
@@ -639,6 +645,19 @@ void TrayControlWindow::refresh_environments() {
       env_menu->addAction(act);
     }
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::show_about() {
+//  this->show();
+  DlgAbout dlg(this);
+#ifdef RT_OS_LINUX
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+  dlg.move(curpos.x(), 0);
+#endif
+  dlg.exec();
+//  this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 

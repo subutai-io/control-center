@@ -11,6 +11,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include "vbox/include/IVBoxManager.h"
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -338,6 +339,56 @@ system_call_wrapper_error_t
 CSystemCallWrapper::open_url(QString s_url){
   QUrl q_url =QUrl(s_url);
   return QDesktopServices::openUrl(q_url) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::p2p_version(std::string &version, int &exit_code) {
+  version = "undefined";
+  std::vector<std::string> lst_out;
+  std::string command = CSettingsManager::Instance().p2p_path().toStdString();
+  command += std::string(" version");
+  system_call_wrapper_error_t res =
+      ssystem_th(command.c_str(), lst_out, exit_code);
+
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+    version = lst_out[0];
+
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::chrome_version(std::string &version, int &exit_code) {
+  version = "undefined";
+  std::vector<std::string> lst_out;
+  std::string command;
+
+#if defined(RT_OS_LINUX)
+  command = "/usr/bin/google-chrome-stable";
+#elif defined(RT_OS_DARWIN)
+  command = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+#elif defined(RT_OS_WINDOWS)
+  command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+#endif
+  if (!QFile(command.c_str()).exists())
+    return SCWE_SHELL_ERROR;
+
+  command += std::string(" --version");
+
+  system_call_wrapper_error_t res =
+      ssystem_th(command.c_str(), lst_out, exit_code);
+
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+    version = lst_out[0];
+
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+QString
+CSystemCallWrapper::virtual_box_version() {
+  return CVBoxManagerSingleton::Instance()->version();
 }
 ////////////////////////////////////////////////////////////////////////////
 
