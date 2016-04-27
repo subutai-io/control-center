@@ -367,12 +367,10 @@ CSystemCallWrapper::chrome_version(std::string &version, int &exit_code) {
 #if defined(RT_OS_LINUX)
   command = "/usr/bin/google-chrome-stable";
 #elif defined(RT_OS_DARWIN)
-  command = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  command = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
 #elif defined(RT_OS_WINDOWS)
   command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
 #endif
-  if (!QFile(command.c_str()).exists())
-    return SCWE_SHELL_ERROR;
 
   command += std::string(" --version");
 
