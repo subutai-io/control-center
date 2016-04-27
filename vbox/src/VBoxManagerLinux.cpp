@@ -451,9 +451,17 @@ int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actuall
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
+////////////////////////////////////////////////////////////////////////////
 
-
-
+QString CVBoxManagerLinux::version() {
+  com::Bstr ver("");
+  nsresult rc = m_virtual_box->GetVersion(ver.asOutParam());
+  if (NS_SUCCEEDED(rc)) {
+    QString result((QChar*)ver.raw(), ver.length());
+    return result;
+  }
+  return "";
+}
 ////////////////////////////////////////////////////////////////////////////
 
 NS_IMPL_ISUPPORTS1(CVBoxManagerLinux::CEventListenerLinux, IEventListener)

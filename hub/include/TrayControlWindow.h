@@ -14,7 +14,6 @@
 #include <QWidgetAction>
 
 #include "IVirtualMachine.h"
-#include "HubStatisticWindow.h"
 #include "RestWorker.h"
 #include "NotifiactionObserver.h"
 
@@ -173,6 +172,8 @@ private:
   QAction *m_act_launch_SS;
   QAction *m_act_launch_Hub;
 
+  QAction *m_act_about;
+
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
@@ -187,6 +188,7 @@ private:
   void refresh_environments();
 private slots:
   /*tray slots*/
+  void show_about();
   void application_quit();
   void show_settings_dialog();
   void show_hub();

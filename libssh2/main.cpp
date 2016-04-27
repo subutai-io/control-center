@@ -156,27 +156,27 @@ int run_ssh_command(const char* str_host,
 
     for (;;) {
       /* loop until we block */
-      int rc;
+      int lrc;
       do {
         char buffer[0x100];
-        rc = libssh2_channel_read(channel, buffer, sizeof(buffer));
+        lrc = libssh2_channel_read(channel, buffer, sizeof(buffer));
 
-        if (rc > 0) {
+        if (lrc > 0) {
 //#ifdef LOG_STD_OUT
-          std::string str(buffer, rc);
+          std::string str(buffer, lrc);
           std::cout << str << std::endl;
 //#endif
         }
         else {
-          if (rc != LIBSSH2_ERROR_EAGAIN) {
-            std::cout << "libssh2_channel_read returned " << rc << std::endl;
+          if (lrc != LIBSSH2_ERROR_EAGAIN) {
+            std::cout << "libssh2_channel_read returned " << lrc << std::endl;
           }
         }
-      } while (rc > 0);
+      } while (lrc > 0);
 
       /* this is due to blocking that would occur otherwise so we loop on
       this condition */
-      if (rc == LIBSSH2_ERROR_EAGAIN) {
+      if (lrc == LIBSSH2_ERROR_EAGAIN) {
         wait_ssh_socket_event(sock, session);
       }
       else {

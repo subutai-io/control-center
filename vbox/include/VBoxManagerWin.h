@@ -110,6 +110,7 @@ public:
   virtual int resume(const com::Bstr &vm_id);
   virtual int remove(const com::Bstr &vm_id);
   virtual int add(const com::Bstr &vm_id);
+  virtual QString version();
 };
 
 typedef ListenerImpl<CEventListenerWin, IVBoxManager*> CEventListenerWinImpl;

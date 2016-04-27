@@ -1,4 +1,5 @@
 /*need this include to register meta type com::Bstr*/
+#include <iostream>
 #include <VBox/com/string.h>
 
 #include <QApplication>
@@ -23,8 +24,14 @@ int main(int argc, char *argv[]) {
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
                                    "log_level",
                                    "ERROR");
+  QCommandLineOption version_opt("v",
+                                 "Version",
+                                 "Version");
+
   cmd_parser.addOption(log_level_opt);
   cmd_parser.addPositionalArgument("log_level", "Log level to use in this application");
+  cmd_parser.addOption(version_opt);
+  cmd_parser.addHelpOption();
   cmd_parser.parse(QApplication::arguments());
 
   CApplicationLog::Instance()->SetDirectory(QApplication::applicationDirPath().toStdString().c_str());
@@ -37,7 +44,11 @@ int main(int argc, char *argv[]) {
   else if (ll == "error" || ll == "2")
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_ERROR);
 
-  cmd_parser.addHelpOption();
+  if (cmd_parser.isSet(version_opt)) {
+    std::cout << GIT_VERSION << std::endl;
+    return 0;
+  }
+  CApplicationLog::Instance()->LogTrace("Tray application %s launched\n", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");

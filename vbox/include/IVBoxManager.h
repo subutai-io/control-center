@@ -67,6 +67,7 @@ public:
   virtual int resume(const com::Bstr& vm_id) = 0;
   virtual int remove(const com::Bstr& vm_id) = 0;
   virtual int add(const com::Bstr& vm_id) = 0;
+  virtual QString version() = 0;
 
   nsresult handle_event(VBoxEventType_T e_type,
                         IEvent *event);
