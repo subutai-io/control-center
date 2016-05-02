@@ -19,6 +19,7 @@ private:
 
   static const QString SM_POST_URL;
   static const QString SM_GET_URL;
+  static const QString SM_GORJUN_URL;
   static const QString SM_REFRESH_TIME;
 
   static const QString SM_TERMINAL_PATH;
@@ -72,6 +73,8 @@ private:
   QString m_rhip_getter_pass;
   QString m_rhip_getter_port;
 
+  QString m_gorjun_url;
+
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
   static const int NOTIFICATION_DELAY_MAX = 300;
@@ -107,6 +110,8 @@ public:
   const QString& rhip_getter_pass() const {return m_rhip_getter_pass;}
   const QString& rhip_getter_host() const {return m_rhip_getter_host;}
   const QString& rhip_getter_port() const {return m_rhip_getter_port;}
+
+  const QString& gorjun_url() const {return m_gorjun_url;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -213,6 +218,11 @@ public:
   void set_rhip_getter_port(const QString& rhip_getter_port) {
     m_rhip_getter_port = rhip_getter_port;
     m_settings.setValue(SM_RHIP_GETTER_PORT, m_rhip_getter_port);
+  }
+
+  void set_gorjun_url(const QString& gorjun_url) {
+    m_gorjun_url = gorjun_url;
+    m_settings.setValue(SM_GORJUN_URL, m_gorjun_url);
   }
 };
 

@@ -19,7 +19,7 @@ CHubController::~CHubController() {
 
 int CHubController::refresh_balance() {
   int http_code, err_code, network_error;
-  CSSBalance balance = CRestWorker::get_balance(http_code, err_code, network_error);
+  CSSBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
   m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: $%1").arg(balance.value());
   return 0;
 }
@@ -27,7 +27,7 @@ int CHubController::refresh_balance() {
 
 int CHubController::refresh_environments() {
   int http_code, err_code, network_error;
-  std::vector<CSSEnvironment> res = CRestWorker::get_environments(http_code, err_code, network_error);
+  std::vector<CSSEnvironment> res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
 
   if (err_code) {
     QString err_msg = QString("Refresh environments error : %1").arg(err_code);
@@ -52,7 +52,7 @@ int CHubController::refresh_environments() {
 
 void CHubController::refresh_containers() {
   int http_code, err_code, network_error;
-  std::vector<CRHInfo> res = CRestWorker::get_ssh_containers(http_code, err_code, network_error);
+  std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
 
   if (err_code) {
     QString err_msg = QString("Refresh containers info error : %1").arg(err_code);

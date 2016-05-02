@@ -49,7 +49,9 @@ SOURCES += \
     commons/src/InternalCriticalSection.cpp \
     commons/src/MRE_Linux.cpp \
     commons/src/Commons.cpp \
-    hub/src/DlgAbout.cpp
+    hub/src/DlgAbout.cpp \
+    hub/src/DownloadFileManager.cpp \
+    hub/src/ExecutableUpdater.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -82,7 +84,10 @@ HEADERS  += \
     commons/include/MRE_Wrapper.h \
     commons/include/ThreadWrapper.h \
     commons/include/Commons.h \
-    hub/include/DlgAbout.h
+    hub/include/DlgAbout.h \
+    hub/include/RestContainers.h \
+    hub/include/DownloadFileManager.h \
+    hub/include/ExecutableUpdater.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

@@ -9,7 +9,8 @@
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
-
+#include "RestWorker.h"
+#include "DownloadFileManager.h"
 
 int main(int argc, char *argv[]) {
 
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
   CApplicationLog::Instance()->LogTrace("Tray application %s launched\n", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<com::Bstr>("com::Bstr");
+  qRegisterMetaType<com::Bstr>("com::Bstr");  
 
   DlgLogin dlg;
   dlg.setModal(true);
