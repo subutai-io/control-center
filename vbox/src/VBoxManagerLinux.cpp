@@ -6,7 +6,6 @@
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
 #include <VBox/com/com.h>
-#include <nsString.h>
 #include <QMessageBox>
 #include "NotifiactionObserver.h"
 
@@ -413,43 +412,45 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::add(const com::Bstr &vm_id) {// we need not vm_id actually here
+int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
+  // we need not vm_id actually here
   // Machine can be Removed if State < 5
   //dialog?
   //  nsCOMPtr<IProgress> progress;
   UNUSED_ARG(vm_id);
-  nsresult rc;
-  nsCOMPtr<IMachine> newmachine;
-  rc = m_virtual_box->CreateMachine(NULL,        /* settings file */
-                                    NS_LITERAL_STRING("test-lin-add").get(),
-                                    0, nsnull,   /* groups (safearray)*/
-                                    nsnull,      /* ostype */
-                                    nsnull,      /* create flags */
-                                    getter_AddRefs(newmachine));
-  if (NS_FAILED(rc))
-  {
-    return 23;
-  }
+//  nsresult rc;
+//  nsCOMPtr<IMachine> newmachine;
+//  rc = m_virtual_box->CreateMachine(NULL,        /* settings file */
+//                                    NS_LITERAL_STRING("test-lin-add").get(),
+//                                    0, nsnull,   /* groups (safearray)*/
+//                                    nsnull,      /* ostype */
+//                                    nsnull,      /* create flags */
+//                                    getter_AddRefs(newmachine));
+//  if (NS_FAILED(rc))
+//  {
+//    return 23;
+//  }
 
-  rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
-  rc = newmachine->SetMemorySize(128);
+//  rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
+//  rc = newmachine->SetMemorySize(128);
 
-  rc = m_virtual_box->RegisterMachine(newmachine);
-  if (NS_FAILED(rc))
-  {
-    qDebug() << "could not register machine! \n";
-    return rc;
-  }
+//  rc = m_virtual_box->RegisterMachine(newmachine);
+//  if (NS_FAILED(rc))
+//  {
+//    qDebug() << "could not register machine! \n";
+//    return rc;
+//  }
 
-  //   rc = session->SaveSettings(); //need to save when going to be used!
-  //         if (NS_FAILED(rc)){
-  //            qDebug() << "could not save machine settings!\n";
-  //            return rc;
-  //         }
-  //    session->UnlockMachine();
+//  //   rc = session->SaveSettings(); //need to save when going to be used!
+//  //         if (NS_FAILED(rc)){
+//  //            qDebug() << "could not save machine settings!\n";
+//  //            return rc;
+//  //         }
+//  //    session->UnlockMachine();
 
-  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
-  return rc;
+//  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
+//  return rc;
+  return NS_OK;
 }
 ////////////////////////////////////////////////////////////////////////////
 

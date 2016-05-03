@@ -29,18 +29,19 @@ DlgLogin::~DlgLogin()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgLogin::btn_ok_released()
-{
+void
+DlgLogin::btn_ok_released() {
+
   CSettingsManager::Instance().set_login(ui->le_login->text());
   CSettingsManager::Instance().set_password(ui->le_password->text());
   CSettingsManager::Instance().set_remember_me(ui->cb_save_credentials->checkState() == Qt::Checked);
 
   int http_code, err_code, network_err;
-  CRestWorker::login(ui->le_login->text(),
-                     ui->le_password->text(),
-                     http_code,
-                     err_code,
-                     network_err);
+  CRestWorker::Instance()->login(ui->le_login->text(),
+                                 ui->le_password->text(),
+                                 http_code,
+                                 err_code,
+                                 network_err);
 
   switch (err_code) {
     case EL_SUCCESS:
@@ -75,14 +76,16 @@ void DlgLogin::btn_ok_released()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgLogin::btn_cancel_released()
+void
+DlgLogin::btn_cancel_released()
 {
   this->setResult(QDialog::Rejected);
   QDialog::reject();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgLogin::cb_show_pass_state_changed(int st)
+void
+DlgLogin::cb_show_pass_state_changed(int st)
 {
   ui->le_password->setEchoMode(st == Qt::Checked ?
                                  QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);

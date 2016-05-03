@@ -6,6 +6,8 @@
 #include <QString>
 #include <QObject>
 
+// if you are going to change this - change method
+// CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err)
 enum system_call_wrapper_error_t {
   /*common errors*/
   SCWE_SUCCESS = 0,
@@ -18,7 +20,7 @@ enum system_call_wrapper_error_t {
   SCWE_CANT_JOIN_SWARM,
 
   /*ssh errors*/
-  SCWE_SSH_LAUNCH_FAILED,
+  SCWE_SSH_LAUNCH_FAILED
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -104,6 +106,8 @@ public:
   static system_call_wrapper_error_t p2p_version(std::string& version, int &exit_code);
   static system_call_wrapper_error_t chrome_version(std::string& version, int &exit_code);
   static QString virtual_box_version();
+
+  static const QString& scwe_error_to_str(system_call_wrapper_error_t err);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

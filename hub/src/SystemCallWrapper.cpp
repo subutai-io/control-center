@@ -26,9 +26,10 @@ static QString error_strings[] = {
   "SSH launch error"
 };
 
-system_call_wrapper_error_t CSystemCallWrapper::ssystem_th(const char *command,
-                                                           std::vector<std::string> &lst_output,
-                                                           int &exit_code) {
+system_call_wrapper_error_t
+CSystemCallWrapper::ssystem_th(const char *command,
+                               std::vector<std::string> &lst_output,
+                               int &exit_code) {
   QEventLoop el;
   CSystemCallThreadWrapper sctw(command);
   QThread* th = new QThread;
@@ -48,7 +49,8 @@ system_call_wrapper_error_t CSystemCallWrapper::ssystem_th(const char *command,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem(const char *command,
-                            std::vector<std::string>& lst_output, int &exit_code) {
+                            std::vector<std::string>& lst_output,
+                            int &exit_code) {
 #ifndef RT_OS_WINDOWS
   std::string str_cmd = " 2>&1 ";
   str_cmd = std::string(command) + str_cmd;
@@ -194,7 +196,8 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   int exit_code = 0;
   system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
   if (res != SCWE_SUCCESS) {
-    QString err_msg = QString("Join to p2p failed. Error : %1").arg(res);
+    QString err_msg = QString("Join to p2p failed. Error : %1").
+                      arg(CSystemCallWrapper::scwe_error_to_str(res));
     CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return res;
@@ -215,9 +218,6 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
     return SCWE_CREATE_PROCESS;
   }
 
-  qDebug() << "err code = " << res << " exit_code = " << exit_code;
-  for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
-    qDebug() << i->c_str();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -284,7 +284,6 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
                 " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
-  qDebug() << str_stream.str().c_str();
   system_call_wrapper_error_t res =
       ssystem_th(str_stream.str().c_str(), lst_output, exit_code);
   return res;
@@ -304,14 +303,14 @@ CSystemCallWrapper::run_ss_updater(const char *host,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
-                                                                      const char *port,
-                                                                      const char *user,
-                                                                      const char *pass,
-                                                                      int &exit_code,
-                                                                      std::string &ip)
-{
-  static const char* rh_ip_cmd = "ifconfig wan | grep 'inet addr:' | cut -d: -f2 | awk '{ print \\$1}'";
+system_call_wrapper_error_t
+CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
+                                          const char *port,
+                                          const char *user,
+                                          const char *pass,
+                                          int &exit_code,
+                                          std::string &ip) {
+  static const char* rh_ip_cmd = "ifconfig wan | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1";
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(host, port, user, pass, rh_ip_cmd, exit_code, lst_out);
@@ -325,7 +324,7 @@ system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(const char
 system_call_wrapper_error_t
 CSystemCallWrapper::fork_process(const QString program,
                                  const QStringList argv,
-                                 const QString& folder){
+                                 const QString& folder) {
 
   QObject *parent = new QObject;
   QProcess *p = new QProcess(parent);
@@ -336,14 +335,15 @@ CSystemCallWrapper::fork_process(const QString program,
 
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t
-CSystemCallWrapper::open_url(QString s_url){
+CSystemCallWrapper::open_url(QString s_url) {
   QUrl q_url =QUrl(s_url);
   return QDesktopServices::openUrl(q_url) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::p2p_version(std::string &version, int &exit_code) {
+CSystemCallWrapper::p2p_version(std::string &version,
+                                int &exit_code) {
   version = "undefined";
   std::vector<std::string> lst_out;
   std::string command = CSettingsManager::Instance().p2p_path().toStdString();
@@ -359,7 +359,8 @@ CSystemCallWrapper::p2p_version(std::string &version, int &exit_code) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::chrome_version(std::string &version, int &exit_code) {
+CSystemCallWrapper::chrome_version(std::string &version,
+                                   int &exit_code) {
   version = "undefined";
   std::vector<std::string> lst_out;
   std::string command;
@@ -390,8 +391,19 @@ CSystemCallWrapper::virtual_box_version() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CSystemCallThreadWrapper::do_system_call()
-{
+const QString &
+CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
+  static QString error_str[] = {
+    "SCWE_SUCCESS", "SCWE_SHELL_ERROR", "SCWE_PIPE",
+    "SCWE_SET_HANDLE_INFO", "SCWE_CREATE_PROCESS",
+    "SCWE_CANT_JOIN_SWARM", "SCWE_SSH_LAUNCH_FAILED"
+  };
+  return error_str[err];
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSystemCallThreadWrapper::do_system_call() {
   m_result = CSystemCallWrapper::ssystem(m_command.c_str(), m_lst_output, m_exit_code);
   emit finished();
 }

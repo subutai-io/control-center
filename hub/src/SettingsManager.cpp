@@ -11,6 +11,7 @@ const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
 
 const QString CSettingsManager::SM_POST_URL("Post_Url");
 const QString CSettingsManager::SM_GET_URL("Get_Url");
+const QString CSettingsManager::SM_GORJUN_URL("Gorjun_Url");
 
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_TERMINAL_PATH("Terminal_Path");
@@ -74,7 +75,7 @@ CSettingsManager::CSettingsManager() :
   m_ss_updater_path(QApplication::applicationDirPath() + QDir::separator() + SS_UPDATER_APP_NAME),
   #endif
   m_notification_delay_sec(5),
-  m_updater_host("localhost"),
+  m_updater_host("127.0.0.1"),
   m_updater_user("local_user"),
   m_updater_pass("password"),
   m_updater_port("22"),
@@ -84,7 +85,8 @@ CSettingsManager::CSettingsManager() :
   m_rhip_getter_host("127.0.0.1"),
   m_rhip_getter_user("ubuntu"),
   m_rhip_getter_pass("ubuntu"),
-  m_rhip_getter_port("4567")
+  m_rhip_getter_port("4567"),
+  m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1")
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
@@ -103,6 +105,7 @@ CSettingsManager::CSettingsManager() :
     {m_rhip_getter_pass, SM_RHIP_GETTER_PASS},
     {m_rhip_getter_port, SM_RHIP_GETTER_PORT},
     {m_rhip_getter_user, SM_RHIP_GETTER_USER},
+    {m_gorjun_url, SM_GORJUN_URL},
     {tmp, ""}
   };
 

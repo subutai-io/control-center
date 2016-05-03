@@ -4,12 +4,15 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFile>
+#include <QDir>
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
-
+#include "RestWorker.h"
+#include "DownloadFileManager.h"
 
 int main(int argc, char *argv[]) {
 
@@ -51,7 +54,16 @@ int main(int argc, char *argv[]) {
   CApplicationLog::Instance()->LogTrace("Tray application %s launched\n", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<com::Bstr>("com::Bstr");
+  qRegisterMetaType<com::Bstr>("com::Bstr");  
+
+  QString tmp_file_path = CCommons::AppNameTmp();
+
+  QFile tmp_file(tmp_file_path);
+  if (tmp_file.exists()) {
+    if (!tmp_file.remove()) {
+      CApplicationLog::Instance()->LogError("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
+    }
+  }
 
   DlgLogin dlg;
   dlg.setModal(true);

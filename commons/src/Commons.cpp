@@ -1,5 +1,7 @@
 #include "Commons.h"
 #include <time.h>
+#include <QApplication>
+#include <QDir>
 
 bool CCommons::QuitAppFlag = false;
 
@@ -30,6 +32,12 @@ char *CCommons::CurrentDateTimeString() {
 #endif
   strftime(date_time_str_buffer, 20, date_time_format, &now);
   return date_time_str_buffer;
+}
+////////////////////////////////////////////////////////////////////////////
+
+QString CCommons::AppNameTmp() {
+  return QApplication::applicationDirPath() +
+      QDir::separator() + "SubutaiTray.tmp";
 }
 ////////////////////////////////////////////////////////////////////////////
 
