@@ -4,6 +4,8 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFile>
+#include <QDir>
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
@@ -53,6 +55,15 @@ int main(int argc, char *argv[]) {
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");  
+
+  QString tmp_file_path = CCommons::AppNameTmp();
+
+  QFile tmp_file(tmp_file_path);
+  if (tmp_file.exists()) {
+    if (!tmp_file.remove()) {
+      CApplicationLog::Instance()->LogError("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
+    }
+  }
 
   DlgLogin dlg;
   dlg.setModal(true);

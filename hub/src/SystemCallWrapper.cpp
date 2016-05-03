@@ -215,9 +215,6 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
     return SCWE_CREATE_PROCESS;
   }
 
-  qDebug() << "err code = " << res << " exit_code = " << exit_code;
-  for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
-    qDebug() << i->c_str();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////

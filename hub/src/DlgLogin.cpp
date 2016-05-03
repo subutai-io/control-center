@@ -29,33 +29,8 @@ DlgLogin::~DlgLogin()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#include "DownloadFileManager.h"
-#include "ExecutableUpdater.h"
-
-#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7"
-#include <QDir>
 void
 DlgLogin::btn_ok_released() {
-
-//  auto fi = CRestWorker::Instance()->get_gorjun_file_info(UPDATE_FILE_TO_REPLACE);
-//  if (!fi.empty()) {
-//    auto item = fi.begin();
-//    QString new_file_path = QApplication::applicationDirPath() +
-//                            QDir::separator() +
-//                            QString(UPDATE_FILE_TO_REPLACE);
-
-//    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
-//                                                        new_file_path,
-//                                                        item->size());
-//    CExecutableUpdater *eu = new CExecutableUpdater(new_file_path,
-//                               QApplication::applicationFilePath());
-
-//    dm->start_download();
-//    connect(dm, SIGNAL(finished()), eu, SLOT(replace_executables()));
-//    connect(eu, SIGNAL(finished()), dm, SLOT(deleteLater()));
-//    connect(eu, SIGNAL(finished()), eu, SLOT(deleteLater()));
-//  }
-//  return;
 
   CSettingsManager::Instance().set_login(ui->le_login->text());
   CSettingsManager::Instance().set_password(ui->le_password->text());

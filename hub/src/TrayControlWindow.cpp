@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QWidgetAction>
 #include <QFileDialog>
+#include <QDir>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
@@ -19,6 +20,9 @@
 #include "DlgSettings.h"
 #include "ApplicationLog.h"
 #include "DlgAbout.h"
+
+#include "DownloadFileManager.h"
+#include "ExecutableUpdater.h"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -449,10 +453,12 @@ void TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7"
 void TrayControlWindow::updater_timer_timeout() {
   m_ss_updater_timer.stop();
   int exit_code = 0;
 
+  /*subutai update*/
   CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().updater_host().toStdString().c_str(),
                                      CSettingsManager::Instance().updater_port().toStdString().c_str(),
                                      CSettingsManager::Instance().updater_user().toStdString().c_str(),
@@ -467,6 +473,27 @@ void TrayControlWindow::updater_timer_timeout() {
     CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
   }
+
+  /*tray update*/
+  auto fi = CRestWorker::Instance()->get_gorjun_file_info(UPDATE_FILE_TO_REPLACE);
+  if (!fi.empty()) {
+    auto item = fi.begin();
+    QString new_file_path = QApplication::applicationDirPath() +
+                            QDir::separator() +
+                            QString(UPDATE_FILE_TO_REPLACE);
+
+    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                        new_file_path,
+                                                        item->size());
+    CExecutableUpdater *eu = new CExecutableUpdater(new_file_path,
+                               QApplication::applicationFilePath());
+
+    dm->start_download();
+    connect(dm, SIGNAL(finished()), eu, SLOT(replace_executables()));
+    connect(eu, SIGNAL(finished()), dm, SLOT(deleteLater()));
+    connect(eu, SIGNAL(finished()), eu, SLOT(deleteLater()));
+  }
+
   m_ss_updater_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
