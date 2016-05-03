@@ -157,6 +157,20 @@ CRestWorker::download_file(const QUrl &url) {
   QNetworkRequest request(url);
   return m_network_manager.get(request);
 }
+
+const QString &
+CRestWorker::login_err_to_str(error_login_t err) {
+  static QString login_err_str[] = {
+    "EL_SUCCESS",
+    "EL_HTTP",
+    "EL_LOGIN_OR_EMAIL",
+    "EL_TIMEOUT",
+    "EL_NOT_JSON_DOC",
+    "EL_NOT_JSON_OBJECT",
+    "EL_NETWORK_ERROR"
+  };
+  return login_err_str[err];
+}
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray

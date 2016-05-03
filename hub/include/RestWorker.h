@@ -69,6 +69,7 @@ public:
   QNetworkReply* download_gorjun_file(const QString& file_id);
   QNetworkReply* download_file(const QUrl& url);
 
+  static const QString& login_err_to_str(error_login_t err);
 private slots:
   void ssl_errors_appeared(QList<QSslError> lst_errors);
 };

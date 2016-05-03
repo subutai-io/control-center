@@ -522,7 +522,8 @@ void TrayControlWindow::launch_Hub() {
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Launch hub website failed. Error code : %1").arg((int)err);
+    QString err_msg = QString("Launch hub website failed. Error code : %1").
+                      arg(CSystemCallWrapper::scwe_error_to_str(err));
     CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
@@ -576,7 +577,8 @@ void TrayControlWindow::launch_SS() {
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Run SS console failed. Error code : %1").arg((int)err);
+    QString err_msg = QString("Run SS console failed. Error code : %1").
+                      arg(CSystemCallWrapper::scwe_error_to_str(err));
     CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
