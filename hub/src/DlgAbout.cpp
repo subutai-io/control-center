@@ -16,15 +16,13 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui->lbl_tray_version->setText(str_tray_fmt.arg(QString(GIT_VERSION)));
   std::string str_version;
   int exit_code;
+
   system_call_wrapper_error_t res =
       CSystemCallWrapper::p2p_version(str_version, exit_code);
-  if (res == SCWE_SUCCESS && exit_code == 0)
-    ui->lbl_p2p_version->setText(str_p2p_fmt.arg(QString::fromStdString(str_version)));
 
+  ui->lbl_p2p_version->setText(str_p2p_fmt.arg(QString::fromStdString(str_version)));
   res = CSystemCallWrapper::chrome_version(str_version, exit_code);
-  if (res == SCWE_SUCCESS && exit_code == 0)
-    ui->lbl_chrome_version->setText(str_chrome_fmt.arg(QString::fromStdString(str_version)));
-
+  ui->lbl_chrome_version->setText(str_chrome_fmt.arg(QString::fromStdString(str_version)));
   ui->lbl_vbox_version->setText(str_vbox_fmt.arg(CSystemCallWrapper::virtual_box_version()));
 }
 
