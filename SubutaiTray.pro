@@ -87,7 +87,8 @@ HEADERS  += \
     hub/include/DlgAbout.h \
     hub/include/RestContainers.h \
     hub/include/DownloadFileManager.h \
-    hub/include/ExecutableUpdater.h
+    hub/include/ExecutableUpdater.h \
+    commons/include/MRE_Windows.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -147,6 +148,7 @@ macx: {
 win32: {
   DEFINES += RT_OS_WINDOWS IN_RING3
   LIBS += -L$$PWD/vbox/lib/ -lVBoxRT_64 VBoxRT_64.exp
+  LIBS += Ole32.lib Rpcrt4.lib
 
   INCLUDEPATH += vbox/mscom/include
 

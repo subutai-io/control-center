@@ -6,13 +6,23 @@
 #include <QDir>
 #include <QDebug>
 
+#ifndef RT_OS_WINDOWS
+#include "commons/include/MRE_Linux.h"
+#else
+#include "commons/include/MRE_Windows.h"
+#endif
+
 const char* CApplicationLog::LOG_FILE_DELIMITER =
     "|-----------------------------------------------------------------------------";
 
 CApplicationLog::CApplicationLog( void ) :
   m_log_level(LT_ERROR)
 {
-  m_logEventLoop = new CEventLoop(NULL, NULL, NULL, 5000, false);
+#ifndef RT_OS_WINDOWS
+  m_logEventLoop = new CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>(NULL, NULL, NULL, 5000, false);
+#else
+  m_logEventLoop = new CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>(NULL, NULL, NULL, 5000, false);
+#endif
   m_logEventLoop->Run();
 }
 
@@ -22,7 +32,8 @@ CApplicationLog::~CApplicationLog( void ) {
 //////////////////////////////////////////////////////////////////////////
 
 
-void CApplicationLog::UpdateLogFilesNames( void ) {
+void
+CApplicationLog::UpdateLogFilesNames( void ) {
   static const char* lst_files_by_log_type_prefix[] =
   { "trace_", "info_", "error_", "undefined_" };
 
@@ -34,7 +45,9 @@ void CApplicationLog::UpdateLogFilesNames( void ) {
 }
 //////////////////////////////////////////////////////////////////////////
 
-int CApplicationLog::AppendLog(const char* str, std::string& logFileName ) {
+int
+CApplicationLog::AppendLog(const char* str,
+                           std::string& logFileName ) {
   try {
     CFileWrapper logFile(logFileName.c_str(), "a+");
     logFile.FPrintf("%s\r\n%s. %s\r\n\r\n", CApplicationLog::LOG_FILE_DELIMITER, CCommons::CurrentDateTimeString(), str);
@@ -46,27 +59,34 @@ int CApplicationLog::AppendLog(const char* str, std::string& logFileName ) {
 }
 //////////////////////////////////////////////////////////////////////////
 
-void CApplicationLog::SetDirectory( const char* directory ) {
+void
+CApplicationLog::SetDirectory( const char* directory ) {
   m_directory = std::string(directory);
   UpdateLogFilesNames();
 }
 //////////////////////////////////////////////////////////////////////////
 
-void CApplicationLog::Log(CApplicationLog::LOG_TYPE log_type, std::string msg) {
-#ifndef RT_OS_WINDOWS
+void
+CApplicationLog::Log(CApplicationLog::LOG_TYPE log_type,
+                     std::string msg) {
   if (log_type < m_log_level) return;
   IFunctor* functor =
       new FunctorWithResult<int, const char*, std::string&>(AppendLog,
                                                             msg.c_str(),
                                                             m_lst_files_by_log_type[log_type],
                                                             "AppendLog");
-  if (CEventLoop::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
+#ifndef RT_OS_WINDOWS
+  if (CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
+    qCritical() << "AppendLog failed";
+#else
+  if (CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
     qCritical() << "AppendLog failed";
 #endif
 }
 //////////////////////////////////////////////////////////////////////////
 
-void CApplicationLog::LogTrace(const char *format, ...) {
+void
+CApplicationLog::LogTrace(const char *format, ...) {
   va_list args;
   int n = 0;
   va_start(args, format);
@@ -78,7 +98,8 @@ void CApplicationLog::LogTrace(const char *format, ...) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CApplicationLog::LogInfo( const char* format, ... ) {
+void
+CApplicationLog::LogInfo( const char* format, ... ) {
   va_list args;
   int n = 0;
   va_start(args, format);
@@ -90,7 +111,8 @@ void CApplicationLog::LogInfo( const char* format, ... ) {
 }
 //////////////////////////////////////////////////////////////////////////
 
-void CApplicationLog::LogError( const char* format, ... ) {
+void
+CApplicationLog::LogError( const char* format, ... ) {
   va_list args;
   int n = 0;
   va_start(args, format);

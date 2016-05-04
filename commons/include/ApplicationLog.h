@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include "EventLoop.h"
 #include "FunctorWithResult.h"
+#ifndef RT_OS_WINDOWS
+#include "commons/include/MRE_Linux.h"
+#else
+#include "commons/include/MRE_Windows.h"
+#endif
 
 class CApplicationLog
 {
@@ -36,7 +41,11 @@ private:
 
 
   std::string m_lst_files_by_log_type[LT_LAST];
-  CEventLoop* m_logEventLoop;
+#ifndef RT_OS_WINDOWS
+  CEventLoop<SynchroPrimitives::CLinuxManualResetEvent> *m_logEventLoop;
+#else
+  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_logEventLoop;
+#endif
   LOG_TYPE m_log_level;
 
   CApplicationLog(void);

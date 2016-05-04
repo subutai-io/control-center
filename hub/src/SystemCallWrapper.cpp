@@ -371,6 +371,8 @@ CSystemCallWrapper::chrome_version(std::string &version,
   command = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
 #elif defined(RT_OS_WINDOWS)
   command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  version = "Couldn't get version on Win, sorry";
+  return SCWE_SUCCESS;
 #endif
 
   command += std::string(" --version");

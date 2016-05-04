@@ -15,6 +15,7 @@
 #include "MRE_Wrapper.h"
 #include "ThreadWrapper.h"
 
+template<class TMRE>
 class CEventLoop
 {
   typedef void (*pf_on_handle_exception)(std::exception& elExceptionInfo);
@@ -30,7 +31,7 @@ private:
   pf_on_log m_onLog;
   const unsigned int m_methodTimeout;
 
-  SynchroPrimitives::CLinuxManualResetEvent m_mre;
+//  SynchroPrimitives::CLinuxManualResetEvent m_mre;
 
   void InvokeHandleExceptionCallback(std::exception& exc) {
     if (m_onHandleException != NULL) m_onHandleException(exc);
@@ -60,14 +61,14 @@ private:
     bool m_isDisposing;
     SynchroPrimitives::CriticalSection m_csForQueue;
     SynchroPrimitives::CriticalSection m_csForEvents;
-    SynchroPrimitives::CLinuxManualResetEvent m_mre;
+    TMRE m_mre;
 
     LoopWorker(CEventLoop* lpEL) : m_eventLoop(lpEL), m_isDisposing(false) {
-      MRE_Wrapper<SynchroPrimitives::CLinuxManualResetEvent>::MRE_Init(&m_mre);
+      MRE_Wrapper<TMRE>::MRE_Init(&m_mre);
     }
 
     ~LoopWorker(){
-      MRE_Wrapper<SynchroPrimitives::CLinuxManualResetEvent>::MRE_Destroy(&m_mre);
+      MRE_Wrapper<TMRE>::MRE_Destroy(&m_mre);
     }
 
     void Run(void);
@@ -132,5 +133,8 @@ public:
   }
   //////////////////////////////////////////////////////////////////////////
 };
+
+/*UGLY HACK!!! CHECK IT TWICE!!!!*/
+#include "commons/src/EventLoop.cpp"
 
 #endif // EVENTLOOP_H

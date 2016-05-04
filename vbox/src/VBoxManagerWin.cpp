@@ -455,6 +455,12 @@ int CVBoxManagerWin::add(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 QString CVBoxManagerWin::version() {
+  com::Bstr ver("");
+  nsresult rc = m_virtual_box->get_Version(ver.asOutParam());
+  if (SUCCEEDED(rc)) {
+    QString result((QChar*)ver.raw(), ver.length());
+    return result;
+  }
   return "";
 }
 
