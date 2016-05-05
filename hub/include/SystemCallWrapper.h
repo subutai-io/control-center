@@ -18,6 +18,7 @@ enum system_call_wrapper_error_t {
 
   /*p2p errors*/
   SCWE_CANT_JOIN_SWARM,
+  SCWE_CONTAINER_IS_NOT_READY,
 
   /*ssh errors*/
   SCWE_SSH_LAUNCH_FAILED
@@ -79,6 +80,9 @@ public:
   static system_call_wrapper_error_t join_to_p2p_swarm(const char* hash,
                                                        const char* key,
                                                        const char* ip);
+
+  static system_call_wrapper_error_t check_container_state(const char* hash,
+                                                           const char* ip);
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
                                                          const char *ip,

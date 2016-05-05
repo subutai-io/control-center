@@ -1,3 +1,4 @@
+#include <QThread>
 #include "RestWorker.h"
 #include "HubController.h"
 #include "NotifiactionObserver.h"
@@ -92,6 +93,16 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
   for (auto i = m_lst_resource_hosts.begin(); i != m_lst_resource_hosts.end(); ++i) {
     for (auto j = i->lst_containers().begin(); j != i->lst_containers().end(); ++j) {
       if (j->id() == cont->id()) {
+
+        static const int MAX_ATTEMTS_COUNT = 5;
+        for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
+          err = CSystemCallWrapper::check_container_state(env->hash().toStdString().c_str(),
+                                                          i->rh_ip().toStdString().c_str());
+          if (err == SCWE_SUCCESS) break;
+          QThread::currentThread()->sleep(1);
+        }
+        if (err != SCWE_SUCCESS) return err;
+
         err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
                                                       i->rh_ip().toStdString().c_str(),
                                                       cont->port().toStdString().c_str());

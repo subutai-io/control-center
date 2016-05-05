@@ -161,13 +161,13 @@ CRestWorker::download_file(const QUrl &url) {
 const QString &
 CRestWorker::login_err_to_str(error_login_t err) {
   static QString login_err_str[] = {
-    "EL_SUCCESS",
-    "EL_HTTP",
-    "EL_LOGIN_OR_EMAIL",
-    "EL_TIMEOUT",
-    "EL_NOT_JSON_DOC",
-    "EL_NOT_JSON_OBJECT",
-    "EL_NETWORK_ERROR"
+    "SUCCESS",
+    "HTTP_ERROR",
+    "LOGIN_OR_EMAIL_ERROR",
+    "TIMEOUT_ERROR",
+    "NOT_JSON_DOC_ERROR",
+    "NOT_JSON_OBJECT_ERROR",
+    "NETWORK_ERROR"
   };
   return login_err_str[err];
 }

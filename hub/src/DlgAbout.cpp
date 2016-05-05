@@ -17,11 +17,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
   std::string str_version;
   int exit_code;
 
-  system_call_wrapper_error_t res =
-      CSystemCallWrapper::p2p_version(str_version, exit_code);
-
+  CSystemCallWrapper::p2p_version(str_version, exit_code);
   ui->lbl_p2p_version->setText(str_p2p_fmt.arg(QString::fromStdString(str_version)));
-  res = CSystemCallWrapper::chrome_version(str_version, exit_code);
+  CSystemCallWrapper::chrome_version(str_version, exit_code);
   ui->lbl_chrome_version->setText(str_chrome_fmt.arg(QString::fromStdString(str_version)));
   ui->lbl_vbox_version->setText(str_vbox_fmt.arg(CSystemCallWrapper::virtual_box_version()));
 }
