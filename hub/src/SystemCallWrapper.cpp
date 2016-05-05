@@ -220,6 +220,19 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
 
   return SCWE_SUCCESS;
 }
+
+system_call_wrapper_error_t
+CSystemCallWrapper::check_container_state(const char *hash,
+                                          const char *ip) {
+  std::ostringstream str_stream;
+  str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " show -hash " <<
+                hash << " -check " << ip;
+  std::vector<std::string> lst_out;
+  int exit_code = 0;
+  std::string command = str_stream.str();
+  ssystem_th(command.c_str(), lst_out, exit_code);
+  return exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
@@ -396,9 +409,10 @@ CSystemCallWrapper::virtual_box_version() {
 const QString &
 CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
   static QString error_str[] = {
-    "SCWE_SUCCESS", "SCWE_SHELL_ERROR", "SCWE_PIPE",
-    "SCWE_SET_HANDLE_INFO", "SCWE_CREATE_PROCESS",
-    "SCWE_CANT_JOIN_SWARM", "SCWE_SSH_LAUNCH_FAILED"
+    "SUCCESS", "SHELL_ERROR", "PIPE_ERROR",
+    "SET_HANDLE_INFO_ERROR", "CREATE_PROCESS_ERROR",
+    "CANT_JOIN_SWARM_ERROR", "CONTAINER_IS_NOT_READY_ERROR",
+    "SSH_LAUNCH_FAILED"
   };
   return error_str[err];
 }
