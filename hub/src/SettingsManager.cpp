@@ -37,6 +37,7 @@ const QString CSettingsManager::SM_UPDATER_PORT("Updater_Port");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
+const QString CSettingsManager::SM_SSH_KEYGEN_PATH("Ssh_Keygen_Path");
 
 const QString CSettingsManager::SM_RHIP_GETTER_USER("Rhip_Getter_User");
 const QString CSettingsManager::SM_RHIP_GETTER_PASS("Rhip_GetterPass");
@@ -82,6 +83,7 @@ CSettingsManager::CSettingsManager() :
   m_plugin_port(9998),
   m_ssh_path("ssh"),
   m_ssh_user("root"),
+  m_ssh_keygen_path("ssh-keygen"),
   m_rhip_getter_host("127.0.0.1"),
   m_rhip_getter_user("ubuntu"),
   m_rhip_getter_pass("ubuntu"),
@@ -101,6 +103,7 @@ CSettingsManager::CSettingsManager() :
     {m_updater_port, SM_UPDATER_PORT},
     {m_ssh_path, SM_SSH_PATH},
     {m_ssh_user, SM_SSH_USER},
+    {m_ssh_keygen_path, SM_SSH_KEYGEN_PATH},
     {m_rhip_getter_host, SM_RHIP_GETTER_HOST},
     {m_rhip_getter_pass, SM_RHIP_GETTER_PASS},
     {m_rhip_getter_port, SM_RHIP_GETTER_PORT},

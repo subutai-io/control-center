@@ -86,7 +86,11 @@ public:
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
                                                          const char *ip,
-                                                         const char *port);
+                                                         const char *port,
+                                                         const char *key);
+
+  static system_call_wrapper_error_t generate_ssh_key(const char *comment,
+                                                      const char *file_path);
 
   static system_call_wrapper_error_t run_ss_updater(const char* host,
                                                     const char* port,
