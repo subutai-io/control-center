@@ -1,4 +1,7 @@
+#include <QDir>
 #include <QThread>
+#include <QApplication>
+
 #include "RestWorker.h"
 #include "HubController.h"
 #include "NotifiactionObserver.h"
@@ -77,8 +80,9 @@ void CHubController::refresh_containers() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CHubController::ssh_to_container(const CSSEnvironment *env,
-                                     const CHubContainer *cont) {
+int
+CHubController::ssh_to_container(const CSSEnvironment *env,
+                                 const CHubContainer *cont) {
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
                                                                           "dhcp");
@@ -103,9 +107,22 @@ int CHubController::ssh_to_container(const CSSEnvironment *env,
         }
         if (err != SCWE_SUCCESS) return err;
 
+        QFile key_file_pub(QApplication::applicationDirPath() +
+                           current_user() +
+                           QString(".pub"));
+        QFile key_file_private(QApplication::applicationDirPath() +
+                               current_user());
+            const char* key = NULL;
+
+        if (key_file_pub.exists() &&  key_file_private.exists()) {
+          QByteArray arr = key_file_pub.readAll();
+          key = arr.toStdString().c_str();
+        }
+
         err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
                                                       i->rh_ip().toStdString().c_str(),
-                                                      cont->port().toStdString().c_str());
+                                                      cont->port().toStdString().c_str(),
+                                                      key);
         if (err == SCWE_SUCCESS)
           return SLE_SUCCESS;
 

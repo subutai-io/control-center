@@ -51,7 +51,8 @@ SOURCES += \
     commons/src/Commons.cpp \
     hub/src/DlgAbout.cpp \
     hub/src/DownloadFileManager.cpp \
-    hub/src/ExecutableUpdater.cpp
+    hub/src/ExecutableUpdater.cpp \
+    hub/src/DlgGenerateSshKey.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -88,13 +89,15 @@ HEADERS  += \
     hub/include/RestContainers.h \
     hub/include/DownloadFileManager.h \
     hub/include/ExecutableUpdater.h \
-    commons/include/MRE_Windows.h
+    commons/include/MRE_Windows.h \
+    hub/include/DlgGenerateSshKey.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
     hub/forms/DlgSettings.ui \
     hub/forms/TrayControlWindow.ui \
-    hub/forms/DlgAbout.ui
+    hub/forms/DlgAbout.ui \
+    hub/forms/DlgGenerateSshKey.ui
 
 RESOURCES += \
     resources/resources.qrc

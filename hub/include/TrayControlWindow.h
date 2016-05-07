@@ -163,6 +163,7 @@ private:
   QAction *m_info_section;
   QAction *m_quit_section;
 
+  QAction *m_act_generate_ssh;
   QAction *m_act_quit;
   QAction *m_act_settings;
   QAction *m_act_info;
@@ -215,6 +216,7 @@ private slots:
   void refresh_timer_timeout();
   void hub_container_mi_triggered(const CSSEnvironment *env,
                                const CHubContainer *cont);
+  void ssh_key_generate_triggered();
 
   /*updater*/
   void updater_timer_timeout();
