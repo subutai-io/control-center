@@ -71,25 +71,27 @@ TrayControlWindow::~TrayControlWindow()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int TrayControlWindow::fill_vm_menu(){
+int
+TrayControlWindow::fill_vm_menu(){
   if (CVBoxManagerSingleton::Instance()->init_machines() != 0)
     return 0;
   ushort rh_count = 0;
   for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
-         i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
-            add_vm_menu(i->first);
-            rh_count++;
-// vbox/src/VBoxManagerWin.cpp
-//      add_vm_menu_simple(i->first);
-//#else
-//      add_vm_menu(i->first);
-//#endif
+       i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
+    add_vm_menu(i->first);
+    rh_count++;
+    // vbox/src/VBoxManagerWin.cpp
+    //      add_vm_menu_simple(i->first);
+    //#else
+    //      add_vm_menu(i->first);
+    //#endif
   }
   return rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::fill_launch_menu(){
+void
+TrayControlWindow::fill_launch_menu() {
   m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
   connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
 
@@ -101,14 +103,15 @@ void TrayControlWindow::fill_launch_menu(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::application_quit()
-{
+void
+TrayControlWindow::application_quit() {
   CCommons::QuitAppFlag = true;
   QApplication::quit();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
+void
+TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
@@ -131,7 +134,8 @@ void TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
+void
+TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
   if (it == m_dct_player_menus.end()) return;
   CApplicationLog::Instance()->LogInfo("id found");
@@ -150,7 +154,8 @@ void TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
-void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
+void
+TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
@@ -173,7 +178,8 @@ void TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
-void TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
+void
+TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
   m_vbox_menu->removeAction(it->second->action());
@@ -184,8 +190,8 @@ void TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::create_tray_actions()
-{
+void
+TrayControlWindow::create_tray_actions() {
   QIcon icon;
   QSize size;
   size.setWidth(32);
@@ -216,15 +222,15 @@ void TrayControlWindow::create_tray_actions()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::create_tray_icon()
-{
+void
+TrayControlWindow::create_tray_icon() {
   m_tray_menu = new QMenu(this);
   m_info_menu = new QMenu(m_tray_menu);
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addSeparator();
 
-//////////// Do not forget to remove defs after fixing on linux!/////////////////
-//////////// Init submenus Launch and Environments
+  //////////// Do not forget to remove defs after fixing on linux!/////////////////
+  //////////// Init submenus Launch and Environments
 #ifdef RT_OS_LINUX
   m_launch_menu = new QMenu(m_tray_menu);
   m_hub_menu = new QMenu(m_tray_menu);
@@ -232,13 +238,13 @@ void TrayControlWindow::create_tray_icon()
   m_tray_menu->addAction(m_act_launch);
   m_tray_menu->addAction(m_act_hub);
 #else
-//  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
+  //  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
 #endif
-//////////// Init vbox menu
+  //////////// Init vbox menu
 #ifdef RT_OS_WINDOWS
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
 #else
@@ -261,27 +267,27 @@ void TrayControlWindow::create_tray_icon()
   m_hub_section  = m_hub_menu->addSection("");
   m_vbox_section = m_vbox_menu->addSection("");
 
-//  m_tray_menu->insertAction(m_act_settings, m_act_info);
+  //  m_tray_menu->insertAction(m_act_settings, m_act_info);
 #ifndef RT_OS_WINDOWS
   m_tray_menu->addAction(m_act_vbox);
 #endif
 
-////Will be changed when info menu action added - show transactions history
-//  m_info_menu = new QMenu(m_tray_menu);
-//  m_tray_menu->addAction(m_act_info);
-//  m_tray_menu->addSeparator();
+  ////Will be changed when info menu action added - show transactions history
+  //  m_info_menu = new QMenu(m_tray_menu);
+  //  m_tray_menu->addAction(m_act_info);
+  //  m_tray_menu->addSeparator();
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
-//  m_tray_menu->addMenu(m_vbox_menu);
+  //  m_tray_menu->addMenu(m_vbox_menu);
 
-/////  Testing submenus, temporary, will be DELETED
-//  QMenu* temp_menu =  new QMenu("temorary test", m_tray_menu);
-//  temp_menu->addAction(m_act_quit);
-//  m_tray_menu->addMenu(temp_menu);
+  /////  Testing submenus, temporary, will be DELETED
+  //  QMenu* temp_menu =  new QMenu("temorary test", m_tray_menu);
+  //  temp_menu->addAction(m_act_quit);
+  //  m_tray_menu->addMenu(temp_menu);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
@@ -290,7 +296,8 @@ void TrayControlWindow::create_tray_icon()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_vbox() {
+void
+TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
   //m_vbox_menu->popup(curpos,m_act_hub);
@@ -300,7 +307,8 @@ void TrayControlWindow::show_vbox() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_settings_dialog() {
+void
+TrayControlWindow::show_settings_dialog() {
   this->show();
   DlgSettings dlg(this);
 #ifdef RT_OS_LINUX
@@ -313,7 +321,8 @@ void TrayControlWindow::show_settings_dialog() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_hub() {
+void
+TrayControlWindow::show_hub() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
   //m_hub_menu->popup(curpos,m_act_hub);
@@ -321,16 +330,18 @@ void TrayControlWindow::show_hub() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_launch() {
+void
+TrayControlWindow::show_launch() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
-//m_launch_menu->popup(QCursor::pos(),m_act_launch);
-   m_launch_menu->exec(curpos);
+  //m_launch_menu->popup(QCursor::pos(),m_act_launch);
+  m_launch_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::notification_received(notification_level_t level,
-                                              const QString &msg) {
+void
+TrayControlWindow::notification_received(notification_level_t level,
+                                         const QString &msg) {
   static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
 
   //3rd element is warning, because critical shows messagebox when we need only notification.
@@ -347,7 +358,8 @@ void TrayControlWindow::notification_received(notification_level_t level,
 ////////////////////////////////////////////////////////////////////////////
 
 /*** Vbox slots  ***/
-void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
+void
+TrayControlWindow::vm_added(const com::Bstr &vm_id) {
   m_vbox_menu->hide();
   m_vbox_menu->removeAction(vboxAction);
 
@@ -358,7 +370,8 @@ void TrayControlWindow::vm_added(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
+void
+TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
   m_vbox_menu->hide();
   m_vbox_menu->removeAction(vboxAction);
   remove_vm_menu(vm_id);
@@ -368,7 +381,8 @@ void TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
+void
+TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
 #ifdef  RT_OS_DARWIN
   auto ip =  m_dct_vm_menus.find(vm_id);
   if (ip == m_dct_vm_menus.end()) return;
@@ -393,12 +407,14 @@ void TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vm_session_state_changed(const com::Bstr &vm_id) {
+void
+TrayControlWindow::vm_session_state_changed(const com::Bstr &vm_id) {
   UNUSED_ARG(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
+void
+TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
   if (m_dct_vm_menus.find(vm_id) == m_dct_vm_menus.end())
     return;
 
@@ -420,7 +436,8 @@ void TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // remove
+void
+TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // remove
   //  if (m_player_menus.find(vm_id) == m_player_menus.end())
   //    return;
 
@@ -438,7 +455,8 @@ void TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // rem
 ////////////////////////////////////////////////////////////////////////////
 
 /*** Refresh ***/
-void TrayControlWindow::refresh_timer_timeout() {
+void
+TrayControlWindow::refresh_timer_timeout() {
   /*balance*/
   refresh_balance();
   refresh_environments();
@@ -446,15 +464,26 @@ void TrayControlWindow::refresh_timer_timeout() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
-                                                   const CHubContainer *cont) {
+void
+TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
+                                              const CHubContainer *cont) {
 
   CHubController::Instance().ssh_to_container(env, cont);
 }
 ////////////////////////////////////////////////////////////////////////////
 
+#if defined(RT_OS_LINUX)
 #define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7"
-void TrayControlWindow::updater_timer_timeout() {
+#elif defined(RT_OS_DARWIN)
+#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7_mac"
+#elif defined(RT_OS_WINDOWS)
+#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7.exe"
+#else
+#error "UPDATE_FILE_TO_REPLACE macros undefined"
+#endif
+
+void
+TrayControlWindow::updater_timer_timeout() {
   m_ss_updater_timer.stop();
   int exit_code = 0;
 
@@ -486,7 +515,7 @@ void TrayControlWindow::updater_timer_timeout() {
                                                         new_file_path,
                                                         item->size());
     CExecutableUpdater *eu = new CExecutableUpdater(new_file_path,
-                               QApplication::applicationFilePath());
+                                                    QApplication::applicationFilePath());
 
     dm->start_download();
     connect(dm, SIGNAL(finished()), eu, SLOT(replace_executables()));
@@ -498,11 +527,12 @@ void TrayControlWindow::updater_timer_timeout() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_Hub() {
+void
+TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;
   QString hub_url = "https://hub.subut.ai";
-  QStringList args;  
+  QStringList args;
 
 #if defined(RT_OS_LINUX)
   browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
@@ -516,9 +546,9 @@ void TrayControlWindow::launch_Hub() {
 #endif
   args << hub_url;
   system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-          browser,
-          args,
-          folder);
+                                      browser,
+                                      args,
+                                      folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
   if (err != SCWE_SUCCESS) {
@@ -531,17 +561,17 @@ void TrayControlWindow::launch_Hub() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_SS() {
+void
+TrayControlWindow::launch_SS() {
   QString browser; // "/etc/alternatives/x-www-browser";
   QString folder;
   QString hub_url;
   QStringList args;
-  std::string str_ip;
+  std::string rh_ip;
+  int ec = 0;
 
   hub_url = "https://localhost:9999";
 
-  std::string rh_ip;
-  int ec = 0;
   system_call_wrapper_error_t err =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rhip_getter_host().toStdString().c_str(),
@@ -555,8 +585,8 @@ void TrayControlWindow::launch_SS() {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-        arg(err).
-        arg(ec));
+                                                        arg(err).
+                                                        arg(ec));
   }
 
 #if defined(RT_OS_LINUX)
@@ -572,8 +602,8 @@ void TrayControlWindow::launch_SS() {
 
   args << hub_url;
   err = CSystemCallWrapper::fork_process(browser,
-                                       args,
-                                       folder);
+                                         args,
+                                         folder);
 
   //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
@@ -586,7 +616,8 @@ void TrayControlWindow::launch_SS() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
+void
+TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id) {
   nsresult rc;
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
@@ -612,7 +643,8 @@ void TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
+void
+TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id) {
   nsresult rc;
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
@@ -629,20 +661,23 @@ void TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id){
+void
+TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id) {
   //todo check result
   CVBoxManagerSingleton::Instance()->add(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id){
+void
+TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id) {
   //todo check result
   CApplicationLog::Instance()->LogInfo("TrayControlWindow before remove");
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::refresh_balance() {
+void
+TrayControlWindow::refresh_balance() {
   if (CHubController::Instance().refresh_balance()) return;
   m_act_info->setText(CHubController::Instance().balance());
   m_info_menu->setTitle(CHubController::Instance().balance());
@@ -677,8 +712,9 @@ void TrayControlWindow::refresh_environments() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::show_about() {
-//  this->show();
+void
+TrayControlWindow::show_about() {
+  //  this->show();
   DlgAbout dlg(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
@@ -686,41 +722,26 @@ void TrayControlWindow::show_about() {
   dlg.move(curpos.x(), 0);
 #endif
   dlg.exec();
-//  this->hide();
+  //  this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-//static const char *GetStateName(ushort st)
-const QString TrayControlWindow::GetStateName(ushort st)
-{
-  switch (st)
-  {
-    case 0:                return "<null>";
-    case 1:            return "PoweredOff";
-    case 2:                 return "Saved";
-    case 3:            return "Teleported";
-    case 4:               return "Aborted";
-    case 5:               return "Running";
-    case 6:                return "Paused";
-    case 7:        return "GuruMeditation";
-    case 8:           return "Teleporting";
-    case 9:      return "LiveSnapshotting";
-    case 10:             return "Starting";
-    case 11:             return "Stopping";
-    case 12:               return "Saving";
-    case 13:            return "Restoring";
-    case 14:  return "TeleportingPausedVM";
-    case 15:        return "TeleportingIn";
-    case 16: return "FaultTolerantSyncing";
-    case 17: return "DeletingSnapshotOnline";
-    case 18: return "DeletingSnapshotPaused";
-    case 19:    return "OnlineSnapshotting";
-    case 20:     return "RestoringSnapshot";
-    case 21:      return "DeletingSnapshot";
-    case 22:             return "SettingUp";
-    case 23:          return "Snapshotting";
-    default:              return "no idea";
-  }
+const QString
+TrayControlWindow::GetStateName(ushort st) {
+  //here was switch, but this should be better.
+  static const QString state_strings[] = {
+    "<null>", "PoweredOff", "Saved",
+    "Teleported", "Aborted", "Running",
+    "Paused", "GuruMeditation", "Teleporting",
+    "LiveSnapshotting", "Starting", "Stopping",
+    "Saving", "Restoring", "TeleportingPausedVM",
+    "TeleportingIn", "FaultTolerantSyncing", "DeletingSnapshotOnline",
+    "DeletingSnapshotPaused", "OnlineSnapshotting", "RestoringSnapshot",
+    "DeletingSnapshot", "SettingUp", "Snapshotting",
+    "no idea",
+  };
+  return st >= (sizeof(state_strings)/sizeof(QString)) ?
+        "no idea" : state_strings[st];
 }
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -741,13 +762,15 @@ CVboxMenu::~CVboxMenu() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVboxMenu::set_machine_stopped(bool stopped) {
+void
+CVboxMenu::set_machine_stopped(bool stopped) {
   QString str_icon = stopped ? ":/hub/Launch-07.png" : ":/hub/Stop-07.png";
   m_act->setIcon(QIcon(str_icon));
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVboxMenu::act_triggered() {
+void
+CVboxMenu::act_triggered() {
   emit vbox_menu_act_triggered(m_id);
 }
 
@@ -755,7 +778,8 @@ void CVboxMenu::act_triggered() {
 ////////////////////////////////////////////////////////////////////////////
 
 /*hub menu*/
-void CHubEnvironmentMenuItem::internal_action_triggered() {
+void
+CHubEnvironmentMenuItem::internal_action_triggered() {
   static std::atomic<int> counter(0);
   QAction* act = static_cast<QAction*>(sender());
   act->setEnabled(false);
@@ -774,7 +798,7 @@ CVBPlayer::CVBPlayer(QWidget* parent) :
   m_vm_player_id() {
   UNUSED_ARG(parent);
   vm_count = 0;
-//  empty();
+  //  empty();
   labelHeader = new QLabel(this);
   labelHeader->setText("No resource hosts registered");
   labelHeader->setMinimumWidth(180);
@@ -791,11 +815,12 @@ CVBPlayer::~CVBPlayer(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBPlayer::add(CVBPlayerItem* pItem){
+void
+CVBPlayer::add(CVBPlayerItem* pItem) {
 
   if (vm_count == 0){
-      labelHeader->setText("Resource hosts registered:");
-      labelHeader->setVisible(false);
+    labelHeader->setText("Resource hosts registered:");
+    labelHeader->setVisible(false);
   }
   p_v_Layout->addWidget(pItem);
   int cnt = p_v_Layout->layout()->count();
@@ -810,7 +835,8 @@ void CVBPlayer::add(CVBPlayerItem* pItem){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBPlayer::remove(CVBPlayerItem* pItem){
+void
+CVBPlayer::remove(CVBPlayerItem* pItem) {
 
   p_v_Layout->removeWidget(pItem);
   int cnt = p_v_Layout->layout()->count();
@@ -821,8 +847,8 @@ void CVBPlayer::remove(CVBPlayerItem* pItem){
   vm_count--;
 
   if (vm_count == 0){
-      labelHeader->setText("No resource hosts registered:");
-      labelHeader->setVisible(true);
+    labelHeader->setText("No resource hosts registered:");
+    labelHeader->setVisible(true);
   }
   this->setLayout(p_v_Layout);
   this->setVisible(true);
@@ -830,7 +856,8 @@ void CVBPlayer::remove(CVBPlayerItem* pItem){
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void CVBPlayer::empty(){
+void
+CVBPlayer::empty() {
   labelHeader = new QLabel(this);
   labelHeader->setText("No resource hosts registered");
   labelHeader->setMinimumWidth(180);
@@ -838,7 +865,7 @@ void CVBPlayer::empty(){
   p_h_HeaderLayout->addWidget(labelHeader);
   p_v_Layout = new QVBoxLayout(0);
   p_v_Layout->setSpacing(5);
-//  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+  //  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
   this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   p_v_Layout->addLayout(p_h_HeaderLayout);
   this->setLayout(p_v_Layout);
@@ -919,7 +946,8 @@ CVBPlayerItem::~CVBPlayerItem(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBPlayerItem::set_buttons(ushort state){
+void
+CVBPlayerItem::set_buttons(ushort state) {
   if (state < 5) { //turned off
     pLabelState->setText(TrayControlWindow::GetStateName(state));
     pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
@@ -968,19 +996,23 @@ void CVBPlayerItem::set_buttons(ushort state){
 }
 
 //Slots////////////////////////////////////////////////////////////////////
-void CVBPlayerItem::vbox_menu_btn_play_released() {
+void
+CVBPlayerItem::vbox_menu_btn_play_released() {
   emit(CVBPlayerItem::vbox_menu_btn_play_released_signal(m_vm_player_item_id));
 }
 
-void CVBPlayerItem::vbox_menu_btn_stop_released() {
+void
+CVBPlayerItem::vbox_menu_btn_stop_released() {
   emit(CVBPlayerItem::vbox_menu_btn_stop_released_signal(m_vm_player_item_id));
 }
 
-void CVBPlayerItem::vbox_menu_btn_add_released() {
+void
+CVBPlayerItem::vbox_menu_btn_add_released() {
   emit(CVBPlayerItem::vbox_menu_btn_add_released_signal(m_vm_player_item_id));
 }
 
-void CVBPlayerItem::vbox_menu_btn_rem_released() {
+void
+CVBPlayerItem::vbox_menu_btn_rem_released() {
   emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 ///////////////////////////////////////////////////////////////////////////

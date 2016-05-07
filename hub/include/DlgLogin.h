@@ -2,7 +2,6 @@
 #define DLGLOGIN_H
 
 #include <QDialog>
-#include "RestWorker.h"
 
 namespace Ui {
   class DlgLogin;
@@ -19,6 +18,7 @@ private:
 public:
   explicit DlgLogin(QWidget *parent = 0);
   ~DlgLogin();
+  void run_dialog();
 
 private slots:
   void btn_ok_released();

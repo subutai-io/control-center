@@ -1,20 +1,19 @@
 /*need this include to register meta type com::Bstr*/
 #include <iostream>
 #include <VBox/com/string.h>
-
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QDir>
+
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
-#include "RestWorker.h"
-#include "DownloadFileManager.h"
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
@@ -67,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   DlgLogin dlg;
   dlg.setModal(true);
-  dlg.exec();
+  dlg.run_dialog();
   if (dlg.result() == QDialog::Rejected)
     return 0;
 
