@@ -253,9 +253,9 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                             std::string(port);
 
   if (key != NULL) {
-    str_command += std::string(" -i \"") +
+    str_command += std::string(" -i \'") +
                    std::string(key) +
-                   std::string("\" ");
+                   std::string("\' ");
   }
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
@@ -280,9 +280,10 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   si.cb = sizeof(STARTUPINFO);
   si.lpTitle = (LPSTR)"Subutai SSH";
 
-  char str_com[256] = {0};
+  char str_com[512] = {0};
   memcpy(str_com, str_stream.str().c_str(), str_stream.str().size());
 
+  CApplicationLog::Instance()->LogTrace("Run ssh->container command : %s", str_stream.str().c_str());
   BOOL success = CreateProcessA(NULL,
                                 str_com,
                                 NULL,
