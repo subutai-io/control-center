@@ -115,8 +115,8 @@ CHubController::ssh_to_container(const CSSEnvironment *env,
             const char* key = NULL;
 
         if (key_file_pub.exists() &&  key_file_private.exists()) {
-          QByteArray arr = key_file_pub.readAll();
-          key = arr.toStdString().c_str();
+          key = (QApplication::applicationDirPath() +
+                current_user()).toStdString().c_str();
         }
 
         err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),

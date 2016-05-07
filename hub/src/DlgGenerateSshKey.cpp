@@ -43,7 +43,9 @@ DlgGenerateSshKey::generate_new_ssh() {
 
 void
 DlgGenerateSshKey::set_key_text() {
-  QString path = QApplication::applicationDirPath() + QDir::separator() + CHubController::Instance().current_user();
+  QString path = QApplication::applicationDirPath() +
+                 QDir::separator() +
+                 CHubController::Instance().current_user() + ".pub";
   QFile file(path);
   if (file.exists()) {
     file.open(QFile::ReadOnly);
