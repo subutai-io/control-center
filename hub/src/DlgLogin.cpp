@@ -2,6 +2,7 @@
 #include "ui_DlgLogin.h"
 #include "SettingsManager.h"
 #include "HubController.h"
+#include "RestWorker.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -26,6 +27,16 @@ DlgLogin::DlgLogin(QWidget *parent) :
 DlgLogin::~DlgLogin()
 {
   delete ui;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgLogin::run_dialog() {
+//  if (!CSettingsManager::Instance().remember_me()) {
+    exec();
+//  } else {
+//    btn_ok_released();
+//  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
