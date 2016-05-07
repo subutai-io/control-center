@@ -69,7 +69,7 @@ DlgGenerateSshKey::btn_generate_released() {
         break;
       generate_new_ssh();
     } while (0);
-    delete msg_question;
+    msg_question->deleteLater();
   }
 }
 ////////////////////////////////////////////////////////////////////////////
