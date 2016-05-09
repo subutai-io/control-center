@@ -38,7 +38,7 @@ main(int argc, char *argv[]) {
 
   CApplicationLog::Instance()->SetDirectory(QApplication::applicationDirPath().toStdString().c_str());
 
-  QString ll = cmd_parser.value(log_level_opt).toLower().trimmed();
+  QString ll = cmd_parser.value(log_level_opt);
   if(ll == "trace" || ll == "0")
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_TRACE);
   else if (ll == "info" || ll == "1")
