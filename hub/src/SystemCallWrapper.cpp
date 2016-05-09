@@ -253,6 +253,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                             std::string(port);
 
   if (key != NULL) {
+    CApplicationLog::Instance()->LogTrace("KEY != NULL : %s", key);
     str_command += std::string(" -i \'") +
                    std::string(key) +
                    std::string("\' ");
@@ -263,6 +264,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                 "  do script \"" <<
                 str_command.c_str() << "\"\n" <<
                 " end tell\'";
+  CApplicationLog::Instance()->LogTrace("OSX ssh->container command : %s", str_stream.str().c_str());
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<

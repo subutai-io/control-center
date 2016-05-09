@@ -112,17 +112,17 @@ CHubController::ssh_to_container(const CSSEnvironment *env,
                            QString(".pub"));
         QFile key_file_private(QApplication::applicationDirPath() + QDir::separator() +
                                current_user());
-            const char* key = NULL;
+        std::string key;
 
         if (key_file_pub.exists() &&  key_file_private.exists()) {
           key = (QApplication::applicationDirPath() + QDir::separator() +
-                current_user()).toStdString().c_str();
+                current_user()).toStdString();
         }
 
         err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
                                                       i->rh_ip().toStdString().c_str(),
                                                       cont->port().toStdString().c_str(),
-                                                      key);
+                                                      key.empty() ? NULL : key.c_str());
         if (err == SCWE_SUCCESS)
           return SLE_SUCCESS;
 
