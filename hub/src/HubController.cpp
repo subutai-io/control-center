@@ -107,15 +107,15 @@ CHubController::ssh_to_container(const CSSEnvironment *env,
         }
         if (err != SCWE_SUCCESS) return err;
 
-        QFile key_file_pub(QApplication::applicationDirPath() +
+        QFile key_file_pub(QApplication::applicationDirPath() + QDir::separator() +
                            current_user() +
                            QString(".pub"));
-        QFile key_file_private(QApplication::applicationDirPath() +
+        QFile key_file_private(QApplication::applicationDirPath() + QDir::separator() +
                                current_user());
             const char* key = NULL;
 
         if (key_file_pub.exists() &&  key_file_private.exists()) {
-          key = (QApplication::applicationDirPath() +
+          key = (QApplication::applicationDirPath() + QDir::separator() +
                 current_user()).toStdString().c_str();
         }
 

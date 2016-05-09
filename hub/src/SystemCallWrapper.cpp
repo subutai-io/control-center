@@ -253,7 +253,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                             std::string(port);
 
   if (key != NULL) {
-    str_command += std::string("-i \"") +
+    str_command += std::string(" -i \"") +
                    std::string(key) +
                    std::string("\" ");
   }
