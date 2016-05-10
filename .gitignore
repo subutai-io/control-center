@@ -2,3 +2,5 @@
 *.sdf
 *.sln
 *.suo
+subutai_tray_bin/
+libssh_app_bin/
