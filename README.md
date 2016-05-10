@@ -13,14 +13,34 @@ Requirenments
 Development & branching model
 -------------------
 
-
 Building
 
 * You have to install qt sdk. If you want to build from IDE - use qt creator. If you want to build from command line, use commands listed below:
 
-qmake SubutaiTray.pro -r -spec linux-g++
+__Modify PATH. Like this : `export PATH=path_to_qmake_bin:$PATH`__
 
+```bashscript
+mkdir subutai_tray_bin
+cd subutai_tray_bin
+qmake ../SubutaiTray.pro -r -spec linux-g++
+make 
+cd ../
+mkdir libssh_app_bin
+cd libssh_app_bin
+qmake ../libssh2/libssh2_app.pro -r -spec linux-g++
 make
+cd ../
+cp libssh_app_bin/libssh2_app subutai_tray_bin/
+```
+
+Or just run `./build_linux.sh` (it's doing the same)
+
+For Mac OS do the same, but after that : 
+```bashscript
+macdeployqt subutai_tray_bin/SubutaiTray.app
+cd subutai_tray_bin/SubutaiTray.app/Content/MacOS
+. ../../../../after_build_step_mac_os
+```
 
 ### Branching Model 
 
