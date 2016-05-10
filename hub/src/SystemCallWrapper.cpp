@@ -13,6 +13,8 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include "vbox/include/IVBoxManager.h"
 
+#include "HubController.h"
+
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
 #include <Process.h>
@@ -238,28 +240,41 @@ CSystemCallWrapper::check_container_state(const char *hash,
 system_call_wrapper_error_t
 CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                                         const char* ip,
-                                        const char *port)
+                                        const char *port,
+                                        const char *key)
 {
   std::ostringstream str_stream;
+  std::string str_command = CSettingsManager::Instance().ssh_path().toStdString().c_str() +
+                            std::string(" ") +
+                            std::string(user) +
+                            std::string("@") +
+                            std::string(ip) +
+                            std::string(" -p ") +
+                            std::string(port);
+
+  if (key != NULL) {
+    CApplicationLog::Instance()->LogTrace("KEY != NULL : %s", key);
+    str_command += std::string(" -i \'") +
+                   std::string(key) +
+                   std::string("\' ");
+  }
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
                 "  do script \"" <<
-                CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
-                " " << user << "@" << ip << " -p " << port << "\"\n" <<
+                str_command.c_str() << "\"\n" <<
                 " end tell\'";
+  CApplicationLog::Instance()->LogTrace("OSX ssh->container command : %s", str_stream.str().c_str());
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
   str_stream <<
                 CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"" << CSettingsManager::Instance().ssh_path().toStdString().c_str() <<
-                " " << user << "@" << ip << " -p " << port << ";bash\" &";
+                " -e \"" << str_command.c_str() << ";bash\" &";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
   str_stream <<
              CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-             " /k " << CSettingsManager::Instance().ssh_path().toStdString().c_str() << " "
-             << user << "@" << ip << " -p " << port;
+             " /k " << str_command.c_str();
   PROCESS_INFORMATION pi;
   STARTUPINFOA si;
   ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
@@ -267,9 +282,10 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   si.cb = sizeof(STARTUPINFO);
   si.lpTitle = (LPSTR)"Subutai SSH";
 
-  char str_com[256] = {0};
+  char str_com[512] = {0};
   memcpy(str_com, str_stream.str().c_str(), str_stream.str().size());
 
+  CApplicationLog::Instance()->LogTrace("Run ssh->container command : %s", str_stream.str().c_str());
   BOOL success = CreateProcessA(NULL,
                                 str_com,
                                 NULL,
@@ -283,6 +299,23 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   return success ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
 
 #endif
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::generate_ssh_key(const char *comment,
+                                     const char *file_path) {
+  std::string key_str(file_path);
+  std::string str_command = CSettingsManager::Instance().ssh_keygen_path().toStdString() +
+                            std::string(" -t rsa") +
+                            std::string(" -f ") + key_str +
+                            std::string(" -C ") + std::string(comment) +
+                            std::string(" -N \'\'");
+  std::vector<std::string> lst_out;
+  int exit_code;
+  ssystem_th(str_command.c_str(), lst_out, exit_code);
+  //todo check exit_code.
+  return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -20,7 +20,7 @@
 #include "DlgSettings.h"
 #include "ApplicationLog.h"
 #include "DlgAbout.h"
-
+#include "DlgGenerateSshKey.h"
 #include "DownloadFileManager.h"
 #include "ExecutableUpdater.h"
 
@@ -32,7 +32,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_launch_section(NULL),
   m_quit_section(NULL),
   m_act_quit(NULL),
-  m_act_about(NULL)
+  m_act_about(NULL),
+  m_act_generate_ssh(NULL)
 {
   ui->setupUi(this);
   m_w_Player = new CVBPlayer(this);
@@ -219,6 +220,9 @@ TrayControlWindow::create_tray_actions() {
 
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, SIGNAL(triggered()), this, SLOT(show_about()));
+
+  m_act_generate_ssh = new QAction("Generate SSH key", this);
+  connect(m_act_generate_ssh, SIGNAL(triggered()), this, SLOT(ssh_key_generate_triggered()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -227,6 +231,7 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu = new QMenu(this);
   m_info_menu = new QMenu(m_tray_menu);
   m_tray_menu->addAction(m_act_info);
+  m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
 
   //////////// Do not forget to remove defs after fixing on linux!/////////////////
@@ -1016,3 +1021,17 @@ CVBPlayerItem::vbox_menu_btn_rem_released() {
   emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 ///////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::ssh_key_generate_triggered() {
+  //  this->show();
+  DlgGenerateSshKey dlg(this);
+#ifdef RT_OS_LINUX
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+  dlg.move(curpos.x(), 0);
+#endif
+  dlg.exec();
+  //  this->hide();
+}
+////////////////////////////////////////////////////////////////////////////

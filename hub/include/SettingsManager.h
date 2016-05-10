@@ -36,6 +36,7 @@ private:
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
+  static const QString SM_SSH_KEYGEN_PATH;
 
   static const QString SM_RHIP_GETTER_USER;
   static const QString SM_RHIP_GETTER_PASS;
@@ -67,6 +68,7 @@ private:
   uint16_t m_plugin_port;
   QString m_ssh_path;
   QString m_ssh_user;
+  QString m_ssh_keygen_path;
 
   QString m_rhip_getter_host;
   QString m_rhip_getter_user;
@@ -105,6 +107,7 @@ public:
   uint16_t plugin_port() const {return m_plugin_port;}
   const QString& ssh_path() const {return m_ssh_path;}
   const QString& ssh_user() const {return m_ssh_user;}
+  const QString& ssh_keygen_path() const {return m_ssh_keygen_path;}
 
   const QString& rhip_getter_user() const {return m_rhip_getter_user;}
   const QString& rhip_getter_pass() const {return m_rhip_getter_pass;}
@@ -200,6 +203,11 @@ public:
     m_settings.setValue(SM_SSH_USER, m_ssh_user);
   }
 
+  void set_ssh_keygen_path(const QString& ssh_keygen_path) {
+    m_ssh_keygen_path = ssh_keygen_path;
+    m_settings.setValue(SM_SSH_KEYGEN_PATH, m_ssh_keygen_path);
+  }
+
   void set_rhip_getter_user(const QString& rhip_getter_user) {
     m_rhip_getter_user = rhip_getter_user;
     m_settings.setValue(SM_RHIP_GETTER_USER, m_rhip_getter_user);
@@ -224,6 +232,7 @@ public:
     m_gorjun_url = gorjun_url;
     m_settings.setValue(SM_GORJUN_URL, m_gorjun_url);
   }
+
 };
 
 #endif // CSETTINGSMANAGER_H
