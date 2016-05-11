@@ -23,6 +23,36 @@ For __LINUX__  run `./build_linux.sh`. You can modify this script, it is very si
 
 For __Mac OS__ do the same, but run `./build_mac.sh`
 
+For __WINDOWS__ follow this : 
+
+Windows build:
+
+1. Launch qt-creator. You can download it from [official site](http://www.qt.io)
+2. Load SubutaiTray.pro
+3. Change build type to release.
+4. Run qmake (Build -> Run qmake in main menu)
+5. Run Rebuild All (Build -> Rebuild All in main menu) 
+6. Close qt-creator
+7. Launch VS (project was created in VS2013, but you can use 2005 and newer).
+8. Load libssh2/libssh2_vc_app.vcproj
+9. Set build type to release.
+10. Set platform WIN32 (default)
+11. Rebuild all.
+12. Rename result binary to libssh2_app.exe
+13. Copy libssh2_app.exe to folder with SubutaiTray.exe
+14. Close VS
+15. Run qt command promt.
+16. Go to folder with SubutaiTray.exe (by cd commands)
+17. Run next commands  : 
+```
+del *.obj
+del *.cpp
+del *.h
+windeployqt --compiler-runtime --release --no-translations 
+```
+18. Copy VBoxRT.dll to that folder. 
+
+__NOTE__ : You should have installed open ssl libs. You should have installed libssh2 libraries. You have to install VirtualBox.
 
 ### Branching Model 
 
