@@ -19,28 +19,10 @@ Building
 
 __Modify PATH. Like this : `export PATH=path_to_qmake_bin:$PATH`__
 
-```bashscript
-mkdir subutai_tray_bin
-cd subutai_tray_bin
-qmake ../SubutaiTray.pro -r -spec linux-g++
-make 
-cd ../
-mkdir libssh_app_bin
-cd libssh_app_bin
-qmake ../libssh2/libssh2_app.pro -r -spec linux-g++
-make
-cd ../
-cp libssh_app_bin/libssh2_app subutai_tray_bin/
-```
+For __LINUX__  run `./build_linux.sh`. You can modify this script, it is very simple.
 
-Or just run `./build_linux.sh` (it's doing the same)
+For __Mac OS__ do the same, but run `./build_mac.sh`
 
-For Mac OS do the same, but after that : 
-```bashscript
-macdeployqt subutai_tray_bin/SubutaiTray.app
-cd subutai_tray_bin/SubutaiTray.app/Content/MacOS
-. ../../../../after_build_step_mac_os
-```
 
 ### Branching Model 
 
