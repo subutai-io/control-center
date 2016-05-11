@@ -356,7 +356,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           const char *pass,
                                           int &exit_code,
                                           std::string &ip) {
-  static const char* rh_ip_cmd = "ifconfig wan | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1";
+  static const char* rh_ip_cmd = "ifconfig eth1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1";
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(host, port, user, pass, rh_ip_cmd, exit_code, lst_out);
