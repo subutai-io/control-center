@@ -1,0 +1,47 @@
+#/bin/sh
+#
+
+if [ -d /tmp/Subutai ]; then
+rm -rf /tmp/Subutai
+fi
+mkdir -p /tmp/Subutai
+mkdir -p /opt/subutai/tray/bin
+
+subutai_dir="/opt/subutai/tray"
+username=`getent passwd | awk -F: '$3 == 1000 { print $1 }'`
+
+jsonval() {
+temp=`echo $json | sed 's/\\\\\//\//g' | sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w $prop`
+echo ${temp##*|}
+}
+
+download() {
+json=`curl -k -s -X GET https://cdn.subut.ai:8338/kurjun/rest/file/info?name=$filename` 
+prop='id'
+id=`jsonval`
+if [ -e $target ]; then
+if [ "`md5sum $target | awk '{print $4}'`" = "`echo $id | cut -d '.' -f 2`" ]; then :
+else curl -k -o $target https://cdn.subut.ai:8338/kurjun/rest/file/get\?id\=$id
+fi
+else curl -k -o $target https://cdn.subut.ai:8338/kurjun/rest/file/get\?id\=$id
+fi
+} 
+
+get_tray() {
+target="$subutai_dir/SubutaiTray_linux.tar.gz"; filename="SubutaiTray_linux.tar.gz"; download
+tar xf $subutai_dir/SubutaiTray_linux.tar.gz -C $subutai_dir
+chmod +x $subutai_dir/bin/SubutaiTray
+if [ ! -L /usr/bin/subutai-tray ]; then
+ln -s $subutai_dir/bin/SubutaiTray /usr/bin/subutai-tray
+fi
+}
+
+get_ssh() {
+target="$subutai_dir/bin/libssh2_app"; filename="libssh2_app"; download
+chmod +x $subutai_dir/bin/libssh2_app
+if [ ! -L /usr/bin/libssh2_app ]; then
+ln -s $subutai_dir/bin/libssh2_app /usr/bin/libssh2_app
+fi
+}
+
+get_tray

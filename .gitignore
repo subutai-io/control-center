@@ -4,3 +4,13 @@
 *.suo
 subutai_tray_bin/
 libssh_app_bin/
+
+# Debian
+*.docs
+*.substvars
+*.deb
+*.log
+debian/debhelper-build-stamp
+debian/files
+debian/subutai-tray
+
