@@ -43,6 +43,8 @@ private:
   static const QString SM_RHIP_GETTER_HOST;
   static const QString SM_RHIP_GETTER_PORT;
 
+  static const QString SM_RH_NETWORK_INTERFACE;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -76,6 +78,7 @@ private:
   QString m_rhip_getter_port;
 
   QString m_gorjun_url;
+  QString m_rh_network_interface;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -115,6 +118,7 @@ public:
   const QString& rhip_getter_port() const {return m_rhip_getter_port;}
 
   const QString& gorjun_url() const {return m_gorjun_url;}
+  const QString& rh_network_interface() const {return m_rh_network_interface;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -233,6 +237,10 @@ public:
     m_settings.setValue(SM_GORJUN_URL, m_gorjun_url);
   }
 
+  void set_rh_network_interface(const QString& network_interface) {
+    m_rh_network_interface = network_interface;
+    m_settings.setValue(SM_RH_NETWORK_INTERFACE, m_rh_network_interface);
+  }
 };
 
 #endif // CSETTINGSMANAGER_H
