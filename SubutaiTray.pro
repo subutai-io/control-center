@@ -121,6 +121,7 @@ unix:!macx {
   LIBS += /usr/lib/virtualbox/VBoxRT.so
   QMAKE_RPATHDIR += /usr/lib/virtualbox/
   LIBS += -ldl -lpthread
+  QMAKE_RPATHDIR += /opt/subutai/tray
 }
 #////////////////////////////////////////////////////////////////////////////
 
