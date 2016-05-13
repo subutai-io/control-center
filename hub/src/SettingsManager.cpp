@@ -43,6 +43,7 @@ const QString CSettingsManager::SM_RHIP_GETTER_USER("Rhip_Getter_User");
 const QString CSettingsManager::SM_RHIP_GETTER_PASS("Rhip_GetterPass");
 const QString CSettingsManager::SM_RHIP_GETTER_HOST("Rhip_GetterHost");
 const QString CSettingsManager::SM_RHIP_GETTER_PORT("Rhip_GetterPort");
+const QString CSettingsManager::SM_RH_NETWORK_INTERFACE("Rh_NetworkInterface");
 
 struct str_setting_val {
   QString& field;
@@ -88,7 +89,8 @@ CSettingsManager::CSettingsManager() :
   m_rhip_getter_user("ubuntu"),
   m_rhip_getter_pass("ubuntu"),
   m_rhip_getter_port("4567"),
-  m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1")
+  m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
+  m_rh_network_interface("eth1")
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
@@ -109,6 +111,7 @@ CSettingsManager::CSettingsManager() :
     {m_rhip_getter_port, SM_RHIP_GETTER_PORT},
     {m_rhip_getter_user, SM_RHIP_GETTER_USER},
     {m_gorjun_url, SM_GORJUN_URL},
+    {m_rh_network_interface, SM_RH_NETWORK_INTERFACE},
     {tmp, ""}
   };
 

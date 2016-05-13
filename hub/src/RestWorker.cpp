@@ -211,6 +211,8 @@ CRestWorker::send_request(const QNetworkRequest &req,
   timer.stop();
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
+    CApplicationLog::Instance()->LogError("Send request network error : %s",
+                              reply->errorString().toStdString().c_str());
     err_code = EL_NETWORK_ERROR;
     return QByteArray();
   }
