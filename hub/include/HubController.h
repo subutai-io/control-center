@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <QString>
+#include "Locker.h"
 
 class CSSEnvironment;
 class CRHInfo;
@@ -23,6 +24,7 @@ private:
   std::vector<CRHInfo> m_lst_resource_hosts;
   QString m_balance;
   QString m_current_user;
+  SynchroPrimitives::CriticalSection m_refresh_cs;
 
   CHubController();
   ~CHubController();

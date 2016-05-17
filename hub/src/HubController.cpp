@@ -30,6 +30,7 @@ int CHubController::refresh_balance() {
 ////////////////////////////////////////////////////////////////////////////
 
 int CHubController::refresh_environments() {
+  SynchroPrimitives::Locker lock(&m_refresh_cs);
   int http_code, err_code, network_error;
   std::vector<CSSEnvironment> res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
 
@@ -56,6 +57,7 @@ int CHubController::refresh_environments() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_containers() {
+  SynchroPrimitives::Locker lock(&m_refresh_cs);
   int http_code, err_code, network_error;
   std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
 
@@ -83,6 +85,7 @@ void CHubController::refresh_containers() {
 int
 CHubController::ssh_to_container(const CSSEnvironment *env,
                                  const CHubContainer *cont) {
+  SynchroPrimitives::Locker lock(&m_refresh_cs);
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
                                                                           "dhcp");
@@ -140,6 +143,7 @@ CHubController::ssh_to_container(const CSSEnvironment *env,
 
 int CHubController::ssh_to_container_str(const QString &env_id,
                                          const QString &cont_id) {
+  SynchroPrimitives::Locker lock(&m_refresh_cs);
   CSSEnvironment *env = NULL;
   for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
     if (i->id() != env_id) continue;
@@ -160,6 +164,6 @@ int CHubController::ssh_to_container_str(const QString &env_id,
 const QString &CHubController::ssh_launch_err_to_str(int err) {
   static QString lst_err_str[] = {
     "Success", "Environment not found", "Container not found", "Join to p2p swarm failed", "System call failed" };
-  return lst_err_str[err];
+  return lst_err_str[err%SLE_LAST_ERR];
 }
 ////////////////////////////////////////////////////////////////////////////
