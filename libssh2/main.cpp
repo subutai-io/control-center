@@ -88,7 +88,7 @@ int run_ssh_command(const char* str_host,
   //todo check here
 #else
   SOCKET sock;
-  if (InetPton(AF_INET, str_host, &ul_host_addr) != 1) {
+  if (InetPtonA(AF_INET, str_host, &ul_host_addr) != 1) {
     return RUE_INET_ADDR;
   }
 #endif
