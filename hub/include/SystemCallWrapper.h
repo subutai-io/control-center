@@ -32,19 +32,23 @@ private:
   int m_exit_code;
   std::string m_command;
   std::vector<std::string> m_lst_output;
+  bool m_read_output;
 
 public:
-  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0), m_command("") {}
-  CSystemCallThreadWrapper(const char *command, QObject *parent = 0) :
+  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
+    m_command(""), m_read_output(true) {}
+  CSystemCallThreadWrapper(const char *command, bool arg_read_output, QObject *parent = 0) :
     QObject(parent),
     m_result(SCWE_SUCCESS),
     m_exit_code(0),
-    m_command(command){}
+    m_command(command),
+    m_read_output(arg_read_output){}
 
 
   system_call_wrapper_error_t result() const { return m_result;}
   int exit_code() const {return m_exit_code;}
   std::vector<std::string> lst_output() const {return m_lst_output;}
+  bool read_output() const {return m_read_output;}
 
 public slots:
   void do_system_call();
@@ -60,11 +64,11 @@ private:
 
   static system_call_wrapper_error_t ssystem_th(const char *command,
                                                 std::vector<std::string> &lst_output,
-                                                int &exit_code);
+                                                int &exit_code, bool read_output);
 
   static system_call_wrapper_error_t ssystem(const char *command,
                                              std::vector<std::string> &lst_output,
-                                             int& exit_code);
+                                             int& exit_code, bool read_output = true);
 
   static system_call_wrapper_error_t run_libssh2_command(const char *host,
                                                          const char *port,

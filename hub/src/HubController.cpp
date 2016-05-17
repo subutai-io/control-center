@@ -107,12 +107,14 @@ CHubController::ssh_to_container(const CSSEnvironment *env,
       if (j->id() == cont->id()) {
 
         static const int MAX_ATTEMTS_COUNT = 5;
+        CApplicationLog::Instance()->LogTrace("Check_container_state");
         for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
           err = CSystemCallWrapper::check_container_state(env->hash().toStdString().c_str(),
                                                           i->rh_ip().toStdString().c_str());
           if (err == SCWE_SUCCESS) break;
           QThread::currentThread()->sleep(1);
         }
+        CApplicationLog::Instance()->LogTrace("Check_container_state end");
         if (err != SCWE_SUCCESS) return err;
 
         QFile key_file_pub(QApplication::applicationDirPath() + QDir::separator() +
