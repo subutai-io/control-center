@@ -126,7 +126,9 @@ CSystemCallWrapper::ssystem(const char *command,
       break;
     } else {
       DWORD ec = 0;
+      CApplicationLog::Instance()->LogTrace("Windows ssystem process created. WaitForSingleObject start");
       WaitForSingleObject(pi.hProcess, INFINITE);
+      CApplicationLog::Instance()->LogTrace("Windows ssystem process created. WaitForSingleObject end");
       GetExitCodeProcess(pi.hProcess, &ec);
       exit_code = (int)ec;
       CloseHandle(pi.hProcess);
@@ -167,7 +169,10 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   std::vector<std::string> lst_out;
   int exit_code = 0;
 
+  CApplicationLog::Instance()->LogTrace("is in swarm called with hash : %s", hash);
   system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
+  CApplicationLog::Instance()->LogTrace("ssystem_th end with result : %d", (int)res);
+
   if (res != SCWE_SUCCESS && exit_code != 1) {
     CNotifiactionObserver::NotifyAboutError(error_strings[res]);
     CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
@@ -190,6 +195,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
 
+  CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s", hash);
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
                 ip << " -key " << key << " -hash " << hash;
@@ -197,6 +203,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   std::vector<std::string> lst_out;
   int exit_code = 0;
   system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
+  CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
   if (res != SCWE_SUCCESS) {
     QString err_msg = QString("Join to p2p failed. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(res));
@@ -258,6 +265,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                    std::string(key) +
                    std::string("\' ");
   }
+  CApplicationLog::Instance()->LogTrace("run ssh in terminal : %s", str_command.c_str());
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<

@@ -10,9 +10,17 @@
 #include "commons/include/MRE_Windows.h"
 #endif
 
+/*!
+ * \brief The CApplicationLog class. Uses for logging.
+ * It generates trace_($current_date).txt, info_($current_date).txt and error_($current_date).txt
+ * You can specify log_level via application argument --l
+ */
 class CApplicationLog
 {
 public:
+  /*!
+   * \brief The LOG_TYPE enum - log level enum
+   */
   enum LOG_TYPE {
     LT_TRACE = 0,
     LT_INFO,
@@ -20,7 +28,15 @@ public:
     LT_LAST
   };
 
+  /*!
+   * \brief Set directory where log files will be generated
+   * \param directory - path to directory.
+   */
   void SetDirectory(const char *directory);
+  /*!
+   * \brief Set log level.
+   * \param lt - log level. See LOG_TYPE enum.
+   */
   void SetLogLevel(LOG_TYPE lt) {m_log_level = lt;}
 
   void LogTrace( const char* format, ... );

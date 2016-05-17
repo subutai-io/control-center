@@ -12,6 +12,15 @@
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
 
+/*!
+ * \brief main - the entry point of SubutaiTray application
+ * \param argc - argument count
+ * \param argv - array of arguments
+ * \return
+ * arguments can be :
+ * --v  - uses for getting version of tray application
+ * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
+ */
 int
 main(int argc, char *argv[]) {
 
@@ -25,7 +34,7 @@ main(int argc, char *argv[]) {
   QCommandLineOption log_level_opt("l",
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
                                    "log_level",
-                                   "ERROR");
+                                   "error");
   QCommandLineOption version_opt("v",
                                  "Version",
                                  "Version");
