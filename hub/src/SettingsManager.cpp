@@ -85,7 +85,11 @@ CSettingsManager::CSettingsManager() :
   m_rhip_getter_pass("ubuntu"),
   m_rhip_getter_port("4567"),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
+#ifndef RT_OS_WINDOWS
   m_rh_network_interface("eth1")
+#else
+  m_rh_network_interface("wan")
+#endif
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
