@@ -85,10 +85,15 @@ void CHubController::refresh_containers() {
 int
 CHubController::ssh_to_container(const CSSEnvironment *env,
                                  const CHubContainer *cont) {
+  CApplicationLog::Instance()->LogTrace("ssh to container : %s, env : %s",
+                                        cont->name().toStdString().c_str(),
+                                        env->name().toStdString().c_str());
   SynchroPrimitives::Locker lock(&m_refresh_cs);
+  CApplicationLog::Instance()->LogTrace("ssh_to_container0 locker created");
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(env->hash().toStdString().c_str(),
                                                                           env->key().toStdString().c_str(),
                                                                           "dhcp");
+  CApplicationLog::Instance()->LogTrace("join to p2p swarm finished. result : %d", (int)err);
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Failed to join to p2p network. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
