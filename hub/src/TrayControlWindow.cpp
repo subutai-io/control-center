@@ -589,6 +589,7 @@ TrayControlWindow::launch_SS() {
   if (err == SCWE_SUCCESS && ec == 0) {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
+    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %d, exit_code : %d", err, ec);
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(err).
                                                         arg(ec));

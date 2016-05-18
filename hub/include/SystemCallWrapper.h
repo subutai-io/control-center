@@ -21,7 +21,9 @@ enum system_call_wrapper_error_t {
   SCWE_CONTAINER_IS_NOT_READY,
 
   /*ssh errors*/
-  SCWE_SSH_LAUNCH_FAILED
+  SCWE_SSH_LAUNCH_FAILED,
+
+  SCWE_CANT_GET_RH_IP
 };
 ////////////////////////////////////////////////////////////////////////////
 

@@ -383,16 +383,17 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
           QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
           arg(interfaces[i]);
     res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
+
     if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
       QHostAddress addr(lst_out[0].c_str());
       if (!addr.isNull()) {
         ip = lst_out[0];
-        break;
+        return res;
       }
     }
   }
 
-  return res;
+  return SCWE_CANT_GET_RH_IP;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -474,7 +475,7 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
     "SUCCESS", "SHELL_ERROR", "PIPE_ERROR",
     "SET_HANDLE_INFO_ERROR", "CREATE_PROCESS_ERROR",
     "CANT_JOIN_SWARM_ERROR", "CONTAINER_IS_NOT_READY_ERROR",
-    "SSH_LAUNCH_FAILED"
+    "SSH_LAUNCH_FAILED", "CANT_GET_RH_IP"
   };
   return error_str[err];
 }
