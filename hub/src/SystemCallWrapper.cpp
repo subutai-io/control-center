@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sstream>
 
+#include <QHostAddress>
 #include <QApplication>
 #include <SystemCallWrapper.h>
 #include "SettingsManager.h"
@@ -381,11 +382,13 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
     QString rh_ip_cmd =
           QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
           arg(interfaces[i]);
-    qDebug() << rh_ip_cmd;
     res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
     if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-      ip = lst_out[0];
-      break;
+      QHostAddress addr(lst_out[0].c_str());
+      if (!addr.isNull()) {
+        ip = lst_out[0];
+        break;
+      }
     }
   }
 
