@@ -31,9 +31,10 @@ static QString error_strings[] = {
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem_th(const char *command,
                                std::vector<std::string> &lst_output,
-                               int &exit_code) {
+                               int &exit_code,
+                               bool read_output) {
   QEventLoop el;
-  CSystemCallThreadWrapper sctw(command);
+  CSystemCallThreadWrapper sctw(command, read_output);
   QThread* th = new QThread;
 
   QObject::connect(&sctw, SIGNAL(finished()), &el, SLOT(quit()));
@@ -52,7 +53,9 @@ CSystemCallWrapper::ssystem_th(const char *command,
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem(const char *command,
                             std::vector<std::string>& lst_output,
-                            int &exit_code) {
+                            int &exit_code,
+                            bool read_output) {
+  CApplicationLog::Instance()->LogTrace("ssystem : %s", command);
 #ifndef RT_OS_WINDOWS
   std::string str_cmd = " 2>&1 ";
   str_cmd = std::string(command) + str_cmd;
@@ -133,21 +136,25 @@ CSystemCallWrapper::ssystem(const char *command,
       CloseHandle(pi.hThread);
     }
 
-    /*read from file*/
-    DWORD dw_read;
-    char r_buff[4096] = {0};
-    b_success = FALSE;
-    b_success = ReadFile( h_cso_r, r_buff, 256, &dw_read, NULL);
-    if(!b_success || dw_read == 0) {
-      break;
-    }
+    CApplicationLog::Instance()->LogTrace("read output = %d", read_output ? 1 : 0);
 
-    unsigned int f, l; //first last
-    f = l = 0;
-    for (l = 0; l < dw_read; ++l) {
-      if (r_buff[l] != '\n') continue;
-      lst_output.push_back(std::string(&r_buff[f], l-f));
-      f = l+1;
+    if (read_output) {      
+      DWORD dw_read;
+      char r_buff[4096] = {0};
+      b_success = FALSE;
+      b_success = ReadFile( h_cso_r, r_buff, 256, &dw_read, NULL);
+      CApplicationLog::Instance()->LogTrace("ReadFile finished");
+      if(!b_success || dw_read == 0) {
+        break;
+      }
+
+      unsigned int f, l; //first last
+      f = l = 0;
+      for (l = 0; l < dw_read; ++l) {
+        if (r_buff[l] != '\n') continue;
+        lst_output.push_back(std::string(&r_buff[f], l-f));
+        f = l+1;
+      }
     }
   } while (false);
 
@@ -167,7 +174,10 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   std::vector<std::string> lst_out;
   int exit_code = 0;
 
-  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
+  CApplicationLog::Instance()->LogTrace("is in swarm called with hash : %s", hash);
+  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
+  CApplicationLog::Instance()->LogTrace("ssystem_th end with result : %d", (int)res);
+
   if (res != SCWE_SUCCESS && exit_code != 1) {
     CNotifiactionObserver::NotifyAboutError(error_strings[res]);
     CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
@@ -190,13 +200,15 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
 
+  CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s", hash);
   std::ostringstream str_stream;
   str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " start -ip " <<
                 ip << " -key " << key << " -hash " << hash;
   std::string command = str_stream.str();
   std::vector<std::string> lst_out;
   int exit_code = 0;
-  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code);
+  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
+  CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
   if (res != SCWE_SUCCESS) {
     QString err_msg = QString("Join to p2p failed. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(res));
@@ -232,7 +244,7 @@ CSystemCallWrapper::check_container_state(const char *hash,
   std::vector<std::string> lst_out;
   int exit_code = 0;
   std::string command = str_stream.str();
-  ssystem_th(command.c_str(), lst_out, exit_code);
+  ssystem_th(command.c_str(), lst_out, exit_code, false);
   return exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -258,6 +270,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                    std::string(key) +
                    std::string("\' ");
   }
+  CApplicationLog::Instance()->LogTrace("run ssh in terminal : %s", str_command.c_str());
 #ifdef RT_OS_DARWIN
   str_stream << "osascript -e \'Tell application \"Terminal\"\n" <<
                 "  Activate\n" <<
@@ -313,7 +326,7 @@ CSystemCallWrapper::generate_ssh_key(const char *comment,
                             std::string(" -N \'\'");
   std::vector<std::string> lst_out;
   int exit_code;
-  ssystem_th(str_command.c_str(), lst_out, exit_code);
+  ssystem_th(str_command.c_str(), lst_out, exit_code, true);
   //todo check exit_code.
   return SCWE_SUCCESS;
 }
@@ -331,7 +344,7 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
   str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
                 " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
   system_call_wrapper_error_t res =
-      ssystem_th(str_stream.str().c_str(), lst_output, exit_code);
+      ssystem_th(str_stream.str().c_str(), lst_output, exit_code, true);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -398,7 +411,7 @@ CSystemCallWrapper::p2p_version(std::string &version,
   std::string command = CSettingsManager::Instance().p2p_path().toStdString();
   command += std::string(" version");
   system_call_wrapper_error_t res =
-      ssystem_th(command.c_str(), lst_out, exit_code);
+      ssystem_th(command.c_str(), lst_out, exit_code, true);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
@@ -427,7 +440,7 @@ CSystemCallWrapper::chrome_version(std::string &version,
   command += std::string(" --version");
 
   system_call_wrapper_error_t res =
-      ssystem_th(command.c_str(), lst_out, exit_code);
+      ssystem_th(command.c_str(), lst_out, exit_code, true);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
@@ -456,7 +469,7 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 
 void
 CSystemCallThreadWrapper::do_system_call() {
-  m_result = CSystemCallWrapper::ssystem(m_command.c_str(), m_lst_output, m_exit_code);
+  m_result = CSystemCallWrapper::ssystem(m_command.c_str(), m_lst_output, m_exit_code, m_read_output);
   emit finished();
 }
 ////////////////////////////////////////////////////////////////////////////

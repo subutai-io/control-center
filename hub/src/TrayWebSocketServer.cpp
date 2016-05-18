@@ -51,6 +51,7 @@ void CTrayServer::process_text_msg(QString msg) {
   } else if (int index_of = msg.indexOf("cmd:ssh") != -1) {
     // 7 is len of cmd::ssh
     QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
+    CApplicationLog::Instance()->LogTrace("process_text_msg, args created");
     if (args.count() != 3) {
       QString responce = QString("code:%1%%%error==%2%%%success==%3")
                          .arg(SLE_LAST_ERR+1)
@@ -60,9 +61,12 @@ void CTrayServer::process_text_msg(QString msg) {
       pClient->sendTextMessage(responce);
       return;
     }
+    CApplicationLog::Instance()->LogTrace("process_text_msg: refresh environments");
     CHubController::Instance().refresh_environments();
+    CApplicationLog::Instance()->LogTrace("process_text_msg: refresh containers");
     CHubController::Instance().refresh_containers();
 
+    CApplicationLog::Instance()->LogTrace("process_text_msg: ssh_to_container_str call");
     int lr = CHubController::Instance().ssh_to_container_str(args[1], args[2]);
     QString responce = QString("code:%1%%%error==%2%%%success==%3")
                        .arg(lr)

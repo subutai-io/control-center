@@ -26,6 +26,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_rhip_password->setText(CSettingsManager::Instance().rhip_getter_pass());
   ui->le_rhip_port->setText(CSettingsManager::Instance().rhip_getter_port());
   ui->le_rhip_user->setText(CSettingsManager::Instance().rhip_getter_user());
+  ui->le_rhip_interface->setText(CSettingsManager::Instance().rh_network_interface());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -55,6 +56,7 @@ DlgSettings::~DlgSettings()
 
 void DlgSettings::btn_ok_released()
 {
+  //todo refactor this. see SettingsManager.cpp for more details
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
   if (ui->le_p2p_command->text() != "")
     CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
@@ -84,6 +86,8 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_rhip_getter_port(ui->le_rhip_port->text());
   if (ui->le_rhip_user->text() != "")
     CSettingsManager::Instance().set_rhip_getter_user(ui->le_rhip_user->text());
+  if (ui->le_rhip_interface->text() != "")
+    CSettingsManager::Instance().set_rh_network_interface(ui->le_rhip_interface->text());
 
   CSettingsManager::Instance().save_all();
   QDialog::accept();

@@ -261,7 +261,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <layout class="QGridLayout" name="gridLayout_8" columnstretch="1,3">
+          <layout class="QGridLayout" name="gridLayout_8" columnstretch="1,4">
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_rhip_host">
              <property name="text">
@@ -271,6 +271,13 @@
            </item>
            <item row="0" column="1">
             <widget class="QLineEdit" name="le_rhip_host"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lbl_rhip_port">
+             <property name="text">
+              <string>RH port:</string>
+             </property>
+            </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="le_rhip_port"/>
@@ -299,12 +306,15 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lbl_rhip_port">
+           <item row="4" column="0">
+            <widget class="QLabel" name="lbl_rhip_net_interface">
              <property name="text">
-              <string>RH port:</string>
+              <string>RH Net Interface:</string>
              </property>
             </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="le_rhip_interface"/>
            </item>
           </layout>
          </item>

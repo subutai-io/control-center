@@ -70,12 +70,7 @@ CSettingsManager::CSettingsManager() :
   m_terminal_path("cmd"),
   m_p2p_path("p2p.exe"),
   #endif
-  #ifdef RT_OS_WINDOWS
-  m_ss_updater_path(QApplication::applicationDirPath() +
-                    QDir::separator() + "libssh2" + QDir::separator() + SS_UPDATER_APP_NAME),
-  #else
   m_ss_updater_path(QApplication::applicationDirPath() + QDir::separator() + SS_UPDATER_APP_NAME),
-  #endif
   m_notification_delay_sec(5),
   m_updater_host("127.0.0.1"),
   m_updater_user("local_user"),
@@ -90,7 +85,7 @@ CSettingsManager::CSettingsManager() :
   m_rhip_getter_pass("ubuntu"),
   m_rhip_getter_port("4567"),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
-  m_rh_network_interface("eth1")
+  m_rh_network_interface("eth2")
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
