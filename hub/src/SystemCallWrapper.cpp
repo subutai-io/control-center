@@ -28,21 +28,26 @@ static QString error_strings[] = {
   "SSH launch error"
 };
 
+//TODO !!!!!! make it asynchronous. Or do something with it ! That's not right
+//in fact now it's blocking.
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem_th(const char *command,
                                std::vector<std::string> &lst_output,
                                int &exit_code,
                                bool read_output) {
-  QEventLoop el;
   CSystemCallThreadWrapper sctw(command, read_output);
   QThread* th = new QThread;
-
-  QObject::connect(&sctw, SIGNAL(finished()), &el, SLOT(quit()));
+  QObject::connect(&sctw, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
   QObject::connect(th, SIGNAL(started()), &sctw, SLOT(do_system_call()));
   QObject::connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+
   sctw.moveToThread(th);
   th->start();
-  el.exec();
+  th->wait();
+
+  QObject::disconnect(&sctw, SIGNAL(finished()), th, SLOT(quit()));
+  QObject::disconnect(th, SIGNAL(started()), &sctw, SLOT(do_system_call()));
+  QObject::disconnect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
 
   lst_output = std::vector<std::string>(sctw.lst_output());
   exit_code = sctw.exit_code();
@@ -369,16 +374,21 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           const char *pass,
                                           int &exit_code,
                                           std::string &ip) {
-  static QString rh_ip_cmd =
-      QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
-      arg(CSettingsManager::Instance().rh_network_interface());
-
-  std::vector<std::string> lst_out;
-  system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-    ip = lst_out[0];
+  static QString interfaces[] = {"eth2", "eth1", "wan"};
+  system_call_wrapper_error_t res;
+  for (int i = 0; i < sizeof(interfaces)/sizeof(QString); ++i) {
+    std::vector<std::string> lst_out;
+    QString rh_ip_cmd =
+          QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
+          arg(interfaces[i]);
+    qDebug() << rh_ip_cmd;
+    res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
+    if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+      ip = lst_out[0];
+      break;
+    }
   }
+
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
