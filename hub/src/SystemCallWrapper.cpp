@@ -375,7 +375,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           const char *pass,
                                           int &exit_code,
                                           std::string &ip) {
-  static QString interfaces[] = {"eth2", "eth1", "wan"};
+  static QString interfaces[] = {"eth2", "eth1"};
   system_call_wrapper_error_t res;
   for (int i = 0; i < sizeof(interfaces)/sizeof(QString); ++i) {
     std::vector<std::string> lst_out;
