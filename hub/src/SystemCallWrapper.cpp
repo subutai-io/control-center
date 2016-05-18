@@ -55,6 +55,7 @@ CSystemCallWrapper::ssystem(const char *command,
                             std::vector<std::string>& lst_output,
                             int &exit_code,
                             bool read_output) {
+  CApplicationLog::Instance()->LogTrace("ssystem : %s", command);
 #ifndef RT_OS_WINDOWS
   std::string str_cmd = " 2>&1 ";
   str_cmd = std::string(command) + str_cmd;
@@ -63,10 +64,8 @@ CSystemCallWrapper::ssystem(const char *command,
     char *line = NULL;
     size_t len = 0;
 
-    if (read_output) {
-      while(getline(&line, &len, pf) != -1 && !CCommons::QuitAppFlag) {
-        lst_output.push_back(std::string(line, len));
-      }
+    while(getline(&line, &len, pf) != -1 && !CCommons::QuitAppFlag) {
+      lst_output.push_back(std::string(line, len));
     }
 
     if (CCommons::QuitAppFlag) return SCWE_SUCCESS;
@@ -138,12 +137,13 @@ CSystemCallWrapper::ssystem(const char *command,
     }
 
     CApplicationLog::Instance()->LogTrace("read output = %d", read_output ? 1 : 0);
-    /*read from file*/
-    if (read_output) {
+
+    if (read_output) {      
       DWORD dw_read;
       char r_buff[4096] = {0};
       b_success = FALSE;
       b_success = ReadFile( h_cso_r, r_buff, 256, &dw_read, NULL);
+      CApplicationLog::Instance()->LogTrace("ReadFile finished");
       if(!b_success || dw_read == 0) {
         break;
       }
@@ -158,10 +158,8 @@ CSystemCallWrapper::ssystem(const char *command,
     }
   } while (false);
 
-  CApplicationLog::Instance()->LogTrace("Close pipes");
   CloseHandle(h_cso_r);
   CloseHandle(h_cso_w);
-  CApplicationLog::Instance()->LogTrace("Close pipes end");
   return res;
 #endif
 }
