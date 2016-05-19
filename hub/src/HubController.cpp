@@ -24,7 +24,7 @@ CHubController::~CHubController() {
 int CHubController::refresh_balance() {
   int http_code, err_code, network_error;
   CSSBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
-  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: $%1").arg(balance.value());
+  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance:  %1").arg(balance.value());
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
