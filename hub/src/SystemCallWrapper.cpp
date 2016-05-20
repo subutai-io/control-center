@@ -69,9 +69,9 @@ CSystemCallWrapper::ssystem(const char *command,
   if (pf) {
     char *line = NULL;
     size_t len = 0;
-
-    while(getline(&line, &len, pf) != -1 && !CCommons::QuitAppFlag) {
-      lst_output.push_back(std::string(line, len));
+    int get_line_count = 0;
+    while((get_line_count = getline(&line, &len, pf)) != -1 && !CCommons::QuitAppFlag) {
+      lst_output.push_back(std::string(line, get_line_count));
     }
 
     if (CCommons::QuitAppFlag) return SCWE_SUCCESS;
