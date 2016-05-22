@@ -431,7 +431,9 @@ CSystemCallWrapper::p2p_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
-  version.replace(version.find('\n'), 1, " ");
+  int index ;
+  if ((index = version.find('\n')) != -1)
+    version.replace(index, 1, " ");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -461,7 +463,9 @@ CSystemCallWrapper::chrome_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
-  version.replace(version.find('\n'), 1, " ");
+  int index ;
+  if ((index = version.find('\n')) != -1)
+    version.replace(index, 1, " ");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
