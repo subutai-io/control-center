@@ -63,6 +63,7 @@ main(int argc, char *argv[]) {
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");  
+  qRegisterMetaType<notification_level_t>("notification_level_t");
 
   QString tmp_file_path = CCommons::AppNameTmp();
 
@@ -73,6 +74,8 @@ main(int argc, char *argv[]) {
     }
   }
 
+  CRestWorker::Instance()->create_network_manager();
+
   DlgLogin dlg;
   dlg.setModal(true);
   dlg.run_dialog();
@@ -82,6 +85,9 @@ main(int argc, char *argv[]) {
   CTrayServer::Instance()->Init();
   CVBoxManagerSingleton::Instance()->init_com();
   TrayControlWindow tcw;
-  return app.exec();
+  int result = app.exec();
+  CRestWorker::Instance()->free_network_manager();
+
+  return result;
 }
 ////////////////////////////////////////////////////////////////////////////

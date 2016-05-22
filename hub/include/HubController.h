@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <QString>
+#include <QObject>
 #include "Locker.h"
 
 class CSSEnvironment;
@@ -18,7 +19,34 @@ typedef enum ssh_launch_error {
   SLE_LAST_ERR
 } ssh_launch_error_t;
 
-class CHubController {
+class CHubControllerThreadWorker : public QObject {
+  Q_OBJECT
+private:
+  std::string m_env_hash;
+  std::string m_env_key;
+  std::string m_ip;
+  std::string m_cont_port;
+  void *m_additional_data;
+public:
+  CHubControllerThreadWorker(const std::string& env_hash,
+                             const std::string& env_key,
+                             const std::string& ip,
+                             const std::string& cont_port,
+                             void* additional_data);
+  ~CHubControllerThreadWorker();
+private slots:
+public slots:
+  void join_to_p2p_swarm_begin();
+  void ssh_to_container_begin(int join_result);
+signals:
+  void join_to_p2p_swarm_finished(int result);
+  void ssh_to_container_finished(int result, void *additional_data);
+
+};
+////////////////////////////////////////////////////////////////////////////
+
+class CHubController : public QObject {
+  Q_OBJECT
 private:
   std::vector<CSSEnvironment> m_lst_environments;
   std::vector<CRHInfo> m_lst_resource_hosts;
@@ -31,16 +59,32 @@ private:
   CHubController(const CHubController&);
   CHubController& operator=(const CHubController&);
 
+  enum finished_slot_t {
+    ssh_to_cont = 0,
+    ssh_to_cont_str
+  };
+
+  void ssh_to_container_internal(const CSSEnvironment *env,
+                                 const CHubContainer *cont,
+                                 void *additional_data,
+                                 finished_slot_t slot);
+
+private slots:
+  void ssh_to_container_finished_slot(int result, void* additional_data);
+  void ssh_to_container_finished_str_slot(int result, void* additional_data);
+
 public:
   int refresh_balance();
   int refresh_environments();
   void refresh_containers(); //to make ssh work
 
-  int ssh_to_container(const CSSEnvironment *env,
-                        const CHubContainer *cont);
+  void ssh_to_container(const CSSEnvironment *env,
+                        const CHubContainer *cont,
+                        void *additional_data);
 
-  int ssh_to_container_str(const QString& env_id,
-                            const QString& cont_id);
+  void ssh_to_container_str(const QString& env_id,
+                            const QString& cont_id,
+                            void *additional_data);
 
   static const QString& ssh_launch_err_to_str(int err);
 
@@ -57,6 +101,10 @@ public:
     static CHubController instance;
     return instance;
   }
+
+signals:
+  void ssh_to_container_finished(int result, void* additional_data);
+  void ssh_to_container_str_finished(int result, void* additional_data);
 };
 
 #endif // HUBCONTROLLER_H

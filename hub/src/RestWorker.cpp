@@ -4,12 +4,15 @@
 #include "RestWorker.h"
 #include "ApplicationLog.h"
 
-CRestWorker::CRestWorker() {
-
+CRestWorker::CRestWorker() :
+  m_network_manager(NULL) {
 }
 
 CRestWorker::~CRestWorker() {
-
+  if (m_network_manager) {
+    delete m_network_manager;
+    m_network_manager = NULL;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +158,7 @@ CRestWorker::download_gorjun_file(const QString &file_id) {
 QNetworkReply*
 CRestWorker::download_file(const QUrl &url) {
   QNetworkRequest request(url);
-  return m_network_manager.get(request);
+  return m_network_manager->get(request);
 }
 
 const QString &
@@ -189,7 +192,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
   timer.start(15000);
 
   QNetworkReply* reply =
-      get ? m_network_manager.get(req) : m_network_manager.post(req, QByteArray());
+      get ? m_network_manager->get(req) : m_network_manager->post(req, QByteArray());
 
   connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));

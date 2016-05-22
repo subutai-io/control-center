@@ -101,15 +101,15 @@ private:
   const CHubContainer* m_hub_container;
 
 public:
-  explicit CHubEnvironmentMenuItem(const CSSEnvironment* env,
-                                   const CHubContainer* cont,
-                                   QSystemTrayIcon* tray_icon) :
+  CHubEnvironmentMenuItem(const CSSEnvironment* env,
+                          const CHubContainer* cont,
+                          QSystemTrayIcon* tray_icon) :
     m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
 
   ~CHubEnvironmentMenuItem(){}
 
 signals:
-  void action_triggered(const CSSEnvironment*, const CHubContainer*);
+  void action_triggered(const CSSEnvironment*, const CHubContainer*, void* action);
 
 public slots:
   void internal_action_triggered();
@@ -215,8 +215,9 @@ private slots:
   /*hub slots*/
   void refresh_timer_timeout();
   void hub_container_mi_triggered(const CSSEnvironment *env,
-                               const CHubContainer *cont);
+                               const CHubContainer *cont, void *action);
   void ssh_key_generate_triggered();
+  void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/
   void updater_timer_timeout();

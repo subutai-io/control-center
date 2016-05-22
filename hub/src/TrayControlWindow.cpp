@@ -30,10 +30,21 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_hub_section(NULL),
   m_vbox_section(NULL),
   m_launch_section(NULL),
+  m_info_section(NULL),
   m_quit_section(NULL),
+
+  m_act_generate_ssh(NULL),
   m_act_quit(NULL),
+  m_act_settings(NULL),
+  m_act_info(NULL),
+  m_act_vbox(NULL),
+  m_act_hub(NULL),
+  m_act_launch(NULL),
+  m_act_launch_SS(NULL),
+  m_act_launch_Hub(NULL),
   m_act_about(NULL),
-  m_act_generate_ssh(NULL)
+  m_sys_tray_icon(NULL),
+  m_tray_menu(NULL)
 {
   ui->setupUi(this);
   m_w_Player = new CVBPlayer(this);
@@ -64,6 +75,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
   connect(&m_ss_updater_timer, SIGNAL(timeout()),
           this, SLOT(updater_timer_timeout()));
+
+  connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
+          this, SLOT(ssh_to_container_finished(int,void*)));
 }
 
 TrayControlWindow::~TrayControlWindow()
@@ -471,9 +485,12 @@ TrayControlWindow::refresh_timer_timeout() {
 
 void
 TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
-                                              const CHubContainer *cont) {
-
-  CHubController::Instance().ssh_to_container(env, cont);
+                                              const CHubContainer *cont,
+                                              void* action) {
+  QAction* act = static_cast<QAction*>(action);
+  if (act != NULL)
+    act->setEnabled(false);
+  CHubController::Instance().ssh_to_container(env, cont, action);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -710,8 +727,8 @@ void TrayControlWindow::refresh_environments() {
       QAction* act = new QAction(cont->name(), this);
       CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
       connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
-      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*)),
-              this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*)));
+      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*, void*)),
+              this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*, void*)));
       env_menu->addAction(act);
     }
   }
@@ -786,15 +803,10 @@ CVboxMenu::act_triggered() {
 /*hub menu*/
 void
 CHubEnvironmentMenuItem::internal_action_triggered() {
-  static std::atomic<int> counter(0);
   QAction* act = static_cast<QAction*>(sender());
-  act->setEnabled(false);
-  ++counter;
-  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
-  emit action_triggered(m_hub_environment, m_hub_container);
-  act->setEnabled(true);
-  --counter;
-  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
+  emit action_triggered(m_hub_environment, m_hub_container, (void*)act);
+  /*m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
+  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));*/
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1034,5 +1046,15 @@ TrayControlWindow::ssh_key_generate_triggered() {
 #endif
   dlg.exec();
   //  this->hide();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::ssh_to_container_finished(int result,
+                                             void *additional_data) {
+  UNUSED_ARG(result);
+  QAction* act = static_cast<QAction*>(additional_data);
+  if (act == NULL) return;
+  act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////

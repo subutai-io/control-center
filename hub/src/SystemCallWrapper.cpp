@@ -63,6 +63,7 @@ CSystemCallWrapper::ssystem(const char *command,
                             bool read_output) {
   CApplicationLog::Instance()->LogTrace("ssystem : %s", command);
 #ifndef RT_OS_WINDOWS
+  UNUSED_ARG(read_output);
   std::string str_cmd = " 2>&1 ";
   str_cmd = std::string(command) + str_cmd;
   FILE* pf = popen(str_cmd.c_str(), "r");
@@ -363,7 +364,7 @@ CSystemCallWrapper::run_ss_updater(const char *host,
                                    int& exit_code) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, "subutai-update", exit_code, lst_out);
+      run_libssh2_command(host, port, user, pass, "subutai update rh", exit_code, lst_out);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -377,7 +378,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           std::string &ip) {
   static QString interfaces[] = {"eth2", "eth1"};
   system_call_wrapper_error_t res;
-  for (int i = 0; i < sizeof(interfaces)/sizeof(QString); ++i) {
+  for (size_t i = 0; i < sizeof(interfaces)/sizeof(QString); ++i) {
     std::vector<std::string> lst_out;
     QString rh_ip_cmd =
           QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
@@ -430,6 +431,7 @@ CSystemCallWrapper::p2p_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
+  version.replace(version.find('\n'), 1, " ");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -459,6 +461,7 @@ CSystemCallWrapper::chrome_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
+  version.replace(version.find('\n'), 1, " ");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////

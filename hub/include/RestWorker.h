@@ -33,7 +33,7 @@ class CRestWorker : public QObject {
   Q_OBJECT
 
 private:
-  QNetworkAccessManager m_network_manager;
+  QNetworkAccessManager *m_network_manager;
 
   QByteArray send_request(const QNetworkRequest& req, bool get,
                           int &http_status_code, int &err_code, int& network_error);
@@ -55,6 +55,8 @@ public:
     static CRestWorker instance;
     return &instance;
   }
+  void create_network_manager() {if (m_network_manager == NULL) m_network_manager = new QNetworkAccessManager;}
+  void free_network_manager() {if (m_network_manager) delete m_network_manager; m_network_manager = NULL;}
 
   void login(const QString& login,
              const QString& password,
