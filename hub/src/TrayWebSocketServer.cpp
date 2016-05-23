@@ -45,38 +45,33 @@ CTrayServer::on_new_connection() {
 
 void
 CTrayServer::process_text_msg(QString msg) {
-  CApplicationLog::Instance()->LogTrace("CTrayServer::process_text_msg : %s", msg.toStdString().c_str());
   QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
   if (!pClient)
     return;
   if (msg == "cmd:current_user") {
-    CApplicationLog::Instance()->LogTrace("1 responce : %s", CHubController::Instance().current_user().toStdString().c_str());
     pClient->sendTextMessage(CHubController::Instance().current_user());
   } else if (int index_of = msg.indexOf("cmd:ssh") != -1) {
     // 7 is len of cmd::ssh
     QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
-    CApplicationLog::Instance()->LogTrace("process_text_msg, args created");
     if (args.count() != 3) {
-      QString responce = QString("code:%1%%%error==%2%%%success==%3")
+      QString response = QString("code:%1%%%error==%2%%%success==%3")
                          .arg(SLE_LAST_ERR+1)
                          .arg(QString("Wrong command \"%1\"").arg(msg))
                          .arg("");
-      CApplicationLog::Instance()->LogTrace("2 responce : %s", responce.toStdString().c_str());
-      pClient->sendTextMessage(responce);
+      pClient->sendTextMessage(response);
       return;
     }
-    CApplicationLog::Instance()->LogTrace("process_text_msg: refresh environments");
     CHubController::Instance().refresh_environments();
-    CApplicationLog::Instance()->LogTrace("process_text_msg: refresh containers");
     CHubController::Instance().refresh_containers();
-
     CApplicationLog::Instance()->LogTrace("process_text_msg: ssh_to_container_str call");
-
-    //todo change this
     CHubController::Instance().ssh_to_container_str(args[1], args[2], (void*)pClient);
-
   } else {
-    //todo unknown command responce
+    QString response = QString("code:%1%%%error==%2%%%success==%3")
+                       .arg(SLE_LAST_ERR+1)
+                       .arg(QString("Unknown command \"%1\"").arg(msg))
+                       .arg("");
+    pClient->sendTextMessage(response);
+    return;
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -100,6 +95,7 @@ CTrayServer::socket_disconnected() {
 void
 CTrayServer::ssh_to_container_finished(int result,
                                        void *additional_data) {
+  CApplicationLog::Instance()->LogTrace("ssh_to_container_finished : %d", result);
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
                      .arg(result==SLE_SUCCESS ? "" : CHubController::ssh_launch_err_to_str(result))

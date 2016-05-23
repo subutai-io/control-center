@@ -154,7 +154,6 @@ void
 CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
                                      void *additional_data) {
-  SynchroPrimitives::Locker lock(&m_refresh_cs);
   CSSEnvironment *env = NULL;
   for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
     if (i->id() != env_id) continue;
