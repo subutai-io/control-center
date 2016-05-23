@@ -146,6 +146,7 @@ macx: {
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/tray_logo.icns
+  QMAKE_INFO_PLIST = $$PWD/Info.plist
 }
 #////////////////////////////////////////////////////////////////////////////
 
