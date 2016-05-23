@@ -31,8 +31,6 @@ private:
   pf_on_log m_onLog;
   const unsigned int m_methodTimeout;
 
-//  SynchroPrimitives::CLinuxManualResetEvent m_mre;
-
   void InvokeHandleExceptionCallback(std::exception& exc) {
     if (m_onHandleException != NULL) m_onHandleException(exc);
   }
@@ -134,7 +132,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
 };
 
-/*UGLY HACK!!! CHECK IT TWICE!!!!*/
+/*because EventLoop is template class. And we wanted to separate definitions and implementations*/
 #include "commons/src/EventLoop.cpp"
 
 #endif // EVENTLOOP_H

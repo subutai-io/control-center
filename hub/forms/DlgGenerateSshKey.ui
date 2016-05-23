@@ -19,7 +19,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="lbl_description">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Slack-Lato,appleLogo,sans-serif'; font-size:15px; color:#2c2d30; background-color:#ffffff;&quot;&gt;Here you can see ssh key. Copy it to clipboard and then go to SS console. There you need to go to environments section. Click Environments. link on the left, At the bottom of the page you will see the list of environments. Click Add link below SSH key column to add the key to all environment containers .&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Here you can see ssh key. Copy it to clipboard and then go to SS console. There you need to go to environments section. Click Environments. link on the left, At the bottom of the page you will see the list of environments. Click Add link below SSH key column to add the key to all environment containers.</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::PlainText</enum>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
