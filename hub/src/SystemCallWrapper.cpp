@@ -73,7 +73,9 @@ CSystemCallWrapper::ssystem(const char *command,
     int get_line_count = 0;
     while((get_line_count = getline(&line, &len, pf)) != -1 && !CCommons::QuitAppFlag) {
       lst_output.push_back(std::string(line, get_line_count));
+      if (line) {free(line); line = NULL;}
     }
+    if (line) free(line);
 
     if (CCommons::QuitAppFlag) return SCWE_SUCCESS;
     exit_code = pclose(pf);

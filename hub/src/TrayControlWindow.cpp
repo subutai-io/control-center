@@ -82,6 +82,11 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
 TrayControlWindow::~TrayControlWindow()
 {
+  if (m_tray_menu) delete m_tray_menu;
+  if (m_sys_tray_icon) delete m_sys_tray_icon;
+  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
+    delete *i;
+  }
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -311,7 +316,6 @@ TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -730,6 +734,7 @@ void TrayControlWindow::refresh_environments() {
       connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*, void*)),
               this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*, void*)));
       env_menu->addAction(act);
+      m_lst_hub_menu_items.push_back(item);
     }
   }
 }

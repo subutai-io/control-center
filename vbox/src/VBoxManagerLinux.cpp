@@ -492,7 +492,6 @@ void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS,
     std::this_thread::sleep_for(std::chrono::seconds(1));
     IEvent *event;
     eS->GetEvent( eL, 100, &event);
-
   }
 }
 ////////////////////////////////////////////////////////////////////////////
