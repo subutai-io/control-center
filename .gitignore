@@ -4,6 +4,7 @@
 *.suo
 subutai_tray_bin/
 libssh_app_bin/
+.DS_Store
 
 # Debian
 *.docs
