@@ -32,7 +32,7 @@ public:
    * \brief Set directory where log files will be generated
    * \param directory - path to directory.
    */
-  void SetDirectory(const char *directory);
+  void SetDirectory(const std::string& directory);
   /*!
    * \brief Set log level.
    * \param lt - log level. See LOG_TYPE enum.

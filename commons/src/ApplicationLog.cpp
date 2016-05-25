@@ -60,8 +60,8 @@ CApplicationLog::AppendLog(const char* str,
 //////////////////////////////////////////////////////////////////////////
 
 void
-CApplicationLog::SetDirectory( const char* directory ) {
-  m_directory = std::string(directory);
+CApplicationLog::SetDirectory(const std::string &directory ) {
+  m_directory = directory;
   UpdateLogFilesNames();
 }
 //////////////////////////////////////////////////////////////////////////

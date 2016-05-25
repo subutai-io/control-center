@@ -9,10 +9,7 @@ CRestWorker::CRestWorker() :
 }
 
 CRestWorker::~CRestWorker() {
-  if (m_network_manager) {
-    delete m_network_manager;
-    m_network_manager = NULL;
-  }
+  free_network_manager();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +28,10 @@ CRestWorker::login(const QString& login,
   request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = send_post_request(request, http_code, err_code, network_error);
 
+  static QString str_ok = "\\\"OK\\\"";
   if (err_code != EL_SUCCESS)
     return;
-  if (QString(arr).mid(1, arr.length()-2) != "OK") {
+  if (QString(arr) == str_ok) {
     err_code = EL_LOGIN_OR_EMAIL;
     return;
   }
@@ -52,7 +50,7 @@ CRestWorker::get_request_json_document(const QString &link,
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {
     err_code = EL_NOT_JSON_DOC;
-    qWarning() << "Not json document : " << QString(arr);
+    CApplicationLog::Instance()->LogInfo("Received not json document from url : %s", link.toStdString().c_str());
     return QJsonDocument();
   }
   return doc;

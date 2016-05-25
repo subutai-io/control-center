@@ -45,7 +45,7 @@ main(int argc, char *argv[]) {
   cmd_parser.addHelpOption();
   cmd_parser.parse(QApplication::arguments());
 
-  CApplicationLog::Instance()->SetDirectory(QApplication::applicationDirPath().toStdString().c_str());
+  CApplicationLog::Instance()->SetDirectory(QApplication::applicationDirPath().toStdString());
 
   QString ll = cmd_parser.value(log_level_opt);
   if(ll == "trace" || ll == "0")
@@ -75,19 +75,21 @@ main(int argc, char *argv[]) {
   }
 
   CRestWorker::Instance()->create_network_manager();
+  int result = 0;
+  do {
+    DlgLogin dlg;
+    dlg.setModal(true);
+    dlg.run_dialog();
+    if (dlg.result() == QDialog::Rejected)
+      break;
 
-  DlgLogin dlg;
-  dlg.setModal(true);
-  dlg.run_dialog();
-  if (dlg.result() == QDialog::Rejected)
-    return 0;
+    CTrayServer::Instance()->Init();
+    CVBoxManagerSingleton::Instance()->init_com();
+    TrayControlWindow tcw;
+    result = app.exec();
+  } while (0);
 
-  CTrayServer::Instance()->Init();
-  CVBoxManagerSingleton::Instance()->init_com();
-  TrayControlWindow tcw;
-  int result = app.exec();
   CRestWorker::Instance()->free_network_manager();
-
   return result;
 }
 ////////////////////////////////////////////////////////////////////////////

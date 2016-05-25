@@ -221,7 +221,6 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (res != SCWE_SUCCESS) {
     QString err_msg = QString("Join to p2p failed. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(res));
-    CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return res;
   }
@@ -229,14 +228,12 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   if (lst_out.size() == 1 &&
       lst_out[0].find("[ERROR]") != std::string::npos) {
     QString err_msg = QString::fromStdString(lst_out[0]);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SCWE_CANT_JOIN_SWARM;
   }
 
   if (exit_code != 0) {
     QString err_msg = QString("Join to p2p swarm failed. Check p2p path. Code : %1").arg(exit_code);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SCWE_CREATE_PROCESS;
   }
