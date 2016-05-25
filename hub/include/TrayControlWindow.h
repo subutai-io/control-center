@@ -187,6 +187,7 @@ private:
 
   void refresh_balance();
   void refresh_environments();
+  void launch_ss(QAction *act);
 private slots:
   /*tray slots*/
   void show_about();
@@ -210,7 +211,7 @@ private slots:
   void vbox_menu_btn_add_triggered(const com::Bstr& vm_id);
   void vbox_menu_btn_rem_triggered(const com::Bstr& vm_id);
   void launch_Hub();
-  void launch_SS();
+  void launch_ss_triggered();
 
   /*hub slots*/
   void refresh_timer_timeout();

@@ -19,7 +19,7 @@ typedef enum ssh_launch_error {
   SLE_LAST_ERR
 } ssh_launch_error_t;
 
-class CHubControllerThreadWorker : public QObject {
+class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
   std::string m_env_hash;
@@ -28,12 +28,12 @@ private:
   std::string m_cont_port;
   void *m_additional_data;
 public:
-  CHubControllerThreadWorker(const std::string& env_hash,
-                             const std::string& env_key,
-                             const std::string& ip,
-                             const std::string& cont_port,
-                             void* additional_data);
-  ~CHubControllerThreadWorker();
+  CHubControllerP2PWorker(const std::string& env_hash,
+                          const std::string& env_key,
+                          const std::string& ip,
+                          const std::string& cont_port,
+                          void* additional_data);
+  ~CHubControllerP2PWorker();
 private slots:
 public slots:
   void join_to_p2p_swarm_begin();

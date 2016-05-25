@@ -41,12 +41,12 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
     }
   }
 
-  CHubControllerThreadWorker* th_worker =
-      new CHubControllerThreadWorker(env->hash().toStdString(),
-                                     env->key().toStdString(),
-                                     rh_ip,
-                                     cont->port().toStdString(),
-                                     additional_data);
+  CHubControllerP2PWorker* th_worker =
+      new CHubControllerP2PWorker(env->hash().toStdString(),
+                                  env->key().toStdString(),
+                                  rh_ip,
+                                  cont->port().toStdString(),
+                                  additional_data);
 
   QThread* th = new QThread;
   connect(th, SIGNAL(started()), th_worker, SLOT(join_to_p2p_swarm_begin()));
@@ -186,11 +186,11 @@ CHubController::ssh_launch_err_to_str(int err) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-CHubControllerThreadWorker::CHubControllerThreadWorker(const std::string &env_hash,
-                                                       const std::string &env_key,
-                                                       const std::string &ip,
-                                                       const std::string &cont_port,
-                                                       void *additional_data) :
+CHubControllerP2PWorker::CHubControllerP2PWorker(const std::string &env_hash,
+                                                 const std::string &env_key,
+                                                 const std::string &ip,
+                                                 const std::string &cont_port,
+                                                 void *additional_data) :
   m_env_hash(env_hash),
   m_env_key(env_key),
   m_ip(ip),
@@ -200,14 +200,14 @@ CHubControllerThreadWorker::CHubControllerThreadWorker(const std::string &env_ha
 
 }
 
-CHubControllerThreadWorker::~CHubControllerThreadWorker()
+CHubControllerP2PWorker::~CHubControllerP2PWorker()
 {
 
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubControllerThreadWorker::join_to_p2p_swarm_begin() {
+CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash.c_str(),
                                                                           m_env_key.c_str(),
                                                                           m_ip.c_str());
@@ -225,7 +225,7 @@ CHubControllerThreadWorker::join_to_p2p_swarm_begin() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubControllerThreadWorker::ssh_to_container_begin(int join_result) {
+CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   system_call_wrapper_error_t err;
 
   if (join_result != SLE_SUCCESS) {

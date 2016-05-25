@@ -7,6 +7,7 @@
 #include <QWidgetAction>
 #include <QFileDialog>
 #include <QDir>
+#include <QtConcurrent/QtConcurrent>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
@@ -112,7 +113,7 @@ TrayControlWindow::fill_vm_menu(){
 void
 TrayControlWindow::fill_launch_menu() {
   m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
-  connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_SS()));
+  connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_ss_triggered()));
 
   m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
   connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
@@ -587,58 +588,10 @@ TrayControlWindow::launch_Hub() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::launch_SS() {
-  QString browser; // "/etc/alternatives/x-www-browser";
-  QString folder;
-  QString hub_url;
-  QStringList args;
-  std::string rh_ip;
-  int ec = 0;
-
-  hub_url = "https://localhost:9999";
-
-  system_call_wrapper_error_t err =
-      CSystemCallWrapper::get_rh_ip_via_libssh2(
-        CSettingsManager::Instance().rh_host().toStdString().c_str(),
-        CSettingsManager::Instance().rh_port().toStdString().c_str(),
-        CSettingsManager::Instance().rh_user().toStdString().c_str(),
-        CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-        ec,
-        rh_ip);
-
-  if (err == SCWE_SUCCESS && ec == 0) {
-    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
-  } else {
-    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %d, exit_code : %d", err, ec);
-    CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(err).
-                                                        arg(ec));
-  }
-
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
-  args << "--new-window";
-#elif defined(RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
-#elif defined(RT_OS_WINDOWS)
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  args << "--new-window";
-#endif
-
-  args << hub_url;
-  err = CSystemCallWrapper::fork_process(browser,
-                                         args,
-                                         folder);
-
-  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Run SS console failed. Error code : %1").
-                      arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    return;
-  }
+TrayControlWindow::launch_ss_triggered() {
+  QAction* act = qobject_cast<QAction*>(sender());
+  act->setEnabled(false);
+  QtConcurrent::run(this, &TrayControlWindow::launch_ss, act);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -736,6 +689,63 @@ void TrayControlWindow::refresh_environments() {
       m_lst_hub_menu_items.push_back(item);
     }
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::launch_ss(QAction* act) {
+  QString browser; // "/etc/alternatives/x-www-browser";
+  QString folder;
+  QString hub_url;
+  QStringList args;
+  std::string rh_ip;
+  int ec = 0;
+
+  hub_url = "https://localhost:9999";
+
+  system_call_wrapper_error_t err =
+      CSystemCallWrapper::get_rh_ip_via_libssh2(
+        CSettingsManager::Instance().rh_host().toStdString().c_str(),
+        CSettingsManager::Instance().rh_port().toStdString().c_str(),
+        CSettingsManager::Instance().rh_user().toStdString().c_str(),
+        CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+        ec,
+        rh_ip);
+
+  if (err == SCWE_SUCCESS && ec == 0) {
+    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  } else {
+    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %d, exit_code : %d", err, ec);
+    CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+                                                        arg(err).
+                                                        arg(ec));
+  }
+
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+  args << "--new-window";
+#elif defined(RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
+#elif defined(RT_OS_WINDOWS)
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  args << "--new-window";
+#endif
+
+  args << hub_url;
+  err = CSystemCallWrapper::fork_process(browser,
+                                         args,
+                                         folder);
+
+  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
+  if (err != SCWE_SUCCESS) {
+    QString err_msg = QString("Run SS console failed. Error code : %1").
+                      arg(CSystemCallWrapper::scwe_error_to_str(err));
+    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    act->setEnabled(true);
+    return;
+  }
+  act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
