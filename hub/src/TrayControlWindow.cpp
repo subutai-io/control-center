@@ -80,8 +80,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(ssh_to_container_finished(int,void*)));
 }
 
-TrayControlWindow::~TrayControlWindow()
-{
+TrayControlWindow::~TrayControlWindow() {
   if (m_tray_menu) delete m_tray_menu;
   if (m_sys_tray_icon) delete m_sys_tray_icon;
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
@@ -514,10 +513,10 @@ TrayControlWindow::updater_timer_timeout() {
   int exit_code = 0;
 
   /*subutai update*/
-  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().updater_host().toStdString().c_str(),
-                                     CSettingsManager::Instance().updater_port().toStdString().c_str(),
-                                     CSettingsManager::Instance().updater_user().toStdString().c_str(),
-                                     CSettingsManager::Instance().updater_pass().toStdString().c_str(),
+  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                                     CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                                     CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                                     CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                                      exit_code);
 
   if (exit_code == RUE_SUCCESS) {
@@ -600,10 +599,10 @@ TrayControlWindow::launch_SS() {
 
   system_call_wrapper_error_t err =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
-        CSettingsManager::Instance().rhip_getter_host().toStdString().c_str(),
-        CSettingsManager::Instance().rhip_getter_port().toStdString().c_str(),
-        CSettingsManager::Instance().rhip_getter_user().toStdString().c_str(),
-        CSettingsManager::Instance().rhip_getter_pass().toStdString().c_str(),
+        CSettingsManager::Instance().rh_host().toStdString().c_str(),
+        CSettingsManager::Instance().rh_port().toStdString().c_str(),
+        CSettingsManager::Instance().rh_user().toStdString().c_str(),
+        CSettingsManager::Instance().rh_pass().toStdString().c_str(),
         ec,
         rh_ip);
 

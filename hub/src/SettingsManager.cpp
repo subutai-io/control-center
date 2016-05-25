@@ -28,22 +28,15 @@ const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app.exe");
 const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app");
 #endif
 
-
-const QString CSettingsManager::SM_UPDATER_USER("Updater_User");
-const QString CSettingsManager::SM_UPDATER_PASS("Updater_Pass");
-const QString CSettingsManager::SM_UPDATER_HOST("Updater_Host");
-const QString CSettingsManager::SM_UPDATER_PORT("Updater_Port");
-
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 const QString CSettingsManager::SM_SSH_KEYGEN_PATH("Ssh_Keygen_Path");
 
-const QString CSettingsManager::SM_RHIP_GETTER_USER("Rhip_Getter_User");
-const QString CSettingsManager::SM_RHIP_GETTER_PASS("Rhip_GetterPass");
-const QString CSettingsManager::SM_RHIP_GETTER_HOST("Rhip_GetterHost");
-const QString CSettingsManager::SM_RHIP_GETTER_PORT("Rhip_GetterPort");
-const QString CSettingsManager::SM_RH_NETWORK_INTERFACE("Rh_NetworkInterface");
+const QString CSettingsManager::SM_RH_USER("Rh_User");
+const QString CSettingsManager::SM_RH_PASS("Rh_Pass");
+const QString CSettingsManager::SM_RH_HOST("Rh_Host");
+const QString CSettingsManager::SM_RH_PORT("Rh_Port");
 
 struct str_setting_val {
   QString& field;
@@ -72,18 +65,14 @@ CSettingsManager::CSettingsManager() :
   #endif
   m_ss_updater_path(QApplication::applicationDirPath() + QDir::separator() + SS_UPDATER_APP_NAME),
   m_notification_delay_sec(5),
-  m_updater_host("127.0.0.1"),
-  m_updater_user("local_user"),
-  m_updater_pass("password"),
-  m_updater_port("22"),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
   m_ssh_user("root"),
   m_ssh_keygen_path("ssh-keygen"),
-  m_rhip_getter_host("127.0.0.1"),
-  m_rhip_getter_user("ubuntu"),
-  m_rhip_getter_pass("ubuntu"),
-  m_rhip_getter_port("4567"),
+  m_rh_host("127.0.0.1"),
+  m_rh_user("ubuntu"),
+  m_rh_pass("ubuntu"),
+  m_rh_port("4567"),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
   m_rh_network_interface("eth2")
 {
@@ -93,20 +82,15 @@ CSettingsManager::CSettingsManager() :
     {m_get_url, SM_GET_URL},
     {m_terminal_path, SM_TERMINAL_PATH},
     {m_p2p_path, SM_P2P_PATH},
-    {m_ss_updater_path, SM_SS_UPDATER_PATH},
-    {m_updater_host, SM_UPDATER_HOST},
-    {m_updater_user, SM_UPDATER_USER},
-    {m_updater_pass, SM_UPDATER_PASS},
-    {m_updater_port, SM_UPDATER_PORT},
+    {m_ss_updater_path, SM_SS_UPDATER_PATH},    
     {m_ssh_path, SM_SSH_PATH},
     {m_ssh_user, SM_SSH_USER},
     {m_ssh_keygen_path, SM_SSH_KEYGEN_PATH},
-    {m_rhip_getter_host, SM_RHIP_GETTER_HOST},
-    {m_rhip_getter_pass, SM_RHIP_GETTER_PASS},
-    {m_rhip_getter_port, SM_RHIP_GETTER_PORT},
-    {m_rhip_getter_user, SM_RHIP_GETTER_USER},
+    {m_rh_host, SM_RH_HOST},
+    {m_rh_pass, SM_RH_PASS},
+    {m_rh_port, SM_RH_PORT},
+    {m_rh_user, SM_RH_USER},
     {m_gorjun_url, SM_GORJUN_URL},
-    {m_rh_network_interface, SM_RH_NETWORK_INTERFACE},
     {tmp, ""}
   };
 

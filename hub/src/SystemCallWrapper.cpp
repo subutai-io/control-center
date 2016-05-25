@@ -378,21 +378,16 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           const char *pass,
                                           int &exit_code,
                                           std::string &ip) {
-  static QString interfaces[] = {"eth2", "eth1"};
   system_call_wrapper_error_t res;
-  for (size_t i = 0; i < sizeof(interfaces)/sizeof(QString); ++i) {
-    std::vector<std::string> lst_out;
-    QString rh_ip_cmd =
-          QString("ifconfig %1 | grep 'inet addr:' | cut -d: -f2 | tr -s ' ' | cut -d ' ' -f1").
-          arg(interfaces[i]);
-    res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
+  std::vector<std::string> lst_out;
+  QString rh_ip_cmd = QString("subutai management_network detect");
+  res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
-    if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-      QHostAddress addr(lst_out[0].c_str());
-      if (!addr.isNull()) {
-        ip = lst_out[0];
-        return res;
-      }
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+    QHostAddress addr(lst_out[0].c_str());
+    if (!addr.isNull()) {
+      ip = lst_out[0];
+      return SCWE_SUCCESS;
     }
   }
 

@@ -79,7 +79,7 @@ private:
   };
   //////////////////////////////////////////////////////////////////////////
 
-  //DO NOT CHANGE ORDER!!!! of this 2 fields. in should be m_loopWorker and after m_loopWorkerThread
+  //DO NOT CHANGE ORDER!!!! of these 2 fields. MUST BE m_loopWorker and after m_loopWorkerThread
   LoopWorker m_loopWorker;
   CThreadWrapper<LoopWorker> m_loopWorkerThread;
 
@@ -92,20 +92,41 @@ public:
               bool autoTerminate);
 
   ~CEventLoop(void);
+  /*!
+   * \brief Run message loop.
+   */
   void Run(void);
 
-  //////////////////////////////////////////////////////////////////////////
+  /*!
+   * \brief InvokeActionAsync - call method and return immediately. We don't care about result.
+   * \param functor - functor to run. Can be FunctorWithResult or FunctorWithoutResult
+   */
   void  InvokeActionAsync(IFunctor* functor);
 
+  /*!
+   * \brief InvokeActionSync - call method and wait for method result.
+   * \param functor - functor to run. Can be FunctorWithResult or FunctorWithoutResult
+   * \param runInEventLoopsThread - flag. If true - method will be executed in message loop's thread. If false - in caller thread
+   * \param timeout - method execution timeout.
+   */
   void  InvokeActionSync(IFunctor* functor,
                          bool runInEventLoopsThread = true ,
                          unsigned int timeout = METHOD_TIMEOUT);
 
+  /*!
+   * \brief InvokeActionWithResult - call method with return value
+   * \param functor - functor to run. It can be FunctorWithoutResult, but it's meaningless. So it should be FunctorWithResult
+   * \param runInEventLoopsThread - flag. If true - method will be executed in message loop's thread. If false - in caller thread
+   * \param timeout - method execution timeout
+   * \return (void*). You should use static_cast, or some another cast mechanism to get result back.
+   */
   void* InvokeActionWithResult(IFunctor* functor,
                                bool runInEventLoopsThread = true,
                                unsigned int timeout = METHOD_TIMEOUT);
 
-  //////////////////////////////////////////////////////////////////////////
+  /*!
+   * \brief GetSyncResult<RT> - template function. Call method and wait for result of RT type.
+   */
   template<class RT> static RT GetSyncResult(CEventLoop* eventLoop,
                                              IFunctor* functor,
                                              bool runInEventLoopsThread) {

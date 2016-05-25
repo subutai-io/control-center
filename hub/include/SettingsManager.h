@@ -28,22 +28,15 @@ private:
   static const QString SM_NOTIFICATION_DELAY_SEC;
   static const QString SM_SS_UPDATER_PATH;
 
-  static const QString SM_UPDATER_USER;
-  static const QString SM_UPDATER_PASS;
-  static const QString SM_UPDATER_HOST;
-  static const QString SM_UPDATER_PORT;
-
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
   static const QString SM_SSH_KEYGEN_PATH;
 
-  static const QString SM_RHIP_GETTER_USER;
-  static const QString SM_RHIP_GETTER_PASS;
-  static const QString SM_RHIP_GETTER_HOST;
-  static const QString SM_RHIP_GETTER_PORT;
-
-  static const QString SM_RH_NETWORK_INTERFACE;
+  static const QString SM_RH_USER;
+  static const QString SM_RH_PASS;
+  static const QString SM_RH_HOST;
+  static const QString SM_RH_PORT;
 
   CSettingsManager();
 
@@ -61,21 +54,15 @@ private:
 
   uint32_t m_notification_delay_sec;
 
-  //todo remove it from settings after getting it somehow from somewhere
-  QString m_updater_host;
-  QString m_updater_user;
-  QString m_updater_pass;
-  QString m_updater_port;
-
   uint16_t m_plugin_port;
   QString m_ssh_path;
   QString m_ssh_user;
   QString m_ssh_keygen_path;
 
-  QString m_rhip_getter_host;
-  QString m_rhip_getter_user;
-  QString m_rhip_getter_pass;
-  QString m_rhip_getter_port;
+  QString m_rh_host;
+  QString m_rh_user;
+  QString m_rh_pass;
+  QString m_rh_port;
 
   QString m_gorjun_url;
   QString m_rh_network_interface;
@@ -103,22 +90,17 @@ public:
   const QString& p2p_path() const {return m_p2p_path;}
   uint32_t notification_delay_sec() const {return m_notification_delay_sec;}
   const QString& ss_updater_path() const {return m_ss_updater_path;}
-  const QString& updater_user() const{return m_updater_user;}
-  const QString& updater_pass() const{return m_updater_pass;}
-  const QString& updater_host() const{return m_updater_host;}
-  const QString& updater_port() const{return m_updater_port;}
   uint16_t plugin_port() const {return m_plugin_port;}
   const QString& ssh_path() const {return m_ssh_path;}
   const QString& ssh_user() const {return m_ssh_user;}
   const QString& ssh_keygen_path() const {return m_ssh_keygen_path;}
 
-  const QString& rhip_getter_user() const {return m_rhip_getter_user;}
-  const QString& rhip_getter_pass() const {return m_rhip_getter_pass;}
-  const QString& rhip_getter_host() const {return m_rhip_getter_host;}
-  const QString& rhip_getter_port() const {return m_rhip_getter_port;}
+  const QString& rh_user() const {return m_rh_user;}
+  const QString& rh_pass() const {return m_rh_pass;}
+  const QString& rh_host() const {return m_rh_host;}
+  const QString& rh_port() const {return m_rh_port;}
 
   const QString& gorjun_url() const {return m_gorjun_url;}
-  const QString& rh_network_interface() const {return m_rh_network_interface;}
 
   void set_login(const QString& login) {
     m_login = login;
@@ -172,26 +154,6 @@ public:
     m_settings.setValue(SM_SS_UPDATER_PATH, m_ss_updater_path);
   }
 
-  void set_updater_user(const QString& updater_user) {
-    m_updater_user = updater_user;
-    m_settings.setValue(SM_UPDATER_USER, m_updater_user);
-  }
-
-  void set_updater_pass(const QString& updater_pass) {
-    m_updater_pass = updater_pass;
-    m_settings.setValue(SM_UPDATER_PASS, m_updater_pass);
-  }
-
-  void set_updater_host(const QString& updater_host) {
-    m_updater_host = updater_host;
-    m_settings.setValue(SM_UPDATER_HOST, m_updater_host);
-  }
-
-  void set_updater_port(const QString& updater_port) {
-    m_updater_port = updater_port;
-    m_settings.setValue(SM_UPDATER_PORT, m_updater_port);
-  }
-
   void set_plugin_port(uint16_t plugin_port) {
     m_plugin_port = plugin_port;
     m_settings.setValue(SM_PLUGIN_PORT, m_plugin_port);
@@ -213,34 +175,29 @@ public:
   }
 
   void set_rhip_getter_user(const QString& rhip_getter_user) {
-    m_rhip_getter_user = rhip_getter_user;
-    m_settings.setValue(SM_RHIP_GETTER_USER, m_rhip_getter_user);
+    m_rh_user = rhip_getter_user;
+    m_settings.setValue(SM_RH_USER, m_rh_user);
   }
 
   void set_rhip_getter_pass(const QString& rhip_getter_pass) {
-    m_rhip_getter_pass = rhip_getter_pass;
-    m_settings.setValue(SM_RHIP_GETTER_PASS, m_rhip_getter_pass);
+    m_rh_pass = rhip_getter_pass;
+    m_settings.setValue(SM_RH_PASS, m_rh_pass);
   }
 
   void set_rhip_getter_host(const QString& rhip_getter_host) {
-    m_rhip_getter_host = rhip_getter_host;
-    m_settings.setValue(SM_RHIP_GETTER_HOST, m_rhip_getter_host);
+    m_rh_host = rhip_getter_host;
+    m_settings.setValue(SM_RH_HOST, m_rh_host);
   }
 
   void set_rhip_getter_port(const QString& rhip_getter_port) {
-    m_rhip_getter_port = rhip_getter_port;
-    m_settings.setValue(SM_RHIP_GETTER_PORT, m_rhip_getter_port);
+    m_rh_port = rhip_getter_port;
+    m_settings.setValue(SM_RH_PORT, m_rh_port);
   }
 
   void set_gorjun_url(const QString& gorjun_url) {
     m_gorjun_url = gorjun_url;
     m_settings.setValue(SM_GORJUN_URL, m_gorjun_url);
-  }
-
-  void set_rh_network_interface(const QString& network_interface) {
-    m_rh_network_interface = network_interface;
-    m_settings.setValue(SM_RH_NETWORK_INTERFACE, m_rh_network_interface);
-  }
+  }  
 };
 
 #endif // CSETTINGSMANAGER_H

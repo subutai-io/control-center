@@ -3,6 +3,10 @@
 #include <string>
 #include <exception>
 
+/*!
+ * \brief The CEventLoopException class for EventLoopException handling
+ * Use try {} catch(CEventLoopException& exc) {}
+ */
 class CEventLoopException : public std::exception
 {
 private:

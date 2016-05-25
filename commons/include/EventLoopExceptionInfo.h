@@ -2,6 +2,7 @@
 #define EVENTLOOPEXCEPTIONINFO_H
 
 #include <string>
+
 typedef struct CEventLoopExceptionInfo
 {
   void* ExceptionAddress;
