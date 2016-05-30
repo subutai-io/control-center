@@ -717,7 +717,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(err).
+                                                        arg(run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
   }
 
