@@ -520,7 +520,7 @@ TrayControlWindow::updater_timer_timeout() {
                                      CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                                      exit_code);
 
-  if (exit_code == RUE_SUCCESS) {
+  if (exit_code == RLE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutInfo("Update command succesfull finished");
     CApplicationLog::Instance()->LogInfo("Update command succesfull finished");
   } else {
@@ -669,8 +669,8 @@ void TrayControlWindow::refresh_environments() {
 
   m_hub_menu->clear();
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
-    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
-               this, SLOT(hub_container_mi_triggered(CSSEnvironment*,CHubContainer*)));
+//    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
+//               this, SLOT(hub_container_mi_triggered(CSSEnvironment*,CHubContainer*)));
     delete *i;
   }
   m_lst_hub_menu_items.clear();
@@ -714,7 +714,8 @@ void TrayControlWindow::launch_ss(QAction* act) {
   if (err == SCWE_SUCCESS && ec == 0) {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
-    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %d, exit_code : %d", err, ec);
+    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
+                                          run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(err).
                                                         arg(ec));

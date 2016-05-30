@@ -31,6 +31,18 @@ struct CSshInitializer {
 };
 ////////////////////////////////////////////////////////////////////////////
 
+const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
+  static const char* rle_errors[] = {
+    "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",
+    "LIBSSH2_INIT", "INET_ADDR", "CONNECTION_TIMEOUT",
+    "CONNECTION_ERROR", "LIBSSH2_SESSION_INIT", "SESSION_HANDSHAKE",
+    "SSH_AUTHENTICATION", "LIBSSH2_CHANNEL_OPEN", "LIBSSH2_CHANNEL_EXEC",
+    "LIBSSH2_EXIT_CODE_NOT_NULL"
+  };
+  return rle_errors[err];
+}
+////////////////////////////////////////////////////////////////////////////
+
 int wait_ssh_socket_event(int socket_fd, LIBSSH2_SESSION *session) {
   struct timeval timeout;
   int rc;
@@ -109,22 +121,22 @@ int run_ssh_command(const char* str_host,
   rc = wait_socket_connected(sock, conn_timeout);
 
   if (rc == 0) {
-    return RUE_CONNECTION_TIMEOUT;
+    return RLE_CONNECTION_TIMEOUT;
   }
   else if (rc == SOCKET_ERROR) {
-    return RUE_CONNECTION_ERROR;
+    return RLE_CONNECTION_ERROR;
   }
 
   LIBSSH2_SESSION *session = libssh2_session_init();
   if (!session) {
-    return RUE_LIBSSH2_SESSION_INIT;
+    return RLE_LIBSSH2_SESSION_INIT;
   }
 
   while ((rc = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN)
     ; //wait
   
   if (rc) {
-    return RUE_SESSION_HANDSHAKE;
+    return RLE_SESSION_HANDSHAKE;
   }
 
   do {
@@ -132,7 +144,7 @@ int run_ssh_command(const char* str_host,
       ; //wait
 
     if (rc) {
-      return RUE_SSH_AUTHENTICATION;
+      return RLE_SSH_AUTHENTICATION;
     }
 
     LIBSSH2_CHANNEL *channel;
@@ -142,7 +154,7 @@ int run_ssh_command(const char* str_host,
     }
 
     if (channel == NULL) {
-      return RUE_LIBSSH2_CHANNEL_OPEN;
+      return RLE_LIBSSH2_CHANNEL_OPEN;
     }
 
     while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
@@ -151,7 +163,7 @@ int run_ssh_command(const char* str_host,
     }
 
     if (rc != 0) {
-      return RUE_LIBSSH2_CHANNEL_EXEC;
+      return RLE_LIBSSH2_CHANNEL_EXEC;
     }
 
     for (;;) {
@@ -213,7 +225,7 @@ int run_ssh_command(const char* str_host,
   close(sock);
 #endif
 
-  return exitcode ? RUE_LIBSSH2_EXIT_CODE_NOT_NULL : RUE_SUCCESS;
+  return exitcode ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -221,7 +233,7 @@ int main(int argc, char* argv[]) {
 
   if (argc != 6) {
     std::cout << "Provide 5 parameters in this order : host_ip, port, username, password, command_to_run";
-    return RUE_WRONG_ARGUMENTS_COUNT;
+    return RLE_WRONG_ARGUMENTS_COUNT;
   }
   /*TODO implement getopt on windows and use getopt() everywhere*/
   const char* str_host = argv[1];
@@ -242,7 +254,7 @@ int main(int argc, char* argv[]) {
   int rc = libssh2_init.result;
   if (rc) {
     std::cout << "libssh2_init error : " << rc << std::endl;
-    return RUE_LIBSSH2_INIT;
+    return RLE_LIBSSH2_INIT;
   }
 
   int port = std::atoi(str_port);

@@ -378,13 +378,10 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
   system_call_wrapper_error_t res;
   std::vector<std::string> lst_out;
   QString rh_ip_cmd = QString("sudo subutai management_network detect");
-  CApplicationLog::Instance()->LogTrace("ssh to %s@%s -p %s", user, host, port);
   res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
-  CApplicationLog::Instance()->LogTrace("get_rh_ip_via_libssh2 res : %d, ec : %d", res, exit_code);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     QHostAddress addr(lst_out[0].c_str());
-    CApplicationLog::Instance()->LogTrace("got address : %s", lst_out[0].c_str());
     if (!addr.isNull()) {
       ip = lst_out[0];
       return SCWE_SUCCESS;
