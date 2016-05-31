@@ -63,8 +63,7 @@ CRestWorker::get_environments(int& http_code,
                               int& err_code,
                               int& network_error) {
   std::vector<CSSEnvironment> lst_res;
-  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);
-  if (err_code != 0) return lst_res;
+  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);  
   QJsonArray arr = doc.array();
   for (auto i = arr.begin(); i != arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;

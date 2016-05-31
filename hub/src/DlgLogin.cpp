@@ -48,8 +48,11 @@ DlgLogin::btn_ok_released() {
   CSettingsManager::Instance().set_remember_me(ui->cb_save_credentials->checkState() == Qt::Checked);
 
   int http_code, err_code, network_err;
-  CRestWorker::Instance()->login(ui->le_login->text(),
-                                 ui->le_password->text(),
+  CHubController::Instance().set_current_user(ui->le_login->text());
+  CHubController::Instance().set_current_pass(ui->le_password->text());
+
+  CRestWorker::Instance()->login(CHubController::Instance().current_user(),
+                                 CHubController::Instance().current_pass(),
                                  http_code,
                                  err_code,
                                  network_err);
@@ -59,8 +62,7 @@ DlgLogin::btn_ok_released() {
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())
-        CSettingsManager::Instance().save_all();
-      CHubController::Instance().set_current_user(ui->le_login->text());
+        CSettingsManager::Instance().save_all();      
       QDialog::accept();
       break;
     case EL_LOGIN_OR_EMAIL:

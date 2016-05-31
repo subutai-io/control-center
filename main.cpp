@@ -90,6 +90,8 @@ main(int argc, char *argv[]) {
   }
 
   CRestWorker::Instance()->create_network_manager();
+  int http_code, err_code, network_error;
+  CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
   int result = 0;
   do {
     DlgLogin dlg;

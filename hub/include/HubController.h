@@ -52,6 +52,8 @@ private:
   std::vector<CRHInfo> m_lst_resource_hosts;
   QString m_balance;
   QString m_current_user;
+  QString m_current_pass;
+
   SynchroPrimitives::CriticalSection m_refresh_cs;
 
   CHubController();
@@ -88,14 +90,15 @@ public:
 
   static const QString& ssh_launch_err_to_str(int err);
 
-  void set_current_user(const QString& cu) {
-    m_current_user = cu;
-  }
+  void set_current_user(const QString& cu) {m_current_user = cu;}
+  void set_current_pass(const QString& cp) {m_current_pass = cp;}
 
   const std::vector<CSSEnvironment>& lst_environments() const { return m_lst_environments; }
   const std::vector<CRHInfo>& lst_resource_hosts() const { return m_lst_resource_hosts; }
   const QString& balance() const {return m_balance;}
+
   const QString& current_user() const {return m_current_user;}
+  const QString& current_pass() const {return m_current_pass;}
 
   static CHubController& Instance() {
     static CHubController instance;
