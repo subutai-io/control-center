@@ -237,7 +237,7 @@ void
 CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
   system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash.c_str(),
                                                                           m_env_key.c_str(),
-                                                                          m_ip.c_str());
+                                                                          "dhcp");
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Failed to join to p2p network. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
