@@ -101,7 +101,7 @@ int run_ssh_command(const char* str_host,
 #else
   SOCKET sock;
   if (InetPtonA(AF_INET, str_host, &ul_host_addr) != 1) {
-    return RUE_INET_ADDR;
+    return RLE_INET_ADDR;
   }
 #endif
   sin.sin_family = AF_INET;
@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) {
   WSADATA wsadata;
   if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
     std::cout << "WSAStartup failed with error: " << err << std::endl;
-    return RUE_WSA_STARTUP;
+    return RLE_WSA_STARTUP;
   }
 #endif
 
