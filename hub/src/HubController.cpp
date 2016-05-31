@@ -207,7 +207,7 @@ CHubController::ssh_to_container_str(const QString &env_id,
 const QString&
 CHubController::ssh_launch_err_to_str(int err) {
   static QString lst_err_str[] = {
-    "Success", "Environment not found", "Container not found", "Join to p2p swarm failed", "System call failed" };
+    "Success", "Environment not found", "Container not found", "Container isn't ready", "Join to p2p swarm failed", "System call failed" };
   return lst_err_str[err%SLE_LAST_ERR];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
 
   if (err != SCWE_SUCCESS) {
     CNotifiactionObserver::NotifyAboutError("Failed to run SSH because container isn't ready. Try little bit later.");
-    emit ssh_to_container_finished((int)err, m_additional_data);
+    emit ssh_to_container_finished((int)SLE_CONT_NOT_READY, m_additional_data);
     return;
   }
 
