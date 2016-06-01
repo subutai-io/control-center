@@ -49,7 +49,7 @@ main(int argc, char *argv[]) {
   QCommandLineOption log_level_opt("l",
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
                                    "log_level",
-                                   "error");
+                                   "info");
   QCommandLineOption version_opt("v",
                                  "Version",
                                  "Version");
@@ -74,7 +74,7 @@ main(int argc, char *argv[]) {
     std::cout << GIT_VERSION << std::endl;
     return 0;
   }
-  CApplicationLog::Instance()->LogTrace("Tray application %s launched\n", GIT_VERSION);
+  CApplicationLog::Instance()->LogInfo("Tray application %s launched\n", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<com::Bstr>("com::Bstr");  
@@ -90,8 +90,6 @@ main(int argc, char *argv[]) {
   }
 
   CRestWorker::Instance()->create_network_manager();
-  int http_code, err_code, network_error;
-  CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
   int result = 0;
   do {
     DlgLogin dlg;
