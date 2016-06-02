@@ -90,6 +90,7 @@ int CHubController::refresh_balance() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get balance again");
+      CRestWorker::Instance()->clear_cache();
       balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
@@ -115,6 +116,7 @@ int CHubController::refresh_environments() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get environments again");
+      CRestWorker::Instance()->clear_cache();
       res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
@@ -156,6 +158,7 @@ void CHubController::refresh_containers() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get containers again");
+      CRestWorker::Instance()->clear_cache();
       res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {

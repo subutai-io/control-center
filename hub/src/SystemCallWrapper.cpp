@@ -347,7 +347,7 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
                                         int& exit_code,
                                         std::vector<std::string>& lst_output) {
   std::ostringstream str_stream;
-  str_stream << CSettingsManager::Instance().ss_updater_path().toStdString().c_str() << " \"" << host << "\"" <<
+  str_stream << CSettingsManager::Instance().libssh2_app_path().toStdString().c_str() << " \"" << host << "\"" <<
                 " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
   system_call_wrapper_error_t res =
       ssystem_th(str_stream.str().c_str(), lst_output, exit_code, true);
@@ -425,8 +425,8 @@ CSystemCallWrapper::p2p_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
-  int index ;
-  if ((index = version.find('\n')) != -1)
+  size_t index ;
+  if ((index = version.find('\n')) != std::string::npos)
     version.replace(index, 1, " ");
   return res;
 }
@@ -457,8 +457,8 @@ CSystemCallWrapper::chrome_version(std::string &version,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
 
-  int index ;
-  if ((index = version.find('\n')) != -1)
+  size_t index ;
+  if ((index = version.find('\n')) != std::string::npos)
     version.replace(index, 1, " ");
   return res;
 }

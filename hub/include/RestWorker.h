@@ -31,32 +31,14 @@ typedef enum error_login {
 
 class CRestWorker : public QObject {
   Q_OBJECT
-
-private:
-  QNetworkAccessManager *m_network_manager;
-
-  QByteArray send_request(const QNetworkRequest& req, bool get,
-                          int &http_status_code, int &err_code, int& network_error);
-  QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code,
-                              int &err_code, int& network_error);
-  QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code,
-                               int &err_code, int& network_error);
-  QJsonDocument get_request_json_document(const QString& link, int& http_code,
-                                          int &err_code, int &network_error);
-
-  CRestWorker();
-  CRestWorker(const QString& login,
-              const QString& password);
-  CRestWorker(const CRestWorker& worker);
-  ~CRestWorker(void);
-
 public:
   static CRestWorker* Instance() {
     static CRestWorker instance;
     return &instance;
   }
-  void create_network_manager() {if (m_network_manager == NULL) m_network_manager = new QNetworkAccessManager;}
-  void free_network_manager() {if (m_network_manager) delete m_network_manager; m_network_manager = NULL;}
+  void create_network_manager();
+  void free_network_manager();
+  void clear_cache() {m_network_manager->clearAccessCache();}
 
   void login(const QString& login,
              const QString& password,
@@ -72,8 +54,27 @@ public:
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& login_err_to_str(error_login_t err);
+
+private:
+  QNetworkAccessManager *m_network_manager;
+  QByteArray send_request(const QNetworkRequest& req, bool get,
+                          int &http_status_code, int &err_code, int& network_error);
+  QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code,
+                              int &err_code, int& network_error);
+  QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code,
+                               int &err_code, int& network_error);
+  QJsonDocument get_request_json_document(const QString& link, int& http_code,
+                                          int &err_code, int &network_error);
+
+  CRestWorker();
+  CRestWorker(const QString& login,
+              const QString& password);
+  CRestWorker(const CRestWorker& worker);
+  ~CRestWorker(void);
+
 private slots:
   void ssl_errors_appeared(QList<QSslError> lst_errors);
+  void networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility na);
 };
 
 #endif // CRESTWORKER_H

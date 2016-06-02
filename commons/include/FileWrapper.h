@@ -30,12 +30,12 @@ public:
   /*!
    * \brief FRead - calls fread function
    */
-  int FRead(void* buff, size_t elemSize, size_t count) { return fread(buff, elemSize, count, m_file);}
+  size_t FRead(void* buff, size_t elemSize, size_t count) { return fread(buff, elemSize, count, m_file);}
 
   /*!
    * \brief FWrite - calls fwrite function
    */
-  int FWrite(void* str, size_t size, size_t count) {return fwrite(str, size, count, m_file);}
+  size_t FWrite(void* str, size_t size, size_t count) {return fwrite(str, size, count, m_file);}
 
   /*!
    * \brief FSeek - calls fseek function

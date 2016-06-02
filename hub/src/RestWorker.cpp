@@ -14,6 +14,24 @@ CRestWorker::~CRestWorker() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CRestWorker::create_network_manager() {
+  if (m_network_manager == NULL) {
+    m_network_manager = new QNetworkAccessManager;
+    connect(m_network_manager, SIGNAL(networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)),
+            this, SLOT(networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)));
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::free_network_manager() {
+  if (m_network_manager)
+    delete m_network_manager;
+  m_network_manager = NULL;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CRestWorker::login(const QString& login,
                    const QString& password,
                    int &http_code,
@@ -181,7 +199,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           int &network_error) {
   err_code = EL_SUCCESS;
   network_error = 0;
-
+  http_status_code = -1;
 
   QEventLoop loop;
   QTimer timer(&loop);
@@ -248,4 +266,10 @@ CRestWorker::ssl_errors_appeared(QList<QSslError> lst_errors) {
                                           lst_errors.at(i).error(),
                                           lst_errors.at(i).errorString().toStdString().c_str());
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility na) {
+  CApplicationLog::Instance()->LogInfo("networkAccessibleChanged to %d", (int)na);
 }

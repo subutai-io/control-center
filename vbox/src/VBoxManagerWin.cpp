@@ -411,7 +411,6 @@ int CVBoxManagerWin::add(const com::Bstr &vm_id) {
 // Machine can be Removed if State < 5
 
 //dialog?
-  IProgress* progress;
   nsresult rc;
   IMachine *newmachine = NULL;
   BSTR vm_idd = SysAllocString(L"test-add");
@@ -458,7 +457,7 @@ QString CVBoxManagerWin::version() {
   com::Bstr ver("");
   nsresult rc = m_virtual_box->get_Version(ver.asOutParam());
   if (SUCCEEDED(rc)) {
-    QString result((QChar*)ver.raw(), ver.length());
+    QString result((QChar*)ver.raw(), (int)ver.length());
     return result;
   }
   return "";

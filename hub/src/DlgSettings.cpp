@@ -15,7 +15,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
   ui->sb_notification_delay->setValue(CSettingsManager::Instance().notification_delay_sec());
-  ui->le_updater_command->setText(CSettingsManager::Instance().ss_updater_path());
+  ui->le_updater_command->setText(CSettingsManager::Instance().libssh2_app_path());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
@@ -58,9 +58,7 @@ void DlgSettings::btn_ok_released()
   if (ui->le_terminal_command->text() != "")
     CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
   if (ui->le_ssh_command->text() != "")
-    CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
-  if (ui->le_updater_command->text() != "")
-    CSettingsManager::Instance().set_ss_updater_path(ui->le_updater_command->text());
+    CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());  
   if (ui->le_ssh_user->text() != "")
     CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   if (ui->le_rhip_host->text() != "")

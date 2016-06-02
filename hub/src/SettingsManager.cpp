@@ -18,14 +18,13 @@ const QString CSettingsManager::SM_TERMINAL_PATH("Terminal_Path");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
-const QString CSettingsManager::SM_SS_UPDATER_PATH("Ss_Updater_Path");
 
 #ifdef RT_OS_LINUX
-const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app");
+const QString CSettingsManager::LIBSSH2_APP_NAME("libssh2_app");
 #elif RT_OS_WINDOWS
-const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app.exe");
+const QString CSettingsManager::LIBSSH2_APP_NAME("libssh2_app.exe");
 #elif RT_OS_DARWIN
-const QString CSettingsManager::SS_UPDATER_APP_NAME("libssh2_app");
+const QString CSettingsManager::LIBSSH2_APP_NAME("libssh2_app");
 #endif
 
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -63,7 +62,7 @@ CSettingsManager::CSettingsManager() :
   m_terminal_path("cmd"),
   m_p2p_path("p2p.exe"),
   #endif
-  m_ss_updater_path(QApplication::applicationDirPath() + QDir::separator() + SS_UPDATER_APP_NAME),
+  m_libssh2_path(QApplication::applicationDirPath() + QDir::separator() + LIBSSH2_APP_NAME),
   m_notification_delay_sec(5),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
@@ -82,7 +81,6 @@ CSettingsManager::CSettingsManager() :
     {m_get_url, SM_GET_URL},
     {m_terminal_path, SM_TERMINAL_PATH},
     {m_p2p_path, SM_P2P_PATH},
-    {m_ss_updater_path, SM_SS_UPDATER_PATH},    
     {m_ssh_path, SM_SSH_PATH},
     {m_ssh_user, SM_SSH_USER},
     {m_ssh_keygen_path, SM_SSH_KEYGEN_PATH},

@@ -133,6 +133,11 @@ nsresult CVirtualMachineWin::run_process(const char *path,
                                          int argc,
                                          const char **argv)
 {
+  UNUSED_ARG(path);
+  UNUSED_ARG(user);
+  UNUSED_ARG(password);
+  UNUSED_ARG(argc);
+  UNUSED_ARG(argv);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
