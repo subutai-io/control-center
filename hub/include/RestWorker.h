@@ -38,7 +38,6 @@ public:
   }
   void create_network_manager();
   void free_network_manager();
-  void clear_cache() {m_network_manager->clearAccessCache();}
 
   void login(const QString& login,
              const QString& password,
@@ -74,7 +73,6 @@ private:
 
 private slots:
   void ssl_errors_appeared(QList<QSslError> lst_errors);
-  void networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility na);
 };
 
 #endif // CRESTWORKER_H

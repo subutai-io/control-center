@@ -157,8 +157,7 @@ TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 void
 TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
-  if (it == m_dct_player_menus.end()) return;
-  CApplicationLog::Instance()->LogInfo("id found");
+  if (it == m_dct_player_menus.end()) return;  
 
   m_w_Player->remove(it->second);
 
@@ -170,7 +169,6 @@ TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 
   delete it->second;
   m_dct_player_menus.erase(it);
-  CApplicationLog::Instance()->LogInfo("after m_dct_player_menus erased");
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
@@ -277,9 +275,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
-  CApplicationLog::Instance()->LogInfo("before fill_vm_menu");
   int rc = fill_vm_menu();
-  CApplicationLog::Instance()->LogInfo("after fill_vm_menu rc = %d", rc);
   fill_launch_menu();
 
   vboxAction = new QWidgetAction(m_vbox_menu);
@@ -650,7 +646,6 @@ TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id) {
 void
 TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id) {
   //todo check result
-  CApplicationLog::Instance()->LogInfo("TrayControlWindow before remove");
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -863,8 +858,7 @@ CVBPlayer::add(CVBPlayerItem* pItem) {
 
   vm_count++;
   this->setLayout(p_v_Layout);
-  this->setVisible(true);
-  CApplicationLog::Instance()->LogInfo("Added vm_count = %d", vm_count);
+  this->setVisible(true);  
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -885,7 +879,6 @@ CVBPlayer::remove(CVBPlayerItem* pItem) {
   }
   this->setLayout(p_v_Layout);
   this->setVisible(true);
-  CApplicationLog::Instance()->LogInfo("removed vm_count = %d", vm_count);
 }
 /////////////////////////////////////////////////////////////////////////////
 

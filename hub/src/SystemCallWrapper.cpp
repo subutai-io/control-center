@@ -218,10 +218,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   int exit_code = 0;
   system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
   CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
-  if (res != SCWE_SUCCESS) {
-    QString err_msg = QString("Join to p2p failed. Error : %1").
-                      arg(CSystemCallWrapper::scwe_error_to_str(res));
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+  if (res != SCWE_SUCCESS) {    
     return res;
   }
 

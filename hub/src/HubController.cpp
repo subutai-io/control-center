@@ -90,7 +90,6 @@ int CHubController::refresh_balance() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get balance again");
-      CRestWorker::Instance()->clear_cache();
       balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
@@ -116,7 +115,6 @@ int CHubController::refresh_environments() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get environments again");
-      CRestWorker::Instance()->clear_cache();
       res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
@@ -124,18 +122,21 @@ int CHubController::refresh_environments() {
     }
   }
 
+  if (err_code || network_error) {
+    CApplicationLog::Instance()->LogError("Refresh environments failed. Err_code : %d, Net_err : %d",
+                                          err_code, network_error);
+  }
+
   if (err_code) {
     QString err_msg = QString("Refresh environments error : %1").
                       arg(CRestWorker::login_err_to_str((error_login_t)err_code));
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError("Refresh environments error : %d", err_code);
     return 1;
   }
 
   if (network_error != 0) {
     QString err_msg = QString("Refresh environments network error : %1").arg(network_error);
     CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return 1;
   }
 
@@ -158,7 +159,6 @@ void CHubController::refresh_containers() {
                                    lhttp, lerr, lnet);
     if (lerr == EL_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get containers again");
-      CRestWorker::Instance()->clear_cache();
       res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
@@ -166,19 +166,14 @@ void CHubController::refresh_containers() {
     }
   }
 
-
   if (err_code) {
-    QString err_msg = QString("Refresh containers info error : %1").
-                      arg(CRestWorker::login_err_to_str((error_login_t)err_code));
-    CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    CApplicationLog::Instance()->LogError(
+          "Refresh containers info error : %s", CRestWorker::login_err_to_str((error_login_t)err_code));
     return;
   }
 
-  if (network_error != 0) {
-    QString err_msg = QString("Refresh containers network error : %1").arg(network_error);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+  if (network_error != 0) {    
+    CApplicationLog::Instance()->LogError("Refresh containers network error : %d", network_error);
     return;
   }
 
