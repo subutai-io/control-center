@@ -195,6 +195,12 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           int& http_status_code,
                           int& err_code,
                           int &network_error) {
+
+  if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
+    CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)m_network_manager->networkAccessible());
+    m_network_manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+  }
+
   err_code = EL_SUCCESS;
   network_error = 0;
   http_status_code = -1;
