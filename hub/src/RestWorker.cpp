@@ -44,10 +44,10 @@ CRestWorker::login(const QString& login,
   request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = send_post_request(request, http_code, err_code, network_error);
 
-  static QString str_ok = "\\\"OK\\\"";
+  static QString str_ok = "\"OK\"";
   if (err_code != EL_SUCCESS)
     return;
-  if (QString(arr) == str_ok) {
+  if (QString(arr) != str_ok) {
     err_code = EL_LOGIN_OR_EMAIL;
     return;
   }
