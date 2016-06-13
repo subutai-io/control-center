@@ -45,10 +45,10 @@ CRestWorker::login(const QString& login,
   QByteArray arr = send_post_request(request, http_code, err_code, network_error);
 
   static QString str_ok = "\"OK\"";
-  if (err_code != EL_SUCCESS)
+  if (err_code != RE_SUCCESS)
     return;
   if (QString(arr) != str_ok) {
-    err_code = EL_LOGIN_OR_EMAIL;
+    err_code = RE_LOGIN_OR_EMAIL;
     return;
   }
 }
@@ -65,7 +65,7 @@ CRestWorker::get_request_json_document(const QString &link,
   QByteArray arr = send_get_request(req, http_code, err_code, network_error);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {
-    err_code = EL_NOT_JSON_DOC;
+    err_code = RE_NOT_JSON_DOC;
     CApplicationLog::Instance()->LogInfo("Received not json document from url : %s", link.toStdString().c_str());
     return QJsonDocument();
   }
@@ -95,7 +95,7 @@ CRestWorker::get_balance(int& http_code,
                          int& network_error) {
   QJsonDocument doc = get_request_json_document("balance", http_code, err_code, network_error);
   if (err_code != 0) return CSSBalance();
-  if (!doc.isObject()) { err_code = EL_NOT_JSON_OBJECT; return CSSBalance(); }
+  if (!doc.isObject()) { err_code = RE_NOT_JSON_OBJECT; return CSSBalance(); }
   QJsonObject balance = doc.object();
   return CSSBalance(balance["currentBalance"].toString());
 }
@@ -109,7 +109,7 @@ CRestWorker::get_ssh_containers(int &http_code,
   if (err_code != 0) return std::vector<CRHInfo>();
 
   if (!doc.isArray()) {
-    err_code = EL_NOT_JSON_OBJECT;
+    err_code = RE_NOT_JSON_OBJECT;
     return std::vector<CRHInfo>();
   }
 
@@ -139,7 +139,7 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
 
   std::vector<CGorjunFileInfo> lst_res;
   if (doc.isNull()) {
-    err_code = EL_NOT_JSON_DOC;
+    err_code = RE_NOT_JSON_DOC;
     return lst_res;
   }
 
@@ -154,6 +154,17 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
   }
 
   return lst_res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CRestWorker::is_ss_console_ready(const QString &url,
+                                 int& err_code,
+                                 int& network_err) {
+  int http_code;
+  QNetworkRequest request(url);
+  send_get_request(request, http_code, err_code, network_err);
+  return http_code;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -175,7 +186,7 @@ CRestWorker::download_file(const QUrl &url) {
 }
 
 const QString &
-CRestWorker::login_err_to_str(error_login_t err) {
+CRestWorker::rest_err_to_str(rest_error_t err) {
   static QString login_err_str[] = {
     "SUCCESS",
     "HTTP_ERROR",
@@ -201,7 +212,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
     m_network_manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
 
-  err_code = EL_SUCCESS;
+  err_code = RE_SUCCESS;
   network_error = 0;
   http_status_code = -1;
 
@@ -226,7 +237,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
   //timer active if timeout didn't fire
   if (!timer.isActive()) {
     reply->abort();
-    err_code = EL_TIMEOUT;
+    err_code = RE_TIMEOUT;
     return QByteArray();
   }
 
@@ -235,7 +246,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                               reply->errorString().toStdString().c_str());
-    err_code = EL_NETWORK_ERROR;
+    err_code = RE_NETWORK_ERROR;
     return QByteArray();
   }
 

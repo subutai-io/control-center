@@ -275,7 +275,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
-  int rc = fill_vm_menu();
+  fill_vm_menu();
   fill_launch_menu();
 
   vboxAction = new QWidgetAction(m_vbox_menu);
@@ -714,6 +714,34 @@ void TrayControlWindow::launch_ss(QAction* act) {
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
+    return; //todo check
+  }
+
+  int http_code, network_err, err_code;
+  http_code = CRestWorker::Instance()->is_ss_console_ready(
+                QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()), err_code, network_err);
+
+  if (network_err != 0 || err_code != 0 || http_code != 200) {
+    QString err_msg;
+    if (network_err == 0 && err_code == 0) {
+      switch (http_code) {
+        case 500:
+          err_msg = "Some modules failed (SS restart might be needed)";
+          break;
+        case 503:
+          err_msg = "Not ready yet/ loading";
+          break;
+        case 404:
+          err_msg = "Endpoint itself not loaded yet (edited)";
+          break;
+        default:
+          err_msg = QString("Undefined error. Code : %1").arg(http_code);
+      }
+    } else {
+      err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
+    }
+    CNotifiactionObserver::Instance()->NotifyAboutError(err_msg);
+    return;
   }
 
 #if defined(RT_OS_LINUX)

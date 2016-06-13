@@ -18,15 +18,15 @@
 #include "ApplicationLog.h"
 #include "RestContainers.h"
 
-typedef enum error_login {
-  EL_SUCCESS = 0,
-  EL_HTTP,
-  EL_LOGIN_OR_EMAIL,
-  EL_TIMEOUT,
-  EL_NOT_JSON_DOC,
-  EL_NOT_JSON_OBJECT,
-  EL_NETWORK_ERROR
-} error_login_t;
+typedef enum rest_error {
+  RE_SUCCESS = 0,
+  RE_HTTP,
+  RE_LOGIN_OR_EMAIL,
+  RE_TIMEOUT,
+  RE_NOT_JSON_DOC,
+  RE_NOT_JSON_OBJECT,
+  RE_NETWORK_ERROR
+} rest_error_t;
 ////////////////////////////////////////////////////////////////////////////
 
 class CRestWorker : public QObject {
@@ -48,11 +48,12 @@ public:
   CSSBalance get_balance(int &http_code, int& err_code, int &network_error);
   std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code, int &network_error);
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
+  int is_ss_console_ready(const QString& url, int &err_code, int &network_err);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
   QNetworkReply* download_file(const QUrl& url);
 
-  static const QString& login_err_to_str(error_login_t err);
+  static const QString& rest_err_to_str(rest_error_t err);
 
 private:
   QNetworkAccessManager *m_network_manager;

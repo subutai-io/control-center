@@ -58,26 +58,26 @@ DlgLogin::btn_ok_released() {
                                  network_err);
 
   switch (err_code) {
-    case EL_SUCCESS:
+    case RE_SUCCESS:
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())
         CSettingsManager::Instance().save_all();      
       QDialog::accept();
       break;
-    case EL_LOGIN_OR_EMAIL:
+    case RE_LOGIN_OR_EMAIL:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText("<font color='red'>Wrong login or password. Try again!</font>");
       break;
-    case EL_HTTP:
+    case RE_HTTP:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>HTTP error. Code : %1!</font>").arg(http_code));
       break;
-    case EL_TIMEOUT:
+    case RE_TIMEOUT:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText("<font color='red'>Timeout. Check internet connection, please!</font>");
       break;
-    case EL_NETWORK_ERROR:
+    case RE_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").arg(network_err));
       break;

@@ -83,12 +83,12 @@ int CHubController::refresh_balance() {
   int http_code, err_code, network_error;
   CSSBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);  
 
-  if (err_code == EL_NOT_JSON_DOC) {
+  if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh balance. Received not json. Trying to re-login");
     int lhttp, lerr, lnet;
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
-    if (lerr == EL_SUCCESS) {
+    if (lerr == RE_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get balance again");
       balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
@@ -108,12 +108,12 @@ int CHubController::refresh_environments() {
   std::vector<CSSEnvironment> res;
   res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
 
-  if (err_code == EL_NOT_JSON_DOC) {
+  if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh environments. Received not json. Trying to re-login");
     int lhttp, lerr, lnet;
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
-    if (lerr == EL_SUCCESS) {
+    if (lerr == RE_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get environments again");
       res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
@@ -129,7 +129,7 @@ int CHubController::refresh_environments() {
 
   if (err_code) {
     QString err_msg = QString("Refresh environments error : %1").
-                      arg(CRestWorker::login_err_to_str((error_login_t)err_code));
+                      arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotifiactionObserver::NotifyAboutError(err_msg);
     return 1;
   }
@@ -152,12 +152,12 @@ void CHubController::refresh_containers() {
   int http_code, err_code, network_error;
   std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
 
-  if (err_code == EL_NOT_JSON_DOC) {
+  if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh containers. Received not json. Trying to re-login");
     int lhttp, lerr, lnet;
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
-    if (lerr == EL_SUCCESS) {
+    if (lerr == RE_SUCCESS) {
       CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get containers again");
       res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
       CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
@@ -168,7 +168,7 @@ void CHubController::refresh_containers() {
 
   if (err_code) {
     CApplicationLog::Instance()->LogError(
-          "Refresh containers info error : %s", CRestWorker::login_err_to_str((error_login_t)err_code));
+          "Refresh containers info error : %s", CRestWorker::rest_err_to_str((rest_error_t)err_code));
     return;
   }
 
