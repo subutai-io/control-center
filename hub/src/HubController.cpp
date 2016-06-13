@@ -168,7 +168,7 @@ void CHubController::refresh_containers() {
 
   if (err_code) {
     CApplicationLog::Instance()->LogError(
-          "Refresh containers info error : %s", CRestWorker::rest_err_to_str((rest_error_t)err_code));
+          "Refresh containers info error : %s", CRestWorker::login_err_to_str((error_login_t)err_code).toStdString().c_str());
     return;
   }
 
