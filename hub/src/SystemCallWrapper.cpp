@@ -380,7 +380,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     QHostAddress addr(lst_out[0].c_str());
     if (!addr.isNull()) {
-      ip = lst_out[0];
+      ip = addr.toString().toStdString();
       return SCWE_SUCCESS;
     }
   }

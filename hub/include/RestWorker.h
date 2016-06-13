@@ -58,7 +58,7 @@ public:
 private:
   QNetworkAccessManager *m_network_manager;
   QByteArray send_request(const QNetworkRequest& req, bool get,
-                          int &http_status_code, int &err_code, int& network_error);
+                          int &http_status_code, int &err_code, int& network_error, bool ignore_ssl_errors = false);
   QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code,
                               int &err_code, int& network_error);
   QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code,
@@ -74,6 +74,7 @@ private:
 
 private slots:
   void ssl_errors_appeared(QList<QSslError> lst_errors);
+  void ssl_errors_appeared_ignore_them(QList<QSslError> lst_errors);
 };
 
 #endif // CRESTWORKER_H

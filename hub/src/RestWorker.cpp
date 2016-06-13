@@ -162,8 +162,9 @@ CRestWorker::is_ss_console_ready(const QString &url,
                                  int& err_code,
                                  int& network_err) {
   int http_code;
-  QNetworkRequest request(url);
-  send_get_request(request, http_code, err_code, network_err);
+  QUrl req_url(url);
+  QNetworkRequest request(req_url);
+  send_request(request, true, http_code, err_code, network_err, true);
   return http_code;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -205,7 +206,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           bool get,
                           int& http_status_code,
                           int& err_code,
-                          int &network_error) {
+                          int &network_error, bool ignore_ssl_errors) {
 
   if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)m_network_manager->networkAccessible());
@@ -226,13 +227,12 @@ CRestWorker::send_request(const QNetworkRequest &req,
 
   connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared(QList<QSslError>)));
+  if (!ignore_ssl_errors)
+    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared(QList<QSslError>)));
+  else
+    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared_ignore_them(QList<QSslError>)));
 
   loop.exec();
-
-  disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-  disconnect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  disconnect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared(QList<QSslError>)));
 
   //timer active if timeout didn't fire
   if (!timer.isActive()) {
@@ -276,10 +276,25 @@ CRestWorker::send_post_request(const QNetworkRequest &req,
 
 void
 CRestWorker::ssl_errors_appeared(QList<QSslError> lst_errors) {
-  for (int i = 0; i < lst_errors.size(); ++i) {
+  for (auto i = lst_errors.begin(); i != lst_errors.end(); ++i) {
     CApplicationLog::Instance()->LogError("ssl_error_code : %d, msg : %s",
-                                          lst_errors.at(i).error(),
-                                          lst_errors.at(i).errorString().toStdString().c_str());
+                                          i->error(), i->errorString().toStdString().c_str());
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::ssl_errors_appeared_ignore_them(QList<QSslError> lst_errors) {
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == NULL) return;
+  QList<QSslError> to_ignore;
+  for (auto i = lst_errors.begin(); i != lst_errors.end(); ++i) {
+    CApplicationLog::Instance()->LogError("ssl_error_code : %d, msg : %s",
+                                          i->error(), i->errorString().toStdString().c_str());
+    if (i->error() != QSslError::CertificateUntrusted &&
+        i->error() != QSslError::SelfSignedCertificate) continue;
+    to_ignore << *i;
+  }
+  reply->ignoreSslErrors(to_ignore);
 }
 ////////////////////////////////////////////////////////////////////////////
