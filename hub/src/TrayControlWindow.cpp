@@ -714,6 +714,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
     CNotifiactionObserver::Instance()->NotifyAboutError(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
+    act->setEnabled(true);
     return; //todo check
   }
 
@@ -741,6 +742,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
       err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     }
     CNotifiactionObserver::Instance()->NotifyAboutError(err_msg);
+    act->setEnabled(true);
     return;
   }
 
