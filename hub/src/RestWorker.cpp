@@ -206,7 +206,8 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           bool get,
                           int& http_status_code,
                           int& err_code,
-                          int &network_error, bool ignore_ssl_errors) {
+                          int &network_error,
+                          bool ignore_ssl_errors) {
 
   if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)m_network_manager->networkAccessible());
@@ -227,10 +228,17 @@ CRestWorker::send_request(const QNetworkRequest &req,
 
   connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  if (!ignore_ssl_errors)
+  if (!ignore_ssl_errors) {
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared(QList<QSslError>)));
-  else
+  }
+  else {
+    QList<QSslError> errors2ignore;
+    errors2ignore << QSslError(QSslError::CertificateUntrusted);
+    errors2ignore << QSslError(QSslError::SelfSignedCertificate);
+    errors2ignore << QSslError(QSslError::HostNameMismatch);
+    reply->ignoreSslErrors();
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared_ignore_them(QList<QSslError>)));
+  }
 
   loop.exec();
 
@@ -280,21 +288,5 @@ CRestWorker::ssl_errors_appeared(QList<QSslError> lst_errors) {
     CApplicationLog::Instance()->LogError("ssl_error_code : %d, msg : %s",
                                           i->error(), i->errorString().toStdString().c_str());
   }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CRestWorker::ssl_errors_appeared_ignore_them(QList<QSslError> lst_errors) {
-  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  if (reply == NULL) return;
-  QList<QSslError> to_ignore;
-  for (auto i = lst_errors.begin(); i != lst_errors.end(); ++i) {
-    CApplicationLog::Instance()->LogError("ssl_error_code : %d, msg : %s",
-                                          i->error(), i->errorString().toStdString().c_str());
-    if (i->error() != QSslError::CertificateUntrusted &&
-        i->error() != QSslError::SelfSignedCertificate) continue;
-    to_ignore << *i;
-  }
-  reply->ignoreSslErrors(to_ignore);
 }
 ////////////////////////////////////////////////////////////////////////////

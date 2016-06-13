@@ -44,6 +44,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
 
   int Wait(int timeoutInMs) {
+    (void)timeoutInMs;
 //todo pthread_timed_join_np
     return 0;
   }
