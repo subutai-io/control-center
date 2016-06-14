@@ -38,6 +38,9 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
  */
 int
 main(int argc, char *argv[]) {
+#ifdef RT_OS_LINUX
+  QApplication::addLibraryPath("/opt/subutai/tray/lib");
+#endif
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");

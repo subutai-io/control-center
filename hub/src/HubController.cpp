@@ -28,15 +28,22 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
   std::string rh_ip;
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
+    bool found = false;
     for (auto rh = m_lst_resource_hosts.begin(); rh != m_lst_resource_hosts.end(); ++rh) {
       for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
         if (rh_cont->id() != cont->id()) continue;
         rh_ip = rh->rh_ip().toStdString();
-        break;
+        found = true;
+        goto loop_end;
       }
     }
-    if (rh_ip.empty()) {
+loop_end:
+    if (!found) {
       emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+      return;
+    }
+    if (rh_ip.empty()) {
+      emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
       return;
     }
   }
@@ -181,6 +188,7 @@ void CHubController::refresh_containers() {
     return;
   SynchroPrimitives::Locker lock(&m_refresh_cs);
   m_lst_resource_hosts = std::move(res);
+  return;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -222,8 +230,13 @@ CHubController::ssh_to_container_str(const QString &env_id,
 
 const QString&
 CHubController::ssh_launch_err_to_str(int err) {
-  static QString lst_err_str[] = {
-    "Success", "Environment not found", "Container not found", "Container isn't ready", "Join to p2p swarm failed", "System call failed" };
+  static QString lst_err_str[SLE_LAST_ERR] = {
+    "Success",
+    "Environment not found",
+    "Container not found",
+    "Container isn't ready",
+    "Join to p2p swarm failed",
+    "System call failed" };
   return lst_err_str[err%SLE_LAST_ERR];
 }
 ////////////////////////////////////////////////////////////////////////////
