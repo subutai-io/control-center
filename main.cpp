@@ -77,10 +77,10 @@ main(int argc, char *argv[]) {
     std::cout << GIT_VERSION << std::endl;
     return 0;
   }
-  CApplicationLog::Instance()->LogInfo("Tray application %s launched\n", GIT_VERSION);
+  CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<com::Bstr>("com::Bstr");  
+  qRegisterMetaType<com::Bstr>("com::Bstr");
   qRegisterMetaType<notification_level_t>("notification_level_t");
 
   QString tmp_file_path = CCommons::AppNameTmp();

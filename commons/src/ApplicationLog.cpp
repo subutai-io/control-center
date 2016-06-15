@@ -50,6 +50,8 @@ CApplicationLog::AppendLog(const char* str,
                            std::string& logFileName ) {
   try {
     CFileWrapper logFile(logFileName.c_str(), "a+");
+    if (!logFile.IsValid())
+      return -2;
     logFile.FPrintf("%s\r\n%s. %s\r\n\r\n", CApplicationLog::LOG_FILE_DELIMITER, CCommons::CurrentDateTimeString(), str);
   }
   catch(...) {
