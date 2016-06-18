@@ -328,7 +328,6 @@ TrayControlWindow::show_vbox() {
 
 void
 TrayControlWindow::show_settings_dialog() {
-  this->show();
   DlgSettings dlg(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
@@ -336,7 +335,6 @@ TrayControlWindow::show_settings_dialog() {
   dlg.move(curpos.x(), 0);
 #endif
   dlg.exec();
-  this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 

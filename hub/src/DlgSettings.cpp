@@ -71,13 +71,13 @@ void DlgSettings::btn_ok_released()
     CSettingsManager::Instance().set_rhip_getter_user(ui->le_rhip_user->text());
 
   CSettingsManager::Instance().save_all();
-  QDialog::accept();
+  this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_cancel_released()
 {
-  QDialog::reject();
+  this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -289,7 +289,8 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
-  static const int MAX_ATTEMTS_COUNT = 5;
+  CNotifiactionObserver::NotifyAboutInfo("Checking container. Please, wait");
+  static const int MAX_ATTEMTS_COUNT = 25;
   for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
     err = CSystemCallWrapper::check_container_state(m_env_hash.c_str(),
                                                     m_ip.c_str());
