@@ -304,15 +304,15 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
-  QFile key_file_pub(QApplication::applicationDirPath() + QDir::separator() +
+  QFile key_file_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
                      CHubController::Instance().current_user() +
                      QString(".pub"));
-  QFile key_file_private(QApplication::applicationDirPath() + QDir::separator() +
+  QFile key_file_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
                          CHubController::Instance().current_user());
   std::string key;
 
   if (key_file_pub.exists() &&  key_file_private.exists()) {
-    key = (QApplication::applicationDirPath() + QDir::separator() +
+    key = (CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
            CHubController::Instance().current_user()).toStdString();
   }
 
