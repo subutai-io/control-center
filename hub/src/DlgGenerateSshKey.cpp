@@ -7,6 +7,7 @@
 #include "ui_DlgGenerateSshKey.h"
 #include "SystemCallWrapper.h"
 #include "HubController.h"
+#include "SettingsManager.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
@@ -26,7 +27,9 @@ DlgGenerateSshKey::~DlgGenerateSshKey()
 
 void
 DlgGenerateSshKey::generate_new_ssh() {
-  QString path = QApplication::applicationDirPath() + QDir::separator() + CHubController::Instance().current_user();
+  QString path = CSettingsManager::Instance().ssh_keys_storage() +
+                 QDir::separator() +
+                 CHubController::Instance().current_user();
   QFile key(path);
   QFile key_pub(path+".pub");
 

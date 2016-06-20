@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>507</width>
+    <width>705</width>
     <height>268</height>
    </rect>
   </property>
@@ -50,7 +50,7 @@
         <attribute name="title">
          <string>Common</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
@@ -104,6 +104,44 @@
             </layout>
            </item>
            <item row="1" column="0">
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="lbl_logs_storage">
+               <property name="text">
+                <string>Logs storage:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="le_logs_storage"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="btn_logs_storage">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="lbl_ssh_keys_storage">
+               <property name="text">
+                <string>SSH-keys storage:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="le_ssh_keys_storage"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="btn_ssh_keys_storage">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">

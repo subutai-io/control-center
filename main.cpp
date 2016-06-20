@@ -11,6 +11,7 @@
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
+#include "SettingsManager.h"
 #include "libssh2/UpdateErrors.h"
 
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
@@ -38,9 +39,6 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
  */
 int
 main(int argc, char *argv[]) {
-#ifdef RT_OS_LINUX
-  QApplication::addLibraryPath("/opt/subutai/tray/lib");
-#endif
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
@@ -63,7 +61,8 @@ main(int argc, char *argv[]) {
   cmd_parser.addHelpOption();
   cmd_parser.parse(QApplication::arguments());
 
-  CApplicationLog::Instance()->SetDirectory(QApplication::applicationDirPath().toStdString());
+  CApplicationLog::Instance()->SetDirectory(
+        CSettingsManager::Instance().logs_storage().toStdString());
 
   QString ll = cmd_parser.value(log_level_opt);
   if(ll == "trace" || ll == "0")

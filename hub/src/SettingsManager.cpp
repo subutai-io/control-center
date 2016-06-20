@@ -1,6 +1,8 @@
-#include "SettingsManager.h"
 #include <QApplication>
 #include <QDir>
+
+#include "SettingsManager.h"
+#include "ApplicationLog.h"
 
 const QString CSettingsManager::ORG_NAME("Optimal-dynamics");
 const QString CSettingsManager::APP_NAME("SS_Tray");
@@ -36,6 +38,9 @@ const QString CSettingsManager::SM_RH_USER("Rh_User");
 const QString CSettingsManager::SM_RH_PASS("Rh_Pass");
 const QString CSettingsManager::SM_RH_HOST("Rh_Host");
 const QString CSettingsManager::SM_RH_PORT("Rh_Port");
+
+const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
+const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 
 struct str_setting_val {
   QString& field;
@@ -73,7 +78,8 @@ CSettingsManager::CSettingsManager() :
   m_rh_pass("ubuntu"),
   m_rh_port("4567"),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
-  m_rh_network_interface("eth2")
+  m_logs_storage(QApplication::applicationDirPath()),
+  m_ssh_keys_storage(QApplication::applicationDirPath())
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
@@ -89,6 +95,8 @@ CSettingsManager::CSettingsManager() :
     {m_rh_port, SM_RH_PORT},
     {m_rh_user, SM_RH_USER},
     {m_gorjun_url, SM_GORJUN_URL},
+    {m_logs_storage, SM_LOGS_STORAGE},
+    {m_ssh_keys_storage, SM_SSH_KEYS_STORAGE},
     {tmp, ""}
   };
 
@@ -112,3 +120,32 @@ CSettingsManager::CSettingsManager() :
   }  
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::set_logs_storage(const QString &logs_storage) {
+  m_logs_storage = logs_storage;
+  m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
+  CApplicationLog::Instance()->SetDirectory(m_logs_storage.toStdString());
+}
+////////////////////////////////////////////////////////////////////////////
+
+#define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
+  SET_FIELD_DEF(login, SM_LOGIN, QString&)
+  SET_FIELD_DEF(password, SM_PASSWORD, QString&)
+  SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
+  SET_FIELD_DEF(get_url, SM_GET_URL, QString&)
+  SET_FIELD_DEF(post_url, SM_POST_URL, QString&)
+  SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
+  SET_FIELD_DEF(terminal_path, SM_TERMINAL_PATH, QString&)
+  SET_FIELD_DEF(p2p_path, SM_P2P_PATH, QString&)
+  SET_FIELD_DEF(plugin_port, SM_PLUGIN_PORT, uint16_t)
+  SET_FIELD_DEF(ssh_path, SM_SSH_PATH, QString&)
+  SET_FIELD_DEF(ssh_user, SM_SSH_USER, QString&)
+  SET_FIELD_DEF(ssh_keygen_path, SM_SSH_KEYGEN_PATH, QString&)
+  SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
+  SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
+  SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
+  SET_FIELD_DEF(rh_port, SM_RH_PORT, QString&)
+  SET_FIELD_DEF(gorjun_url, SM_GORJUN_URL, QString&)
+  SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
+#undef SET_FIELD_DEF

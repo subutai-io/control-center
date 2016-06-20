@@ -237,7 +237,6 @@ CRestWorker::send_request(const QNetworkRequest &req,
     errors2ignore << QSslError(QSslError::SelfSignedCertificate);
     errors2ignore << QSslError(QSslError::HostNameMismatch);
     reply->ignoreSslErrors();
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), this, SLOT(ssl_errors_appeared_ignore_them(QList<QSslError>)));
   }
 
   loop.exec();

@@ -37,6 +37,9 @@ private:
   static const QString SM_RH_HOST;
   static const QString SM_RH_PORT;
 
+  static const QString SM_LOGS_STORAGE;
+  static const QString SM_SSH_KEYS_STORAGE;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -64,7 +67,8 @@ private:
   QString m_rh_port;
 
   QString m_gorjun_url;
-  QString m_rh_network_interface;
+  QString m_logs_storage;
+  QString m_ssh_keys_storage;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -100,46 +104,10 @@ public:
   const QString& rh_port() const {return m_rh_port;}
 
   const QString& gorjun_url() const {return m_gorjun_url;}
+  const QString& logs_storage() const {return m_logs_storage;}
+  const QString& ssh_keys_storage() const {return m_ssh_keys_storage;}
 
-  void set_login(const QString& login) {
-    m_login = login;
-    m_settings.setValue(SM_LOGIN, m_login);
-  }
-
-  void set_password(const QString& password) {
-    m_password = password;
-    m_settings.setValue(SM_PASSWORD, m_password);
-  }
-
-  void set_remember_me(bool remember) {
-    m_remember_me = remember;
-    m_settings.setValue(SM_REMEMBER_ME, m_remember_me);
-  }
-
-  void set_get_url(const QString& url) {
-    m_get_url = url;
-    m_settings.setValue(SM_GET_URL, m_get_url);
-  }
-
-  void set_post_url(const QString& url) {
-    m_post_url = url;
-    m_settings.setValue(SM_POST_URL, m_post_url);
-  }
-
-  void set_refresh_time_sec(int32_t refresh_time_sec) {
-    m_refresh_time_sec = refresh_time_sec;
-    m_settings.setValue(SM_REFRESH_TIME, m_refresh_time_sec);
-  }
-
-  void set_terminal_path(const QString& ssh_term_path) {
-    m_terminal_path = ssh_term_path;
-    m_settings.setValue(SM_TERMINAL_PATH, m_terminal_path);
-  }
-
-  void set_p2p_path(const QString& p2p_path) {
-    m_p2p_path = p2p_path;
-    m_settings.setValue(SM_P2P_PATH, m_p2p_path);
-  }
+  ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
     m_notification_delay_sec = delay_sec;
@@ -148,50 +116,27 @@ public:
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
   }
 
-  void set_plugin_port(uint16_t plugin_port) {
-    m_plugin_port = plugin_port;
-    m_settings.setValue(SM_PLUGIN_PORT, m_plugin_port);
-  }
-
-  void set_ssh_path(const QString& ssh_path) {
-    m_ssh_path = ssh_path;
-    m_settings.setValue(SM_SSH_PATH, m_ssh_path);
-  }
-
-  void set_ssh_user(const QString& ssh_user) {
-    m_ssh_user = ssh_user;
-    m_settings.setValue(SM_SSH_USER, m_ssh_user);
-  }
-
-  void set_ssh_keygen_path(const QString& ssh_keygen_path) {
-    m_ssh_keygen_path = ssh_keygen_path;
-    m_settings.setValue(SM_SSH_KEYGEN_PATH, m_ssh_keygen_path);
-  }
-
-  void set_rhip_getter_user(const QString& rhip_getter_user) {
-    m_rh_user = rhip_getter_user;
-    m_settings.setValue(SM_RH_USER, m_rh_user);
-  }
-
-  void set_rhip_getter_pass(const QString& rhip_getter_pass) {
-    m_rh_pass = rhip_getter_pass;
-    m_settings.setValue(SM_RH_PASS, m_rh_pass);
-  }
-
-  void set_rhip_getter_host(const QString& rhip_getter_host) {
-    m_rh_host = rhip_getter_host;
-    m_settings.setValue(SM_RH_HOST, m_rh_host);
-  }
-
-  void set_rhip_getter_port(const QString& rhip_getter_port) {
-    m_rh_port = rhip_getter_port;
-    m_settings.setValue(SM_RH_PORT, m_rh_port);
-  }
-
-  void set_gorjun_url(const QString& gorjun_url) {
-    m_gorjun_url = gorjun_url;
-    m_settings.setValue(SM_GORJUN_URL, m_gorjun_url);
-  }  
+#define SET_FIELD_DECL(f, t) void set_##f(const t f);
+  SET_FIELD_DECL(login, QString&)
+  SET_FIELD_DECL(password, QString&)
+  SET_FIELD_DECL(remember_me, bool)
+  SET_FIELD_DECL(get_url, QString&)
+  SET_FIELD_DECL(post_url, QString&)
+  SET_FIELD_DECL(refresh_time_sec, uint32_t)
+  SET_FIELD_DECL(terminal_path, QString&)
+  SET_FIELD_DECL(p2p_path, QString&)
+  SET_FIELD_DECL(plugin_port, uint16_t)
+  SET_FIELD_DECL(ssh_path, QString&)
+  SET_FIELD_DECL(ssh_user, QString&)
+  SET_FIELD_DECL(ssh_keygen_path, QString&)
+  SET_FIELD_DECL(rh_user, QString&)
+  SET_FIELD_DECL(rh_pass, QString&)
+  SET_FIELD_DECL(rh_host, QString&)
+  SET_FIELD_DECL(rh_port, QString&)
+  SET_FIELD_DECL(gorjun_url, QString&)
+  SET_FIELD_DECL(logs_storage, QString&)
+  SET_FIELD_DECL(ssh_keys_storage, QString&)
+#undef SET_FIELD_DECL
 };
 
 #endif // CSETTINGSMANAGER_H

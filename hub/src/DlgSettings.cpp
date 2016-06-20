@@ -1,3 +1,4 @@
+#include <QToolTip>
 #include <QFileDialog>
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
@@ -22,6 +23,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_rhip_password->setText(CSettingsManager::Instance().rh_pass());
   ui->le_rhip_port->setText(CSettingsManager::Instance().rh_port());
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
+  ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
+  ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -40,6 +43,12 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   connect(ui->btn_updater_command, SIGNAL(released()),
           this, SLOT(btn_updater_path_dialog_released()));
+
+  connect(ui->btn_logs_storage, SIGNAL(released()),
+          this, SLOT(btn_logs_storage_released()));
+
+  connect(ui->btn_ssh_keys_storage, SIGNAL(released()),
+          this, SLOT(btn_ssh_keys_storage_released()));
 }
 
 DlgSettings::~DlgSettings()
@@ -49,66 +58,117 @@ DlgSettings::~DlgSettings()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_ok_released()
-{
-  //todo refactor this. see SettingsManager.cpp for more details
-  CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
-  if (ui->le_p2p_command->text() != "")
-    CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
-  if (ui->le_terminal_command->text() != "")
-    CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
-  if (ui->le_ssh_command->text() != "")
-    CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());  
-  if (ui->le_ssh_user->text() != "")
-    CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
-  if (ui->le_rhip_host->text() != "")
-    CSettingsManager::Instance().set_rhip_getter_host(ui->le_rhip_host->text());
-  if (ui->le_rhip_password->text() != "")
-    CSettingsManager::Instance().set_rhip_getter_pass(ui->le_rhip_password->text());
-  if (ui->le_rhip_port->text() != "")
-    CSettingsManager::Instance().set_rhip_getter_port(ui->le_rhip_port->text());
-  if (ui->le_rhip_user->text() != "")
-    CSettingsManager::Instance().set_rhip_getter_user(ui->le_rhip_user->text());
+//return true if field is valid.
+typedef bool (*pf_validator)(const QLineEdit*);
+struct field_validator_t {
+  QLineEdit* le;
+  pf_validator f_validator;
+  int8_t tab_index;
+  QString validator_msg;
+};
 
+bool
+is_le_empty_validate(const QLineEdit* le) {
+  return !le->text().trimmed().isEmpty();
+}
+
+bool
+folder_has_write_permission(const QLineEdit* le) {
+  QFileInfo fi(le->text());
+  return fi.isDir() && fi.isWritable();
+}
+
+void
+DlgSettings::btn_ok_released() {
+  static const char* empty_validator_msg = "Field can't be empty";
+  static const char* folder_permission_validator_msg = "You haven't write permission to this folder";
+
+  field_validator_t validators[] = {
+    {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+    {ui->le_ssh_keys_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+
+    {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_terminal_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_updater_command, is_le_empty_validate, 1, empty_validator_msg},
+
+    {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+
+    {NULL, NULL, -1, ""}
+  };
+
+  field_validator_t* tmp = validators;
+  do {
+    if (!tmp->f_validator(tmp->le)) {
+      ui->tabWidget->setCurrentIndex(tmp->tab_index);
+      tmp->le->setFocus();
+      QToolTip::showText(tmp->le->mapToGlobal(QPoint()), tmp->validator_msg);
+      return;
+    }
+  } while ((++tmp)->le);
+
+  CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
   CSettingsManager::Instance().save_all();
   this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_cancel_released()
-{
+void
+DlgSettings::btn_cancel_released() {
   this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_terminal_file_dialog_released()
-{
+void
+DlgSettings::btn_terminal_file_dialog_released() {
   QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
   if (fn == "") return;
   ui->le_terminal_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_p2p_file_dialog_released()
-{
+void
+DlgSettings::btn_p2p_file_dialog_released() {
   QString fn = QFileDialog::getOpenFileName(this, "P2P command");
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_updater_path_dialog_released()
-{
+void
+DlgSettings::btn_updater_path_dialog_released() {
   QString fn = QFileDialog::getOpenFileName(this, "Libssh2 command");
   if (fn == "") return;
   ui->le_updater_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_ssh_command_released()
-{
+void
+DlgSettings::btn_ssh_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_logs_storage_released() {
+  QString dir = QFileDialog::getExistingDirectory(this, "Logs storage");
+  if (dir == "") return;
+  ui->le_logs_storage->setText(dir);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_ssh_keys_storage_released() {
+  QString dir = QFileDialog::getExistingDirectory(this, "SSH-keys storage");
+  if (dir == "") return;
+  ui->le_logs_storage->setText(dir);
 }
 ////////////////////////////////////////////////////////////////////////////
