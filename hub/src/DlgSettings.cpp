@@ -168,6 +168,6 @@ void
 DlgSettings::btn_ssh_keys_storage_released() {
   QString dir = QFileDialog::getExistingDirectory(this, "SSH-keys storage");
   if (dir == "") return;
-  ui->le_logs_storage->setText(dir);
+  ui->le_ssh_keys_storage->setText(dir);
 }
 ////////////////////////////////////////////////////////////////////////////
