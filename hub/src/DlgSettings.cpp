@@ -16,7 +16,6 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
   ui->sb_notification_delay->setValue(CSettingsManager::Instance().notification_delay_sec());
-  ui->le_updater_command->setText(CSettingsManager::Instance().libssh2_app_path());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
@@ -40,9 +39,6 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   connect(ui->btn_ssh_command, SIGNAL(released()),
           this, SLOT(btn_ssh_command_released()));
-
-  connect(ui->btn_updater_command, SIGNAL(released()),
-          this, SLOT(btn_updater_path_dialog_released()));
 
   connect(ui->btn_logs_storage, SIGNAL(released()),
           this, SLOT(btn_logs_storage_released()));
@@ -93,7 +89,6 @@ DlgSettings::btn_ok_released() {
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_terminal_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_updater_command, is_le_empty_validate, 1, empty_validator_msg},
 
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
@@ -113,7 +108,19 @@ DlgSettings::btn_ok_released() {
     }
   } while ((++tmp)->le);
 
+  CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
+  CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
+  CSettingsManager::Instance().set_ssh_keys_storage(ui->le_ssh_keys_storage->text());
+  CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
+  CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
+  CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
+  CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
+  CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
+  CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text());
+  CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
+  CSettingsManager::Instance().set_notification_delay_sec(ui->sb_notification_delay->value());
+
   CSettingsManager::Instance().save_all();
   this->close();
 }
@@ -138,14 +145,6 @@ DlgSettings::btn_p2p_file_dialog_released() {
   QString fn = QFileDialog::getOpenFileName(this, "P2P command");
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgSettings::btn_updater_path_dialog_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Libssh2 command");
-  if (fn == "") return;
-  ui->le_updater_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 
