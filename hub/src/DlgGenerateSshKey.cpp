@@ -39,8 +39,14 @@ DlgGenerateSshKey::generate_new_ssh() {
     key_pub.remove();
   }
 
-  CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user().toStdString().c_str(),
-                                       path.toStdString().c_str());
+  system_call_wrapper_error_t scwe =
+      CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user().toStdString().c_str(),
+                                           path.toStdString().c_str());
+  if (scwe != SCWE_SUCCESS) {
+    CNotifiactionObserver::Instance()->NotifyAboutError(
+          QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
+    return;
+  }
   set_key_text();
 }
 ////////////////////////////////////////////////////////////////////////////

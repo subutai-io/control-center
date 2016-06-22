@@ -329,9 +329,8 @@ CSystemCallWrapper::generate_ssh_key(const char *comment,
                             std::string(" -N \'\'");
   std::vector<std::string> lst_out;
   int exit_code;
-  ssystem_th(str_command.c_str(), lst_out, exit_code, true);
-  //todo check exit_code.
-  return SCWE_SUCCESS;
+  return ssystem_th(str_command.c_str(), lst_out, exit_code, true);
+  //todo check exit_code.  
 }
 ////////////////////////////////////////////////////////////////////////////
 
