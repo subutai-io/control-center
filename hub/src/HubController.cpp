@@ -121,9 +121,7 @@ int CHubController::refresh_environments() {
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get environments again");
       res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
-      CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
     }
@@ -165,9 +163,7 @@ void CHubController::refresh_containers() {
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get containers again");
       res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
-      CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
     }

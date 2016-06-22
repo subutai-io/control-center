@@ -77,7 +77,7 @@ folder_has_write_permission(const QLineEdit* le) {
 void
 DlgSettings::btn_ok_released() {
   static const char* empty_validator_msg = "Field can't be empty";
-  static const char* folder_permission_validator_msg = "You haven't write permission to this folder";
+  static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
 
   field_validator_t validators[] = {
     {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},

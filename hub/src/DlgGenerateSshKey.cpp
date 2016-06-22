@@ -8,6 +8,7 @@
 #include "SystemCallWrapper.h"
 #include "HubController.h"
 #include "SettingsManager.h"
+#include "NotifiactionObserver.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
@@ -60,6 +61,13 @@ DlgGenerateSshKey::set_key_text() {
 
 void
 DlgGenerateSshKey::btn_generate_released() {
+  QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
+  if (!fi.isDir() || !fi.isWritable()) {
+    CNotifiactionObserver::Instance()->NotifyAboutInfo(
+          "You don't have write permission to ssh-keys directory. Please change it in settings. Thanks");
+    return;
+  }
+
   if (ui->te_ssh_key->toPlainText().isEmpty()) {
     generate_new_ssh();
   } else {
