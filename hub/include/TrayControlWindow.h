@@ -192,10 +192,7 @@ private slots:
   /*tray slots*/
   void show_about();
   void application_quit();
-  void show_settings_dialog();
-  void show_hub();
-  void show_vbox();
-  void show_launch();
+  void show_settings_dialog();  \
   void notification_received(notification_level_t level,
                              const QString& msg);
 

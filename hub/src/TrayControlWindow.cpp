@@ -100,11 +100,6 @@ TrayControlWindow::fill_vm_menu(){
        i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
     add_vm_menu(i->first);
     rh_count++;
-    // vbox/src/VBoxManagerWin.cpp
-    //      add_vm_menu_simple(i->first);
-    //#else
-    //      add_vm_menu(i->first);
-    //#endif
   }
   return rh_count;
 }
@@ -143,10 +138,6 @@ TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
   connect(pl, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_stop_triggered, Qt::QueuedConnection);
 
-  // Needed if we decide to have add button
-  //  connect(pl, &CVBPlayerItem::vbox_menu_btn_add_released_signal,
-  //          this, &TrayControlWindow::vbox_menu_btn_add_triggered);
-
   connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_rem_triggered, Qt::QueuedConnection);
   m_w_Player->add(pl);
@@ -170,6 +161,7 @@ TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
   delete it->second;
   m_dct_player_menus.erase(it);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
 void
@@ -194,6 +186,7 @@ TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
 
   m_dct_vm_menus[vm_id] = menu;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
 void
@@ -210,25 +203,13 @@ TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
 
 void
 TrayControlWindow::create_tray_actions() {
-  QIcon icon;
-  QSize size;
-  size.setWidth(32);
-  size.setHeight(32);
-
-  icon.addFile(":/hub/Launch-07.png", size);
-
-  //m_act_launch = new QAction(QIcon(":/hub/Launch-07.png"),tr("Launch"), this);
-  m_act_launch = new QAction(icon,tr("Launch"), this);
-  connect(m_act_launch, SIGNAL(triggered()), this, SLOT(show_launch()));
+  m_act_launch = new QAction(QIcon(":/hub/Launch-07.png") ,tr("Launch"), this);
 
   m_act_settings = new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 
   m_act_vbox = new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
-  connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
-
   m_act_hub = new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
-  connect(m_act_hub, SIGNAL(triggered()), this, SLOT(show_hub()));
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, SIGNAL(triggered()), this, SLOT(application_quit()));
@@ -251,28 +232,12 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
 
-  //////////// Do not forget to remove defs after fixing on linux!/////////////////
-  //////////// Init submenus Launch and Environments
-#ifdef RT_OS_LINUX
-  m_launch_menu = new QMenu(m_tray_menu);
-  m_hub_menu = new QMenu(m_tray_menu);
 
-  m_tray_menu->addAction(m_act_launch);
-  m_tray_menu->addAction(m_act_hub);
-#else
-  //  m_info_menu =  m_tray_menu->addMenu(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance());
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
-#endif
-  //////////// Init vbox menu
-#ifdef RT_OS_WINDOWS
-  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
-#else
   m_vbox_menu = new QMenu(m_tray_menu);
-#endif
-
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
   fill_vm_menu();
@@ -316,17 +281,6 @@ TrayControlWindow::create_tray_icon() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::show_vbox() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
-  //m_vbox_menu->popup(curpos,m_act_hub);
-
-  if (m_w_Player->vm_count > 0)
-    m_vbox_menu->exec(curpos);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 TrayControlWindow::show_settings_dialog() {
   DlgSettings dlg(this);
 #ifdef RT_OS_LINUX
@@ -338,23 +292,6 @@ TrayControlWindow::show_settings_dialog() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void
-TrayControlWindow::show_hub() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
-  //m_hub_menu->popup(curpos,m_act_hub);
-  m_hub_menu->exec(curpos);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::show_launch() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
-  //m_launch_menu->popup(QCursor::pos(),m_act_launch);
-  m_launch_menu->exec(curpos);
-}
-////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::notification_received(notification_level_t level,
@@ -662,8 +599,6 @@ void TrayControlWindow::refresh_environments() {
 
   m_hub_menu->clear();
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
-//    disconnect(*i, SIGNAL(action_triggered(CSSEnvironment*, CHubContainer*)),
-//               this, SLOT(hub_container_mi_triggered(CSSEnvironment*,CHubContainer*)));
     delete *i;
   }
   m_lst_hub_menu_items.clear();
@@ -671,7 +606,9 @@ void TrayControlWindow::refresh_environments() {
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
 
-    QMenu* env_menu = m_hub_menu->addMenu(env->name());
+    QString env_name = env->name();
+    env_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+    QMenu* env_menu = m_hub_menu->addMenu(env_name);
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
       QAction* act = new QAction(cont->name(), this);
       CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
