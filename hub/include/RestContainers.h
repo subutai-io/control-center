@@ -149,7 +149,7 @@ public:
   const std::vector<CCHInfo>& lst_containers() const {return m_lst_ch;}
 
   bool operator==(const CRHInfo& arg) const {
-    return m_id==arg.m_id && m_rh_ip == arg.m_rh_ip;
+    return m_id==arg.m_id && m_rh_ip == arg.m_rh_ip && m_lst_ch == arg.m_lst_ch;
   }
 
   bool operator!=(const CRHInfo& arg) const {

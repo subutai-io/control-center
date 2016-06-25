@@ -28,8 +28,9 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
   std::string rh_ip;
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
+
     bool found = false;
-    for (auto rh = m_lst_resource_hosts.begin(); rh != m_lst_resource_hosts.end() && !found; ++rh) {
+    for (auto rh = m_lst_resource_hosts.begin(); !found && rh != m_lst_resource_hosts.end(); ++rh) {
       for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
         if (rh_cont->id() != cont->id()) continue;
         rh_ip = rh->rh_ip().toStdString();
