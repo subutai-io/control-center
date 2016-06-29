@@ -237,7 +237,12 @@ TrayControlWindow::create_tray_icon() {
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
   m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
+#ifdef RT_OS_WINDOWS
+  m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
+#else
   m_vbox_menu = new QMenu(m_tray_menu);
+#endif
+
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
   fill_vm_menu();
@@ -423,9 +428,10 @@ TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
                                               const CHubContainer *cont,
                                               void* action) {
   QAction* act = static_cast<QAction*>(action);
-  if (act != NULL)
+  if (act != NULL) {
     act->setEnabled(false);
-  CHubController::Instance().ssh_to_container(env, cont, action);
+    CHubController::Instance().ssh_to_container(env, cont, action);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -780,8 +786,6 @@ void
 CHubEnvironmentMenuItem::internal_action_triggered() {
   QAction* act = static_cast<QAction*>(sender());
   emit action_triggered(m_hub_environment, m_hub_container, (void*)act);
-  /*m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));
-  m_tray_icon->setIcon(QIcon(counter == 0 ? ":/hub/Tray_icon_set-07.png" : ":/hub/TrayWithWatch.png"));*/
 }
 
 /////////////////////////////////////////////////////////////////////////////
