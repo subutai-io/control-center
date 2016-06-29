@@ -29,15 +29,14 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
     bool found = false;
-    for (auto rh = m_lst_resource_hosts.begin(); rh != m_lst_resource_hosts.end(); ++rh) {
+    for (auto rh = m_lst_resource_hosts.begin(); rh != m_lst_resource_hosts.end() && !found; ++rh) {
       for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
         if (rh_cont->id() != cont->id()) continue;
         rh_ip = rh->rh_ip().toStdString();
         found = true;
-        goto loop_end;
+        break;
       }
     }
-loop_end:
     if (!found) {
       emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
       return;
@@ -147,8 +146,10 @@ int CHubController::refresh_environments() {
 
   if (res == m_lst_environments)
     return 1;
-  SynchroPrimitives::Locker lock(&m_refresh_cs);
-  m_lst_environments = std::move(res);
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    m_lst_environments = std::move(res);
+  }
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -182,8 +183,11 @@ void CHubController::refresh_containers() {
 
   if (res == m_lst_resource_hosts)
     return;
-  SynchroPrimitives::Locker lock(&m_refresh_cs);
-  m_lst_resource_hosts = std::move(res);
+
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    m_lst_resource_hosts = std::move(res);
+  }
   return;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -202,24 +206,29 @@ CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
                                      void *additional_data) {
   CSSEnvironment *env = NULL;
-  for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
-    if (i->id() != env_id) continue;
-    env = &(*i); break;
-  }
-  if (env == NULL) {
-    emit ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
-    return;
+  const CHubContainer *cont = NULL;
+
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+      if (i->id() != env_id) continue;
+      env = &(*i); break;
+    }
+    if (env == NULL) {
+      emit ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
+      return;
+    }
+
+    for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
+      if (j->id() != cont_id) continue;
+      cont = &(*j); break;
+    }
+    if (cont == NULL) {
+      emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+      return;
+    }
   }
 
-  const CHubContainer *cont = NULL;
-  for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
-    if (j->id() != cont_id) continue;
-    cont = &(*j); break;
-  }
-  if (cont == NULL) {
-    emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
-    return;
-  }
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
 }
 ////////////////////////////////////////////////////////////////////////////

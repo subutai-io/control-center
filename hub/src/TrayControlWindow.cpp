@@ -1027,7 +1027,7 @@ TrayControlWindow::ssh_to_container_finished(int result,
                                              void *additional_data) {
   if (result != SLE_SUCCESS) {
     CNotifiactionObserver::Instance()->NotifyAboutError(
-          QString("Can't ssh to container. Err : %1").arg(result));
+          QString("Can't ssh to container. Err : %1").arg(CHubController::ssh_launch_err_to_str(result)));
   }
   QAction* act = static_cast<QAction*>(additional_data);
   if (act == NULL) return;

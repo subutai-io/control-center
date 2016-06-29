@@ -84,6 +84,7 @@ CSystemCallWrapper::ssystem(const char *command,
     if (lst_output.empty())
       return SCWE_SHELL_ERROR;
   } else {
+    CApplicationLog::Instance()->LogError("popen(%s) failed with code %d", str_cmd.c_str(), errno);
     return SCWE_PIPE;
   }
   return SCWE_SUCCESS;
@@ -230,7 +231,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   }
 
   if (exit_code != 0) {
-    QString err_msg = QString("Join to p2p swarm failed. Check p2p path. Code : %1").arg(exit_code);
+    QString err_msg = QString("Join to p2p swarm failed. Code : %1").arg(exit_code);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return SCWE_CREATE_PROCESS;
   }
