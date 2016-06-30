@@ -197,6 +197,7 @@ private slots:
                              const QString& msg);
 
   /*virtualbox slots*/
+  void show_vbox();
   void vm_added(const com::Bstr& vm_id);
   void vm_removed(const com::Bstr& vm_id);
   void vm_state_changed(const com::Bstr& vm_id);
