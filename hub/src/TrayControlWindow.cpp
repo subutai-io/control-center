@@ -202,6 +202,17 @@ TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+TrayControlWindow::show_vbox() {
+  QPoint curpos = QCursor::pos();
+  curpos.setX(curpos.x() - 250);
+  //m_vbox_menu->popup(curpos,m_act_hub);
+
+  if (m_w_Player->vm_count > 0)
+    m_vbox_menu->exec(curpos);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 TrayControlWindow::create_tray_actions() {
   m_act_launch = new QAction(QIcon(":/hub/Launch-07.png") ,tr("Launch"), this);
 
@@ -209,6 +220,8 @@ TrayControlWindow::create_tray_actions() {
   connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
 
   m_act_vbox = new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
+  connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+
   m_act_hub = new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
