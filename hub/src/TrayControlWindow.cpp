@@ -415,11 +415,12 @@ TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // remove
 
 /*** Refresh ***/
 void
-TrayControlWindow::refresh_timer_timeout() {
-  /*balance*/
+TrayControlWindow::refresh_timer_timeout() {  
+  m_refresh_timer.stop();
   refresh_balance();
   refresh_environments();
   CHubController::Instance().refresh_containers();
+  m_refresh_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
