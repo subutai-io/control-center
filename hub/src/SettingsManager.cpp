@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QDir>
+#include <QUuid>
 
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
@@ -10,9 +11,6 @@ const QString CSettingsManager::APP_NAME("SS_Tray");
 const QString CSettingsManager::SM_LOGIN("Login");
 const QString CSettingsManager::SM_PASSWORD("Password");
 const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
-
-const QString CSettingsManager::SM_POST_URL("Post_Url");
-const QString CSettingsManager::SM_GET_URL("Get_Url");
 const QString CSettingsManager::SM_GORJUN_URL("Gorjun_Url");
 
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
@@ -42,6 +40,8 @@ const QString CSettingsManager::SM_RH_PORT("Rh_Port");
 const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 
+const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
+
 struct str_setting_val {
   QString& field;
   QString val;
@@ -56,6 +56,7 @@ CSettingsManager::CSettingsManager() :
   m_remember_me(m_settings.value(SM_REMEMBER_ME).toBool()),
   m_post_url("https://hub.subut.ai/rest/v1/tray/%1"),
   m_get_url("https://hub.subut.ai/rest/v1/tray/%1"),
+  m_health_url("http://158.181.174.23:8080/rest/v1/tray/tray-data"),
   m_refresh_time_sec(def_timeout),
   #ifdef RT_OS_LINUX
   m_terminal_path("xterm"),
@@ -79,12 +80,11 @@ CSettingsManager::CSettingsManager() :
   m_rh_port("4567"),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
   m_logs_storage(QApplication::applicationDirPath()),
-  m_ssh_keys_storage(QApplication::applicationDirPath())
+  m_ssh_keys_storage(QApplication::applicationDirPath()),
+  m_tray_guid("")
 {
   QString tmp("");
   str_setting_val dct_str_vals[] = {
-    {m_post_url, SM_POST_URL},
-    {m_get_url, SM_GET_URL},
     {m_terminal_path, SM_TERMINAL_PATH},
     {m_p2p_path, SM_P2P_PATH},
     {m_ssh_path, SM_SSH_PATH},
@@ -97,6 +97,7 @@ CSettingsManager::CSettingsManager() :
     {m_gorjun_url, SM_GORJUN_URL},
     {m_logs_storage, SM_LOGS_STORAGE},
     {m_ssh_keys_storage, SM_SSH_KEYS_STORAGE},
+    {m_tray_guid, SM_TRAY_GUID},
     {tmp, ""}
   };
 
@@ -118,6 +119,11 @@ CSettingsManager::CSettingsManager() :
     if (parsed)
       set_notification_delay_sec(nd);
   }  
+
+  if (m_tray_guid.isEmpty()) {
+    m_tray_guid = QUuid::createUuid().toString();
+    m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -133,8 +139,6 @@ CSettingsManager::set_logs_storage(const QString &logs_storage) {
   SET_FIELD_DEF(login, SM_LOGIN, QString&)
   SET_FIELD_DEF(password, SM_PASSWORD, QString&)
   SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
-  SET_FIELD_DEF(get_url, SM_GET_URL, QString&)
-  SET_FIELD_DEF(post_url, SM_POST_URL, QString&)
   SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
   SET_FIELD_DEF(terminal_path, SM_TERMINAL_PATH, QString&)
   SET_FIELD_DEF(p2p_path, SM_P2P_PATH, QString&)
