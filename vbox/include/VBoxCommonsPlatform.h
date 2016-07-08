@@ -28,6 +28,10 @@ enum VM_State {
   VMS_DeletingSnapshot = MachineState_DeletingSnapshot,
   VMS_SettingUp = MachineState_SettingUp,
   VMS_Snapshotting = MachineState_Snapshotting,
+  VMS_FirstOnline = MachineState_FirstOnline,
+  VMS_LastOnline = MachineState_LastOnline,
+  VMS_FirstTransient = MachineState_FirstTransient,
+  VMS_LastTransient = MachineState_LastTransient,
   VMS_UNDEFINED
 };
 
