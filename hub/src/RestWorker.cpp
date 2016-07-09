@@ -3,6 +3,7 @@
 #include "SettingsManager.h"
 #include "RestWorker.h"
 #include "ApplicationLog.h"
+#include "SystemCallWrapper.h"
 
 CRestWorker::CRestWorker() :
   m_network_manager(NULL) {
@@ -164,8 +165,33 @@ CRestWorker::is_ss_console_ready(const QString &url,
   int http_code;
   QUrl req_url(url);
   QNetworkRequest request(req_url);
-  send_request(request, true, http_code, err_code, network_err, true);
+  send_request(request, true, http_code, err_code, network_err, QByteArray(), true);
   return http_code;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::send_health_request(int &http_code,
+                                int &err_code,
+                                int &network_err) {
+
+  std::string p2p_version, p2p_status;
+  int exit_code;
+  CSystemCallWrapper::p2p_version(p2p_version, exit_code);
+  CSystemCallWrapper::p2p_status(p2p_status, exit_code);
+
+  CHealthReportData report_data(
+        QString(p2p_status.c_str()),
+        QString(p2p_version.c_str()),
+        QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
+
+  CTrayReport<CHealthReportData> report(report_data);
+  QJsonDocument doc(report.to_json_object());
+
+  QUrl url(CSettingsManager::Instance().health_url());
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  send_request(req, false, http_code, err_code, network_err, doc.toJson());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -207,6 +233,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           int& http_status_code,
                           int& err_code,
                           int &network_error,
+                          QByteArray data,
                           bool ignore_ssl_errors) {
 
   if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
@@ -224,7 +251,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
   timer.start(15000);
 
   QNetworkReply* reply =
-      get ? m_network_manager->get(req) : m_network_manager->post(req, QByteArray());
+      get ? m_network_manager->get(req) : m_network_manager->post(req, data);
 
   connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
@@ -268,7 +295,7 @@ CRestWorker::send_get_request(const QNetworkRequest &req,
                               int& http_status_code,
                               int& err_code,
                               int &network_error) {
-  return send_request(req, true, http_status_code, err_code, network_error);
+  return send_request(req, true, http_status_code, err_code, network_error, QByteArray());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -277,7 +304,7 @@ CRestWorker::send_post_request(const QNetworkRequest &req,
                                int& http_status_code,
                                int& err_code,
                                int& network_error) {
-  return send_request(req, false, http_status_code, err_code, network_error);
+  return send_request(req, false, http_status_code, err_code, network_error, QByteArray());
 }
 ////////////////////////////////////////////////////////////////////////////
 

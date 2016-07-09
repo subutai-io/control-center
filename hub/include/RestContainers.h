@@ -1,11 +1,13 @@
 #ifndef RESTCONTAINERS_H
 #define RESTCONTAINERS_H
 
+#include <stdint.h>
 #include <QString>
 #include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include "SettingsManager.h"
 
 class CHubContainer {
 private:
@@ -185,6 +187,79 @@ public:
 
   bool operator!=(const CGorjunFileInfo& gfi) const {
     return !(this->operator ==(gfi));
+  }
+};
+////////////////////////////////////////////////////////////////////////////
+
+typedef enum report_type {
+  RT_HEALTH = 0, RT_ERROR
+} report_type_t;
+
+class CReportHeader {
+private:
+  static const int32_t MAGIC = 0x0caa1020;
+  int32_t m_magic;
+  QString m_tray_guid;
+  report_type_t m_type;
+
+public:
+  CReportHeader(report_type_t type) :
+    m_magic(MAGIC),
+    m_tray_guid(CSettingsManager::Instance().tray_guid()),
+    m_type(type) {}
+
+  ~CReportHeader() {}
+
+  QJsonObject to_json_object() const {
+    QJsonObject obj;
+    obj["magic"] = m_magic;
+    obj["tray_guid"] = m_tray_guid;
+    obj["type"] = (int32_t)m_type;
+    return obj;
+  }
+};
+
+template<class DT> class CTrayReport {
+private:
+  CReportHeader m_hdr;
+  DT m_data;
+public:
+  CTrayReport(const DT& data) :
+    m_hdr(DT::TYPE),
+    m_data(data) { }
+  ~CTrayReport() {}
+
+  QJsonObject to_json_object() const {
+    QJsonObject obj;
+    obj["hdr"] = m_hdr.to_json_object();
+    obj["data"] = m_data.to_json_object();
+    return obj;
+  }
+};
+
+class CHealthReportData {
+private:
+  QString m_p2p_status;
+  QString m_p2p_version;
+  QString m_os_info;
+
+public:
+  static const report_type_t TYPE = RT_HEALTH;
+  CHealthReportData(const QString& p2p_status,
+                const QString& p2p_version,
+                const QString& os_info) :
+    m_p2p_status(p2p_status),
+    m_p2p_version(p2p_version),
+    m_os_info(os_info) {}
+
+  ~CHealthReportData(){}
+
+  QJsonObject to_json_object() const {
+    QJsonObject obj;
+    obj["p2p_status"] = m_p2p_status;
+    obj["p2p_version"] = m_p2p_version;
+    obj["os_info"] = m_os_info;
+    return obj;
   }
 };
 

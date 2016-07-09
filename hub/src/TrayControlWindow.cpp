@@ -61,6 +61,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_ss_updater_timer.setInterval(3*60*60*1000); //3 hours
   m_ss_updater_timer.start();
 
+  m_report_timer.setInterval(60*1000); //minute
+  m_report_timer.start();
+
   connect(&m_refresh_timer, SIGNAL(timeout()),
           this, SLOT(refresh_timer_timeout()));
 
@@ -79,6 +82,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
   connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
           this, SLOT(ssh_to_container_finished(int,void*)));
+
+  connect(&m_report_timer, SIGNAL(timeout()), this, SLOT(report_timer_timeout()));
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -501,6 +506,15 @@ TrayControlWindow::updater_timer_timeout() {
   }
 
   m_ss_updater_timer.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::report_timer_timeout() {
+  m_report_timer.stop();
+  int http_code, err_code, network_err;
+  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err);
+  m_report_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
