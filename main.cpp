@@ -40,7 +40,6 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
 int
 main(int argc, char *argv[]) {
 
-
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
@@ -100,9 +99,6 @@ main(int argc, char *argv[]) {
     dlg.run_dialog();
     if (dlg.result() == QDialog::Rejected)
       break;
-
-    int http_code, err_code, network_err;
-    CRestWorker::Instance()->send_health_request(http_code, err_code, network_err);
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();

@@ -3,6 +3,7 @@
 #include "SettingsManager.h"
 #include "RestWorker.h"
 #include "ApplicationLog.h"
+#include "SystemCallWrapper.h"
 
 CRestWorker::CRestWorker() :
   m_network_manager(NULL) {
@@ -174,19 +175,23 @@ CRestWorker::send_health_request(int &http_code,
                                 int &err_code,
                                 int &network_err) {
 
-  CHealthReportData report_data("p2p isn't work because it doesn't want",
-                       "sverhmegaderzak-version of p2p",
-                       QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
+  std::string p2p_version, p2p_status;
+  int exit_code;
+  CSystemCallWrapper::p2p_version(p2p_version, exit_code);
+  CSystemCallWrapper::p2p_status(p2p_status, exit_code);
+
+  CHealthReportData report_data(
+        QString(p2p_status.c_str()),
+        QString(p2p_version.c_str()),
+        QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
+
   CTrayReport<CHealthReportData> report(report_data);
   QJsonDocument doc(report.to_json_object());
-  CApplicationLog::Instance()->LogTrace(QString(doc.toJson()).toStdString().c_str());
 
   QUrl url(CSettingsManager::Instance().health_url());
   QNetworkRequest req(url);
-  CApplicationLog::Instance()->LogTrace("%s", url.toString().toStdString().c_str());
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   send_request(req, false, http_code, err_code, network_err, doc.toJson());
-  CApplicationLog::Instance()->LogTrace("sent health request. %d - %d - %d", http_code, err_code, network_err);
 }
 ////////////////////////////////////////////////////////////////////////////
 

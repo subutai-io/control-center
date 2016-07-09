@@ -56,7 +56,7 @@ CSettingsManager::CSettingsManager() :
   m_remember_me(m_settings.value(SM_REMEMBER_ME).toBool()),
   m_post_url("https://hub.subut.ai/rest/v1/tray/%1"),
   m_get_url("https://hub.subut.ai/rest/v1/tray/%1"),
-  m_health_url("http://158.181.174.23:8080/rest/v1/tray/tray-data"),
+  m_health_url("https://hub.subut.ai/rest/v1/tray/tray-data"),
   m_refresh_time_sec(def_timeout),
   #ifdef RT_OS_LINUX
   m_terminal_path("xterm"),
