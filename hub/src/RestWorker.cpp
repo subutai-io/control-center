@@ -209,6 +209,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
                           int &network_error,
                           bool ignore_ssl_errors) {
 
+  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)m_network_manager->networkAccessible());
     m_network_manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
