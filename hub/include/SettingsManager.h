@@ -17,8 +17,6 @@ private:
   static const QString SM_PASSWORD;
   static const QString SM_REMEMBER_ME;
 
-  static const QString SM_POST_URL;
-  static const QString SM_GET_URL;
   static const QString SM_GORJUN_URL;
   static const QString SM_REFRESH_TIME;
 
@@ -40,6 +38,8 @@ private:
   static const QString SM_LOGS_STORAGE;
   static const QString SM_SSH_KEYS_STORAGE;
 
+  static const QString SM_TRAY_GUID;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -49,6 +49,8 @@ private:
 
   QString m_post_url;
   QString m_get_url;
+  QString m_health_url;
+
   int32_t m_refresh_time_sec;
   QString m_terminal_path;
   QString m_p2p_path;
@@ -69,6 +71,7 @@ private:
   QString m_gorjun_url;
   QString m_logs_storage;
   QString m_ssh_keys_storage;
+  QString m_tray_guid;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -88,6 +91,7 @@ public:
   bool remember_me() const {return m_remember_me;}
   const QString& get_url() const {return m_get_url;}
   const QString& post_url() const {return m_post_url;}
+  const QString& health_url() const {return m_health_url;}
   int32_t refresh_time_sec() const {return m_refresh_time_sec;}
   const QString& terminal_path() const {return m_terminal_path;}
   const QString& p2p_path() const {return m_p2p_path;}
@@ -106,7 +110,7 @@ public:
   const QString& gorjun_url() const {return m_gorjun_url;}
   const QString& logs_storage() const {return m_logs_storage;}
   const QString& ssh_keys_storage() const {return m_ssh_keys_storage;}
-
+  const QString& tray_guid() const {return m_tray_guid;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {

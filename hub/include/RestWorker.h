@@ -49,6 +49,7 @@ public:
   std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code, int &network_error);
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
   int is_ss_console_ready(const QString& url, int &err_code, int &network_err);
+  void send_health_request(int &http_code, int &err_code, int &network_err);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
   QNetworkReply* download_file(const QUrl& url);
@@ -61,6 +62,7 @@ private:
                           int &http_status_code, int &err_code,
                           int& network_error, bool ignore_ssl_errors = false);
   QByteArray send_get_request(QNetworkRequest &req, int &http_status_code,
+
                               int &err_code, int& network_error);
   QByteArray send_post_request(QNetworkRequest &req, int &http_status_code,
                                int &err_code, int& network_error);

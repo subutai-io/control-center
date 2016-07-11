@@ -430,6 +430,28 @@ CSystemCallWrapper::p2p_version(std::string &version,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
+CSystemCallWrapper::p2p_status(std::string &status,
+                               int &exit_code) {
+  status = "";
+  std::vector<std::string> lst_out;
+  std::string command = CSettingsManager::Instance().p2p_path().toStdString();
+  command += std::string(" status");
+  system_call_wrapper_error_t res =
+      ssystem_th(command.c_str(), lst_out, exit_code, true);
+
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+    for (auto i = lst_out.begin(); i != lst_out.end(); ++i) {
+      status += *i;
+    }
+  }
+  else
+    status = "undefined";
+
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
 CSystemCallWrapper::chrome_version(std::string &version,
                                    int &exit_code) {
   version = "undefined";
