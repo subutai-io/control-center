@@ -455,7 +455,6 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
       msg.setText(tr("Virtual machine can not be removed!"));
       msg.setInformativeText(tr("Power off machine first"));
       msg.setStandardButtons(QMessageBox::Ok);
-      mret = msg.exec();
       return 2; //todo enum
   }
 
@@ -518,7 +517,6 @@ void CVBoxManagerWin::event_listener_th(CVBoxManagerWin* manager) {
       continue;
 
     //you wanna peace of me, boy?
-    CApplicationLog::Instance()->LogInfo("New event : %d", type);
     (manager->*manager->m_dct_event_handlers[type])(event);
   }
   CoUninitialize();

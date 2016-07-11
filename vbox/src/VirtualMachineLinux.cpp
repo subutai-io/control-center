@@ -44,25 +44,25 @@ nsresult CVirtualMachineLinux::save_state(IProgress **progress) {
 ////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineLinux::pause() {
-      nsresult rc;
-      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
-      nsCOMPtr<IConsole> console;
-      m_session->GetConsole(getter_AddRefs(console));
-      rc = console->Pause();
-      m_session->UnlockMachine();
-      return rc;
+  nsresult rc;
+  rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+  nsCOMPtr<IConsole> console;
+  m_session->GetConsole(getter_AddRefs(console));
+  rc = console->Pause();
+  m_session->UnlockMachine();
+  return rc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 nsresult CVirtualMachineLinux::resume() {
-      nsresult rc;
-      rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
-      nsCOMPtr<IConsole> console;
-      m_session->GetConsole(getter_AddRefs(console));
-      rc = console->Resume();
-      m_session->UnlockMachine();
-      return rc;
+  nsresult rc;
+  rc = m_internal_machine->LockMachine(m_session, LockType_Shared);
+  nsCOMPtr<IConsole> console;
+  m_session->GetConsole(getter_AddRefs(console));
+  rc = console->Resume();
+  m_session->UnlockMachine();
+  return rc;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -83,15 +83,14 @@ nsresult CVirtualMachineLinux::remove(IProgress **progress) {
   IMedium **aMedia;
   PRUint32 cMedia;
   rc = m_internal_machine->Unregister((CleanupMode_T)CleanupMode_Full,  //DetachAllReturnHardDisksOnly,
-                           &cMedia, &aMedia);
+                                      &cMedia, &aMedia);
   if (NS_FAILED(rc)){
-     //qDebug() << "Unregistering the machine failed! \n";
-     return rc;
+    return rc;
   }
-//// Delete after fixing Removing vm files on MAC!//////////////////////////
+  //// Delete after fixing Removing vm files on MAC!//////////////////////////
 #ifndef RT_OS_DARWIN
   rc = m_internal_machine->DeleteConfig(cMedia, aMedia, progress);
-//          DeleteConfig(cMedia, aMedia, getter_AddRefs(progress));
+  //          DeleteConfig(cMedia, aMedia, getter_AddRefs(progress));
 #endif
   return rc;
 }
@@ -113,10 +112,10 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
   nsCOMPtr<IGuestSession> gsess;
 
   rc = guest->CreateSession(com::Bstr(user).raw(),
-                                   com::Bstr(password).raw(),
-                                   com::Bstr("").raw(), //domain is "". todo add param
-                                   NULL,
-                                   getter_AddRefs(gsess));
+                            com::Bstr(password).raw(),
+                            com::Bstr("").raw(), //domain is "". todo add param
+                            NULL,
+                            getter_AddRefs(gsess));
 
 
   uint32_t reason = 0;
