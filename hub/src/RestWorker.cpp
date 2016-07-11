@@ -202,7 +202,7 @@ CRestWorker::rest_err_to_str(rest_error_t err) {
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray
-CRestWorker::send_request(const QNetworkRequest &req,
+CRestWorker::send_request(QNetworkRequest &req,
                           bool get,
                           int& http_status_code,
                           int& err_code,
@@ -265,7 +265,7 @@ CRestWorker::send_request(const QNetworkRequest &req,
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray
-CRestWorker::send_get_request(const QNetworkRequest &req,
+CRestWorker::send_get_request(QNetworkRequest &req,
                               int& http_status_code,
                               int& err_code,
                               int &network_error) {
@@ -274,7 +274,7 @@ CRestWorker::send_get_request(const QNetworkRequest &req,
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray
-CRestWorker::send_post_request(const QNetworkRequest &req,
+CRestWorker::send_post_request(QNetworkRequest &req,
                                int& http_status_code,
                                int& err_code,
                                int& network_error) {
