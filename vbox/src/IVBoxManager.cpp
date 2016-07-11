@@ -7,7 +7,6 @@
 #include "VirtualMachineWin.h"
 #define NS_FAILED FAILED
 #endif
-#include <VBox/com/com.h>
 
 IVBoxManager* CVBoxManagerSingleton::p_instance = NULL;
 CVBoxManagerSingleton::CVBoxManagerDestructor CVBoxManagerSingleton::p_destructor;
@@ -61,11 +60,6 @@ nsresult IVBoxManager::handle_event(VBoxEventType_T e_type, IEvent *event) {
 
 void IVBoxManager::init_com() {
 //do nothing, because com initializes in constructor
-}
-////////////////////////////////////////////////////////////////////////////
-
-void IVBoxManager::shutdown_com() {
-  com::Shutdown();
 }
 ////////////////////////////////////////////////////////////////////////////
 

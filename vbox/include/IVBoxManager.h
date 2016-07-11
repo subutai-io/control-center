@@ -17,7 +17,6 @@ class IVBoxManager : public QObject {
   Q_OBJECT
 
 private:
-  friend void* passive_event_listener(void* manager);
   friend class CVBoxManagerSingleton;
 
 protected:
@@ -68,11 +67,11 @@ public:
   virtual int remove(const com::Bstr& vm_id) = 0;
   virtual int add(const com::Bstr& vm_id) = 0;
   virtual QString version() = 0;
+  virtual void shutdown_com() = 0;
 
   nsresult handle_event(VBoxEventType_T e_type,
                         IEvent *event);
   void init_com();
-  void shutdown_com();
 
 signals:
   void vm_add(const com::Bstr& vm_id);

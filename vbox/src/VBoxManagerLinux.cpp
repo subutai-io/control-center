@@ -1,29 +1,25 @@
 #include <QApplication>
 #include <assert.h>
-#include <iostream>
 #include <thread>
-#include <QDebug>
+#include <QMessageBox>
+
 #include "VBoxManagerLinux.h"
 #include "VirtualMachineLinux.h"
-#include <VBox/com/com.h>
-#include <QMessageBox>
 #include "NotifiactionObserver.h"
-
-using namespace com;
+#include "ApplicationLog.h"
 
 CVBoxManagerLinux::CVBoxManagerLinux() :
   m_service_manager(nsnull),
   m_virtual_box(nsnull),
   m_component_manager(nsnull),
   m_event_source(nsnull),
-  m_el_active(nsnull) {
+  m_event_listening(false) {
 #define CHECK_RES(x) if (NS_FAILED(m_last_error)) { \
   m_last_vb_error = x;\
-  std::cout << m_last_error << " " << m_last_vb_error << std::endl;\
   break;\
 }
   do {
-    m_last_error = com::Initialize(true);
+    m_last_error = NS_InitXPCOM2(getter_AddRefs(m_service_manager), nsnull, nsnull);
     CHECK_RES(VBE_INIT_XPCOM2);
 
     m_last_error = NS_GetComponentManager(getter_AddRefs(m_component_manager));
@@ -38,32 +34,42 @@ CVBoxManagerLinux::CVBoxManagerLinux() :
     m_last_error = m_virtual_box->GetEventSource(getter_AddRefs(m_event_source));
     CHECK_RES(VBE_EVENT_SOURCE);
 
-    m_el_active = new CEventListenerLinux(this);
+    m_last_error = m_event_source->CreateListener(getter_AddRefs(m_el_passive));
+    CHECK_RES(VBE_EVENT_LISTENER);
+
     uint32_t* interested = new uint32_t[m_dct_event_handlers.size()];
     for (auto i = m_dct_event_handlers.cbegin(); i != m_dct_event_handlers.cend(); ++i) {
       *interested++ = i->first;
     }
     interested -= m_dct_event_handlers.size();
-
-    m_last_error = m_event_source->RegisterListener(m_el_active,
+    m_last_error = m_event_source->RegisterListener(m_el_passive,
                                                     m_dct_event_handlers.size(),
                                                     interested,
-                                                    PR_TRUE);
+                                                    PR_FALSE);
     delete[] interested;
     CHECK_RES(VBE_REGISTER_LISTENER);
+
+    m_event_listening = true;
+    std::thread th(event_listener_th, this);
+    th.detach();
   } while (false); // run loop once.
 #undef CHECK_RES
 }
 
 CVBoxManagerLinux::~CVBoxManagerLinux() {
+  m_event_listening = false;
+  while (!m_event_listening)
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  if (m_event_source && m_el_active)
-    m_event_source->UnregisterListener(m_el_active);
+  if (m_event_source && m_el_passive)
+    m_event_source->UnregisterListener(m_el_passive);
+
   m_service_manager = nsnull;
   m_component_manager = nsnull;
   m_virtual_box = nsnull;
-  m_el_active = nsnull;
   m_event_source = nsnull;
+  m_el_passive = nsnull;
+
   shutdown_com();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -112,18 +118,17 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
   if (NS_FAILED(rc)) return;
 
-  BOOL accessible = FALSE;
+  PRBool accessible = PR_FALSE;
   machine->GetAccessible(&accessible);
-  if (accessible == FALSE) {
-      qDebug() << "not accessible\n";
-      return;
+  if (accessible == PR_FALSE) {
+    return;
   }
 
-  BSTR vm_name;
+  //todo use com::BSTR
+  PRUnichar* vm_name;
   machine->GetName(&vm_name);
 
   QString name = QString::fromUtf16((ushort*)vm_name);
-  qDebug() << "machine name " << name << "\n";
   if (!name.contains("subutai"))
       return;
 
@@ -202,11 +207,7 @@ int CVBoxManagerLinux::init_machines() {
     IVirtualMachine* vm = new CVirtualMachineLinux(machines[count], session);
     m_dct_machines[vm->id()] = vm;
   } while (count != 0);
-
-  std::thread t(StartEventThread, m_event_source, m_el_passive);
-  t.detach();
-
-  return (rh_count == 0) ? 1 : 0;
+  return rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -229,32 +230,43 @@ int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
 
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if (state == VMS_Aborted) {
-    //return 1;//aborted machine will run
-  }
 
-  if (state == VMS_Stuck) {
-    return 2;
-  }
-
-  if( (int)state >= 8 && (int)state <= 23 ) //transition
-  {
-    qDebug() << "transition state\n" ;
-    return 4;
-  }
-
-  if( (int)state >= 5 && (int)state <= 19 )
-  {
-    qDebug() << "turned on already \n" ;
-    return 3;//1;
+  switch (state) {
+    case VMS_Null:
+    case VMS_PoweredOff:
+    case VMS_Saved:
+    case VMS_Teleported:
+    case VMS_Aborted:
+    case VMS_Running:
+    case VMS_Paused:
+      break;
+    /*case VMS_Stuck:
+    case VMS_Teleporting:
+    case VMS_LiveSnapshotting:
+    case VMS_Starting:
+    case VMS_Stopping:
+    case VMS_Saving:
+    case VMS_Restoring:
+    case VMS_TeleportingPausedVM:
+    case VMS_TeleportingIn:
+    case VMS_FaultTolerantSyncing:
+    case VMS_DeletingSnapshotOnline:
+    case VMS_DeletingSnapshotPaused:
+    case VMS_OnlineSnapshotting:
+    case VMS_RestoringSnapshot:
+    case VMS_DeletingSnapshot:
+    case VMS_SettingUp:
+    case VMS_Snapshotting:
+    case VMS_UNDEFINED:*/
+    default:
+      return 2; //todo enum
   }
 
   nsCOMPtr<IProgress> progress;
-  rc = m_dct_machines[vm_id]->launch_vm(lm,
-                                        getter_AddRefs(progress));
+  rc = m_dct_machines[vm_id]->launch_vm(lm, getter_AddRefs(progress));
 
   if (NS_FAILED(rc))
-    return 9;
+    return 3;
 
   HANDLE_PROGRESS(vm_launch_progress, progress);
   return 0;
@@ -266,31 +278,43 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
     return 1;
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if (state == VMS_Aborted) {
-    return 11;//Impossible
-  }
 
-  if (state == VMS_Stuck) {
-    return 2;
-  }
-
-  if( (int)state >= 8 && (int)state <= 23 ) //transition
-  {
-    qDebug() << "transition state\n" ;
-    return 4;
-  }
-
-  if( (int)state < 5 )
-  {
-    qDebug() << "turned on already \n" ;
-    return 5;//1;
+  switch (state) {
+    case VMS_Running:
+    case VMS_Paused:
+    case VMS_Starting:
+      break;
+    /*case VMS_Null:
+    case VMS_PoweredOff:
+    case VMS_Saved:
+    case VMS_Teleported:
+    case VMS_Aborted:
+    case VMS_Stuck:
+    case VMS_Stopping:
+    case VMS_LiveSnapshotting:
+    case VMS_Saving:
+    case VMS_Restoring:
+    case VMS_Teleporting:
+    case VMS_TeleportingPausedVM:
+    case VMS_TeleportingIn:
+    case VMS_FaultTolerantSyncing:
+    case VMS_DeletingSnapshotOnline:
+    case VMS_DeletingSnapshotPaused:
+    case VMS_OnlineSnapshotting:
+    case VMS_RestoringSnapshot:
+    case VMS_DeletingSnapshot:
+    case VMS_SettingUp:
+    case VMS_Snapshotting:
+    case VMS_UNDEFINED:*/
+    default:
+      return 2; //todo enum
   }
 
   if (save_state) {
     nsCOMPtr<IProgress> progress;
     rc = m_dct_machines[vm_id]->save_state(getter_AddRefs(progress));
     if (FAILED(rc)){
-      return 10;
+      return 3;
     }
     HANDLE_PROGRESS(vm_save_state_progress, progress);
   }
@@ -298,7 +322,7 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
   nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->turn_off(getter_AddRefs(progress));
   if (NS_FAILED(rc)) {
-    return 19;
+    return 4;
   }
 
   HANDLE_PROGRESS(vm_turn_off_progress, progress);
@@ -314,17 +338,42 @@ int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
     return 1;
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if( (int)state != 5 && (int)state != 8 && (int)state != 9 )
-  {
-    qDebug() << "not in running state \n" ;
-    return 6;//1;
-  }
 
+  switch (state) {
+    case VMS_Running:
+    case VMS_Teleporting:
+    case VMS_LiveSnapshotting:
+      break;
+    /*case VMS_Null:
+    case VMS_Paused:
+    case VMS_Starting:
+    case VMS_PoweredOff:
+    case VMS_Saved:
+    case VMS_Teleported:
+    case VMS_Aborted:
+    case VMS_Stuck:
+    case VMS_Stopping:
+    case VMS_Saving:
+    case VMS_Restoring:
+    case VMS_TeleportingPausedVM:
+    case VMS_TeleportingIn:
+    case VMS_FaultTolerantSyncing:
+    case VMS_DeletingSnapshotOnline:
+    case VMS_DeletingSnapshotPaused:
+    case VMS_OnlineSnapshotting:
+    case VMS_RestoringSnapshot:
+    case VMS_DeletingSnapshot:
+    case VMS_SettingUp:
+    case VMS_Snapshotting:
+    case VMS_UNDEFINED:*/
+    default:
+      return 2; //todo enum
+  }
 
   //nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->pause();
   if (NS_FAILED(rc)) {
-    return 19;
+    return 3;
   }
 
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
@@ -333,25 +382,18 @@ int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
-  // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
-
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if(  (int)state != 6  )
-  {
-    qDebug() << "not in paused state \n" ;
-    return 6;//1;
-  }
-
+  if (state != VMS_Paused)
+    return 2;
 
   //nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->resume();
   if (NS_FAILED(rc)) {
-    return 21;
+    return 3;
   }
-
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
@@ -370,91 +412,66 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
   msg.setInformativeText(tr("Are You sure?"));
   msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
   msg.setDefaultButton(QMessageBox::Cancel);
-  int mret = msg.exec();
-  switch (mret) {
-    case QMessageBox::No:
-      qDebug() << "no pressed \n";
-      return 23;
-    case QMessageBox::Yes:
-      qDebug() << "yes pressed \n";
-      break;
-    default:
-      return 23;
-  }
-  qDebug() << "ok pressed go further \n";
+  if (msg.exec() == QMessageBox::No)
+    return 1;
+
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
-    return 1; //no machine
+    return 2; //no machine
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if(  (int)state > 4  )
-  {
-    qDebug() << "not in off-line state \n" ;
-    //        CNotifiactionObserver::NotifyAboutError(QString("Remove machine failed. Power off machine first"));
-    msg.setIcon(QMessageBox::Information);
-    msg.setText(tr("Virtual machine can not be removed!"));
-    msg.setInformativeText(tr("Power off machine first"));
-    msg.setStandardButtons(QMessageBox::Ok);
-    mret = msg.exec();
 
-    return 6;//1;
+  switch (state) {
+    case VMS_Null:
+    case VMS_PoweredOff:
+    case VMS_Saved:
+    case VMS_Teleported:
+    case VMS_Aborted:
+      break;
+
+    case VMS_Running:
+    case VMS_Paused:
+    case VMS_Stuck:
+    case VMS_Teleporting:
+    case VMS_LiveSnapshotting:
+    case VMS_Starting:
+    case VMS_Stopping:
+    case VMS_Saving:
+    case VMS_Restoring:
+    case VMS_TeleportingPausedVM:
+    case VMS_TeleportingIn:
+    case VMS_FaultTolerantSyncing:
+    case VMS_DeletingSnapshotOnline:
+    case VMS_DeletingSnapshotPaused:
+    case VMS_OnlineSnapshotting:
+    case VMS_RestoringSnapshot:
+    case VMS_DeletingSnapshot:
+    case VMS_SettingUp:
+    case VMS_Snapshotting:
+    case VMS_UNDEFINED:
+    default:
+      msg.setIcon(QMessageBox::Information);
+      msg.setText(tr("Virtual machine can not be removed!"));
+      msg.setInformativeText(tr("Power off machine first"));
+      msg.setStandardButtons(QMessageBox::Ok);
+      mret = msg.exec();
+      return 2; //todo enum
   }
 
   nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->remove(getter_AddRefs(progress));
-
-  if (FAILED(rc)) {
-    qDebug() << "failed to remove machine \n" ;
-    return 23;
-  }
-
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
-  // we need not vm_id actually here
-  // Machine can be Removed if State < 5
-  //dialog?
-  //  nsCOMPtr<IProgress> progress;
   UNUSED_ARG(vm_id);
-//  nsresult rc;
-//  nsCOMPtr<IMachine> newmachine;
-//  rc = m_virtual_box->CreateMachine(NULL,        /* settings file */
-//                                    NS_LITERAL_STRING("test-lin-add").get(),
-//                                    0, nsnull,   /* groups (safearray)*/
-//                                    nsnull,      /* ostype */
-//                                    nsnull,      /* create flags */
-//                                    getter_AddRefs(newmachine));
-//  if (NS_FAILED(rc))
-//  {
-//    return 23;
-//  }
-
-//  rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
-//  rc = newmachine->SetMemorySize(128);
-
-//  rc = m_virtual_box->RegisterMachine(newmachine);
-//  if (NS_FAILED(rc))
-//  {
-//    qDebug() << "could not register machine! \n";
-//    return rc;
-//  }
-
-//  //   rc = session->SaveSettings(); //need to save when going to be used!
-//  //         if (NS_FAILED(rc)){
-//  //            qDebug() << "could not save machine settings!\n";
-//  //            return rc;
-//  //         }
-//  //    session->UnlockMachine();
-
-//  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
-//  return rc;
   return NS_OK;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString CVBoxManagerLinux::version() {
+QString
+CVBoxManagerLinux::version() {
   com::Bstr ver("");
   nsresult rc = m_virtual_box->GetVersion(ver.asOutParam());
   if (NS_SUCCEEDED(rc)) {
@@ -463,36 +480,41 @@ QString CVBoxManagerLinux::version() {
   }
   return "";
 }
-////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS1(CVBoxManagerLinux::CEventListenerLinux, IEventListener)
-CVBoxManagerLinux::CEventListenerLinux::CEventListenerLinux(CVBoxManagerLinux *instance) :
-  m_instance(instance) {
+void
+CVBoxManagerLinux::shutdown_com() {
+  NS_ShutdownXPCOM(nsnull);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-CVBoxManagerLinux::CEventListenerLinux::~CEventListenerLinux(){
-
-}
-////////////////////////////////////////////////////////////////////////////
-
-NS_IMETHODIMP CVBoxManagerLinux::CEventListenerLinux::HandleEvent(IEvent *event) {
-  uint32_t e_type;
-  event->GetType(&e_type);
-  return m_instance->handle_event(e_type, event);
-}
-////////////////////////////////////////////////////////////////////////////
-
-//this thread needed just for calling VBox API. All actions are handled by active listener.
-void CVBoxManagerLinux::StartEventThread(nsCOMPtr<IEventSource> eS,
-                                         nsCOMPtr<IEventListener> eL) {
-
-  static bool volatile terminateEThread = false;
-  while (!terminateEThread) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+void CVBoxManagerLinux::event_listener_th(CVBoxManagerLinux* manager) {
+  while (manager->m_event_listening) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     IEvent *event;
-    eS->GetEvent( eL, 100, &event);
+    nsresult rc = manager->m_event_source->GetEvent(manager->m_el_passive, 100, &event);
+
+    if (NS_FAILED(rc)) {
+      CApplicationLog::Instance()->LogError("Can't get event. rc = %x", rc);
+      continue;
+    }
+
+    if (event == nsnull)
+      continue;
+
+    uint32_t type;
+    rc = event->GetType(&type);
+    if (NS_FAILED(rc)) {
+      CApplicationLog::Instance()->LogError("Can't get event type. rc = %x", rc);
+      continue;
+    }
+
+    if (manager->m_dct_event_handlers.find(type) == manager->m_dct_event_handlers.end())
+      continue;
+
+    //you wanna peace of me, boy?
+    (manager->*manager->m_dct_event_handlers[type])(event);
   }
+  manager->m_event_listening = true;
 }
 ////////////////////////////////////////////////////////////////////////////
 

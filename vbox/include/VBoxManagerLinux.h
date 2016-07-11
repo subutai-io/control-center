@@ -10,29 +10,16 @@
 
 class CVBoxManagerLinux : public IVBoxManager
 {
-  class CEventListenerLinux : public IEventListener {
-  public:
-    NS_DECL_ISUPPORTS
-    NS_DECL_IEVENTLISTENER
-    NS_DECL_OWNINGTHREAD
-    CEventListenerLinux(CVBoxManagerLinux* instance);
-  private:
-    CVBoxManagerLinux* m_instance;
-    virtual ~CEventListenerLinux();
-  };
-
- private:
+private:
   friend class CVBoxManagerSingleton;
 
   CVBoxManagerLinux();
   virtual ~CVBoxManagerLinux();
 
-  nsCOMPtr<nsIEventQueue> m_eventQ;
   nsCOMPtr<nsIServiceManager> m_service_manager;
   nsCOMPtr<IVirtualBox> m_virtual_box;
   nsCOMPtr<nsIComponentManager> m_component_manager;
   nsCOMPtr<IEventSource> m_event_source;
-  nsCOMPtr<IEventListener> m_el_active;
   nsCOMPtr<IEventListener> m_el_passive;
 
   static com::Bstr machine_id_from_machine_event(IEvent* event);
@@ -42,7 +29,8 @@ class CVBoxManagerLinux : public IVBoxManager
   virtual void on_session_state_changed(IEvent* event);
   virtual void on_machine_event(IEvent* event);
 
-  static void StartEventThread(nsCOMPtr<IEventSource> eS, nsCOMPtr<IEventListener> eL);
+  volatile bool m_event_listening;
+  static void event_listener_th(CVBoxManagerLinux *manager);
 
 public:
   virtual int init_machines(void);
@@ -53,7 +41,7 @@ public:
   virtual int remove(const com::Bstr &vm_id);
   virtual int add(const com::Bstr &vm_id);
   virtual QString version();
-
+  virtual void shutdown_com();
 };
 
 #endif //VBOX_MANAGER_LINUX_H

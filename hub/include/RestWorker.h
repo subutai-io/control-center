@@ -58,12 +58,13 @@ public:
 
 private:
   QNetworkAccessManager *m_network_manager;
-  QByteArray send_request(const QNetworkRequest& req, bool get,
+  QByteArray send_request(QNetworkRequest &req, bool get,
                           int &http_status_code, int &err_code,
-                          int& network_error, QByteArray data, bool ignore_ssl_errors = false);
-  QByteArray send_get_request(const QNetworkRequest& req, int &http_status_code,
+                          int& network_error, bool ignore_ssl_errors = false);
+  QByteArray send_get_request(QNetworkRequest &req, int &http_status_code,
+
                               int &err_code, int& network_error);
-  QByteArray send_post_request(const QNetworkRequest& req, int &http_status_code,
+  QByteArray send_post_request(QNetworkRequest &req, int &http_status_code,
                                int &err_code, int& network_error);
   QJsonDocument get_request_json_document(const QString& link, int& http_code,
                                           int &err_code, int &network_error);
