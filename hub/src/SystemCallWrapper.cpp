@@ -432,19 +432,21 @@ CSystemCallWrapper::p2p_version(std::string &version,
 system_call_wrapper_error_t
 CSystemCallWrapper::p2p_status(std::string &status,
                                int &exit_code) {
-  status = "undefined";
+  status = "";
   std::vector<std::string> lst_out;
   std::string command = CSettingsManager::Instance().p2p_path().toStdString();
   command += std::string(" status");
   system_call_wrapper_error_t res =
       ssystem_th(command.c_str(), lst_out, exit_code, true);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
-    status = lst_out[0];
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+    for (auto i = lst_out.begin(); i != lst_out.end(); ++i) {
+      status += *i;
+    }
+  }
+  else
+    status = "undefined";
 
-  size_t index ;
-  if ((index = status.find('\n')) != std::string::npos)
-    status.replace(index, 1, " ");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
