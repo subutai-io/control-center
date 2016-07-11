@@ -80,7 +80,7 @@ CRestWorker::get_environments(int& http_code,
                               int& err_code,
                               int& network_error) {
   std::vector<CSSEnvironment> lst_res;
-  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);  
+  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);
   QJsonArray arr = doc.array();
   for (auto i = arr.begin(); i != arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;
@@ -191,7 +191,7 @@ CRestWorker::send_health_request(int &http_code,
   QUrl url(CSettingsManager::Instance().health_url());
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  send_request(req, false, http_code, err_code, network_err, doc.toJson());
+  send_request(req, false, http_code, err_code, network_err, doc.toJson(), false);
 }
 ////////////////////////////////////////////////////////////////////////////
 

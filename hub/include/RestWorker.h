@@ -58,9 +58,13 @@ public:
 
 private:
   QNetworkAccessManager *m_network_manager;
-  QByteArray send_request(QNetworkRequest &req, bool get,
-                          int &http_status_code, int &err_code,
-                          int& network_error, bool ignore_ssl_errors = false);
+  QByteArray send_request(QNetworkRequest &req,
+                          bool get,
+                          int& http_status_code,
+                          int& err_code,
+                          int &network_error,
+                          QByteArray data,
+                          bool ignore_ssl_errors = false);
   QByteArray send_get_request(QNetworkRequest &req, int &http_status_code,
 
                               int &err_code, int& network_error);
