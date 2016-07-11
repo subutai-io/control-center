@@ -29,7 +29,7 @@ private:
   virtual void on_session_state_changed(IEvent* event);
   virtual void on_machine_event(IEvent* event);
 
-  bool m_event_listening;
+  volatile bool m_event_listening;
   static void event_listener_th(CVBoxManagerLinux *manager);
 
 public:

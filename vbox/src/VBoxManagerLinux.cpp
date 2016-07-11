@@ -373,7 +373,7 @@ int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
   //nsCOMPtr<IProgress> progress;
   rc = m_dct_machines[vm_id]->pause();
   if (NS_FAILED(rc)) {
-    return 19;
+    return 3;
   }
 
   //HANDLE_PROGRESS(vm_turn_off_progress, progress);
@@ -465,40 +465,7 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
-  //  nsCOMPtr<IProgress> progress;
   UNUSED_ARG(vm_id);
-/*  nsresult rc;
-  nsCOMPtr<IMachine> newmachine;
-  rc = m_virtual_box->CreateMachine(NULL,
-                                    NS_LITERAL_STRING("test-lin-add").get(),
-                                    0, nsnull,
-                                    nsnull,
-                                    nsnull,
-                                    getter_AddRefs(newmachine));
-  if (NS_FAILED(rc))
-  {
-    return 23;
-  }
-
-  rc = newmachine->SetName(NS_ConvertUTF8toUTF16("test-new").get());
-  rc = newmachine->SetMemorySize(128);
-
-  rc = m_virtual_box->RegisterMachine(newmachine);
-  if (NS_FAILED(rc))
-  {
-    qDebug() << "could not register machine! \n";
-    return rc;
-  }
-
-     rc = session->SaveSettings(); //need to save when going to be used!
-           if (NS_FAILED(rc)){
-              qDebug() << "could not save machine settings!\n";
-              return rc;
-           }
-  session->UnlockMachine();
-
-  //HANDLE_PROGRESS(vm_turn_off_progress, progress);
-  return rc; */
   return NS_OK;
 }
 ////////////////////////////////////////////////////////////////////////////
