@@ -104,7 +104,15 @@ int CHubController::refresh_balance() {
     }
   }
 
-  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance:  %1").arg(balance.value());
+  bool converted = false;
+  double balance_val = balance.value().toDouble(&converted);
+  if (!converted) {
+    m_balance = QString(UNDEFINED_BALANCE);
+    return 0;
+  }
+
+  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance:  %1").
+                         arg(QString::number(balance_val, 'f', 2));
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
