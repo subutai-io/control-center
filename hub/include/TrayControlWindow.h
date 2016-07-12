@@ -31,12 +31,12 @@ public:
     void set_buttons(ushort state);
     QAction* action() {return m_player_item_act;}
     QHBoxLayout *p_h_Layout;
-    QLabel *pLabelName;
-    QLabel *pLabelState;
-    QPushButton *pPlay;
-    QPushButton *pStop;
-    QPushButton *pAdd;
-    QPushButton *pRem;
+    QLabel *lbl_name;
+    QLabel *lbl_state;
+    QPushButton *btn_play;
+    QPushButton *btn_stop;
+    QPushButton *btn_add;
+    QPushButton *btn_remove;
 
 signals:
     void vbox_menu_btn_play_released_signal(const QString& vm_id);
@@ -158,7 +158,6 @@ private:
   void create_tray_icon();
   int fill_vm_menu();
   void fill_launch_menu();  
-  int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
 
   void refresh_balance();

@@ -784,45 +784,45 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   m_vm_player_item_id(vm->id()) {
 
   UNUSED_ARG(parent);
-  pLabelName = new QLabel(this);
-  pLabelState = new QLabel(this);
-  pPlay = new QPushButton("", this);
-  pStop = new QPushButton("", this);
+  lbl_name = new QLabel(this);
+  lbl_state = new QLabel(this);
+  btn_play = new QPushButton("", this);
+  btn_stop = new QPushButton("", this);
 
   p_h_Layout = new QHBoxLayout(NULL);  
-  pLabelName->setMinimumWidth(180);
-  pLabelState->setMinimumWidth(100);
-  pLabelState->setMaximumWidth(100);
+  lbl_name->setMinimumWidth(180);
+  lbl_state->setMinimumWidth(100);
+  lbl_state->setMaximumWidth(100);
 
   ushort state = vm->state();
 
-  pLabelName->setText(vm->name());
-  pLabelState->setText(TrayControlWindow::GetStateName(state));
+  lbl_name->setText(vm->name());
+  lbl_state->setText(TrayControlWindow::GetStateName(state));
 
-  pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
-  pStop->setIcon(QIcon(":/hub/Stop-07.png"));
+  btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
+  btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
 
-  pPlay->setToolTip("Play/Pause/Resume");
-  pStop->setToolTip("Power off");
-  connect(pPlay, SIGNAL(released()),
+  btn_play->setToolTip("Play/Pause/Resume");
+  btn_stop->setToolTip("Power off");
+  connect(btn_play, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_play_released()), Qt::QueuedConnection);
-  connect(pStop, SIGNAL(released()),
+  connect(btn_stop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
 
-  pRem = new QPushButton("", this);
-  pRem->setIcon(QIcon(":/hub/Delete-07.png"));
-  pRem->setToolTip("Attention! Removes VM. All files will be deleted");
+  btn_remove = new QPushButton("", this);
+  btn_remove->setIcon(QIcon(":/hub/Delete-07.png"));
+  btn_remove->setToolTip("Attention! Removes VM. All files will be deleted");
 
-  connect(pRem, SIGNAL(released()),
+  connect(btn_remove, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_rem_released()), Qt::QueuedConnection);
 
   set_buttons(state);
-  p_h_Layout->addWidget(pLabelName);
-  p_h_Layout->addWidget(pLabelState);
+  p_h_Layout->addWidget(lbl_name);
+  p_h_Layout->addWidget(lbl_state);
 
-  p_h_Layout->addWidget(pPlay);
-  p_h_Layout->addWidget(pStop);
-  p_h_Layout->addWidget(pRem);
+  p_h_Layout->addWidget(btn_play);
+  p_h_Layout->addWidget(btn_stop);
+  p_h_Layout->addWidget(btn_remove);
   //p_h_Layout->addWidget(pAdd);
 
   p_h_Layout->setMargin(1);
@@ -833,16 +833,16 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
 ////////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::~CVBPlayerItem(){
-  p_h_Layout->removeWidget(pLabelName);
-  p_h_Layout->removeWidget(pLabelState);
+  p_h_Layout->removeWidget(lbl_name);
+  p_h_Layout->removeWidget(lbl_state);
 
-  disconnect(pPlay, SIGNAL(released()),
+  disconnect(btn_play, SIGNAL(released()),
              this, SLOT(vbox_menu_btn_play_released()));
-  disconnect(pStop, SIGNAL(released()),
+  disconnect(btn_stop, SIGNAL(released()),
              this, SLOT(vbox_menu_btn_stop_released()));
 
-  p_h_Layout->removeWidget(pPlay);
-  p_h_Layout->removeWidget(pStop);
+  p_h_Layout->removeWidget(btn_play);
+  p_h_Layout->removeWidget(btn_stop);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -860,7 +860,7 @@ CVBPlayerItem::set_buttons(ushort state) {
     {QIcon(":/hub/Pause_na-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")}
   };
 
-  pLabelState->setText(TrayControlWindow::GetStateName(state));
+  lbl_state->setText(TrayControlWindow::GetStateName(state));
   int isi = 0;
   if (state < 5) isi = 0;
   else if (state == VMS_Running) isi = 1;
@@ -869,9 +869,9 @@ CVBPlayerItem::set_buttons(ushort state) {
   else if (state == VMS_Teleporting || state == VMS_LiveSnapshotting) isi = 4;
   else isi = 5; //state >= 10
 
-  pPlay->setIcon(icon_set[isi].play);
-  pStop->setIcon(icon_set[isi].stop);
-  pRem->setIcon(icon_set[isi].rem);
+  btn_play->setIcon(icon_set[isi].play);
+  btn_stop->setIcon(icon_set[isi].stop);
+  btn_remove->setIcon(icon_set[isi].rem);
 }
 
 //Slots////////////////////////////////////////////////////////////////////
