@@ -9,8 +9,12 @@
 CVirtualMachineLinux::CVirtualMachineLinux(IMachine *xpcom_machine,
                                            ISession* session) {
   m_internal_machine = xpcom_machine;
-  xpcom_machine->GetName(m_name.asOutParam());
-  xpcom_machine->GetId(m_iid.asOutParam());
+  PRUnichar *name, *id;
+  xpcom_machine->GetName(&name);
+  xpcom_machine->GetId(&id);
+
+  m_name = QString::fromUtf16(name);
+  m_iid = QString::fromUtf16(id);
 
   uint32_t state;
   xpcom_machine->GetState(&state);
@@ -32,8 +36,8 @@ nsresult CVirtualMachineLinux::launch_vm(vb_launch_mode_t mode,
                                          IProgress **progress)
 {  
   return m_internal_machine->LaunchVMProcess(m_session,
-                                             QString(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
-                                             QString("").raw(),
+                                             QString(CVBoxCommons::VM_launch_mode_to_str(mode)).utf16(),
+                                             QString("").utf16(),
                                              progress);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -111,9 +115,9 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
 
   nsCOMPtr<IGuestSession> gsess;
 
-  rc = guest->CreateSession(QString(user).raw(),
-                            QString(password).raw(),
-                            QString("").raw(), //domain is "". todo add param
+  rc = guest->CreateSession(QString(user).utf16(),
+                            QString(password).utf16(),
+                            QString("").utf16(), //domain is "". todo add param
                             NULL,
                             getter_AddRefs(gsess));
 
@@ -128,11 +132,11 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
 
   const PRUnichar** launch_args = new const PRUnichar*[argc];
   for (int i = 0; i < argc; ++i) {
-    launch_args[i] = QString(argv[i]).raw();
+    launch_args[i] = QString(argv[i]).utf16();
   }
 
   uint32_t flags[] = {ProcessCreateFlag_WaitForProcessStartOnly};
-  rc = gsess->ProcessCreate(QString(path).raw(),
+  rc = gsess->ProcessCreate(QString(path).utf16(),
                             argc,
                             launch_args,
                             env_count,

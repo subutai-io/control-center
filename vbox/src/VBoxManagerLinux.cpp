@@ -75,13 +75,14 @@ CVBoxManagerLinux::~CVBoxManagerLinux() {
 ////////////////////////////////////////////////////////////////////////////
 
 QString CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
-  QString res;
+  PRUnichar* res;
   IMachineEvent* me_event;
   nsresult rc = event->QueryInterface(IMachineEvent::GetIID(), (void**)&me_event);
   if (NS_FAILED(rc)) return QString("");
-  rc = me_event->GetMachineId(res.asOutParam());
+  rc = me_event->GetMachineId(&res);
   if (NS_FAILED(rc)) return QString("");
-  return res;
+  QString id = QString::fromUtf16((ushort*)res);
+  return id;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +116,7 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   IMachine *machine;
   nsresult rc;
 
-  rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
+  rc = m_virtual_box->FindMachine(str_machine_id.utf16(), &machine);
   if (NS_FAILED(rc)) return;
 
   PRBool accessible = PR_FALSE;
@@ -313,7 +314,7 @@ int CVBoxManagerLinux::turn_off(const QString &vm_id, bool save_state) {
   if (save_state) {
     nsCOMPtr<IProgress> progress;
     rc = m_dct_machines[vm_id]->save_state(getter_AddRefs(progress));
-    if (FAILED(rc)){
+    if (NS_FAILED(rc)){
       return 3;
     }
 //    HANDLE_PROGRESS(vm_save_state_progress, progress);
@@ -472,10 +473,10 @@ int CVBoxManagerLinux::add(const QString &vm_id) {
 
 QString
 CVBoxManagerLinux::version() {
-  QString ver("");
-  nsresult rc = m_virtual_box->GetVersion(ver.asOutParam());
+  PRUnichar* ver;
+  nsresult rc = m_virtual_box->GetVersion(&ver);
   if (NS_SUCCEEDED(rc)) {
-    QString result((QChar*)ver.raw(), ver.length());
+    QString result = QString::fromUtf16(ver);
     return result;
   }
   return "";

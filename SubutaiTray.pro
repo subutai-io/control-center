@@ -109,7 +109,6 @@ unix:!macx {
               vbox/src/VirtualMachineLinux.cpp
 
   LIBS += /usr/lib/virtualbox/VBoxXPCOM.so
-  LIBS += /usr/lib/virtualbox/VBoxRT.so
   QMAKE_RPATHDIR += /usr/lib/virtualbox/
   LIBS += -ldl -lpthread
   QMAKE_RPATHDIR += /opt/subutai/tray/bin
@@ -133,7 +132,6 @@ macx: {
 
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxXPCOM.dylib
-  LIBS += /Applications/VirtualBox.app/Contents/MacOS/VBoxRT.dylib
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/tray_logo.icns

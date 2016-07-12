@@ -184,9 +184,9 @@ TrayControlWindow::add_vm_menu_simple(const QString &vm_id) {
 
   VM_State state = vm->state();
   if ((int)state < 5){
-    menu->set_machine_stopped(TRUE);
+    menu->set_machine_stopped(true);
   } else {
-    menu->set_machine_stopped(FALSE);
+    menu->set_machine_stopped(false);
   }
 
   m_dct_vm_menus[vm_id] = menu;
