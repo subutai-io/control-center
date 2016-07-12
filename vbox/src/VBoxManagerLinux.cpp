@@ -207,7 +207,7 @@ int CVBoxManagerLinux::init_machines() {
     IVirtualMachine* vm = new CVirtualMachineLinux(machines[count], session);
     m_dct_machines[vm->id()] = vm;
   } while (count != 0);
-  return rh_count;
+  return !rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -489,7 +489,7 @@ CVBoxManagerLinux::shutdown_com() {
 
 void CVBoxManagerLinux::event_listener_th(CVBoxManagerLinux* manager) {
   while (manager->m_event_listening) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     IEvent *event;
     nsresult rc = manager->m_event_source->GetEvent(manager->m_el_passive, 100, &event);
 
