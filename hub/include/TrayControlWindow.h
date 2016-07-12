@@ -70,26 +70,6 @@ public:
     int vm_count;
 };
 ////////////////////////////////////////////////////////////////////////////
-
-class CVboxMenu : public QMenu {
-  Q_OBJECT
-private:
-  QString m_id;
-  QAction* m_act;
-
-public:
-  CVboxMenu(const IVirtualMachine *vm, QWidget *);
-  virtual ~CVboxMenu();
-  void set_machine_stopped(bool stopped);
-  QAction* action() {return m_act;}
-  void subMenu(const IVirtualMachine *vm, QMenu* parent);
-
-signals:
-  void vbox_menu_act_triggered(const QString& vm_id);
-private slots:
-  void act_triggered();
-};
-
 ////////////////////////////////////////////////////////////////////////////
 
 class CHubEnvironmentMenuItem : public QObject {
@@ -141,13 +121,9 @@ private:
 
   /*vbox*/
   QWidgetAction *vboxAction;
-  std::map<QString, CVboxMenu*> m_dct_vm_menus;
   std::map<QString, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const QString &vm_id);
-  void add_vm_menu_simple(const QString &vm_id);
-
   void remove_vm_menu(const QString &vm_id);
-  void remove_vm_menu_simple(const QString &vm_id);
   /*vbox end*/
 
   /*tray icon*/
@@ -202,7 +178,6 @@ private slots:
   void vm_removed(const QString& vm_id);
   void vm_state_changed(const QString& vm_id);
   void vm_session_state_changed(const QString& vm_id);
-  void vmc_act_released(const QString& vm_id);
   void vmc_player_act_released(const QString& vm_id);
   void vbox_menu_btn_play_triggered(const QString& vm_id);
   void vbox_menu_btn_stop_triggered(const QString& vm_id);

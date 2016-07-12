@@ -166,51 +166,12 @@ TrayControlWindow::remove_vm_menu(const QString &vm_id) {
   delete it->second;
   m_dct_player_menus.erase(it);
 }
-
-////////////////////////////////////////////////////////////////////////////
-////////// Delete it after approval! ///////////////////////////////////////
-void
-TrayControlWindow::add_vm_menu_simple(const QString &vm_id) {
-  const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
-  if (vm == NULL) return;
-
-  CVboxMenu* menu = new CVboxMenu(vm, this);
-
-  m_vbox_menu->insertAction(m_vbox_section,
-                            menu->action());
-
-  connect(menu, &CVboxMenu::vbox_menu_act_triggered,
-          this, &TrayControlWindow::vmc_act_released);
-
-  VM_State state = vm->state();
-  if ((int)state < 5){
-    menu->set_machine_stopped(true);
-  } else {
-    menu->set_machine_stopped(false);
-  }
-
-  m_dct_vm_menus[vm_id] = menu;
-}
-
-////////////////////////////////////////////////////////////////////////////
-////////// Delete it after approval! ///////////////////////////////////////
-void
-TrayControlWindow::remove_vm_menu_simple(const QString &vm_id) {
-  auto it = m_dct_vm_menus.find(vm_id);
-  if (it == m_dct_vm_menus.end()) return;
-  m_vbox_menu->removeAction(it->second->action());
-  disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const QString&)),
-             this, SLOT(vmc_act_released(const QString&)));
-  delete it->second;
-  m_dct_vm_menus.erase(it);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
-  //m_vbox_menu->popup(curpos,m_act_hub);
 
   if (m_w_Player->vm_count > 0)
     m_vbox_menu->exec(curpos);
@@ -250,7 +211,6 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
 
-
   m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
   m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
   m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
@@ -280,22 +240,12 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_vbox);
 #endif
 
-  ////Will be changed when info menu action added - show transactions history
-  //  m_info_menu = new QMenu(m_tray_menu);
-  //  m_tray_menu->addAction(m_act_info);
-  //  m_tray_menu->addSeparator();
-
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
   //  m_tray_menu->addMenu(m_vbox_menu);
-
-  /////  Testing submenus, temporary, will be DELETED
-  //  QMenu* temp_menu =  new QMenu("temorary test", m_tray_menu);
-  //  temp_menu->addAction(m_act_quit);
-  //  m_tray_menu->addMenu(temp_menu);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
@@ -365,9 +315,9 @@ TrayControlWindow::vm_state_changed(const QString &vm_id) {
   if (ip == m_dct_vm_menus.end()) return;
   VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
   if (ns < 5) {
-    ip->second->set_machine_stopped(TRUE);
+    ip->second->set_machine_stopped(true);
   } else {
-    ip->second->set_machine_stopped(FALSE);
+    ip->second->set_machine_stopped(false);
   }
 #else
   auto ip = m_dct_player_menus.find(vm_id);
@@ -391,40 +341,13 @@ TrayControlWindow::vm_session_state_changed(const QString &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vmc_act_released(const QString &vm_id) {
-  if (m_dct_vm_menus.find(vm_id) == m_dct_vm_menus.end())
-    return;
-
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
-  if (vm == NULL)
-    return;
-
-  bool on = (int)vm->state() < 5 ;//== VMS_PoweredOff;
-
-  if (on) {
-    /*todo chack result. int lr = */
-    CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
-    return;
-  }
-
-  //turn off
-  int tor = CVBoxManagerSingleton::Instance()->turn_off(vm_id, false);
-  if (!tor) return;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
-  //  if (m_player_menus.find(vm_id) == m_player_menus.end())
-  //    return;
-
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
-  bool on = (int)vm->state() == 5 ;//== VMS_PoweredOff;
+  bool on = (int)vm->state() == VMS_PoweredOff;
 
   if (on) {
-    /*int lr =*/
     CVBoxManagerSingleton::Instance()->pause(vm_id);
     return;
   } //turn on
@@ -731,7 +654,6 @@ void TrayControlWindow::launch_ss(QAction* act) {
                                          args,
                                          folder);
 
-  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url); //for default browser
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SS console failed. Error code : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
@@ -746,7 +668,6 @@ void TrayControlWindow::launch_ss(QAction* act) {
 
 void
 TrayControlWindow::show_about() {
-  //  this->show();
   DlgAbout dlg(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
@@ -754,7 +675,6 @@ TrayControlWindow::show_about() {
   dlg.move(curpos.x(), 0);
 #endif
   dlg.exec();
-  //  this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -777,33 +697,6 @@ TrayControlWindow::GetStateName(ushort st) {
 }
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-
-CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
-  m_id(vm->id()) {
-  ushort state = (ushort)vm->state();
-  QString s_state = TrayControlWindow::GetStateName(state);  
-  m_act = new QAction(QIcon(":/hub/Launch-07.png"), vm->name(), parent);
-  connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
-}
-
-CVboxMenu::~CVboxMenu() {
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CVboxMenu::set_machine_stopped(bool stopped) {
-  QString str_icon = stopped ? ":/hub/Launch-07.png" : ":/hub/Stop-07.png";
-  m_act->setIcon(QIcon(str_icon));
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CVboxMenu::act_triggered() {
-  emit vbox_menu_act_triggered(m_id);
-}
-
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
 
 /*hub menu*/
 void
@@ -838,7 +731,6 @@ CVBPlayer::~CVBPlayer(){
 
 void
 CVBPlayer::add(CVBPlayerItem* pItem) {
-
   if (vm_count == 0){
     labelHeader->setText("Resource hosts registered:");
     labelHeader->setVisible(false);
@@ -857,15 +749,12 @@ CVBPlayer::add(CVBPlayerItem* pItem) {
 
 void
 CVBPlayer::remove(CVBPlayerItem* pItem) {
-
   p_v_Layout->removeWidget(pItem);
   int cnt = p_v_Layout->layout()->count();
 
   this->setMinimumHeight(30*(cnt+1));
   this->setMaximumHeight(30*(cnt+1));
-
   vm_count--;
-
   if (vm_count == 0){
     labelHeader->setText("No resource hosts registered:");
     labelHeader->setVisible(true);
@@ -884,7 +773,6 @@ CVBPlayer::empty() {
   p_h_HeaderLayout->addWidget(labelHeader);
   p_v_Layout = new QVBoxLayout(0);
   p_v_Layout->setSpacing(5);
-  //  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
   this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   p_v_Layout->addLayout(p_h_HeaderLayout);
   this->setLayout(p_v_Layout);
@@ -906,7 +794,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   pLabelState->setMinimumWidth(100);
   pLabelState->setMaximumWidth(100);
 
-  ushort state = (ushort)vm->state();
+  ushort state = vm->state();
 
   pLabelName->setText(vm->name());
   pLabelState->setText(TrayControlWindow::GetStateName(state));
@@ -921,15 +809,9 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   connect(pStop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
 
-  //  pAdd = new QPushButton("Add", this);
-  //  pAdd->setIcon(QIcon(":/hub/play.png"));
-  //  connect(pAdd, SIGNAL(released()),
-  //          this, SLOT(vbox_menu_btn_add_released()));
-
   pRem = new QPushButton("", this);
   pRem->setIcon(QIcon(":/hub/Delete-07.png"));
   pRem->setToolTip("Attention! Removes VM. All files will be deleted");
-
 
   connect(pRem, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_rem_released()), Qt::QueuedConnection);
@@ -966,51 +848,30 @@ CVBPlayerItem::~CVBPlayerItem(){
 
 void
 CVBPlayerItem::set_buttons(ushort state) {
-  if (state < 5) { //turned off
-    pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
-    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete-07.png"));
-    return;
-  }
+  struct layout_icons {
+    QIcon play, stop, rem;
+  };
+  static layout_icons icon_set[] = {
+    {QIcon(":/hub/Launch-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete-07.png")},
+    {QIcon(":/hub/Pause-07.png"), QIcon(":/hub/Stop-07.png"), QIcon(":/hub/Delete_na-07.png")},
+    {QIcon(":/hub/Launch-07.png"), QIcon(":/hub/Stop-07.png"), QIcon(":/hub/Delete_na-07.png")},
+    {QIcon(":/hub/Launch_na-07.png"), QIcon(":/hub/Stop-07.png"), QIcon(":/hub/Delete-07.png")},
+    {QIcon(":/hub/Pause-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")},
+    {QIcon(":/hub/Pause_na-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")}
+  };
 
-  if (state == 5) {
-    pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
-    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
-    return;
-  }
-  if (state == 6) {//Paused
-    pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
-    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
-    return;
-  }
-  if (state == 7) {//Stuck, Gurumeditation, only power off
-    pLabelState->setText(TrayControlWindow::GetStateName(state));
-    pPlay->setIcon(QIcon(":/hub/Launch_na-07.png"));//Change to Play_Disabled
-    pStop->setIcon(QIcon(":/hub/Stop-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete-07.png"));
-    return;
-  }
-  if (state == 8 || state == 9) {//Teleporting or LiveSnapshotting
-    pLabelState->setText(TrayControlWindow::GetStateName(state));
-    //str_icon = ":/hub/PauseHot.png";
-    pPlay->setIcon(QIcon(":/hub/Pause-07.png"));
-    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
-    return;
-  }
+  pLabelState->setText(TrayControlWindow::GetStateName(state));
+  int isi = 0;
+  if (state < 5) isi = 0;
+  else if (state == VMS_Running) isi = 1;
+  else if (state == VMS_Paused) isi = 2;
+  else if (state == VMS_Stuck) isi = 3;
+  else if (state == VMS_Teleporting || state == VMS_LiveSnapshotting) isi = 4;
+  else isi = 5; //state >= 10
 
-  if (state >= 10 && state < 24) {//Teleporting or LiveSnapshotting
-    //str_icon = ":/hub/PauseHot.png";
-    pPlay->setIcon(QIcon(":/hub/Pause_na-07.png"));
-    pStop->setIcon(QIcon(":/hub/Stop_na-07.png"));
-    pRem->setIcon(QIcon(":/hub/Delete_na-07.png"));
-    return;
-  }
+  pPlay->setIcon(icon_set[isi].play);
+  pStop->setIcon(icon_set[isi].stop);
+  pRem->setIcon(icon_set[isi].rem);
 }
 
 //Slots////////////////////////////////////////////////////////////////////
@@ -1037,7 +898,6 @@ CVBPlayerItem::vbox_menu_btn_rem_released() {
 
 void
 TrayControlWindow::ssh_key_generate_triggered() {
-  //  this->show();
   DlgGenerateSshKey dlg(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
@@ -1045,7 +905,6 @@ TrayControlWindow::ssh_key_generate_triggered() {
   dlg.move(curpos.x(), 0);
 #endif
   dlg.exec();
-  //  this->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 
