@@ -453,7 +453,7 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
       msg.setText(tr("Virtual machine can not be removed!"));
       msg.setInformativeText(tr("Power off machine first"));
       msg.setStandardButtons(QMessageBox::Ok);
-      mret = msg.exec();
+      msg.exec();
       return 2; //todo enum
   }
 
