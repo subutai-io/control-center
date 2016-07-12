@@ -18,7 +18,7 @@ private:
   IEventSource* m_event_source;
   IEventListener* m_el_passive;
 
-  static com::Bstr machine_id_from_machine_event(IEvent *event);
+  static QString machine_id_from_machine_event(IEvent *event);
 
   volatile bool m_event_listening;
   static void event_listener_th(CVBoxManagerWin *manager);
@@ -30,12 +30,12 @@ protected:
 
 public:
   virtual int init_machines();
-  virtual int launch_vm(const com::Bstr &vm_id, vb_launch_mode_t lm);
-  virtual int turn_off(const com::Bstr &vm_id, bool save_state);
-  virtual int pause(const com::Bstr &vm_id);
-  virtual int resume(const com::Bstr &vm_id);
-  virtual int remove(const com::Bstr &vm_id);
-  virtual int add(const com::Bstr &vm_id);
+  virtual int launch_vm(const QString &vm_id, vb_launch_mode_t lm);
+  virtual int turn_off(const QString &vm_id, bool save_state);
+  virtual int pause(const QString &vm_id);
+  virtual int resume(const QString &vm_id);
+  virtual int remove(const QString &vm_id);
+  virtual int add(const QString &vm_id);
   virtual QString version();
   virtual void shutdown_com();
 };

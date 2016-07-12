@@ -2,7 +2,6 @@
 #define VBOX_MANAGER_LINUX_H
 
 #include <stdint.h>
-#include <VBox/com/string.h>
 
 #include "VBoxCommons.h"
 #include "VirtualBoxHdr.h"
@@ -22,7 +21,7 @@ private:
   nsCOMPtr<IEventSource> m_event_source;
   nsCOMPtr<IEventListener> m_el_passive;
 
-  static com::Bstr machine_id_from_machine_event(IEvent* event);
+  static QString machine_id_from_machine_event(IEvent* event);
 
   virtual void on_machine_state_changed(IEvent* event);
   virtual void on_machine_registered(IEvent* event);
@@ -34,12 +33,12 @@ private:
 
 public:
   virtual int init_machines(void);
-  virtual int launch_vm(const com::Bstr& vm_id, vb_launch_mode_t lm = VBML_HEADLESS);
-  virtual int turn_off(const com::Bstr& vm_id, bool save_state = false);
-  virtual int pause(const com::Bstr &vm_id);
-  virtual int resume(const com::Bstr &vm_id);
-  virtual int remove(const com::Bstr &vm_id);
-  virtual int add(const com::Bstr &vm_id);
+  virtual int launch_vm(const QString& vm_id, vb_launch_mode_t lm = VBML_HEADLESS);
+  virtual int turn_off(const QString& vm_id, bool save_state = false);
+  virtual int pause(const QString &vm_id);
+  virtual int resume(const QString &vm_id);
+  virtual int remove(const QString &vm_id);
+  virtual int add(const QString &vm_id);
   virtual QString version();
   virtual void shutdown_com();
 };

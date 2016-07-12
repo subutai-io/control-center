@@ -1,6 +1,5 @@
 #include <QApplication>
 #include <stdint.h>
-#include <VBox/com/com.h>
 #include <QMessageBox>
 
 #include "VBoxManagerWin.h"
@@ -93,13 +92,15 @@ CVBoxManagerWin::~CVBoxManagerWin() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-com::Bstr CVBoxManagerWin::machine_id_from_machine_event(IEvent *event) {
+QString CVBoxManagerWin::machine_id_from_machine_event(IEvent *event) {
   IMachineEvent* me_event;
-  com::Bstr res;
+  QString res;
   nsresult rc = event->QueryInterface(IID_IMachineEvent, (void**)&me_event);
-  if (FAILED(rc)) return com::Bstr("");
-  rc = me_event->get_MachineId(res.asOutParam());
-  if (FAILED(rc)) return com::Bstr("");
+  if (FAILED(rc)) return QString("");
+  BSTR bstr_id;
+  rc = me_event->get_MachineId(&bstr_id);
+  res = QString::fromUtf16((ushort*)bstr_id);
+  if (FAILED(rc)) return QString("");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -107,7 +108,7 @@ com::Bstr CVBoxManagerWin::machine_id_from_machine_event(IEvent *event) {
 void CVBoxManagerWin::on_machine_state_changed(IEvent *event) {
   IMachineStateChangedEvent* msc_event;
   event->QueryInterface(IID_IMachineStateChangedEvent, (void**)&msc_event);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
   MachineState new_state;
   msc_event->get_State(&new_state);
   if (m_dct_machines.find(str_machine_id) != m_dct_machines.end())
@@ -121,7 +122,7 @@ void CVBoxManagerWin::on_machine_registered(IEvent *event) {
   event->QueryInterface(IID_IMachineRegisteredEvent, (void**)&mr_event);
   WINBOOL registered;
   mr_event->get_Registered(&registered);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
 
   if(registered != TRUE) {
     if (m_dct_machines[str_machine_id])
@@ -134,7 +135,9 @@ void CVBoxManagerWin::on_machine_registered(IEvent *event) {
   IMachine *machine;
   nsresult rc;
 
-  rc = m_virtual_box->FindMachine(str_machine_id.raw(), &machine);
+  BSTR bstr_machine_id = ::SysAllocString(str_machine_id.toStdWString().c_str());
+  rc = m_virtual_box->FindMachine(bstr_machine_id, &machine);
+  ::SysFreeString(bstr_machine_id);
   if (FAILED(rc)) return;
 
   BOOL accessible = FALSE;
@@ -161,7 +164,7 @@ void CVBoxManagerWin::on_session_state_changed(IEvent *event) {
   event->QueryInterface(IID_ISessionStateChangedEvent, (void**)&ssc_event);
   SessionState state;
   ssc_event->get_State(&state);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
   emit vm_session_state_changed(str_machine_id);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -226,7 +229,7 @@ int CVBoxManagerWin::init_machines() {
   } \
   } while(0);
 
-int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
+int CVBoxManagerWin::launch_vm(const QString &vm_id,
                                vb_launch_mode_t lm) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -275,7 +278,7 @@ int CVBoxManagerWin::launch_vm(const com::Bstr &vm_id,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
+int CVBoxManagerWin::turn_off(const QString &vm_id,
                               bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -334,7 +337,7 @@ int CVBoxManagerWin::turn_off(const com::Bstr &vm_id,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerWin::pause(const com::Bstr &vm_id) {
+int CVBoxManagerWin::pause(const QString &vm_id) {
   // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
@@ -383,7 +386,7 @@ int CVBoxManagerWin::pause(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
+int CVBoxManagerWin::resume(const QString &vm_id) {
   // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
@@ -405,7 +408,7 @@ int CVBoxManagerWin::resume(const com::Bstr &vm_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
+int CVBoxManagerWin::remove(const QString &vm_id) {
   // Machine can be Removed if State < 5
   nsresult rc, state;
   QMessageBox msg;
@@ -467,17 +470,17 @@ int CVBoxManagerWin::remove(const com::Bstr &vm_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerWin::add(const com::Bstr &vm_id) {
+int CVBoxManagerWin::add(const QString &vm_id) {
   UNUSED_ARG(vm_id);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 QString CVBoxManagerWin::version() {
-  com::Bstr ver("");
-  nsresult rc = m_virtual_box->get_Version(ver.asOutParam());
+  BSTR bstr_ver;
+  nsresult rc = m_virtual_box->get_Version(&bstr_ver);
   if (SUCCEEDED(rc)) {
-    QString result((QChar*)ver.raw(), (int)ver.length());
+    QString result = QString::fromUtf16((ushort*) bstr_ver);
     return result;
   }
   return "";

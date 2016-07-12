@@ -67,12 +67,12 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   connect(&m_refresh_timer, SIGNAL(timeout()),
           this, SLOT(refresh_timer_timeout()));
 
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_add(const com::Bstr&)),
-          this, SLOT(vm_added(const com::Bstr&)));
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_remove(const com::Bstr&)),
-          this, SLOT(vm_removed(const com::Bstr&)));
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const com::Bstr&)),
-          this, SLOT(vm_state_changed(const com::Bstr&)));
+  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_add(const QString&)),
+          this, SLOT(vm_added(const QString&)));
+  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_remove(const QString&)),
+          this, SLOT(vm_removed(const QString&)));
+  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const QString&)),
+          this, SLOT(vm_state_changed(const QString&)));
 
   connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
           this, SLOT(notification_received(notification_level_t, const QString&)));
@@ -131,7 +131,7 @@ TrayControlWindow::application_quit() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
+TrayControlWindow::add_vm_menu(const QString &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
@@ -151,7 +151,7 @@ TrayControlWindow::add_vm_menu(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
+TrayControlWindow::remove_vm_menu(const QString &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
   if (it == m_dct_player_menus.end()) return;  
 
@@ -170,7 +170,7 @@ TrayControlWindow::remove_vm_menu(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
 void
-TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
+TrayControlWindow::add_vm_menu_simple(const QString &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
@@ -195,12 +195,12 @@ TrayControlWindow::add_vm_menu_simple(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 ////////// Delete it after approval! ///////////////////////////////////////
 void
-TrayControlWindow::remove_vm_menu_simple(const com::Bstr &vm_id) {
+TrayControlWindow::remove_vm_menu_simple(const QString &vm_id) {
   auto it = m_dct_vm_menus.find(vm_id);
   if (it == m_dct_vm_menus.end()) return;
   m_vbox_menu->removeAction(it->second->action());
-  disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const com::Bstr&)),
-             this, SLOT(vmc_act_released(const com::Bstr&)));
+  disconnect(it->second, SIGNAL(vbox_menu_act_triggered(const QString&)),
+             this, SLOT(vmc_act_released(const QString&)));
   delete it->second;
   m_dct_vm_menus.erase(it);
 }
@@ -336,7 +336,7 @@ TrayControlWindow::notification_received(notification_level_t level,
 
 /*** Vbox slots  ***/
 void
-TrayControlWindow::vm_added(const com::Bstr &vm_id) {
+TrayControlWindow::vm_added(const QString &vm_id) {
   m_vbox_menu->hide();
   m_vbox_menu->removeAction(vboxAction);
 
@@ -348,7 +348,7 @@ TrayControlWindow::vm_added(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
+TrayControlWindow::vm_removed(const QString &vm_id) {
   m_vbox_menu->hide();
   m_vbox_menu->removeAction(vboxAction);
   remove_vm_menu(vm_id);
@@ -359,7 +359,7 @@ TrayControlWindow::vm_removed(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
+TrayControlWindow::vm_state_changed(const QString &vm_id) {
 #ifdef  RT_OS_DARWIN
   auto ip =  m_dct_vm_menus.find(vm_id);
   if (ip == m_dct_vm_menus.end()) return;
@@ -385,13 +385,13 @@ TrayControlWindow::vm_state_changed(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vm_session_state_changed(const com::Bstr &vm_id) {
+TrayControlWindow::vm_session_state_changed(const QString &vm_id) {
   UNUSED_ARG(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
+TrayControlWindow::vmc_act_released(const QString &vm_id) {
   if (m_dct_vm_menus.find(vm_id) == m_dct_vm_menus.end())
     return;
 
@@ -414,7 +414,7 @@ TrayControlWindow::vmc_act_released(const com::Bstr &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vmc_player_act_released(const com::Bstr &vm_id) { // remove
+TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
   //  if (m_player_menus.find(vm_id) == m_player_menus.end())
   //    return;
 
@@ -561,7 +561,7 @@ TrayControlWindow::launch_ss_triggered() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id) {
+TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
   nsresult rc;
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
@@ -588,7 +588,7 @@ TrayControlWindow::vbox_menu_btn_play_triggered(const com::Bstr& vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id) {
+TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
   nsresult rc;
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
@@ -606,14 +606,14 @@ TrayControlWindow::vbox_menu_btn_stop_triggered(const com::Bstr& vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vbox_menu_btn_add_triggered(const com::Bstr& vm_id) {
+TrayControlWindow::vbox_menu_btn_add_triggered(const QString& vm_id) {
   //todo check result
   CVBoxManagerSingleton::Instance()->add(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vbox_menu_btn_rem_triggered(const com::Bstr& vm_id) {
+TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
   //todo check result
   CVBoxManagerSingleton::Instance()->remove(vm_id);
 }
@@ -780,13 +780,9 @@ TrayControlWindow::GetStateName(ushort st) {
 
 CVboxMenu::CVboxMenu(const IVirtualMachine *vm, QWidget* parent) :
   m_id(vm->id()) {
-  QString name = QString::fromUtf16((ushort*)vm->name().raw());
   ushort state = (ushort)vm->state();
-  // CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-
-  QString s_state = TrayControlWindow::GetStateName(state);
-  //    m_act = new QAction(QIcon(":/hub/play.png"), name + " " + s_state, parent);
-  m_act = new QAction(QIcon(":/hub/Launch-07.png"), name, parent);
+  QString s_state = TrayControlWindow::GetStateName(state);  
+  m_act = new QAction(QIcon(":/hub/Launch-07.png"), vm->name(), parent);
   connect(m_act, SIGNAL(triggered()), this, SLOT(act_triggered()));
 }
 
@@ -905,15 +901,14 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   pPlay = new QPushButton("", this);
   pStop = new QPushButton("", this);
 
-  p_h_Layout = new QHBoxLayout(NULL);
-  QString name = QString::fromUtf16((ushort*)vm->name().raw());
+  p_h_Layout = new QHBoxLayout(NULL);  
   pLabelName->setMinimumWidth(180);
   pLabelState->setMinimumWidth(100);
   pLabelState->setMaximumWidth(100);
 
   ushort state = (ushort)vm->state();
 
-  pLabelName->setText(name);
+  pLabelName->setText(vm->name());
   pLabelState->setText(TrayControlWindow::GetStateName(state));
 
   pPlay->setIcon(QIcon(":/hub/Launch-07.png"));
@@ -950,7 +945,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
 
   p_h_Layout->setMargin(1);
   p_h_Layout->setSpacing(2);
-  p_h_Layout->setObjectName(name);
+  p_h_Layout->setObjectName(vm->name());
   this->setLayout(p_h_Layout);
 }
 ////////////////////////////////////////////////////////////////////////////

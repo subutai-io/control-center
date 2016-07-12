@@ -32,8 +32,8 @@ nsresult CVirtualMachineLinux::launch_vm(vb_launch_mode_t mode,
                                          IProgress **progress)
 {  
   return m_internal_machine->LaunchVMProcess(m_session,
-                                             com::Bstr(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
-                                             com::Bstr("").raw(),
+                                             QString(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
+                                             QString("").raw(),
                                              progress);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -111,9 +111,9 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
 
   nsCOMPtr<IGuestSession> gsess;
 
-  rc = guest->CreateSession(com::Bstr(user).raw(),
-                            com::Bstr(password).raw(),
-                            com::Bstr("").raw(), //domain is "". todo add param
+  rc = guest->CreateSession(QString(user).raw(),
+                            QString(password).raw(),
+                            QString("").raw(), //domain is "". todo add param
                             NULL,
                             getter_AddRefs(gsess));
 
@@ -128,11 +128,11 @@ nsresult CVirtualMachineLinux::run_process(const char *path,
 
   const PRUnichar** launch_args = new const PRUnichar*[argc];
   for (int i = 0; i < argc; ++i) {
-    launch_args[i] = com::Bstr(argv[i]).raw();
+    launch_args[i] = QString(argv[i]).raw();
   }
 
   uint32_t flags[] = {ProcessCreateFlag_WaitForProcessStartOnly};
-  rc = gsess->ProcessCreate(com::Bstr(path).raw(),
+  rc = gsess->ProcessCreate(QString(path).raw(),
                             argc,
                             launch_args,
                             env_count,

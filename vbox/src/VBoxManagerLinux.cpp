@@ -74,13 +74,13 @@ CVBoxManagerLinux::~CVBoxManagerLinux() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-com::Bstr CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
-  com::Bstr res;
+QString CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
+  QString res;
   IMachineEvent* me_event;
   nsresult rc = event->QueryInterface(IMachineEvent::GetIID(), (void**)&me_event);
-  if (NS_FAILED(rc)) return com::Bstr("");
+  if (NS_FAILED(rc)) return QString("");
   rc = me_event->GetMachineId(res.asOutParam());
-  if (NS_FAILED(rc)) return com::Bstr("");
+  if (NS_FAILED(rc)) return QString("");
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ com::Bstr CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
 void CVBoxManagerLinux::on_machine_state_changed(IEvent *event) {
   IMachineStateChangedEvent* msc_event;
   event->QueryInterface(IMachineStateChangedEvent::GetIID(), (void**)&msc_event);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
   uint32_t new_state;
   msc_event->GetState(&new_state);
   if (m_dct_machines.find(str_machine_id) != m_dct_machines.end())
@@ -102,7 +102,7 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   event->QueryInterface(IMachineRegisteredEvent::GetIID(), (void**)&mr_event);
   PRBool registered;
   mr_event->GetRegistered(&registered);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
 
   if(registered != PR_TRUE) {
     if (m_dct_machines[str_machine_id])
@@ -124,7 +124,7 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
     return;
   }
 
-  //todo use com::BSTR
+  //todo use QString
   PRUnichar* vm_name;
   machine->GetName(&vm_name);
 
@@ -156,7 +156,7 @@ void CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
 
   uint32_t state;
   ssc_event->GetState(&state);
-  com::Bstr str_machine_id = machine_id_from_machine_event(event);
+  QString str_machine_id = machine_id_from_machine_event(event);
   emit vm_session_state_changed(str_machine_id);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ int CVBoxManagerLinux::init_machines() {
   } \
   } while(0)
 
-int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
+int CVBoxManagerLinux::launch_vm(const QString &vm_id,
                                  vb_launch_mode_t lm /*= VBML_HEADLESS*/) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -273,7 +273,7 @@ int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
+int CVBoxManagerLinux::turn_off(const QString &vm_id, bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
@@ -331,7 +331,7 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
+int CVBoxManagerLinux::pause(const QString &vm_id) {
   // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
@@ -381,7 +381,7 @@ int CVBoxManagerLinux::pause(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
+int CVBoxManagerLinux::resume(const QString &vm_id) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
@@ -400,7 +400,7 @@ int CVBoxManagerLinux::resume(const com::Bstr &vm_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
+int CVBoxManagerLinux::remove(const QString &vm_id) {
   // Machine can be Removed if State < 5
   QMessageBox msg;
   msg.setIcon(QMessageBox::Question);
@@ -464,7 +464,7 @@ int CVBoxManagerLinux::remove(const com::Bstr &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
+int CVBoxManagerLinux::add(const QString &vm_id) {
   UNUSED_ARG(vm_id);
   return NS_OK;
 }
@@ -472,7 +472,7 @@ int CVBoxManagerLinux::add(const com::Bstr &vm_id) {
 
 QString
 CVBoxManagerLinux::version() {
-  com::Bstr ver("");
+  QString ver("");
   nsresult rc = m_virtual_box->GetVersion(ver.asOutParam());
   if (NS_SUCCEEDED(rc)) {
     QString result((QChar*)ver.raw(), ver.length());

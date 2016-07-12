@@ -16,7 +16,6 @@ INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 
-INCLUDEPATH += vbox/glue/include
 INCLUDEPATH += vbox/sdk_includes
 INCLUDEPATH += vbox/sdk_includes/xpcom
 INCLUDEPATH += vbox/sdk_includes/nsprpub
@@ -31,15 +30,7 @@ SOURCES += \
     hub/src/SettingsManager.cpp \
     hub/src/DlgSettings.cpp \
     hub/src/TrayControlWindow.cpp \
-    vbox/src/IVBoxManager.cpp \
-    vbox/glue/src/xpcom/helpers.cpp \
-    vbox/glue/src/AutoLock.cpp \
-    vbox/glue/src/com.cpp \
-    vbox/glue/src/ErrorInfo.cpp \
-    vbox/glue/src/EventQueue.cpp \
-    vbox/glue/src/initterm.cpp \
-    vbox/glue/src/NativeEventQueue.cpp \
-    vbox/glue/src/string.cpp \
+    vbox/src/IVBoxManager.cpp \    
     hub/src/SystemCallWrapper.cpp \
     hub/src/TrayWebSocketServer.cpp \
     hub/src/HubController.cpp \
@@ -152,7 +143,6 @@ macx: {
 
 win32: {
   DEFINES += RT_OS_WINDOWS IN_RING3
-  LIBS += -L$$PWD/vbox/lib/ -lVBoxRT_64 VBoxRT_64.exp
   LIBS += Ole32.lib Rpcrt4.lib
 
   INCLUDEPATH += vbox/mscom/include

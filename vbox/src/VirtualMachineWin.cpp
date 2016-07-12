@@ -1,15 +1,16 @@
-#include "VirtualMachineWin.h"
 #include <stdint.h>
 #include <assert.h>
-#include <VBox/com/ptr.h>
-#include <VBox/com/array.h>
-#include <QDebug>
+
+#include "VirtualMachineWin.h"
 
 CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
   assert(com_machine != NULL);
   m_internal_machine = com_machine;
-  m_internal_machine->get_Name(m_name.asOutParam());
-  m_internal_machine->get_Id(m_iid.asOutParam());
+  BSTR bstr_name, bstr_iid;
+  m_internal_machine->get_Name(&bstr_name);
+  m_internal_machine->get_Id(&bstr_iid);
+  m_name = QString::fromUtf16((ushort*)bstr_name);
+  m_iid = QString::fromUtf16((ushort*)bstr_iid);
   MachineState state;
   m_internal_machine->get_State(&state);
   set_state((uint32_t)state);
@@ -35,7 +36,7 @@ nsresult CVirtualMachineWin::launch_vm(vb_launch_mode_t mode,
 
   m_session->UnlockMachine();
   nsresult rc = m_internal_machine->LaunchVMProcess(m_session,
-                                                    com::Bstr(CVBoxCommons::VM_launch_mode_to_str(mode)).raw(),
+                                                    CVBoxCommons::VM_launch_mode_to_bstr(mode),
                                                     NULL,
                                                     progress);
 
@@ -100,12 +101,12 @@ nsresult CVirtualMachineWin::remove(IProgress **progress) {
   if (accessible == FALSE) {
     return 33;
   }
-  com::SafeArray<IMedium**> saMedia;
+  SAFEARRAY *saMedia;
   rc = m_internal_machine->Unregister(CleanupMode_DetachAllReturnHardDisksOnly,//CleanupMode_Full,
-                                      ComSafeArrayAsOutParam(saMedia));
+                                      &saMedia);
   if (FAILED(rc)) return rc;
 
-  rc = m_internal_machine->DeleteConfig(ComSafeArrayAsInParam(saMedia), progress);
+  rc = m_internal_machine->DeleteConfig(saMedia, progress);
   if (FAILED(rc)) return rc;
 
   return rc;

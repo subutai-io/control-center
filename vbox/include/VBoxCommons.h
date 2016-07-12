@@ -90,6 +90,17 @@ public:
   }
   ////////////////////////////////////////////////////////////////////////////
 
+  static const BSTR VM_launch_mode_to_bstr(vb_launch_mode_t mode) {
+    static const BSTR vbml_str[] = {
+      ::SysAllocString(L"gui"),
+      ::SysAllocString(L"headless"),
+      ::SysAllocString(L"sdl"),
+      ::SysAllocString(L"emergencystop"),
+      ::SysAllocString(L"")
+    };
+    return vbml_str[mode];
+  }
+
   static const char* VM_error_to_str(uint32_t code) {
     static const char* vb_err_str[] = {
         "SUCCESS = 0",
