@@ -268,7 +268,7 @@ int CVBoxManagerLinux::launch_vm(const com::Bstr &vm_id,
   if (NS_FAILED(rc))
     return 3;
 
-  HANDLE_PROGRESS(vm_launch_progress, progress);
+//  HANDLE_PROGRESS(vm_launch_progress, progress);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
     if (FAILED(rc)){
       return 3;
     }
-    HANDLE_PROGRESS(vm_save_state_progress, progress);
+//    HANDLE_PROGRESS(vm_save_state_progress, progress);
   }
 
   nsCOMPtr<IProgress> progress;
@@ -325,7 +325,7 @@ int CVBoxManagerLinux::turn_off(const com::Bstr &vm_id, bool save_state) {
     return 4;
   }
 
-  HANDLE_PROGRESS(vm_turn_off_progress, progress);
+//  HANDLE_PROGRESS(vm_turn_off_progress, progress);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
