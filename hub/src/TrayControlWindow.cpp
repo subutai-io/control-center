@@ -310,16 +310,6 @@ TrayControlWindow::vm_removed(const QString &vm_id) {
 
 void
 TrayControlWindow::vm_state_changed(const QString &vm_id) {
-#ifdef  RT_OS_DARWIN
-  auto ip =  m_dct_vm_menus.find(vm_id);
-  if (ip == m_dct_vm_menus.end()) return;
-  VM_State ns = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id)->state();
-  if (ns < 5) {
-    ip->second->set_machine_stopped(true);
-  } else {
-    ip->second->set_machine_stopped(false);
-  }
-#else
   auto ip = m_dct_player_menus.find(vm_id);
   if (ip == m_dct_player_menus.end()) return;
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
@@ -329,8 +319,6 @@ TrayControlWindow::vm_state_changed(const QString &vm_id) {
   }
   VM_State ns = vm->state();
   ip->second->set_buttons((ushort)ns);
-#endif
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
