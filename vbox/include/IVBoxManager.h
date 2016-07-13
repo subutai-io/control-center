@@ -3,7 +3,6 @@
 
 
 #include <stdint.h>
-#include <VBox/com/string.h>
 #include <map>
 #include <QObject>
 
@@ -26,7 +25,7 @@ protected:
   nsresult m_last_error;
   vb_errors_t m_last_vb_error;
 
-  std::map<com::Bstr, IVirtualMachine*> m_dct_machines;
+  std::map<QString, IVirtualMachine*> m_dct_machines;
   typedef void (IVBoxManager::*pf_event_handle)(IEvent*);
   std::map<uint32_t, pf_event_handle> m_dct_event_handlers;
 
@@ -41,31 +40,31 @@ public:
   nsresult last_error(void) const {return m_last_error;}
   vb_errors_t last_vb_error(void) const {return m_last_vb_error;}
 
-  const IVirtualMachine* vm_by_id(const com::Bstr& id) const {
+  const IVirtualMachine* vm_by_id(const QString& id) const {
     return m_dct_machines.find(id) == m_dct_machines.end() ? NULL : m_dct_machines.at(id);}
 
   size_t vm_count() const {return m_dct_machines.size();}
-  const std::map<com::Bstr, IVirtualMachine*>& dct_machines() const {return m_dct_machines;}
+  const std::map<QString, IVirtualMachine*>& dct_machines() const {return m_dct_machines;}
 
   virtual int init_machines(void) = 0;
 
-  virtual int launch_vm(const com::Bstr& vm_id,
+  virtual int launch_vm(const QString& vm_id,
                         vb_launch_mode_t lm = VBML_HEADLESS) = 0;
 
-  virtual int turn_off(const com::Bstr& vm_id,
+  virtual int turn_off(const QString& vm_id,
                        bool save_state = false) = 0;
 
-  int launch_process(const com::Bstr& vm_id,
+  int launch_process(const QString& vm_id,
                      const char* path,
                      const char* user,
                      const char* password,
                      const char** argv,
                      int argc);
 
-  virtual int pause(const com::Bstr& vm_id) = 0;
-  virtual int resume(const com::Bstr& vm_id) = 0;
-  virtual int remove(const com::Bstr& vm_id) = 0;
-  virtual int add(const com::Bstr& vm_id) = 0;
+  virtual int pause(const QString& vm_id) = 0;
+  virtual int resume(const QString& vm_id) = 0;
+  virtual int remove(const QString& vm_id) = 0;
+  virtual int add(const QString& vm_id) = 0;
   virtual QString version() = 0;
   virtual void shutdown_com() = 0;
 
@@ -74,13 +73,13 @@ public:
   void init_com();
 
 signals:
-  void vm_add(const com::Bstr& vm_id);
-  void vm_remove(const com::Bstr& vm_id);
-  void vm_state_changed(const com::Bstr& vm_id);
-  void vm_session_state_changed(const com::Bstr& vm_id);
-  void vm_launch_progress(const com::Bstr& vm_id, uint32_t percent);
-  void vm_save_state_progress(const com::Bstr& vm_id, uint32_t percent);
-  void vm_turn_off_progress(const com::Bstr& vm_id, uint32_t percent);
+  void vm_add(const QString& vm_id);
+  void vm_remove(const QString& vm_id);
+  void vm_state_changed(const QString& vm_id);
+  void vm_session_state_changed(const QString& vm_id);
+  void vm_launch_progress(const QString& vm_id, uint32_t percent);
+  void vm_save_state_progress(const QString& vm_id, uint32_t percent);
+  void vm_turn_off_progress(const QString& vm_id, uint32_t percent);
 };
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,4 @@
-/*need this include to register meta type com::Bstr*/
 #include <iostream>
-#include <VBox/com/string.h>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QFile>
@@ -79,7 +77,6 @@ main(int argc, char *argv[]) {
   CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<com::Bstr>("com::Bstr");
   qRegisterMetaType<notification_level_t>("notification_level_t");
 
   QString tmp_file_path = CCommons::AppNameTmp();

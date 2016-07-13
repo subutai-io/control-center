@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include <VBox/com/string.h>
 #include <QObject>
 #include <QTimer>
 #include <QMenu>
@@ -24,7 +23,7 @@ namespace Ui {
 class CVBPlayerItem : public QWidget {
     Q_OBJECT
 private:
-    com::Bstr m_vm_player_item_id;
+    QString m_vm_player_item_id;
     QAction* m_player_item_act;
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
@@ -32,18 +31,18 @@ public:
     void set_buttons(ushort state);
     QAction* action() {return m_player_item_act;}
     QHBoxLayout *p_h_Layout;
-    QLabel *pLabelName;
-    QLabel *pLabelState;
-    QPushButton *pPlay;
-    QPushButton *pStop;
-    QPushButton *pAdd;
-    QPushButton *pRem;
+    QLabel *lbl_name;
+    QLabel *lbl_state;
+    QPushButton *btn_play;
+    QPushButton *btn_stop;
+    QPushButton *btn_add;
+    QPushButton *btn_remove;
 
 signals:
-    void vbox_menu_btn_play_released_signal(const com::Bstr& vm_id);
-    void vbox_menu_btn_stop_released_signal(const com::Bstr& vm_id);
-    void vbox_menu_btn_add_released_signal(const com::Bstr& vm_id);
-    void vbox_menu_btn_rem_released_signal(const com::Bstr& vm_id);
+    void vbox_menu_btn_play_released_signal(const QString& vm_id);
+    void vbox_menu_btn_stop_released_signal(const QString& vm_id);
+    void vbox_menu_btn_add_released_signal(const QString& vm_id);
+    void vbox_menu_btn_rem_released_signal(const QString& vm_id);
 
 public slots:
     void vbox_menu_btn_play_released();
@@ -56,7 +55,7 @@ public slots:
 class CVBPlayer : public QWidget{
     Q_OBJECT
 private:
-    com::Bstr m_vm_player_id;
+    QString m_vm_player_id;
     QVBoxLayout *p_v_Layout;
     QAction* m_player_act;
     QLabel *labelHeader;
@@ -71,26 +70,6 @@ public:
     int vm_count;
 };
 ////////////////////////////////////////////////////////////////////////////
-
-class CVboxMenu : public QMenu {
-  Q_OBJECT
-private:
-  com::Bstr m_id;
-  QAction* m_act;
-
-public:
-  CVboxMenu(const IVirtualMachine *vm, QWidget *);
-  virtual ~CVboxMenu();
-  void set_machine_stopped(bool stopped);
-  QAction* action() {return m_act;}
-  void subMenu(const IVirtualMachine *vm, QMenu* parent);
-
-signals:
-  void vbox_menu_act_triggered(const com::Bstr& vm_id);
-private slots:
-  void act_triggered();
-};
-
 ////////////////////////////////////////////////////////////////////////////
 
 class CHubEnvironmentMenuItem : public QObject {
@@ -142,13 +121,9 @@ private:
 
   /*vbox*/
   QWidgetAction *vboxAction;
-  std::map<com::Bstr, CVboxMenu*> m_dct_vm_menus;
-  std::map<com::Bstr, CVBPlayerItem*>  m_dct_player_menus;
-  void add_vm_menu(const com::Bstr &vm_id);
-  void add_vm_menu_simple(const com::Bstr &vm_id);
-
-  void remove_vm_menu(const com::Bstr &vm_id);
-  void remove_vm_menu_simple(const com::Bstr &vm_id);
+  std::map<QString, CVBPlayerItem*>  m_dct_player_menus;
+  void add_vm_menu(const QString &vm_id);
+  void remove_vm_menu(const QString &vm_id);
   /*vbox end*/
 
   /*tray icon*/
@@ -183,7 +158,6 @@ private:
   void create_tray_icon();
   int fill_vm_menu();
   void fill_launch_menu();  
-  int IconPlace[4], TrayPlace[4], VboxPlace[4];
   /*tray icon end*/
 
   void refresh_balance();
@@ -199,16 +173,15 @@ private slots:
 
   /*virtualbox slots*/
   void show_vbox();
-  void vm_added(const com::Bstr& vm_id);
-  void vm_removed(const com::Bstr& vm_id);
-  void vm_state_changed(const com::Bstr& vm_id);
-  void vm_session_state_changed(const com::Bstr& vm_id);
-  void vmc_act_released(const com::Bstr& vm_id);
-  void vmc_player_act_released(const com::Bstr& vm_id);
-  void vbox_menu_btn_play_triggered(const com::Bstr& vm_id);
-  void vbox_menu_btn_stop_triggered(const com::Bstr& vm_id);
-  void vbox_menu_btn_add_triggered(const com::Bstr& vm_id);
-  void vbox_menu_btn_rem_triggered(const com::Bstr& vm_id);
+  void vm_added(const QString& vm_id);
+  void vm_removed(const QString& vm_id);
+  void vm_state_changed(const QString& vm_id);
+  void vm_session_state_changed(const QString& vm_id);
+  void vmc_player_act_released(const QString& vm_id);
+  void vbox_menu_btn_play_triggered(const QString& vm_id);
+  void vbox_menu_btn_stop_triggered(const QString& vm_id);
+  void vbox_menu_btn_add_triggered(const QString& vm_id);
+  void vbox_menu_btn_rem_triggered(const QString& vm_id);
   void launch_Hub();
   void launch_ss_triggered();
 

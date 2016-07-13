@@ -32,7 +32,7 @@ void IVBoxManager::init_event_handlers() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int IVBoxManager::launch_process(const com::Bstr &vm_id,
+int IVBoxManager::launch_process(const QString &vm_id,
                                  const char *path,
                                  const char *user,
                                  const char *password,
