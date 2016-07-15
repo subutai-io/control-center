@@ -217,10 +217,11 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
                 ip << " -key " << key << " -hash " << hash;
   std::string command = str_stream.str();
   std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res = SCWE_SUCCESS;
   int exit_code = 0;
   int attempts_count = 5;
   do {
-    system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
+    res = ssystem_th(command.c_str(), lst_out, exit_code, true);
     CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
     if (res != SCWE_SUCCESS) {
       continue;
