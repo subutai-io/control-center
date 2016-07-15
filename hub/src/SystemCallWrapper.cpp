@@ -13,6 +13,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 #include "vbox/include/IVBoxManager.h"
+#include <thread>
 
 #include "HubController.h"
 
@@ -217,26 +218,30 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
   std::string command = str_stream.str();
   std::vector<std::string> lst_out;
   int exit_code = 0;
-  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
-  CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
-  if (res != SCWE_SUCCESS) {    
-    return res;
-  }
+  int attempts_count = 5;
+  do {
+    system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
+    CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
+    if (res != SCWE_SUCCESS) {
+      continue;
+    }
 
-  if (lst_out.size() == 1 &&
-      lst_out[0].find("[ERROR]") != std::string::npos) {
-    QString err_msg = QString::fromStdString(lst_out[0]);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    return SCWE_CANT_JOIN_SWARM;
-  }
+    if (lst_out.size() == 1 &&
+        lst_out[0].find("[ERROR]") != std::string::npos) {
+      QString err_msg = QString::fromStdString(lst_out[0]);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      res = SCWE_CANT_JOIN_SWARM;
+    }
 
-  if (exit_code != 0) {
-    QString err_msg = QString("Join to p2p swarm failed. Code : %1").arg(exit_code);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    return SCWE_CREATE_PROCESS;
-  }
+    if (exit_code != 0) {
+      QString err_msg = QString("Join to p2p swarm failed. Code : %1").arg(exit_code);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      res = SCWE_CREATE_PROCESS;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  } while (exit_code != 0 && attempts_count > 0);
 
-  return SCWE_SUCCESS;
+  return res;
 }
 
 system_call_wrapper_error_t
