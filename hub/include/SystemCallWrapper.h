@@ -87,6 +87,8 @@ public:
                                                        const char* key,
                                                        const char* ip);
 
+  static system_call_wrapper_error_t leave_p2p_swarm(const char* hash);
+
   static system_call_wrapper_error_t check_container_state(const char* hash,
                                                            const char* ip);
 

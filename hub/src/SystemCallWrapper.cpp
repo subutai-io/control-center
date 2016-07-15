@@ -244,6 +244,24 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
 
   return res;
 }
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::leave_p2p_swarm(const char *hash) {
+  if (hash == NULL) return SCWE_SUCCESS;
+  if (!is_in_swarm(hash))
+    return SCWE_SUCCESS;
+  CApplicationLog::Instance()->LogTrace("leave p2p swarm called. hash : %s", hash);
+  std::ostringstream str_stream;
+  str_stream << CSettingsManager::Instance().p2p_path().toStdString() << " stop -hash " << hash;
+  std::string command = str_stream.str();
+  std::vector<std::string> lst_out;
+  int exit_code = 0;
+  system_call_wrapper_error_t res = ssystem_th(command.c_str(), lst_out, exit_code, true);
+  CApplicationLog::Instance()->LogTrace("ssystem_th ended with code : %d", (int)res);
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
 CSystemCallWrapper::check_container_state(const char *hash,

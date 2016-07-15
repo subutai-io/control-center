@@ -18,6 +18,9 @@ CHubController::CHubController() :
 }
 
 CHubController::~CHubController() {
+  for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
+  }
 }
 
 void
@@ -157,6 +160,17 @@ int CHubController::refresh_environments() {
     return 1;
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
+    std::vector<CSSEnvironment> to_remove;
+    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+      if (std::find(res.begin(), res.end(), *i) == res.end())
+        to_remove.push_back(*i);
+    }
+
+    for (auto i = to_remove.begin(); i != to_remove.end(); ++i) {
+      system_call_wrapper_error_t lr =
+          CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
+      CApplicationLog::Instance()->LogTrace("Leave p2p result : %d", lr);
+    }
     m_lst_environments = std::move(res);
   }
   return 0;
@@ -197,7 +211,6 @@ void CHubController::refresh_containers() {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
     m_lst_resource_hosts = std::move(res);
   }
-  return;
 }
 ////////////////////////////////////////////////////////////////////////////
 
