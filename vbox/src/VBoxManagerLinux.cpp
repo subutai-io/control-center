@@ -473,6 +473,7 @@ int CVBoxManagerLinux::add(const QString &vm_id) {
 
 QString
 CVBoxManagerLinux::version() {
+  if (m_last_vb_error != VBE_SUCCESS) return "Undefined";
   PRUnichar* ver;
   nsresult rc = m_virtual_box->GetVersion(&ver);
   if (NS_SUCCEEDED(rc)) {

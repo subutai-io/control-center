@@ -348,7 +348,7 @@ TrayControlWindow::refresh_timer_timeout() {
   m_refresh_timer.stop();
   refresh_balance();
   refresh_environments();
-  CHubController::Instance().refresh_containers();
+  CHubController::Instance().refresh_containers();  
   m_refresh_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////

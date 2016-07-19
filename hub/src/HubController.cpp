@@ -29,10 +29,10 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
                                           void *additional_data,
                                           finished_slot_t slot) {
   std::string rh_ip;
+  bool found = false;
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
 
-    bool found = false;
     for (auto rh = m_lst_resource_hosts.begin(); !found && rh != m_lst_resource_hosts.end(); ++rh) {
       for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
         if (rh_cont->id() != cont->id()) continue;
@@ -41,14 +41,15 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
         break;
       }
     }
-    if (!found) {
-      emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
-      return;
-    }
-    if (rh_ip.empty()) {
-      emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
-      return;
-    }
+  }
+
+  if (!found) {
+    emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+    return;
+  }
+  if (rh_ip.empty()) {
+    emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
+    return;
   }
 
   CHubControllerP2PWorker* th_worker =

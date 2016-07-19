@@ -27,16 +27,14 @@ static QString error_strings[] = {
   "Success", "Shell error",
   "Pipe error", "Set handle info error",
   "Create process error", "Cant join to swarm",
-  "SSH launch error"
+  "SSH launch error", "System call timeout"
 };
 
-//TODO !!!!!! make it asynchronous. Or do something with it ! That's not right
-//in fact now it's blocking.
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem_th(const char *command,
                                std::vector<std::string> &lst_output,
                                int &exit_code,
-                               bool read_output) {
+                               bool read_output, unsigned long time_msec) {
   CSystemCallThreadWrapper sctw(command, read_output);
   QThread* th = new QThread;
   QObject::connect(&sctw, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
@@ -44,14 +42,13 @@ CSystemCallWrapper::ssystem_th(const char *command,
   QObject::connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
 
   sctw.moveToThread(th);
-  th->start();
-  th->wait();
+  th->start();  
+  if (!th->wait(time_msec)) {
+    CApplicationLog::Instance()->LogError("Command %s failed with timeout.", command);
+    return SCWE_TIMEOUT;
+  }
 
-  QObject::disconnect(&sctw, SIGNAL(finished()), th, SLOT(quit()));
-  QObject::disconnect(th, SIGNAL(started()), &sctw, SLOT(do_system_call()));
-  QObject::disconnect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
-
-  lst_output = std::vector<std::string>(sctw.lst_output());
+  lst_output = std::move(sctw.lst_output());
   exit_code = sctw.exit_code();
   return sctw.result();
 }
@@ -151,9 +148,10 @@ CSystemCallWrapper::ssystem(const char *command,
 
     if (read_output) {      
       DWORD dw_read;
-      char r_buff[4096] = {0};
+      static const int BUFF_SIZE = 8*1024; //8kB
+      char r_buff[BUFF_SIZE] = {0};
       b_success = FALSE;
-      b_success = ReadFile( h_cso_r, r_buff, 256, &dw_read, NULL);
+      b_success = ReadFile( h_cso_r, r_buff, BUFF_SIZE, &dw_read, NULL);
       CApplicationLog::Instance()->LogTrace("ReadFile finished");
       if(!b_success || dw_read == 0) {
         break;

@@ -477,6 +477,7 @@ int CVBoxManagerWin::add(const QString &vm_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 QString CVBoxManagerWin::version() {
+  if (m_last_vb_error != VBE_SUCCESS) return "Undefined";
   BSTR bstr_ver;
   nsresult rc = m_virtual_box->get_Version(&bstr_ver);
   if (SUCCEEDED(rc)) {

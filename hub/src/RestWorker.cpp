@@ -249,7 +249,7 @@ CRestWorker::send_request(QNetworkRequest &req,
   QEventLoop loop;
   QTimer timer(&loop);
   timer.setSingleShot(true);
-  timer.start(15000);
+  timer.start(6000);
 
   QNetworkReply* reply =
       get ? m_network_manager->get(req) : m_network_manager->post(req, data);

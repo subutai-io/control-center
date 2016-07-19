@@ -22,8 +22,10 @@ enum system_call_wrapper_error_t {
 
   /*ssh errors*/
   SCWE_SSH_LAUNCH_FAILED,
+  SCWE_CANT_GET_RH_IP,
 
-  SCWE_CANT_GET_RH_IP
+  /*other errors*/
+  SCWE_TIMEOUT
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +68,7 @@ private:
 
   static system_call_wrapper_error_t ssystem_th(const char *command,
                                                 std::vector<std::string> &lst_output,
-                                                int &exit_code, bool read_output);
+                                                int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
 
   static system_call_wrapper_error_t ssystem(const char *command,
                                              std::vector<std::string> &lst_output,
