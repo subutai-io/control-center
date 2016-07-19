@@ -238,7 +238,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
       res = SCWE_CREATE_PROCESS;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  } while (exit_code != 0 && attempts_count > 0);
+  } while (exit_code != 0 && --attempts_count > 0);
 
   return res;
 }
