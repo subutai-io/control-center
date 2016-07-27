@@ -29,6 +29,13 @@ public:
    * \return SubutaiTray.tmp
    */
   static QString AppNameTmp(void);
+
+  /*!
+   * \brief FileMd5
+   * \param file_path
+   * \return
+   */
+  static QString FileMd5(const QString& file_path);
 };
 
 #endif // COMMONS_H

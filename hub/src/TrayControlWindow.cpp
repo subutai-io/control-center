@@ -15,15 +15,14 @@
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
-#include "libssh2/UpdateErrors.h"
+#include "libssh2/LibsshErrors.h"
 #include "HubController.h"
 #include "RestWorker.h"
 #include "DlgSettings.h"
 #include "ApplicationLog.h"
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
-#include "DownloadFileManager.h"
-#include "ExecutableUpdater.h"
+#include "HubComponentsUpdater.h"
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -365,57 +364,11 @@ TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#if defined(RT_OS_LINUX)
-#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7"
-#elif defined(RT_OS_DARWIN)
-#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7_mac"
-#elif defined(RT_OS_WINDOWS)
-#define UPDATE_FILE_TO_REPLACE "tray_9683ecfe-1034-11e6-b626-f816544befe7.exe"
-#else
-#error "UPDATE_FILE_TO_REPLACE macros undefined"
-#endif
-
 void
 TrayControlWindow::updater_timer_timeout() {
-  m_ss_updater_timer.stop();
-  int exit_code = 0;
-
-  /*subutai update*/
-  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_port().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_user().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                                     exit_code);
-
-  if (exit_code == RLE_SUCCESS) {
-    CNotifiactionObserver::NotifyAboutInfo("Update command succesfull finished");
-    CApplicationLog::Instance()->LogInfo("Update command succesfull finished");
-  } else {
-    QString err_msg = QString("Update command failed with exit code : %1").arg(exit_code);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-  }
-
-  /*tray update*/
-  auto fi = CRestWorker::Instance()->get_gorjun_file_info(UPDATE_FILE_TO_REPLACE);
-  if (!fi.empty()) {
-    auto item = fi.begin();
-    QString new_file_path = QApplication::applicationDirPath() +
-                            QDir::separator() +
-                            QString(UPDATE_FILE_TO_REPLACE);
-
-    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
-                                                        new_file_path,
-                                                        item->size());
-    CExecutableUpdater *eu = new CExecutableUpdater(new_file_path,
-                                                    QApplication::applicationFilePath());
-
-    dm->start_download();
-    connect(dm, SIGNAL(finished()), eu, SLOT(replace_executables()));
-    connect(eu, SIGNAL(finished()), dm, SLOT(deleteLater()));
-    connect(eu, SIGNAL(finished()), eu, SLOT(deleteLater()));
-  }
-
+  m_ss_updater_timer.stop();  
+  CHubComponentsUpdater::Instance()->subutai_rh_update();
+  CHubComponentsUpdater::Instance()->tray_update();
   m_ss_updater_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -477,18 +430,18 @@ TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
-  ushort state = (int)vm->state();
+  VM_State state = vm->state();
   if (state < 5) { //Powered off
     rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     return;
   }
 
-  if (state == 5) { //Running
+  if (state == VMS_Running) {
     rc = CVBoxManagerSingleton::Instance()->pause(vm_id);
     return;
   }
 
-  if (state == 6 || state == 8 || state == 9) { //Paused
+  if (state == VMS_Paused || state == VMS_Teleporting || state == VMS_LiveSnapshotting) {
     rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
     return;
   }
@@ -659,7 +612,7 @@ TrayControlWindow::show_about() {
   DlgAbout dlg(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
+  curpos.setX(curpos.x() - 250); //todo calculate it
   dlg.move(curpos.x(), 0);
 #endif
   dlg.exec();

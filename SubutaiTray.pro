@@ -43,7 +43,8 @@ SOURCES += \
     hub/src/DlgAbout.cpp \
     hub/src/DownloadFileManager.cpp \
     hub/src/ExecutableUpdater.cpp \
-    hub/src/DlgGenerateSshKey.cpp
+    hub/src/DlgGenerateSshKey.cpp \
+    hub/src/HubComponentsUpdater.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -58,7 +59,6 @@ HEADERS  += \
     vbox/include/IVirtualMachine.h \
     hub/include/SystemCallWrapper.h \
     hub/include/NotifiactionObserver.h \
-    libssh2/UpdateErrors.h \
     hub/include/TrayWebSocketServer.h \
     hub/include/HubController.h \
     commons/include/ApplicationLog.h \
@@ -81,7 +81,9 @@ HEADERS  += \
     hub/include/DownloadFileManager.h \
     hub/include/ExecutableUpdater.h \
     commons/include/MRE_Windows.h \
-    hub/include/DlgGenerateSshKey.h
+    hub/include/DlgGenerateSshKey.h \
+    libssh2/LibsshErrors.h \
+    hub/include/HubComponentsUpdater.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

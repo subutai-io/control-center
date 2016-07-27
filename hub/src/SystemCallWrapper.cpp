@@ -341,6 +341,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+#include <QDebug>
 system_call_wrapper_error_t
 CSystemCallWrapper::generate_ssh_key(const char *comment,
                                      const char *file_path) {
@@ -352,8 +353,12 @@ CSystemCallWrapper::generate_ssh_key(const char *comment,
                             std::string(" -N \'\'");
   std::vector<std::string> lst_out;
   int exit_code;
-  return ssystem_th(str_command.c_str(), lst_out, exit_code, true);
-  //todo check exit_code.  
+  system_call_wrapper_error_t res = ssystem_th(str_command.c_str(), lst_out, exit_code, true);
+  if (exit_code != 0 && res == SCWE_SUCCESS) {
+    res = SCWE_CANT_GENERATE_SSH_KEY;
+    CApplicationLog::Instance()->LogError("Can't generate ssh-key. exit_code : %d", exit_code);
+  }
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -474,6 +479,35 @@ CSystemCallWrapper::p2p_status(std::string &status,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
+CSystemCallWrapper::which(const std::string &prog,
+                          std::string &path) {
+
+#ifdef RT_OS_WINDOWS
+  static const char* which_cmd = "where";
+  static int success_ec = 1;
+#else
+  static const char* which_cmd = "which";
+  static int success_ec = 1;
+#endif
+  std::vector<std::string> lst_out;
+  std::string command(which_cmd);
+  command += std::string(" ") + prog;
+  int exit_code;
+  system_call_wrapper_error_t res =
+      ssystem_th(command.c_str(), lst_out, exit_code, true);
+
+  if (res != SCWE_SUCCESS) return res;
+
+  if (exit_code == success_ec && !lst_out.empty()) {
+    path = lst_out[0];
+    return SCWE_SUCCESS;
+  }
+
+  return SCWE_WHICH_CALL_FAILED;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
 CSystemCallWrapper::chrome_version(std::string &version,
                                    int &exit_code) {
   version = "undefined";
@@ -514,10 +548,11 @@ CSystemCallWrapper::virtual_box_version() {
 const QString &
 CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
   static QString error_str[] = {
-    "SUCCESS", "SHELL_ERROR", "PIPE_ERROR",
-    "SET_HANDLE_INFO_ERROR", "CREATE_PROCESS_ERROR",
-    "CANT_JOIN_SWARM_ERROR", "CONTAINER_IS_NOT_READY_ERROR",
-    "SSH_LAUNCH_FAILED", "CANT_GET_RH_IP"
+    "SUCCESS", "Shell error", "Pipe error",
+    "set_handle_info error", "create process error",
+    "can't join to swarm", "container isn't ready",
+    "ssh launch failed", "can't get rh ip address", "can't generate ssh-key",
+    "call timeout", "which call failed"
   };
   return error_str[err];
 }

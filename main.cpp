@@ -10,7 +10,7 @@
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
-#include "libssh2/UpdateErrors.h"
+#include "libssh2/LibsshErrors.h"
 
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
   static const char* rle_errors[] = {
@@ -102,6 +102,7 @@ main(int argc, char *argv[]) {
     TrayControlWindow tcw;
     result = app.exec();
   } while (0);
+
 
   CRestWorker::Instance()->free_network_manager();
   return result;

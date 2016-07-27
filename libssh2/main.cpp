@@ -18,7 +18,7 @@
 #include <string>
 #include <stdlib.h>
 
-#include "UpdateErrors.h"
+#include "LibsshErrors.h"
 
 struct CSshInitializer {
   int result;
