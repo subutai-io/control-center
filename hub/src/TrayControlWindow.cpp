@@ -383,6 +383,39 @@ TrayControlWindow::report_timer_timeout() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+TrayControlWindow::update_available(QString file_id) {
+  CNotifiactionObserver::Instance()->NotifyAboutInfo(
+        QString("Update for %1 is available. Check \"About\" dialog").arg(file_id));
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::update_finished(QString file_id,
+                                   bool success) {
+  if (!success) {
+    CNotifiactionObserver::Instance()->NotifyAboutError(
+          QString("Failed to update %1. See details in error logs").arg(file_id));
+    return;
+  }
+
+  if (file_id == CHubComponentsUpdater::STR_P2P) {
+
+  } else if (file_id == CHubComponentsUpdater::STR_TRAY) {
+    QMessageBox msg_box(QMessageBox::Question, "Attention! Tray update finished",
+                        "Tray application has been updated. Do you want to restart it now?",
+                        QMessageBox::Yes | QMessageBox::No, this);
+    if (msg_box.exec() == QMessageBox::No) return;
+    QProcess* proc = new QProcess;
+    proc->start(QApplication::applicationFilePath());
+    QApplication::exit(0);
+  } else {
+    CApplicationLog::Instance()->LogError("Unknown file_id %s", file_id.toStdString().c_str());
+    return;
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;

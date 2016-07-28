@@ -3,8 +3,10 @@
 #include "Commons.h"
 #include "ApplicationLog.h"
 
-CExecutableUpdater::CExecutableUpdater(const QString &src,
+CExecutableUpdater::CExecutableUpdater(const QString &file_id,
+                                       const QString &src,
                                        const QString &dst) :
+  m_file_id(file_id),
   m_src_file_str(src),
   m_dst_file_str(dst)
 {
@@ -17,19 +19,41 @@ CExecutableUpdater::~CExecutableUpdater() {
 
 void
 CExecutableUpdater::replace_executables() {
-  int rr = 0;
-  rename(m_dst_file_str.toStdString().c_str(),
-         CCommons::AppNameTmp().toStdString().c_str());
-  if ((rr = rename(m_src_file_str.toStdString().c_str(),
-         m_dst_file_str.toStdString().c_str())) == 0) {
-    QFile f(m_dst_file_str);
-    f.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-                     QFile::ReadUser  | QFile::WriteUser  | QFile::ExeUser  |
-                     QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup);
-    CApplicationLog::Instance()->LogInfo("replace executables success!");
-  } else {
-    CApplicationLog::Instance()->LogInfo("replace executables failed! rr : %d", rr);
-  }
-  emit finished();
+  QString tmp = m_dst_file_str + ".tmp";
+  QFile src(m_src_file_str);
+  QFile dst(m_dst_file_str);
+  QFile::Permissions perm = dst.permissions();
+  bool replaced = true;
+
+  do {
+    if (dst.exists()) {
+      if (!(replaced &= dst.rename(tmp))) {
+        CApplicationLog::Instance()->LogError("rename %s to %s failed",
+                                              m_dst_file_str.toStdString().c_str(),
+                                              tmp.toStdString().c_str());
+        break;
+      }
+    }
+
+    if (!(replaced &= src.copy(m_dst_file_str))) {
+      CApplicationLog::Instance()->LogError("copy %s to %s failed",
+                                            m_src_file_str.toStdString().c_str(),
+                                            m_dst_file_str.toStdString().c_str());
+      break;
+    }
+
+    if (!(replaced &= dst.setPermissions(m_dst_file_str, perm))) {
+      CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
+      break;
+    }
+
+    QFile ftmp(tmp);
+    if (!ftmp.remove()) {
+      CApplicationLog::Instance()->LogError("remove tmp file %s failed", tmp.toStdString().c_str());
+      break;
+    }
+  } while (0);
+
+  emit finished(m_file_id, replaced);
 }
 ////////////////////////////////////////////////////////////////////////////

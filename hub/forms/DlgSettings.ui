@@ -25,17 +25,17 @@
     <layout class="QGridLayout" name="gridLayout_5">
      <item row="1" column="0">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="btn_ok">
-         <property name="text">
-          <string>Ok</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="btn_cancel">
          <property name="text">
           <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btn_ok">
+         <property name="text">
+          <string>Ok</string>
          </property>
         </widget>
        </item>
@@ -269,6 +269,68 @@
             <widget class="QLineEdit" name="le_rhip_password">
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_updating">
+        <attribute name="title">
+         <string>Updating</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_9" columnstretch="2,1,1">
+           <item row="0" column="0">
+            <widget class="QLabel" name="lbl_p2p_update">
+             <property name="text">
+              <string>P2P check for updates frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="cb_p2p_frequency"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="chk_p2p_autoupdate">
+             <property name="text">
+              <string>Automatic p2p update</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lbl_tray_update">
+             <property name="text">
+              <string>SubutaiTray check for updates frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="cb_tray_frequency"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="chk_tray_autoupdate">
+             <property name="text">
+              <string>Automatic tray update</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="lbl_rh_update">
+             <property name="text">
+              <string>Resource Host check for updates frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="cb_rh_frequency"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QCheckBox" name="chk_rh_autoupdate">
+             <property name="text">
+              <string>Automatic rh update</string>
              </property>
             </widget>
            </item>

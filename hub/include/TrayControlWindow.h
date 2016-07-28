@@ -195,9 +195,9 @@ private slots:
   /*updater*/
   void updater_timer_timeout();  
   void report_timer_timeout();
+
+  void update_available(QString file_id);
+  void update_finished(QString file_id, bool success);
 };
 ////////////////////////////////////////////////////////////////////////////
-
 #endif // TRAYCONTROLWINDOW_H
-
-

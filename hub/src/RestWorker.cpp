@@ -176,9 +176,8 @@ CRestWorker::send_health_request(int &http_code,
                                 int &network_err) {
 
   std::string p2p_version, p2p_status;
-  int exit_code;
-  CSystemCallWrapper::p2p_version(p2p_version, exit_code);
-  CSystemCallWrapper::p2p_status(p2p_status, exit_code);
+  CSystemCallWrapper::p2p_version(p2p_version);
+  CSystemCallWrapper::p2p_status(p2p_status);
 
   CHealthReportData report_data(
         QString(p2p_status.c_str()),

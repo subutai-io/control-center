@@ -2,9 +2,11 @@
 #include "RestWorker.h"
 #include <QDebug>
 
-CDownloadFileManager::CDownloadFileManager(const QString &file_id,
+CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
+                                           const QString &file_id,
                                            const QString &dst_file,
                                            int expected_size) :
+  m_kurjun_file_id(kurjun_file_id),
   m_file_id(file_id),
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
@@ -31,8 +33,7 @@ CDownloadFileManager::~CDownloadFileManager() {
 void
 CDownloadFileManager::download_progress(qint64 read_bytes,
                                         qint64 total_bytes) {
-  qDebug() << "download_progress rb = " << read_bytes << ", tb = " << total_bytes;
-  emit download_progress_sig(read_bytes, total_bytes);
+  emit download_progress_sig(m_file_id, read_bytes, total_bytes);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -45,16 +46,22 @@ CDownloadFileManager::network_reply_ready_read() {
 
 void
 CDownloadFileManager::reply_finished() {
+  CApplicationLog::Instance()->LogTrace("Download file %s finished", m_dst_file_path.toStdString().c_str());
+  //DON'T REMOVE THIS !!!!
+  if (m_dst_file != NULL) {
+    m_dst_file->flush();
+    m_dst_file->close();
+  }
   m_last_error = m_network_reply->error() != QNetworkReply::NoError ?
                                                DFME_NETWORK_ERROR : DFME_SUCCESS;
-  emit finished();
+  emit finished(m_file_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CDownloadFileManager::start_download() {
   if (m_network_reply != NULL) return;
-  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_file_id);
+  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_id);
   connect(m_network_reply, SIGNAL(downloadProgress(qint64,qint64)),
           this, SLOT(download_progress(qint64,qint64)));
   connect(m_network_reply, SIGNAL(readyRead()),

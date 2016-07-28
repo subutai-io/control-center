@@ -16,6 +16,7 @@ typedef enum download_file_manager_errors {
 class CDownloadFileManager : public QObject {
   Q_OBJECT
 private:
+  QString m_kurjun_file_id;
   QString m_file_id;
   QString m_dst_file_path;
   int m_expected_size;
@@ -24,7 +25,8 @@ private:
   download_file_manager_errors_t m_last_error;
 
 public:
-  CDownloadFileManager(const QString& file_id,
+  CDownloadFileManager(const QString& kurjun_file_id,
+                       const QString& file_id,
                        const QString& dst_file,
                        int expected_size);
   ~CDownloadFileManager();
@@ -43,8 +45,8 @@ public slots:
   void interrupt_download();
 
 signals:
-  void finished();
-  void download_progress_sig(qint64, qint64);
+  void finished(QString);
+  void download_progress_sig(QString, qint64, qint64);
 };
 
 #endif // DOWNLOADFILEMANAGER_H

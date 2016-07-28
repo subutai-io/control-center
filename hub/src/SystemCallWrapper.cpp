@@ -437,8 +437,8 @@ CSystemCallWrapper::open_url(QString s_url) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::p2p_version(std::string &version,
-                                int &exit_code) {
+CSystemCallWrapper::p2p_version(std::string &version) {
+  int exit_code;
   version = "undefined";
   std::vector<std::string> lst_out;
   std::string command = CSettingsManager::Instance().p2p_path().toStdString();
@@ -457,8 +457,8 @@ CSystemCallWrapper::p2p_version(std::string &version,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::p2p_status(std::string &status,
-                               int &exit_code) {
+CSystemCallWrapper::p2p_status(std::string &status) {
+  int exit_code;
   status = "";
   std::vector<std::string> lst_out;
   std::string command = CSettingsManager::Instance().p2p_path().toStdString();
@@ -508,8 +508,8 @@ CSystemCallWrapper::which(const std::string &prog,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::chrome_version(std::string &version,
-                                   int &exit_code) {
+CSystemCallWrapper::chrome_version(std::string &version) {
+  int exit_code;
   version = "undefined";
   std::vector<std::string> lst_out;
   std::string command;

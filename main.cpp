@@ -12,6 +12,8 @@
 #include "SettingsManager.h"
 #include "libssh2/LibsshErrors.h"
 
+#include "HubComponentsUpdater.h"
+
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
   static const char* rle_errors[] = {
     "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",

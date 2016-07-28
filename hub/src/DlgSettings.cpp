@@ -4,6 +4,12 @@
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
 
+static void fill_freq_combobox(QComboBox* cb) {
+  for (int i = 0; i < CSettingsManager::UF_LAST; ++i)
+    cb->addItem(CSettingsManager::update_freq_to_str((CSettingsManager::update_freq_t) i));
+}
+////////////////////////////////////////////////////////////////////////////
+
 DlgSettings::DlgSettings(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgSettings),
@@ -24,6 +30,18 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
+
+  fill_freq_combobox(ui->cb_p2p_frequency);
+  fill_freq_combobox(ui->cb_rh_frequency);
+  fill_freq_combobox(ui->cb_tray_frequency);
+
+  ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
+  ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
+  ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
+
+  ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
+  ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
+  ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -74,6 +92,7 @@ folder_has_write_permission(const QLineEdit* le) {
   return fi.isDir() && fi.isWritable();
 }
 
+#include <QDebug>
 void
 DlgSettings::btn_ok_released() {
   static const char* empty_validator_msg = "Field can't be empty";
@@ -120,6 +139,14 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
   CSettingsManager::Instance().set_notification_delay_sec(ui->sb_notification_delay->value());
+
+  CSettingsManager::Instance().set_p2p_autoupdate(ui->chk_p2p_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_rh_autoupdate(ui->chk_rh_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_tray_autoupdate(ui->chk_tray_autoupdate->checkState()==Qt::Checked);
+
+  CSettingsManager::Instance().set_p2p_update_freq(ui->cb_p2p_frequency->currentIndex());
+  CSettingsManager::Instance().set_rh_update_freq(ui->cb_rh_frequency->currentIndex());
+  CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
 
   CSettingsManager::Instance().save_all();
   this->close();

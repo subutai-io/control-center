@@ -40,6 +40,13 @@ private:
 
   static const QString SM_TRAY_GUID;
 
+  static const QString SM_P2P_UPDATE_FREQ;
+  static const QString SM_RH_UPDATE_FREQ;
+  static const QString SM_TRAY_UPDATE_FREQ;
+  static const QString SM_P2P_AUTOUPDATE;
+  static const QString SM_RH_AUTOUPDATE;
+  static const QString SM_TRAY_AUTOUPDATE;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -51,7 +58,7 @@ private:
   QString m_get_url;
   QString m_health_url;
 
-  int32_t m_refresh_time_sec;
+  uint32_t m_refresh_time_sec;
   QString m_terminal_path;
   QString m_p2p_path;
   QString m_libssh2_path;
@@ -73,9 +80,30 @@ private:
   QString m_ssh_keys_storage;
   QString m_tray_guid;
 
+  uint32_t m_p2p_update_freq;
+  uint32_t m_rh_update_freq;
+  uint32_t m_tray_update_freq;
+  bool m_p2p_autoupdate;
+  bool m_rh_autoupdate;
+  bool m_tray_autoupdate;
+
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
   static const int NOTIFICATION_DELAY_MAX = 300;
+
+  enum update_freq_t {
+    UF_HOUR1 = 0,
+    UF_HOUR3,
+    UF_HOUR5,
+    UF_DAILY,
+    UF_WEEKLY,
+    UF_MONTHLY,
+    UF_NEVER,
+    UF_LAST
+  };
+
+  static const QString& update_freq_to_str(update_freq_t fr);
+  static uint32_t update_freq_to_sec(update_freq_t fr);
 
   static CSettingsManager& Instance(void) {
     static CSettingsManager instance;
@@ -92,7 +120,7 @@ public:
   const QString& get_url() const {return m_get_url;}
   const QString& post_url() const {return m_post_url;}
   const QString& health_url() const {return m_health_url;}
-  int32_t refresh_time_sec() const {return m_refresh_time_sec;}
+  uint32_t refresh_time_sec() const {return m_refresh_time_sec;}
   const QString& terminal_path() const {return m_terminal_path;}
   const QString& p2p_path() const {return m_p2p_path;}
   uint32_t notification_delay_sec() const {return m_notification_delay_sec;}
@@ -111,6 +139,14 @@ public:
   const QString& logs_storage() const {return m_logs_storage;}
   const QString& ssh_keys_storage() const {return m_ssh_keys_storage;}
   const QString& tray_guid() const {return m_tray_guid;}
+
+  update_freq_t p2p_update_freq() const { return (update_freq_t)m_p2p_update_freq; }
+  update_freq_t rh_update_freq() const { return (update_freq_t)m_rh_update_freq; }
+  update_freq_t tray_update_freq() const { return (update_freq_t)m_tray_update_freq; }
+  bool p2p_autoupdate() const { return m_p2p_autoupdate; }
+  bool rh_autoupdate() const { return m_rh_autoupdate; }
+  bool tray_autoupdate() const { return m_tray_autoupdate; }
+
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -118,6 +154,21 @@ public:
     if (delay_sec > NOTIFICATION_DELAY_MAX) m_notification_delay_sec = NOTIFICATION_DELAY_MAX;
     if (delay_sec < NOTIFICATION_DELAY_MIN) m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
+  }
+
+  void set_p2p_update_freq(int fr) {
+    m_p2p_update_freq = (update_freq_t) fr%UF_LAST;
+    m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
+  }
+
+  void set_rh_update_freq(int fr) {
+    m_rh_update_freq = (update_freq_t) fr%UF_LAST;
+    m_settings.setValue(SM_RH_UPDATE_FREQ, (int8_t)m_rh_update_freq);
+  }
+
+  void set_tray_update_freq(int fr) {
+    m_tray_update_freq = (update_freq_t) fr%UF_LAST;
+    m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
   }
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
@@ -140,6 +191,12 @@ public:
   SET_FIELD_DECL(gorjun_url, QString&)
   SET_FIELD_DECL(logs_storage, QString&)
   SET_FIELD_DECL(ssh_keys_storage, QString&)
+  SET_FIELD_DECL(p2p_autoupdate, bool)
+  SET_FIELD_DECL(rh_autoupdate, bool)
+  SET_FIELD_DECL(tray_autoupdate, bool)
+  SET_FIELD_DECL(p2p_update_freq, update_freq_t)
+  SET_FIELD_DECL(rh_update_freq, update_freq_t)
+  SET_FIELD_DECL(tray_update_freq, update_freq_t)
 #undef SET_FIELD_DECL
 };
 
