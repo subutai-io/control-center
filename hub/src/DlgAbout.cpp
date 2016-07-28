@@ -83,5 +83,6 @@ DlgAbout::update_finished(QString file_id,
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);
+  m_dct_fpb[file_id].pb->setValue(0);
 }
 ////////////////////////////////////////////////////////////////////////////

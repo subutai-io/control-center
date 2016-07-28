@@ -92,7 +92,11 @@ public:
   static const int NOTIFICATION_DELAY_MAX = 300;
 
   enum update_freq_t {
-    UF_HOUR1 = 0,
+    UF_MIN1 = 0,
+    UF_MIN5,
+    UF_MIN10,
+    UF_MIN30,
+    UF_HOUR1,
     UF_HOUR3,
     UF_HOUR5,
     UF_DAILY,
@@ -156,20 +160,9 @@ public:
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
   }
 
-  void set_p2p_update_freq(int fr) {
-    m_p2p_update_freq = (update_freq_t) fr%UF_LAST;
-    m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
-  }
-
-  void set_rh_update_freq(int fr) {
-    m_rh_update_freq = (update_freq_t) fr%UF_LAST;
-    m_settings.setValue(SM_RH_UPDATE_FREQ, (int8_t)m_rh_update_freq);
-  }
-
-  void set_tray_update_freq(int fr) {
-    m_tray_update_freq = (update_freq_t) fr%UF_LAST;
-    m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
-  }
+  void set_p2p_update_freq(int fr);
+  void set_rh_update_freq(int fr);
+  void set_tray_update_freq(int fr);
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
@@ -194,9 +187,6 @@ public:
   SET_FIELD_DECL(p2p_autoupdate, bool)
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
-  SET_FIELD_DECL(p2p_update_freq, update_freq_t)
-  SET_FIELD_DECL(rh_update_freq, update_freq_t)
-  SET_FIELD_DECL(tray_update_freq, update_freq_t)
 #undef SET_FIELD_DECL
 };
 

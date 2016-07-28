@@ -4,6 +4,7 @@
 
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
+#include "HubComponentsUpdater.h"
 
 const QString CSettingsManager::ORG_NAME("Optimal-dynamics");
 const QString CSettingsManager::APP_NAME("SS_Tray");
@@ -90,9 +91,9 @@ CSettingsManager::CSettingsManager() :
   m_logs_storage(QApplication::applicationDirPath()),
   m_ssh_keys_storage(QApplication::applicationDirPath()),
   m_tray_guid(""),
-  m_p2p_update_freq(UF_HOUR1),
-  m_rh_update_freq(UF_HOUR1),
-  m_tray_update_freq(UF_HOUR1),
+  m_p2p_update_freq(UF_MIN30),
+  m_rh_update_freq(UF_MIN30),
+  m_tray_update_freq(UF_MIN30),
   m_p2p_autoupdate(false),
   m_rh_autoupdate(false),
   m_tray_autoupdate(false)
@@ -175,6 +176,7 @@ CSettingsManager::CSettingsManager() :
 const QString &
 CSettingsManager::update_freq_to_str(CSettingsManager::update_freq_t fr) {
   static const QString strings[] {
+    "1 minute", "5 minutes", "10 minutes", "30 minutes",
     "1 hour", "3 hour", "5 hour", "Daily",
     "Weekly", "Monthly", "Never" };
   return strings[fr%UF_LAST];
@@ -182,9 +184,13 @@ CSettingsManager::update_freq_to_str(CSettingsManager::update_freq_t fr) {
 ////////////////////////////////////////////////////////////////////////////
 
 uint32_t CSettingsManager::update_freq_to_sec(CSettingsManager::update_freq_t fr) {
+  static const int min = 60;
+  static const int hr = min*60;
+  static const int day = hr*24;
   static const uint32_t time_sec[] {
-    60*60, 60*60*3, 60*60*5,
-    60*60*24, 60*60*24*7, 60*60*24*7*4, 0 };
+    min, min*5, min*10, min*30,
+    hr, hr*3, hr*5,
+    day, day*7, day*28, 0 }; //let's say 1 month = 4 week
   return time_sec[fr%UF_LAST];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -196,6 +202,27 @@ CSettingsManager::set_logs_storage(const QString &logs_storage) {
   CApplicationLog::Instance()->SetDirectory(m_logs_storage.toStdString());
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::set_p2p_update_freq(int fr) {
+  m_p2p_update_freq = (update_freq_t) fr%UF_LAST;
+  m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
+  CHubComponentsUpdater::Instance()->set_p2p_update_freq();
+}
+
+void
+CSettingsManager::set_rh_update_freq(int fr) {
+  m_rh_update_freq = (update_freq_t) fr%UF_LAST;
+  m_settings.setValue(SM_RH_UPDATE_FREQ, (int8_t)m_rh_update_freq);
+  CHubComponentsUpdater::Instance()->set_rh_update_freq();
+}
+
+void
+CSettingsManager::set_tray_update_freq(int fr) {
+  m_tray_update_freq = (update_freq_t) fr%UF_LAST;
+  m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
+  CHubComponentsUpdater::Instance()->set_tray_update_freq();
+}
 
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
   SET_FIELD_DEF(login, SM_LOGIN, QString&)
@@ -217,7 +244,4 @@ CSettingsManager::set_logs_storage(const QString &logs_storage) {
   SET_FIELD_DEF(p2p_autoupdate, SM_P2P_AUTOUPDATE, bool)
   SET_FIELD_DEF(rh_autoupdate, SM_RH_AUTOUPDATE, bool)
   SET_FIELD_DEF(tray_autoupdate, SM_TRAY_AUTOUPDATE, bool)
-  SET_FIELD_DEF(p2p_update_freq, SM_P2P_UPDATE_FREQ, update_freq_t)
-  SET_FIELD_DEF(rh_update_freq, SM_RH_UPDATE_FREQ, update_freq_t)
-  SET_FIELD_DEF(tray_update_freq, SM_TRAY_UPDATE_FREQ, update_freq_t)
 #undef SET_FIELD_DEF

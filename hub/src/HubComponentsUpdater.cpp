@@ -51,6 +51,24 @@ static const char* p2p_update_file_name() {
 CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_file_atomics[STR_P2P] = file_atomic(p2p_update_file_name());
   m_dct_file_atomics[STR_TRAY] = file_atomic(tray_update_file());
+
+  m_tm_p2p.setInterval(CSettingsManager::update_freq_to_sec(
+                         CSettingsManager::Instance().p2p_update_freq()) * 1000);
+  m_tm_rh.setInterval(CSettingsManager::update_freq_to_sec(
+                         CSettingsManager::Instance().rh_update_freq()) * 1000);
+  m_tm_tray.setInterval(CSettingsManager::update_freq_to_sec(
+                         CSettingsManager::Instance().tray_update_freq()) * 1000);
+
+  connect(&m_tm_p2p, SIGNAL(timeout()), this, SLOT(timer_p2p_timeout()));
+  connect(&m_tm_rh, SIGNAL(timeout()), this, SLOT(timer_rh_timeout()));
+  connect(&m_tm_tray, SIGNAL(timeout()), this, SLOT(timer_tray_timeout()));
+
+  if (CSettingsManager::Instance().p2p_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_p2p.start();
+  if (CSettingsManager::Instance().rh_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_rh.start();
+  if (CSettingsManager::Instance().tray_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_tray.start();
 }
 
 CHubComponentsUpdater::~CHubComponentsUpdater() {
@@ -194,6 +212,68 @@ CHubComponentsUpdater::p2p_update() {
   return update_and_replace_file(STR_P2P,
                                  QApplication::applicationDirPath() + QDir::separator() + STR_P2P,
                                  str_p2p_path);
+}
+
+void
+CHubComponentsUpdater::set_p2p_update_freq() {
+  m_tm_p2p.setInterval(CSettingsManager::update_freq_to_sec(
+                         CSettingsManager::Instance().p2p_update_freq()) * 1000);
+  if (CSettingsManager::Instance().p2p_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_p2p.start();
+}
+
+void
+CHubComponentsUpdater::set_rh_update_freq() {
+  m_tm_rh.setInterval(CSettingsManager::update_freq_to_sec(
+                        CSettingsManager::Instance().rh_update_freq()) * 1000);
+  if (CSettingsManager::Instance().rh_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_rh.start();
+}
+
+void
+CHubComponentsUpdater::set_tray_update_freq() {
+  m_tm_tray.setInterval(CSettingsManager::update_freq_to_sec(
+                          CSettingsManager::Instance().tray_update_freq()) * 1000);
+  if (CSettingsManager::Instance().tray_update_freq() != CSettingsManager::UF_NEVER)
+    m_tm_tray.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::timer_tray_timeout() {
+  m_tm_tray.stop();
+  if (tray_check_for_update()) {
+    if (CSettingsManager::Instance().tray_autoupdate()) {
+      CNotifiactionObserver::Instance()->NotifyAboutInfo("Tray updating started");
+      tray_update();
+    } else {
+      CNotifiactionObserver::Instance()->NotifyAboutInfo("New version of subutai tray is available!");
+    }
+  }
+  m_tm_tray.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::timer_rh_timeout() {
+  m_tm_rh.stop();
+  subutai_rh_update();
+  m_tm_rh.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::timer_p2p_timeout() {
+  m_tm_p2p.stop();
+  if (p2p_check_for_update()) {
+    if (CSettingsManager::Instance().p2p_autoupdate()) {
+      CNotifiactionObserver::Instance()->NotifyAboutInfo("P2P updating started");
+      p2p_update();
+    } else {
+      CNotifiactionObserver::Instance()->NotifyAboutInfo("New version of P2P is available!");
+    }
+  }
+  m_tm_p2p.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 

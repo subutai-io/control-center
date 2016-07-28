@@ -55,10 +55,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
   refresh_timer_timeout(); //update data on start. hack
   m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()*1000);
-  m_refresh_timer.start();
-
-  m_ss_updater_timer.setInterval(3*60*60*1000); //3 hours
-  m_ss_updater_timer.start();
+  m_refresh_timer.start();  
 
   m_report_timer.setInterval(60*1000); //minute
   m_report_timer.start();
@@ -75,9 +72,6 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
   connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
           this, SLOT(notification_received(notification_level_t, const QString&)));
-
-  connect(&m_ss_updater_timer, SIGNAL(timeout()),
-          this, SLOT(updater_timer_timeout()));
 
   connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
           this, SLOT(ssh_to_container_finished(int,void*)));
@@ -365,15 +359,6 @@ TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::updater_timer_timeout() {
-  m_ss_updater_timer.stop();  
-  CHubComponentsUpdater::Instance()->subutai_rh_update();
-  CHubComponentsUpdater::Instance()->tray_update();
-  m_ss_updater_timer.start();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 TrayControlWindow::report_timer_timeout() {
   m_report_timer.stop();
   int http_code, err_code, network_err;
@@ -399,7 +384,12 @@ TrayControlWindow::update_finished(QString file_id,
   }
 
   if (file_id == CHubComponentsUpdater::STR_P2P) {
-
+    CNotifiactionObserver::Instance()->NotifyAboutInfo("P2P has been updated");
+    QMessageBox msg_box(QMessageBox::Question, "Attention! P2P update finished",
+                        "P2P has been updated. Restart p2p daemon, please",
+                        QMessageBox::Ok, this);
+    msg_box.exec();
+    return;
   } else if (file_id == CHubComponentsUpdater::STR_TRAY) {
     QMessageBox msg_box(QMessageBox::Question, "Attention! Tray update finished",
                         "Tray application has been updated. Do you want to restart it now?",

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <atomic>
+#include <QTimer>
 
 typedef enum hub_component_updater_error {
   CHUE_SUCCESS = 0,
@@ -25,7 +26,6 @@ private:
   };
 
   struct file_atomic {
-    //todo make it atomic
     std::atomic<int> checks;
     std::atomic<bool> in_progress;
     QString kurjun_file_name;
@@ -57,6 +57,8 @@ private:
   chue_t update_and_replace_file(const QString& file_id,
                                const QString& download_path,
                                const QString& file_to_replace_path);
+
+  QTimer m_tm_tray, m_tm_rh, m_tm_p2p;
 public:
 
   static const QString STR_P2P;
@@ -75,7 +77,15 @@ public:
   bool p2p_check_for_update(void);
   chue_t p2p_update(void);
 
+  void set_p2p_update_freq();
+  void set_rh_update_freq();
+  void set_tray_update_freq();
+
 private slots:
+  void timer_tray_timeout();
+  void timer_rh_timeout();
+  void timer_p2p_timeout();
+
   void download_file_progress_sl(QString file_id, qint64 cur, qint64 full);
 
   void file_downloading_finished(QString file_id);

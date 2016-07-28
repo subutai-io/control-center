@@ -114,7 +114,6 @@ private:
 //  CVBPlayer *m_w_Player;
   /*hub*/
   QTimer m_refresh_timer;
-  QTimer m_ss_updater_timer;
   QTimer m_report_timer;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
@@ -193,9 +192,7 @@ private slots:
   void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/
-  void updater_timer_timeout();  
   void report_timer_timeout();
-
   void update_available(QString file_id);
   void update_finished(QString file_id, bool success);
 };
