@@ -23,7 +23,7 @@ static const char* tray_update_file() {
     #elif defined(RT_OS_DARWIN)
       "tray_9683ecfe-1034-11e6-b626-f816544befe7_mac";
     #elif defined(RT_OS_WINDOWS)
-      "tray_9683ecfe-1034-11e6-b626-f816544befe7.exe"
+      "tray_9683ecfe-1034-11e6-b626-f816544befe7.exe";
     #else
       "";
     #error "TRAY_UPDATE_FILE macros undefined"
@@ -39,7 +39,7 @@ static const char* p2p_update_file_name() {
     #elif defined(RT_OS_DARWIN)
       "p2p_osx";
     #elif defined(RT_OS_WINDOWS)
-      "p2p.exe"
+      "p2p.exe";
     #else
       "";
     #error "p2p update file name undefined"

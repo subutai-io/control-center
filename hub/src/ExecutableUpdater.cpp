@@ -48,10 +48,16 @@ CExecutableUpdater::replace_executables(QString file_id,
       break;
     }
 
+#ifndef RT_OS_WINDOWS
     if (!(replaced &= dst.setPermissions(m_dst_file_str, perm))) {
       CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
       break;
     }
+#else
+    if (dst.setPermissions(m_dst_file_str, perm)) {
+      CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
+    }
+#endif
 
     QFile ftmp(tmp);
     if (!ftmp.remove()) {
