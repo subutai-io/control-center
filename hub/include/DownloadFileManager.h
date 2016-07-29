@@ -22,7 +22,6 @@ private:
   int m_expected_size;
   QNetworkReply* m_network_reply;
   QFile* m_dst_file;
-  download_file_manager_errors_t m_last_error;
 
 public:
   CDownloadFileManager(const QString& kurjun_file_id,
@@ -30,8 +29,6 @@ public:
                        const QString& dst_file,
                        int expected_size);
   ~CDownloadFileManager();
-
-  download_file_manager_errors_t last_error() const {return m_last_error;}
 
 private slots:
 
@@ -45,8 +42,8 @@ public slots:
   void interrupt_download();
 
 signals:
-  void finished(QString);
-  void download_progress_sig(QString, qint64, qint64);
+  void finished(QString file_id, bool success);
+  void download_progress_sig(QString file_id, qint64 rec, qint64 total);
 };
 
 #endif // DOWNLOADFILEMANAGER_H

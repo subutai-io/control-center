@@ -11,7 +11,6 @@
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "libssh2/LibsshErrors.h"
-#include "HubComponentsUpdater.h"
 
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
   static const char* rle_errors[] = {
@@ -100,9 +99,6 @@ main(int argc, char *argv[]) {
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
-    CHubComponentsUpdater::Instance()->p2p_check_for_update();
-    CHubComponentsUpdater::Instance()->tray_check_for_update();
-
     TrayControlWindow tcw;
     result = app.exec();
   } while (0);

@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QUuid>
+#include <QStandardPaths>
 
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
@@ -98,6 +99,31 @@ CSettingsManager::CSettingsManager() :
   m_rh_autoupdate(false),
   m_tray_autoupdate(false)
 {
+#ifndef RT_OS_WINDOWS
+  static const char* SUBUTAI_FOLDER = ".subutai";
+  static const char* SSH_FOLDER = ".ssh";
+#else
+  static const char* SUBUTAI_FOLDER = "subutai";
+  static const char* SSH_FOLDER = "ssh";
+#endif
+
+  do {
+    QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (lst_home.empty()) break;
+    QString home_folder = lst_home[0];
+    QString subutai = home_folder + QDir::separator() + SUBUTAI_FOLDER;
+    QDir subutai_dir(subutai);
+    if (!subutai_dir.exists()) {
+      if (!subutai_dir.mkdir(subutai)) break;
+      QString ssh = subutai + QDir::separator() + SSH_FOLDER;
+      QDir ssh_dir(ssh);
+      if (!ssh_dir.exists()) {
+        if (!ssh_dir.mkdir(ssh)) break;
+        m_ssh_keys_storage = ssh;
+      }
+    }
+  } while (0);
+
   QString tmp("");
   setting_val_t<QString> dct_str_vals[] = {
     {&m_terminal_path, SM_TERMINAL_PATH},
@@ -170,6 +196,7 @@ CSettingsManager::CSettingsManager() :
     m_tray_guid = QUuid::createUuid().toString();
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
   }
+  /////
 }
 ////////////////////////////////////////////////////////////////////////////
 

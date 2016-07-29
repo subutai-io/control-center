@@ -88,7 +88,7 @@ private slots:
 
   void download_file_progress_sl(QString file_id, qint64 cur, qint64 full);
 
-  void file_downloading_finished(QString file_id);
+  void file_downloading_finished(QString file_id, bool success);
   void file_replace_finished(QString file_id, bool replaced);
 
 signals:

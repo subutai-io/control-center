@@ -1,6 +1,6 @@
 #include "DownloadFileManager.h"
 #include "RestWorker.h"
-#include <QDebug>
+#include "NotifiactionObserver.h"
 
 CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
                                            const QString &file_id,
@@ -11,8 +11,7 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
   m_network_reply(NULL),
-  m_dst_file(NULL),
-  m_last_error(DFME_SUCCESS)
+  m_dst_file(NULL)
 {
   m_dst_file = new QFile(m_dst_file_path);
   m_dst_file->open(QIODevice::WriteOnly);
@@ -52,9 +51,15 @@ CDownloadFileManager::reply_finished() {
     m_dst_file->flush();
     m_dst_file->close();
   }
-  m_last_error = m_network_reply->error() != QNetworkReply::NoError ?
-                                               DFME_NETWORK_ERROR : DFME_SUCCESS;
-  emit finished(m_file_id);
+
+  if (m_network_reply->error() != QNetworkReply::NoError) {
+    CNotifiactionObserver::Instance()->NotifyAboutError(
+          QString("Download file error. %1").arg(m_network_reply->errorString()));
+    CApplicationLog::Instance()->LogError("Download file error : %s",
+                                          m_network_reply->errorString().toStdString().c_str());
+  }
+
+  emit finished(m_file_id, m_network_reply->error() == QNetworkReply::NoError);
 }
 ////////////////////////////////////////////////////////////////////////////
 

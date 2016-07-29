@@ -119,8 +119,8 @@ CHubComponentsUpdater::update_and_replace_file(const QString &file_id,
 
   connect(dm, SIGNAL(download_progress_sig(QString,qint64,qint64)),
           this, SLOT(download_file_progress_sl(QString,qint64,qint64)));
-  connect(dm, SIGNAL(finished(QString)), this, SLOT(file_downloading_finished(QString)));
-  connect(dm, SIGNAL(finished(QString)), eu, SLOT(replace_executables()));
+  connect(dm, SIGNAL(finished(QString, bool)), this, SLOT(file_downloading_finished(QString, bool)));
+  connect(dm, SIGNAL(finished(QString, bool)), eu, SLOT(replace_executables(QString,bool)));
   connect(eu, SIGNAL(finished(QString,bool)), this, SLOT(file_replace_finished(QString,bool)));
   connect(eu, SIGNAL(finished(QString,bool)), dm, SLOT(deleteLater()));
   connect(eu, SIGNAL(finished(QString,bool)), eu, SLOT(deleteLater()));
@@ -128,7 +128,6 @@ CHubComponentsUpdater::update_and_replace_file(const QString &file_id,
   return CHUE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-
 
 bool
 CHubComponentsUpdater::tray_check_for_update() {
@@ -285,7 +284,8 @@ CHubComponentsUpdater::download_file_progress_sl(QString file_id, qint64 cur,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubComponentsUpdater::file_downloading_finished(QString file_id) {
+CHubComponentsUpdater::file_downloading_finished(QString file_id, bool success) {
+  (void)success;
   --m_dct_file_atomics[file_id].checks;
 }
 ////////////////////////////////////////////////////////////////////////////

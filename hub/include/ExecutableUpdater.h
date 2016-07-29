@@ -20,7 +20,7 @@ public:
   ~CExecutableUpdater();
 
 public slots:
-  void replace_executables();
+  void replace_executables(QString file_id, bool was_successful_downloaded);
 
 signals:
   void finished(QString, bool);

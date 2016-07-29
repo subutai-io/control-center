@@ -2,6 +2,7 @@
 #include "ExecutableUpdater.h"
 #include "Commons.h"
 #include "ApplicationLog.h"
+#include "NotifiactionObserver.h"
 
 CExecutableUpdater::CExecutableUpdater(const QString &file_id,
                                        const QString &src,
@@ -18,7 +19,12 @@ CExecutableUpdater::~CExecutableUpdater() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CExecutableUpdater::replace_executables() {
+CExecutableUpdater::replace_executables(QString file_id,
+                                        bool was_successful_downloaded) {
+  (void)file_id;
+  if (!was_successful_downloaded)
+    return;
+
   QString tmp = m_dst_file_str + ".tmp";
   QFile src(m_src_file_str);
   QFile dst(m_dst_file_str);

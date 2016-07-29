@@ -77,6 +77,14 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(ssh_to_container_finished(int,void*)));
 
   connect(&m_report_timer, SIGNAL(timeout()), this, SLOT(report_timer_timeout()));
+
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
+          this, SLOT(update_finished(QString,bool)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
+          this, SLOT(update_available(QString)));
+
+  CHubComponentsUpdater::Instance()->p2p_check_for_update();
+  CHubComponentsUpdater::Instance()->tray_check_for_update();
 }
 
 TrayControlWindow::~TrayControlWindow() {
