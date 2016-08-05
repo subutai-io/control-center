@@ -148,6 +148,7 @@ private:
   QAction *m_act_launch_SS;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
+  QAction *m_act_logout;
 
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
@@ -168,6 +169,8 @@ private slots:
   void show_settings_dialog();  \
   void notification_received(notification_level_t level,
                              const QString& msg);
+  void logout();
+  void login_success();
 
   /*virtualbox slots*/
   void show_vbox();

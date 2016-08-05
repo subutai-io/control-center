@@ -78,8 +78,7 @@ private:
               const QString& password);
   CRestWorker(const CRestWorker& worker);
   ~CRestWorker(void);
-
-private slots:
+ private slots:
   void ssl_errors_appeared(QList<QSslError> lst_errors);
 };
 

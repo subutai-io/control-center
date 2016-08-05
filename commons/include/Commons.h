@@ -36,6 +36,8 @@ public:
    * \return
    */
   static QString FileMd5(const QString& file_path);
+
+  static QString NetworkErrorToString(int err_code);
 };
 
 #endif // COMMONS_H

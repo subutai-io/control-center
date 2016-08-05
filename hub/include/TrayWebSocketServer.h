@@ -23,8 +23,10 @@ private slots:
   void process_text_msg(QString msg);
   void process_bin_msg(QByteArray msg);
   void socket_disconnected();
-
   void ssh_to_container_finished(int result, void* additional_data);
+
+public slots:
+
 
 public:
   static CTrayServer *Instance(void);

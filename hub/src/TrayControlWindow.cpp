@@ -43,6 +43,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_act_launch_SS(NULL),
   m_act_launch_Hub(NULL),
   m_act_about(NULL),
+  m_act_logout(NULL),
   m_sys_tray_icon(NULL),
   m_tray_menu(NULL)
 {
@@ -88,8 +89,11 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  if (m_tray_menu) delete m_tray_menu;
-  if (m_sys_tray_icon) delete m_sys_tray_icon;
+  if (m_tray_menu)
+    delete m_tray_menu;
+  if (m_sys_tray_icon)
+    delete m_sys_tray_icon;
+
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
@@ -201,6 +205,9 @@ TrayControlWindow::create_tray_actions() {
 
   m_act_generate_ssh = new QAction("Generate SSH key", this);
   connect(m_act_generate_ssh, SIGNAL(triggered()), this, SLOT(ssh_key_generate_triggered()));
+
+  m_act_logout = new QAction("Logout", this);
+  connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -244,11 +251,13 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
   //  m_tray_menu->addMenu(m_vbox_menu);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
+  //why do we lose memory here? have no idea. please inform
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 }
@@ -266,7 +275,6 @@ TrayControlWindow::show_settings_dialog() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-
 void
 TrayControlWindow::notification_received(notification_level_t level,
                                          const QString &msg) {
@@ -282,6 +290,30 @@ TrayControlWindow::notification_received(notification_level_t level,
                                msg,
                                icons[level],
                                CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::logout() {
+  this->m_refresh_timer.stop();
+  this->m_report_timer.stop();
+  this->m_sys_tray_icon->hide();
+
+  DlgLogin dlg;
+  connect(&dlg, SIGNAL(login_success()), this, SLOT(login_success()));
+  dlg.setModal(true);
+  if (dlg.exec() != QDialog::Accepted) {
+    qApp->exit(0);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::login_success() {
+  refresh_timer_timeout(); //update data on start. hack
+  this->m_refresh_timer.start();
+  this->m_report_timer.start();
+  this->m_sys_tray_icon->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 

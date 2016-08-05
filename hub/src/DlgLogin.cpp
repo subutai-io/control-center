@@ -69,7 +69,8 @@ DlgLogin::login() {
       break;
     case RE_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").arg(network_err));
+      ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").
+                              arg(CCommons::NetworkErrorToString(network_err)));
       break;
     default:
       ui->lbl_status->setVisible(true);
@@ -96,7 +97,8 @@ DlgLogin::run_dialog() {
 
 void
 DlgLogin::btn_ok_released() {
-  login();
+  if (login())
+    emit login_success();
 }
 ////////////////////////////////////////////////////////////////////////////
 
