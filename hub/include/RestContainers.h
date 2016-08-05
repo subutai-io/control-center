@@ -169,7 +169,7 @@ private:
 
 public:
   explicit CGorjunFileInfo(const QJsonObject& obj) {
-    m_md5_sum = obj["md5Sum"].toString();
+    m_md5_sum = obj["id"].toString(); //I like hub team
     m_name = obj["name"].toString();
     m_size = obj["size"].toInt();
     m_id = obj["id"].toString();

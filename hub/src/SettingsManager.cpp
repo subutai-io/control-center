@@ -99,28 +99,17 @@ CSettingsManager::CSettingsManager() :
   m_rh_autoupdate(false),
   m_tray_autoupdate(false)
 {
-#ifndef RT_OS_WINDOWS
-  static const char* SUBUTAI_FOLDER = ".subutai";
   static const char* SSH_FOLDER = ".ssh";
-#else
-  static const char* SUBUTAI_FOLDER = "subutai";
-  static const char* SSH_FOLDER = "ssh";
-#endif
 
   do {
     QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     if (lst_home.empty()) break;
     QString home_folder = lst_home[0];
-    QString subutai = home_folder + QDir::separator() + SUBUTAI_FOLDER;
-    QDir subutai_dir(subutai);
-    if (!subutai_dir.exists()) {
-      if (!subutai_dir.mkdir(subutai)) break;
-      QString ssh = subutai + QDir::separator() + SSH_FOLDER;
-      QDir ssh_dir(ssh);
-      if (!ssh_dir.exists()) {
-        if (!ssh_dir.mkdir(ssh)) break;
-        m_ssh_keys_storage = ssh;
-      }
+    QString ssh = home_folder + QDir::separator() + SSH_FOLDER;
+    QDir ssh_dir(ssh);
+    if (!ssh_dir.exists()) {
+      if (!ssh_dir.mkdir(ssh)) break;
+      m_ssh_keys_storage = ssh;
     }
   } while (0);
 

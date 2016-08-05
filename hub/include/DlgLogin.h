@@ -15,6 +15,8 @@ private:
   Ui::DlgLogin *ui;
   int m_login_count;
 
+  bool login();
+
 public:
   explicit DlgLogin(QWidget *parent = 0);
   ~DlgLogin();

@@ -107,7 +107,6 @@ CHubComponentsUpdater::update_and_replace_file(const QString &file_id,
   }
 
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
-  CApplicationLog::Instance()->LogInfo("Expected md5 : %s", item->md5_sum().toStdString().c_str());
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       file_id,
                                                       download_path,

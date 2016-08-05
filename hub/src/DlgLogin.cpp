@@ -4,6 +4,7 @@
 #include "HubController.h"
 #include "RestWorker.h"
 
+
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgLogin),
@@ -30,19 +31,8 @@ DlgLogin::~DlgLogin()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void
-DlgLogin::run_dialog() {
-//  if (!CSettingsManager::Instance().remember_me()) {
-    exec();
-//  } else {
-//    btn_ok_released();
-//  }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgLogin::btn_ok_released() {
-
+bool
+DlgLogin::login() {
   CSettingsManager::Instance().set_login(ui->le_login->text());
   CSettingsManager::Instance().set_password(ui->le_password->text());
   CSettingsManager::Instance().set_remember_me(ui->cb_save_credentials->checkState() == Qt::Checked);
@@ -62,9 +52,9 @@ DlgLogin::btn_ok_released() {
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())
-        CSettingsManager::Instance().save_all();      
+        CSettingsManager::Instance().save_all();
       QDialog::accept();
-      break;
+      return true;
     case RE_LOGIN_OR_EMAIL:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText("<font color='red'>Wrong login or password. Try again!</font>");
@@ -86,6 +76,27 @@ DlgLogin::btn_ok_released() {
       ui->lbl_status->setText(QString("<font color='red'>Unknown error. Code: %1!</font>").arg(err_code));
       break;
   }
+  return false;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgLogin::run_dialog() {
+  if (!CSettingsManager::Instance().remember_me()) {
+    exec();
+    return;
+  }
+
+  if (!login()) {
+    exec();
+    return;
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgLogin::btn_ok_released() {
+  login();
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -147,7 +147,6 @@ private:
   QAction *m_act_launch;
   QAction *m_act_launch_SS;
   QAction *m_act_launch_Hub;
-
   QAction *m_act_about;
 
   QSystemTrayIcon* m_sys_tray_icon;

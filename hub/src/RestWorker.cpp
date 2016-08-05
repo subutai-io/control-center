@@ -127,7 +127,7 @@ CRestWorker::get_ssh_containers(int &http_code,
 
 std::vector<CGorjunFileInfo>
 CRestWorker::get_gorjun_file_info(const QString &file_name) {
-  static const QString str_fi("file/info");
+  static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
   QUrl url_gorjun_fi(CSettingsManager::Instance().gorjun_url().arg(str_fi));
   QUrlQuery query_gorjun_fi;
@@ -196,7 +196,7 @@ CRestWorker::send_health_request(int &http_code,
 
 QNetworkReply*
 CRestWorker::download_gorjun_file(const QString &file_id) {
-  static const QString str_file_url("file/get");
+  static const QString str_file_url("raw/download");
   QUrl url(CSettingsManager::Instance().gorjun_url().arg(str_file_url));
   QUrlQuery query;
   query.addQueryItem("id", file_id);
