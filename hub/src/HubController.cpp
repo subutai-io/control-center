@@ -109,7 +109,6 @@ int CHubController::refresh_balance() {
   }
 
   m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: %1").arg(balance.value());
-  CApplicationLog::Instance()->LogTrace(m_balance.toStdString().c_str());
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -137,21 +136,20 @@ int CHubController::refresh_environments() {
                                           err_code, network_error);
   }
 
-  if (err_code) {
+  //that means that about network error notified RestWorker.
+  if (err_code && err_code != RE_NETWORK_ERROR) {
     QString err_msg = QString("Refresh environments error : %1").
                       arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotifiactionObserver::NotifyAboutError(err_msg);
     return 1;
   }
 
-  if (network_error != 0) {
-    QString err_msg = QString("Refresh environments network error : %1").arg(network_error);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
+  if (network_error != 0)
     return 1;
-  }
 
   if (res == m_lst_environments)
     return 1;
+
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
     std::vector<CSSEnvironment> to_remove;

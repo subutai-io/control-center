@@ -4,6 +4,7 @@
 #include "RestWorker.h"
 #include "ApplicationLog.h"
 #include "SystemCallWrapper.h"
+#include "NotifiactionObserver.h"
 
 CRestWorker::CRestWorker() :
   m_network_manager(NULL) {
@@ -280,6 +281,7 @@ CRestWorker::send_request(QNetworkRequest &req,
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                               reply->errorString().toStdString().c_str());
+    CNotifiactionObserver::NotifyAboutError(reply->errorString());
     err_code = RE_NETWORK_ERROR;
     return QByteArray();
   }
