@@ -67,7 +67,7 @@ CRestWorker::get_request_json_document(const QString &link,
   QByteArray arr = send_get_request(req, http_code, err_code, network_error);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {
-    err_code = network_error != QNetworkReply::NoError ? RE_NETWORK_ERROR : RE_NOT_JSON_DOC;
+    if (err_code != RE_NETWORK_ERROR) err_code = RE_NOT_JSON_DOC;
     CApplicationLog::Instance()->LogInfo("Received not json document from url : %s", link.toStdString().c_str());
     return QJsonDocument();
   }
