@@ -159,15 +159,7 @@ void
 TrayControlWindow::remove_vm_menu(const QString &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
   if (it == m_dct_player_menus.end()) return;  
-
   m_w_Player->remove(it->second);
-
-  disconnect(it->second, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
-             this, &TrayControlWindow::vbox_menu_btn_play_triggered);
-
-  connect(it->second, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
-          this, &TrayControlWindow::vbox_menu_btn_stop_triggered);
-
   delete it->second;
   m_dct_player_menus.erase(it);
 }
@@ -839,12 +831,6 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
 CVBPlayerItem::~CVBPlayerItem(){
   p_h_Layout->removeWidget(lbl_name);
   p_h_Layout->removeWidget(lbl_state);
-
-  disconnect(btn_play, SIGNAL(released()),
-             this, SLOT(vbox_menu_btn_play_released()));
-  disconnect(btn_stop, SIGNAL(released()),
-             this, SLOT(vbox_menu_btn_stop_released()));
-
   p_h_Layout->removeWidget(btn_play);
   p_h_Layout->removeWidget(btn_stop);
 }
