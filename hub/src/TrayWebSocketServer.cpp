@@ -6,6 +6,7 @@
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
 #include "ApplicationLog.h"
+#include "SystemCallWrapper.h"
 
 CTrayServer::CTrayServer(quint16 port,
                          QObject *parent) :
@@ -50,6 +51,33 @@ CTrayServer::process_text_msg(QString msg) {
     return;
   if (msg == "cmd:current_user") {
     pClient->sendTextMessage(CHubController::Instance().current_user());
+  }
+  else if (msg == "cmd:ss_ip") {
+    std::string rh_ip;
+    int ec;
+    system_call_wrapper_error_t err =
+        CSystemCallWrapper::get_rh_ip_via_libssh2(
+          CSettingsManager::Instance().rh_host().toStdString().c_str(),
+          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+          CSettingsManager::Instance().rh_user().toStdString().c_str(),
+          CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+          ec,
+          rh_ip);
+
+    if (err == SCWE_SUCCESS && !rh_ip.empty()) {
+      QString response = QString("code:%1%%%error=%2%%%success==%3")
+                         .arg(SCWE_SUCCESS)
+                         .arg("")
+                         .arg(QString::fromStdString(rh_ip));
+      pClient->sendTextMessage(response);
+    } else {
+      QString response = QString("code:%1%%%error=%2%%%success==%3")
+                         .arg(err)
+                         .arg(CSystemCallWrapper::scwe_error_to_str(err))
+                         .arg("");
+      pClient->sendTextMessage(response);
+    }
+    return;
   } else if (int index_of = msg.indexOf("cmd:ssh") != -1) {
     // 7 is len of cmd::ssh
     QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
