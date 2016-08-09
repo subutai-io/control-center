@@ -30,6 +30,7 @@
         <file>Tray_icon_set-07.png</file>
         <file>TrayWithWatch.png</file>
         <file>about.png</file>
+        <file>logout.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

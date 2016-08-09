@@ -195,10 +195,10 @@ TrayControlWindow::create_tray_actions() {
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, SIGNAL(triggered()), this, SLOT(show_about()));
 
-  m_act_generate_ssh = new QAction("Generate SSH key", this);
+  m_act_generate_ssh = new QAction(tr("Generate SSH key"), this);
   connect(m_act_generate_ssh, SIGNAL(triggered()), this, SLOT(ssh_key_generate_triggered()));
 
-  m_act_logout = new QAction("Logout", this);
+  m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
 }
 ////////////////////////////////////////////////////////////////////////////
