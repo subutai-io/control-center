@@ -13,6 +13,7 @@
 #include "libssh2/LibsshErrors.h"
 
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
+  int index = (int)err - (int)RLE_SUCCESS;
   static const char* rle_errors[] = {
     "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",
     "LIBSSH2_INIT", "INET_ADDR", "CONNECTION_TIMEOUT",
@@ -20,9 +21,10 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
     "SSH_AUTHENTICATION", "LIBSSH2_CHANNEL_OPEN", "LIBSSH2_CHANNEL_EXEC",
     "LIBSSH2_EXIT_CODE_NOT_NULL"
   };
-  if (((int)err) < 0 || ((size_t)err) > sizeof(rle_errors))
+
+  if (index < 0 || index > sizeof(rle_errors))
     return "UNDEFINED_ERROR";
-  return rle_errors[err];
+  return rle_errors[index];
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -1,7 +1,7 @@
 #pragma once
 
 typedef enum run_libssh2_error {
-  RLE_SUCCESS = 0,
+  RLE_SUCCESS = 1000,
   RLE_WRONG_ARGUMENTS_COUNT,
   RLE_WSA_STARTUP,
   RLE_LIBSSH2_INIT,

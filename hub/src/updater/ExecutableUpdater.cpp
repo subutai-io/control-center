@@ -1,8 +1,10 @@
 #include <QFile>
-#include "ExecutableUpdater.h"
 #include "Commons.h"
 #include "ApplicationLog.h"
 #include "NotifiactionObserver.h"
+#include "updater/ExecutableUpdater.h"
+
+using namespace update_system;
 
 CExecutableUpdater::CExecutableUpdater(const QString &file_id,
                                        const QString &src,

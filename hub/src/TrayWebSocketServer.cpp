@@ -22,7 +22,7 @@ CTrayServer::CTrayServer(quint16 port,
             this, SLOT(ssh_to_container_finished(int,void*)));
   } else {
     QString err_msg = QString("Can't listen websocket on port : %1").arg(port);
-    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
   }
 }

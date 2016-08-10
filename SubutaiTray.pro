@@ -42,9 +42,13 @@ SOURCES += \
     commons/src/Commons.cpp \
     hub/src/DlgAbout.cpp \
     hub/src/DownloadFileManager.cpp \
-    hub/src/ExecutableUpdater.cpp \
+    hub/src/updater/ExecutableUpdater.cpp \
     hub/src/DlgGenerateSshKey.cpp \
-    hub/src/HubComponentsUpdater.cpp
+    hub/src/updater/HubComponentsUpdater.cpp \
+    hub/src/updater/UpdaterComponentRH.cpp \
+    hub/src/updater/UpdaterComponentP2P.cpp \
+    hub/src/updater/UpdaterComponentTray.cpp \
+    hub/src/updater/IUpdaterComponent.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -79,11 +83,15 @@ HEADERS  += \
     hub/include/DlgAbout.h \
     hub/include/RestContainers.h \
     hub/include/DownloadFileManager.h \
-    hub/include/ExecutableUpdater.h \
+    hub/include/updater/ExecutableUpdater.h \
     commons/include/MRE_Windows.h \
     hub/include/DlgGenerateSshKey.h \
     libssh2/LibsshErrors.h \
-    hub/include/HubComponentsUpdater.h
+    hub/include/updater/HubComponentsUpdater.h \
+    hub/include/updater/IUpdaterComponent.h \
+    hub/include/updater/UpdaterComponentRH.h \
+    hub/include/updater/UpdaterComponentP2P.h \
+    hub/include/updater/UpdaterComponentTray.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

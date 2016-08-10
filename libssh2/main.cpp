@@ -225,7 +225,7 @@ int run_ssh_command(const char* str_host,
   close(sock);
 #endif
 
-  return exitcode ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
+  return exitcode;// ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

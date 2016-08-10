@@ -5,7 +5,7 @@
 
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
-#include "HubComponentsUpdater.h"
+#include "updater/HubComponentsUpdater.h"
 
 const QString CSettingsManager::ORG_NAME("Optimal-dynamics");
 const QString CSettingsManager::APP_NAME("SS_Tray");
@@ -223,21 +223,21 @@ void
 CSettingsManager::set_p2p_update_freq(int fr) {
   m_p2p_update_freq = (update_freq_t) fr%UF_LAST;
   m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
-  CHubComponentsUpdater::Instance()->set_p2p_update_freq();
+  update_system::CHubComponentsUpdater::Instance()->set_p2p_update_freq();
 }
 
 void
 CSettingsManager::set_rh_update_freq(int fr) {
   m_rh_update_freq = (update_freq_t) fr%UF_LAST;
   m_settings.setValue(SM_RH_UPDATE_FREQ, (int8_t)m_rh_update_freq);
-  CHubComponentsUpdater::Instance()->set_rh_update_freq();
+  update_system::CHubComponentsUpdater::Instance()->set_rh_update_freq();
 }
 
 void
 CSettingsManager::set_tray_update_freq(int fr) {
   m_tray_update_freq = (update_freq_t) fr%UF_LAST;
   m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
-  CHubComponentsUpdater::Instance()->set_tray_update_freq();
+  update_system::CHubComponentsUpdater::Instance()->set_tray_update_freq();
 }
 
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}

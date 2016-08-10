@@ -2,7 +2,9 @@
 #include "ui_DlgAbout.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
-#include "HubComponentsUpdater.h"
+#include "updater/HubComponentsUpdater.h"
+
+using namespace update_system;
 
 DlgAbout::DlgAbout(QWidget *parent) :
   QDialog(parent),
@@ -23,11 +25,11 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb["p2p"] = {ui->pb_p2p, ui->btn_p2p_update};
   m_dct_fpb["tray"] = {ui->pb_tray, ui->btn_tray_update};
 
-  bool p2p_updates_available = CHubComponentsUpdater::Instance()->p2p_check_for_update();
+  bool p2p_updates_available = CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::P2P);
   ui->pb_p2p->setEnabled(p2p_updates_available);
   ui->btn_p2p_update->setEnabled(p2p_updates_available);
 
-  bool tray_updates_available = CHubComponentsUpdater::Instance()->tray_check_for_update();
+  bool tray_updates_available = CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::TRAY);
   ui->pb_tray->setEnabled(tray_updates_available);
   ui->btn_tray_update->setEnabled(tray_updates_available);
 
@@ -49,13 +51,13 @@ DlgAbout::~DlgAbout() {
 
 void
 DlgAbout::btn_tray_update_released() {
-  CHubComponentsUpdater::Instance()->tray_update();
+  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::btn_p2p_update_released() {
-  CHubComponentsUpdater::Instance()->p2p_update();
+  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
