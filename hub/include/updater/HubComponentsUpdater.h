@@ -29,9 +29,7 @@ namespace update_system {
       connect(&m_timer, SIGNAL(timeout()), this, SLOT(timer_timeout_sl()));
     }
 
-    CUpdaterComponentItem(const CUpdaterComponentItem& arg) : m_component(arg.m_component){
-      connect(&m_timer, SIGNAL(timeout()), this, SLOT(timer_timeout_sl()));
-    }
+    CUpdaterComponentItem(const CUpdaterComponentItem& arg); //copy constructor prohibited
 
     ~CUpdaterComponentItem(){}
 

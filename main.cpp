@@ -22,7 +22,7 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
     "LIBSSH2_EXIT_CODE_NOT_NULL"
   };
 
-  if (index < 0 || index > sizeof(rle_errors))
+  if (index < 0 || index > (int)sizeof(rle_errors))
     return "UNDEFINED_ERROR";
   return rle_errors[index];
 }

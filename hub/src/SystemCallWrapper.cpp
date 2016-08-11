@@ -454,10 +454,10 @@ CSystemCallWrapper::open_url(QString s_url) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t
-CSystemCallWrapper::rh_version(std::string &version) {
+QString
+CSystemCallWrapper::rh_version() {
   int exit_code;
-  version = "undefined";
+  std::string version = "undefined";
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -467,8 +467,14 @@ CSystemCallWrapper::rh_version(std::string &version) {
                           "sudo subutai -v",
                           exit_code,
                           lst_out);
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+    version = lst_out[0];
 
-  return res;
+  size_t index ;
+  if ((index = version.find('\n')) != std::string::npos)
+    version.replace(index, 1, " ");
+
+  return QString::fromStdString(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -520,7 +526,7 @@ CSystemCallWrapper::which(const std::string &prog,
 
 #ifdef RT_OS_WINDOWS
   static const char* which_cmd = "where";
-  static int success_ec = 1;
+  static int success_ec = 0;
 #else
   static const char* which_cmd = "which";
   static int success_ec = 1;

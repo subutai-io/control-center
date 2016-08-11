@@ -125,7 +125,7 @@ public:
                                                   const QString& folder);
   static system_call_wrapper_error_t open_url(QString s_url);
 
-  static system_call_wrapper_error_t rh_version(std::string& version);
+  static QString rh_version();
 
   static system_call_wrapper_error_t p2p_version(std::string& version);
   static system_call_wrapper_error_t p2p_status(std::string& status);

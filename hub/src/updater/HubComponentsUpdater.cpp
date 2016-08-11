@@ -54,7 +54,9 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
 }
 
 CHubComponentsUpdater::~CHubComponentsUpdater() {
-
+  for(auto i = m_dct_components.begin(); i != m_dct_components.end(); ++i) {
+    delete i->second.Component();
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

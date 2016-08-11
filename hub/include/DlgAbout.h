@@ -30,6 +30,7 @@ private:
 private slots:
   void btn_tray_update_released();
   void btn_p2p_update_released();
+  void btn_rh_update_released();
 
   void download_progress(QString file_id, qint64 rec, qint64 total);
   void update_available(QString file_id);

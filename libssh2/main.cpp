@@ -181,7 +181,6 @@ int run_ssh_command(const char* str_host,
         }
         else {
           if (lrc != LIBSSH2_ERROR_EAGAIN) {
-            std::cout << "libssh2_channel_read returned " << lrc << std::endl;
           }
         }
       } while (lrc > 0);
@@ -205,11 +204,6 @@ int run_ssh_command(const char* str_host,
       libssh2_channel_get_exit_signal(channel, &exitsignal,
         NULL, NULL, NULL, NULL, NULL);
     }
-
-    if (exitsignal)
-      std::cout << "Got signal: " << exitsignal << std::endl;
-    else
-      std::cout << "EXIT: " << exitcode << std::endl;
 
     libssh2_channel_free(channel);
     channel = NULL;

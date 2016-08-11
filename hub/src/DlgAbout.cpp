@@ -20,22 +20,23 @@ DlgAbout::DlgAbout(QWidget *parent) :
   CSystemCallWrapper::chrome_version(str_version);
   ui->lbl_chrome_version_val->setText(QString::fromStdString(str_version));
   ui->lbl_vbox_version_val->setText(CSystemCallWrapper::virtual_box_version());
+  ui->lbl_rh_version_val->setText(CSystemCallWrapper::rh_version());
 
   //init dct
-  m_dct_fpb["p2p"] = {ui->pb_p2p, ui->btn_p2p_update};
-  m_dct_fpb["tray"] = {ui->pb_tray, ui->btn_tray_update};
+  m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
+  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
+  m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
 
-  bool p2p_updates_available = CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::P2P);
-  ui->pb_p2p->setEnabled(p2p_updates_available);
-  ui->btn_p2p_update->setEnabled(p2p_updates_available);
-
-  bool tray_updates_available = CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::TRAY);
-  ui->pb_tray->setEnabled(tray_updates_available);
-  ui->btn_tray_update->setEnabled(tray_updates_available);
+  for (auto i = m_dct_fpb.begin(); i != m_dct_fpb.end(); ++i) {
+    bool ua = CHubComponentsUpdater::Instance()->is_update_available(i->first);
+    i->second.pb->setEnabled(ua);
+    i->second.btn->setEnabled(ua);
+  }
 
   //connect
   connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
+  connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
 
   connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(QString,qint64,qint64)),
           this, SLOT(download_progress(QString,qint64,qint64)));
@@ -58,6 +59,12 @@ DlgAbout::btn_tray_update_released() {
 void
 DlgAbout::btn_p2p_update_released() {
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::btn_rh_update_released() {
+  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::RH);
 }
 ////////////////////////////////////////////////////////////////////////////
 
