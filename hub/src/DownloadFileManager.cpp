@@ -53,7 +53,7 @@ CDownloadFileManager::reply_finished() {
   }
 
   if (m_network_reply->error() != QNetworkReply::NoError) {
-    CNotifiactionObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Instance()->NotifyAboutError(
           QString("Download file error. %1").arg(m_network_reply->errorString()));
     CApplicationLog::Instance()->LogError("Download file error : %s",
                                           m_network_reply->errorString().toStdString().c_str());

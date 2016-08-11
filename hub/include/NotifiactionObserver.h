@@ -11,17 +11,17 @@ typedef enum notification_level {
   NL_CRITICAL
 } notification_level_t;
 
-class CNotifiactionObserver : public QObject {
+class CNotificationObserver : public QObject {
   Q_OBJECT
 
 signals:
   void notify(notification_level_t, const QString&);
 
 private:
-  CNotifiactionObserver(){}
-  virtual ~CNotifiactionObserver(){}
-  CNotifiactionObserver(const CNotifiactionObserver&);
-  CNotifiactionObserver& operator=(const CNotifiactionObserver&);
+  CNotificationObserver(){}
+  virtual ~CNotificationObserver(){}
+  CNotificationObserver(const CNotificationObserver&);
+  CNotificationObserver& operator=(const CNotificationObserver&);
 
   void notify_all_int(notification_level_t level,
                       const QString& msg) {
@@ -30,8 +30,8 @@ private:
 
 
 public:
-  static CNotifiactionObserver* Instance() {
-    static CNotifiactionObserver obs;
+  static CNotificationObserver* Instance() {
+    static CNotificationObserver obs;
     return &obs;
   }
 

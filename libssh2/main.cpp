@@ -32,6 +32,7 @@ struct CSshInitializer {
 ////////////////////////////////////////////////////////////////////////////
 
 const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
+  int index = (int)err - (int)RLE_SUCCESS;
   static const char* rle_errors[] = {
     "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",
     "LIBSSH2_INIT", "INET_ADDR", "CONNECTION_TIMEOUT",
@@ -39,7 +40,7 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
     "SSH_AUTHENTICATION", "LIBSSH2_CHANNEL_OPEN", "LIBSSH2_CHANNEL_EXEC",
     "LIBSSH2_EXIT_CODE_NOT_NULL"
   };
-  return rle_errors[err];
+  return rle_errors[index];
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -181,7 +182,6 @@ int run_ssh_command(const char* str_host,
         }
         else {
           if (lrc != LIBSSH2_ERROR_EAGAIN) {
-            std::cout << "libssh2_channel_read returned " << lrc << std::endl;
           }
         }
       } while (lrc > 0);
@@ -206,11 +206,6 @@ int run_ssh_command(const char* str_host,
         NULL, NULL, NULL, NULL, NULL);
     }
 
-    if (exitsignal)
-      std::cout << "Got signal: " << exitsignal << std::endl;
-    else
-      std::cout << "EXIT: " << exitcode << std::endl;
-
     libssh2_channel_free(channel);
     channel = NULL;
   } while (0);
@@ -225,7 +220,7 @@ int run_ssh_command(const char* str_host,
   close(sock);
 #endif
 
-  return exitcode ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
+  return exitcode;// ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

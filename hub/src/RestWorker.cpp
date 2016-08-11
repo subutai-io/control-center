@@ -282,7 +282,7 @@ CRestWorker::send_request(QNetworkRequest &req,
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                               reply->errorString().toStdString().c_str());
-    CNotifiactionObserver::NotifyAboutError(reply->errorString());
+    CNotificationObserver::NotifyAboutError(reply->errorString());
     err_code = RE_NETWORK_ERROR;
     return QByteArray();
   }

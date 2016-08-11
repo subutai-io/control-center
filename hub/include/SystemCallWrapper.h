@@ -85,6 +85,7 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
+
   static bool is_in_swarm(const char* hash);
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const char* hash,
@@ -104,12 +105,13 @@ public:
   static system_call_wrapper_error_t generate_ssh_key(const char *comment,
                                                       const char *file_path);
 
+  static system_call_wrapper_error_t is_rh_update_available(bool& available);
+
   static system_call_wrapper_error_t run_ss_updater(const char* host,
                                                     const char* port,
                                                     const char* user,
                                                     const char* pass,
                                                     int &exit_code);
-
 
   static system_call_wrapper_error_t get_rh_ip_via_libssh2(const char* host,
                                                            const char* port,
@@ -122,6 +124,8 @@ public:
                                                   const QStringList argv,
                                                   const QString& folder);
   static system_call_wrapper_error_t open_url(QString s_url);
+
+  static QString rh_version();
 
   static system_call_wrapper_error_t p2p_version(std::string& version);
   static system_call_wrapper_error_t p2p_status(std::string& status);

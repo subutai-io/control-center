@@ -166,24 +166,17 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="lbl_ssh_terminal_path">
-             <property name="text">
-              <string>Terminal command:</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="le_terminal_command"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="btn_terminal_file_dialog">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="le_p2p_command"/>
            </item>
            <item row="1" column="0">
+            <widget class="QLabel" name="lbl_ssh_command">
+             <property name="text">
+              <string>SSH command:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
             <widget class="QLabel" name="lbl_p2p_path">
              <property name="text">
               <string>P2P command:</string>
@@ -191,27 +184,17 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="le_p2p_command"/>
+            <widget class="QLineEdit" name="le_ssh_command"/>
            </item>
            <item row="1" column="2">
-            <widget class="QPushButton" name="btn_p2p_file_dialog">
+            <widget class="QPushButton" name="btn_ssh_command">
              <property name="text">
               <string>...</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="le_ssh_command"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="lbl_ssh_command">
-             <property name="text">
-              <string>SSH command:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QPushButton" name="btn_ssh_command">
+           <item row="0" column="2">
+            <widget class="QPushButton" name="btn_p2p_file_dialog">
              <property name="text">
               <string>...</string>
              </property>

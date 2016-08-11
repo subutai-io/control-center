@@ -188,7 +188,7 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
   CApplicationLog::Instance()->LogTrace("ssystem_th end with result : %d", (int)res);
 
   if (res != SCWE_SUCCESS && exit_code != 1) {
-    CNotifiactionObserver::NotifyAboutError(error_strings[res]);
+    CNotificationObserver::NotifyAboutError(error_strings[res]);
     CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
     return false;
   }
@@ -377,6 +377,24 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
       ssystem_th(str_stream.str().c_str(), lst_output, exit_code, true);
   return res;
 }
+
+system_call_wrapper_error_t
+CSystemCallWrapper::is_rh_update_available(bool &available) {
+  available = false;
+  int exit_code = 0;
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res =
+      run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                          "sudo subutai update rh -c",
+                          exit_code,
+                          lst_out);
+  if (res != SCWE_SUCCESS) return res;
+  available = exit_code == 0;
+  return SCWE_SUCCESS; //doesn't matter I guess.
+}
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
@@ -436,6 +454,30 @@ CSystemCallWrapper::open_url(QString s_url) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QString
+CSystemCallWrapper::rh_version() {
+  int exit_code;
+  std::string version = "undefined";
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res =
+      run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                          "sudo subutai -v",
+                          exit_code,
+                          lst_out);
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+    version = lst_out[0];
+
+  size_t index ;
+  if ((index = version.find('\n')) != std::string::npos)
+    version.replace(index, 1, " ");
+
+  return QString::fromStdString(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
 system_call_wrapper_error_t
 CSystemCallWrapper::p2p_version(std::string &version) {
   int exit_code;
@@ -484,7 +526,7 @@ CSystemCallWrapper::which(const std::string &prog,
 
 #ifdef RT_OS_WINDOWS
   static const char* which_cmd = "where";
-  static int success_ec = 1;
+  static int success_ec = 0;
 #else
   static const char* which_cmd = "which";
   static int success_ec = 1;

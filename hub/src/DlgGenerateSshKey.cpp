@@ -43,7 +43,7 @@ DlgGenerateSshKey::generate_new_ssh() {
       CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user().toStdString().c_str(),
                                            path.toStdString().c_str());
   if (scwe != SCWE_SUCCESS) {
-    CNotifiactionObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Instance()->NotifyAboutError(
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
@@ -69,7 +69,7 @@ void
 DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
-    CNotifiactionObserver::Instance()->NotifyAboutInfo(
+    CNotificationObserver::Instance()->NotifyAboutInfo(
           "You don't have write permission to ssh-keys directory. Please change it in settings. Thanks");
     return;
   }

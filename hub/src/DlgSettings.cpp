@@ -18,7 +18,6 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->setupUi(this);
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
-  ui->le_terminal_command->setText(CSettingsManager::Instance().terminal_path());
   ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
   ui->sb_notification_delay->setValue(CSettingsManager::Instance().notification_delay_sec());
@@ -48,9 +47,6 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
-
-  connect(ui->btn_terminal_file_dialog, SIGNAL(released()),
-          this, SLOT(btn_terminal_file_dialog_released()));
 
   connect(ui->btn_p2p_file_dialog, SIGNAL(released()),
           this, SLOT(btn_p2p_file_dialog_released()));
@@ -107,7 +103,6 @@ DlgSettings::btn_ok_released() {
 
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_terminal_command, is_le_empty_validate, 1, empty_validator_msg},
 
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
@@ -132,7 +127,6 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
-  CSettingsManager::Instance().set_terminal_path(ui->le_terminal_command->text());
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
   CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text());
@@ -156,14 +150,6 @@ DlgSettings::btn_ok_released() {
 void
 DlgSettings::btn_cancel_released() {
   this->close();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgSettings::btn_terminal_file_dialog_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Terminal command");
-  if (fn == "") return;
-  ui->le_terminal_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 

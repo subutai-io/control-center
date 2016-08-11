@@ -22,7 +22,9 @@
 #include "ApplicationLog.h"
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
-#include "HubComponentsUpdater.h"
+#include "updater/HubComponentsUpdater.h"
+
+using namespace update_system;
 
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -71,7 +73,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const QString&)),
           this, SLOT(vm_state_changed(const QString&)));
 
-  connect(CNotifiactionObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
+  connect(CNotificationObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
           this, SLOT(notification_received(notification_level_t, const QString&)));
 
   connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
@@ -84,8 +86,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
           this, SLOT(update_available(QString)));
 
-  CHubComponentsUpdater::Instance()->p2p_check_for_update();
-  CHubComponentsUpdater::Instance()->tray_check_for_update();
+//  CHubComponentsUpdater::Instance()->p2p_check_for_update();
+//  CHubComponentsUpdater::Instance()->tray_check_for_update();
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -401,7 +403,7 @@ TrayControlWindow::report_timer_timeout() {
 
 void
 TrayControlWindow::update_available(QString file_id) {
-  CNotifiactionObserver::Instance()->NotifyAboutInfo(
+  CNotificationObserver::Instance()->NotifyAboutInfo(
         QString("Update for %1 is available. Check \"About\" dialog").arg(file_id));
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -410,19 +412,19 @@ void
 TrayControlWindow::update_finished(QString file_id,
                                    bool success) {
   if (!success) {
-    CNotifiactionObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Instance()->NotifyAboutError(
           QString("Failed to update %1. See details in error logs").arg(file_id));
     return;
   }
 
-  if (file_id == CHubComponentsUpdater::STR_P2P) {
-    CNotifiactionObserver::Instance()->NotifyAboutInfo("P2P has been updated");
+  if (file_id == "p2p") {
+    CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
     QMessageBox msg_box(QMessageBox::Question, "Attention! P2P update finished",
                         "P2P has been updated. Restart p2p daemon, please",
                         QMessageBox::Ok, this);
     msg_box.exec();
     return;
-  } else if (file_id == CHubComponentsUpdater::STR_TRAY) {
+  } else if (file_id == "tray") {
     QMessageBox msg_box(QMessageBox::Question, "Attention! Tray update finished",
                         "Tray application has been updated. Do you want to restart it now?",
                         QMessageBox::Yes | QMessageBox::No, this);
@@ -464,7 +466,7 @@ TrayControlWindow::launch_Hub() {
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Launch hub website failed. Error code : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
@@ -599,7 +601,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
-    CNotifiactionObserver::Instance()->NotifyAboutInfo(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+    CNotificationObserver::Instance()->NotifyAboutInfo(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
     act->setEnabled(true);
@@ -629,7 +631,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
     } else {
       err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     }
-    CNotifiactionObserver::Instance()->NotifyAboutInfo(err_msg);
+    CNotificationObserver::Instance()->NotifyAboutInfo(err_msg);
     act->setEnabled(true);
     return;
   }
@@ -653,7 +655,7 @@ void TrayControlWindow::launch_ss(QAction* act) {
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SS console failed. Error code : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotifiactionObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     act->setEnabled(true);
     return;
@@ -902,7 +904,7 @@ void
 TrayControlWindow::ssh_to_container_finished(int result,
                                              void *additional_data) {
   if (result != SLE_SUCCESS) {
-    CNotifiactionObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Instance()->NotifyAboutError(
           QString("Can't ssh to container. Err : %1").arg(CHubController::ssh_launch_err_to_str(result)));
   }
   QAction* act = static_cast<QAction*>(additional_data);
