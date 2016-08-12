@@ -137,7 +137,7 @@ public:
   const QString& rh_user() const {return m_rh_user;}
   const QString& rh_pass() const {return m_rh_pass;}
   const QString& rh_host() const {return m_rh_host;}
-  const quint16  rh_port() const {return m_rh_port;}
+  quint16 rh_port() const {return m_rh_port;}
 
   const QString& gorjun_url() const {return m_gorjun_url;}
   const QString& logs_storage() const {return m_logs_storage;}
