@@ -44,8 +44,8 @@ void DlgAbout::load_data() {
   DlgAboutInitializer* di = new DlgAboutInitializer;
   connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
   connect(di, SIGNAL(finished()), this, SLOT(initialization_finished()));
-  connect(th, SIGNAL(started()), di, SLOT(do_initialization()));
 
+  connect(th, SIGNAL(started()), di, SLOT(do_initialization()));
   connect(di, SIGNAL(got_chrome_version(QString)), this, SLOT(got_chrome_version_sl(QString)));
   connect(di, SIGNAL(got_p2p_version(QString)), this, SLOT(got_p2p_version_sl(QString)));
   connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
@@ -54,6 +54,7 @@ void DlgAbout::load_data() {
 
   connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
   connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+  di->moveToThread(th);
   th->start();
 }
 ////////////////////////////////////////////////////////////////////////////

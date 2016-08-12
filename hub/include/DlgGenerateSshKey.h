@@ -22,6 +22,7 @@ private:
 
 private slots:
   void btn_generate_released();
+  void btn_copy_to_clipboard_released();
 };
 
 #endif // DLGGENERATESSHKEY_H

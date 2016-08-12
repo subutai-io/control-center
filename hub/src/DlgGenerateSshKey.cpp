@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
+#include <QClipboard>
 
 #include "DlgGenerateSshKey.h"
 #include "ui_DlgGenerateSshKey.h"
@@ -18,6 +19,8 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   set_key_text();
 
   connect(ui->btn_generate, SIGNAL(released()), this, SLOT(btn_generate_released()));
+  connect(ui->btn_copy_to_clipboard, SIGNAL(released()),
+          this, SLOT(btn_copy_to_clipboard_released()));
 }
 
 DlgGenerateSshKey::~DlgGenerateSshKey()
@@ -90,5 +93,14 @@ DlgGenerateSshKey::btn_generate_released() {
     } while (0);
     msg_question->deleteLater();
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::btn_copy_to_clipboard_released() {
+  QString text = ui->te_ssh_key->toPlainText();
+  if (text.isEmpty())
+    return;
+  QApplication::clipboard()->setText(text, QClipboard::Clipboard);
 }
 ////////////////////////////////////////////////////////////////////////////
