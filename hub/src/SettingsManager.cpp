@@ -87,7 +87,7 @@ CSettingsManager::CSettingsManager() :
   m_rh_host("127.0.0.1"),
   m_rh_user("ubuntu"),
   m_rh_pass("ubuntu"),
-  m_rh_port("4567"),
+  m_rh_port(4567),
   m_gorjun_url("https://cdn.subut.ai:8338/kurjun/rest/%1"),
   m_logs_storage(QApplication::applicationDirPath()),
   m_ssh_keys_storage(QApplication::applicationDirPath()),
@@ -121,8 +121,7 @@ CSettingsManager::CSettingsManager() :
     {&m_ssh_user, SM_SSH_USER},
     {&m_ssh_keygen_path, SM_SSH_KEYGEN_PATH},
     {&m_rh_host, SM_RH_HOST},
-    {&m_rh_pass, SM_RH_PASS},
-    {&m_rh_port, SM_RH_PORT},
+    {&m_rh_pass, SM_RH_PASS},    
     {&m_rh_user, SM_RH_USER},
     {&m_gorjun_url, SM_GORJUN_URL},
     {&m_logs_storage, SM_LOGS_STORAGE},
@@ -158,6 +157,7 @@ CSettingsManager::CSettingsManager() :
   setting_val_t<uint32_t> dct_uint32_vals[] = {
     {&m_p2p_update_freq, SM_P2P_UPDATE_FREQ},
     {&m_rh_update_freq, SM_RH_UPDATE_FREQ},
+    {(uint32_t*)&m_rh_port, SM_RH_PORT},
     {&m_tray_update_freq, SM_TRAY_UPDATE_FREQ},
     {&ui_tmp, ""}
   };
@@ -254,7 +254,7 @@ CSettingsManager::set_tray_update_freq(int fr) {
   SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
   SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
   SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
-  SET_FIELD_DEF(rh_port, SM_RH_PORT, QString&)
+  SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
   SET_FIELD_DEF(gorjun_url, SM_GORJUN_URL, QString&)
   SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
   SET_FIELD_DEF(p2p_autoupdate, SM_P2P_AUTOUPDATE, bool)

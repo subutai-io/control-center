@@ -77,7 +77,7 @@ private:
                                              int& exit_code, bool read_output = true);
 
   static system_call_wrapper_error_t run_libssh2_command(const char *host,
-                                                         const char *port,
+                                                         uint16_t port,
                                                          const char *user,
                                                          const char *pass,
                                                          const char *cmd,
@@ -108,13 +108,13 @@ public:
   static system_call_wrapper_error_t is_rh_update_available(bool& available);
 
   static system_call_wrapper_error_t run_ss_updater(const char* host,
-                                                    const char* port,
+                                                    uint16_t port,
                                                     const char* user,
                                                     const char* pass,
                                                     int &exit_code);
 
   static system_call_wrapper_error_t get_rh_ip_via_libssh2(const char* host,
-                                                           const char* port,
+                                                           uint16_t port,
                                                            const char* user,
                                                            const char* pass,
                                                            int &exit_code,

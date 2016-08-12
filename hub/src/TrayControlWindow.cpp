@@ -15,7 +15,8 @@
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
-#include "libssh2/LibsshErrors.h"
+#include "libssh2/include/LibsshErrors.h"
+#include "libssh2/include/LibsshController.h"
 #include "HubController.h"
 #include "RestWorker.h"
 #include "DlgSettings.h"
@@ -590,22 +591,22 @@ void TrayControlWindow::launch_ss(QAction* act) {
   system_call_wrapper_error_t err =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rh_host().toStdString().c_str(),
-        CSettingsManager::Instance().rh_port().toStdString().c_str(),
+        CSettingsManager::Instance().rh_port(),
         CSettingsManager::Instance().rh_user().toStdString().c_str(),
         CSettingsManager::Instance().rh_pass().toStdString().c_str(),
         ec,
         rh_ip);
 
-  if (err == SCWE_SUCCESS && ec == 0) {
+  if (err == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
-                                          run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
+                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
     CNotificationObserver::Instance()->NotifyAboutInfo(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(run_libssh2_error_to_str((run_libssh2_error_t)err)).
+                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
     act->setEnabled(true);
-    return; //todo check
+    return;
   }
 
   int http_code, network_err, err_code;
@@ -678,7 +679,6 @@ TrayControlWindow::show_about() {
 
 const QString
 TrayControlWindow::GetStateName(ushort st) {
-  //here was switch, but this should be better.
   static const QString state_strings[] = {
     "<null>", "PoweredOff", "Saved",
     "Teleported", "Aborted", "Running",

@@ -13,9 +13,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 #include "vbox/include/IVBoxManager.h"
-#include <thread>
-
 #include "HubController.h"
+#include "libssh2/include/LibsshController.h"
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -364,18 +363,18 @@ CSystemCallWrapper::generate_ssh_key(const char *comment,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::run_libssh2_command(const char *host,
-                                        const char *port,
+                                        uint16_t port,
                                         const char *user,
                                         const char *pass,
                                         const char *cmd,
                                         int& exit_code,
                                         std::vector<std::string>& lst_output) {
-  std::ostringstream str_stream;
-  str_stream << CSettingsManager::Instance().libssh2_app_path().toStdString().c_str() << " \"" << host << "\"" <<
-                " \"" << port << "\"" << " \"" << user << "\"" << " \"" << pass << "\"" << " \"" << cmd << "\"";
-  system_call_wrapper_error_t res =
-      ssystem_th(str_stream.str().c_str(), lst_output, exit_code, true);
-  return res;
+  static const int default_timeout = 10;
+  exit_code = CLibsshController::run_ssh_command(host, port, user,
+                                                 pass, cmd, default_timeout,
+                                                 lst_output);
+
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_error_t
@@ -385,7 +384,7 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                           "sudo subutai update rh -c",
@@ -399,7 +398,7 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
 
 system_call_wrapper_error_t
 CSystemCallWrapper::run_ss_updater(const char *host,
-                                   const char *port,
+                                   uint16_t port,
                                    const char *user,
                                    const char *pass,
                                    int& exit_code) {
@@ -412,7 +411,7 @@ CSystemCallWrapper::run_ss_updater(const char *host,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
-                                          const char *port,
+                                          uint16_t port,
                                           const char *user,
                                           const char *pass,
                                           int &exit_code,
@@ -461,7 +460,7 @@ CSystemCallWrapper::rh_version() {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                           "sudo subutai -v",

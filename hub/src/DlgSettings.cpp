@@ -25,7 +25,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
   ui->le_rhip_password->setText(CSettingsManager::Instance().rh_pass());
-  ui->le_rhip_port->setText(CSettingsManager::Instance().rh_port());
+  ui->le_rhip_port->setText(QString("%1").arg(CSettingsManager::Instance().rh_port()));
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
@@ -129,7 +129,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
-  CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text());
+  CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text().toUInt());
   CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
   CSettingsManager::Instance().set_notification_delay_sec(ui->sb_notification_delay->value());

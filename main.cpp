@@ -10,22 +10,7 @@
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
-#include "libssh2/LibsshErrors.h"
 
-const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
-  int index = (int)err - (int)RLE_SUCCESS;
-  static const char* rle_errors[] = {
-    "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",
-    "LIBSSH2_INIT", "INET_ADDR", "CONNECTION_TIMEOUT",
-    "CONNECTION_ERROR", "LIBSSH2_SESSION_INIT", "SESSION_HANDSHAKE",
-    "SSH_AUTHENTICATION", "LIBSSH2_CHANNEL_OPEN", "LIBSSH2_CHANNEL_EXEC",
-    "LIBSSH2_EXIT_CODE_NOT_NULL"
-  };
-
-  if (index < 0 || index > (int)sizeof(rle_errors))
-    return "UNDEFINED_ERROR";
-  return rle_errors[index];
-}
 ////////////////////////////////////////////////////////////////////////////
 
 /*!

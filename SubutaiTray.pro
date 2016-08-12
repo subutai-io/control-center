@@ -23,6 +23,9 @@ INCLUDEPATH += vbox/sdk_includes/string
 INCLUDEPATH += vbox/sdk_includes/ipcd
 INCLUDEPATH += sapp/include
 
+INCLUDEPATH += libssh2/include
+DEPENDPATH += libssh2/include
+
 SOURCES += \
     main.cpp \
     hub/src/RestWorker.cpp \
@@ -48,7 +51,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentRH.cpp \
     hub/src/updater/UpdaterComponentP2P.cpp \
     hub/src/updater/UpdaterComponentTray.cpp \
-    hub/src/updater/IUpdaterComponent.cpp
+    hub/src/updater/IUpdaterComponent.cpp \
+    libssh2/src/LibsshController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -86,12 +90,13 @@ HEADERS  += \
     hub/include/updater/ExecutableUpdater.h \
     commons/include/MRE_Windows.h \
     hub/include/DlgGenerateSshKey.h \
-    libssh2/LibsshErrors.h \
+    libssh2/include/LibsshErrors.h \
     hub/include/updater/HubComponentsUpdater.h \
     hub/include/updater/IUpdaterComponent.h \
     hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
-    hub/include/updater/UpdaterComponentTray.h
+    hub/include/updater/UpdaterComponentTray.h \
+    libssh2/include/LibsshController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -122,6 +127,8 @@ unix:!macx {
   QMAKE_RPATHDIR += /usr/lib/virtualbox/
   LIBS += -ldl -lpthread
   QMAKE_RPATHDIR += /opt/subutai/tray/bin
+
+  LIBS += -lssh2
 }
 #////////////////////////////////////////////////////////////////////////////
 
@@ -146,6 +153,8 @@ macx: {
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/tray_logo.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
+
+  LIBS += -L/usr/local/lib/ -lssh2
 }
 #////////////////////////////////////////////////////////////////////////////
 
@@ -161,6 +170,10 @@ win32: {
 
   HEADERS +=  vbox/include/VirtualMachineWin.h \
               vbox/include/VBoxManagerWin.h
+
+  LIBS += ws2_32.lib
+  LIBS += libssh2/lib/win32/libssh2.lib
+  LIBS += libssh2/lib/win32/libssh2.exp
 }
 #////////////////////////////////////////////////////////////////////////////
 

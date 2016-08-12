@@ -8,7 +8,7 @@
 #include "RestWorker.h"
 #include "NotifiactionObserver.h"
 #include "DownloadFileManager.h"
-#include "libssh2/LibsshErrors.h"
+#include "libssh2/include/LibsshErrors.h"
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentRH.h"

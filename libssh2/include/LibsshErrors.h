@@ -15,5 +15,3 @@ typedef enum run_libssh2_error {
   RLE_LIBSSH2_CHANNEL_EXEC,
   RLE_LIBSSH2_EXIT_CODE_NOT_NULL
 } run_libssh2_error_t;
-
-const char* run_libssh2_error_to_str(run_libssh2_error_t err);

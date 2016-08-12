@@ -73,7 +73,7 @@ private:
   QString m_rh_host;
   QString m_rh_user;
   QString m_rh_pass;
-  QString m_rh_port;
+  quint16 m_rh_port;
 
   QString m_gorjun_url;
   QString m_logs_storage;
@@ -137,7 +137,7 @@ public:
   const QString& rh_user() const {return m_rh_user;}
   const QString& rh_pass() const {return m_rh_pass;}
   const QString& rh_host() const {return m_rh_host;}
-  const QString& rh_port() const {return m_rh_port;}
+  const quint16  rh_port() const {return m_rh_port;}
 
   const QString& gorjun_url() const {return m_gorjun_url;}
   const QString& logs_storage() const {return m_logs_storage;}
@@ -180,7 +180,7 @@ public:
   SET_FIELD_DECL(rh_user, QString&)
   SET_FIELD_DECL(rh_pass, QString&)
   SET_FIELD_DECL(rh_host, QString&)
-  SET_FIELD_DECL(rh_port, QString&)
+  SET_FIELD_DECL(rh_port, quint16)
   SET_FIELD_DECL(gorjun_url, QString&)
   SET_FIELD_DECL(logs_storage, QString&)
   SET_FIELD_DECL(ssh_keys_storage, QString&)
