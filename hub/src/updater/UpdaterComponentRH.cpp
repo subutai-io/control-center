@@ -2,7 +2,7 @@
 #include "SystemCallWrapper.h"
 #include "NotifiactionObserver.h"
 #include "ApplicationLog.h"
-#include "libssh2/LibsshErrors.h"
+#include "libssh2/include/LibsshErrors.h"
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentRH.h"
 
@@ -29,7 +29,7 @@ chue_t
 CUpdaterComponentRH::update_internal() {
   int exit_code = 0;
   CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_port().toStdString().c_str(),
+                                     CSettingsManager::Instance().rh_port(),
                                      CSettingsManager::Instance().rh_user().toStdString().c_str(),
                                      CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                                      exit_code);

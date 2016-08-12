@@ -58,7 +58,7 @@ CTrayServer::process_text_msg(QString msg) {
     system_call_wrapper_error_t err =
         CSystemCallWrapper::get_rh_ip_via_libssh2(
           CSettingsManager::Instance().rh_host().toStdString().c_str(),
-          CSettingsManager::Instance().rh_port().toStdString().c_str(),
+          CSettingsManager::Instance().rh_port(),
           CSettingsManager::Instance().rh_user().toStdString().c_str(),
           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
           ec,

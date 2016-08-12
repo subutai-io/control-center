@@ -1,3 +1,5 @@
+#include "libssh2/include/LibsshController.h"
+
 #include <stdint.h>
 #include <iostream>
 #include <libssh2.h>
@@ -17,21 +19,34 @@
 
 #include <string>
 #include <stdlib.h>
-
 #include "LibsshErrors.h"
 
-struct CSshInitializer {
-  int result;
-  CSshInitializer() {
+
+CLibsshController::CSshInitializer::CSshInitializer()
+{
+  do {
+#ifdef WIN32
+    WSADATA wsadata;
+    if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
+      std::cout << "WSAStartup failed with error: " << err << std::endl;
+      result = RLE_WSA_STARTUP;
+      break;
+    }
+#endif
     result = libssh2_init(0);
-  }
-  ~CSshInitializer() {
-    libssh2_exit();
-  }
-};
+  } while (0);
+}
 ////////////////////////////////////////////////////////////////////////////
 
-const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
+CLibsshController::CSshInitializer::~CSshInitializer() {
+  libssh2_exit();
+}
+////////////////////////////////////////////////////////////////////////////
+
+#include <QDebug>
+const char*
+CLibsshController::run_libssh2_error_to_str(run_libssh2_error_t err) {
+  if (err < RLE_SUCCESS) return "exit code not null";
   int index = (int)err - (int)RLE_SUCCESS;
   static const char* rle_errors[] = {
     "SUCCESS", "WRONG_ARGUMENTS_COUNT", "WSA_STARTUP",
@@ -44,7 +59,9 @@ const char* run_libssh2_error_to_str(run_libssh2_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int wait_ssh_socket_event(int socket_fd, LIBSSH2_SESSION *session) {
+int
+wait_ssh_socket_event(int socket_fd,
+                      LIBSSH2_SESSION *session) {
   struct timeval timeout;
   int rc;
   fd_set fd;
@@ -71,7 +88,8 @@ int wait_ssh_socket_event(int socket_fd, LIBSSH2_SESSION *session) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int wait_socket_connected(int socket_fd, int timeout_sec) {
+int
+CLibsshController::wait_socket_connected(int socket_fd, int timeout_sec) {
   struct timeval timeout;
   fd_set fd;
   timeout.tv_sec = timeout_sec;
@@ -82,23 +100,22 @@ int wait_socket_connected(int socket_fd, int timeout_sec) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int run_ssh_command(const char* str_host, 
-                    uint16_t port,
-                    const char* str_user,
-                    const char* str_pass,
-                    const char* str_cmd,
-                    int conn_timeout) {
+int
+CLibsshController::run_ssh_command(const char* str_host,
+                                   uint16_t port,
+                                   const char* str_user,
+                                   const char* str_pass,
+                                   const char* str_cmd,
+                                   int conn_timeout, std::vector<std::string> &lst_out) {
   int rc = 0;
   struct sockaddr_in sin;
   unsigned long ul_host_addr = 0;
-
   int exitcode = 0;
   char *exitsignal = (char*)"none";
 
 #ifndef _WIN32
   int sock;
   ul_host_addr = inet_addr(str_host);
-  //todo check here
 #else
   SOCKET sock;
   if (InetPtonA(AF_INET, str_host, &ul_host_addr) != 1) {
@@ -108,8 +125,6 @@ int run_ssh_command(const char* str_host,
   sin.sin_family = AF_INET;
   sin.sin_port = htons(port);
   sin.sin_addr.s_addr = ul_host_addr;
-
-  //todo in parallel thread with timeout
   sock = socket(AF_INET, SOCK_STREAM, 0);
 #ifdef _WIN32
   u_long mode = 1;
@@ -135,7 +150,7 @@ int run_ssh_command(const char* str_host,
 
   while ((rc = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN)
     ; //wait
-  
+
   if (rc) {
     return RLE_SESSION_HANDSHAKE;
   }
@@ -171,29 +186,19 @@ int run_ssh_command(const char* str_host,
       /* loop until we block */
       int lrc;
       do {
-        char buffer[0x100];
+        char buffer[0x100] = {0};
         lrc = libssh2_channel_read(channel, buffer, sizeof(buffer));
 
         if (lrc > 0) {
-//#ifdef LOG_STD_OUT
-          std::string str(buffer, lrc);
-          std::cout << str << std::endl;
-//#endif
-        }
-        else {
-          if (lrc != LIBSSH2_ERROR_EAGAIN) {
-          }
+          lst_out.push_back(std::string(buffer, lrc));
         }
       } while (lrc > 0);
 
       /* this is due to blocking that would occur otherwise so we loop on
       this condition */
-      if (lrc == LIBSSH2_ERROR_EAGAIN) {
-        wait_ssh_socket_event(sock, session);
-      }
-      else {
+      if (lrc != LIBSSH2_ERROR_EAGAIN)
         break;
-      }
+      wait_ssh_socket_event(sock, session);
     }
 
     exitcode = 127;
@@ -220,46 +225,6 @@ int run_ssh_command(const char* str_host,
   close(sock);
 #endif
 
-  return exitcode;// ? RLE_LIBSSH2_EXIT_CODE_NOT_NULL : RLE_SUCCESS;
-}
-////////////////////////////////////////////////////////////////////////////
-
-int main(int argc, char* argv[]) {
-
-  if (argc != 6) {
-    std::cout << "Provide 5 parameters in this order : host_ip, port, username, password, command_to_run";
-    return RLE_WRONG_ARGUMENTS_COUNT;
-  }
-  /*TODO implement getopt on windows and use getopt() everywhere*/
-  const char* str_host = argv[1];
-  const char* str_port = argv[2];
-  const char* str_user = argv[3];
-  const char* str_pass = argv[4];
-  const char* str_cmd = argv[5];
-
-#ifdef WIN32  
-  WSADATA wsadata;
-  if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-    std::cout << "WSAStartup failed with error: " << err << std::endl;
-    return RLE_WSA_STARTUP;
-  }
-#endif
-
-  CSshInitializer libssh2_init;
-  int rc = libssh2_init.result;
-  if (rc) {
-    std::cout << "libssh2_init error : " << rc << std::endl;
-    return RLE_LIBSSH2_INIT;
-  }
-
-  int port = std::atoi(str_port);
-  port = port ? port : 22;
-  rc = run_ssh_command(str_host, port, str_user, str_pass, str_cmd, 10);
-
-#ifdef _DEBUG
-  system("pause");
-#endif
-  std::cout << rc << std::endl;
-  return rc;
+  return exitcode;
 }
 ////////////////////////////////////////////////////////////////////////////
