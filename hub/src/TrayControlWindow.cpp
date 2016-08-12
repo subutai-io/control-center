@@ -667,13 +667,15 @@ void TrayControlWindow::launch_ss(QAction* act) {
 
 void
 TrayControlWindow::show_about() {
-  DlgAbout dlg(this);
+  DlgAbout *dlg = new DlgAbout(this);
 #ifdef RT_OS_LINUX
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250); //todo calculate it
-  dlg.move(curpos.x(), 0);
+  dlg->move(curpos.x(), 0);
 #endif
-  dlg.exec();
+  dlg->show();
+  dlg->load_data();
+  connect(dlg, SIGNAL(finished(int)), dlg, SLOT(deleteLater()));
 }
 ////////////////////////////////////////////////////////////////////////////
 

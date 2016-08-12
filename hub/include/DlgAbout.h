@@ -19,6 +19,8 @@ public:
   explicit DlgAbout(QWidget *parent = 0);
   ~DlgAbout();
 
+  void load_data();
+
 private:
   Ui::DlgAbout *ui;
   struct progress_item_t{

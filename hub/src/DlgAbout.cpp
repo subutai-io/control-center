@@ -13,6 +13,26 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui->setupUi(this);
 
   ui->lbl_tray_version_val->setText(GIT_VERSION);
+
+
+  //connect
+  connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
+  connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
+  connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
+
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(QString,qint64,qint64)),
+          this, SLOT(download_progress(QString,qint64,qint64)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
+          this, SLOT(update_available(QString)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
+          this, SLOT(update_finished(QString,bool)));
+}
+
+DlgAbout::~DlgAbout() {
+  delete ui;
+}
+
+void DlgAbout::load_data() {
   std::string str_version;
 
   CSystemCallWrapper::p2p_version(str_version);
@@ -32,22 +52,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
     i->second.pb->setEnabled(ua);
     i->second.btn->setEnabled(ua);
   }
-
-  //connect
-  connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
-  connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
-  connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
-
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(QString,qint64,qint64)),
-          this, SLOT(download_progress(QString,qint64,qint64)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
-          this, SLOT(update_available(QString)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
-          this, SLOT(update_finished(QString,bool)));
-}
-
-DlgAbout::~DlgAbout() {
-  delete ui;
 }
 
 void
