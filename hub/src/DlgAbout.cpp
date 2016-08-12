@@ -1,3 +1,5 @@
+#include <QThread>
+
 #include "DlgAbout.h"
 #include "ui_DlgAbout.h"
 #include "SystemCallWrapper.h"
@@ -11,28 +13,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
-
   ui->lbl_tray_version_val->setText(GIT_VERSION);
-  std::string str_version;
-
-  CSystemCallWrapper::p2p_version(str_version);
-  ui->lbl_p2p_version_val->setText(QString::fromStdString(str_version));
-  CSystemCallWrapper::chrome_version(str_version);
-  ui->lbl_chrome_version_val->setText(QString::fromStdString(str_version));
-  ui->lbl_vbox_version_val->setText(CSystemCallWrapper::virtual_box_version());
-  ui->lbl_rh_version_val->setText(CSystemCallWrapper::rh_version());
-
-  //init dct
-  m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
-  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
-  m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
-
-  for (auto i = m_dct_fpb.begin(); i != m_dct_fpb.end(); ++i) {
-    bool ua = CHubComponentsUpdater::Instance()->is_update_available(i->first);
-    i->second.pb->setEnabled(ua);
-    i->second.btn->setEnabled(ua);
-  }
-
   //connect
   connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
@@ -44,11 +25,38 @@ DlgAbout::DlgAbout(QWidget *parent) :
           this, SLOT(update_available(QString)));
   connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
           this, SLOT(update_finished(QString,bool)));
+
+  m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
+  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
+  m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
+
+  ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 }
 
 DlgAbout::~DlgAbout() {
   delete ui;
 }
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::load_data() {
+  //init dct
+  QThread* th = new QThread;
+  DlgAboutInitializer* di = new DlgAboutInitializer;
+  connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
+  connect(di, SIGNAL(finished()), this, SLOT(initialization_finished()));
+  connect(th, SIGNAL(started()), di, SLOT(do_initialization()));
+
+  connect(di, SIGNAL(got_chrome_version(QString)), this, SLOT(got_chrome_version_sl(QString)));
+  connect(di, SIGNAL(got_p2p_version(QString)), this, SLOT(got_p2p_version_sl(QString)));
+  connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
+  connect(di, SIGNAL(got_vbox_version(QString)), this, SLOT(got_vbox_version_sl(QString)));
+  connect(di, SIGNAL(init_progress(int,int)), this, SLOT(init_progress_sl(int,int)));
+
+  connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
+  connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+  th->start();
+}
+////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::btn_tray_update_released() {
@@ -95,3 +103,86 @@ DlgAbout::update_finished(QString file_id,
   m_dct_fpb[file_id].pb->setValue(0);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::initialization_finished() {
+  ui->lbl_about_init->setEnabled(false);
+  ui->pb_initialization_progress->setEnabled(false);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::init_progress_sl(int part,
+                           int total) {
+  (void) total; //right now we don't need to use it.
+  ui->pb_initialization_progress->setValue(part);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::got_p2p_version_sl(QString version) {
+  ui->lbl_p2p_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::got_chrome_version_sl(QString version) {
+  ui->lbl_chrome_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::got_vbox_version_sl(QString version) {
+  ui->lbl_vbox_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::got_rh_version_sl(QString version) {
+  ui->lbl_rh_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::update_available_sl(QString component_id,
+                              bool available) {
+  auto item = m_dct_fpb.find(component_id);
+  if (item == m_dct_fpb.end()) return;
+  item->second.pb->setEnabled(available);
+  item->second.btn->setEnabled(available);
+}
+
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAboutInitializer::do_initialization() {
+  int initialized_component_count = 0;
+  std::string str_version;
+
+  CSystemCallWrapper::p2p_version(str_version);
+  QString p2p_version = QString::fromStdString(str_version);
+  emit got_p2p_version(p2p_version);
+  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+  CSystemCallWrapper::chrome_version(str_version);
+  QString chrome_version = QString::fromStdString(str_version);
+  emit got_chrome_version(chrome_version);
+  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+  QString vbox_version = CSystemCallWrapper::virtual_box_version();
+  emit got_vbox_version(vbox_version);
+  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+  QString rh_version = CSystemCallWrapper::rh_version();
+  emit got_rh_version(rh_version);
+  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+  QString uas[] = {IUpdaterComponent::P2P, IUpdaterComponent::TRAY, IUpdaterComponent::RH, ""};
+  for (int i = 0; uas[i] != ""; ++i) {
+    bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
+    emit update_available(uas[i], ua);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+  }
+}
