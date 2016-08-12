@@ -60,8 +60,8 @@ CLibsshController::run_libssh2_error_to_str(run_libssh2_error_t err) {
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::wait_ssh_socket_event(int socket_fd,
-                                         LIBSSH2_SESSION *session) {
+wait_ssh_socket_event(int socket_fd,
+                      LIBSSH2_SESSION *session) {
   struct timeval timeout;
   int rc;
   fd_set fd;

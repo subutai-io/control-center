@@ -5,6 +5,7 @@
 #include <vector>
 #include <QString>
 #include <QObject>
+#include <stdint.h>
 
 // if you are going to change this - change method
 // CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err)

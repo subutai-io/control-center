@@ -172,8 +172,8 @@ win32: {
               vbox/include/VBoxManagerWin.h
 
   LIBS += ws2_32.lib
-  LIBS += libssh2/lib/win32/libssh2.lib
-  LIBS += libssh2/lib/win32/libssh2.exp
+  LIBS += $$PWD/libssh2/lib/win32/libssh2.lib
+  LIBS += $$PWD/libssh2/lib/win32/libssh2.exp
 }
 #////////////////////////////////////////////////////////////////////////////
 
