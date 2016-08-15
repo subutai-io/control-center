@@ -1,5 +1,6 @@
 #include <QToolTip>
 #include <QFileDialog>
+#include <QStandardPaths>
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
@@ -70,9 +71,9 @@ DlgSettings::~DlgSettings()
 
 //return true if field is valid.
 typedef bool (*pf_validator)(const QLineEdit*);
-struct field_validator_t {
-  QLineEdit* le;
-  pf_validator f_validator;
+template<class TC> struct field_validator_t {
+  TC* fc; //field control
+  bool (*f_validator)(const TC*);
   int8_t tab_index;
   QString validator_msg;
 };
@@ -88,39 +89,57 @@ folder_has_write_permission(const QLineEdit* le) {
   return fi.isDir() && fi.isWritable();
 }
 
-#include <QDebug>
+bool
+is_path_valid(const QLineEdit* le) {
+  QFileInfo fi(le->text());
+  return fi.exists();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 DlgSettings::btn_ok_released() {
   static const char* empty_validator_msg = "Field can't be empty";
   static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
+  static const char* path_invalid_validator_msg = "Invalid path";
 
-  field_validator_t validators[] = {
+  QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage};
+  QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QString home_folder = lst_home.empty() ? "~" : lst_home[0];
+
+  for (size_t i = 0; i < sizeof(le)/sizeof(QLineEdit*); ++i) {
+    QString txt = le[i]->text();
+    if (txt.at(0) == QChar('~')) {
+      txt.replace(0, 1, home_folder);
+      le[i]->setText(txt);
+    }
+  }
+
+  field_validator_t<QLineEdit> le_validators[] = {
     {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_logs_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+    {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_ssh_keys_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
-
+    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_logs_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
-
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
-
     {NULL, NULL, -1, ""}
   };
 
-  field_validator_t* tmp = validators;
+  field_validator_t<QLineEdit>* tmp = le_validators;
   do {
-    if (!tmp->f_validator(tmp->le)) {
+    if (!tmp->f_validator(tmp->fc)) {
       ui->tabWidget->setCurrentIndex(tmp->tab_index);
-      tmp->le->setFocus();
-      QToolTip::showText(tmp->le->mapToGlobal(QPoint()), tmp->validator_msg);
+      tmp->fc->setFocus();
+      QToolTip::showText(tmp->fc->mapToGlobal(QPoint()), tmp->validator_msg);
       return;
     }
-  } while ((++tmp)->le);
+  } while ((++tmp)->fc);
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());

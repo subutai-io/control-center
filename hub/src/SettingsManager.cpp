@@ -113,7 +113,6 @@ CSettingsManager::CSettingsManager() :
     }
   } while (0);
 
-  QString tmp("");
   setting_val_t<QString> dct_str_vals[] = {
     {&m_terminal_path, SM_TERMINAL_PATH},
     {&m_p2p_path, SM_P2P_PATH},
@@ -127,58 +126,55 @@ CSettingsManager::CSettingsManager() :
     {&m_logs_storage, SM_LOGS_STORAGE},
     {&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE},
     {&m_tray_guid, SM_TRAY_GUID},
-    {&tmp, ""}
+    {nullptr, ""}
   };
 
-  for (int i = 0; dct_str_vals[i].val != ""; ++i) {
+  for (int i = 0; dct_str_vals[i].field != nullptr; ++i) {
     if (!m_settings.value(dct_str_vals[i].val).isNull()) {
       *dct_str_vals[i].field = m_settings.value(dct_str_vals[i].val).toString();
     }
   }
   /////
 
-  bool b_tmp;
   setting_val_t<bool> dct_bool_vals[] = {
     {&m_remember_me, SM_REMEMBER_ME},
     {&m_p2p_autoupdate, SM_P2P_AUTOUPDATE},
     {&m_rh_autoupdate, SM_RH_AUTOUPDATE},
     {&m_tray_autoupdate, SM_TRAY_AUTOUPDATE},
-    {&b_tmp, ""}
+    {nullptr, ""}
   };
 
-  for (int i = 0; dct_bool_vals[i].val != "" ; ++i) {
+  for (int i = 0; dct_bool_vals[i].field != nullptr; ++i) {
     if (!m_settings.value(dct_bool_vals[i].val).isNull()) {
       *dct_bool_vals[i].field = m_settings.value(dct_bool_vals[i].val).toBool();
     }
   }
   /////
 
-  uint32_t ui_tmp;
   setting_val_t<uint32_t> dct_uint32_vals[] = {
     {&m_p2p_update_freq, SM_P2P_UPDATE_FREQ},
     {&m_rh_update_freq, SM_RH_UPDATE_FREQ},
     {(uint32_t*)&m_rh_port, SM_RH_PORT},
     {&m_tray_update_freq, SM_TRAY_UPDATE_FREQ},
-    {&ui_tmp, ""}
+    {nullptr, ""}
   };
 
-  for (int i = 0; dct_uint32_vals[i].val != "" ; ++i) {
+  for (int i = 0; dct_uint32_vals[i].field != nullptr; ++i) {
     if (!m_settings.value(dct_uint32_vals[i].val).isNull()) {
       *dct_uint32_vals[i].field = m_settings.value(dct_uint32_vals[i].val).toUInt();
     }
   }
   /////
 
+  bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
-    bool ok = false;
     uint32_t timeout = m_settings.value(SM_REFRESH_TIME).toUInt(&ok);
     m_refresh_time_sec = ok ? timeout : def_timeout;
   }    
 
-  if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {
-    bool parsed = false;
-    uint32_t nd = m_settings.value(SM_NOTIFICATION_DELAY_SEC).toUInt(&parsed);
-    if (parsed) set_notification_delay_sec(nd);
+  if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {    
+    uint32_t nd = m_settings.value(SM_NOTIFICATION_DELAY_SEC).toUInt(&ok);
+    if (ok) set_notification_delay_sec(nd);
   }  
 
   if (m_tray_guid.isEmpty()) {
@@ -204,9 +200,9 @@ uint32_t CSettingsManager::update_freq_to_sec(CSettingsManager::update_freq_t fr
   static const int hr = min*60;
   static const int day = hr*24;
   static const uint32_t time_sec[] {
-    min, min*5, min*10, min*30,
-    hr, hr*3, hr*5,
-    day, day*7, day*28, 0 }; //let's say 1 month = 4 week
+        min, min*5, min*10, min*30,
+        hr, hr*3, hr*5, day,
+        day*7, day*28, 0 }; //let's say 1 month = 4 week
   return time_sec[fr%UF_LAST];
 }
 ////////////////////////////////////////////////////////////////////////////

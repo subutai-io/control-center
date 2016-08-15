@@ -5,7 +5,7 @@
 #include <QDialog>
 #include <QTabWidget>
 #include <QEvent>
-#include <QDebug>
+
 namespace Ui {
   class DlgSettings;
 }
