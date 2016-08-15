@@ -44,7 +44,8 @@ CRestWorker::login(const QString& login,
   url_login.setQuery(query_login);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = send_post_request(request, http_code, err_code, network_error);
+  QByteArray arr = send_request(request, false, http_code, err_code, network_error, QByteArray(),
+                                false, true);
 
   static QString str_ok = "\"OK\"";
   if (err_code != RE_SUCCESS)
@@ -64,7 +65,8 @@ CRestWorker::get_request_json_document(const QString &link,
   QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = send_get_request(req, http_code, err_code, network_error);
+  QByteArray arr = send_request(req, true, http_code, err_code, network_error,
+                                QByteArray(), false, true);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {
     if (err_code != RE_NETWORK_ERROR && err_code != RE_TIMEOUT)
@@ -137,7 +139,8 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
   url_gorjun_fi.setQuery(query_gorjun_fi);
   QNetworkRequest request(url_gorjun_fi);
   request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = send_get_request(request, http_code, err_code, network_error);
+  QByteArray arr = send_request(request, true, http_code, err_code, network_error,
+                                QByteArray(), false, true);
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
 
   std::vector<CGorjunFileInfo> lst_res;
@@ -167,7 +170,7 @@ CRestWorker::is_ss_console_ready(const QString &url,
   int http_code;
   QUrl req_url(url);
   QNetworkRequest request(req_url);
-  send_request(request, true, http_code, err_code, network_err, QByteArray(), true);
+  send_request(request, true, http_code, err_code, network_err, QByteArray(), true, false);
   return http_code;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -192,7 +195,7 @@ CRestWorker::send_health_request(int &http_code,
   QUrl url(CSettingsManager::Instance().health_url());
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  send_request(req, false, http_code, err_code, network_err, doc.toJson(), false);
+  send_request(req, false, http_code, err_code, network_err, doc.toJson(), false, true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -213,7 +216,7 @@ CRestWorker::download_file(const QUrl &url) {
   return m_network_manager->get(request);
 }
 
-const QString &
+const QString&
 CRestWorker::rest_err_to_str(rest_error_t err) {
   static QString login_err_str[] = {
     "SUCCESS",
@@ -235,7 +238,8 @@ CRestWorker::send_request(QNetworkRequest &req,
                           int& err_code,
                           int &network_error,
                           QByteArray data,
-                          bool ignore_ssl_errors) {
+                          bool ignore_ssl_errors,
+                          bool show_network_err_msg) {
 
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (m_network_manager->networkAccessible() != QNetworkAccessManager::Accessible) {
@@ -282,7 +286,8 @@ CRestWorker::send_request(QNetworkRequest &req,
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                               reply->errorString().toStdString().c_str());
-    CNotificationObserver::NotifyAboutError(reply->errorString());
+    if (show_network_err_msg)
+      CNotificationObserver::NotifyAboutError(reply->errorString());
     err_code = RE_NETWORK_ERROR;
     return QByteArray();
   }
@@ -290,24 +295,6 @@ CRestWorker::send_request(QNetworkRequest &req,
   bool parsed = false;
   http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
   return reply->readAll();
-}
-////////////////////////////////////////////////////////////////////////////
-
-QByteArray
-CRestWorker::send_get_request(QNetworkRequest &req,
-                              int& http_status_code,
-                              int& err_code,
-                              int &network_error) {
-  return send_request(req, true, http_status_code, err_code, network_error, QByteArray());
-}
-////////////////////////////////////////////////////////////////////////////
-
-QByteArray
-CRestWorker::send_post_request(QNetworkRequest &req,
-                               int& http_status_code,
-                               int& err_code,
-                               int& network_error) {
-  return send_request(req, false, http_status_code, err_code, network_error, QByteArray());
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -102,7 +102,8 @@ DlgSettings::btn_ok_released() {
   static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
   static const char* path_invalid_validator_msg = "Invalid path";
 
-  QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage};
+  QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
+                    ui->le_p2p_command, ui->le_ssh_command};
   QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
 
@@ -122,12 +123,15 @@ DlgSettings::btn_ok_released() {
     {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_logs_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+
     {NULL, NULL, -1, ""}
   };
 

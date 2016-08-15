@@ -64,12 +64,8 @@ private:
                           int& err_code,
                           int &network_error,
                           QByteArray data,
-                          bool ignore_ssl_errors = false);
-  QByteArray send_get_request(QNetworkRequest &req, int &http_status_code,
+                          bool ignore_ssl_errors, bool show_network_err_msg);
 
-                              int &err_code, int& network_error);
-  QByteArray send_post_request(QNetworkRequest &req, int &http_status_code,
-                               int &err_code, int& network_error);
   QJsonDocument get_request_json_document(const QString& link, int& http_code,
                                           int &err_code, int &network_error);
 
