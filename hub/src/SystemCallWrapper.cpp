@@ -528,7 +528,7 @@ CSystemCallWrapper::which(const std::string &prog,
   static int success_ec = 0;
 #else
   static const char* which_cmd = "which";
-  static int success_ec = 1;
+  static int success_ec = 0;
 #endif
   std::vector<std::string> lst_out;
   std::string command(which_cmd);

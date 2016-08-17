@@ -31,7 +31,6 @@ namespace update_system {
   protected:
     QString m_component_id;
     std::atomic<bool> m_in_progress;
-    std::atomic<int> m_checks;
 
     virtual bool update_available_internal() = 0;
     virtual chue_t update_internal() = 0;
@@ -42,14 +41,12 @@ namespace update_system {
     static const QString TRAY;
     static const QString RH;
 
-    IUpdaterComponent() : m_in_progress(false), m_checks(0){}
+    IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
 
     bool update_available() {
-      if (m_checks > 0) return true;
       bool res = update_available_internal();
       if (res) {
-        ++m_checks;
         emit update_available_changed(m_component_id);
       }
       return res;
@@ -65,7 +62,6 @@ namespace update_system {
 
   protected slots:
     void update_finished_sl(QString component_id, bool success) {
-      --m_checks;
       emit update_finished(component_id, success);
     }
 
