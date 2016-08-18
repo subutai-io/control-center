@@ -66,6 +66,8 @@ namespace update_system {
 
     std::map<QString, CUpdaterComponentItem> m_dct_components;
     void set_update_freq(const QString& component_id, CSettingsManager::update_freq_t freq);
+    void set_component_autoupdate(const QString& component_id,
+                                  bool autoupdate);
 
   public:
 
@@ -77,6 +79,10 @@ namespace update_system {
     void set_p2p_update_freq();
     void set_rh_update_freq();
     void set_tray_update_freq();
+
+    void set_p2p_autoupdate();
+    void set_rh_autoupdate();
+    void set_tray_autoupdate();
 
     bool is_update_available(const QString& component_id);
     void force_update(const QString& component_id);

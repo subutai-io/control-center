@@ -235,6 +235,29 @@ CSettingsManager::set_tray_update_freq(int fr) {
   m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
   update_system::CHubComponentsUpdater::Instance()->set_tray_update_freq();
 }
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::set_p2p_autoupdate(const bool p2p_autoupdate) {
+  m_p2p_autoupdate = p2p_autoupdate;
+  m_settings.setValue(SM_P2P_AUTOUPDATE, m_p2p_autoupdate);
+  update_system::CHubComponentsUpdater::Instance()->set_p2p_autoupdate();
+}
+
+void
+CSettingsManager::set_rh_autoupdate(const bool rh_autoupdate) {
+  m_rh_autoupdate = rh_autoupdate;
+  m_settings.setValue(SM_RH_AUTOUPDATE, m_rh_autoupdate);
+  update_system::CHubComponentsUpdater::Instance()->set_rh_autoupdate();
+}
+
+void
+CSettingsManager::set_tray_autoupdate(const bool tray_autoupdate) {
+  m_tray_autoupdate = tray_autoupdate;
+  m_settings.setValue(SM_TRAY_AUTOUPDATE, m_tray_autoupdate);
+  update_system::CHubComponentsUpdater::Instance()->set_tray_autoupdate();
+}
+////////////////////////////////////////////////////////////////////////////
 
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
   SET_FIELD_DEF(login, SM_LOGIN, QString&)
@@ -253,7 +276,4 @@ CSettingsManager::set_tray_update_freq(int fr) {
   SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
   SET_FIELD_DEF(gorjun_url, SM_GORJUN_URL, QString&)
   SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
-  SET_FIELD_DEF(p2p_autoupdate, SM_P2P_AUTOUPDATE, bool)
-  SET_FIELD_DEF(rh_autoupdate, SM_RH_AUTOUPDATE, bool)
-  SET_FIELD_DEF(tray_autoupdate, SM_TRAY_AUTOUPDATE, bool)
 #undef SET_FIELD_DEF

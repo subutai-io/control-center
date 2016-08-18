@@ -80,6 +80,18 @@ CHubComponentsUpdater::set_update_freq(const QString &component_id,
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CHubComponentsUpdater::set_component_autoupdate(const QString &component_id,
+                                                bool autoupdate) {
+  if (m_dct_components.find(component_id) == m_dct_components.end()) {
+    CApplicationLog::Instance()->LogError(
+          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    return;
+  }
+  m_dct_components[component_id].autoupdate = autoupdate;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CHubComponentsUpdater::update_component_timer_timeout(const QString &component_id) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
     CApplicationLog::Instance()->LogError(
@@ -117,6 +129,24 @@ CHubComponentsUpdater::set_rh_update_freq() {
 void
 CHubComponentsUpdater::set_tray_update_freq() {
   set_update_freq(IUpdaterComponent::TRAY, CSettingsManager::Instance().tray_update_freq());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::set_p2p_autoupdate() {
+  set_component_autoupdate(IUpdaterComponent::P2P, CSettingsManager::Instance().p2p_autoupdate());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::set_rh_autoupdate() {
+  set_component_autoupdate(IUpdaterComponent::RH, CSettingsManager::Instance().rh_autoupdate());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::set_tray_autoupdate() {
+  set_component_autoupdate(IUpdaterComponent::TRAY, CSettingsManager::Instance().tray_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
 

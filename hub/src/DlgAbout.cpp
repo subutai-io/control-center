@@ -43,7 +43,7 @@ void DlgAbout::load_data() {
   QThread* th = new QThread;
   DlgAboutInitializer* di = new DlgAboutInitializer;
   connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
-  connect(di, SIGNAL(finished()), this, SLOT(initialization_finished()));
+  connect(di, SIGNAL(finished()), this, SLOT(initialization_finished()), Qt::DirectConnection);
 
   connect(th, SIGNAL(started()), di, SLOT(do_initialization()));
   connect(di, SIGNAL(got_chrome_version(QString)), this, SLOT(got_chrome_version_sl(QString)));
@@ -180,10 +180,13 @@ DlgAboutInitializer::do_initialization() {
   emit got_rh_version(rh_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-  QString uas[] = {IUpdaterComponent::P2P, IUpdaterComponent::TRAY, IUpdaterComponent::RH, ""};
+  QString uas[] = {IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
+                   IUpdaterComponent::RH, ""};
   for (int i = 0; uas[i] != ""; ++i) {
     bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
     emit update_available(uas[i], ua);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
   }
+
+  emit finished();
 }
