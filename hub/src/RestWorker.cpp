@@ -294,7 +294,8 @@ CRestWorker::send_request(QNetworkRequest &req,
 
   bool parsed = false;
   http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
-  return reply->readAll();
+  QByteArray res = reply->readAll();
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -14,6 +14,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
 {
   ui->setupUi(this);
   ui->lbl_tray_version_val->setText(GIT_VERSION);
+
   //connect
   connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
@@ -29,7 +30,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
   m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
-
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 }
 
@@ -50,6 +50,8 @@ void DlgAbout::load_data() {
   connect(di, SIGNAL(got_p2p_version(QString)), this, SLOT(got_p2p_version_sl(QString)));
   connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
   connect(di, SIGNAL(got_vbox_version(QString)), this, SLOT(got_vbox_version_sl(QString)));
+
+  connect(di, SIGNAL(update_available(QString,bool)), this, SLOT(update_available_sl(QString,bool)));
   connect(di, SIGNAL(init_progress(int,int)), this, SLOT(init_progress_sl(int,int)));
 
   connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
@@ -180,8 +182,10 @@ DlgAboutInitializer::do_initialization() {
   emit got_rh_version(rh_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-  QString uas[] = {IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
-                   IUpdaterComponent::RH, ""};
+  QString uas[] = {
+    IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
+    IUpdaterComponent::RH, ""};
+
   for (int i = 0; uas[i] != ""; ++i) {
     bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
     emit update_available(uas[i], ua);

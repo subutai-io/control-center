@@ -101,6 +101,7 @@ DlgGenerateSshKey::btn_copy_to_clipboard_released() {
   QString text = ui->te_ssh_key->toPlainText();
   if (text.isEmpty())
     return;
+  ui->te_ssh_key->selectAll();
   QApplication::clipboard()->setText(text, QClipboard::Clipboard);
 }
 ////////////////////////////////////////////////////////////////////////////
