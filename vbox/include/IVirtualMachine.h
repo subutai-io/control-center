@@ -22,7 +22,6 @@ public:
     m_session_state(VMSS_Null) {
   }
   virtual ~IVirtualMachine() {    
-    if (m_session) m_session->Release();
   }
 
   const QString& name(void) const {return m_name;}
