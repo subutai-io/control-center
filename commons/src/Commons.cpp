@@ -40,13 +40,6 @@ CCommons::CurrentDateTimeString() {
 ////////////////////////////////////////////////////////////////////////////
 
 QString
-CCommons::AppNameTmp() {
-  return QApplication::applicationDirPath() +
-      QDir::separator() + "SubutaiTray.tmp";
-}
-////////////////////////////////////////////////////////////////////////////
-
-QString
 CCommons::FileMd5(const QString &file_path) {
   QFile f(file_path);
   if (!f.exists()) return "";

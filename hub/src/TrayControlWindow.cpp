@@ -417,26 +417,6 @@ TrayControlWindow::update_finished(QString file_id,
           QString("Failed to update %1. See details in error logs").arg(file_id));
     return;
   }
-
-  if (file_id == "p2p") {
-    CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
-    QMessageBox msg_box(QMessageBox::Question, "Attention! P2P update finished",
-                        "P2P has been updated. Restart p2p daemon, please",
-                        QMessageBox::Ok, this);
-    msg_box.exec();
-    return;
-  } else if (file_id == "tray") {
-    QMessageBox msg_box(QMessageBox::Question, "Attention! Tray update finished",
-                        "Tray application has been updated. Do you want to restart it now?",
-                        QMessageBox::Yes | QMessageBox::No, this);
-    if (msg_box.exec() == QMessageBox::No) return;
-    QProcess* proc = new QProcess;
-    proc->start(QApplication::applicationFilePath());
-    QApplication::exit(0);
-  } else {
-    CApplicationLog::Instance()->LogError("Unknown file_id %s", file_id.toStdString().c_str());
-    return;
-  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

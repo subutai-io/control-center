@@ -10,7 +10,7 @@
 #include "TrayWebSocketServer.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
-
+#include "updater/UpdaterComponentTray.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -66,21 +66,23 @@ main(int argc, char *argv[]) {
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<notification_level_t>("notification_level_t");
 
-  QString tmp_file_path = CCommons::AppNameTmp();
-
-  QFile tmp_file(tmp_file_path);
-  if (tmp_file.exists()) {
-    if (!tmp_file.remove()) {
-      CApplicationLog::Instance()->LogError("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
+  QString tmp[] = {".tmp", "_download"};
+  for (int i = 0; i < 2; ++i) {
+    QString tmp_file_path = QString(update_system::CUpdaterComponentTray::tray_kurjun_file_name()) + tmp[i];
+    QFile tmp_file(tmp_file_path);
+    if (tmp_file.exists()) {
+      if (!tmp_file.remove()) {
+        CApplicationLog::Instance()->LogError("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
+      }
     }
   }
 
   CRestWorker::Instance()->create_network_manager();
 
-//  std::vector<CGorjunFileInfo> v =
-//      CRestWorker::Instance()->get_gorjun_file_info("SubutaiTray");
-//  for (auto i = v.begin(); i != v.end(); ++i)
-//    CApplicationLog::Instance()->LogTrace("%s", i->id().toStdString().c_str());
+  std::vector<CGorjunFileInfo> v =
+      CRestWorker::Instance()->get_gorjun_file_info("SubutaiTray");
+  for (auto i = v.begin(); i != v.end(); ++i)
+    CApplicationLog::Instance()->LogTrace("%s", i->id().toStdString().c_str());
 
   int result = 0;
   do {

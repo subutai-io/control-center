@@ -15,6 +15,7 @@ namespace update_system {
   protected:
     virtual bool update_available_internal();
     virtual chue_t update_internal();
+    virtual void update_post_action();
 
   public:
     CUpdaterComponentP2P();

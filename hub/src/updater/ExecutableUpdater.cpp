@@ -33,6 +33,10 @@ CExecutableUpdater::replace_executables(QString file_id,
   QFile::Permissions perm = dst.permissions();
   bool replaced = true;
 
+  CApplicationLog::Instance()->LogTrace("dst : %s", m_dst_file_str.toStdString().c_str());
+  CApplicationLog::Instance()->LogTrace("tmp : %s", tmp.toStdString().c_str());
+  CApplicationLog::Instance()->LogTrace("src : %s", m_src_file_str.toStdString().c_str());
+
   do {
     if (dst.exists()) {
       if (!(replaced &= dst.rename(tmp))) {
@@ -47,6 +51,8 @@ CExecutableUpdater::replace_executables(QString file_id,
       CApplicationLog::Instance()->LogError("copy %s to %s failed",
                                             m_src_file_str.toStdString().c_str(),
                                             m_dst_file_str.toStdString().c_str());
+      CApplicationLog::Instance()->LogError("%s",
+                                            src.errorString().toStdString().c_str());
       break;
     }
 

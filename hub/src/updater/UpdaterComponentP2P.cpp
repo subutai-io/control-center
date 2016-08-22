@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QDir>
+#include <QMessageBox>
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/ExecutableUpdater.h"
 #include "RestWorker.h"
@@ -69,8 +70,13 @@ CUpdaterComponentP2P::update_internal() {
   std::string str_p2p_path = p2p_path();
   if (str_p2p_path.empty()) return CHUE_FAILED;
 
-  QString qstr_p2p_path = QString::fromStdString(p2p_path());
-  QString qstr_p2p_replace_path = QApplication::applicationDirPath() + QDir::separator() + QString(P2P);
+  //original file path
+  QString str_p2p_executable_path = QString::fromStdString(p2p_path());
+
+  //this file will replace original file
+  QString str_p2p_downloaded_path = QApplication::applicationDirPath() +
+                                  QDir::separator() +
+                                  QString(P2P);
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       p2p_kurjun_file_name());
@@ -83,12 +89,12 @@ CUpdaterComponentP2P::update_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       m_component_id,
-                                                      qstr_p2p_path,
+                                                      str_p2p_downloaded_path,
                                                       item->size());
 
   CExecutableUpdater *eu = new CExecutableUpdater(m_component_id,
-                                                  qstr_p2p_path,
-                                                  qstr_p2p_replace_path);
+                                                  str_p2p_downloaded_path,
+                                                  str_p2p_executable_path);
 
   connect(dm, SIGNAL(download_progress_sig(QString,qint64,qint64)),
           this, SLOT(update_progress_sl(QString,qint64,qint64)));
@@ -100,5 +106,17 @@ CUpdaterComponentP2P::update_internal() {
 
   dm->start_download();
   return CHUE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CUpdaterComponentP2P::update_post_action() {
+  CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
+  QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! P2P update finished",
+                      "P2P has been updated. Restart p2p daemon, please",
+                      QMessageBox::Ok);
+  connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+  msg_box->exec();
+  return;
 }
 ////////////////////////////////////////////////////////////////////////////

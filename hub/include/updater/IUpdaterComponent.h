@@ -34,6 +34,7 @@ namespace update_system {
 
     virtual bool update_available_internal() = 0;
     virtual chue_t update_internal() = 0;
+    virtual void update_post_action() = 0;
 
   public:
 
@@ -62,6 +63,7 @@ namespace update_system {
 
   protected slots:
     void update_finished_sl(QString component_id, bool success) {
+      update_post_action();
       emit update_finished(component_id, success);
     }
 

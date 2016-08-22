@@ -1,1 +1,2 @@
 install_name_tool -change @executable_path/../Frameworks/VBoxXPCOM.dylib /Applications/VirtualBox.app/Contents/MacOS/VBoxXPCOM.dylib SubutaiTray
+install_name_tool -change /usr/local/Cellar/openssl/1.0.2g/lib/libcrypto.1.0.0.dylib @executable_path/../Frameworks/libcrypto.1.0.0.dylib ../Frameworks/libssl.1.0.0.dylib

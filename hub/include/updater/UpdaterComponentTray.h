@@ -15,10 +15,12 @@ namespace update_system {
   protected:
     virtual bool update_available_internal();
     virtual chue_t update_internal();
+    virtual void update_post_action();
 
   public:
     CUpdaterComponentTray();
     virtual ~CUpdaterComponentTray();
+    static const char *tray_kurjun_file_name();
   };
 }
 
