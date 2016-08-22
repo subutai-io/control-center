@@ -23,23 +23,7 @@ For __LINUX__  run `./build_linux.sh`. You can modify this script, it is very si
 
 For __Mac OS__ do the same, but run `./build_mac.sh`
 
-For __WINDOWS__ follow this : 
-
-1. Get libssh2 sources from [github](https://github.com/libssh2/libssh2)
-2. Get openssl sources for windows
-3. Install Windows SDK
-4. Build and install openssl libraries. Follow instructions in INSTALL.W64 and INSTALL.W32. You should use Visual Studio Command Promt x64.
-5. Build libssh2 as __SHARED LIBRARY__. Follow instructions in docs/INSTALL_CMAKE. 
-  * Use `cmake -DBUILD_SHARED_LIBS=ON ..`
-  * Open libssh2.sln in VisualStudio.
-  * Change target platform to x64 and build type to release 
-  * Go to libssh2 project properties -> linker -> Command Line. There you should remove everything in AdditionalOptions
-  * Rebuild libssh2.
-  * Make lib file from result dll. [Instruction](https://adrianhenke.wordpress.com/2008/12/05/create-lib-file-from-dll/)
-6. Add qmake (and other qt bin tools) and jom to PATH.
-7. Open VS Command Promt x64 and go to directory with all sources.
-8. There launch `build_win.bat arg` where arg is full path to file VBoxRT.dll
-9. Your SubutaiTray.exe will be located in subutai_tray_bin/release folder
+For __WINDOWS__ run this : `build_win.bat "path_to libeay32.dll and ssleay32.dll"`
 ### Branching Model 
 
 We use [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/)
