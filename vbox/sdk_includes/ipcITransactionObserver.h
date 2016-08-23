@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/5.0-sdk/src/libs/xpcom18a4/ipc/ipcd/extensions/transmngr/public/ipcITransactionObserver.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/sdk/src/libs/xpcom18a4/ipc/ipcd/extensions/transmngr/public/ipcITransactionObserver.idl
  */
 
 #ifndef __gen_ipcITransactionObserver_h__

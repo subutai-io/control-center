@@ -15,34 +15,30 @@ TEMPLATE = app
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
-
 INCLUDEPATH += vbox/sdk_includes
 INCLUDEPATH += vbox/sdk_includes/xpcom
 INCLUDEPATH += vbox/sdk_includes/nsprpub
 INCLUDEPATH += vbox/sdk_includes/string
 INCLUDEPATH += vbox/sdk_includes/ipcd
-INCLUDEPATH += sapp/include
-
 INCLUDEPATH += libssh2/include
-DEPENDPATH += libssh2/include
 
 SOURCES += \
     main.cpp \
-    hub/src/RestWorker.cpp \
-    hub/src/DlgLogin.cpp \
-    hub/src/SettingsManager.cpp \
-    hub/src/DlgSettings.cpp \
-    hub/src/TrayControlWindow.cpp \
     vbox/src/IVBoxManager.cpp \    
-    hub/src/SystemCallWrapper.cpp \
-    hub/src/TrayWebSocketServer.cpp \
-    hub/src/HubController.cpp \
     commons/src/EventLoop.cpp \
     commons/src/IFunctor.cpp \
     commons/src/ApplicationLog.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/MRE_Linux.cpp \
     commons/src/Commons.cpp \
+    hub/src/RestWorker.cpp \
+    hub/src/DlgLogin.cpp \
+    hub/src/SettingsManager.cpp \
+    hub/src/DlgSettings.cpp \
+    hub/src/TrayControlWindow.cpp \
+    hub/src/SystemCallWrapper.cpp \
+    hub/src/TrayWebSocketServer.cpp \
+    hub/src/HubController.cpp \
     hub/src/DlgAbout.cpp \
     hub/src/DownloadFileManager.cpp \
     hub/src/updater/ExecutableUpdater.cpp \
@@ -60,15 +56,23 @@ HEADERS  += \
     hub/include/SettingsManager.h \
     hub/include/DlgSettings.h \
     hub/include/TrayControlWindow.h \
-    vbox/include/VBoxCommons.h \
-    vbox/include/VirtualBoxHdr.h \
-    vbox/include/VBoxCommonsPlatform.h \
-    vbox/include/IVBoxManager.h \
-    vbox/include/IVirtualMachine.h \
     hub/include/SystemCallWrapper.h \
     hub/include/NotifiactionObserver.h \
     hub/include/TrayWebSocketServer.h \
     hub/include/HubController.h \
+    hub/include/DlgAbout.h \
+    hub/include/RestContainers.h \
+    hub/include/DownloadFileManager.h \
+    hub/include/updater/ExecutableUpdater.h \
+    hub/include/DlgGenerateSshKey.h \
+    hub/include/updater/HubComponentsUpdater.h \
+    hub/include/updater/IUpdaterComponent.h \
+    hub/include/updater/UpdaterComponentRH.h \
+    hub/include/updater/UpdaterComponentP2P.h \
+    hub/include/updater/UpdaterComponentTray.h \
+    vbox/include/VBoxCommons.h \
+    vbox/include/IVBoxManager.h \
+    vbox/include/IVirtualMachine.h \
     commons/include/ApplicationLog.h \
     commons/include/EventLoop.h \
     commons/include/EventLoopException.h \
@@ -84,18 +88,8 @@ HEADERS  += \
     commons/include/MRE_Wrapper.h \
     commons/include/ThreadWrapper.h \
     commons/include/Commons.h \
-    hub/include/DlgAbout.h \
-    hub/include/RestContainers.h \
-    hub/include/DownloadFileManager.h \
-    hub/include/updater/ExecutableUpdater.h \
     commons/include/MRE_Windows.h \
-    hub/include/DlgGenerateSshKey.h \
     libssh2/include/LibsshErrors.h \
-    hub/include/updater/HubComponentsUpdater.h \
-    hub/include/updater/IUpdaterComponent.h \
-    hub/include/updater/UpdaterComponentRH.h \
-    hub/include/updater/UpdaterComponentP2P.h \
-    hub/include/updater/UpdaterComponentTray.h \
     libssh2/include/LibsshController.h
 
 FORMS    += \

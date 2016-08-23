@@ -303,9 +303,7 @@ typedef char PRInt8;
 typedef signed char PRInt8;
 #endif
 #else
-//#error No suitable type for PRInt8/PRUint8
-typedef int8_t PRInt8;
-typedef uint8_t PRUint8;
+#error No suitable type for PRInt8/PRUint8
 #endif
 
 /************************************************************************
@@ -330,9 +328,7 @@ typedef uint8_t PRUint8;
 typedef unsigned short PRUint16;
 typedef short PRInt16;
 #else
-//#error No suitable type for PRInt16/PRUint16
-typedef uint16_t PRUint16;
-typedef int16_t PRInt16;
+#error No suitable type for PRInt16/PRUint16
 #endif
 
 /************************************************************************
@@ -364,9 +360,7 @@ typedef long PRInt32;
 #define PR_INT32(x)  x ## L
 #define PR_UINT32(x) x ## UL
 #else
-//#error No suitable type for PRInt32/PRUint32
-typedef uint32_t PRUint32;
-typedef int32_t PRInt32;
+#error No suitable type for PRInt32/PRUint32
 #endif
 
 /************************************************************************
@@ -429,9 +423,7 @@ typedef PRInt64 PRUint64;
 typedef int PRIntn;
 typedef unsigned int PRUintn;
 #else
-//#error 'sizeof(int)' not sufficient for platform use
-typedef int32_t PRIntn;
-typedef uint32_t PRUintn;
+#error 'sizeof(int)' not sufficient for platform use
 #endif
 
 /************************************************************************

@@ -1,9 +1,21 @@
 #ifndef VBOXCOMMONS_H
 #define VBOXCOMMONS_H
 
+#if defined(RT_OS_LINUX) || defined(RT_OS_DARWIN)
+#include <VirtualBox_XPCOM.h>
+#include <nsXPCOM.h>
+#include <nsIMemory.h>
+#include <nsIServiceManager.h>
+#include <nsIEventQueue.h>
+#include <nsEventQueueUtils.h>
+#elif RT_OS_WINDOWS
+#include <VirtualBox.h>
+typedef HRESULT nsresult;
+#endif
+
 #include <stdint.h>
+
 #define UNUSED_ARG(x) ((void)x)
-#include "VBoxCommonsPlatform.h"
 /*
  * "gui": VirtualBox Qt GUI front-end
 "headless": VBoxHeadless (VRDE Server) front-end
@@ -51,18 +63,34 @@ public:
   }
   ////////////////////////////////////////////////////////////////////////////
 
-  static const char* vm_state_to_str(uint32_t state) {
-    static const char* str_machine_state[] = {
-      "Null","Powered Off", "Saved",
-      "Teleported", "Aborted", "Running",
-      "Paused", "Stuck", "Teleporting",
-      "Live Snapshotting", "Starting", "Stopping",
-      "Saving", "Restoring", "Teleporting Paused VM",
-      "Teleporting In", "Fault Tolerant Syncing", "Deleting Snapshot Online",
-      "Deleting Snapshot Paused", "Online Snapshotting", "Restoring Snapshot",
-      "Deleting Snapshot", "SettingUp", "Snapshotting"
-    };
-    return state >= 24 ? "undefined" : str_machine_state[state];
+  static const char* vm_state_to_str(MachineState_T state) {
+    static const char* no_idea = "No idea";
+    switch (state) {
+      case MachineState_Null                    : return "Null";
+      case MachineState_PoweredOff              : return "PoweredOff";
+      case MachineState_Saved                   : return "Saved";
+      case MachineState_Teleported              : return "Teleported";
+      case MachineState_Aborted                 : return "Aborted";
+      case MachineState_Running                 : return "Running";
+      case MachineState_Paused                  : return "Paused";
+      case MachineState_Stuck                   : return "Stuck";
+      case MachineState_Teleporting             : return "Teleporting";
+      case MachineState_LiveSnapshotting        : return "Live snapshotting";
+      case MachineState_Starting                : return "Starting";
+      case MachineState_Stopping                : return "Stopping";
+      case MachineState_Saving                  : return "Saving";
+      case MachineState_Restoring               : return "Restoring";
+      case MachineState_TeleportingPausedVM     : return "Teleporting paused VM";
+      case MachineState_TeleportingIn           : return "Teleporting in";
+      case MachineState_FaultTolerantSyncing    : return "Fault tolerant syncing";
+      case MachineState_DeletingSnapshotOnline  : return "Deleting snapshot online";
+      case MachineState_DeletingSnapshotPaused  : return "Deleting snapshot paused";
+      case MachineState_OnlineSnapshotting      : return "Online snapshotting";
+      case MachineState_RestoringSnapshot       : return "Restoring snapshot";
+      case MachineState_DeletingSnapshot        : return "Deleting snapshot";
+      case MachineState_SettingUp               : return "Setting up";
+      default: return no_idea;
+    }
   }
   ////////////////////////////////////////////////////////////////////////////
 

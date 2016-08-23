@@ -6,7 +6,6 @@
 #include <map>
 #include <QObject>
 
-#include "VirtualBoxHdr.h"
 #include "VBoxCommons.h"
 #include "IVirtualMachine.h"
 

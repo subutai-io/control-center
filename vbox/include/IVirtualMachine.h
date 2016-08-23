@@ -10,26 +10,25 @@ protected:
   QString m_iid;
   IMachine* m_internal_machine;
   ISession* m_session;
-  VM_State m_state;
-  VM_SessionState m_session_state;
+  MachineState_T m_state;
+  SessionState_T m_session_state;
 
 public:
 
   IVirtualMachine() :
     m_internal_machine(NULL),
     m_session(NULL),
-    m_state(VMS_Null),
-    m_session_state(VMSS_Null) {
+    m_state(MachineState_Null),
+    m_session_state(SessionState_Null) {
   }
+
   virtual ~IVirtualMachine() {    
   }
 
   const QString& name(void) const {return m_name;}
   const QString& id(void) const{return m_iid;}
-  VM_State state(void) const {return m_state;}
-  void set_state(VM_State state) {m_state = state;}
-  void set_state(uint32_t state) {m_state = state >= VMS_UNDEFINED ? VMS_UNDEFINED : (VM_State)state;}
-
+  MachineState_T state(void) const {return m_state;}
+  void set_state(MachineState_T st) {m_state=st;}
   virtual nsresult launch_vm(vb_launch_mode_t mode,
                              IProgress** progress) = 0;
 
