@@ -28,7 +28,7 @@ private:
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
-    void set_buttons(PRUint32 state);
+    void set_buttons(MachineState_T state);
     QAction* action() {return m_player_item_act;}
     QHBoxLayout *p_h_Layout;
     QLabel *lbl_name;

@@ -346,7 +346,7 @@ TrayControlWindow::vm_state_changed(const QString &vm_id) {
     return;
   }
   MachineState_T ns = vm->state();
-  ip->second->set_buttons((ushort)ns);
+  ip->second->set_buttons(ns);
 }
 ////////////////////////////////////////////////////////////////////////////
 
