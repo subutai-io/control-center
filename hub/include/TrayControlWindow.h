@@ -105,7 +105,6 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
-  static const QString GetStateName(PRUint32 st);
   CVBPlayer *m_w_Player;
 
 private:

@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "VBoxCommons.h"
-#include "VirtualBoxHdr.h"
 #include "IVBoxManager.h"
 
 class CVBoxManagerLinux : public IVBoxManager

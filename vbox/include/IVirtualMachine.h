@@ -21,6 +21,7 @@ public:
     m_state(MachineState_Null),
     m_session_state(SessionState_Null) {
   }
+
   virtual ~IVirtualMachine() {    
     if (m_session) m_session->Release();
   }
@@ -28,7 +29,7 @@ public:
   const QString& name(void) const {return m_name;}
   const QString& id(void) const{return m_iid;}
   MachineState_T state(void) const {return m_state;}
-  void set_state(MachineState_T state) {m_state = state;}
+  void set_state(MachineState_T st) {m_state=st;}
   virtual nsresult launch_vm(vb_launch_mode_t mode,
                              IProgress** progress) = 0;
 

@@ -661,38 +661,6 @@ TrayControlWindow::show_about() {
   connect(dlg, SIGNAL(finished(int)), dlg, SLOT(deleteLater()));
 }
 ////////////////////////////////////////////////////////////////////////////
-
-const QString
-TrayControlWindow::GetStateName(MachineState_T st) {
-  static const char* no_idea = "No idea";
-  switch (st) {
-    case MachineState_Null : return "MachineState_Null";
-    case MachineState_PoweredOff : return "MachineState_PoweredOff";
-    case MachineState_Saved : return "MachineState_Saved";
-    case MachineState_Teleported : return "MachineState_Teleported";
-    case MachineState_Aborted : return "MachineState_Aborted";
-    case MachineState_Running : return "MachineState_Running";
-    case MachineState_Paused : return "MachineState_Paused";
-    case MachineState_Stuck : return "MachineState_Stuck";
-    case MachineState_Teleporting : return "MachineState_Teleporting";
-    case MachineState_LiveSnapshotting : return "MachineState_LiveSnapshotting";
-    case MachineState_Starting : return "MachineState_Starting";
-    case MachineState_Stopping : return "MachineState_Stopping";
-    case MachineState_Saving : return "MachineState_Saving";
-    case MachineState_Restoring : return "MachineState_Restoring";
-    case MachineState_TeleportingPausedVM : return "MachineState_TeleportingPausedVM";
-    case MachineState_TeleportingIn : return "MachineState_TeleportingIn";
-    case MachineState_FaultTolerantSyncing : return "MachineState_FaultTolerantSyncing";
-    case MachineState_DeletingSnapshotOnline : return "MachineState_DeletingSnapshotOnline";
-    case MachineState_DeletingSnapshotPaused : return "MachineState_DeletingSnapshotPaused";
-    case MachineState_OnlineSnapshotting : return "MachineState_OnlineSnapshotting";
-    case MachineState_RestoringSnapshot : return "MachineState_RestoringSnapshot";
-    case MachineState_DeletingSnapshot : return "MachineState_DeletingSnapshot";
-    case MachineState_SettingUp : return "MachineState_SettingUp";
-    default: return no_idea;
-  }
-}
-///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
 /*hub menu*/
@@ -792,7 +760,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   lbl_state->setMaximumWidth(100);
 
   lbl_name->setText(vm->name());
-  lbl_state->setText(TrayControlWindow::GetStateName(vm->state()));
+  lbl_state->setText(CVBoxCommons::vm_state_to_str(vm->state()));
 
   btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
   btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
@@ -849,7 +817,7 @@ CVBPlayerItem::set_buttons(MachineState_T state) {
     {QIcon(":/hub/Pause_na-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")}
   };
 
-  lbl_state->setText(TrayControlWindow::GetStateName(state));
+  lbl_state->setText(CVBoxCommons::vm_state_to_str(state));
   int isi = 0;
   if (state < 5) isi = 0;
   else if (state == MachineState_Running) isi = 1;
