@@ -5,6 +5,7 @@
 #include <nsIEventQueue.h>
 #include <nsEventQueueUtils.h>
 #include "VirtualMachineLinux.h"
+#include "ApplicationLog.h"
 
 CVirtualMachineLinux::CVirtualMachineLinux(IMachine *xpcom_machine,
                                            ISession* session) {
@@ -16,10 +17,12 @@ CVirtualMachineLinux::CVirtualMachineLinux(IMachine *xpcom_machine,
   m_name = QString::fromUtf16(name);
   m_iid = QString::fromUtf16(id);
 
-  uint32_t state;
-  xpcom_machine->GetState(&state);
-  set_state(state);
+  nsresult rc = xpcom_machine->GetState(&m_state);
+  if (NS_FAILED(rc)) {
+    CApplicationLog::Instance()->LogError("Can't get vm state. rc : %x", rc);
+  }
 
+  CApplicationLog::Instance()->LogTrace("rc : %x, vm state : %x  %u", rc, m_state, m_state);
   m_session = session;
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/5.0-sdk/src/libs/xpcom18a4/xpcom/components/nsIComponentManager.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/sdk/src/libs/xpcom18a4/xpcom/components/nsIComponentManager.idl
  */
 
 #ifndef __gen_nsIComponentManager_h__

@@ -28,7 +28,7 @@ private:
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
-    void set_buttons(ushort state);
+    void set_buttons(PRUint32 state);
     QAction* action() {return m_player_item_act;}
     QHBoxLayout *p_h_Layout;
     QLabel *lbl_name;
@@ -105,7 +105,7 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
-  static const QString GetStateName(ushort st);
+  static const QString GetStateName(PRUint32 st);
   CVBPlayer *m_w_Player;
 
 private:

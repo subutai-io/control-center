@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/5.0-sdk/src/libs/xpcom18a4/xpcom/base/nsIConsoleMessage.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/sdk/src/libs/xpcom18a4/xpcom/base/nsIConsoleMessage.idl
  */
 
 #ifndef __gen_nsIConsoleMessage_h__

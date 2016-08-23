@@ -345,7 +345,7 @@ TrayControlWindow::vm_state_changed(const QString &vm_id) {
     //todo log
     return;
   }
-  VM_State ns = vm->state();
+  MachineState_T ns = vm->state();
   ip->second->set_buttons((ushort)ns);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -361,7 +361,7 @@ TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
-  bool on = (int)vm->state() == VMS_PoweredOff;
+  bool on = vm->state() == MachineState_PoweredOff;
 
   if (on) {
     CVBoxManagerSingleton::Instance()->pause(vm_id);
@@ -468,18 +468,20 @@ TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
-  VM_State state = vm->state();
+  MachineState_T state = vm->state();
   if (state < 5) { //Powered off
     rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
     return;
   }
 
-  if (state == VMS_Running) {
+  if (state == MachineState_Running) {
     rc = CVBoxManagerSingleton::Instance()->pause(vm_id);
     return;
   }
 
-  if (state == VMS_Paused || state == VMS_Teleporting || state == VMS_LiveSnapshotting) {
+  if (state == MachineState_Paused ||
+      state == MachineState_Teleporting ||
+      state == MachineState_LiveSnapshotting) {
     rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
     return;
   }
@@ -495,8 +497,9 @@ TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
   const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
-  ushort state = (int)vm->state();
+  MachineState_T state = vm->state();
   if (state < 5) {
+    CApplicationLog::Instance()->LogTrace("state : %d", state);
     return;
   }
 
@@ -660,20 +663,34 @@ TrayControlWindow::show_about() {
 ////////////////////////////////////////////////////////////////////////////
 
 const QString
-TrayControlWindow::GetStateName(ushort st) {
-  static const QString state_strings[] = {
-    "<null>", "PoweredOff", "Saved",
-    "Teleported", "Aborted", "Running",
-    "Paused", "GuruMeditation", "Teleporting",
-    "LiveSnapshotting", "Starting", "Stopping",
-    "Saving", "Restoring", "TeleportingPausedVM",
-    "TeleportingIn", "FaultTolerantSyncing", "DeletingSnapshotOnline",
-    "DeletingSnapshotPaused", "OnlineSnapshotting", "RestoringSnapshot",
-    "DeletingSnapshot", "SettingUp", "Snapshotting",
-    "no idea",
-  };
-  return st >= (sizeof(state_strings)/sizeof(QString)) ?
-        "no idea" : state_strings[st];
+TrayControlWindow::GetStateName(MachineState_T st) {
+  static const char* no_idea = "No idea";
+  switch (st) {
+    case MachineState_Null : return "MachineState_Null";
+    case MachineState_PoweredOff : return "MachineState_PoweredOff";
+    case MachineState_Saved : return "MachineState_Saved";
+    case MachineState_Teleported : return "MachineState_Teleported";
+    case MachineState_Aborted : return "MachineState_Aborted";
+    case MachineState_Running : return "MachineState_Running";
+    case MachineState_Paused : return "MachineState_Paused";
+    case MachineState_Stuck : return "MachineState_Stuck";
+    case MachineState_Teleporting : return "MachineState_Teleporting";
+    case MachineState_LiveSnapshotting : return "MachineState_LiveSnapshotting";
+    case MachineState_Starting : return "MachineState_Starting";
+    case MachineState_Stopping : return "MachineState_Stopping";
+    case MachineState_Saving : return "MachineState_Saving";
+    case MachineState_Restoring : return "MachineState_Restoring";
+    case MachineState_TeleportingPausedVM : return "MachineState_TeleportingPausedVM";
+    case MachineState_TeleportingIn : return "MachineState_TeleportingIn";
+    case MachineState_FaultTolerantSyncing : return "MachineState_FaultTolerantSyncing";
+    case MachineState_DeletingSnapshotOnline : return "MachineState_DeletingSnapshotOnline";
+    case MachineState_DeletingSnapshotPaused : return "MachineState_DeletingSnapshotPaused";
+    case MachineState_OnlineSnapshotting : return "MachineState_OnlineSnapshotting";
+    case MachineState_RestoringSnapshot : return "MachineState_RestoringSnapshot";
+    case MachineState_DeletingSnapshot : return "MachineState_DeletingSnapshot";
+    case MachineState_SettingUp : return "MachineState_SettingUp";
+    default: return no_idea;
+  }
 }
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -774,10 +791,8 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   lbl_state->setMinimumWidth(100);
   lbl_state->setMaximumWidth(100);
 
-  ushort state = vm->state();
-
   lbl_name->setText(vm->name());
-  lbl_state->setText(TrayControlWindow::GetStateName(state));
+  lbl_state->setText(TrayControlWindow::GetStateName(vm->state()));
 
   btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
   btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
@@ -796,7 +811,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   connect(btn_remove, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_rem_released()), Qt::QueuedConnection);
 
-  set_buttons(state);
+  set_buttons(vm->state());
   p_h_Layout->addWidget(lbl_name);
   p_h_Layout->addWidget(lbl_state);
 
@@ -821,7 +836,7 @@ CVBPlayerItem::~CVBPlayerItem(){
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CVBPlayerItem::set_buttons(ushort state) {
+CVBPlayerItem::set_buttons(MachineState_T state) {
   struct layout_icons {
     QIcon play, stop, rem;
   };
@@ -837,10 +852,11 @@ CVBPlayerItem::set_buttons(ushort state) {
   lbl_state->setText(TrayControlWindow::GetStateName(state));
   int isi = 0;
   if (state < 5) isi = 0;
-  else if (state == VMS_Running) isi = 1;
-  else if (state == VMS_Paused) isi = 2;
-  else if (state == VMS_Stuck) isi = 3;
-  else if (state == VMS_Teleporting || state == VMS_LiveSnapshotting) isi = 4;
+  else if (state == MachineState_Running) isi = 1;
+  else if (state == MachineState_Paused) isi = 2;
+  else if (state == MachineState_Stuck) isi = 3;
+  else if (state == MachineState_Teleporting ||
+           state == MachineState_LiveSnapshotting) isi = 4;
   else isi = 5; //state >= 10
 
   btn_play->setIcon(icon_set[isi].play);

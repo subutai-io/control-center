@@ -11,9 +11,9 @@ CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
   m_internal_machine->get_Id(&bstr_iid);
   m_name = QString::fromUtf16((ushort*)bstr_name);
   m_iid = QString::fromUtf16((ushort*)bstr_iid);
-  MachineState state;
+  MachineState_T state;
   m_internal_machine->get_State(&state);
-  set_state((uint32_t)state);
+  set_state(state);
 
   CoCreateInstance(CLSID_Session,
                    NULL,                 /* no aggregation */
@@ -24,10 +24,6 @@ CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
 ////////////////////////////////////////////////////////////////////////////
 
 CVirtualMachineWin::~CVirtualMachineWin() {  
-  //  m_internal_machine->Release();
-  //  m_internal_machine = NULL;
-  //  m_session->Release();
-  //  m_session = NULL;
 }
 ////////////////////////////////////////////////////////////////////////////
 

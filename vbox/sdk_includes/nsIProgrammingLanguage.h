@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/5.0-sdk/src/libs/xpcom18a4/xpcom/base/nsIProgrammingLanguage.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/sdk/src/libs/xpcom18a4/xpcom/base/nsIProgrammingLanguage.idl
  */
 
 #ifndef __gen_nsIProgrammingLanguage_h__

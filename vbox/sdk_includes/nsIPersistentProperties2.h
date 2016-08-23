@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/5.0-sdk/src/libs/xpcom18a4/xpcom/ds/nsIPersistentProperties2.idl
+ * DO NOT EDIT.  THIS FILE IS GENERATED FROM /home/vbox/tinderbox/sdk/src/libs/xpcom18a4/xpcom/ds/nsIPersistentProperties2.idl
  */
 
 #ifndef __gen_nsIPersistentProperties2_h__

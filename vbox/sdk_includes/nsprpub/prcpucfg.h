@@ -60,7 +60,7 @@
 #elif defined(RT_OS_OS2)
 # include <md/_os2.cfg>
 #else
-//# error "Define the correct platform identifier / Port me."
+# error "Define the correct platform identifier / Port me."
 #endif
 
 #endif /* !nspr_vboxcfg___ */
