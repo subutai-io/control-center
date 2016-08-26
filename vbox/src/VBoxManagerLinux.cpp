@@ -74,7 +74,8 @@ CVBoxManagerLinux::~CVBoxManagerLinux() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
+QString
+CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
   PRUnichar* res;
   IMachineEvent* me_event;
   nsresult rc = event->QueryInterface(IMachineEvent::GetIID(), (void**)&me_event);
@@ -86,19 +87,24 @@ QString CVBoxManagerLinux::machine_id_from_machine_event(IEvent *event) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBoxManagerLinux::on_machine_state_changed(IEvent *event) {
+void
+CVBoxManagerLinux::on_machine_state_changed(IEvent *event) {
   IMachineStateChangedEvent* msc_event;
   event->QueryInterface(IMachineStateChangedEvent::GetIID(), (void**)&msc_event);
   QString str_machine_id = machine_id_from_machine_event(event);
-  uint32_t new_state;
+  MachineState_T new_state;
   msc_event->GetState(&new_state);
+  CApplicationLog::Instance()->LogTrace("New machine state : %x, %s",
+                                        new_state,
+                                        CVBoxCommons::vm_state_to_str(new_state));
   if (m_dct_machines.find(str_machine_id) != m_dct_machines.end())
     m_dct_machines[str_machine_id]->set_state(new_state); //because we can remove VM earlier
   emit vm_state_changed(str_machine_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
+void
+CVBoxManagerLinux::on_machine_registered(IEvent *event) {
   IMachineRegisteredEvent* mr_event;
   event->QueryInterface(IMachineRegisteredEvent::GetIID(), (void**)&mr_event);
   PRBool registered;
@@ -148,7 +154,8 @@ void CVBoxManagerLinux::on_machine_registered(IEvent *event) {
 ////////////////////////////////////////////////////////////////////////////
 
 //TODO check if we need this :)
-void CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
+void
+CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
   ISessionStateChangedEvent* ssc_event;
   nsresult rc = event->QueryInterface(ISessionStateChangedEvent::GetIID(), (void**)&ssc_event);
   if (NS_FAILED(rc)) {
@@ -162,12 +169,14 @@ void CVBoxManagerLinux::on_session_state_changed(IEvent *event) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBoxManagerLinux::on_machine_event(IEvent *event) {
+void
+CVBoxManagerLinux::on_machine_event(IEvent *event) {
   UNUSED_ARG(event);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::init_machines() {
+int
+CVBoxManagerLinux::init_machines() {
   uint32_t count, rh_count = 0;
   IMachine **machines;
   nsresult rc;
@@ -224,7 +233,8 @@ int CVBoxManagerLinux::init_machines() {
   } \
   } while(0)
 
-int CVBoxManagerLinux::launch_vm(const QString &vm_id,
+int
+CVBoxManagerLinux::launch_vm(const QString &vm_id,
                                  vb_launch_mode_t lm /*= VBML_HEADLESS*/) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
@@ -233,32 +243,32 @@ int CVBoxManagerLinux::launch_vm(const QString &vm_id,
   state = m_dct_machines[vm_id]->state();
 
   switch (state) {
-    case VMS_Null:
-    case VMS_PoweredOff:
-    case VMS_Saved:
-    case VMS_Teleported:
-    case VMS_Aborted:
-    case VMS_Running:
-    case VMS_Paused:
+    case MachineState_Null:
+    case MachineState_PoweredOff:
+    case MachineState_Saved:
+    case MachineState_Teleported:
+    case MachineState_Aborted:
+    case MachineState_Running:
+    case MachineState_Paused:
       break;
-    /*case VMS_Stuck:
-    case VMS_Teleporting:
-    case VMS_LiveSnapshotting:
-    case VMS_Starting:
-    case VMS_Stopping:
-    case VMS_Saving:
-    case VMS_Restoring:
-    case VMS_TeleportingPausedVM:
-    case VMS_TeleportingIn:
-    case VMS_FaultTolerantSyncing:
-    case VMS_DeletingSnapshotOnline:
-    case VMS_DeletingSnapshotPaused:
-    case VMS_OnlineSnapshotting:
-    case VMS_RestoringSnapshot:
-    case VMS_DeletingSnapshot:
-    case VMS_SettingUp:
-    case VMS_Snapshotting:
-    case VMS_UNDEFINED:*/
+    /*case MachineState_Stuck:
+    case MachineState_Teleporting:
+    case MachineState_LiveSnapshotting:
+    case MachineState_Starting:
+    case MachineState_Stopping:
+    case MachineState_Saving:
+    case MachineState_Restoring:
+    case MachineState_TeleportingPausedVM:
+    case MachineState_TeleportingIn:
+    case MachineState_FaultTolerantSyncing:
+    case MachineState_DeletingSnapshotOnline:
+    case MachineState_DeletingSnapshotPaused:
+    case MachineState_OnlineSnapshotting:
+    case MachineState_RestoringSnapshot:
+    case MachineState_DeletingSnapshot:
+    case MachineState_SettingUp:
+    case MachineState_Snapshotting:*/
+
     default:
       return 2; //todo enum
   }
@@ -274,39 +284,39 @@ int CVBoxManagerLinux::launch_vm(const QString &vm_id,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::turn_off(const QString &vm_id, bool save_state) {
+int
+CVBoxManagerLinux::turn_off(const QString &vm_id, bool save_state) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
 
   switch (state) {
-    case VMS_Running:
-    case VMS_Paused:
-    case VMS_Starting:
+    case MachineState_Running:
+    case MachineState_Paused:
+    case MachineState_Starting:
       break;
-    /*case VMS_Null:
-    case VMS_PoweredOff:
-    case VMS_Saved:
-    case VMS_Teleported:
-    case VMS_Aborted:
-    case VMS_Stuck:
-    case VMS_Stopping:
-    case VMS_LiveSnapshotting:
-    case VMS_Saving:
-    case VMS_Restoring:
-    case VMS_Teleporting:
-    case VMS_TeleportingPausedVM:
-    case VMS_TeleportingIn:
-    case VMS_FaultTolerantSyncing:
-    case VMS_DeletingSnapshotOnline:
-    case VMS_DeletingSnapshotPaused:
-    case VMS_OnlineSnapshotting:
-    case VMS_RestoringSnapshot:
-    case VMS_DeletingSnapshot:
-    case VMS_SettingUp:
-    case VMS_Snapshotting:
-    case VMS_UNDEFINED:*/
+    /*case MachineState_Null:
+    case MachineState_PoweredOff:
+    case MachineState_Saved:
+    case MachineState_Teleported:
+    case MachineState_Aborted:
+    case MachineState_Stuck:
+    case MachineState_Stopping:
+    case MachineState_LiveSnapshotting:
+    case MachineState_Saving:
+    case MachineState_Restoring:
+    case MachineState_Teleporting:
+    case MachineState_TeleportingPausedVM:
+    case MachineState_TeleportingIn:
+    case MachineState_FaultTolerantSyncing:
+    case MachineState_DeletingSnapshotOnline:
+    case MachineState_DeletingSnapshotPaused:
+    case MachineState_OnlineSnapshotting:
+    case MachineState_RestoringSnapshot:
+    case MachineState_DeletingSnapshot:
+    case MachineState_SettingUp:
+    case MachineState_Snapshotting:*/
     default:
       return 2; //todo enum
   }
@@ -332,7 +342,8 @@ int CVBoxManagerLinux::turn_off(const QString &vm_id, bool save_state) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::pause(const QString &vm_id) {
+int
+CVBoxManagerLinux::pause(const QString &vm_id) {
   // Machine can be Paused only from Running/Teleporting/LiveSnapShotting State = 5
 
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
@@ -341,32 +352,31 @@ int CVBoxManagerLinux::pause(const QString &vm_id) {
   state = m_dct_machines[vm_id]->state();
 
   switch (state) {
-    case VMS_Running:
-    case VMS_Teleporting:
-    case VMS_LiveSnapshotting:
+    case MachineState_Running:
+    case MachineState_Teleporting:
+    case MachineState_LiveSnapshotting:
       break;
-    /*case VMS_Null:
-    case VMS_Paused:
-    case VMS_Starting:
-    case VMS_PoweredOff:
-    case VMS_Saved:
-    case VMS_Teleported:
-    case VMS_Aborted:
-    case VMS_Stuck:
-    case VMS_Stopping:
-    case VMS_Saving:
-    case VMS_Restoring:
-    case VMS_TeleportingPausedVM:
-    case VMS_TeleportingIn:
-    case VMS_FaultTolerantSyncing:
-    case VMS_DeletingSnapshotOnline:
-    case VMS_DeletingSnapshotPaused:
-    case VMS_OnlineSnapshotting:
-    case VMS_RestoringSnapshot:
-    case VMS_DeletingSnapshot:
-    case VMS_SettingUp:
-    case VMS_Snapshotting:
-    case VMS_UNDEFINED:*/
+    /*case MachineState_Null:
+    case MachineState_Paused:
+    case MachineState_Starting:
+    case MachineState_PoweredOff:
+    case MachineState_Saved:
+    case MachineState_Teleported:
+    case MachineState_Aborted:
+    case MachineState_Stuck:
+    case MachineState_Stopping:
+    case MachineState_Saving:
+    case MachineState_Restoring:
+    case MachineState_TeleportingPausedVM:
+    case MachineState_TeleportingIn:
+    case MachineState_FaultTolerantSyncing:
+    case MachineState_DeletingSnapshotOnline:
+    case MachineState_DeletingSnapshotPaused:
+    case MachineState_OnlineSnapshotting:
+    case MachineState_RestoringSnapshot:
+    case MachineState_DeletingSnapshot:
+    case MachineState_SettingUp:
+    case MachineState_Snapshotting:*/
     default:
       return 2; //todo enum
   }
@@ -382,12 +392,13 @@ int CVBoxManagerLinux::pause(const QString &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::resume(const QString &vm_id) {
+int
+CVBoxManagerLinux::resume(const QString &vm_id) {
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
     return 1;
   nsresult rc, state;
   state = m_dct_machines[vm_id]->state();
-  if (state != VMS_Paused)
+  if (state != MachineState_Paused)
     return 2;
 
   //nsCOMPtr<IProgress> progress;
@@ -401,7 +412,8 @@ int CVBoxManagerLinux::resume(const QString &vm_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::remove(const QString &vm_id) {
+int
+CVBoxManagerLinux::remove(const QString &vm_id) {
   // Machine can be Removed if State < 5
   QMessageBox msg;
   msg.setIcon(QMessageBox::Question);
@@ -422,33 +434,32 @@ int CVBoxManagerLinux::remove(const QString &vm_id) {
   state = m_dct_machines[vm_id]->state();
 
   switch (state) {
-    case VMS_Null:
-    case VMS_PoweredOff:
-    case VMS_Saved:
-    case VMS_Teleported:
-    case VMS_Aborted:
+    case MachineState_Null:
+    case MachineState_PoweredOff:
+    case MachineState_Saved:
+    case MachineState_Teleported:
+    case MachineState_Aborted:
       break;
 
-    case VMS_Running:
-    case VMS_Paused:
-    case VMS_Stuck:
-    case VMS_Teleporting:
-    case VMS_LiveSnapshotting:
-    case VMS_Starting:
-    case VMS_Stopping:
-    case VMS_Saving:
-    case VMS_Restoring:
-    case VMS_TeleportingPausedVM:
-    case VMS_TeleportingIn:
-    case VMS_FaultTolerantSyncing:
-    case VMS_DeletingSnapshotOnline:
-    case VMS_DeletingSnapshotPaused:
-    case VMS_OnlineSnapshotting:
-    case VMS_RestoringSnapshot:
-    case VMS_DeletingSnapshot:
-    case VMS_SettingUp:
-    case VMS_Snapshotting:
-    case VMS_UNDEFINED:
+    case MachineState_Running:
+    case MachineState_Paused:
+    case MachineState_Stuck:
+    case MachineState_Teleporting:
+    case MachineState_LiveSnapshotting:
+    case MachineState_Starting:
+    case MachineState_Stopping:
+    case MachineState_Saving:
+    case MachineState_Restoring:
+    case MachineState_TeleportingPausedVM:
+    case MachineState_TeleportingIn:
+    case MachineState_FaultTolerantSyncing:
+    case MachineState_DeletingSnapshotOnline:
+    case MachineState_DeletingSnapshotPaused:
+    case MachineState_OnlineSnapshotting:
+    case MachineState_RestoringSnapshot:
+    case MachineState_DeletingSnapshot:
+    case MachineState_SettingUp:
+    case MachineState_Snapshotting:
     default:
       msg.setIcon(QMessageBox::Information);
       msg.setText(tr("Virtual machine can not be removed!"));
@@ -465,7 +476,8 @@ int CVBoxManagerLinux::remove(const QString &vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CVBoxManagerLinux::add(const QString &vm_id) {
+int
+CVBoxManagerLinux::add(const QString &vm_id) {
   UNUSED_ARG(vm_id);
   return NS_OK;
 }
@@ -489,7 +501,8 @@ CVBoxManagerLinux::shutdown_com() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CVBoxManagerLinux::event_listener_th(CVBoxManagerLinux* manager) {
+void
+CVBoxManagerLinux::event_listener_th(CVBoxManagerLinux* manager) {
   while (manager->m_event_listening) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     IEvent *event;
@@ -519,4 +532,3 @@ void CVBoxManagerLinux::event_listener_th(CVBoxManagerLinux* manager) {
   manager->m_event_listening = true;
 }
 ////////////////////////////////////////////////////////////////////////////
-
