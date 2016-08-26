@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QClipboard>
+#include <RestWorker.h>
 
 #include "DlgGenerateSshKey.h"
 #include "ui_DlgGenerateSshKey.h"
@@ -21,21 +22,20 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(ui->btn_generate, SIGNAL(released()), this, SLOT(btn_generate_released()));
   connect(ui->btn_copy_to_clipboard, SIGNAL(released()),
           this, SLOT(btn_copy_to_clipboard_released()));
+  connect(ui->btn_add_to_environments, SIGNAL(released()),
+          this, SLOT(btn_add_to_environments_released()));
 }
 
-DlgGenerateSshKey::~DlgGenerateSshKey()
-{
+DlgGenerateSshKey::~DlgGenerateSshKey() {
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgGenerateSshKey::generate_new_ssh() {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() +
-                 CHubController::Instance().current_user();
-  QFile key(path);
-  QFile key_pub(path+".pub");
+
+  QFile key(ssh_private_key_path());
+  QFile key_pub(ssh_pub_key_path());
 
   if (key.exists() && key_pub.exists()) {
     key.remove();
@@ -44,7 +44,7 @@ DlgGenerateSshKey::generate_new_ssh() {
 
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user().toStdString().c_str(),
-                                           path.toStdString().c_str());
+                                           ssh_private_key_path().toStdString().c_str());
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->NotifyAboutError(
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
@@ -56,15 +56,31 @@ DlgGenerateSshKey::generate_new_ssh() {
 
 void
 DlgGenerateSshKey::set_key_text() {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() +
-                 CHubController::Instance().current_user() + ".pub";
+  QString path = ssh_pub_key_path();
   QFile file(path);
   if (file.exists()) {
     file.open(QFile::ReadOnly);
     QByteArray bytes = file.readAll();
     ui->te_ssh_key->setText(QString(bytes));
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+QString
+DlgGenerateSshKey::ssh_pub_key_path() const {
+  QString path = CSettingsManager::Instance().ssh_keys_storage() +
+                 QDir::separator() +
+                 CHubController::Instance().current_user() + ".pub";
+  return path;
+}
+////////////////////////////////////////////////////////////////////////////
+
+QString
+DlgGenerateSshKey::ssh_private_key_path() const {
+  QString path = CSettingsManager::Instance().ssh_keys_storage() +
+                 QDir::separator() +
+                 CHubController::Instance().current_user();
+  return path;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -99,9 +115,31 @@ DlgGenerateSshKey::btn_generate_released() {
 void
 DlgGenerateSshKey::btn_copy_to_clipboard_released() {
   QString text = ui->te_ssh_key->toPlainText();
-  if (text.isEmpty())
-    return;
+  if (text.isEmpty()) return;
   ui->te_ssh_key->selectAll();
   QApplication::clipboard()->setText(text, QClipboard::Clipboard);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::btn_add_to_environments_released() {
+  QString text = ui->te_ssh_key->toPlainText();
+  if (text.isEmpty()) return;
+  int http_code, err_code, network_err;
+  CRestWorker::Instance()->send_ssh_key(text, http_code, err_code, network_err);
+  CApplicationLog::Instance()->LogTrace("send ssh results : %d %d %d",
+                                        http_code, err_code, network_err);
+  QMessageBox *msg = new QMessageBox(this);
+  if (err_code == RE_SUCCESS) {
+    msg->setWindowTitle("Success");
+    msg->setText("Operation successful completed");
+    msg->addButton(QMessageBox::Yes);
+  } else {
+    msg->setWindowTitle("Operation failed");
+    msg->setText("Add ssh to environments failed");
+    msg->addButton(QMessageBox::Yes);
+  }
+  msg->exec();
+  delete msg;
 }
 ////////////////////////////////////////////////////////////////////////////

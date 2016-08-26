@@ -231,6 +231,25 @@ CRestWorker::rest_err_to_str(rest_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void
+CRestWorker::send_ssh_key(const QString &key,
+                          int &http_code,
+                          int &err_code,
+                          int &network_err) {
+  QJsonObject obj;
+  QJsonArray keys_arr;
+  keys_arr.push_back(QJsonValue(key));
+  obj["sshKeys"] = keys_arr;
+  QJsonDocument doc(obj);
+  QByteArray doc_serialized = doc.toJson();
+  CApplicationLog::Instance()->LogTrace("%s", doc_serialized.toStdString().c_str());
+  QUrl url(CSettingsManager::Instance().post_url().arg("ssh-keys"));
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  send_request(req, false, http_code, err_code, network_err, doc_serialized, false, true);
+}
+////////////////////////////////////////////////////////////////////////////
+
 QByteArray
 CRestWorker::send_request(QNetworkRequest &req,
                           bool get,
@@ -254,7 +273,7 @@ CRestWorker::send_request(QNetworkRequest &req,
   QEventLoop loop;
   QTimer timer(&loop);
   timer.setSingleShot(true);
-  timer.start(6000);
+  timer.start(8000);
 
   QNetworkReply* reply =
       get ? m_network_manager->get(req) : m_network_manager->post(req, data);
