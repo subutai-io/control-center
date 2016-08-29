@@ -152,6 +152,8 @@ private:
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
+  std::map<QString, QDialog*> m_dct_active_dialogs;
+
   void create_tray_actions();
   void create_tray_icon();
   int fill_vm_menu();
@@ -161,8 +163,11 @@ private:
   void refresh_balance();
   void refresh_environments();
   void launch_ss(QAction *act);
+
+  void show_dialog(QDialog* dlg);
 private slots:
   /*tray slots*/
+  void dialog_closed(int unused);
   void show_about();
   void application_quit();
   void show_settings_dialog();  \

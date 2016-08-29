@@ -242,7 +242,6 @@ CRestWorker::send_ssh_key(const QString &key,
   obj["sshKeys"] = keys_arr;
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
-  CApplicationLog::Instance()->LogTrace("%s", doc_serialized.toStdString().c_str());
   QUrl url(CSettingsManager::Instance().post_url().arg("ssh-keys"));
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
@@ -293,7 +292,7 @@ CRestWorker::send_request(QNetworkRequest &req,
 
   loop.exec();
 
-  //timer active if timeout didn't fire
+  //timer is active if timeout didn't fire
   if (!timer.isActive()) {
     reply->abort();
     err_code = RE_TIMEOUT;
