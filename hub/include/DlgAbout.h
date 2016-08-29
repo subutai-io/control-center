@@ -18,6 +18,7 @@ public:
   static const int COMPONENTS_COUNT = 7;
 public slots:
   void do_initialization();
+  void abort();
 signals:
   void init_progress(int part, int total);
   void finished();
@@ -36,7 +37,6 @@ class DlgAbout : public QDialog
 public:
   explicit DlgAbout(QWidget *parent = 0);
   ~DlgAbout();
-
 
 private:
   Ui::DlgAbout *ui;

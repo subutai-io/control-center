@@ -48,6 +48,10 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
   connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+
+  connect(this, SIGNAL(finished(int)),
+          di, SLOT(abort()));
+
   di->moveToThread(th);
   th->start();
 
@@ -160,7 +164,6 @@ void
 DlgAboutInitializer::do_initialization() {
   int initialized_component_count = 0;
   std::string str_version;
-
   CSystemCallWrapper::p2p_version(str_version);
   QString p2p_version = QString::fromStdString(str_version);
   emit got_p2p_version(p2p_version);
@@ -189,5 +192,11 @@ DlgAboutInitializer::do_initialization() {
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
   }
 
+  emit finished();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAboutInitializer::abort() {
   emit finished();
 }
