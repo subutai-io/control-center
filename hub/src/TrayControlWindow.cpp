@@ -651,8 +651,12 @@ TrayControlWindow::show_dialog(QDialog *dlg) {
     dlg->show();
     connect(dlg, SIGNAL(finished(int)), this, SLOT(dialog_closed(int)));
   } else {
-    if (iter->second)
+    if (iter->second) {
+      iter->second->show();
       iter->second->activateWindow();
+      iter->second->raise();
+      iter->second->setFocus();
+    }
     delete dlg; //because we have another one. maybe we need to change creation of dialog.
   }
 }
