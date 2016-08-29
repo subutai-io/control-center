@@ -663,10 +663,11 @@ TrayControlWindow::dialog_closed(int unused) {
   UNUSED_ARG(unused);
   QDialog* dlg = qobject_cast<QDialog*>(sender());
   if (dlg == nullptr) return;
-  auto iter = m_dct_active_dialogs.find(dlg->windowTitle());
+  QString title = dlg->windowTitle();
+  dlg->deleteLater();
+  auto iter = m_dct_active_dialogs.find(title);
   if (iter == m_dct_active_dialogs.end()) return;
-  m_dct_active_dialogs.erase(iter);
-  delete dlg;
+  m_dct_active_dialogs.erase(iter);  
 }
 ////////////////////////////////////////////////////////////////////////////
 
