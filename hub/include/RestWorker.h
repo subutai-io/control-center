@@ -55,6 +55,10 @@ public:
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);
+  void send_ssh_key(const QString &key,
+                    int &http_code,
+                    int &err_code,
+                    int &network_err);
 
 private:
   QNetworkAccessManager *m_network_manager;

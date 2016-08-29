@@ -31,15 +31,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
   m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
-}
 
-DlgAbout::~DlgAbout() {
-  delete ui;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void DlgAbout::load_data() {
-  //init dct
   QThread* th = new QThread;
   DlgAboutInitializer* di = new DlgAboutInitializer;
   connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
@@ -58,6 +50,11 @@ void DlgAbout::load_data() {
   connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
   di->moveToThread(th);
   th->start();
+
+}
+
+DlgAbout::~DlgAbout() {
+  delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
 

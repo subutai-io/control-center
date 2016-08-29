@@ -259,18 +259,6 @@ TrayControlWindow::create_tray_icon() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::show_settings_dialog() {
-  DlgSettings dlg(this);
-#ifdef RT_OS_LINUX
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
-  dlg.move(curpos.x(), 0);
-#endif
-  dlg.exec();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 TrayControlWindow::notification_received(notification_level_t level,
                                          const QString &msg) {
   static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
@@ -649,16 +637,48 @@ void TrayControlWindow::launch_ss(QAction* act) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::show_about() {
-  DlgAbout *dlg = new DlgAbout(this);
+TrayControlWindow::show_dialog(QDialog *dlg) {
+  std::map<QString, QDialog*>::iterator iter =
+    m_dct_active_dialogs.find(dlg->windowTitle());
+
+  if (iter == m_dct_active_dialogs.end()) {
+    m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 #ifdef RT_OS_LINUX
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250); //todo calculate it
-  dlg->move(curpos.x(), 0);
+    QPoint curpos = QCursor::pos();
+    curpos.setX(curpos.x() - 250);
+    dlg->move(curpos.x(), 0);
 #endif
-  dlg->show();
-  dlg->load_data();
-  connect(dlg, SIGNAL(finished(int)), dlg, SLOT(deleteLater()));
+    dlg->show();
+    connect(dlg, SIGNAL(finished(int)), this, SLOT(dialog_closed(int)));
+  } else {
+    if (iter->second)
+      iter->second->activateWindow();
+    delete dlg; //because we have another one. maybe we need to change creation of dialog.
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::dialog_closed(int unused) {
+  UNUSED_ARG(unused);
+  QDialog* dlg = qobject_cast<QDialog*>(sender());
+  if (dlg == nullptr) return;
+  auto iter = m_dct_active_dialogs.find(dlg->windowTitle());
+  if (iter == m_dct_active_dialogs.end()) return;
+  m_dct_active_dialogs.erase(iter);
+  delete dlg;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::show_settings_dialog() {
+  show_dialog(new DlgSettings(this));
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::show_about() {
+  show_dialog(new DlgAbout(this));
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -856,13 +876,7 @@ CVBPlayerItem::vbox_menu_btn_rem_released() {
 
 void
 TrayControlWindow::ssh_key_generate_triggered() {
-  DlgGenerateSshKey dlg(this);
-#ifdef RT_OS_LINUX
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
-  dlg.move(curpos.x(), 0);
-#endif
-  dlg.exec();
+  show_dialog(new DlgGenerateSshKey(this));
 }
 ////////////////////////////////////////////////////////////////////////////
 

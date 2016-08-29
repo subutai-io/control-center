@@ -11,12 +11,12 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>SSH key generation</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0" colspan="2">
+     <item row="0" column="0" colspan="3">
       <widget class="QLabel" name="lbl_description">
        <property name="text">
         <string>Here you can see ssh key. Copy it to clipboard and then go to SS console. There you need to go to environments section. Click Environments. link on the left, At the bottom of the page you will see the list of environments. Click Add link below SSH key column to add the key to all environment containers.</string>
@@ -29,7 +29,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
+     <item row="1" column="0" colspan="3">
       <widget class="QTextEdit" name="te_ssh_key">
        <property name="readOnly">
         <bool>true</bool>
@@ -44,6 +44,13 @@
       </widget>
      </item>
      <item row="2" column="1">
+      <widget class="QPushButton" name="btn_add_to_environments">
+       <property name="text">
+        <string>Add key to environments</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
       <widget class="QPushButton" name="btn_copy_to_clipboard">
        <property name="text">
         <string>Copy to clipboard</string>
