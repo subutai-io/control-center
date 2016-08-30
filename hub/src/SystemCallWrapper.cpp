@@ -261,6 +261,21 @@ CSystemCallWrapper::leave_p2p_swarm(const char *hash) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
+CSystemCallWrapper::restart_p2p_service(int *res_code) {
+#if defined(RT_OS_LINUX)
+  *res_code = RSE_MANUAL;
+  return SCWE_SUCCESS;
+#elif defined(RT_OS_WINDOWS)
+#else
+  /*"osascript -e 'do shell script
+   * \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;
+   * launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\"
+   * with administrator privileges'*/
+#endif
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
 CSystemCallWrapper::check_container_state(const char *hash,
                                           const char *ip) {
   std::ostringstream str_stream;
