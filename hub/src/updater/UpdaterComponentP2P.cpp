@@ -99,7 +99,7 @@ CUpdaterComponentP2P::update_internal() {
   connect(dm, SIGNAL(download_progress_sig(QString,qint64,qint64)),
           this, SLOT(update_progress_sl(QString,qint64,qint64)));
 
-  connect(dm, SIGNAL(finished(QString, bool)), eu, SLOT(replace_executables(QString,bool)));
+  connect(dm, SIGNAL(finished(QString,bool)), eu, SLOT(replace_executables(QString,bool)));
   connect(eu, SIGNAL(finished(QString,bool)), this, SLOT(update_finished_sl(QString,bool)));
   connect(eu, SIGNAL(finished(QString,bool)), dm, SLOT(deleteLater()));
   connect(eu, SIGNAL(finished(QString,bool)), eu, SLOT(deleteLater()));
@@ -112,11 +112,21 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action() {
   CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
-  QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! P2P update finished",
-                      "P2P has been updated. Restart p2p daemon, please",
-                      QMessageBox::Ok);
-  connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
-  msg_box->exec();
-  return;
+  int rse_err = 0;
+  system_call_wrapper_error_t scwe =
+      CSystemCallWrapper::restart_p2p_service(&rse_err);
+  if (scwe != SCWE_SUCCESS) {
+    CNotificationObserver::Instance()->NotifyAboutError(QString("p2p post update failed. err : ").
+                                                        arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
+    return;
+  }
+
+  if (rse_err == RSE_MANUAL) {
+    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! P2P update finished",
+                                           "P2P has been updated. Restart p2p daemon, please",
+                                           QMessageBox::Ok);
+    connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+    msg_box->exec();
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
