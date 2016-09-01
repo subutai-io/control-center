@@ -261,6 +261,27 @@ CSystemCallWrapper::leave_p2p_swarm(const char *hash) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
+CSystemCallWrapper::restart_p2p_service(int *res_code) {
+#if defined(RT_OS_LINUX)
+  *res_code = RSE_MANUAL;
+  return SCWE_SUCCESS;
+#elif defined(RT_OS_WINDOWS)
+  static const char* cmd = "sc stop \"Subutai Social P2P\" && sc start \"Subutai Social P2P\"";
+#else
+  static const char* cmd = "osascript -e 'do shell script"
+                           " \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
+                           " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+                           " with administrator privileges'"; 
+#endif
+  std::vector<std::string> lst_out;
+  int ec = 0;
+  system_call_wrapper_error_t res = ssystem_th(cmd, lst_out, ec, true);
+  *res_code = RSE_SUCCESS;
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
 CSystemCallWrapper::check_container_state(const char *hash,
                                           const char *ip) {
   std::ostringstream str_stream;
