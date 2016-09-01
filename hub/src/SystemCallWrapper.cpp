@@ -266,21 +266,18 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   *res_code = RSE_MANUAL;
   return SCWE_SUCCESS;
 #elif defined(RT_OS_WINDOWS)
+  static const char* cmd = "sc stop \"Subutai Social P2P\" && sc start \"Subutai Social P2P\"";
 #else
   static const char* cmd = "osascript -e 'do shell script"
                            " \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
                            " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-                           " with administrator privileges'";
+                           " with administrator privileges'"; 
+#endif
   std::vector<std::string> lst_out;
   int ec = 0;
   system_call_wrapper_error_t res = ssystem_th(cmd, lst_out, ec, true);
-  for (auto i = lst_out.begin(); i != lst_out.end(); ++i) {
-    CApplicationLog::Instance()->LogTrace("%s", i->c_str());
-  }
-  CApplicationLog::Instance()->LogTrace("res : %d", res);
   *res_code = RSE_SUCCESS;
   return res;
-#endif
 }
 ////////////////////////////////////////////////////////////////////////////
 
