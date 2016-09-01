@@ -138,13 +138,14 @@ public:
   static system_call_wrapper_error_t p2p_version(std::string& version);
   static system_call_wrapper_error_t p2p_status(std::string& status);
 
-  //where on windows :)
   static system_call_wrapper_error_t which(const std::string& prog,
                                            std::string& path);
 
   static system_call_wrapper_error_t chrome_version(std::string& version);
   static QString virtual_box_version();
   static const QString& scwe_error_to_str(system_call_wrapper_error_t err);
+
+  static system_call_wrapper_error_t top(std::vector<std::string>& lst_out, int &exit_code);
 
 };
 
