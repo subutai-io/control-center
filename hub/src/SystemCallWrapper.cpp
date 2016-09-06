@@ -562,6 +562,9 @@ CSystemCallWrapper::which(const std::string &prog,
 
   if (exit_code == success_ec && !lst_out.empty()) {
     path = lst_out[0];
+    size_t index ;
+    if ((index = path.find('\n')) != std::string::npos)
+      path.replace(index, 1, "\0");
     return SCWE_SUCCESS;
   }
 
