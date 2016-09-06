@@ -263,6 +263,7 @@ CSystemCallWrapper::leave_p2p_swarm(const char *hash) {
 system_call_wrapper_error_t
 CSystemCallWrapper::restart_p2p_service(int *res_code) {
 #if defined(RT_OS_LINUX)
+  static const char* cmd = "";
   *res_code = RSE_MANUAL;
   return SCWE_SUCCESS;
 #elif defined(RT_OS_WINDOWS)
@@ -562,6 +563,9 @@ CSystemCallWrapper::which(const std::string &prog,
 
   if (exit_code == success_ec && !lst_out.empty()) {
     path = lst_out[0];
+    size_t index ;
+    if ((index = path.find('\n')) != std::string::npos)
+      path.replace(index, 1, "\0");
     return SCWE_SUCCESS;
   }
 
