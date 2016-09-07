@@ -132,7 +132,7 @@ DlgGenerateSshKey::btn_add_to_environments_released() {
   QMessageBox *msg = new QMessageBox(this);
   if (err_code == RE_SUCCESS) {
     msg->setWindowTitle("Success");
-    msg->setText("Operation successful completed");
+    msg->setText("Operation successfuly completed");
     msg->addButton(QMessageBox::Yes);
   } else {
     msg->setWindowTitle("Operation failed");

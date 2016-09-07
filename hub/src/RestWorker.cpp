@@ -1,10 +1,13 @@
 #include <QTimer>
 #include <QEventLoop>
-#include "SettingsManager.h"
 #include "RestWorker.h"
 #include "ApplicationLog.h"
-#include "SystemCallWrapper.h"
 #include "NotifiactionObserver.h"
+
+static const QString POST_URL("https://hub.subut.ai/rest/v1/tray/%1");
+static const QString GET_URL("https://hub.subut.ai/rest/v1/tray/%1");
+static const QString HEALTH_URL("https://hub.subut.ai/rest/v1/tray/tray-data");
+static const QString GORJUN_URL("https://cdn.subut.ai:8338/kurjun/rest/%1");
 
 CRestWorker::CRestWorker() :
   m_network_manager(NULL) {
@@ -37,7 +40,7 @@ CRestWorker::login(const QString& login,
                    int &http_code,
                    int &err_code,
                    int &network_error) {
-  QUrl url_login(CSettingsManager::Instance().post_url().arg("login"));
+  QUrl url_login(POST_URL.arg("login"));
   QUrlQuery query_login;
   query_login.addQueryItem("email", login);
   query_login.addQueryItem("password", password);
@@ -62,7 +65,7 @@ CRestWorker::get_request_json_document(const QString &link,
                                        int &http_code,
                                        int &err_code,
                                        int &network_error) {
-  QUrl url_env(CSettingsManager::Instance().get_url().arg(link));
+  QUrl url_env(GET_URL.arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = send_request(req, true, http_code, err_code, network_error,
@@ -133,7 +136,7 @@ std::vector<CGorjunFileInfo>
 CRestWorker::get_gorjun_file_info(const QString &file_name) {
   static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(CSettingsManager::Instance().gorjun_url().arg(str_fi));
+  QUrl url_gorjun_fi(GORJUN_URL.arg(str_fi));
   QUrlQuery query_gorjun_fi;
   query_gorjun_fi.addQueryItem("name", file_name);
   url_gorjun_fi.setQuery(query_gorjun_fi);
@@ -178,11 +181,9 @@ CRestWorker::is_ss_console_ready(const QString &url,
 void
 CRestWorker::send_health_request(int &http_code,
                                 int &err_code,
-                                int &network_err) {
-
-  std::string p2p_version, p2p_status;
-  CSystemCallWrapper::p2p_version(p2p_version);
-  CSystemCallWrapper::p2p_status(p2p_status);
+                                int &network_err,
+                                 const std::string& p2p_version,
+                                 const std::string& p2p_status) {
 
   CHealthReportData report_data(
         QString(p2p_status.c_str()),
@@ -192,7 +193,7 @@ CRestWorker::send_health_request(int &http_code,
   CTrayReport<CHealthReportData> report(report_data);
   QJsonDocument doc(report.to_json_object());
 
-  QUrl url(CSettingsManager::Instance().health_url());
+  QUrl url(HEALTH_URL);
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   send_request(req, false, http_code, err_code, network_err, doc.toJson(), false, true);
@@ -202,7 +203,7 @@ CRestWorker::send_health_request(int &http_code,
 QNetworkReply*
 CRestWorker::download_gorjun_file(const QString &file_id) {
   static const QString str_file_url("raw/download");
-  QUrl url(CSettingsManager::Instance().gorjun_url().arg(str_file_url));
+  QUrl url(GORJUN_URL.arg(str_file_url));
   QUrlQuery query;
   query.addQueryItem("id", file_id);
   url.setQuery(query);
@@ -242,7 +243,7 @@ CRestWorker::send_ssh_key(const QString &key,
   obj["sshKeys"] = keys_arr;
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
-  QUrl url(CSettingsManager::Instance().post_url().arg("ssh-keys"));
+  QUrl url(POST_URL.arg("ssh-keys"));
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   send_request(req, false, http_code, err_code, network_err, doc_serialized, false, true);

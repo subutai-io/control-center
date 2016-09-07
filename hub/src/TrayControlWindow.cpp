@@ -385,7 +385,10 @@ void
 TrayControlWindow::report_timer_timeout() {
   m_report_timer.stop();
   int http_code, err_code, network_err;
-  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err);
+  std::string p2p_version, p2p_status;
+  CSystemCallWrapper::p2p_version(p2p_version);
+  CSystemCallWrapper::p2p_status(p2p_status);
+  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err, p2p_version, p2p_status);
   m_report_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -637,11 +640,13 @@ void TrayControlWindow::launch_ss(QAction* act) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::show_dialog(QDialog *dlg) {
+TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString& title) {
   std::map<QString, QDialog*>::iterator iter =
-    m_dct_active_dialogs.find(dlg->windowTitle());
+    m_dct_active_dialogs.find(title);
 
   if (iter == m_dct_active_dialogs.end()) {
+    QDialog* dlg = pf_dlg_create(this);
+    dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 #ifdef RT_OS_LINUX
     QPoint curpos = QCursor::pos();
@@ -656,8 +661,7 @@ TrayControlWindow::show_dialog(QDialog *dlg) {
       iter->second->activateWindow();
       iter->second->raise();
       iter->second->setFocus();
-    }
-    delete dlg; //because we have another one. maybe we need to change creation of dialog.
+    }    
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -675,15 +679,24 @@ TrayControlWindow::dialog_closed(int unused) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QDialog* create_settings_dialog(QWidget* p) {return new DlgSettings(p);}
 void
 TrayControlWindow::show_settings_dialog() {
-  show_dialog(new DlgSettings(this));
+  show_dialog(create_settings_dialog, "Settings");
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QDialog* create_about_dialog(QWidget* p) {return new DlgAbout(p);}
 void
 TrayControlWindow::show_about() {
-  show_dialog(new DlgAbout(this));
+  show_dialog(create_about_dialog, "About the program");
+}
+////////////////////////////////////////////////////////////////////////////
+
+QDialog* create_ssh_key_generate_dialog(QWidget* p) {return new DlgGenerateSshKey(p);}
+void
+TrayControlWindow::ssh_key_generate_triggered() {
+  show_dialog(create_ssh_key_generate_dialog, "SSH key generation");
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -878,12 +891,6 @@ CVBPlayerItem::vbox_menu_btn_rem_released() {
   emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 ///////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::ssh_key_generate_triggered() {
-  show_dialog(new DlgGenerateSshKey(this));
-}
-////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::ssh_to_container_finished(int result,

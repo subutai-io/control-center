@@ -164,7 +164,7 @@ private:
   void refresh_environments();
   void launch_ss(QAction *act);
 
-  void show_dialog(QDialog* dlg);
+  void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
