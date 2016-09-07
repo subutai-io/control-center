@@ -49,7 +49,7 @@ public:
   std::vector<CRHInfo> get_ssh_containers(int &http_code, int& err_code, int &network_error);
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
   int is_ss_console_ready(const QString& url, int &err_code, int &network_err);
-  void send_health_request(int &http_code, int &err_code, int &network_err);
+  void send_health_request(int &http_code, int &err_code, int &network_err, const std::string &p2p_version, const std::string &p2p_status);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
   QNetworkReply* download_file(const QUrl& url);

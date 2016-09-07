@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <QString>
 
+#define UNUSED_ARG(x) ((void)x)
+
 class CCommons {
 public:
 

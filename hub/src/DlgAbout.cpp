@@ -1,5 +1,5 @@
 #include <QThread>
-
+#include "Commons.h"
 #include "DlgAbout.h"
 #include "ui_DlgAbout.h"
 #include "SystemCallWrapper.h"
@@ -64,18 +64,21 @@ DlgAbout::~DlgAbout() {
 
 void
 DlgAbout::btn_tray_update_released() {
+  ui->btn_tray_update->setEnabled(false);
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::btn_p2p_update_released() {
+  ui->btn_p2p_update->setEnabled(false);
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::btn_rh_update_released() {
+  ui->btn_rh_update->setEnabled(false);
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::RH);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -118,7 +121,7 @@ DlgAbout::initialization_finished() {
 void
 DlgAbout::init_progress_sl(int part,
                            int total) {
-  (void) total; //right now we don't need to use it.
+  UNUSED_ARG(total);
   ui->pb_initialization_progress->setValue(part);
 }
 ////////////////////////////////////////////////////////////////////////////

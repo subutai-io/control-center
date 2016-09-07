@@ -15,7 +15,6 @@ typedef HRESULT nsresult;
 
 #include <stdint.h>
 
-#define UNUSED_ARG(x) ((void)x)
 /*
  * "gui": VirtualBox Qt GUI front-end
 "headless": VBoxHeadless (VRDE Server) front-end

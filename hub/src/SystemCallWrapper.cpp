@@ -327,14 +327,10 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
   CApplicationLog::Instance()->LogTrace("OSX ssh->container command : %s", str_stream.str().c_str());
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_LINUX
-  str_stream <<
-                CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-                " -e \"" << str_command.c_str() << ";bash\" &";
+  str_stream << "xterm -e \"" << str_command.c_str() << ";bash\" &";
   return system(str_stream.str().c_str()) == -1 ? SCWE_SSH_LAUNCH_FAILED : SCWE_SUCCESS;
 #elif RT_OS_WINDOWS
-  str_stream <<
-             CSettingsManager::Instance().terminal_path().toStdString().c_str() <<
-             " /k " << str_command.c_str();
+  str_stream << "cmd /k " << str_command.c_str();
   PROCESS_INFORMATION pi;
   STARTUPINFOA si;
   ZeroMemory( &pi, sizeof(PROCESS_INFORMATION) );
@@ -362,14 +358,11 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#include <QDebug>
 system_call_wrapper_error_t
 CSystemCallWrapper::generate_ssh_key(const char *comment,
                                      const char *file_path) {
   std::string key_str(file_path);
-  std::string str_command = CSettingsManager::Instance().ssh_keygen_path().toStdString() +
-                            std::string(" -t rsa") +
-                            std::string(" -f ") + key_str +
+  std::string str_command = std::string("ssh-keygen -t rsa -f ") + key_str +
                             std::string(" -C ") + std::string(comment) +
                             std::string(" -N \'\'");
   std::vector<std::string> lst_out;
