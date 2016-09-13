@@ -25,49 +25,48 @@ class CVBPlayerItem : public QWidget {
 private:
     QString m_vm_player_item_id;
     QAction* m_player_item_act;
+
+    QHBoxLayout *p_h_Layout;
+    QLabel *m_lbl_name;
+    QLabel *m_lbl_state;
+
+    QPushButton *m_btn_play;
+    QPushButton *m_btn_stop;
+    QPushButton *m_btn_add;
+    QPushButton *m_btn_remove;
+
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
     void set_buttons(MachineState_T state);
-    QAction* action() {return m_player_item_act;}
-    QHBoxLayout *p_h_Layout;
-    QLabel *lbl_name;
-    QLabel *lbl_state;
-    QPushButton *btn_play;
-    QPushButton *btn_stop;
-    QPushButton *btn_add;
-    QPushButton *btn_remove;
+
+private slots:
+    void vbox_menu_btn_play_released();
+    void vbox_menu_btn_stop_released();
+    void vbox_menu_btn_rem_released();
 
 signals:
     void vbox_menu_btn_play_released_signal(const QString& vm_id);
     void vbox_menu_btn_stop_released_signal(const QString& vm_id);
-    void vbox_menu_btn_add_released_signal(const QString& vm_id);
     void vbox_menu_btn_rem_released_signal(const QString& vm_id);
-
-public slots:
-    void vbox_menu_btn_play_released();
-    void vbox_menu_btn_stop_released();
-    void vbox_menu_btn_add_released();
-    void vbox_menu_btn_rem_released();
 };
 ////////////////////////////////////////////////////////////////////////////
 
 class CVBPlayer : public QWidget{
     Q_OBJECT
 private:
-    QString m_vm_player_id;
-    QVBoxLayout *p_v_Layout;
+    QVBoxLayout *m_vLayout;
     QAction* m_player_act;
-    QLabel *labelHeader;
-    QHBoxLayout *p_h_HeaderLayout;
-    void empty();
+    QLabel *m_lblHeader;
+    QHBoxLayout *m_horHeaderLayout;
+    int m_vm_count;
 
 public:
     CVBPlayer(QWidget *parent);
     virtual ~CVBPlayer();
     void add(CVBPlayerItem* pItem);
     void remove(CVBPlayerItem* pItem);
-    int vm_count;
+    int vm_count(void) const {return m_vm_count;}
 };
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -105,12 +104,10 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   ~TrayControlWindow();
-  CVBPlayer *m_w_Player;
 
 private:
+  CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
-  QVBoxLayout *m_w_Layout;
-//  CVBPlayer *m_w_Player;
   /*hub*/
   QTimer m_refresh_timer;
   QTimer m_report_timer;
@@ -118,7 +115,7 @@ private:
   /*hub end*/
 
   /*vbox*/
-  QWidgetAction *vboxAction;
+  QWidgetAction *m_vboxAction;
   std::map<QString, CVBPlayerItem*>  m_dct_player_menus;
   void add_vm_menu(const QString &vm_id);
   void remove_vm_menu(const QString &vm_id);
@@ -129,13 +126,6 @@ private:
   QMenu *m_vbox_menu;
   QMenu *m_player_menu;
   QMenu *m_launch_menu;
-  QMenu *m_info_menu;
-
-  QAction *m_hub_section;
-  QAction *m_vbox_section;
-  QAction *m_launch_section;
-  QAction *m_info_section;
-  QAction *m_quit_section;
 
   QAction *m_act_generate_ssh;
   QAction *m_act_quit;
@@ -162,7 +152,7 @@ private:
 
   void refresh_balance();
   void refresh_environments();
-  void launch_ss(QAction *act);
+  void launch_ss(QAction *act) const;
 
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 private slots:

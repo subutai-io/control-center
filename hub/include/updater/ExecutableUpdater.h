@@ -15,16 +15,15 @@ namespace update_system {
     CExecutableUpdater();
 
   public:
-    CExecutableUpdater(const QString& file_id,
-                       const QString& src,
+    CExecutableUpdater(const QString& src,
                        const QString& dst);
     ~CExecutableUpdater();
 
   public slots:
-    void replace_executables(QString file_id, bool was_successful_downloaded);
+    void replace_executables(bool was_successful_downloaded);
 
   signals:
-    void finished(QString, bool);
+    void finished(bool);
   };
 }
 

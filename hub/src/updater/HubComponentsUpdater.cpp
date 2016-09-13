@@ -33,19 +33,19 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
       this, SLOT(update_component_timer_timeout(const QString&)));
 
   ///
-  connect(uc_tray, SIGNAL(update_progress(QString,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(QString,qint64,qint64)));
-  connect(uc_p2p, SIGNAL(update_progress(QString,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(QString,qint64,qint64)));
-  connect(uc_rh, SIGNAL(update_progress(QString,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(QString,qint64,qint64)));
+  connect(uc_tray, SIGNAL(update_progress(const QString&,qint64,qint64)),
+          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
+  connect(uc_p2p, SIGNAL(update_progress(const QString&,qint64,qint64)),
+          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
+  connect(uc_rh, SIGNAL(update_progress(const QString&,qint64,qint64)),
+          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
 
-  connect(uc_tray, SIGNAL(update_finished(QString,bool)),
-          this, SLOT(update_component_finished_sl(QString,bool)));
-  connect(uc_p2p, SIGNAL(update_finished(QString,bool)),
-          this, SLOT(update_component_finished_sl(QString,bool)));
-  connect(uc_rh, SIGNAL(update_finished(QString,bool)),
-          this, SLOT(update_component_finished_sl(QString,bool)));
+  connect(uc_tray, SIGNAL(update_finished(const QString&,bool)),
+          this, SLOT(update_component_finished_sl(const QString&,bool)));
+  connect(uc_p2p, SIGNAL(update_finished(const QString&,bool)),
+          this, SLOT(update_component_finished_sl(const QString&,bool)));
+  connect(uc_rh, SIGNAL(update_finished(const QString&,bool)),
+          this, SLOT(update_component_finished_sl(const QString&,bool)));
 
   ///
   set_p2p_update_freq();
@@ -173,14 +173,14 @@ CHubComponentsUpdater::force_update(const QString &component_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubComponentsUpdater::update_component_progress_sl(QString file_id, qint64 cur,
-                                                                qint64 full) {
+CHubComponentsUpdater::update_component_progress_sl(const QString& file_id, qint64 cur,
+                                                    qint64 full) {
   emit download_file_progress(file_id, cur, full);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubComponentsUpdater::update_component_finished_sl(QString file_id, bool replaced) {
+CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool replaced) {
   emit updating_finished(file_id, replaced);
 }
 ////////////////////////////////////////////////////////////////////////////

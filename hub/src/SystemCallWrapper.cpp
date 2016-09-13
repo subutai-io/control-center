@@ -538,12 +538,11 @@ system_call_wrapper_error_t
 CSystemCallWrapper::which(const std::string &prog,
                           std::string &path) {
 
+  static int success_ec = 0;
 #ifdef RT_OS_WINDOWS
   static const char* which_cmd = "where";
-  static int success_ec = 0;
 #else
   static const char* which_cmd = "which";
-  static int success_ec = 0;
 #endif
   std::vector<std::string> lst_out;
   std::string command(which_cmd);
@@ -616,6 +615,12 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
     "call timeout", "which call failed"
   };
   return error_str[err];
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::top(std::vector<std::string> &lst_out, int& exit_code) {
+  return ssystem_th("top -n 1 -d 2 -b", lst_out, exit_code, true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
