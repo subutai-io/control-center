@@ -51,9 +51,9 @@ private slots:
   void btn_p2p_update_released();
   void btn_rh_update_released();
 
-  void download_progress(QString file_id, qint64 rec, qint64 total);
-  void update_available(QString file_id);
-  void update_finished(QString file_id, bool success);  
+  void download_progress(const QString &file_id, qint64 rec, qint64 total);
+  void update_available(const QString &file_id);
+  void update_finished(const QString &file_id, bool success);  
 
   void initialization_finished();
   void init_progress_sl(int part, int total);
@@ -61,7 +61,7 @@ private slots:
   void got_chrome_version_sl(QString version);
   void got_vbox_version_sl(QString version);
   void got_rh_version_sl(QString version);
-  void update_available_sl(QString component_id, bool available);
+  void update_available_sl(const QString &component_id, bool available);
 };
 
 #endif // DLGABOUT_H

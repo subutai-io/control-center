@@ -6,10 +6,8 @@
 
 using namespace update_system;
 
-CExecutableUpdater::CExecutableUpdater(const QString &file_id,
-                                       const QString &src,
+CExecutableUpdater::CExecutableUpdater(const QString &src,
                                        const QString &dst) :
-  m_file_id(file_id),
   m_src_file_str(src),
   m_dst_file_str(dst)
 {
@@ -21,9 +19,7 @@ CExecutableUpdater::~CExecutableUpdater() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CExecutableUpdater::replace_executables(QString file_id,
-                                        bool was_successful_downloaded) {
-  (void)file_id;
+CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
   if (!was_successful_downloaded)
     return;
 
@@ -74,6 +70,6 @@ CExecutableUpdater::replace_executables(QString file_id,
     }
   } while (0);
 
-  emit finished(m_file_id, replaced);
+  emit finished(replaced);
 }
 ////////////////////////////////////////////////////////////////////////////

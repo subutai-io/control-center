@@ -38,14 +38,14 @@ CUpdaterComponentRH::update_internal() {
     static const char* msg = "Resource host update succesfull finished";
     CNotificationObserver::NotifyAboutInfo(msg);
     CApplicationLog::Instance()->LogInfo(msg);
-    update_finished_sl(m_component_id, true);
+    update_finished_sl(true);
     return CHUE_SUCCESS;
   }
 
   QString err_msg = QString("Resource host update failed with exit code : %1").arg(exit_code);
   CNotificationObserver::NotifyAboutError(err_msg);
   CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-  update_finished_sl(m_component_id, false);
+  update_finished_sl(false);
   return CHUE_FAILED;
 }
 ////////////////////////////////////////////////////////////////////////////

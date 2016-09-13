@@ -69,21 +69,19 @@ CUpdaterComponentTray::update_internal() {
 
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
-                                                      m_component_id,
                                                       str_tray_download_path,
                                                       item->size());
 
-  CExecutableUpdater *eu = new CExecutableUpdater(m_component_id,
-                                                  str_tray_download_path,
+  CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
                                                   str_tray_exe_path);
 
-  connect(dm, SIGNAL(download_progress_sig(QString,qint64,qint64)),
-          this, SLOT(update_progress_sl(QString,qint64,qint64)));
+  connect(dm, SIGNAL(download_progress_sig(qint64,qint64)),
+          this, SLOT(update_progress_sl(qint64,qint64)));
 
-  connect(dm, SIGNAL(finished(QString,bool)), eu, SLOT(replace_executables(QString,bool)));
-  connect(eu, SIGNAL(finished(QString,bool)), this, SLOT(update_finished_sl(QString,bool)));
-  connect(eu, SIGNAL(finished(QString,bool)), dm, SLOT(deleteLater()));
-  connect(eu, SIGNAL(finished(QString,bool)), eu, SLOT(deleteLater()));
+  connect(dm, SIGNAL(finished(bool)), eu, SLOT(replace_executables(bool)));
+  connect(eu, SIGNAL(finished(bool)), this, SLOT(update_finished_sl(bool)));
+  connect(eu, SIGNAL(finished(bool)), dm, SLOT(deleteLater()));
+  connect(eu, SIGNAL(finished(bool)), eu, SLOT(deleteLater()));
 
   dm->start_download();
   return CHUE_SUCCESS;

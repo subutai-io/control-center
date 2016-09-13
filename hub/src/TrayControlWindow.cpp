@@ -30,12 +30,6 @@ using namespace update_system;
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
-  m_hub_section(NULL),
-  m_vbox_section(NULL),
-  m_launch_section(NULL),
-  m_info_section(NULL),
-  m_quit_section(NULL),
-
   m_act_generate_ssh(NULL),
   m_act_quit(NULL),
   m_act_settings(NULL),
@@ -86,17 +80,9 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
           this, SLOT(update_finished(QString,bool)));
   connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
           this, SLOT(update_available(QString)));
-
-//  CHubComponentsUpdater::Instance()->p2p_check_for_update();
-//  CHubComponentsUpdater::Instance()->tray_check_for_update();
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  if (m_tray_menu)
-    delete m_tray_menu;
-  if (m_sys_tray_icon)
-    delete m_sys_tray_icon;
-
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
@@ -143,7 +129,7 @@ TrayControlWindow::add_vm_menu(const QString &vm_id) {
   const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
-  CVBPlayerItem *pl = new CVBPlayerItem(CVBoxManagerSingleton::Instance()->vm_by_id(vm_id), this);
+  CVBPlayerItem *pl = new CVBPlayerItem(vm, m_w_Player);
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_play_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_play_triggered, Qt::QueuedConnection);
@@ -153,6 +139,7 @@ TrayControlWindow::add_vm_menu(const QString &vm_id) {
 
   connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_rem_triggered, Qt::QueuedConnection);
+
   m_w_Player->add(pl);
   m_dct_player_menus[vm_id] = pl;
 }
@@ -172,8 +159,7 @@ void
 TrayControlWindow::show_vbox() {
   QPoint curpos = QCursor::pos();
   curpos.setX(curpos.x() - 250);
-
-  if (m_w_Player->vm_count > 0)
+  if (m_w_Player->vm_count() > 0)
     m_vbox_menu->exec(curpos);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -209,19 +195,20 @@ TrayControlWindow::create_tray_actions() {
 void
 TrayControlWindow::create_tray_icon() {
   m_tray_menu = new QMenu(this);
-  m_info_menu = new QMenu(m_tray_menu);
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
 
-  m_launch_menu = m_tray_menu->addMenu(tr("Launch"));
-  m_launch_menu->setIcon(QIcon(":/hub/Launch-07.png"));
-  m_hub_menu = m_tray_menu->addMenu(tr("Environments"));
-  m_hub_menu->setIcon(QIcon(":/hub/Environmetns-07.png"));
+  m_launch_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
+                                       tr("Launch"));
+  m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
+                                    tr("Environments"));
+
 #ifdef RT_OS_WINDOWS
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
 #else
-  m_vbox_menu = new QMenu(m_tray_menu);
+  m_vbox_menu = new QMenu(this);
+  m_tray_menu->addAction(m_act_vbox);
 #endif
 
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
@@ -229,19 +216,9 @@ TrayControlWindow::create_tray_icon() {
   fill_vm_menu();
   fill_launch_menu();
 
-  vboxAction = new QWidgetAction(m_vbox_menu);
-  vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(vboxAction);
-
-  m_info_section = m_info_menu->addSection("");
-  m_launch_section = m_launch_menu->addSection("");
-  m_hub_section  = m_hub_menu->addSection("");
-  m_vbox_section = m_vbox_menu->addSection("");
-
-  //  m_tray_menu->insertAction(m_act_settings, m_act_info);
-#ifndef RT_OS_WINDOWS
-  m_tray_menu->addAction(m_act_vbox);
-#endif
+  m_vboxAction = new QWidgetAction(m_vbox_menu);
+  m_vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(m_vboxAction);
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
@@ -249,10 +226,8 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
-  //  m_tray_menu->addMenu(m_vbox_menu);
 
   m_sys_tray_icon = new QSystemTrayIcon(this);
-  //why do we lose memory here? have no idea. please inform
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 }
@@ -304,23 +279,23 @@ TrayControlWindow::login_success() {
 void
 TrayControlWindow::vm_added(const QString &vm_id) {
   m_vbox_menu->hide();
-  m_vbox_menu->removeAction(vboxAction);
+  m_vbox_menu->removeAction(m_vboxAction);
 
   add_vm_menu(vm_id);
-  vboxAction = new QWidgetAction(m_vbox_menu);
-  vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(vboxAction);
+  m_vboxAction = new QWidgetAction(m_vbox_menu);
+  m_vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(m_vboxAction);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::vm_removed(const QString &vm_id) {
   m_vbox_menu->hide();
-  m_vbox_menu->removeAction(vboxAction);
+  m_vbox_menu->removeAction(m_vboxAction);
   remove_vm_menu(vm_id);
-  vboxAction = new QWidgetAction(m_vbox_menu);
-  vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(vboxAction);
+  m_vboxAction = new QWidgetAction(m_vbox_menu);
+  m_vboxAction->setDefaultWidget(m_w_Player);
+  m_vbox_menu->addAction(m_vboxAction);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -519,7 +494,6 @@ void
 TrayControlWindow::refresh_balance() {
   if (CHubController::Instance().refresh_balance()) return;
   m_act_info->setText(CHubController::Instance().balance());
-  m_info_menu->setTitle(CHubController::Instance().balance());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -552,7 +526,7 @@ void TrayControlWindow::refresh_environments() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss(QAction* act) {
+void TrayControlWindow::launch_ss(QAction* act) const {
   QString browser; // "/etc/alternatives/x-www-browser";
   QString folder;
   QString hub_url;
@@ -712,20 +686,18 @@ CHubEnvironmentMenuItem::internal_action_triggered() {
 /////////////////////////////////////////////////////////////////////////////
 
 CVBPlayer::CVBPlayer(QWidget* parent) :
-  m_vm_player_id() {
+  m_vm_count(0) {
   UNUSED_ARG(parent);
-  vm_count = 0;
-  //  empty();
-  labelHeader = new QLabel(this);
-  labelHeader->setText("No resource hosts registered");
-  labelHeader->setMinimumWidth(180);
-  labelHeader->setSizePolicy(QSizePolicy::Preferred,
+  m_lblHeader = new QLabel(this);
+  m_lblHeader->setText("No resource hosts registered");
+  m_lblHeader->setMinimumWidth(180);
+  m_lblHeader->setSizePolicy(QSizePolicy::Preferred,
                              QSizePolicy::Minimum);
-  p_v_Layout = new QVBoxLayout(0);
-  p_v_Layout->setSpacing(2);
+  m_vLayout = new QVBoxLayout(0);
+  m_vLayout->setSpacing(2);
   this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-  p_v_Layout->addWidget(labelHeader);
-  this->setLayout(p_v_Layout);
+  m_vLayout->addWidget(m_lblHeader);
+  this->setLayout(m_vLayout);
 }
 
 CVBPlayer::~CVBPlayer(){
@@ -734,96 +706,80 @@ CVBPlayer::~CVBPlayer(){
 
 void
 CVBPlayer::add(CVBPlayerItem* pItem) {
-  if (vm_count == 0){
-    labelHeader->setText("Resource hosts registered:");
-    labelHeader->setVisible(false);
+  if (m_vm_count == 0){
+    m_lblHeader->setText("Resource hosts registered:");
+    m_lblHeader->setVisible(false);
   }
-  p_v_Layout->addWidget(pItem);
-  int cnt = p_v_Layout->layout()->count();
+  m_vLayout->addWidget(pItem);
+  int cnt = m_vLayout->layout()->count();
 
   this->setMinimumHeight(30*(cnt+1));
   this->setMaximumHeight(30*(cnt+1));
 
-  vm_count++;
-  this->setLayout(p_v_Layout);
+  m_vm_count++;
+  this->setLayout(m_vLayout);
   this->setVisible(true);  
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CVBPlayer::remove(CVBPlayerItem* pItem) {
-  p_v_Layout->removeWidget(pItem);
-  int cnt = p_v_Layout->layout()->count();
+  m_vLayout->removeWidget(pItem);
+  int cnt = m_vLayout->layout()->count();
 
   this->setMinimumHeight(30*(cnt+1));
   this->setMaximumHeight(30*(cnt+1));
-  vm_count--;
-  if (vm_count == 0){
-    labelHeader->setText("No resource hosts registered:");
-    labelHeader->setVisible(true);
+  m_vm_count--;
+  if (m_vm_count == 0){
+    m_lblHeader->setText("No resource hosts registered:");
+    m_lblHeader->setVisible(true);
   }
-  this->setLayout(p_v_Layout);
+  this->setLayout(m_vLayout);
   this->setVisible(true);
 }
 /////////////////////////////////////////////////////////////////////////////
-
-void
-CVBPlayer::empty() {
-  labelHeader = new QLabel(this);
-  labelHeader->setText("No resource hosts registered");
-  labelHeader->setMinimumWidth(180);
-  p_h_HeaderLayout = new QHBoxLayout(this);
-  p_h_HeaderLayout->addWidget(labelHeader);
-  p_v_Layout = new QVBoxLayout(0);
-  p_v_Layout->setSpacing(5);
-  this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-  p_v_Layout->addLayout(p_h_HeaderLayout);
-  this->setLayout(p_v_Layout);
-}
-
-///////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   m_vm_player_item_id(vm->id()) {
 
   UNUSED_ARG(parent);
-  lbl_name = new QLabel(this);
-  lbl_state = new QLabel(this);
-  btn_play = new QPushButton("", this);
-  btn_stop = new QPushButton("", this);
+  m_lbl_name = new QLabel(this);
+  m_lbl_state = new QLabel(this);
+  m_btn_play = new QPushButton("", this);
+  m_btn_stop = new QPushButton("", this);
 
   p_h_Layout = new QHBoxLayout(NULL);  
-  lbl_name->setMinimumWidth(180);
-  lbl_state->setMinimumWidth(100);
-  lbl_state->setMaximumWidth(100);
+  m_lbl_name->setMinimumWidth(180);
+  m_lbl_state->setMinimumWidth(100);
+  m_lbl_state->setMaximumWidth(100);
 
-  lbl_name->setText(vm->name());
-  lbl_state->setText(CVBoxCommons::vm_state_to_str(vm->state()));
+  m_lbl_name->setText(vm->name());
+  m_lbl_state->setText(CVBoxCommons::vm_state_to_str(vm->state()));
 
-  btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
-  btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
+  m_btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
+  m_btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
 
-  btn_play->setToolTip("Play/Pause/Resume");
-  btn_stop->setToolTip("Power off");
-  connect(btn_play, SIGNAL(released()),
+  m_btn_play->setToolTip("Play/Pause/Resume");
+  m_btn_stop->setToolTip("Power off");
+  connect(m_btn_play, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_play_released()), Qt::QueuedConnection);
-  connect(btn_stop, SIGNAL(released()),
+  connect(m_btn_stop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
 
-  btn_remove = new QPushButton("", this);
-  btn_remove->setIcon(QIcon(":/hub/Delete-07.png"));
-  btn_remove->setToolTip("Attention! Removes VM. All files will be deleted");
+  m_btn_remove = new QPushButton("", this);
+  m_btn_remove->setIcon(QIcon(":/hub/Delete-07.png"));
+  m_btn_remove->setToolTip("Attention! Removes VM. All files will be deleted");
 
-  connect(btn_remove, SIGNAL(released()),
+  connect(m_btn_remove, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_rem_released()), Qt::QueuedConnection);
 
   set_buttons(vm->state());
-  p_h_Layout->addWidget(lbl_name);
-  p_h_Layout->addWidget(lbl_state);
+  p_h_Layout->addWidget(m_lbl_name);
+  p_h_Layout->addWidget(m_lbl_state);
 
-  p_h_Layout->addWidget(btn_play);
-  p_h_Layout->addWidget(btn_stop);
-  p_h_Layout->addWidget(btn_remove);
+  p_h_Layout->addWidget(m_btn_play);
+  p_h_Layout->addWidget(m_btn_stop);
+  p_h_Layout->addWidget(m_btn_remove);
   //p_h_Layout->addWidget(pAdd);
 
   p_h_Layout->setMargin(1);
@@ -834,10 +790,10 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
 ////////////////////////////////////////////////////////////////////////////
 
 CVBPlayerItem::~CVBPlayerItem(){
-  p_h_Layout->removeWidget(lbl_name);
-  p_h_Layout->removeWidget(lbl_state);
-  p_h_Layout->removeWidget(btn_play);
-  p_h_Layout->removeWidget(btn_stop);
+  p_h_Layout->removeWidget(m_lbl_name);
+  p_h_Layout->removeWidget(m_lbl_state);
+  p_h_Layout->removeWidget(m_btn_play);
+  p_h_Layout->removeWidget(m_btn_stop);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -855,7 +811,7 @@ CVBPlayerItem::set_buttons(MachineState_T state) {
     {QIcon(":/hub/Pause_na-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")}
   };
 
-  lbl_state->setText(CVBoxCommons::vm_state_to_str(state));
+  m_lbl_state->setText(CVBoxCommons::vm_state_to_str(state));
   int isi = 0;
   if (state < 5) isi = 0;
   else if (state == MachineState_Running) isi = 1;
@@ -865,9 +821,9 @@ CVBPlayerItem::set_buttons(MachineState_T state) {
            state == MachineState_LiveSnapshotting) isi = 4;
   else isi = 5; //state >= 10
 
-  btn_play->setIcon(icon_set[isi].play);
-  btn_stop->setIcon(icon_set[isi].stop);
-  btn_remove->setIcon(icon_set[isi].rem);
+  m_btn_play->setIcon(icon_set[isi].play);
+  m_btn_stop->setIcon(icon_set[isi].stop);
+  m_btn_remove->setIcon(icon_set[isi].rem);
 }
 
 //Slots////////////////////////////////////////////////////////////////////
@@ -879,11 +835,6 @@ CVBPlayerItem::vbox_menu_btn_play_released() {
 void
 CVBPlayerItem::vbox_menu_btn_stop_released() {
   emit(CVBPlayerItem::vbox_menu_btn_stop_released_signal(m_vm_player_item_id));
-}
-
-void
-CVBPlayerItem::vbox_menu_btn_add_released() {
-  emit(CVBPlayerItem::vbox_menu_btn_add_released_signal(m_vm_player_item_id));
 }
 
 void

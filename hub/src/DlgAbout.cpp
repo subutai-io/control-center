@@ -20,12 +20,12 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
   connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
 
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(QString,qint64,qint64)),
-          this, SLOT(download_progress(QString,qint64,qint64)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
-          this, SLOT(update_available(QString)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
-          this, SLOT(update_finished(QString,bool)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(const QString&,qint64,qint64)),
+          this, SLOT(download_progress(const QString&,qint64,qint64)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(const QString&)),
+          this, SLOT(update_available(const QString&)));
+  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(const QString&,bool)),
+          this, SLOT(update_finished(const QString&,bool)));
 
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
@@ -43,14 +43,14 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
   connect(di, SIGNAL(got_vbox_version(QString)), this, SLOT(got_vbox_version_sl(QString)));
 
-  connect(di, SIGNAL(update_available(QString,bool)), this, SLOT(update_available_sl(QString,bool)));
+  connect(di, SIGNAL(update_available(const QString&,bool)),
+          this, SLOT(update_available_sl(const QString&,bool)));
   connect(di, SIGNAL(init_progress(int,int)), this, SLOT(init_progress_sl(int,int)));
 
   connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
   connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
 
-  connect(this, SIGNAL(finished(int)),
-          di, SLOT(abort()));
+  connect(this, SIGNAL(finished(int)), di, SLOT(abort()));
 
   di->moveToThread(th);
   th->start();
@@ -84,7 +84,7 @@ DlgAbout::btn_rh_update_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::download_progress(QString file_id,
+DlgAbout::download_progress(const QString& file_id,
                             qint64 rec,
                             qint64 total) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
@@ -93,7 +93,7 @@ DlgAbout::download_progress(QString file_id,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::update_available(QString file_id) {
+DlgAbout::update_available(const QString& file_id) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
   m_dct_fpb[file_id].btn->setEnabled(true);
   m_dct_fpb[file_id].pb->setEnabled(true);
@@ -101,7 +101,7 @@ DlgAbout::update_available(QString file_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::update_finished(QString file_id,
+DlgAbout::update_finished(const QString& file_id,
                           bool success) {
   (void)success;
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
@@ -151,7 +151,7 @@ DlgAbout::got_rh_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::update_available_sl(QString component_id,
+DlgAbout::update_available_sl(const QString& component_id,
                               bool available) {
   auto item = m_dct_fpb.find(component_id);
   if (item == m_dct_fpb.end()) return;

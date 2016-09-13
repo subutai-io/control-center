@@ -3,11 +3,9 @@
 #include "NotifiactionObserver.h"
 
 CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
-                                           const QString &file_id,
                                            const QString &dst_file,
                                            int expected_size) :
   m_kurjun_file_id(kurjun_file_id),
-  m_file_id(file_id),
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
   m_network_reply(NULL),
@@ -32,7 +30,7 @@ CDownloadFileManager::~CDownloadFileManager() {
 void
 CDownloadFileManager::download_progress(qint64 read_bytes,
                                         qint64 total_bytes) {
-  emit download_progress_sig(m_file_id, read_bytes, total_bytes);
+  emit download_progress_sig(read_bytes, total_bytes);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +57,7 @@ CDownloadFileManager::reply_finished() {
                                           m_network_reply->errorString().toStdString().c_str());
   }
 
-  emit finished(m_file_id, m_network_reply->error() == QNetworkReply::NoError);
+  emit finished(m_network_reply->error() == QNetworkReply::NoError);
 }
 ////////////////////////////////////////////////////////////////////////////
 

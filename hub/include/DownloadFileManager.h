@@ -17,7 +17,6 @@ class CDownloadFileManager : public QObject {
   Q_OBJECT
 private:
   QString m_kurjun_file_id;
-  QString m_file_id;
   QString m_dst_file_path;
   int m_expected_size;
   QNetworkReply* m_network_reply;
@@ -25,7 +24,6 @@ private:
 
 public:
   CDownloadFileManager(const QString& kurjun_file_id,
-                       const QString& file_id,
                        const QString& dst_file,
                        int expected_size);
   ~CDownloadFileManager();
@@ -42,8 +40,8 @@ public slots:
   void interrupt_download();
 
 signals:
-  void finished(QString file_id, bool success);
-  void download_progress_sig(QString file_id, qint64 rec, qint64 total);
+  void finished(bool success);
+  void download_progress_sig(qint64 rec, qint64 total);
 };
 
 #endif // DOWNLOADFILEMANAGER_H

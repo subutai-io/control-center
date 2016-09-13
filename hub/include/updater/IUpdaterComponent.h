@@ -62,19 +62,19 @@ namespace update_system {
     const QString& component_id() const {return m_component_id;}
 
   protected slots:
-    void update_finished_sl(QString component_id, bool success) {
+    void update_finished_sl(bool success) {
       update_post_action();
-      emit update_finished(component_id, success);
+      emit update_finished(m_component_id, success);
     }
 
-    void update_progress_sl(QString component_id, qint64 part, qint64 total){
-      emit update_progress(component_id, part, total);
+    void update_progress_sl(qint64 part, qint64 total){
+      emit update_progress(m_component_id, part, total);
     }
 
   signals:
-    void update_progress(QString component_id, qint64 part, qint64 total);
-    void update_finished(QString component_id, bool success);
-    void update_available_changed(QString component_id);
+    void update_progress(const QString& component_id, qint64 part, qint64 total);
+    void update_finished(const QString& component_id, bool success);
+    void update_available_changed(const QString& component_id);
   };
 
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <stdint.h>
 
+
 namespace realtime_monitoring {
 
 #pragma pack(push)
@@ -18,11 +19,14 @@ the 3 values refer to the last minute, five minutes and 15 minutes.*/
     std::string uptime;
     uint32_t user_sessions_count;
     double al_1min, al_5min, al_15min;
+    top_uptime() : current_time(""), uptime(""),
+      user_sessions_count(0), al_1min(0.0), al_5min(0.0), al_15min(0.0){}
   };
   ////////////////////////////////////////////////////////////////////////////
 
   struct top_task {
     uint32_t total, running, sleeping, stopped, zombie;
+    top_task() : total(0), running(0), sleeping(0), stopped(0), zombie(0) {}
   };
   ////////////////////////////////////////////////////////////////////////////
 
@@ -39,16 +43,20 @@ The amount of CPU ‘stolen’ from this virtual machine by the hypervisor for o
 tasks (such as running another virtual machine) this will be 0 on desktop
 and server without Virtual machine. */
     double us, sy, ni, id, wa, hi, si, st;
+    top_cpu() :
+      us(0.0), sy(0.0), ni(0.0), id(0.0),
+      wa(0.0), hi(0.0), si(0.0), st(0.0) {}
   };
   ////////////////////////////////////////////////////////////////////////////
 
   struct top_memory {
-    struct mem {
-      uint32_t total, used, free, buffers;
-    };
-    struct swap {
-      uint32_t total, used, free, cached;
-    };
+    uint32_t total, used, free, buffers;
+    top_memory() : total(0), used(0), free(0), buffers(0) {}
+  };
+
+  struct top_swap {
+    uint32_t total, used, free, cached;
+    top_swap() : total(0), used(0), free(0), cached(0) {}
   };
   ////////////////////////////////////////////////////////////////////////////
 
@@ -74,13 +82,30 @@ COMMAND – And this is the name of the process */
     double cpu, mem;
     std::string time;
     char command[LINUX_PROC_MAX_LENGTH];
+    top_process() :
+      pid(0), pr(0), ni(0), virt(0), res(0), shr(0),
+      status('\0'), cpu(0.0), mem(0.0), time("") {
+
+      for (int i = 0; i < LINUX_USER_MAX_LENGTH; ++i)
+        user[i] = '\0';
+      for (int i = 0; i < LINUX_PROC_MAX_LENGTH; ++i)
+        command[i] = '\0';
+    }
   };
   ////////////////////////////////////////////////////////////////////////////
 #pragma pack(pop)
 
   class CTopRawParser {
   private:
+    static top_uptime  parse_uptime(const std::string& str);
+    static top_task    parse_task(const std::string& str);
+    static top_cpu     parse_cpu(const std::string& str);
+    static top_memory  parse_memory(const std::string& str);
+    static top_swap    parse_swap(const std::string& str);
+    static top_process parse_proc(const std::string& str);
   public:
+
+    static void megatest();
   };
 }
 
