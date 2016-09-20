@@ -60,18 +60,18 @@ namespace rtm {
       pmf_DirectMap2M, pmf_DirectMap1G
     };
 
-    uint64_t mem_total, mem_free, mem_available, buffers;
-    uint64_t cached, swap_cahced, active, inactive;
-    uint64_t active_anon, inactive_anon, active_file, inactive_file;
-    uint64_t mlocked, high_total, high_free, low_total, low_free;
-    uint64_t mmap_copy, swap_total, swap_free, dirty, write_back;
-    uint64_t anon_pages, mapped, shmem, slab, sreclaimable, sunreclaim;
-    uint64_t kernel_stack, page_tables, quicklists, nfs_unstable, bounce;
-    uint64_t write_back_tmp, commit_limit, commited_as, vmalloc_total;
-    uint64_t vmalloc_used, vmalloc_chunk, hardware_corrupted;
-    uint64_t anon_huge_pages, cma_total, cma_free, huge_pages_total;
-    uint64_t huge_pages_free, huge_pages_reserved, huge_pages_surp;
-    uint64_t huge_page_size, direct_map_4K, direct_map_4M, direct_map_2M, direct_map_1G;
+    uint64_t mem_total, mem_free, /*mem_available, */ buffers;
+//    uint64_t cached, swap_cahced, active, inactive;
+//    uint64_t active_anon, inactive_anon, active_file, inactive_file;
+    uint64_t /*mlocked, */high_total, high_free/*, low_total, low_free*/;
+    uint64_t /*mmap_copy,*/ swap_total, swap_free/*, dirty, write_back*/;
+    uint64_t /*anon_pages, mapped, */shmem/*, slab, sreclaimable, sunreclaim*/;
+//    uint64_t kernel_stack, page_tables, quicklists, nfs_unstable, bounce;
+//    uint64_t write_back_tmp, commit_limit, commited_as, vmalloc_total;
+//    uint64_t vmalloc_used, vmalloc_chunk, hardware_corrupted;
+//    uint64_t anon_huge_pages, cma_total, cma_free, huge_pages_total;
+//    uint64_t huge_pages_free, huge_pages_reserved, huge_pages_surp;
+//    uint64_t huge_page_size, direct_map_4K, direct_map_4M, direct_map_2M, direct_map_1G;
   };
 
 #pragma pack(pop)

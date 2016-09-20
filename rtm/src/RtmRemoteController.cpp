@@ -67,7 +67,7 @@ CRtmRemoteController::meminfo() {
 
   struct field_meta_t {
     uint64_t* fp; //field pointer
-    size_t fi;       //field index
+    int fi;       //field index
   };
 
   proc_meminfo_t pm;
@@ -97,7 +97,15 @@ CRtmRemoteController::meminfo() {
 
   field_meta_t* ft = fm;
   for (; ft->fi != -1; ++ft) {
-    if (ft->fi >= lst_out.size()) continue;
+    if ((size_t)ft->fi >= lst_out.size()) continue;
+    int pr = sscanf(lst_out[ft->fi].c_str(), fs[ft->fi], ft->fp);
+    if (pr != 1) {
+      //try to find in another lst_out results
+      for (size_t i = 0; i < lst_out.size(); ++i) {
+        pr = sscanf(lst_out[i].c_str(), fs[ft->fi], ft->fp);
+        if (pr == 1) break;
+      }
+    }
   }
 
   return pm;
