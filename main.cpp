@@ -22,9 +22,27 @@
  * --v  - uses for getting version of tray application
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
+
+#include "rtm/include/RtmRemoteController.h"
+#include <stdio.h>
 int
 main(int argc, char *argv[]) {
+  uint64_t t1, t2, t3, t4;
+  t1 = t2 = t3 = t4 = 0;
+  const char* test_str = "SharedMem: 1 kb";
+  const char* test_str2 = "FreeMem: 22 M";
+  const char* format1 = "SharedMem: %lu kb";
+  const char* format2 = "FreeMem: %lu M";
 
+  int res = -1;
+
+  res = sscanf(test_str, format1, &t1); //true
+  res = sscanf(test_str2, format1, &t2); //false
+  res = sscanf(test_str, format2, &t3); //false
+  res = sscanf(test_str2, format2, &t4); //true
+
+  rtm::CRtmRemoteController::load_average();
+  rtm::CRtmRemoteController::meminfo();
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
