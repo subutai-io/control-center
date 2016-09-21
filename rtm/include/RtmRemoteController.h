@@ -54,10 +54,9 @@ namespace rtm {
   ////////////////////////////////////////////////////////////////////////////
 
   //token from net/if.h . using here because we haven't this on windows.
-#define IF_NAMESIZE 16
+  static const int NET_IF_NAMESIZE = 16;
   struct proc_net_dev_t {
-    uint8_t if_name[IF_NAMESIZE];
-
+    uint8_t if_name[NET_IF_NAMESIZE];
     struct recv_t {
       uint64_t bytes, packets, errs, drop;
       uint64_t fifo, frame, compressed, multicast;
@@ -68,13 +67,7 @@ namespace rtm {
     } trans;
   };
   ////////////////////////////////////////////////////////////////////////////
-
 #pragma pack(pop)
-
-  enum rtm_result_t {
-    RTM_SUCCESS = 0,
-    RTM_FAILED
-  };
 
   class CRtmRemoteController {
   private:
@@ -83,10 +76,9 @@ namespace rtm {
     static proc_net_dev_t create_net_dev();
 
   public:
-
     static proc_load_avg_t load_average();
-    static proc_meminfo_t  meminfo();
-    static proc_uptime_t     uptime();
+    static proc_meminfo_t meminfo();
+    static proc_uptime_t uptime();
     static std::vector<proc_net_dev_t> network_info();
   };
 

@@ -3,6 +3,7 @@
 #include <QCommandLineParser>
 #include <QFile>
 #include <QDir>
+#include <QSplashScreen>
 
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
@@ -23,15 +24,8 @@
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
 
-#include "rtm/include/RtmRemoteController.h"
-
 int
 main(int argc, char *argv[]) {
-
-  rtm::proc_load_avg_t lavg    = rtm::CRtmRemoteController::load_average();
-  rtm::proc_meminfo_t  meminfo = rtm::CRtmRemoteController::meminfo();
-  rtm::proc_uptime_t   uptime  = rtm::CRtmRemoteController::uptime();
-  auto bebe = rtm::CRtmRemoteController::network_info();
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
@@ -96,9 +90,14 @@ main(int argc, char *argv[]) {
   do {
     DlgLogin dlg;
     dlg.setModal(true);
-    dlg.run_dialog();
+
+    QPixmap pm(":/hub/tray_splash.png");
+    QSplashScreen sc(pm);
+    sc.show();
+
+    dlg.run_dialog(&sc);
     if (dlg.result() == QDialog::Rejected)
-      break;
+      break;    
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();

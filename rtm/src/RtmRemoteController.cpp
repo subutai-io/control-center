@@ -156,8 +156,7 @@ std::vector<proc_net_dev_t>
 CRtmRemoteController::network_info() {
   static const char* cmd = "cat /proc/net/dev";
   static const char* fmt = "%s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu";
-  std::vector<proc_net_dev_t> lst;
-
+  std::vector<proc_net_dev_t> lst_res;
   std::vector<std::string> lst_out;
   int ec = -1;
 
@@ -166,7 +165,7 @@ CRtmRemoteController::network_info() {
 
   if (cr != SCWE_SUCCESS || lst_out.empty() ) {
     CApplicationLog::Instance()->LogError("cat /proc/net/dev call failed. res : %d", cr);
-    return lst;
+    return lst_res;
   }
 
   for (size_t i = 2; i < lst_out.size(); ++i) {
@@ -180,9 +179,9 @@ CRtmRemoteController::network_info() {
       CApplicationLog::Instance()->LogError("Couldn't parse \"%s\". pr = %d", lst_out[i].c_str(), pr);
       continue;
     }
-    lst.push_back(nd);
+    lst_res.push_back(nd);
   }
 
-  return lst;
+  return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
