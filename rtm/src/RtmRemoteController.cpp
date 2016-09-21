@@ -21,6 +21,21 @@ CRtmRemoteController::parse_load_avg(const std::string &str) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+proc_meminfo_t
+CRtmRemoteController::create_meminfo() {
+  proc_meminfo_t pm;
+  memset(&pm, 0, sizeof(proc_meminfo_t));
+  return pm;
+}
+
+proc_net_dev_t
+CRtmRemoteController::create_net_dev() {
+  proc_net_dev_t nd;
+  memset(&nd, 0, sizeof(proc_net_dev_t));
+  return nd;
+}
+////////////////////////////////////////////////////////////////////////////
+
 proc_load_avg_t
 CRtmRemoteController::load_average() {
   proc_load_avg_t res;
@@ -70,8 +85,7 @@ CRtmRemoteController::meminfo() {
     int fi;       //field index
   };
 
-  proc_meminfo_t pm;
-  memset(&pm, 0, sizeof(proc_meminfo_t));
+  proc_meminfo_t pm = create_meminfo();
   std::vector<std::string> lst_out;
   int ec = -1;
 
@@ -109,5 +123,66 @@ CRtmRemoteController::meminfo() {
   }
 
   return pm;
+}
+////////////////////////////////////////////////////////////////////////////
+
+proc_uptime_t
+CRtmRemoteController::uptime() {
+  proc_uptime_t  res;
+  static const char* cmd = "cat /proc/uptime";
+  static const char* fmt = "%lf %lf";
+  std::vector<std::string> lst_out;
+  int ec = -1;
+
+  system_call_wrapper_error_t cr =
+      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
+
+  if (cr != SCWE_SUCCESS || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("cat /proc/uptime call failed. res : %d", cr);
+    return res;
+  }
+
+  int pr = sscanf(lst_out[0].c_str(), fmt, &res.uptime, &res.idle);
+  if (pr != 2) {
+    CApplicationLog::Instance()->LogError(
+          "sscanf failed. str : %s, pr = %d", lst_out[0].c_str());
+  }
+
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+
+std::vector<proc_net_dev_t>
+CRtmRemoteController::network_info() {
+  static const char* cmd = "cat /proc/net/dev";
+  static const char* fmt = "%s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu";
+  std::vector<proc_net_dev_t> lst;
+
+  std::vector<std::string> lst_out;
+  int ec = -1;
+
+  system_call_wrapper_error_t cr =
+      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
+
+  if (cr != SCWE_SUCCESS || lst_out.empty() ) {
+    CApplicationLog::Instance()->LogError("cat /proc/net/dev call failed. res : %d", cr);
+    return lst;
+  }
+
+  for (size_t i = 2; i < lst_out.size(); ++i) {
+    proc_net_dev_t nd = create_net_dev();
+    int pr = sscanf(lst_out[i].c_str(), fmt, nd.if_name,
+                    &nd.recv.bytes, &nd.recv.packets, &nd.recv.errs, &nd.recv.drop,
+                    &nd.recv.fifo, &nd.recv.frame, &nd.recv.compressed, &nd.recv.multicast,
+                    &nd.trans.bytes, &nd.trans.packets, &nd.trans.errs, &nd.trans.drop,
+                    &nd.trans.fifo, &nd.trans.colls, &nd.trans.carrier, &nd.trans.compressed);
+    if (pr != 17) {
+      CApplicationLog::Instance()->LogError("Couldn't parse \"%s\". pr = %d", lst_out[i].c_str(), pr);
+      continue;
+    }
+    lst.push_back(nd);
+  }
+
+  return lst;
 }
 ////////////////////////////////////////////////////////////////////////////

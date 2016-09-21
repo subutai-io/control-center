@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 namespace rtm {
 
 #pragma pack(push)
 #pragma pack(1)
-
 
   struct proc_load_avg_t {
     enum {la_avg1 = 0, la_avg5, la_avg15,
@@ -23,26 +23,6 @@ namespace rtm {
   };
   ////////////////////////////////////////////////////////////////////////////
 
-
-/*
-  struct sysinfo {
-    int64_t uptime;             // Seconds since boot
-    uint64_t loads[3];  // 1, 5, and 15 minute load averages
-    uint64_t totalram;  // Total usable main memory size
-    uint64_t freeram;   // Available memory size
-    uint64_t sharedram; // Amount of shared memory
-    uint64_t bufferram; // Memory used by buffers
-    uint64_t totalswap; // Total swap space size
-    uint64_t freeswap;  // Swap space still available
-    uint16_t procs;    // Number of current processes
-    uint64_t totalhigh; // Total high memory size
-    uint64_t freehigh;  // Available high memory size
-    uint32_t mem_unit;   // Memory unit size in bytes
-    //char _f; // padding to something 16 degree.
-    //char _f[20-2*sizeof(long)-sizeof(int)]; // Padding to 64 bytes
-  };
-*/
-  //todo use only necessary fields because size of this struct is 418 (as I remember)
   struct proc_meminfo_t {
     enum proc_meminfo_fields {
       pmf_MemTotal, pmf_MemFree, pmf_MemAvailable, pmf_Buffers,
@@ -60,19 +40,34 @@ namespace rtm {
       pmf_DirectMap2M, pmf_DirectMap1G
     };
 
-    uint64_t mem_total, mem_free, /*mem_available, */ buffers;
-//    uint64_t cached, swap_cahced, active, inactive;
-//    uint64_t active_anon, inactive_anon, active_file, inactive_file;
-    uint64_t /*mlocked, */high_total, high_free/*, low_total, low_free*/;
-    uint64_t /*mmap_copy,*/ swap_total, swap_free/*, dirty, write_back*/;
-    uint64_t /*anon_pages, mapped, */shmem/*, slab, sreclaimable, sunreclaim*/;
-//    uint64_t kernel_stack, page_tables, quicklists, nfs_unstable, bounce;
-//    uint64_t write_back_tmp, commit_limit, commited_as, vmalloc_total;
-//    uint64_t vmalloc_used, vmalloc_chunk, hardware_corrupted;
-//    uint64_t anon_huge_pages, cma_total, cma_free, huge_pages_total;
-//    uint64_t huge_pages_free, huge_pages_reserved, huge_pages_surp;
-//    uint64_t huge_page_size, direct_map_4K, direct_map_4M, direct_map_2M, direct_map_1G;
+    uint64_t mem_total, mem_free, buffers;
+    uint64_t high_total, high_free;
+    uint64_t swap_total, swap_free;
+    uint64_t shmem;
   };
+  ////////////////////////////////////////////////////////////////////////////
+
+  struct proc_uptime_t {
+    double uptime, idle;
+    proc_uptime_t() : uptime(0.0), idle(0.0){}
+  };
+  ////////////////////////////////////////////////////////////////////////////
+
+  //token from net/if.h . using here because we haven't this on windows.
+#define IF_NAMESIZE 16
+  struct proc_net_dev_t {
+    uint8_t if_name[IF_NAMESIZE];
+
+    struct recv_t {
+      uint64_t bytes, packets, errs, drop;
+      uint64_t fifo, frame, compressed, multicast;
+    } recv;
+    struct trans_t {
+      uint64_t bytes, packets, errs, drop;
+      uint64_t fifo, colls, carrier, compressed;
+    } trans;
+  };
+  ////////////////////////////////////////////////////////////////////////////
 
 #pragma pack(pop)
 
@@ -84,11 +79,15 @@ namespace rtm {
   class CRtmRemoteController {
   private:
     static proc_load_avg_t parse_load_avg(const std::string& str);
+    static proc_meminfo_t create_meminfo();
+    static proc_net_dev_t create_net_dev();
 
   public:
 
     static proc_load_avg_t load_average();
     static proc_meminfo_t  meminfo();
+    static proc_uptime_t     uptime();
+    static std::vector<proc_net_dev_t> network_info();
   };
 
 }

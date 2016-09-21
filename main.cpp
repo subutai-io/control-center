@@ -28,8 +28,11 @@
 int
 main(int argc, char *argv[]) {
 
-  rtm::CRtmRemoteController::load_average();
-  rtm::CRtmRemoteController::meminfo();
+  rtm::proc_load_avg_t lavg    = rtm::CRtmRemoteController::load_average();
+  rtm::proc_meminfo_t  meminfo = rtm::CRtmRemoteController::meminfo();
+  rtm::proc_uptime_t   uptime  = rtm::CRtmRemoteController::uptime();
+  auto bebe = rtm::CRtmRemoteController::network_info();
+
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
