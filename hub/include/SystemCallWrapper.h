@@ -73,15 +73,7 @@ signals:
 
 class CSystemCallWrapper {
   friend class CSystemCallThreadWrapper;
-private:  
-
-  static system_call_wrapper_error_t ssystem_th(const char *command,
-                                                std::vector<std::string> &lst_output,
-                                                int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
-
-  static system_call_wrapper_error_t ssystem(const char *command,
-                                             std::vector<std::string> &lst_output,
-                                             int& exit_code, bool read_output = true);
+private:
 
   static system_call_wrapper_error_t run_libssh2_command(const char *host,
                                                          uint16_t port,
@@ -92,6 +84,13 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
+  static system_call_wrapper_error_t ssystem_th(const char *command,
+                                                std::vector<std::string> &lst_output,
+                                                int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
+
+  static system_call_wrapper_error_t ssystem(const char *command,
+                                             std::vector<std::string> &lst_output,
+                                             int& exit_code, bool read_output = true);
 
   static bool is_in_swarm(const char* hash);
 

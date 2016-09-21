@@ -3,7 +3,7 @@
 #include "SettingsManager.h"
 #include "HubController.h"
 #include "RestWorker.h"
-
+#include <QSplashScreen>
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -82,16 +82,20 @@ DlgLogin::login() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgLogin::run_dialog() {
+DlgLogin::run_dialog(QSplashScreen* sc) {
   if (!CSettingsManager::Instance().remember_me()) {
+    if(sc) sc->hide();
     exec();
     return;
   }
 
   if (!login()) {
+    if(sc) sc->hide();
     exec();
     return;
   }
+
+  if(sc) sc->hide();
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -7,6 +7,7 @@ namespace Ui {
   class DlgLogin;
 }
 
+class QSplashScreen;
 class DlgLogin : public QDialog
 {
   Q_OBJECT
@@ -20,7 +21,7 @@ private:
 public:
   explicit DlgLogin(QWidget *parent = 0);
   ~DlgLogin();
-  void run_dialog();
+  void run_dialog(QSplashScreen *sc);
 
 private slots:
   void btn_ok_released();

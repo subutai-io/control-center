@@ -3,6 +3,7 @@
 #include <QCommandLineParser>
 #include <QFile>
 #include <QDir>
+#include <QSplashScreen>
 
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
@@ -22,6 +23,7 @@
  * --v  - uses for getting version of tray application
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
+
 int
 main(int argc, char *argv[]) {
 
@@ -88,9 +90,14 @@ main(int argc, char *argv[]) {
   do {
     DlgLogin dlg;
     dlg.setModal(true);
-    dlg.run_dialog();
+
+    QPixmap pm(":/hub/tray_splash.png");
+    QSplashScreen sc(pm);
+    sc.show();
+
+    dlg.run_dialog(&sc);
     if (dlg.result() == QDialog::Rejected)
-      break;
+      break;    
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
