@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <assert.h>
-
+#include "Commons.h"
 #include "VirtualMachineWin.h"
 
 CVirtualMachineWin::CVirtualMachineWin(IMachine *com_machine) {
