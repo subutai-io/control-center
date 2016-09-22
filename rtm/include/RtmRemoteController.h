@@ -53,7 +53,6 @@ namespace rtm {
   };
   ////////////////////////////////////////////////////////////////////////////
 
-  //token from net/if.h . using here because we haven't this on windows.
   static const int NET_IF_NAMESIZE = 16;
   struct proc_net_dev_t {
     uint8_t if_name[NET_IF_NAMESIZE];
