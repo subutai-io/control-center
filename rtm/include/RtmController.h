@@ -40,10 +40,8 @@ namespace rtm {
       pmf_DirectMap2M, pmf_DirectMap1G
     };
 
-    uint64_t mem_total, mem_free, buffers;
-    uint64_t high_total, high_free;
-    uint64_t swap_total, swap_free;
-    uint64_t shmem;
+    uint64_t mem_total, mem_free, buffers, high_total, high_free;
+    uint64_t swap_total, swap_free, shmem;
   };
   ////////////////////////////////////////////////////////////////////////////
 
@@ -66,19 +64,27 @@ namespace rtm {
     } trans;
   };
   ////////////////////////////////////////////////////////////////////////////
+
 #pragma pack(pop)
 
-  class CRtmRemoteController {
+
+  typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result code*/);
+
+  class CRtmController {
   private:
-    static proc_load_avg_t parse_load_avg(const std::string& str);
     static proc_meminfo_t create_meminfo();
     static proc_net_dev_t create_net_dev();
 
+    pf_output_read m_read_f;
   public:
-    static proc_load_avg_t load_average();
-    static proc_meminfo_t meminfo();
-    static proc_uptime_t uptime();
-    static std::vector<proc_net_dev_t> network_info();
+
+    explicit CRtmController(pf_output_read pf_r) : m_read_f(pf_r){}
+    ~CRtmController(){}
+
+    proc_load_avg_t load_average() const;
+    proc_meminfo_t meminfo() const;
+    proc_uptime_t uptime() const;
+    std::vector<proc_net_dev_t> network_info() const;
   };
 
 }

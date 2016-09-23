@@ -1,7 +1,6 @@
 #include "libssh2/include/LibsshController.h"
 
 #include <stdint.h>
-#include <iostream>
 #include <libssh2.h>
 
 #ifdef _WIN32
@@ -19,8 +18,11 @@
 
 #include <string>
 #include <stdlib.h>
-#include "LibsshErrors.h"
 
+#include "libssh2/include/LibsshController.h"
+#include "ApplicationLog.h"
+
+CLibsshController::CSshInitializer CLibsshController::m_initializer;
 
 CLibsshController::CSshInitializer::CSshInitializer()
 {
@@ -28,7 +30,7 @@ CLibsshController::CSshInitializer::CSshInitializer()
 #ifdef WIN32
     WSADATA wsadata;
     if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-      std::cout << "WSAStartup failed with error: " << err << std::endl;
+      CApplicationLog::Instance()->LogError("WSAStartup failed with error: %d", err);
       result = RLE_WSA_STARTUP;
       break;
     }
@@ -43,7 +45,6 @@ CLibsshController::CSshInitializer::~CSshInitializer() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#include <QDebug>
 const char*
 CLibsshController::run_libssh2_error_to_str(run_libssh2_error_t err) {
   if (err < RLE_SUCCESS) return "exit code not null";
@@ -113,6 +114,7 @@ CLibsshController::run_ssh_command(const char* str_host,
   int exitcode = 0;
   char *exitsignal = (char*)"none";
 
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
 #ifndef _WIN32
   int sock;
   ul_host_addr = inet_addr(str_host);

@@ -15,7 +15,6 @@
 #include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
-#include "libssh2/include/LibsshErrors.h"
 #include "libssh2/include/LibsshController.h"
 #include "HubController.h"
 #include "RestWorker.h"
