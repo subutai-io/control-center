@@ -1,18 +1,18 @@
 #include "SystemCallWrapper.h"
 #include"ApplicationLog.h"
-#include "rtm/include/RtmController.h"
+#include "rtm/include/RtmProcParser.h"
 
 using namespace rtm;
 
 proc_meminfo_t
-CRtmController::create_meminfo() {
+CRtmProcParser::create_meminfo() {
   proc_meminfo_t pm;
   memset(&pm, 0, sizeof(proc_meminfo_t));
   return pm;
 }
 
 proc_net_dev_t
-CRtmController::create_net_dev() {
+CRtmProcParser::create_net_dev() {
   proc_net_dev_t nd;
   memset(&nd, 0, sizeof(proc_net_dev_t));
   return nd;
@@ -20,7 +20,7 @@ CRtmController::create_net_dev() {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_load_avg_t
-CRtmController::load_average() const {
+CRtmProcParser::load_average() const {
   static const char* cmd = "cat /proc/loadavg";
   static const char* fmt = "%lf  %lf %lf %lu %*1[/] %lu %lu";
   proc_load_avg_t res;
@@ -40,8 +40,13 @@ CRtmController::load_average() const {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+struct meminfo_field_meta_t {
+  uint64_t* fp; //field pointer
+  int fi;       //field index
+};
+
 proc_meminfo_t
-CRtmController::meminfo() const {
+CRtmProcParser::meminfo() const {
   static const char* fs[] = {
     "MemTotal: %lu", "MemFree: %lu", "MemAvailable: %lu", "Buffers: %lu",
     "Cached: %lu", "SwapCahced: %lu", "Active: %lu", "Inactive: %lu",
@@ -58,12 +63,6 @@ CRtmController::meminfo() const {
     "DirectMap2M: %lu", "DirectMap1G: %lu"
   };
   static const char* cmd = "cat /proc/meminfo";
-
-  struct field_meta_t {
-    uint64_t* fp; //field pointer
-    int fi;       //field index
-  };
-
   proc_meminfo_t pm = create_meminfo();
   bool success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
@@ -73,7 +72,7 @@ CRtmController::meminfo() const {
     return pm;
   }
 
-  field_meta_t fm[] = {
+  meminfo_field_meta_t fm[] = {
     {&pm.mem_total, proc_meminfo_t::pmf_MemTotal},
     {&pm.mem_free, proc_meminfo_t::pmf_MemFree},
     {&pm.shmem, proc_meminfo_t::pmf_Shmem},
@@ -85,15 +84,14 @@ CRtmController::meminfo() const {
     {NULL, -1}
   };
 
-  field_meta_t* ft = fm;
+  meminfo_field_meta_t* ft = fm;
   for (; ft->fi != -1; ++ft) {
     if ((size_t)ft->fi >= lst_out.size()) continue;
     int pr = sscanf(lst_out[ft->fi].c_str(), fs[ft->fi], ft->fp);
     if (pr != 1) {
       //try to find in another lst_out results
-      for (size_t i = 0; i < lst_out.size(); ++i) {
+      for (size_t i = 0; i < lst_out.size() && pr != 1; ++i) {
         pr = sscanf(lst_out[i].c_str(), fs[ft->fi], ft->fp);
-        if (pr == 1) break;
       }
     }
   }
@@ -103,7 +101,7 @@ CRtmController::meminfo() const {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_uptime_t
-CRtmController::uptime() const {
+CRtmProcParser::uptime() const {
   static const char* cmd = "cat /proc/uptime";
   static const char* fmt = "%lf %lf";
   proc_uptime_t res;
@@ -127,7 +125,7 @@ CRtmController::uptime() const {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<proc_net_dev_t>
-CRtmController::network_info() const {
+CRtmProcParser::network_info() const {
   static const char* cmd = "cat /proc/net/dev";
   static const char* fmt = "%s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu";
   std::vector<proc_net_dev_t> lst_res;
@@ -139,8 +137,8 @@ CRtmController::network_info() const {
     return lst_res;
   }
 
+  proc_net_dev_t nd = create_net_dev();
   for (size_t i = 2; i < lst_out.size(); ++i) {
-    proc_net_dev_t nd = create_net_dev();
     int pr = sscanf(lst_out[i].c_str(), fmt, nd.if_name,
                     &nd.recv.bytes, &nd.recv.packets, &nd.recv.errs, &nd.recv.drop,
                     &nd.recv.fifo, &nd.recv.frame, &nd.recv.compressed, &nd.recv.multicast,

@@ -70,7 +70,7 @@ namespace rtm {
 
   typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result code*/);
 
-  class CRtmController {
+  class CRtmProcParser {
   private:
     static proc_meminfo_t create_meminfo();
     static proc_net_dev_t create_net_dev();
@@ -78,8 +78,8 @@ namespace rtm {
     pf_output_read m_read_f;
   public:
 
-    explicit CRtmController(pf_output_read pf_r) : m_read_f(pf_r){}
-    ~CRtmController(){}
+    explicit CRtmProcParser(pf_output_read pf_r) : m_read_f(pf_r){}
+    ~CRtmProcParser(){}
 
     proc_load_avg_t load_average() const;
     proc_meminfo_t meminfo() const;

@@ -49,7 +49,7 @@ SOURCES += \
     hub/src/updater/UpdaterComponentTray.cpp \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
-    rtm/src/RtmController.cpp
+    rtm/src/RtmProcParser.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -91,7 +91,7 @@ HEADERS  += \
     commons/include/Commons.h \
     commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
-    rtm/include/RtmController.h
+    rtm/include/RtmProcParser.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
