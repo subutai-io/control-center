@@ -29,7 +29,7 @@
 int
 main(int argc, char *argv[]) {
 
-  rtm::CRtmController::Instance()->Megatest();
+//  rtm::CRtmController::Instance()->Megatest();
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");

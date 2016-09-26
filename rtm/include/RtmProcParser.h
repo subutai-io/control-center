@@ -81,10 +81,10 @@ namespace rtm {
     explicit CRtmProcParser(pf_output_read pf_r) : m_read_f(pf_r){}
     ~CRtmProcParser(){}
 
-    proc_load_avg_t load_average() const;
-    proc_meminfo_t meminfo() const;
-    proc_uptime_t uptime() const;
-    std::vector<proc_net_dev_t> network_info() const;
+    proc_load_avg_t load_average(bool &success) const;
+    proc_meminfo_t meminfo(bool &success) const;
+    proc_uptime_t uptime(bool &success) const;
+    std::vector<proc_net_dev_t> network_info(bool &success) const;
   };
 
 }

@@ -20,11 +20,11 @@ CRtmProcParser::create_net_dev() {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_load_avg_t
-CRtmProcParser::load_average() const {
+CRtmProcParser::load_average(bool &success) const {
   static const char* cmd = "cat /proc/loadavg";
   static const char* fmt = "%lf  %lf %lf %lu %*1[/] %lu %lu";
   proc_load_avg_t res;
-  bool success = false;
+  success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
   if (!success || lst_out.empty()) {
@@ -51,7 +51,7 @@ struct meminfo_field_meta_t {
 };
 
 proc_meminfo_t
-CRtmProcParser::meminfo() const {
+CRtmProcParser::meminfo(bool &success) const {
   static const char* fs[] = {
     "MemTotal: %lu", "MemFree: %lu", "MemAvailable: %lu", "Buffers: %lu",
     "Cached: %lu", "SwapCahced: %lu", "Active: %lu", "Inactive: %lu",
@@ -69,7 +69,7 @@ CRtmProcParser::meminfo() const {
   };
   static const char* cmd = "cat /proc/meminfo";
   proc_meminfo_t pm = create_meminfo();
-  bool success = false;
+  success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
   if (!success || lst_out.empty()) {
@@ -106,11 +106,11 @@ CRtmProcParser::meminfo() const {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_uptime_t
-CRtmProcParser::uptime() const {
+CRtmProcParser::uptime(bool &success) const {
   static const char* cmd = "cat /proc/uptime";
   static const char* fmt = "%lf %lf";
   proc_uptime_t res;
-  bool success = false;
+  success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
   if (!success || lst_out.empty()) {
@@ -130,11 +130,11 @@ CRtmProcParser::uptime() const {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<proc_net_dev_t>
-CRtmProcParser::network_info() const {
+CRtmProcParser::network_info(bool &success) const {
   static const char* cmd = "cat /proc/net/dev";
   static const char* fmt = "%s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu";
   std::vector<proc_net_dev_t> lst_res;
-  bool success = false;
+  success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
   if (!success || lst_out.empty()) {

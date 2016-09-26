@@ -22,7 +22,7 @@ rtm::CRtmController::get_output_by_libssh2(const char *cmd,
   int rc = CLibsshController::run_ssh_command("127.0.0.1",
                                               22,
                                               "lezh1k",
-                                              "Ajhthjkt@1234",
+                                              "Ajhthjkt",
                                               cmd,
                                               10,
                                               lst_out);
@@ -50,17 +50,18 @@ rtm::CRtmController::Instance() {
 
 void
 rtm::CRtmController::Megatest() {
-  proc_load_avg_t sys1 = m_rpp_syscall->load_average();
-  proc_load_avg_t sys2 = m_rpp_libssh2->load_average();
+  bool succes;
+  proc_load_avg_t sys1 = m_rpp_syscall->load_average(succes);
+  proc_load_avg_t sys2 = m_rpp_libssh2->load_average(succes);
 
-  proc_meminfo_t mem1  = m_rpp_syscall->meminfo();
-  proc_meminfo_t mem2  = m_rpp_libssh2->meminfo();
+  proc_meminfo_t mem1  = m_rpp_syscall->meminfo(succes);
+  proc_meminfo_t mem2  = m_rpp_libssh2->meminfo(succes);
 
-  std::vector<proc_net_dev_t> ni1 = m_rpp_syscall->network_info();
-  std::vector<proc_net_dev_t> ni2 = m_rpp_libssh2->network_info();
+  std::vector<proc_net_dev_t> ni1 = m_rpp_syscall->network_info(succes);
+  std::vector<proc_net_dev_t> ni2 = m_rpp_libssh2->network_info(succes);
 
-  proc_uptime_t up1 = m_rpp_syscall->uptime();
-  proc_uptime_t up2 = m_rpp_libssh2->uptime();
+  proc_uptime_t up1 = m_rpp_syscall->uptime(succes);
+  proc_uptime_t up2 = m_rpp_libssh2->uptime(succes);
 
   CApplicationLog::Instance()->LogInfo("Abircheg");
 }
