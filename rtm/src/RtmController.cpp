@@ -2,6 +2,7 @@
 #include "SystemCallWrapper.h"
 #include "libssh2/include/LibsshController.h"
 #include "ApplicationLog.h"
+#include "SettingsManager.h"
 
 std::vector<std::string>
 rtm::CRtmController::get_output_by_syscall(const char *cmd,
@@ -19,10 +20,10 @@ std::vector<std::string>
 rtm::CRtmController::get_output_by_libssh2(const char *cmd,
                                            bool *success) {
   std::vector<std::string> lst_out;
-  int rc = CLibsshController::run_ssh_command("127.0.0.1",
-                                              22,
-                                              "lezh1k",
-                                              "Ajhthjkt",
+  int rc = CLibsshController::run_ssh_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                                              CSettingsManager::Instance().rh_port(),
+                                              CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                                              CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                                               cmd,
                                               10,
                                               lst_out);

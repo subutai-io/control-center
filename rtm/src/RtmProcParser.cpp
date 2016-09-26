@@ -1,5 +1,5 @@
 #include "SystemCallWrapper.h"
-#include"ApplicationLog.h"
+#include "ApplicationLog.h"
 #include "rtm/include/RtmProcParser.h"
 
 using namespace rtm;
@@ -29,6 +29,7 @@ CRtmProcParser::load_average(bool &success) const {
 
   if (!success || lst_out.empty()) {
     CApplicationLog::Instance()->LogError("Failed %s call", cmd);
+    success = false;
     return res;
   }
 
@@ -74,6 +75,7 @@ CRtmProcParser::meminfo(bool &success) const {
 
   if (!success || lst_out.empty()) {
     CApplicationLog::Instance()->LogError("Couldn't get meminfo output");
+    success = false;
     return pm;
   }
 
@@ -115,6 +117,7 @@ CRtmProcParser::uptime(bool &success) const {
 
   if (!success || lst_out.empty()) {
     CApplicationLog::Instance()->LogError("cat /proc/uptime call failed");
+    success = false;
     return res;
   }
 
@@ -139,6 +142,7 @@ CRtmProcParser::network_info(bool &success) const {
 
   if (!success || lst_out.empty()) {
     CApplicationLog::Instance()->LogError("cat /proc/net/dev call failed");
+    success = false;
     return lst_res;
   }
 
