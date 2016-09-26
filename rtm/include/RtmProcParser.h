@@ -1,5 +1,5 @@
-#ifndef RTMCONTROLLER_H
-#define RTMCONTROLLER_H
+#ifndef RTMPROCPARSER_H
+#define RTMPROCPARSER_H
 
 #include <stdint.h>
 #include <string>

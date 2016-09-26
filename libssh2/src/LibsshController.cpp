@@ -107,7 +107,8 @@ CLibsshController::run_ssh_command(const char* str_host,
                                    const char* str_user,
                                    const char* str_pass,
                                    const char* str_cmd,
-                                   int conn_timeout, std::vector<std::string> &lst_out) {
+                                   int conn_timeout,
+                                   std::vector<std::string> &lst_out) {
   int rc = 0;
   struct sockaddr_in sin;
   unsigned long ul_host_addr = 0;
@@ -186,19 +187,28 @@ CLibsshController::run_ssh_command(const char* str_host,
 
     for (;;) {
       /* loop until we block */
-      int lrc;
-      do {
-        char buffer[0x100] = {0};
-        lrc = libssh2_channel_read(channel, buffer, sizeof(buffer));
+      int f, l, r;
+      static char buffer[0x100] = {0};
+      f = l = 0;
+      r = -1;
 
-        if (lrc > 0) {
-          lst_out.push_back(std::string(buffer, lrc));
+      while ((r = libssh2_channel_read(channel, &buffer[l], sizeof(buffer) - l - 1)) > 0) {
+        buffer[l+r] = 0;
+
+        for (; buffer[l]; ++l) {
+          if (buffer[l] != '\n') continue;
+          lst_out.push_back(std::string(&buffer[f], l-f));
+          f = l+1;
         }
-      } while (lrc > 0);
+
+        memcpy(buffer, &buffer[f], l-f);
+        l = l-f;
+        f = 0;
+      }
 
       /* this is due to blocking that would occur otherwise so we loop on
       this condition */
-      if (lrc != LIBSSH2_ERROR_EAGAIN)
+      if (r != LIBSSH2_ERROR_EAGAIN)
         break;
       wait_ssh_socket_event(sock, session);
     }

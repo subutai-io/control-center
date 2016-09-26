@@ -12,6 +12,8 @@
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentTray.h"
+
+#include "rtm/include/RtmController.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -26,6 +28,8 @@
 
 int
 main(int argc, char *argv[]) {
+
+  rtm::CRtmController::Instance()->Megatest();
 
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");

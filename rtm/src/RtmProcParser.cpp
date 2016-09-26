@@ -27,6 +27,11 @@ CRtmProcParser::load_average() const {
   bool success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
+  if (!success || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("Failed %s call", cmd);
+    return res;
+  }
+
   int sr = sscanf(lst_out[0].c_str(), fmt,
               &res.avg1, &res.avg5, &res.avg15,
               &res.current, &res.scheduled, &res.pid);
