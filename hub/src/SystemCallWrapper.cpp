@@ -385,7 +385,7 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
                                         int& exit_code,
                                         std::vector<std::string>& lst_output) {
   static const int default_timeout = 10;
-  exit_code = CLibsshController::run_ssh_command(host, port, user,
+  exit_code = CLibsshController::run_ssh_command_pass_auth(host, port, user,
                                                  pass, cmd, default_timeout,
                                                  lst_output);
 

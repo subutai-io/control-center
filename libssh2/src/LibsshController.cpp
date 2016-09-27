@@ -24,6 +24,29 @@
 
 CLibsshController::CSshInitializer CLibsshController::m_initializer;
 
+struct rsc_user_pass_arg_t {
+  const char* user;
+  const char* pass;
+};
+
+struct rsc_pub_key_arg_t {
+  const char* pub_file;
+  const char* privae_file;
+  const char* passphrase;
+};
+
+int wait_socket_connected(int socket_fd, int timeout_sec);
+int user_pass_authentication(LIBSSH2_SESSION *session, const void* rsc_user_pass_arg);
+int key_pub_authentication(LIBSSH2_SESSION *session, const void* rsc_pub_key_arg);
+
+int run_ssh_command_internal(const char* str_host,
+                             uint16_t port,
+                             const char* str_cmd,
+                             int conn_timeout,
+                             std::vector<std::string> &lst_out,
+                             int (*pf_auth)(LIBSSH2_SESSION*, const void *),
+                             void *pf_auth_arg);
+
 CLibsshController::CSshInitializer::CSshInitializer()
 {
   do {
@@ -90,7 +113,22 @@ wait_ssh_socket_event(int socket_fd,
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::wait_socket_connected(int socket_fd, int timeout_sec) {
+user_pass_authentication(LIBSSH2_SESSION *session, const void *rsc_user_pass_arg) {
+  rsc_user_pass_arg_t* arg = (rsc_user_pass_arg_t*)rsc_user_pass_arg;
+  return libssh2_userauth_password(session, arg->user, arg->pass);
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+key_pub_authentication(LIBSSH2_SESSION *session, const void *rsc_pub_key_arg) {
+  UNUSED_ARG(session);
+  UNUSED_ARG(rsc_pub_key_arg);
+  return 0;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+wait_socket_connected(int socket_fd, int timeout_sec) {
   struct timeval timeout;
   fd_set fd;
   timeout.tv_sec = timeout_sec;
@@ -102,20 +140,20 @@ CLibsshController::wait_socket_connected(int socket_fd, int timeout_sec) {
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::run_ssh_command(const char* str_host,
-                                   uint16_t port,
-                                   const char* str_user,
-                                   const char* str_pass,
-                                   const char* str_cmd,
-                                   int conn_timeout,
-                                   std::vector<std::string> &lst_out) {
+run_ssh_command_internal(const char *str_host,
+                         uint16_t port,
+                         const char *str_cmd,
+                         int conn_timeout,
+                         std::vector<std::string> &lst_out,
+                         int (*pf_auth)(LIBSSH2_SESSION*, const void *),
+                         void *pf_auth_arg) {
   int rc = 0;
   struct sockaddr_in sin;
   unsigned long ul_host_addr = 0;
   int exitcode = 0;
   char *exitsignal = (char*)"none";
 
-  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+
 #ifndef _WIN32
   int sock;
   ul_host_addr = inet_addr(str_host);
@@ -159,8 +197,8 @@ CLibsshController::run_ssh_command(const char* str_host,
   }
 
   do {
-    while ((rc = libssh2_userauth_password(session, str_user, str_pass)) == LIBSSH2_ERROR_EAGAIN)
-      ; //wait
+    while ((rc = pf_auth(session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
+      ;
 
     if (rc) {
       return RLE_SSH_AUTHENTICATION;
@@ -238,5 +276,22 @@ CLibsshController::run_ssh_command(const char* str_host,
 #endif
 
   return exitcode;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CLibsshController::run_ssh_command_pass_auth(const char* str_host,
+                                   uint16_t port,
+                                   const char* str_user,
+                                   const char* str_pass,
+                                   const char* str_cmd,
+                                   int conn_timeout,
+                                   std::vector<std::string> &lst_out) {
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+  rsc_user_pass_arg_t arg;
+  memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
+  arg.user = str_user;
+  arg.pass = str_pass;
+  return run_ssh_command_internal(str_host, port, str_cmd, conn_timeout, lst_out, user_pass_authentication, &arg);
 }
 ////////////////////////////////////////////////////////////////////////////
