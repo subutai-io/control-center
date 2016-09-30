@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QCryptographicHash>
+#include <QProcess>
 
 bool CCommons::QuitAppFlag = false;
 
@@ -100,5 +101,14 @@ CCommons::NetworkErrorToString(int err_code) {
     case QNetworkReply::UnknownServerError: return "Unknown server error";
     default: return "Unknown network error";
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void CCommons::RestartTray() {
+  QProcess* proc = new QProcess;
+  QStringList args;
+  args << "restarted";
+  proc->startDetached(QApplication::applicationFilePath(), args);
+  QApplication::exit(0);
 }
 ////////////////////////////////////////////////////////////////////////////

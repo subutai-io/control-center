@@ -97,9 +97,7 @@ CUpdaterComponentTray::update_post_action() {
   if (msg_box->exec() == QMessageBox::No)
     return;
 
-  QProcess* proc = new QProcess;
-  proc->start(QApplication::applicationFilePath());
-  QApplication::exit(0);
+  CCommons::RestartTray();
 }
 ////////////////////////////////////////////////////////////////////////////
 
