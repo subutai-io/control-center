@@ -232,8 +232,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
     }
 
     if (exit_code != 0) {
-      QString err_msg = QString("Join to p2p swarm failed. Code : %1").arg(exit_code);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      CApplicationLog::Instance()->LogError("Join to p2p swarm failed. Code : %d", exit_code);
       res = SCWE_CREATE_PROCESS;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -385,7 +384,7 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
                                         int& exit_code,
                                         std::vector<std::string>& lst_output) {
   static const int default_timeout = 10;
-  exit_code = CLibsshController::run_ssh_command(host, port, user,
+  exit_code = CLibsshController::run_ssh_command_pass_auth(host, port, user,
                                                  pass, cmd, default_timeout,
                                                  lst_output);
 

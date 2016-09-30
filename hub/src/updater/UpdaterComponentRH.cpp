@@ -2,9 +2,9 @@
 #include "SystemCallWrapper.h"
 #include "NotifiactionObserver.h"
 #include "ApplicationLog.h"
-#include "libssh2/include/LibsshErrors.h"
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentRH.h"
+#include "libssh2/include/LibsshController.h"
 
 using namespace update_system;
 

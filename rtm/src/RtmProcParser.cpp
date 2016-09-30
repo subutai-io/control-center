@@ -1,35 +1,18 @@
 #include "SystemCallWrapper.h"
-#include"ApplicationLog.h"
-#include "rtm/include/RtmRemoteController.h"
+#include "ApplicationLog.h"
+#include "rtm/include/RtmProcParser.h"
 
 using namespace rtm;
 
-proc_load_avg_t
-CRtmRemoteController::parse_load_avg(const std::string &str) {
-  proc_load_avg_t res;
-  int sr = sscanf(str.c_str(),
-              "%lf  %lf %lf %lu %*1[/] %lu %lu",
-              &res.avg1, &res.avg5, &res.avg15,
-              &res.current, &res.scheduled, &res.pid);
-
-  if (sr != 6) {
-    CApplicationLog::Instance()->LogError(
-          "Couldn't parse average load. \"%s\". res : %d", str.c_str(), sr);
-  }
-
-  return res;
-}
-////////////////////////////////////////////////////////////////////////////
-
 proc_meminfo_t
-CRtmRemoteController::create_meminfo() {
+CRtmProcParser::create_meminfo() {
   proc_meminfo_t pm;
   memset(&pm, 0, sizeof(proc_meminfo_t));
   return pm;
 }
 
 proc_net_dev_t
-CRtmRemoteController::create_net_dev() {
+CRtmProcParser::create_net_dev() {
   proc_net_dev_t nd;
   memset(&nd, 0, sizeof(proc_net_dev_t));
   return nd;
@@ -37,32 +20,39 @@ CRtmRemoteController::create_net_dev() {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_load_avg_t
-CRtmRemoteController::load_average() {
-  proc_load_avg_t res;
+CRtmProcParser::load_average(bool &success) const {
   static const char* cmd = "cat /proc/loadavg";
-  std::vector<std::string> lst_out;
-  int ec = -1;
+  static const char* fmt = "%lf  %lf %lf %lu %*1[/] %lu %lu";
+  proc_load_avg_t res;
+  success = false;
+  std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
-  system_call_wrapper_error_t cr =
-      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
-
-  if (cr != SCWE_SUCCESS) {
-    //todo handle error
+  if (!success || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("Failed %s call", cmd);
+    success = false;
     return res;
   }
 
-  if (lst_out.empty()) {
-    //todo handle error2
-    return res;
+  int sr = sscanf(lst_out[0].c_str(), fmt,
+              &res.avg1, &res.avg5, &res.avg15,
+              &res.current, &res.scheduled, &res.pid);
+
+  if (sr != 6) {
+    CApplicationLog::Instance()->LogError(
+          "Couldn't parse average load. \"%s\". res : %d", lst_out[0].c_str(), sr);
   }
 
-  res = parse_load_avg(lst_out[0]);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
+struct meminfo_field_meta_t {
+  uint64_t* fp; //field pointer
+  int fi;       //field index
+};
+
 proc_meminfo_t
-CRtmRemoteController::meminfo() {
+CRtmProcParser::meminfo(bool &success) const {
   static const char* fs[] = {
     "MemTotal: %lu", "MemFree: %lu", "MemAvailable: %lu", "Buffers: %lu",
     "Cached: %lu", "SwapCahced: %lu", "Active: %lu", "Inactive: %lu",
@@ -79,25 +69,17 @@ CRtmRemoteController::meminfo() {
     "DirectMap2M: %lu", "DirectMap1G: %lu"
   };
   static const char* cmd = "cat /proc/meminfo";
-
-  struct field_meta_t {
-    uint64_t* fp; //field pointer
-    int fi;       //field index
-  };
-
   proc_meminfo_t pm = create_meminfo();
-  std::vector<std::string> lst_out;
-  int ec = -1;
+  success = false;
+  std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
-  system_call_wrapper_error_t cr =
-      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
-
-  if (cr != SCWE_SUCCESS || lst_out.empty()) {
-    //todo handle SytemCallWrapperError.
+  if (!success || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get meminfo output");
+    success = false;
     return pm;
   }
 
-  field_meta_t fm[] = {
+  meminfo_field_meta_t fm[] = {
     {&pm.mem_total, proc_meminfo_t::pmf_MemTotal},
     {&pm.mem_free, proc_meminfo_t::pmf_MemFree},
     {&pm.shmem, proc_meminfo_t::pmf_Shmem},
@@ -109,15 +91,14 @@ CRtmRemoteController::meminfo() {
     {NULL, -1}
   };
 
-  field_meta_t* ft = fm;
+  meminfo_field_meta_t* ft = fm;
   for (; ft->fi != -1; ++ft) {
     if ((size_t)ft->fi >= lst_out.size()) continue;
     int pr = sscanf(lst_out[ft->fi].c_str(), fs[ft->fi], ft->fp);
     if (pr != 1) {
       //try to find in another lst_out results
-      for (size_t i = 0; i < lst_out.size(); ++i) {
+      for (size_t i = 0; i < lst_out.size() && pr != 1; ++i) {
         pr = sscanf(lst_out[i].c_str(), fs[ft->fi], ft->fp);
-        if (pr == 1) break;
       }
     }
   }
@@ -127,22 +108,21 @@ CRtmRemoteController::meminfo() {
 ////////////////////////////////////////////////////////////////////////////
 
 proc_uptime_t
-CRtmRemoteController::uptime() {
-  proc_uptime_t  res;
+CRtmProcParser::uptime(bool &success) const {
   static const char* cmd = "cat /proc/uptime";
   static const char* fmt = "%lf %lf";
-  std::vector<std::string> lst_out;
-  int ec = -1;
+  proc_uptime_t res;
+  success = false;
+  std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
-  system_call_wrapper_error_t cr =
-      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
-
-  if (cr != SCWE_SUCCESS || lst_out.empty()) {
-    CApplicationLog::Instance()->LogError("cat /proc/uptime call failed. res : %d", cr);
+  if (!success || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("cat /proc/uptime call failed");
+    success = false;
     return res;
   }
 
   int pr = sscanf(lst_out[0].c_str(), fmt, &res.uptime, &res.idle);
+
   if (pr != 2) {
     CApplicationLog::Instance()->LogError(
           "sscanf failed. str : %s, pr = %d", lst_out[0].c_str());
@@ -153,23 +133,21 @@ CRtmRemoteController::uptime() {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<proc_net_dev_t>
-CRtmRemoteController::network_info() {
+CRtmProcParser::network_info(bool &success) const {
   static const char* cmd = "cat /proc/net/dev";
   static const char* fmt = "%s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu";
   std::vector<proc_net_dev_t> lst_res;
-  std::vector<std::string> lst_out;
-  int ec = -1;
+  success = false;
+  std::vector<std::string> lst_out = m_read_f(cmd, &success);
 
-  system_call_wrapper_error_t cr =
-      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
-
-  if (cr != SCWE_SUCCESS || lst_out.empty() ) {
-    CApplicationLog::Instance()->LogError("cat /proc/net/dev call failed. res : %d", cr);
+  if (!success || lst_out.empty()) {
+    CApplicationLog::Instance()->LogError("cat /proc/net/dev call failed");
+    success = false;
     return lst_res;
   }
 
+  proc_net_dev_t nd = create_net_dev();
   for (size_t i = 2; i < lst_out.size(); ++i) {
-    proc_net_dev_t nd = create_net_dev();
     int pr = sscanf(lst_out[i].c_str(), fmt, nd.if_name,
                     &nd.recv.bytes, &nd.recv.packets, &nd.recv.errs, &nd.recv.drop,
                     &nd.recv.fifo, &nd.recv.frame, &nd.recv.compressed, &nd.recv.multicast,

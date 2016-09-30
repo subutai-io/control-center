@@ -1,7 +1,6 @@
 #include "libssh2/include/LibsshController.h"
 
 #include <stdint.h>
-#include <iostream>
 #include <libssh2.h>
 
 #ifdef _WIN32
@@ -19,8 +18,34 @@
 
 #include <string>
 #include <stdlib.h>
-#include "LibsshErrors.h"
 
+#include "libssh2/include/LibsshController.h"
+#include "ApplicationLog.h"
+
+CLibsshController::CSshInitializer CLibsshController::m_initializer;
+
+struct rsc_user_pass_arg_t {
+  const char* user;
+  const char* pass;
+};
+
+struct rsc_pub_key_arg_t {
+  const char* pub_file;
+  const char* privae_file;
+  const char* passphrase;
+};
+
+int wait_socket_connected(int socket_fd, int timeout_sec);
+int user_pass_authentication(LIBSSH2_SESSION *session, const void* rsc_user_pass_arg);
+int key_pub_authentication(LIBSSH2_SESSION *session, const void* rsc_pub_key_arg);
+
+int run_ssh_command_internal(const char* str_host,
+                             uint16_t port,
+                             const char* str_cmd,
+                             int conn_timeout,
+                             std::vector<std::string> &lst_out,
+                             int (*pf_auth)(LIBSSH2_SESSION*, const void *),
+                             void *pf_auth_arg);
 
 CLibsshController::CSshInitializer::CSshInitializer()
 {
@@ -28,7 +53,7 @@ CLibsshController::CSshInitializer::CSshInitializer()
 #ifdef WIN32
     WSADATA wsadata;
     if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-      std::cout << "WSAStartup failed with error: " << err << std::endl;
+      CApplicationLog::Instance()->LogError("WSAStartup failed with error: %d", err);
       result = RLE_WSA_STARTUP;
       break;
     }
@@ -43,7 +68,6 @@ CLibsshController::CSshInitializer::~CSshInitializer() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#include <QDebug>
 const char*
 CLibsshController::run_libssh2_error_to_str(run_libssh2_error_t err) {
   if (err < RLE_SUCCESS) return "exit code not null";
@@ -89,7 +113,22 @@ wait_ssh_socket_event(int socket_fd,
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::wait_socket_connected(int socket_fd, int timeout_sec) {
+user_pass_authentication(LIBSSH2_SESSION *session, const void *rsc_user_pass_arg) {
+  rsc_user_pass_arg_t* arg = (rsc_user_pass_arg_t*)rsc_user_pass_arg;
+  return libssh2_userauth_password(session, arg->user, arg->pass);
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+key_pub_authentication(LIBSSH2_SESSION *session, const void *rsc_pub_key_arg) {
+  UNUSED_ARG(session);
+  UNUSED_ARG(rsc_pub_key_arg);
+  return 0;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+wait_socket_connected(int socket_fd, int timeout_sec) {
   struct timeval timeout;
   fd_set fd;
   timeout.tv_sec = timeout_sec;
@@ -101,17 +140,19 @@ CLibsshController::wait_socket_connected(int socket_fd, int timeout_sec) {
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::run_ssh_command(const char* str_host,
-                                   uint16_t port,
-                                   const char* str_user,
-                                   const char* str_pass,
-                                   const char* str_cmd,
-                                   int conn_timeout, std::vector<std::string> &lst_out) {
+run_ssh_command_internal(const char *str_host,
+                         uint16_t port,
+                         const char *str_cmd,
+                         int conn_timeout,
+                         std::vector<std::string> &lst_out,
+                         int (*pf_auth)(LIBSSH2_SESSION*, const void *),
+                         void *pf_auth_arg) {
   int rc = 0;
   struct sockaddr_in sin;
   unsigned long ul_host_addr = 0;
   int exitcode = 0;
   char *exitsignal = (char*)"none";
+
 
 #ifndef _WIN32
   int sock;
@@ -156,8 +197,8 @@ CLibsshController::run_ssh_command(const char* str_host,
   }
 
   do {
-    while ((rc = libssh2_userauth_password(session, str_user, str_pass)) == LIBSSH2_ERROR_EAGAIN)
-      ; //wait
+    while ((rc = pf_auth(session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
+      ;
 
     if (rc) {
       return RLE_SSH_AUTHENTICATION;
@@ -184,19 +225,28 @@ CLibsshController::run_ssh_command(const char* str_host,
 
     for (;;) {
       /* loop until we block */
-      int lrc;
-      do {
-        char buffer[0x100] = {0};
-        lrc = libssh2_channel_read(channel, buffer, sizeof(buffer));
+      int f, l, r;
+      static char buffer[0x100] = {0};
+      f = l = 0;
+      r = -1;
 
-        if (lrc > 0) {
-          lst_out.push_back(std::string(buffer, lrc));
+      while ((r = libssh2_channel_read(channel, &buffer[l], sizeof(buffer) - l - 1)) > 0) {
+        buffer[l+r] = 0;
+
+        for (; buffer[l]; ++l) {
+          if (buffer[l] != '\n') continue;
+          lst_out.push_back(std::string(&buffer[f], l-f));
+          f = l+1;
         }
-      } while (lrc > 0);
+
+        memcpy(buffer, &buffer[f], l-f);
+        l = l-f;
+        f = 0;
+      }
 
       /* this is due to blocking that would occur otherwise so we loop on
       this condition */
-      if (lrc != LIBSSH2_ERROR_EAGAIN)
+      if (r != LIBSSH2_ERROR_EAGAIN)
         break;
       wait_ssh_socket_event(sock, session);
     }
@@ -226,5 +276,43 @@ CLibsshController::run_ssh_command(const char* str_host,
 #endif
 
   return exitcode;
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CLibsshController::run_ssh_command_pass_auth(const char* host,
+                                   uint16_t port,
+                                   const char* user,
+                                   const char* pass,
+                                   const char* cmd,
+                                   int conn_timeout,
+                                   std::vector<std::string> &lst_out) {
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+  rsc_user_pass_arg_t arg;
+  memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
+  arg.user = user;
+  arg.pass = pass;
+  return run_ssh_command_internal(host, port, cmd, conn_timeout,
+                                  lst_out, user_pass_authentication, &arg);
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CLibsshController::run_ssh_command_key_auth(const char *host,
+                                            uint16_t port,
+                                            const char *pub_file,
+                                            const char *pr_file,
+                                            const char *passphrase,
+                                            const char *cmd,
+                                            int conn_timeout,
+                                            std::vector<std::string> &lst_out) {
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+  rsc_pub_key_arg_t arg;
+  memset(&arg, 0, sizeof(rsc_pub_key_arg_t));
+  arg.passphrase = passphrase;
+  arg.privae_file = pr_file;
+  arg.pub_file = pub_file;
+  return run_ssh_command_internal(host, port, cmd, conn_timeout,
+                                  lst_out, key_pub_authentication, &arg);
 }
 ////////////////////////////////////////////////////////////////////////////

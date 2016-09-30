@@ -1,5 +1,5 @@
-#ifndef RTMCONTROLLER_H
-#define RTMCONTROLLER_H
+#ifndef RTMPROCPARSER_H
+#define RTMPROCPARSER_H
 
 #include <stdint.h>
 #include <string>
@@ -40,10 +40,8 @@ namespace rtm {
       pmf_DirectMap2M, pmf_DirectMap1G
     };
 
-    uint64_t mem_total, mem_free, buffers;
-    uint64_t high_total, high_free;
-    uint64_t swap_total, swap_free;
-    uint64_t shmem;
+    uint64_t mem_total, mem_free, buffers, high_total, high_free;
+    uint64_t swap_total, swap_free, shmem;
   };
   ////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +51,6 @@ namespace rtm {
   };
   ////////////////////////////////////////////////////////////////////////////
 
-  //token from net/if.h . using here because we haven't this on windows.
   static const int NET_IF_NAMESIZE = 16;
   struct proc_net_dev_t {
     uint8_t if_name[NET_IF_NAMESIZE];
@@ -67,19 +64,27 @@ namespace rtm {
     } trans;
   };
   ////////////////////////////////////////////////////////////////////////////
+
 #pragma pack(pop)
 
-  class CRtmRemoteController {
+
+  typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result code*/);
+
+  class CRtmProcParser {
   private:
-    static proc_load_avg_t parse_load_avg(const std::string& str);
     static proc_meminfo_t create_meminfo();
     static proc_net_dev_t create_net_dev();
 
+    pf_output_read m_read_f;
   public:
-    static proc_load_avg_t load_average();
-    static proc_meminfo_t meminfo();
-    static proc_uptime_t uptime();
-    static std::vector<proc_net_dev_t> network_info();
+
+    explicit CRtmProcParser(pf_output_read pf_r) : m_read_f(pf_r){}
+    ~CRtmProcParser(){}
+
+    proc_load_avg_t load_average(bool &success) const;
+    proc_meminfo_t meminfo(bool &success) const;
+    proc_uptime_t uptime(bool &success) const;
+    std::vector<proc_net_dev_t> network_info(bool &success) const;
   };
 
 }

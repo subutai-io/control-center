@@ -8,6 +8,14 @@
 
 using namespace update_system;
 
+QString get_p2p_version() {
+  std::string str_version = "";
+  CSystemCallWrapper::p2p_version(str_version);
+  QString p2p_version = QString::fromStdString(str_version);
+  return p2p_version;
+}
+////////////////////////////////////////////////////////////////////////////
+
 DlgAbout::DlgAbout(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgAbout)
@@ -27,9 +35,17 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(const QString&,bool)),
           this, SLOT(update_finished(const QString&,bool)));
 
-  m_dct_fpb[IUpdaterComponent::P2P] = {ui->pb_p2p, ui->btn_p2p_update};
-  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->pb_tray, ui->btn_tray_update};
-  m_dct_fpb[IUpdaterComponent::RH] = {ui->pb_rh, ui->btn_rh_update};
+  static bool p2p_in_progress = false;
+  static bool tray_in_progress = false;
+  static bool rh_in_progress = false;
+
+  m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p, ui->btn_p2p_update,
+                                       &p2p_in_progress, get_p2p_version};
+  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray, ui->btn_tray_update,
+                                        &tray_in_progress, NULL};
+  m_dct_fpb[IUpdaterComponent::RH] = {ui->lbl_rh_version_val, ui->pb_rh, ui->btn_rh_update,
+                                      &rh_in_progress, CSystemCallWrapper::rh_version};
+
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
   QThread* th = new QThread;
@@ -54,7 +70,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   di->moveToThread(th);
   th->start();
-
 }
 
 DlgAbout::~DlgAbout() {
@@ -65,6 +80,7 @@ DlgAbout::~DlgAbout() {
 void
 DlgAbout::btn_tray_update_released() {
   ui->btn_tray_update->setEnabled(false);
+  *m_dct_fpb[IUpdaterComponent::TRAY].in_progress = true;
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -72,6 +88,7 @@ DlgAbout::btn_tray_update_released() {
 void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
+  *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -79,6 +96,7 @@ DlgAbout::btn_p2p_update_released() {
 void
 DlgAbout::btn_rh_update_released() {
   ui->btn_rh_update->setEnabled(false);
+  *m_dct_fpb[IUpdaterComponent::RH].in_progress = true;
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::RH);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -95,8 +113,8 @@ DlgAbout::download_progress(const QString& file_id,
 void
 DlgAbout::update_available(const QString& file_id) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[file_id].btn->setEnabled(true);
-  m_dct_fpb[file_id].pb->setEnabled(true);
+  m_dct_fpb[file_id].btn->setEnabled(!(*m_dct_fpb[file_id].in_progress));
+  m_dct_fpb[file_id].pb->setEnabled(!(*m_dct_fpb[file_id].in_progress));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -108,6 +126,10 @@ DlgAbout::update_finished(const QString& file_id,
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);
   m_dct_fpb[file_id].pb->setValue(0);
+  *m_dct_fpb[file_id].in_progress = false;
+  if (m_dct_fpb[file_id].pf_version) {
+    m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -155,8 +177,8 @@ DlgAbout::update_available_sl(const QString& component_id,
                               bool available) {
   auto item = m_dct_fpb.find(component_id);
   if (item == m_dct_fpb.end()) return;
-  item->second.pb->setEnabled(available);
-  item->second.btn->setEnabled(available);
+  item->second.pb->setEnabled(!(*item->second.in_progress) && available);
+  item->second.btn->setEnabled(!(*item->second.in_progress) && available);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -165,10 +187,9 @@ DlgAbout::update_available_sl(const QString& component_id,
 
 void
 DlgAboutInitializer::do_initialization() {
-  int initialized_component_count = 0;
   std::string str_version;
-  CSystemCallWrapper::p2p_version(str_version);
-  QString p2p_version = QString::fromStdString(str_version);
+  int initialized_component_count = 0;
+  QString p2p_version = get_p2p_version();
   emit got_p2p_version(p2p_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
