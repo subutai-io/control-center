@@ -4,6 +4,9 @@
 #include <QFile>
 #include <QDir>
 #include <QSplashScreen>
+#include <QSharedMemory>
+#include <QSystemSemaphore>
+#include <QMessageBox>
 
 #include "IVBoxManager.h"
 #include "TrayControlWindow.h"
@@ -31,12 +34,40 @@ main(int argc, char *argv[]) {
 
 //  rtm::CRtmController::Instance()->Megatest();
 
+  static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
+  static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
+  QSystemSemaphore sema(sem_guid, 1);
+  bool is_first;
+  sema.acquire();
+
+  {
+    QSharedMemory shmem(shmem_guid);
+    shmem.attach();
+  }
+
+  QSharedMemory shmem(shmem_guid);
+  if (shmem.attach()) {
+    is_first = true;
+  } else {
+    shmem.create(1);
+    is_first = false;
+  }
+  sema.release();
+
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
 
-  QCommandLineParser cmd_parser;
+  if (is_first) {
+    QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Already running",
+                        "One instance of tray application is already running",
+                        QMessageBox::Ok);
+    QObject::connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+    msg_box->exec();
+    return 0;
+  }
 
+  QCommandLineParser cmd_parser;
   cmd_parser.setApplicationDescription("This tray application should help users to work with hub");
   QCommandLineOption log_level_opt("l",
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",

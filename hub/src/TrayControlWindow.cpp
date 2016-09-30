@@ -1,5 +1,4 @@
 #include <atomic>
-#include <QMessageBox>
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QLabel>
