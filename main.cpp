@@ -58,7 +58,7 @@ main(int argc, char *argv[]) {
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
 
-  if (is_first) {
+  if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
     QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Already running",
                         "One instance of tray application is already running",
                         QMessageBox::Ok);

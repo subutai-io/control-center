@@ -7,6 +7,7 @@
 #include <QProcess>
 
 bool CCommons::QuitAppFlag = false;
+const char* CCommons::RESTARTED_ARG = "restarted";
 
 static const char* date_format = "%d.%m.%Y.txt";
 static char date_str_buffer[15];
@@ -107,7 +108,7 @@ CCommons::NetworkErrorToString(int err_code) {
 void CCommons::RestartTray() {
   QProcess* proc = new QProcess;
   QStringList args;
-  args << "restarted";
+  args << RESTARTED_ARG;
   proc->startDetached(QApplication::applicationFilePath(), args);
   QApplication::exit(0);
 }

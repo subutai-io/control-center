@@ -8,6 +8,7 @@
 
 class CCommons {
 public:
+  static const char* RESTARTED_ARG;
 
   /*!
    * \brief CurrentDateFileNameString
