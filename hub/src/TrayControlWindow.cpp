@@ -506,15 +506,31 @@ void TrayControlWindow::refresh_environments() {
   }
   m_lst_hub_menu_items.clear();
 
+  //todo somehow notify user about the reason of environment's unhealty status.
+  std::vector<QString> lst_unhealthy_envs;
+
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
 
     QString env_name = env->name();
+#ifdef RT_OS_LINUX
     env_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+#endif
     QMenu* env_menu = m_hub_menu->addMenu(env_name);
+
+    if (!env->healthy()) {
+      lst_unhealthy_envs.push_back(env_name);
+      CApplicationLog::Instance()->LogError("Environment %s is unhealthy. Reason : %s",
+                                            env_name.toStdString().c_str(),
+                                            env->status_description().toStdString().c_str());
+    }
+
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
       QAction* act = new QAction(cont->name(), this);
-      CHubEnvironmentMenuItem* item = new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
+      act->setEnabled(env->healthy());
+
+      CHubEnvironmentMenuItem* item =
+          new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
       connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
       connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*, void*)),
               this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*, void*)));
@@ -522,6 +538,18 @@ void TrayControlWindow::refresh_environments() {
       m_lst_hub_menu_items.push_back(item);
     }
   }
+
+  if (lst_unhealthy_envs.empty()) return;
+
+  QString str_unhealthy_envs = "";
+  for (size_t i = 0; i < lst_unhealthy_envs.size()-1; ++i)
+    str_unhealthy_envs += lst_unhealthy_envs[i] + ", ";
+  str_unhealthy_envs += lst_unhealthy_envs[lst_unhealthy_envs.size()-1];
+  QString str_notification = QString("Environment%1 %2 %3 unhealthy").
+                             arg(lst_unhealthy_envs.size() > 1 ? "s" : "").
+                             arg(str_unhealthy_envs).
+                             arg(lst_unhealthy_envs.size() > 1 ? "are" : "is");
+  CNotificationObserver::Instance()->NotifyAboutInfo(str_notification);
 }
 ////////////////////////////////////////////////////////////////////////////
 

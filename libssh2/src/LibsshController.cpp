@@ -280,18 +280,39 @@ run_ssh_command_internal(const char *str_host,
 ////////////////////////////////////////////////////////////////////////////
 
 int
-CLibsshController::run_ssh_command_pass_auth(const char* str_host,
+CLibsshController::run_ssh_command_pass_auth(const char* host,
                                    uint16_t port,
-                                   const char* str_user,
-                                   const char* str_pass,
-                                   const char* str_cmd,
+                                   const char* user,
+                                   const char* pass,
+                                   const char* cmd,
                                    int conn_timeout,
                                    std::vector<std::string> &lst_out) {
   if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
   rsc_user_pass_arg_t arg;
   memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
-  arg.user = str_user;
-  arg.pass = str_pass;
-  return run_ssh_command_internal(str_host, port, str_cmd, conn_timeout, lst_out, user_pass_authentication, &arg);
+  arg.user = user;
+  arg.pass = pass;
+  return run_ssh_command_internal(host, port, cmd, conn_timeout,
+                                  lst_out, user_pass_authentication, &arg);
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CLibsshController::run_ssh_command_key_auth(const char *host,
+                                            uint16_t port,
+                                            const char *pub_file,
+                                            const char *pr_file,
+                                            const char *passphrase,
+                                            const char *cmd,
+                                            int conn_timeout,
+                                            std::vector<std::string> &lst_out) {
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+  rsc_pub_key_arg_t arg;
+  memset(&arg, 0, sizeof(rsc_pub_key_arg_t));
+  arg.passphrase = passphrase;
+  arg.privae_file = pr_file;
+  arg.pub_file = pub_file;
+  return run_ssh_command_internal(host, port, cmd, conn_timeout,
+                                  lst_out, key_pub_authentication, &arg);
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -34,13 +34,22 @@ private:
 
 public:
   static const char *run_libssh2_error_to_str(run_libssh2_error_t err);
-  static int run_ssh_command_pass_auth(const char *str_host,
+
+  static int run_ssh_command_pass_auth(const char *host,
                                        uint16_t port,
-                                       const char *str_user,
-                                       const char *str_pass,
-                                       const char *str_cmd,
+                                       const char *user,
+                                       const char *pass,
+                                       const char *cmd,
                                        int conn_timeout,
                                        std::vector<std::string>& lst_out);
+
+  static int run_ssh_command_key_auth(const char *host,
+                                      uint16_t port,
+                                      const char* pub_file,
+                                      const char* pr_file, const char *passphrase,
+                                      const char* cmd,
+                                      int conn_timeout,
+                                      std::vector<std::string>& lst_out);
 };
 
 #endif // LIBSSHCONTROLLER_H
