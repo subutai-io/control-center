@@ -53,6 +53,8 @@ private:
   QString m_aes_key;
   QString m_ttl;
   QString m_id;
+  QString m_status;
+  QString m_status_descr;
   std::vector<CHubContainer> m_lst_containers;
 public:
   CSSEnvironment() : m_name(""){}
@@ -62,6 +64,8 @@ public:
     m_aes_key = obj["environment_key"].toString();
     m_ttl = obj["environment_ttl"].toString();
     m_id = obj["environment_id"].toString();
+    m_status = obj["environment_status"].toString();
+    m_status_descr = obj["environment_status_desc"].toString();
 
     QJsonArray arr = obj["environment_containers"].toArray();
     for (auto i = arr.begin(); i != arr.end(); ++i) {
@@ -79,7 +83,9 @@ public:
         m_hash == arg.m_hash &&
         m_aes_key == arg.m_aes_key &&
         m_ttl == arg.m_ttl &&
-        m_lst_containers == arg.m_lst_containers;
+        m_lst_containers == arg.m_lst_containers &&
+        m_status == arg.m_status &&
+        m_status_descr == arg.m_status_descr;
   }
 
   bool operator!=(const CSSEnvironment& arg) const {
@@ -91,6 +97,10 @@ public:
   const QString& key() const {return m_aes_key;}
   const QString& id() const {return m_id;}
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
+  const QString& status() const {return m_status;}
+  const QString& status_description() const {return m_status_descr;}
+
+  bool healthy() const {return m_status == "HEALTHY";}
 };
 ////////////////////////////////////////////////////////////////////////////
 

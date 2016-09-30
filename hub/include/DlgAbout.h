@@ -6,6 +6,7 @@
 
 #include <QProgressBar>
 #include <QPushButton>
+#include <QLabel>
 
 namespace Ui {
   class DlgAbout;
@@ -40,9 +41,12 @@ public:
 
 private:
   Ui::DlgAbout *ui;
-  struct progress_item_t{
+  struct progress_item_t {
+    QLabel* lbl;
     QProgressBar* pb;
     QPushButton* btn;
+    bool *in_progress; //hack. this field is pointer to static flags.
+    QString (*pf_version)();
   };
   std::map<QString, progress_item_t> m_dct_fpb;
 

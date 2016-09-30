@@ -12,11 +12,17 @@ class CTrayServer : public QObject  {
   Q_OBJECT
 
 private:
+
   QWebSocketServer *m_web_socket_server;
   QList<QWebSocket*> m_lst_clients;
 
   explicit CTrayServer(quint16 port, QObject *parent = Q_NULLPTR);
   ~CTrayServer();
+
+  static void handle_current_user(const QString& msg, QWebSocket* pClient);
+  static void handle_ss_ip(const QString& msg, QWebSocket* pClient);
+  static void handle_ssh(const QString& msg, QWebSocket* pClient);
+  static void handle_wrong_command(const QString& msg, QWebSocket* pClient);
 
 private slots:
   void on_new_connection();
@@ -26,8 +32,6 @@ private slots:
   void ssh_to_container_finished(int result, void* additional_data);
 
 public slots:
-
-
 public:
   static CTrayServer *Instance(void);
   void Init() const {}
