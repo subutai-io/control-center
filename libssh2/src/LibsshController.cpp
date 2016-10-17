@@ -206,7 +206,7 @@ run_ssh_command_internal(const char *str_host,
 
     LIBSSH2_CHANNEL *channel;
     while ((channel = libssh2_channel_open_session(session)) == NULL &&
-      libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
+           libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
       wait_ssh_socket_event(sock, session);
     }
 
@@ -215,7 +215,7 @@ run_ssh_command_internal(const char *str_host,
     }
 
     while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
-      LIBSSH2_ERROR_EAGAIN) {
+           LIBSSH2_ERROR_EAGAIN) {
       wait_ssh_socket_event(sock, session);
     }
 
@@ -258,7 +258,7 @@ run_ssh_command_internal(const char *str_host,
     if (rc == 0) {
       exitcode = libssh2_channel_get_exit_status(channel);
       libssh2_channel_get_exit_signal(channel, &exitsignal,
-        NULL, NULL, NULL, NULL, NULL);
+                                      NULL, NULL, NULL, NULL, NULL);
     }
 
     libssh2_channel_free(channel);
@@ -266,7 +266,7 @@ run_ssh_command_internal(const char *str_host,
   } while (0);
 
   libssh2_session_disconnect(session,
-    "Normal Shutdown, Thank you for playing");
+                             "Normal Shutdown, Thank you for playing");
   libssh2_session_free(session);
 
 #ifdef _WIN32
@@ -281,12 +281,12 @@ run_ssh_command_internal(const char *str_host,
 
 int
 CLibsshController::run_ssh_command_pass_auth(const char* host,
-                                   uint16_t port,
-                                   const char* user,
-                                   const char* pass,
-                                   const char* cmd,
-                                   int conn_timeout,
-                                   std::vector<std::string> &lst_out) {
+                                             uint16_t port,
+                                             const char* user,
+                                             const char* pass,
+                                             const char* cmd,
+                                             int conn_timeout,
+                                             std::vector<std::string> &lst_out) {
   if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
   rsc_user_pass_arg_t arg;
   memset(&arg, 0, sizeof(rsc_user_pass_arg_t));

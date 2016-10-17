@@ -1,5 +1,5 @@
-#ifndef CRESTWORKER_H
-#define CRESTWORKER_H
+#ifndef RESTWORKER_H
+#define RESTWORKER_H
 
 #include <QHostAddress>
 #include <QJsonDocument>

@@ -1,5 +1,5 @@
-#ifndef VBOXMANAGER_H
-#define VBOXMANAGER_H
+#ifndef IVBOXMANAGER_H
+#define IVBOXMANAGER_H
 
 
 #include <stdint.h>

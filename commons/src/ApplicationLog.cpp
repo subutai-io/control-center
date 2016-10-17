@@ -16,7 +16,7 @@ const char* CApplicationLog::LOG_FILE_DELIMITER =
     "|-----------------------------------------------------------------------------";
 
 CApplicationLog::CApplicationLog( void ) :
-  m_log_level(LT_ERROR)
+  m_log_level(LT_INFO)
 {
 #ifndef RT_OS_WINDOWS
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>(NULL, NULL, NULL, 5000, false);

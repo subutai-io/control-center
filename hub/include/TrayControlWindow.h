@@ -33,7 +33,6 @@ private:
     QPushButton *m_btn_play;
     QPushButton *m_btn_stop;
     QPushButton *m_btn_add;
-    QPushButton *m_btn_remove;
 
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
@@ -43,12 +42,10 @@ public:
 private slots:
     void vbox_menu_btn_play_released();
     void vbox_menu_btn_stop_released();
-    void vbox_menu_btn_rem_released();
 
 signals:
     void vbox_menu_btn_play_released_signal(const QString& vm_id);
     void vbox_menu_btn_stop_released_signal(const QString& vm_id);
-    void vbox_menu_btn_rem_released_signal(const QString& vm_id);
 };
 ////////////////////////////////////////////////////////////////////////////
 

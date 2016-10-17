@@ -135,9 +135,6 @@ TrayControlWindow::add_vm_menu(const QString &vm_id) {
   connect(pl, &CVBPlayerItem::vbox_menu_btn_stop_released_signal,
           this, &TrayControlWindow::vbox_menu_btn_stop_triggered, Qt::QueuedConnection);
 
-  connect(pl, &CVBPlayerItem::vbox_menu_btn_rem_released_signal,
-          this, &TrayControlWindow::vbox_menu_btn_rem_triggered, Qt::QueuedConnection);
-
   m_w_Player->add(pl);
   m_dct_player_menus[vm_id] = pl;
 }
@@ -519,8 +516,9 @@ void TrayControlWindow::refresh_environments() {
 
     if (!env->healthy()) {
       lst_unhealthy_envs.push_back(env_name);
-      CApplicationLog::Instance()->LogError("Environment %s is unhealthy. Reason : %s",
+      CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
                                             env_name.toStdString().c_str(),
+                                            env->id().toStdString().c_str(),
                                             env->status_description().toStdString().c_str());
     }
 
@@ -792,21 +790,12 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   connect(m_btn_stop, SIGNAL(released()),
           this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
 
-  m_btn_remove = new QPushButton("", this);
-  m_btn_remove->setIcon(QIcon(":/hub/Delete-07.png"));
-  m_btn_remove->setToolTip("Attention! Removes VM. All files will be deleted");
-
-  connect(m_btn_remove, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_rem_released()), Qt::QueuedConnection);
-
   set_buttons(vm->state());
   p_h_Layout->addWidget(m_lbl_name);
   p_h_Layout->addWidget(m_lbl_state);
 
   p_h_Layout->addWidget(m_btn_play);
   p_h_Layout->addWidget(m_btn_stop);
-  p_h_Layout->addWidget(m_btn_remove);
-  //p_h_Layout->addWidget(pAdd);
 
   p_h_Layout->setMargin(1);
   p_h_Layout->setSpacing(2);
@@ -849,7 +838,6 @@ CVBPlayerItem::set_buttons(MachineState_T state) {
 
   m_btn_play->setIcon(icon_set[isi].play);
   m_btn_stop->setIcon(icon_set[isi].stop);
-  m_btn_remove->setIcon(icon_set[isi].rem);
 }
 
 //Slots////////////////////////////////////////////////////////////////////
@@ -861,11 +849,6 @@ CVBPlayerItem::vbox_menu_btn_play_released() {
 void
 CVBPlayerItem::vbox_menu_btn_stop_released() {
   emit(CVBPlayerItem::vbox_menu_btn_stop_released_signal(m_vm_player_item_id));
-}
-
-void
-CVBPlayerItem::vbox_menu_btn_rem_released() {
-  emit(CVBPlayerItem::vbox_menu_btn_rem_released_signal(m_vm_player_item_id));
 }
 ///////////////////////////////////////////////////////////////////////////
 
