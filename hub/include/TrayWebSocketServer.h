@@ -8,6 +8,9 @@
 class QWebSocketServer;
 class QWebSocket;
 
+/*!
+ * \brief This class is used for receiving commands from E2E plugin via Web-socket
+ */
 class CTrayServer : public QObject  {
   Q_OBJECT
 
@@ -19,9 +22,21 @@ private:
   explicit CTrayServer(quint16 port, QObject *parent = Q_NULLPTR);
   ~CTrayServer();
 
+  /*!
+   * \brief Send current user to E2E plugin
+   */
   static void handle_current_user(const QString& msg, QWebSocket* pClient);
-  static void handle_ss_ip(const QString& msg, QWebSocket* pClient);
+  /*!
+   * \brief Send SS ip to E2E plugin
+   */
+  static void handle_ss_ip(const QString& msg, QWebSocket* pClient);  
+  /*!
+   * \brief Try ssh->container and send result of this operation to E2E plugin
+   */
   static void handle_ssh(const QString& msg, QWebSocket* pClient);
+  /*!
+   * \brief Send some error message to E2E plugin because of unrecognized command from E2E.
+   */
   static void handle_wrong_command(const QString& msg, QWebSocket* pClient);
 
 private slots:

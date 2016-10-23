@@ -24,11 +24,17 @@
 
 CLibsshController::CSshInitializer CLibsshController::m_initializer;
 
+/*!
+ * \brief Argument for login/password based authorization
+ */
 struct rsc_user_pass_arg_t {
   const char* user;
   const char* pass;
 };
 
+/*!
+ * \brief Argument for ssh key file based authorization
+ */
 struct rsc_pub_key_arg_t {
   const char* pub_file;
   const char* privae_file;

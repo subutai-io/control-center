@@ -39,6 +39,11 @@ const QString CSettingsManager::SM_P2P_AUTOUPDATE("P2p_Autoupdate");
 const QString CSettingsManager::SM_RH_AUTOUPDATE("Rh_Autoupdate");
 const QString CSettingsManager::SM_TRAY_AUTOUPDATE("Tray_Autoupdate");
 
+const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
+
+/*!
+ * \brief This template is used like field initializer for code size reduction
+ */
 template<class T> struct setting_val_t {
   T* field;
   QString val;
@@ -78,17 +83,21 @@ CSettingsManager::CSettingsManager() :
   m_rh_autoupdate(false),
   m_tray_autoupdate(false)
 {
-  static const char* SSH_FOLDER = ".ssh";
+  static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
+  QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
 
   do {
     QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     if (lst_home.empty()) break;
     QString home_folder = lst_home[0];
-    QString ssh = home_folder + QDir::separator() + SSH_FOLDER;
-    QDir ssh_dir(ssh);
-    if (!ssh_dir.exists()) {
-      if (!ssh_dir.mkdir(ssh)) break;
-      m_ssh_keys_storage = ssh;
+
+    for (int i = 0; FOLDERS_TO_CREATE[i]; ++i) {
+      QString dir_path = home_folder + QDir::separator() + FOLDERS_TO_CREATE[i];
+      QDir dir(dir_path);
+      if (!dir.exists()) {
+        if (!dir.mkdir(dir_path)) continue;
+      }
+      *fields[i] = dir_path;
     }
   } while (0);
 
@@ -102,6 +111,7 @@ CSettingsManager::CSettingsManager() :
     {&m_logs_storage, SM_LOGS_STORAGE},
     {&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE},
     {&m_tray_guid, SM_TRAY_GUID},
+    {&m_rtm_db_dir, SM_RTM_DB_DIR},
     {nullptr, ""}
   };
 
@@ -249,4 +259,5 @@ SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
 SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
 SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
 SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
+SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
 #undef SET_FIELD_DEF

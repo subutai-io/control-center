@@ -33,22 +33,35 @@ public:
   CThreadWrapper(T* lpExecutor, bool autoTerminate) : m_lpExecutor(lpExecutor), m_autoTerminateThread(autoTerminate){}
   ~CThreadWrapper(void){if (m_autoTerminateThread) Terminate(0);}
 
+  /*!
+   * \brief Starts executor's function in parallel thread
+   */
   int Start(void) {
     return pthread_create(&m_thread, NULL, CThreadWrapper::thread_func, (void*)m_lpExecutor);
   }
   //////////////////////////////////////////////////////////////////////////
 
+  /*!
+   * \brief Blocks the calling thread until the thread represented by this instance terminates somehow
+   */
   int Join(void) {
     return pthread_join(m_thread, NULL);
   }
   //////////////////////////////////////////////////////////////////////////
 
+  /*!
+   * \brief Blocks current thread until timeout elapses.
+   */
   int Wait(int timeoutInMs) {
     (void)timeoutInMs;
 //todo pthread_timed_join_np
     return 0;
   }
 
+  /*!
+   * \brief Terminates thread represented by current instance with `signal` code.
+   * \param sig - return code.
+   */
   int Terminate(int sig) {
     return pthread_kill(m_thread, sig);
   }

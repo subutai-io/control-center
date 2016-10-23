@@ -3,6 +3,7 @@
 #include "libssh2/include/LibsshController.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
+#include "rtm/include/RtmDbController.h"
 
 rtm::sysinfo_t os_get_sysinfo();
 
@@ -90,20 +91,22 @@ rtm::CRtmController::rtm_sysinfo() const {
 
 void
 rtm::CRtmController::Megatest() {
-  bool succes;
-  proc_load_avg_t sys1 = m_rpp_syscall->load_average(succes);
-  proc_load_avg_t sys2 = m_rpp_libssh2->load_average(succes);
+//  bool succes;
+//  bool is_valid = CRtmDbController::Instance().is_valid();
 
-  proc_meminfo_t mem1  = m_rpp_syscall->meminfo(succes);
-  proc_meminfo_t mem2  = m_rpp_libssh2->meminfo(succes);
+//  proc_load_avg_t sys1 = m_rpp_syscall->load_average(succes);
+//  proc_load_avg_t sys2 = m_rpp_libssh2->load_average(succes);
 
-  std::vector<proc_net_dev_t> ni1 = m_rpp_syscall->network_info(succes);
-  std::vector<proc_net_dev_t> ni2 = m_rpp_libssh2->network_info(succes);
+//  proc_meminfo_t mem1  = m_rpp_syscall->meminfo(succes);
+//  proc_meminfo_t mem2  = m_rpp_libssh2->meminfo(succes);
 
-  proc_uptime_t up1 = m_rpp_syscall->uptime(succes);
-  proc_uptime_t up2 = m_rpp_libssh2->uptime(succes);
+//  std::vector<proc_net_dev_t> ni1 = m_rpp_syscall->network_info(succes);
+//  std::vector<proc_net_dev_t> ni2 = m_rpp_libssh2->network_info(succes);
 
-  rtm_sysinfo();
-  CApplicationLog::Instance()->LogInfo("Abircheg");
+//  proc_uptime_t up1 = m_rpp_syscall->uptime(succes);
+//  proc_uptime_t up2 = m_rpp_libssh2->uptime(succes);
+
+//  rtm_sysinfo();
+//  CApplicationLog::Instance()->LogInfo("Abircheg");
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -617,12 +617,6 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t
-CSystemCallWrapper::top(std::vector<std::string> &lst_out, int& exit_code) {
-  return ssystem_th("top -n 1 -d 2 -b", lst_out, exit_code, true);
-}
-////////////////////////////////////////////////////////////////////////////
-
 void
 CSystemCallThreadWrapper::do_system_call() {
   m_result = CSystemCallWrapper::ssystem(m_command.c_str(), m_lst_output, m_exit_code, m_read_output);

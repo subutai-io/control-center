@@ -11,6 +11,10 @@
 
 class CVBoxManagerSingleton;
 
+/*!
+ * \brief Abstract class for managing virtual machines.
+ * This class is abstract because we have two versions : with COM interface and with XPCOM interface.
+ */
 class IVBoxManager : public QObject {
   Q_OBJECT
 
@@ -28,31 +32,71 @@ protected:
   typedef void (IVBoxManager::*pf_event_handle)(IEvent*);
   std::map<uint32_t, pf_event_handle> m_dct_event_handlers;
 
+  /*!
+   * \brief Occures when virtual machine's state changed
+   */
   virtual void on_machine_state_changed(IEvent* event) = 0;
+  /*!
+   * \brief Occures when new virtual machine is registered
+   */
   virtual void on_machine_registered(IEvent* event) = 0;
+  /*!
+   * \brief Occures when virtual machine session's state changed
+   */
   virtual void on_session_state_changed(IEvent* event) = 0;
+  /*!
+   * \brief When something happens with virtual machine
+   */
   virtual void on_machine_event(IEvent* event) = 0;
 
   void init_event_handlers(void);
 
 public:
+  /*!
+   * \brief COM or XPCOM last error code
+   */
   nsresult last_error(void) const {return m_last_error;}
+  /*!
+   * \brief Last vb_errors_t code
+   */
   vb_errors_t last_vb_error(void) const {return m_last_vb_error;}
 
+  /*!
+   * \brief Virtual machine by ID
+   */
   const IVirtualMachine* vm_by_id(const QString& id) const {
     return m_dct_machines.find(id) == m_dct_machines.end() ? NULL : m_dct_machines.at(id);}
 
+  /*!
+   * \brief Count of virtual machines
+   */
   size_t vm_count() const {return m_dct_machines.size();}
+
+  /*!
+   * \brief Dictionary that contains all available virtual machines
+   */
   const std::map<QString, IVirtualMachine*>& dct_machines() const {return m_dct_machines;}
 
+  /*!
+   * \brief Retrieve list of available virtual machines and add it to m_dct_machines
+   */
   virtual int init_machines(void) = 0;
 
+  /*!
+   * \brief Launch VM with specified ID
+   */
   virtual int launch_vm(const QString& vm_id,
                         vb_launch_mode_t lm = VBML_HEADLESS) = 0;
 
+  /*!
+   * \brief Turn off VM with specified ID
+   */
   virtual int turn_off(const QString& vm_id,
                        bool save_state = false) = 0;
 
+  /*!
+   * \brief Obsolete. Will be removed in next versions of tray
+   */
   int launch_process(const QString& vm_id,
                      const char* path,
                      const char* user,
@@ -83,6 +127,9 @@ signals:
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Singleton of IVboxManager.
+ */
 class CVBoxManagerSingleton {
 private:
   class CVBoxManagerDestructor {

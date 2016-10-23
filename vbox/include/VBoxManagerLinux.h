@@ -6,6 +6,9 @@
 #include "VBoxCommons.h"
 #include "IVBoxManager.h"
 
+/*!
+ * \brief VBoxManager with XPCOM interface
+ */
 class CVBoxManagerLinux : public IVBoxManager
 {
 private:

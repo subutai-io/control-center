@@ -1,6 +1,7 @@
 #include <QToolTip>
 #include <QFileDialog>
 #include <QStandardPaths>
+
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
@@ -30,6 +31,11 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
+
+  ui->le_rtm_db_folder->setText(CSettingsManager::Instance().rtm_db_dir());
+  ui->le_rtm_db_folder->setVisible(false);
+  ui->btn_rtm_db_folder->setVisible(false);
+  ui->lbl_rtm_db_folder->setVisible(false);
 
   fill_freq_combobox(ui->cb_p2p_frequency);
   fill_freq_combobox(ui->cb_rh_frequency);
@@ -69,8 +75,10 @@ DlgSettings::~DlgSettings()
 }
 ////////////////////////////////////////////////////////////////////////////
 
-//return true if field is valid.
-typedef bool (*pf_validator)(const QLineEdit*);
+/*!
+ * \brief This template structure allows us to validate every field.
+ * When validation is failed user receives notification and focus moves to wrong field.
+ */
 template<class TC> struct field_validator_t {
   TC* fc; //field control
   bool (*f_validator)(const TC*);
@@ -103,7 +111,7 @@ DlgSettings::btn_ok_released() {
   static const char* path_invalid_validator_msg = "Invalid path";
 
   QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
-                    ui->le_p2p_command, ui->le_ssh_command};
+                    ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder};
   QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
 
@@ -117,12 +125,18 @@ DlgSettings::btn_ok_released() {
 
   field_validator_t<QLineEdit> le_validators[] = {
     {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
+
     {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_ssh_keys_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+
     {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_logs_storage, folder_has_write_permission, 0, folder_permission_validator_msg},
+
+    {ui->le_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_rtm_db_folder, folder_has_write_permission, 0, folder_permission_validator_msg},
 
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
@@ -137,6 +151,7 @@ DlgSettings::btn_ok_released() {
 
   field_validator_t<QLineEdit>* tmp = le_validators;
   do {
+    if (!tmp->fc->isVisible()) continue;
     if (!tmp->f_validator(tmp->fc)) {
       ui->tabWidget->setCurrentIndex(tmp->tab_index);
       tmp->fc->setFocus();
@@ -165,6 +180,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rh_update_freq(ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
 
+  CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().save_all();
   this->close();
 }
@@ -205,5 +221,13 @@ DlgSettings::btn_ssh_keys_storage_released() {
   QString dir = QFileDialog::getExistingDirectory(this, "SSH-keys storage");
   if (dir == "") return;
   ui->le_ssh_keys_storage->setText(dir);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_rtm_db_folder_released() {
+  QString dir = QFileDialog::getExistingDirectory(this, "DB storage");
+  if (dir == "") return;
+  ui->le_rtm_db_folder->setText(dir);
 }
 ////////////////////////////////////////////////////////////////////////////

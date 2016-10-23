@@ -3,6 +3,9 @@
 
 #include "IVirtualMachine.h"
 
+/*!
+ * \brief Virtual machine with COM interface
+ */
 class CVirtualMachineWin : public IVirtualMachine
 {
 private:

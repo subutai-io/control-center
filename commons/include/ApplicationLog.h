@@ -11,9 +11,10 @@
 #endif
 
 /*!
- * \brief The CApplicationLog class. Uses for logging.
+ * \brief The CApplicationLog class provides logger functions like LogTrace, LogInfo and LogError.
  * It generates trace_($current_date).txt, info_($current_date).txt and error_($current_date).txt
- * You can specify log_level via application argument --l
+ * You can specify log_level via application argument --l. Messages with log level less then log_level
+ * won't be logged into files.
  */
 class CApplicationLog
 {
@@ -35,31 +36,31 @@ public:
   void SetDirectory(const std::string& directory);
   /*!
    * \brief Set log level.
-   * \param lt - log level. See LOG_TYPE enum.
+   * \param lt - log level.
    */
   void SetLogLevel(LOG_TYPE lt) {m_log_level = lt;}
 
   /*!
-   * \brief LogTrace - write log message to trace_$(current_date).txt file
+   * \brief LogTrace - write log message to trace_(current_date).txt file
    * \param format like in printf, fprintf functions.
    */
   void LogTrace( const char* format, ... );
 
   /*!
-   * \brief LogInfo - write log message to info_$(current_date).txt file
+   * \brief LogInfo - write log message to info_(current_date).txt file
    * \param format like in printf, fprintf functions.
    */
   void LogInfo ( const char* format, ... );
 
   /*!
-   * \brief LogError - write log message to error_$(current_date).txt file
+   * \brief LogError - write log message to error_(current_date).txt file
    * \param format like in printf, fprintf functions.
    */
   void LogError( const char* format, ... );
 
   /*!
-   * \brief  CApplicationLog is singleton.
-   * \return CApplicationLog instance.
+   * \brief CApplicationLog is singleton.
+   * \return Instance.
    */
   static CApplicationLog* Instance(){
     static CApplicationLog m_instance;
