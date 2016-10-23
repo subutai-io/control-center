@@ -8,6 +8,9 @@
 
 namespace SynchroPrimitives {
 
+  /*!
+   * \brief Linux manual reset event wrapper (using std::unique_lock and std::conditional_variable).
+   */
   class CLinuxManualResetEvent {
   private:
 

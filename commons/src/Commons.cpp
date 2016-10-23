@@ -110,6 +110,7 @@ void CCommons::RestartTray() {
   QStringList args;
   args << RESTARTED_ARG;
   proc->startDetached(QApplication::applicationFilePath(), args);
+  delete proc;
   QApplication::exit(0);
 }
 ////////////////////////////////////////////////////////////////////////////

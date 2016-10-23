@@ -38,6 +38,9 @@ enum restart_service_error_t {
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class helps us to use system calls (like system("ls -la")) in separate thread
+ */
 class CSystemCallThreadWrapper : public QObject {
   Q_OBJECT
 private:
@@ -71,6 +74,10 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class contains methods and functions for receiving output of system calls
+ * like "ls -la", "p2p version" etc.
+ */
 class CSystemCallWrapper {
   friend class CSystemCallThreadWrapper;
 private:
@@ -84,6 +91,15 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
+  /*!
+   * \brief Run system call in separate thread
+   * \param command to run
+   * \param lst_output result output of command
+   * \param exit_code process exit code
+   * \param read_output if true - read output.
+   * \param time_msec timeout
+   * \return system_call_wrapper_error_t
+   */
   static system_call_wrapper_error_t ssystem_th(const char *command,
                                                 std::vector<std::string> &lst_output,
                                                 int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
@@ -143,9 +159,6 @@ public:
   static system_call_wrapper_error_t chrome_version(std::string& version);
   static QString virtual_box_version();
   static const QString& scwe_error_to_str(system_call_wrapper_error_t err);
-
-  static system_call_wrapper_error_t top(std::vector<std::string>& lst_out, int &exit_code);
-
 };
 
 #endif // SYSTEMCALLWRAPPER_H

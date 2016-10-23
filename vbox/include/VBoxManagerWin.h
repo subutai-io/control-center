@@ -6,6 +6,9 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
+/*!
+ * \brief VBoxManager with COM interface
+ */
 class CVBoxManagerWin : public IVBoxManager
 {
 private:

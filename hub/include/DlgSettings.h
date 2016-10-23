@@ -10,12 +10,15 @@ namespace Ui {
   class DlgSettings;
 }
 
+/*!
+ * \brief This class makes tabs of the same width in QTabWidget
+ */
 class TabResizeFilter : public QObject {
 private:
   QTabWidget* m_target;
 
   static void expandingTypeStyleSheet(QTabWidget* tw) {
-    int w = tw->width()-tw->count(); //don't know why. but looks ok only with this -tw->count(). MAGIC!!!
+    int w = tw->width()-tw->count(); //don't know why. but looks OK only with this -tw->count(). MAGIC!!!
     int wb = floor(w / (tw->count()*1.0));
     int ws = w - wb*(tw->count()-1);
     tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
@@ -34,6 +37,9 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class is used for managing "Settings" dialog
+ */
 class DlgSettings : public QDialog
 {
   Q_OBJECT
@@ -53,6 +59,7 @@ private slots:
   void btn_ssh_command_released();
   void btn_logs_storage_released();
   void btn_ssh_keys_storage_released();
+  void btn_rtm_db_folder_released();
 };
 
 #endif // DLGSETTINGS_H

@@ -52,6 +52,9 @@ typedef enum vb_errors {
 } vb_errors_t;
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class contains common methods for VBox management
+ */
 class CVBoxCommons {
 public:
   static const char* VM_session_state_to_str(uint32_t session_state) {

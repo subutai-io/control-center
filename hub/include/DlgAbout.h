@@ -12,6 +12,9 @@ namespace Ui {
   class DlgAbout;
 }
 
+/*!
+ * \brief This class is used for asynchronous initialization of About dialog like available updates and component versions
+ */
 class DlgAboutInitializer : public QObject {
   Q_OBJECT
 private:
@@ -31,6 +34,9 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class manages behavior of "About" dialog
+ */
 class DlgAbout : public QDialog
 {
   Q_OBJECT
@@ -41,6 +47,10 @@ public:
 
 private:
   Ui::DlgAbout *ui;
+
+  /*!
+   * \brief This struct is used for managing UI elements: progress bar, button, label with version
+   */
   struct progress_item_t {
     QLabel* lbl;
     QProgressBar* pb;

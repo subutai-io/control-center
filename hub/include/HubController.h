@@ -20,6 +20,10 @@ typedef enum ssh_launch_error {
   SLE_LAST_ERR
 } ssh_launch_error_t;
 
+/*!
+ * \brief This class is used for working with p2p. At first we need to join to p2p and then to try ssh->container.
+ * We do it in separate thread so we have signals here.
+ */
 class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
@@ -46,6 +50,11 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class is used for managing HUB related thins.
+ * It updates environments and containers lists, user's balance.
+ * Also it is used for doint ssh->container.
+ */
 class CHubController : public QObject {
   Q_OBJECT
 private:
@@ -77,30 +86,84 @@ private slots:
   void ssh_to_container_finished_str_slot(int result, void* additional_data);
 
 public:
+  /*!
+   * \brief Force refresh balance
+   */
   int refresh_balance();
+
+  /*!
+   * \brief Force refresh environments list
+   */
   int refresh_environments();
+
+  /*!
+   * \brief Force refresh containers list
+   */
   void refresh_containers(); //to make ssh work
 
+  /*!
+   * \brief SSH->container
+   * \param env - pointer to environment
+   * \param cont - pointer to container
+   * \param additional_data - could be everything you want. here we use it for storing information about menu item
+   */
   void ssh_to_container(const CSSEnvironment *env,
                         const CHubContainer *cont,
                         void *additional_data);
 
+  /*!
+   * \brief This method is used for ssh->container when we don't have pointer to environment and container, but have ids.
+   * \param env_id - environment id string
+   * \param cont_id - container id string
+   * \param additional_data - could be everything you want. here we use it for storing information about menu item
+   */
   void ssh_to_container_str(const QString& env_id,
                             const QString& cont_id,
                             void *additional_data);
 
+  /*!
+   * \brief ssh->container error to string
+   */
   static const QString& ssh_launch_err_to_str(int err);
 
+  /*!
+   * \brief Current user here is login. This field is used for re-login to hub.
+   */
   void set_current_user(const QString& cu) {m_current_user = cu;}
+
+  /*!
+   * \brief Current password. This field is used for re-login to hub.
+   */
   void set_current_pass(const QString& cp) {m_current_pass = cp;}
 
+  /*!
+   * \brief List of environments
+   */
   const std::vector<CSSEnvironment>& lst_environments() const { return m_lst_environments; }
+
+  /*!
+   * \brief List of resource hosts. This list is used for searching containers IP.
+   */
   const std::vector<CRHInfo>& lst_resource_hosts() const { return m_lst_resource_hosts; }
+
+  /*!
+   * \brief Current balance represented by string
+   */
   const QString& balance() const {return m_balance;}
 
+  /*!
+   * \brief Current user's login
+   */
   const QString& current_user() const {return m_current_user;}
+
+  /*!
+   * \brief Current user's password
+   */
   const QString& current_pass() const {return m_current_pass;}
 
+  /*!
+   * \brief Instance of this singleton class
+   */
   static CHubController& Instance() {
     static CHubController instance;
     return instance;

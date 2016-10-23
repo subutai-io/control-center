@@ -10,6 +10,10 @@
 
 namespace update_system {
 
+  /*!
+   * \brief The CUpdaterComponentItem class wraps IUpdaterComponent*.
+   * Objects of this class are used in CHubComponentsUpdater in dictionary.
+   */
   class CUpdaterComponentItem : public QObject {
     Q_OBJECT
   private:
@@ -57,6 +61,9 @@ namespace update_system {
   };
   ////////////////////////////////////////////////////////////////////////////
 
+  /*!
+   * \brief This class provides functions and methods for managing component updating
+   */
   class CHubComponentsUpdater : public QObject {
     Q_OBJECT
   private:
@@ -71,20 +78,52 @@ namespace update_system {
 
   public:
 
+    /*!
+     * \brief Instance of this singleton class
+     */
     static CHubComponentsUpdater* Instance() {
       static CHubComponentsUpdater instance;
       return &instance;
     }
 
+    /*!
+     * \brief Set p2p update frequency using SettingsManager
+     */
     void set_p2p_update_freq();
+
+    /*!
+     * \brief Set resource host update frequency using SettingsManager
+     */
     void set_rh_update_freq();
+
+    /*!
+     * \brief Set tray application update frequency using SettingsManager
+     */
     void set_tray_update_freq();
 
+    /*!
+     * \brief Set p2p autoupdate using SettingsManager
+     */
     void set_p2p_autoupdate();
+
+    /*!
+     * \brief Set resource host autoupdate using SettingsManager
+     */
     void set_rh_autoupdate();
+
+    /*!
+     * \brief Set tray application autoupdate using SettingsManager
+     */
     void set_tray_autoupdate();
 
+    /*!
+     * \brief Is update available for component with component_id identificator
+     */
     bool is_update_available(const QString& component_id);
+
+    /*!
+     * \brief Run update procedure for component with component_id identificator
+     */
     void force_update(const QString& component_id);
 
   private slots:

@@ -3,6 +3,9 @@
 #include <QString>
 #include "VBoxCommons.h"
 
+/*!
+ * \brief Interface for 2 types virtual machines : COM and XPCOM based
+ */
 class IVirtualMachine
 {
 protected:

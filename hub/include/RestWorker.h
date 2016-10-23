@@ -1,5 +1,5 @@
-#ifndef CRESTWORKER_H
-#define CRESTWORKER_H
+#ifndef RESTWORKER_H
+#define RESTWORKER_H
 
 #include <QHostAddress>
 #include <QJsonDocument>
@@ -29,16 +29,26 @@ typedef enum rest_error {
 } rest_error_t;
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief This class contains methods and functions for working with HUB REST
+ */
 class CRestWorker : public QObject {
   Q_OBJECT
 public:
+  /*!
+   * \brief Instance of this singleton class
+   */
   static CRestWorker* Instance() {
     static CRestWorker instance;
     return &instance;
   }
+
   void create_network_manager();
   void free_network_manager();
 
+  /*!
+   * \brief Log in hub.
+   */
   void login(const QString& login,
              const QString& password,
              int &http_code,

@@ -5,7 +5,7 @@
 #define FAILED_METHOD_RESULT      ((void*) -1)
 
 /*!
- * \brief The IFunctor interface provides virtual methods for encapsulating methods
+ * \brief The IFunctor interface provides virtual methods for encapsulating functions (with or without result).
  */
 class IFunctor {
 protected:
@@ -30,44 +30,37 @@ public:
   virtual void operator()(void) = 0;
 
   /*!
-   * \brief SetIsSynchronized
-   * \param withResult
+   * \brief Should this method be invoked in synchronous or asynchronous mode.
    */
-  void SetIsSynchronized(bool withResult) {m_isSynchronized = withResult;}
+  void SetIsSynchronized(bool sync) {m_isSynchronized = sync;}
 
   /*!
-   * \brief GetIsSynchronized
-   * \return
+   * \brief Is method called in synchronous or asynchronous mode
    */
   bool GetIsSynchronized(void) const {return m_isSynchronized;}
 
   /*!
-   * \brief MethodName
-   * \return
+   * \brief Internal method name. Should be specified by developer
    */
   const char* MethodName(void) const {return m_methodName;}
 
   /*!
-   * \brief SetExceptionOccured
-   * \param val
+   * \brief This flag is set by EventLoop if exception occured
    */
   void SetExceptionOccured(bool val){m_exceptionOccured = val;}
 
   /*!
-   * \brief GetExceptionOccured
-   * \return
+   * \brief Returns true if exception occured. Otherwise returns false
    */
   bool GetExceptionOccured(void) const {return m_exceptionOccured;}
 
   /*!
-   * \brief SetTimeoutOccured
-   * \param val
+   * \brief This flag is set by EventLoop if method took too much time (specified by developer)
    */
   void SetTimeoutOccured(bool val){m_timeoutOccured = val;}
 
   /*!
-   * \brief GetTimeoutOccured
-   * \return
+   * \brief Returns true if timeout occured. Otherwise returns false
    */
   bool GetTimeoutOccured(void) const {return m_timeoutOccured;}
 };

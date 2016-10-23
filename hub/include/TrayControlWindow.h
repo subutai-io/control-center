@@ -20,6 +20,9 @@ namespace Ui {
   class TrayControlWindow;
 }
 
+/*!
+ * \brief Class for managing VM widget. Allows user to start/pause/stop VM
+ */
 class CVBPlayerItem : public QWidget {
     Q_OBJECT
 private:
@@ -33,7 +36,6 @@ private:
     QPushButton *m_btn_play;
     QPushButton *m_btn_stop;
     QPushButton *m_btn_add;
-    QPushButton *m_btn_remove;
 
 public:
     CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
@@ -43,15 +45,16 @@ public:
 private slots:
     void vbox_menu_btn_play_released();
     void vbox_menu_btn_stop_released();
-    void vbox_menu_btn_rem_released();
 
 signals:
     void vbox_menu_btn_play_released_signal(const QString& vm_id);
     void vbox_menu_btn_stop_released_signal(const QString& vm_id);
-    void vbox_menu_btn_rem_released_signal(const QString& vm_id);
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Class for managing CVBPlayerItem list
+ */
 class CVBPlayer : public QWidget{
     Q_OBJECT
 private:
@@ -71,6 +74,9 @@ public:
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Represents menu item with information about container and environment.
+ */
 class CHubEnvironmentMenuItem : public QObject {
  Q_OBJECT
 private:
@@ -97,6 +103,10 @@ public slots:
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Class for main tray window (hidden) representation.
+ * Main window of tray application hidden. So user has only tray menu.
+ */
 class TrayControlWindow : public QMainWindow
 {
   Q_OBJECT

@@ -6,8 +6,15 @@
 
 #define UNUSED_ARG(x) ((void)x)
 
+/**
+ * @brief Methods, macroses, structures, constants and other fields of this class could be used in any part of this program
+ */
 class CCommons {
 public:
+  /*!
+   * \brief RESTARTED_ARG - constant string that is using by RestartTray method and in main.cpp for checking
+   * if tray was restarted.
+   */
   static const char* RESTARTED_ARG;
 
   /*!
@@ -40,8 +47,16 @@ public:
    */
   static QString FileMd5(const QString& file_path);
 
+  /*!
+   * \brief NetworkErrorToString - QtNetworkError code to string.
+   * \param err_code - if QtNetworkError list doesn't contain this err_code method will return UndefinedError.
+   * \return
+   */
   static QString NetworkErrorToString(int err_code);
 
+  /*!
+   * \brief Restart tray application with added RESTARTED_ARG
+   */
   static void RestartTray();
 };
 
