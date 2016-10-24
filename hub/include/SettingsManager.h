@@ -1,10 +1,13 @@
-#ifndef CSETTINGSMANAGER_H
-#define CSETTINGSMANAGER_H
+#ifndef SETTINGSMANAGER_H
+#define SETTINGSMANAGER_H
 
 #include <stdint.h>
 #include <QSettings>
 #include <QString>
 
+/*!
+ * \brief This class is used for managing application settings
+ */
 class CSettingsManager
 {
 private:
@@ -44,6 +47,8 @@ private:
   static const QString SM_RH_AUTOUPDATE;
   static const QString SM_TRAY_AUTOUPDATE;
 
+  static const QString SM_RTM_DB_DIR;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -75,6 +80,8 @@ private:
   bool m_p2p_autoupdate;
   bool m_rh_autoupdate;
   bool m_tray_autoupdate;
+
+  QString m_rtm_db_dir;
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -134,6 +141,7 @@ public:
   bool rh_autoupdate() const { return m_rh_autoupdate; }
   bool tray_autoupdate() const { return m_tray_autoupdate; }
 
+  const QString& rtm_db_dir() const {return m_rtm_db_dir;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -165,6 +173,7 @@ public:
   SET_FIELD_DECL(p2p_autoupdate, bool)
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
+  SET_FIELD_DECL(rtm_db_dir, QString&)
 #undef SET_FIELD_DECL
 };
 

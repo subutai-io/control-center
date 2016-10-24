@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets
+QT       += core gui network websockets sql
 CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
@@ -50,7 +50,8 @@ SOURCES += \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
     rtm/src/RtmProcParser.cpp \
-    rtm/src/RtmController.cpp
+    rtm/src/RtmController.cpp \
+    rtm/src/RtmDbController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -93,7 +94,8 @@ HEADERS  += \
     commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
     rtm/include/RtmProcParser.h \
-    rtm/include/RtmController.h
+    rtm/include/RtmController.h \
+    rtm/include/RtmDbController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

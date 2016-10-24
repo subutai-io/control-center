@@ -14,6 +14,12 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
 
+  ui->lbl_register_link->setText("<a href=\"https://hub.subut.ai/register\">Register</a>");
+  ui->lbl_register_link->setTextFormat(Qt::RichText);
+  ui->lbl_register_link->setTextInteractionFlags(Qt::TextBrowserInteraction);
+  ui->lbl_register_link->setOpenExternalLinks(true);
+  ui->lbl_register_link->setAlignment(Qt::AlignCenter);
+
   if (CSettingsManager::Instance().remember_me()) {
     ui->le_login->setText(CSettingsManager::Instance().login());
     ui->le_password->setText(CSettingsManager::Instance().password());

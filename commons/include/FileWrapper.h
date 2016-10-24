@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 /*!
- * \brief The CFileWrapper class incapsulates file operations.
- * Use stack objects of this class for file operations.
+ * \brief The CFileWrapper class encapsulates file operations.
+ * \brief Use stack objects of this class for file operations.
  */
 class CFileWrapper {
 private:
@@ -54,7 +54,7 @@ public:
   }
 
   /*!
-   * \brief IsValid shows that file was opened and everything is fine.
+   * \brief shows that file was opened and everything is fine.
    */
   bool IsValid(void) const {return m_file != NULL;}
 };

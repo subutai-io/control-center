@@ -432,7 +432,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           std::string &ip) {
   system_call_wrapper_error_t res;
   std::vector<std::string> lst_out;
-  QString rh_ip_cmd = QString("sudo subutai management_network detect");
+  QString rh_ip_cmd = QString("sudo subutai info ipaddr");
   res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -614,12 +614,6 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
     "call timeout", "which call failed"
   };
   return error_str[err];
-}
-////////////////////////////////////////////////////////////////////////////
-
-system_call_wrapper_error_t
-CSystemCallWrapper::top(std::vector<std::string> &lst_out, int& exit_code) {
-  return ssystem_th("top -n 1 -d 2 -b", lst_out, exit_code, true);
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -14,11 +14,11 @@ namespace rtm {
     enum {la_avg1 = 0, la_avg5, la_avg15,
           la_curr_sched, la_pid, la_last};
 
-    double avg1, avg5, avg15;
+    uint32_t avg1, avg5, avg15;
     uint64_t current, scheduled, pid; //i guess it's unsigned long.
 
     proc_load_avg_t() :
-      avg1(0.0), avg5(0.0), avg15(0.0),
+      avg1(0.0f), avg5(0.0f), avg15(0.0f),
       current(0), scheduled(0), pid(0) {}
   };
   ////////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,7 @@ namespace rtm {
 
 #pragma pack(pop)
 
-
-  typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result code*/);
+  typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result success*/);
 
   class CRtmProcParser {
   private:

@@ -11,6 +11,9 @@ class P9 = char, class P10 = char, class P11 = char, class P12 = char, class P13
 class P14 = char, class P15 = char, class P16 = char> class FunctorWithResult;
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 0 arguments.
+ */
 template<class RT> class FunctorWithResult<RT> : public IFunctor
 {
 private:
@@ -34,6 +37,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 1 arguments.
+ */
 template<class RT, class P1> class FunctorWithResult<RT, P1> : public IFunctor {
 private:
   RT m_result;
@@ -59,6 +65,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 2 arguments.
+ */
 template<class RT, class P1, class P2> class FunctorWithResult<RT, P1, P2> : public IFunctor
 {
 private:
@@ -84,6 +93,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 3 arguments.
+ */
 template<class RT, class P1, class P2, class P3> class FunctorWithResult<RT, P1, P2, P3> : public IFunctor
 {
 private:
@@ -110,6 +122,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 4 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4> class FunctorWithResult<RT, P1, P2, P3, P4> : public IFunctor
 {
 private:
@@ -138,6 +153,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 5 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5> class FunctorWithResult<RT, P1, P2, P3, P4, P5> : public IFunctor
 {
 private:
@@ -167,6 +185,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 6 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6> : public IFunctor
 {
 private:
@@ -199,6 +220,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 7 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7> : public IFunctor
 {
 private:
@@ -233,6 +257,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 8 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8> : public IFunctor
 {
 private:
@@ -268,6 +295,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 9 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9> : public IFunctor
 {
 private:
@@ -304,6 +334,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 10 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> : public IFunctor
 {
 private:
@@ -341,6 +374,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 11 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10, class P11> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> : public IFunctor
 {
 private:
@@ -380,6 +416,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 12 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10, class P11, class P12> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> : public IFunctor
 {
 private:
@@ -420,6 +459,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 13 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10, class P11, class P12, class P13> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13> : public IFunctor
 {
 private:
@@ -461,6 +503,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 14 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10, class P11, class P12, class P13, class P14> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14> : public IFunctor
 {
 private:
@@ -503,6 +548,9 @@ public:
 };
 //////////////////////////////////////////////////////////////////////////
 
+/*!
+ * \brief Functor with RT type result and with 15 arguments.
+ */
 template<class RT, class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class P10, class P11, class P12, class P13, class P14, class P15> class FunctorWithResult<RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> : public IFunctor
 {
 private:

@@ -7,6 +7,9 @@ namespace Ui {
   class DlgGenerateSshKey;
 }
 
+/*!
+ * \brief This class is used for managing behavior of "Generate SSH key" dialog
+ */
 class DlgGenerateSshKey : public QDialog
 {
   Q_OBJECT

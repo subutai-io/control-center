@@ -1,9 +1,12 @@
-#ifndef CVIRTUALMACHINE_H
-#define CVIRTUALMACHINE_H
+#ifndef CVIRTUALMACHINELINUX_H
+#define CVIRTUALMACHINELINUX_H
 
 #include <stdint.h>
 #include "IVirtualMachine.h"
 
+/*!
+ * \brief Virtual machine with XPCOM interface
+ */
 class CVirtualMachineLinux : public IVirtualMachine
 {
 private:

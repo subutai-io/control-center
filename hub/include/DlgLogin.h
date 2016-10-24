@@ -8,6 +8,10 @@ namespace Ui {
 }
 
 class QSplashScreen;
+
+/*!
+ * \brief This class is used for managing behavior of authorization dialog.
+ */
 class DlgLogin : public QDialog
 {
   Q_OBJECT
@@ -21,6 +25,10 @@ private:
 public:
   explicit DlgLogin(QWidget *parent = 0);
   ~DlgLogin();
+
+  /*!
+   * \brief Run dialog in different modes. When "Remember me" flag checked - it tries to login without dialog.
+   */
   void run_dialog(QSplashScreen *sc);
 
 private slots:

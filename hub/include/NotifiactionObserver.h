@@ -11,6 +11,11 @@ typedef enum notification_level {
   NL_CRITICAL
 } notification_level_t;
 
+/*!
+ * \brief This class is used for notifications. Many instances could be notified.
+ * All subscribers will receive notification message and notification level. Level
+ * could be "error" or "info". In our case we use it for pop up notification messages.
+ */
 class CNotificationObserver : public QObject {
   Q_OBJECT
 
@@ -28,17 +33,25 @@ private:
     emit notify(level, msg);
   }
 
-
 public:
+  /*!
+   * \brief Instance of this singleton class
+   */
   static CNotificationObserver* Instance() {
     static CNotificationObserver obs;
     return &obs;
   }
 
+  /*!
+   * \brief Notify all subscribers about something with "error" level
+   */
   static void NotifyAboutError(const QString& msg) {
     Instance()->notify_all_int(NL_ERROR, msg);
   }
 
+  /*!
+   * \brief Notify all subscribers about something with "info" level
+   */
   static void NotifyAboutInfo(const QString& msg) {
     Instance()->notify_all_int(NL_INFO, msg);
   }

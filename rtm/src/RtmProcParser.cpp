@@ -22,7 +22,9 @@ CRtmProcParser::create_net_dev() {
 proc_load_avg_t
 CRtmProcParser::load_average(bool &success) const {
   static const char* cmd = "cat /proc/loadavg";
-  static const char* fmt = "%lf  %lf %lf %lu %*1[/] %lu %lu";
+  static const char* fmt = "%f  %f %f %lu %*1[/] %lu %lu";
+  float favg1, favg5, favg15;
+
   proc_load_avg_t res;
   success = false;
   std::vector<std::string> lst_out = m_read_f(cmd, &success);
@@ -34,13 +36,18 @@ CRtmProcParser::load_average(bool &success) const {
   }
 
   int sr = sscanf(lst_out[0].c_str(), fmt,
-              &res.avg1, &res.avg5, &res.avg15,
+              &favg1, &favg5, &favg15,
               &res.current, &res.scheduled, &res.pid);
 
   if (sr != 6) {
     CApplicationLog::Instance()->LogError(
           "Couldn't parse average load. \"%s\". res : %d", lst_out[0].c_str(), sr);
+    return res;
   }
+
+  res.avg1 =  (uint32_t) (favg1 * 100);
+  res.avg5 =  (uint32_t) (favg5 * 100);
+  res.avg15 = (uint32_t) (favg15 * 100);
 
   return res;
 }

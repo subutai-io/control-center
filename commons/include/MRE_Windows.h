@@ -6,6 +6,9 @@
 
 #include <string>
 
+/*!
+ * \brief The CGuidCreator class is used for guid creation on Win OS
+ */
 class CGuidCreator
 {
 public:
@@ -37,6 +40,9 @@ public:
 
 namespace SynchroPrimitives {
 
+  /*!
+   * \brief Windows manual reset event wrapper (using OS specific functions)
+   */
   class CWindowsManualResetEvent {
   private:
     HANDLE m_mre;
