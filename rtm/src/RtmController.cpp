@@ -35,13 +35,13 @@ rtm::sysinfo_t os_get_sysinfo() {
   res.mem_unit = si.mem_unit;
   return res;
 }
-#else if defined(RT_OS_WINDOWS)
+#elif defined(RT_OS_WINDOWS)
 rtm::sysinfo_t os_get_sysinfo() {
   rtm::sysinfo_t res;
   memset(&res, 0, sizeof(rtm::sysinfo_t));
   return res;
 }
-#else //defined RT_OS_DARWIN
+#else // defined(RT_OS_DARWIN)
 rtm::sysinfo_t os_get_sysinfo() {
   rtm::sysinfo_t res;
   memset(&res, 0, sizeof(rtm::sysinfo_t));

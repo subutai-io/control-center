@@ -239,10 +239,13 @@ TrayControlWindow::notification_received(notification_level_t level,
     QSystemTrayIcon::Information, QSystemTrayIcon::Warning,
     QSystemTrayIcon::Warning, QSystemTrayIcon::Critical
   };
-  m_sys_tray_icon->showMessage(titles[level],
-                               msg,
-                               icons[level],
-                               CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+  if (QSystemTrayIcon::supportsMessages()) {
+    m_sys_tray_icon->showMessage(titles[level],
+                                 msg,
+                                 icons[level],
+                                 CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+  }
+  CApplicationLog::Instance()->LogTrace("*** notification received end ***");
 }
 ////////////////////////////////////////////////////////////////////////////
 

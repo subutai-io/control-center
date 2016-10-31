@@ -145,6 +145,17 @@ wait_socket_connected(int socket_fd, int timeout_sec) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+struct libssh2_session_auto_t {
+  LIBSSH2_SESSION* session;
+  libssh2_session_auto_t() {session = libssh2_session_init();}
+  ~libssh2_session_auto_t() {
+    if (session) {
+      libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
+      libssh2_session_free(session);
+    }
+  }
+};
+
 int
 run_ssh_command_internal(const char *str_host,
                          uint16_t port,
@@ -190,12 +201,12 @@ run_ssh_command_internal(const char *str_host,
     return RLE_CONNECTION_ERROR;
   }
 
-  LIBSSH2_SESSION *session = libssh2_session_init();
-  if (!session) {
+  libssh2_session_auto_t sa;
+  if (!sa.session) {
     return RLE_LIBSSH2_SESSION_INIT;
   }
 
-  while ((rc = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN)
+  while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
     ; //wait
 
   if (rc) {
@@ -203,7 +214,7 @@ run_ssh_command_internal(const char *str_host,
   }
 
   do {
-    while ((rc = pf_auth(session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
+    while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
       ;
 
     if (rc) {
@@ -211,9 +222,9 @@ run_ssh_command_internal(const char *str_host,
     }
 
     LIBSSH2_CHANNEL *channel;
-    while ((channel = libssh2_channel_open_session(session)) == NULL &&
-           libssh2_session_last_error(session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
-      wait_ssh_socket_event(sock, session);
+    while ((channel = libssh2_channel_open_session(sa.session)) == NULL &&
+           libssh2_session_last_error(sa.session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
+      wait_ssh_socket_event(sock, sa.session);
     }
 
     if (channel == NULL) {
@@ -222,7 +233,7 @@ run_ssh_command_internal(const char *str_host,
 
     while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
            LIBSSH2_ERROR_EAGAIN) {
-      wait_ssh_socket_event(sock, session);
+      wait_ssh_socket_event(sock, sa.session);
     }
 
     if (rc != 0) {
@@ -254,12 +265,12 @@ run_ssh_command_internal(const char *str_host,
       this condition */
       if (r != LIBSSH2_ERROR_EAGAIN)
         break;
-      wait_ssh_socket_event(sock, session);
+      wait_ssh_socket_event(sock, sa.session);
     }
 
     exitcode = 127;
     while ((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
-      wait_ssh_socket_event(sock, session);
+      wait_ssh_socket_event(sock, sa.session);
 
     if (rc == 0) {
       exitcode = libssh2_channel_get_exit_status(channel);
@@ -270,10 +281,6 @@ run_ssh_command_internal(const char *str_host,
     libssh2_channel_free(channel);
     channel = NULL;
   } while (0);
-
-  libssh2_session_disconnect(session,
-                             "Normal Shutdown, Thank you for playing");
-  libssh2_session_free(session);
 
 #ifdef _WIN32
   closesocket(sock);

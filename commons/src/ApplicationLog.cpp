@@ -1,10 +1,11 @@
 #include <string.h>
 #include <stdarg.h>
-#include "ApplicationLog.h"
-#include "FileWrapper.h"
 
 #include <QDir>
 #include <QDebug>
+
+#include "FileWrapper.h"
+#include "ApplicationLog.h"
 
 #ifndef RT_OS_WINDOWS
 #include "commons/include/MRE_Linux.h"
@@ -16,14 +17,14 @@ const char* CApplicationLog::LOG_FILE_DELIMITER =
     "|-----------------------------------------------------------------------------";
 
 CApplicationLog::CApplicationLog( void ) :
-  m_log_level(LT_INFO)
+  m_log_level(LT_DISABLED)
 {
 #ifndef RT_OS_WINDOWS
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>(NULL, NULL, NULL, 5000, false);
 #else
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>(NULL, NULL, NULL, 5000, false);
-#endif
-  m_logEventLoop->Run();
+#endif  
+//  m_logEventLoop->Run();
 }
 
 CApplicationLog::~CApplicationLog( void ) {
@@ -35,9 +36,9 @@ CApplicationLog::~CApplicationLog( void ) {
 void
 CApplicationLog::UpdateLogFilesNames( void ) {
   static const char* lst_files_by_log_type_prefix[] =
-  { "trace_", "info_", "error_", "undefined_" };
+  { "trace_", "info_", "error_", "disabled_" };
 
-  for (int i = 0; i < LT_LAST; ++i) {
+  for (int i = 0; i < LT_DISABLED; ++i) {
     m_lst_files_by_log_type[i] = m_directory + QDir::separator().toLatin1() +
                                  std::string(lst_files_by_log_type_prefix[i]) +
                                  CCommons::CurrentDateFileNameString();
@@ -65,6 +66,13 @@ void
 CApplicationLog::SetDirectory(const std::string &directory ) {
   m_directory = directory;
   UpdateLogFilesNames();
+}
+
+void
+CApplicationLog::SetLogLevel(CApplicationLog::LOG_TYPE lt) {
+  m_log_level = lt;
+  if (m_log_level < LT_DISABLED)
+    m_logEventLoop->Run();
 }
 //////////////////////////////////////////////////////////////////////////
 

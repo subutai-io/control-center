@@ -26,7 +26,7 @@ public:
     LT_TRACE = 0,
     LT_INFO,
     LT_ERROR,
-    LT_LAST
+    LT_DISABLED
   };
 
   /*!
@@ -38,8 +38,7 @@ public:
    * \brief Set log level.
    * \param lt - log level.
    */
-  void SetLogLevel(LOG_TYPE lt) {m_log_level = lt;}
-
+  void SetLogLevel(LOG_TYPE lt);
   /*!
    * \brief LogTrace - write log message to trace_(current_date).txt file
    * \param format like in printf, fprintf functions.
@@ -69,7 +68,7 @@ public:
 
 private:
   //buffer size for log messages.
-  static const int BUFFER_SIZE = 2048;
+  static const int BUFFER_SIZE = 1024*4;
 
   //some string between log messages
   static const char* LOG_FILE_DELIMITER;
@@ -81,7 +80,7 @@ private:
   std::string m_directory;
 
   //for fast access to file name by LOG_TYPE
-  std::string m_lst_files_by_log_type[LT_LAST];
+  std::string m_lst_files_by_log_type[LT_DISABLED];
 
   //event loop for logging.
 #ifndef RT_OS_WINDOWS
