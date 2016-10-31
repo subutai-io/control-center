@@ -50,6 +50,7 @@ template<class T> struct setting_val_t {
 };
 
 ////////////////////////////////////////////////////////////////////////////
+#define DEFAULT_LINUX_P2P_PATH "/opt/subutai/p2p/bin/p2p"
 
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
@@ -59,13 +60,13 @@ CSettingsManager::CSettingsManager() :
   m_remember_me(m_settings.value(SM_REMEMBER_ME).toBool()),
   m_refresh_time_sec(def_timeout),
   #ifdef RT_OS_LINUX
-  m_p2p_path("p2p"),
+  m_p2p_path(DEFAULT_LINUX_P2P_PATH),
   #elif RT_OS_DARWIN
   m_p2p_path("/Applications/Subutai/p2p"),
   #elif RT_OS_WINDOWS
   m_p2p_path("p2p.exe"),
   #endif
-  m_notification_delay_sec(5),
+  m_notification_delay_sec(7),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
   m_ssh_user("root"),
@@ -120,6 +121,12 @@ CSettingsManager::CSettingsManager() :
       *dct_str_vals[i].field = m_settings.value(dct_str_vals[i].val).toString();
     }
   }
+
+  //hack
+#ifdef RT_OS_LINUX
+  if (m_p2p_path == "p2p")
+    m_p2p_path = DEFAULT_LINUX_P2P_PATH;
+#endif
   /////
 
   setting_val_t<bool> dct_bool_vals[] = {

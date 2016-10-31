@@ -45,3 +45,5 @@ fi
 }
 
 get_tray
+chown -R $username /opt/subutai
+update-desktop-database

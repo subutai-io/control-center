@@ -311,6 +311,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const char* user,
                             std::string(port);
 
   if (key != NULL) {
+    CNotificationObserver::Instance()->NotifyAboutInfo(QString("Using %1 ssh key").arg(key));
     CApplicationLog::Instance()->LogTrace("KEY != NULL : %s", key);
     str_command += std::string(" -i \'") +
                    std::string(key) +

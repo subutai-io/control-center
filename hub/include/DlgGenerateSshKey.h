@@ -19,11 +19,15 @@ public:
   ~DlgGenerateSshKey();
 
 private:
+  bool m_standard_key_used;
   Ui::DlgGenerateSshKey *ui;
   void generate_new_ssh();
   void set_key_text();
+
   QString ssh_pub_key_path() const;
   QString ssh_private_key_path() const;
+  QString ssh_standard_pub_key_path() const;
+  QString ssh_standard_private_key_path() const;
 
 private slots:
   void btn_generate_released();
