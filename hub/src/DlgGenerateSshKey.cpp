@@ -14,9 +14,12 @@
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::DlgGenerateSshKey)
+  ui(new Ui::DlgGenerateSshKey),
+  m_standard_key_used(true)
 {
   ui->setupUi(this);
+  ui->lbl_status->setText("");
+  ui->lbl_status->setVisible(false);
   set_key_text();
 
   connect(ui->btn_generate, SIGNAL(released()), this, SLOT(btn_generate_released()));
@@ -50,6 +53,9 @@ DlgGenerateSshKey::generate_new_ssh() {
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
+  m_standard_key_used = false;
+  ui->lbl_status->setVisible(false);
+  ui->lbl_status->setText("");
   set_key_text();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -62,6 +68,16 @@ DlgGenerateSshKey::set_key_text() {
     file.open(QFile::ReadOnly);
     QByteArray bytes = file.readAll();
     ui->te_ssh_key->setText(QString(bytes));
+    m_standard_key_used = false;
+  } else {
+    QFile standard_key_file(ssh_standard_pub_key_path());
+    if (standard_key_file.exists()) {
+      standard_key_file.open(QFile::ReadOnly);
+      QByteArray bytes = standard_key_file.readAll();
+      ui->te_ssh_key->setText(QString(bytes));
+      ui->lbl_status->setVisible(true);
+      ui->lbl_status->setText("<font color='blue'>Warning! Using standard id_rsa ssh key!</font>");
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -84,6 +100,22 @@ DlgGenerateSshKey::ssh_private_key_path() const {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QString
+DlgGenerateSshKey::ssh_standard_pub_key_path() const {
+  QString path = CSettingsManager::Instance().ssh_keys_storage() +
+                 QDir::separator() + "id_rsa.pub";
+  return path;
+}
+////////////////////////////////////////////////////////////////////////////
+
+QString
+DlgGenerateSshKey::ssh_standard_private_key_path() const {
+  QString path = CSettingsManager::Instance().ssh_keys_storage() +
+                 QDir::separator() + "id_rsa";
+  return path;
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
@@ -93,7 +125,7 @@ DlgGenerateSshKey::btn_generate_released() {
     return;
   }
 
-  if (ui->te_ssh_key->toPlainText().isEmpty()) {
+  if (ui->te_ssh_key->toPlainText().isEmpty() || m_standard_key_used) {
     generate_new_ssh();
   } else {
     QMessageBox *msg_question = new QMessageBox;

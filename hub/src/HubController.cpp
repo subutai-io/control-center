@@ -333,6 +333,16 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   if (key_file_pub.exists() &&  key_file_private.exists()) {
     key = (CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
            CHubController::Instance().current_user()).toStdString();
+  } else {
+    QFile standard_key_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
+                                "id_rsa.pub");
+    QFile standard_key_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
+                               "id_rsa");
+
+    if (standard_key_pub.exists() && standard_key_private.exists()) {
+      key = (CSettingsManager::Instance().ssh_keys_storage() +
+            QDir::separator() + "id_rsa").toStdString();
+    }
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
