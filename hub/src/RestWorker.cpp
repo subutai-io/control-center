@@ -297,6 +297,7 @@ CRestWorker::send_request(QNetworkRequest &req,
   if (!timer.isActive()) {
     reply->abort();
     err_code = RE_TIMEOUT;
+    reply->deleteLater();
     return QByteArray();
   }
 
@@ -308,12 +309,14 @@ CRestWorker::send_request(QNetworkRequest &req,
     if (show_network_err_msg)
       CNotificationObserver::NotifyAboutError(reply->errorString());
     err_code = RE_NETWORK_ERROR;
+    reply->deleteLater();
     return QByteArray();
   }
 
   bool parsed = false;
   http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
   QByteArray res = reply->readAll();
+  reply->deleteLater();
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////

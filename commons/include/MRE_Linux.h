@@ -1,9 +1,7 @@
 #ifndef MRE_LINUX_H
 #define MRE_LINUX_H
 
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include <pthread.h>
 #include "InternalCriticalSection.h"
 
 namespace SynchroPrimitives {
@@ -15,9 +13,8 @@ namespace SynchroPrimitives {
   private:
 
     struct mre_info {
-      std::mutex m_mutex;
-      std::unique_lock<std::mutex> m_ul;
-      std::condition_variable m_cond;
+      pthread_mutex_t m_mutex;
+      pthread_cond_t m_cond;
       bool m_signaled;
       CriticalSection m_cs;
     } m_mreInfo;

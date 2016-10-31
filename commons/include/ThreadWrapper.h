@@ -14,6 +14,7 @@
  */
 template<class T> class CThreadWrapper {
 private:
+  int m_start_res;
   pthread_t m_thread;
   T* m_lpExecutor;
   bool m_autoTerminateThread;
@@ -30,14 +31,15 @@ private:
 
 public:
 
-  CThreadWrapper(T* lpExecutor, bool autoTerminate) : m_lpExecutor(lpExecutor), m_autoTerminateThread(autoTerminate){}
+  CThreadWrapper(T* lpExecutor, bool autoTerminate) : m_start_res(1), m_lpExecutor(lpExecutor), m_autoTerminateThread(autoTerminate){}
   ~CThreadWrapper(void){if (m_autoTerminateThread) Terminate(0);}
 
   /*!
    * \brief Starts executor's function in parallel thread
    */
   int Start(void) {
-    return pthread_create(&m_thread, NULL, CThreadWrapper::thread_func, (void*)m_lpExecutor);
+    m_start_res = pthread_create(&m_thread, NULL, CThreadWrapper::thread_func, (void*)m_lpExecutor);
+    return m_start_res;
   }
   //////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +47,7 @@ public:
    * \brief Blocks the calling thread until the thread represented by this instance terminates somehow
    */
   int Join(void) {
+    if (m_start_res != 0) return m_start_res;
     return pthread_join(m_thread, NULL);
   }
   //////////////////////////////////////////////////////////////////////////
@@ -63,6 +66,7 @@ public:
    * \param sig - return code.
    */
   int Terminate(int sig) {
+    if (m_start_res != 0) return m_start_res;
     return pthread_kill(m_thread, sig);
   }
   //////////////////////////////////////////////////////////////////////////

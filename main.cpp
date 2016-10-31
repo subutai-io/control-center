@@ -72,7 +72,7 @@ main(int argc, char *argv[]) {
   QCommandLineOption log_level_opt("l",
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
                                    "log_level",
-                                   "info");
+                                   "3");
   QCommandLineOption version_opt("v",
                                  "Version",
                                  "Version");
@@ -93,6 +93,8 @@ main(int argc, char *argv[]) {
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_INFO);
   else if (ll == "error" || ll == "2")
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_ERROR);
+  else if (ll == "no" || ll == "3")
+    CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_DISABLED);
 
   if (cmd_parser.isSet(version_opt)) {
     std::cout << GIT_VERSION << std::endl;

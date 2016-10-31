@@ -2,6 +2,7 @@
 #define EVENT_LOOP_CPP
 
 #include <stdio.h>
+#include <thread>
 #include "EventLoop.h"
 
 using namespace SynchroPrimitives;
@@ -28,7 +29,6 @@ CEventLoop<TMRE>::~CEventLoop() {
     return;
 
   m_loopWorker.m_isDisposing = true;
-  //todo
   //   if (m_loopWorkerThread.Wait(m_methodTimeout) != 0)
   //     m_loopWorkerThread.Terminate(-1);
   m_loopWorkerThread.Join();
