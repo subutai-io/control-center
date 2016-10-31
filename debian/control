@@ -10,5 +10,5 @@ Homepage: https://subut.ai
 
 Package: subutai-tray
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, virtualbox, subutai-p2p, libqt5websockets5, libssh2-1, libssh2-1-dev, libqt5core5a, libqt5widgets5
+Depends: ${shlibs:Depends}, ${misc:Depends}, virtualbox, subutai-p2p, libssh2-1, libssh2-1-dev 
 Description: Subutai Tray Application
