@@ -28,13 +28,14 @@ CUpdaterComponentRH::update_available_internal() {
 chue_t
 CUpdaterComponentRH::update_internal() {
   int exit_code = 0;
-  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_port(),
-                                     CSettingsManager::Instance().rh_user().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                                     exit_code);
+  system_call_wrapper_error_t res =  CSystemCallWrapper::run_ss_updater(
+                                       CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                                       CSettingsManager::Instance().rh_port(),
+                                       CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                                       CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                                       exit_code);
 
-  if (exit_code == RLE_SUCCESS) {
+  if (res == SCWE_SUCCESS && exit_code == 0) {
     static const char* msg = "Resource host update succesfull finished";
     CNotificationObserver::NotifyAboutInfo(msg);
     CApplicationLog::Instance()->LogInfo(msg);
@@ -42,7 +43,8 @@ CUpdaterComponentRH::update_internal() {
     return CHUE_SUCCESS;
   }
 
-  QString err_msg = QString("Resource host update failed with exit code : %1").arg(exit_code);
+  QString err_msg = QString("Resource host update failed with exit code : %1, call result : %2").
+                    arg(exit_code).arg(CSystemCallWrapper::scwe_error_to_str(res));
   CNotificationObserver::NotifyAboutError(err_msg);
   CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
   update_finished_sl(false);
