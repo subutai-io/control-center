@@ -507,6 +507,7 @@ void TrayControlWindow::refresh_environments() {
 
   //todo somehow notify user about the reason of environment's unhealty status.
   std::vector<QString> lst_unhealthy_envs;
+  std::vector<QString> lst_unhealthy_env_statuses;
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
@@ -519,6 +520,7 @@ void TrayControlWindow::refresh_environments() {
 
     if (!env->healthy()) {
       lst_unhealthy_envs.push_back(env_name);
+      lst_unhealthy_env_statuses.push_back(env->status());
       CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
                                             env_name.toStdString().c_str(),
                                             env->id().toStdString().c_str(),
@@ -542,13 +544,21 @@ void TrayControlWindow::refresh_environments() {
   if (lst_unhealthy_envs.empty()) return;
 
   QString str_unhealthy_envs = "";
-  for (size_t i = 0; i < lst_unhealthy_envs.size()-1; ++i)
+  QString str_statuses = "";
+  for (size_t i = 0; i < lst_unhealthy_envs.size()-1; ++i) {
     str_unhealthy_envs += lst_unhealthy_envs[i] + ", ";
+    str_statuses += lst_unhealthy_env_statuses[i] + ", ";
+  }
+
   str_unhealthy_envs += lst_unhealthy_envs[lst_unhealthy_envs.size()-1];
-  QString str_notification = QString("Environment%1 %2 %3 unhealthy").
+  str_statuses += lst_unhealthy_env_statuses[lst_unhealthy_envs.size()-1];
+
+  QString str_notification = QString("Environment%1 %2 %3 %4").
                              arg(lst_unhealthy_envs.size() > 1 ? "s" : "").
                              arg(str_unhealthy_envs).
-                             arg(lst_unhealthy_envs.size() > 1 ? "are" : "is");
+                             arg(lst_unhealthy_envs.size() > 1 ? "are" : "is").
+                             arg(str_statuses);
+
   CNotificationObserver::Instance()->NotifyAboutInfo(str_notification);
 }
 ////////////////////////////////////////////////////////////////////////////
