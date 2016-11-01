@@ -72,7 +72,7 @@ main(int argc, char *argv[]) {
   QCommandLineOption log_level_opt("l",
                                    "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
                                    "log_level",
-                                   "3");
+                                   "1");
   QCommandLineOption version_opt("v",
                                  "Version",
                                  "Version");
