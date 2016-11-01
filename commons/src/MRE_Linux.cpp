@@ -34,7 +34,7 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Set(CLinuxManualResetEvent *l
   SynchroPrimitives::Locker lock(&lpMre->m_mreInfo.m_cs);
   lpMre->m_mreInfo.m_signaled = true;
   int res = pthread_cond_signal(&lpMre->m_mreInfo.m_cond);
-  res |= pthread_mutex_unlock(&lpMre->m_mreInfo.m_mutex);
+//  res |= pthread_mutex_unlock(&lpMre->m_mreInfo.m_mutex); WE DON'T NEED THIS!@!@!
   return res;
 }
 //////////////////////////////////////////////////////////////////////////

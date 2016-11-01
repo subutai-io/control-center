@@ -17,14 +17,14 @@ const char* CApplicationLog::LOG_FILE_DELIMITER =
     "|-----------------------------------------------------------------------------";
 
 CApplicationLog::CApplicationLog( void ) :
-  m_log_level(LT_DISABLED)
+  m_log_level(LT_INFO)
 {
 #ifndef RT_OS_WINDOWS
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>(NULL, NULL, NULL, 5000, false);
 #else
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>(NULL, NULL, NULL, 5000, false);
 #endif  
-//  m_logEventLoop->Run();
+  m_logEventLoop->Run();
 }
 
 CApplicationLog::~CApplicationLog( void ) {
@@ -71,8 +71,6 @@ CApplicationLog::SetDirectory(const std::string &directory ) {
 void
 CApplicationLog::SetLogLevel(CApplicationLog::LOG_TYPE lt) {
   m_log_level = lt;
-  if (m_log_level < LT_DISABLED)
-    m_logEventLoop->Run();
 }
 //////////////////////////////////////////////////////////////////////////
 
