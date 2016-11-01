@@ -28,13 +28,14 @@ CUpdaterComponentRH::update_available_internal() {
 chue_t
 CUpdaterComponentRH::update_internal() {
   int exit_code = 0;
-  system_call_wrapper_error_t res =  CSystemCallWrapper::run_ss_updater(CSettingsManager::Instance().rh_host().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_port(),
-                                     CSettingsManager::Instance().rh_user().toStdString().c_str(),
-                                     CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                                     exit_code);
+  system_call_wrapper_error_t res =  CSystemCallWrapper::run_ss_updater(
+                                       CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                                       CSettingsManager::Instance().rh_port(),
+                                       CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                                       CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                                       exit_code);
 
-  if (res == RLE_SUCCESS && exit_code == 0) {
+  if (res == SCWE_SUCCESS && exit_code == 0) {
     static const char* msg = "Resource host update succesfull finished";
     CNotificationObserver::NotifyAboutInfo(msg);
     CApplicationLog::Instance()->LogInfo(msg);
