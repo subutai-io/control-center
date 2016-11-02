@@ -1,4 +1,5 @@
 #include <QThread>
+#include <QtConcurrent/QtConcurrent>
 #include "Commons.h"
 #include "DlgAbout.h"
 #include "ui_DlgAbout.h"
@@ -89,13 +90,14 @@ void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
-  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
+  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update, IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::btn_rh_update_released() {
   ui->btn_rh_update->setEnabled(false);
+  ui->pb_rh->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::RH].in_progress = true;
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::RH);
 }
