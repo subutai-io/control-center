@@ -18,7 +18,7 @@ namespace rtm {
     uint64_t current, scheduled, pid; //i guess it's unsigned long.
 
     proc_load_avg_t() :
-      avg1(0.0f), avg5(0.0f), avg15(0.0f),
+      avg1(0), avg5(0), avg15(0),
       current(0), scheduled(0), pid(0) {}
   };
   ////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace rtm {
 
 #pragma pack(pop)
 
-  typedef std::vector<std::string> (*pf_output_read)(const char*/*cmd*/, bool*/*result success*/);
+  typedef std::vector<std::string> (*pf_output_read)(const char*, bool*);
 
   class CRtmProcParser {
   private:

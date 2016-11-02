@@ -1,6 +1,7 @@
 #ifndef MRE_LINUX_H
 #define MRE_LINUX_H
 
+#ifndef RT_OS_WINDOWS
 #include <pthread.h>
 #include "InternalCriticalSection.h"
 
@@ -34,4 +35,5 @@ namespace SynchroPrimitives {
   };
 }
 
+#endif //#ifndef RT_OS_WINDOWS
 #endif // MRE_LINUX_H
