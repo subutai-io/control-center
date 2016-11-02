@@ -19,8 +19,8 @@ public:
   ~DlgGenerateSshKey();
 
 private:
-  bool m_standard_key_used;
   Ui::DlgGenerateSshKey *ui;
+  bool m_standard_key_used;
   void generate_new_ssh();
   void set_key_text();
 
