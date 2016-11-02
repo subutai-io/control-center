@@ -90,7 +90,7 @@ void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
-  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update, IUpdaterComponent::P2P);
+  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +99,7 @@ DlgAbout::btn_rh_update_released() {
   ui->btn_rh_update->setEnabled(false);
   ui->pb_rh->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::RH].in_progress = true;
-  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::RH);
+  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update, IUpdaterComponent::RH);
 }
 ////////////////////////////////////////////////////////////////////////////
 
