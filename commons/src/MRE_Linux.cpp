@@ -1,3 +1,5 @@
+
+#ifndef RT_OS_WINDOWS
 #include <stdio.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -64,3 +66,4 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Destroy(CLinuxManualResetEven
   return res;
 }
 //////////////////////////////////////////////////////////////////////////
+#endif //#ifndef RT_OS_WINDOWS
