@@ -1,11 +1,9 @@
-#include <atomic>
+#include <algorithm>
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QWidgetAction>
-#include <QFileDialog>
-#include <QDir>
 #include <QtConcurrent/QtConcurrent>
 
 #include "TrayControlWindow.h"
@@ -245,7 +243,6 @@ TrayControlWindow::notification_received(notification_level_t level,
                                  icons[level],
                                  CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
   }
-  CApplicationLog::Instance()->LogTrace("*** notification received end ***");
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -494,10 +491,10 @@ TrayControlWindow::refresh_balance() {
   m_act_info->setText(CHubController::Instance().balance());
 }
 ////////////////////////////////////////////////////////////////////////////
-#include <set>
-void TrayControlWindow::refresh_environments() {
-  static std::set<QString> set_checked_unhealthy_env;
 
+static std::vector<QString> lst_checked_unhealthy_env;
+
+void TrayControlWindow::refresh_environments() {
   if (CHubController::Instance().refresh_environments())
     return;
 
@@ -520,24 +517,34 @@ void TrayControlWindow::refresh_environments() {
 #endif
     QMenu* env_menu = m_hub_menu->addMenu(env_name);
 
+    std::vector<QString>::iterator iter_found =
+        std::find(lst_checked_unhealthy_env.begin(),
+                  lst_checked_unhealthy_env.end(), env->id());
+
     if (!env->healthy()) {
-      if (set_checked_unhealthy_env.find(env->id()) == set_checked_unhealthy_env.end()) {
+      if (iter_found == lst_checked_unhealthy_env.end()) {
         lst_unhealthy_envs.push_back(env_name);
         lst_unhealthy_env_statuses.push_back(env->status());
+        lst_checked_unhealthy_env.push_back(env->id());
         CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
                                               env_name.toStdString().c_str(),
                                               env->id().toStdString().c_str(),
                                               env->status_description().toStdString().c_str());
       }
     } else {
-      if (set_checked_unhealthy_env.find(env->id()) != set_checked_unhealthy_env.end()) {
+      if (iter_found != lst_checked_unhealthy_env.end()) {
         CNotificationObserver::Instance()->NotifyAboutInfo(QString("Environment %1 became healthy").arg(env->name()));
-        set_checked_unhealthy_env.erase(env->id());
+        CApplicationLog::Instance()->LogTrace("Environment %s became healthy", env->name().toStdString().c_str());
+        lst_checked_unhealthy_env.erase(iter_found);
       }
     }
 
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
-      QAction* act = new QAction(cont->name(), this);
+      QString cont_name = cont->name();
+#ifdef RT_OS_LINUX
+    cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+#endif
+      QAction* act = new QAction(cont_name, this);
       act->setEnabled(env->healthy());
 
       CHubEnvironmentMenuItem* item =

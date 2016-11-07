@@ -118,7 +118,8 @@ public:
 
   //todo use id
   bool operator==(const CSSEnvironment& arg) const {
-    bool res = m_id == m_id &&
+    bool res =
+        m_id == arg.m_id &&
         m_name == arg.m_name &&
         m_hash == arg.m_hash &&
         m_aes_key == arg.m_aes_key &&
