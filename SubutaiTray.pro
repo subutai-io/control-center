@@ -109,12 +109,15 @@ RESOURCES += \
 
 GIT_VERSION = $$system(git describe)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+GIT_BRANCH = $$system(git rev-parse --abbrev-ref HEAD)
+DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH\\\"
 #////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
   QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP RT_OS_LINUX
   DEFINES += VBOX_WITH_XPCOM IN_RING3
+  DEFINES += CURRENT_OS=OS_LINUX
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
@@ -140,6 +143,7 @@ macx: {
   DEFINES += RT_OS_DARWIN
   DEFINES += VBOX_WITH_XPCOM
   DEFINES += IN_RING3
+  DEFINES += CURRENT_OS=OS_MAC
 
   HEADERS +=  vbox/include/VBoxManagerLinux.h \
               vbox/include/VirtualMachineLinux.h
@@ -160,6 +164,7 @@ macx: {
 win32: {
   DEFINES += RT_OS_WINDOWS IN_RING3
   LIBS += Ole32.lib Rpcrt4.lib
+  DEFINES += CURRENT_OS=OS_WIN
 
   INCLUDEPATH += vbox/mscom/include
 

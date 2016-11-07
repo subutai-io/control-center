@@ -6,6 +6,20 @@
 
 #define UNUSED_ARG(x) ((void)x)
 
+//don't change order of this enum. used by Makefile
+enum branch_t {
+  BT_MASTER = 0,
+  BT_DEV
+};
+
+//don't change order of this enum. used by Makefile
+enum os_t {
+  OS_LINUX = 0,
+  OS_WIN,
+  OS_MAC
+};
+////////////////////////////////////////////////////////////////////////////
+
 /**
  * @brief Methods, macroses, structures, constants and other fields of this class could be used in any part of this program
  */

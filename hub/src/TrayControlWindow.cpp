@@ -494,8 +494,10 @@ TrayControlWindow::refresh_balance() {
   m_act_info->setText(CHubController::Instance().balance());
 }
 ////////////////////////////////////////////////////////////////////////////
-
+#include <set>
 void TrayControlWindow::refresh_environments() {
+  static std::set<QString> set_checked_unhealthy_env;
+
   if (CHubController::Instance().refresh_environments())
     return;
 
@@ -519,12 +521,19 @@ void TrayControlWindow::refresh_environments() {
     QMenu* env_menu = m_hub_menu->addMenu(env_name);
 
     if (!env->healthy()) {
-      lst_unhealthy_envs.push_back(env_name);
-      lst_unhealthy_env_statuses.push_back(env->status());
-      CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
-                                            env_name.toStdString().c_str(),
-                                            env->id().toStdString().c_str(),
-                                            env->status_description().toStdString().c_str());
+      if (set_checked_unhealthy_env.find(env->id()) == set_checked_unhealthy_env.end()) {
+        lst_unhealthy_envs.push_back(env_name);
+        lst_unhealthy_env_statuses.push_back(env->status());
+        CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
+                                              env_name.toStdString().c_str(),
+                                              env->id().toStdString().c_str(),
+                                              env->status_description().toStdString().c_str());
+      }
+    } else {
+      if (set_checked_unhealthy_env.find(env->id()) != set_checked_unhealthy_env.end()) {
+        CNotificationObserver::Instance()->NotifyAboutInfo(QString("Environment %1 became healthy").arg(env->name()));
+        set_checked_unhealthy_env.erase(env->id());
+      }
     }
 
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
