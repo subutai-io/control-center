@@ -128,7 +128,7 @@ unix:!macx {
   LIBS += /usr/lib/virtualbox/VBoxXPCOM.so
   QMAKE_RPATHDIR += /usr/lib/virtualbox/
   LIBS += -ldl -lpthread
-  QMAKE_RPATHDIR += /opt/subutai/tray/bin
+  QMAKE_RPATHDIR += ../lib
 
   LIBS += -lssh2
 }
