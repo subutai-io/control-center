@@ -495,7 +495,10 @@ TrayControlWindow::refresh_balance() {
 static std::vector<QString> lst_checked_unhealthy_env;
 
 void TrayControlWindow::refresh_environments() {
-  if (CHubController::Instance().refresh_environments())
+  CHubController::refresh_environments_res_t rr =
+      CHubController::Instance().refresh_environments();
+
+  if (rr == CHubController::RER_NO_DIFF)
     return;
 
   m_hub_menu->clear();
@@ -507,6 +510,13 @@ void TrayControlWindow::refresh_environments() {
   //todo somehow notify user about the reason of environment's unhealty status.
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
+
+  if (CHubController::Instance().lst_environments().empty()) {
+    QAction* empty_action = new QAction("Empty", this);
+    empty_action->setEnabled(false);
+    m_hub_menu->addAction(empty_action);
+    return;
+  }
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
