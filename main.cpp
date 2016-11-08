@@ -118,11 +118,6 @@ main(int argc, char *argv[]) {
 
   CRestWorker::Instance()->create_network_manager();
 
-	std::vector<CGorjunFileInfo> v =
-    CRestWorker::Instance()->get_gorjun_file_info("SubutaiTray_linux.tar.gz");
-	for (auto i = v.begin(); i != v.end(); ++i)
-		CApplicationLog::Instance()->LogTrace("%s", i->id().toStdString().c_str());
-
   int result = 0;
   do {
     DlgLogin dlg;

@@ -1,28 +1,65 @@
 #include <QApplication>
 #include <QDir>
 #include <QMessageBox>
+
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/ExecutableUpdater.h"
 #include "RestWorker.h"
 #include "SystemCallWrapper.h"
 #include "NotifiactionObserver.h"
 #include "DownloadFileManager.h"
+#include "Commons.h"
 
 using namespace update_system;
 
+template<branch_t v> struct Branch2Type {
+  enum {val = v};
+};
+
+template<os_t v> struct Os2Type {
+  enum {val = v};
+};
+
+template<class BR, class OS> const char* p2p_kurjun_file_name_temp();
+//todo use some type list for generating these methods.
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_LINUX> >() {
+  return "p2p";
+}
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_MAC> >() {
+  return "p2p_osx";
+}
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_WIN> >() {
+  return "p2p.exe";
+}
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_LINUX> >() {
+  return "p2p_dev";
+}
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_MAC> >() {
+  return "p2p_osx_dev";
+}
+
+template<>
+const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_WIN> >() {
+  return "p2p_dev.exe";
+}
+
 static const char* p2p_kurjun_file_name() {
-  static const char* fn =
-    #if defined(RT_OS_LINUX)
-      "p2p";
-    #elif defined(RT_OS_DARWIN)
-      "p2p_osx";
-    #elif defined(RT_OS_WINDOWS)
-      "p2p.exe";
-    #else
-      "";
-    #error "p2p update file name undefined"
-    #endif
-  return fn;
+  static const QString branch(GIT_BRANCH);
+  static const QString master("master");
+  if (branch == master)
+    return p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> >();
+  else // if (branch == dev)
+    return p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
