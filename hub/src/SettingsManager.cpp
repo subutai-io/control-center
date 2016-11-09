@@ -50,7 +50,7 @@ template<class T> struct setting_val_t {
 };
 
 ////////////////////////////////////////////////////////////////////////////
-#define DEFAULT_LINUX_P2P_PATH "/opt/subutai/p2p/bin/p2p"
+#define DEFAULT_LINUX_P2P_PATH "/opt/subutai/bin/p2p"
 
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :

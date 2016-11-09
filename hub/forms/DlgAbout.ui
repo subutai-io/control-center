@@ -28,6 +28,9 @@
        <property name="text">
         <string>undefined</string>
        </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
@@ -61,6 +64,9 @@
       <widget class="QLabel" name="lbl_p2p_version_val">
        <property name="text">
         <string>undefined</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -96,6 +102,9 @@
        <property name="text">
         <string>undefined</string>
        </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+       </property>
       </widget>
      </item>
      <item row="2" column="2">
@@ -129,6 +138,9 @@
       <widget class="QLabel" name="lbl_chrome_version_val">
        <property name="text">
         <string>undefined</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>
@@ -169,6 +181,9 @@
       <widget class="QLabel" name="lbl_vbox_version_val">
        <property name="text">
         <string>undefined</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
        </property>
       </widget>
      </item>

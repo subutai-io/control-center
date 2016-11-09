@@ -64,6 +64,25 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+template<class T>
+bool VectorEq(const std::vector<T>& arg1,
+              const std::vector<T>& arg2) {
+  if (arg1.size() != arg2.size())
+    return false;
+
+  for (size_t i = 0; i < arg1.size(); ++i) {
+    bool found = false;
+    for (size_t j = 0; j < arg2.size(); ++j) {
+      if (arg1[i] == arg2[j]) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return false;
+  }
+  return true;
+}
+
 /*!
  * \brief This class represents environment
  */
@@ -99,14 +118,16 @@ public:
 
   //todo use id
   bool operator==(const CSSEnvironment& arg) const {
-    return m_id == m_id &&
+    bool res =
+        m_id == arg.m_id &&
         m_name == arg.m_name &&
         m_hash == arg.m_hash &&
         m_aes_key == arg.m_aes_key &&
         m_ttl == arg.m_ttl &&
-        m_lst_containers == arg.m_lst_containers &&
         m_status == arg.m_status &&
-        m_status_descr == arg.m_status_descr;
+        m_status_descr == arg.m_status_descr &&
+        VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
+    return res;
   }
 
   bool operator!=(const CSSEnvironment& arg) const {
@@ -218,7 +239,9 @@ public:
   const std::vector<CCHInfo>& lst_containers() const {return m_lst_ch;}
 
   bool operator==(const CRHInfo& arg) const {
-    return m_id==arg.m_id && m_rh_ip == arg.m_rh_ip && m_lst_ch == arg.m_lst_ch;
+    return m_id==arg.m_id &&
+        m_rh_ip == arg.m_rh_ip &&
+        VectorEq<CCHInfo>(m_lst_ch, arg.m_lst_ch);
   }
 
   bool operator!=(const CRHInfo& arg) const {

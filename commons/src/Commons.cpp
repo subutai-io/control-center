@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QCryptographicHash>
 #include <QProcess>
+#include <QNetworkReply>
 
 bool CCommons::QuitAppFlag = false;
 const char* CCommons::RESTARTED_ARG = "restarted";
@@ -52,7 +53,6 @@ CCommons::FileMd5(const QString &file_path) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-#include <QNetworkReply>
 QString
 CCommons::NetworkErrorToString(int err_code) {
   switch (err_code) {
@@ -85,7 +85,7 @@ CCommons::NetworkErrorToString(int err_code) {
     case QNetworkReply::ContentOperationNotPermittedError: return "Content Operation Not Permitted Error";
     case QNetworkReply::ContentNotFoundError: return "Content Not Found Error";
     case QNetworkReply::AuthenticationRequiredError: return "Authentication Required Error";
-    case QNetworkReply::ContentReSendError: return "ContentRe Send Error";
+    case QNetworkReply::ContentReSendError: return "Content Resend Error";
     case QNetworkReply::ContentConflictError: return "Content Conflict Error";
     case QNetworkReply::ContentGoneError: return "Content Gone Error";
     case QNetworkReply::UnknownContentError: return "Unknown Content Error";

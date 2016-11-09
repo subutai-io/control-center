@@ -113,7 +113,8 @@ int CHubController::refresh_balance() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CHubController::refresh_environments() {
+CHubController::refresh_environments_res_t
+CHubController::refresh_environments() {
 
   int http_code, err_code, network_error;
   std::vector<CSSEnvironment> res;
@@ -141,31 +142,20 @@ int CHubController::refresh_environments() {
     QString err_msg = QString("Refresh environments error : %1").
                       arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::NotifyAboutError(err_msg);
-    return 1;
+    return RER_ERROR;
   }
 
   if (network_error != 0)
-    return 1;
+    return RER_ERROR;
 
   if (res == m_lst_environments)
-    return 1;
+    return m_lst_environments.empty() ? RER_EMPTY : RER_NO_DIFF;
 
   {
-    SynchroPrimitives::Locker lock(&m_refresh_cs);
-    std::vector<CSSEnvironment> to_remove;
-    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
-      if (std::find(res.begin(), res.end(), *i) == res.end())
-        to_remove.push_back(*i);
-    }
-
-    for (auto i = to_remove.begin(); i != to_remove.end(); ++i) {
-      system_call_wrapper_error_t lr =
-          CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
-      CApplicationLog::Instance()->LogTrace("Leave p2p result : %d", lr);
-    }
+    SynchroPrimitives::Locker lock(&m_refresh_cs);    
     m_lst_environments = std::move(res);
   }
-  return 0;
+  return RER_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

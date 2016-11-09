@@ -1,11 +1,9 @@
-#include <atomic>
+#include <algorithm>
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QWidgetAction>
-#include <QFileDialog>
-#include <QDir>
 #include <QtConcurrent/QtConcurrent>
 
 #include "TrayControlWindow.h"
@@ -245,7 +243,6 @@ TrayControlWindow::notification_received(notification_level_t level,
                                  icons[level],
                                  CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
   }
-  CApplicationLog::Instance()->LogTrace("*** notification received end ***");
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -495,8 +492,13 @@ TrayControlWindow::refresh_balance() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static std::vector<QString> lst_checked_unhealthy_env;
+
 void TrayControlWindow::refresh_environments() {
-  if (CHubController::Instance().refresh_environments())
+  CHubController::refresh_environments_res_t rr =
+      CHubController::Instance().refresh_environments();
+
+  if (rr == CHubController::RER_NO_DIFF)
     return;
 
   m_hub_menu->clear();
@@ -509,6 +511,13 @@ void TrayControlWindow::refresh_environments() {
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
 
+  if (CHubController::Instance().lst_environments().empty()) {
+    QAction* empty_action = new QAction("Empty", this);
+    empty_action->setEnabled(false);
+    m_hub_menu->addAction(empty_action);
+    return;
+  }
+
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
 
@@ -518,17 +527,34 @@ void TrayControlWindow::refresh_environments() {
 #endif
     QMenu* env_menu = m_hub_menu->addMenu(env_name);
 
+    std::vector<QString>::iterator iter_found =
+        std::find(lst_checked_unhealthy_env.begin(),
+                  lst_checked_unhealthy_env.end(), env->id());
+
     if (!env->healthy()) {
-      lst_unhealthy_envs.push_back(env_name);
-      lst_unhealthy_env_statuses.push_back(env->status());
-      CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
-                                            env_name.toStdString().c_str(),
-                                            env->id().toStdString().c_str(),
-                                            env->status_description().toStdString().c_str());
+      if (iter_found == lst_checked_unhealthy_env.end()) {
+        lst_unhealthy_envs.push_back(env_name);
+        lst_unhealthy_env_statuses.push_back(env->status());
+        lst_checked_unhealthy_env.push_back(env->id());
+        CApplicationLog::Instance()->LogError("Environment %s, %s is unhealthy. Reason : %s",
+                                              env_name.toStdString().c_str(),
+                                              env->id().toStdString().c_str(),
+                                              env->status_description().toStdString().c_str());
+      }
+    } else {
+      if (iter_found != lst_checked_unhealthy_env.end()) {
+        CNotificationObserver::Instance()->NotifyAboutInfo(QString("Environment %1 became healthy").arg(env->name()));
+        CApplicationLog::Instance()->LogTrace("Environment %s became healthy", env->name().toStdString().c_str());
+        lst_checked_unhealthy_env.erase(iter_found);
+      }
     }
 
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
-      QAction* act = new QAction(cont->name(), this);
+      QString cont_name = cont->name();
+#ifdef RT_OS_LINUX
+    cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+#endif
+      QAction* act = new QAction(cont_name, this);
       act->setEnabled(env->healthy());
 
       CHubEnvironmentMenuItem* item =

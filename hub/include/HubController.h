@@ -91,10 +91,17 @@ public:
    */
   int refresh_balance();
 
+  enum refresh_environments_res_t {
+    RER_SUCCESS,
+    RER_NO_DIFF,
+    RER_EMPTY,
+    RER_ERROR
+  };
+
   /*!
    * \brief Force refresh environments list
    */
-  int refresh_environments();
+  refresh_environments_res_t refresh_environments();
 
   /*!
    * \brief Force refresh containers list

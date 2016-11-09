@@ -11,19 +11,55 @@
 
 using namespace update_system;
 
+template<branch_t v> struct Branch2Type {
+  enum {val = v};
+};
+
+template<os_t v> struct Os2Type {
+  enum {val = v};
+};
+
+template<class BR, class OS> const char* tray_kurjun_file_name_temp();
+//todo use some type list for generating these methods.
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_LINUX> >() {
+  return "SubutaiTray";
+}
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_MAC> >() {
+  return "SubutaiTray_osx";
+}
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_WIN> >() {
+  return "SubutaiTray.exe";
+}
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_LINUX> >() {
+  return "SubutaiTray_dev";
+}
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_MAC> >() {
+  return "SubutaiTray_osx_dev";
+}
+
+template<>
+const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_WIN> >() {
+  return "SubutaiTray_dev.exe";
+}
+////////////////////////////////////////////////////////////////////////////
+
 const char* CUpdaterComponentTray::tray_kurjun_file_name() {
-  static const char* fn =
-    #if defined(RT_OS_LINUX)
-      "SubutaiTray";
-    #elif defined(RT_OS_DARWIN)
-      "SubutaiTray_osx";
-    #elif defined(RT_OS_WINDOWS)
-      "SubutaiTray.exe";
-    #else
-      "";
-    #error "TRAY_UPDATE_FILE macros undefined"
-    #endif
-  return fn;
+  static const QString branch(GIT_BRANCH);
+  static const QString master("master");
+  if (branch == master)
+    return tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> >();
+  else // if (branch == dev)
+    return tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
