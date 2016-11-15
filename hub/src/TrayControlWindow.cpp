@@ -726,7 +726,7 @@ TrayControlWindow::show_settings_dialog() {
 QDialog* create_about_dialog(QWidget* p) {return new DlgAbout(p);}
 void
 TrayControlWindow::show_about() {
-  show_dialog(create_about_dialog, "About the program");
+  show_dialog(create_about_dialog, "About Subutai Tray");
 }
 ////////////////////////////////////////////////////////////////////////////
 
