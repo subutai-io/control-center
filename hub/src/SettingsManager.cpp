@@ -2,13 +2,14 @@
 #include <QDir>
 #include <QUuid>
 #include <QStandardPaths>
+#include <QCryptographicHash>
 
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
 #include "updater/HubComponentsUpdater.h"
 
-const QString CSettingsManager::ORG_NAME("Optimal-dynamics");
-const QString CSettingsManager::APP_NAME("SS_Tray");
+const QString CSettingsManager::ORG_NAME("subutai");
+const QString CSettingsManager::APP_NAME("tray");
 
 const QString CSettingsManager::SM_LOGIN("Login");
 const QString CSettingsManager::SM_PASSWORD("Password");
@@ -44,28 +45,44 @@ const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 /*!
  * \brief This template is used like field initializer for code size reduction
  */
-template<class T> struct setting_val_t {
-  T* field;
+struct setting_val_t {
+  void* field;
   QString val;
+  void (*pf_qvar_to_T)(const QVariant&, void*);
 };
 
+static void qvar_to_bool(const QVariant& var, void* field) {
+  *((bool*)field) = var.toBool();
+}
+
+static void qvar_to_int(const QVariant& var, void* field) {
+  *((uint32_t*)field) = var.toUInt();
+}
+
+static void qvar_to_str(const QVariant& var, void* field) {
+  *((QString*)field) = var.toString();
+}
+
+static void qvar_to_byte_arr(const QVariant& var, void* field) {
+  *((QByteArray*)field) = var.toByteArray();
+}
+
 ////////////////////////////////////////////////////////////////////////////
-#define DEFAULT_LINUX_P2P_PATH "/opt/subutai/bin/p2p"
+#ifdef RT_OS_LINUX
+  #define DEFAULT_P2P_PATH "/opt/subutai/bin/p2p"
+#elif RT_OS_DARWIN
+  #define DEFAULT_P2P_PATH "/Applications/Subutai/p2p"
+#elif RT_OS_WINDOWS
+  #define DEFAULT_P2P_PATH "p2p.exe"
+#endif
 
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
-  m_login(m_settings.value(SM_LOGIN).toString()),
-  m_password(m_settings.value(SM_PASSWORD).toString()),
-  m_remember_me(m_settings.value(SM_REMEMBER_ME).toBool()),
+  m_password_str(""),
+  m_remember_me(false),
   m_refresh_time_sec(def_timeout),
-  #ifdef RT_OS_LINUX
-  m_p2p_path(DEFAULT_LINUX_P2P_PATH),
-  #elif RT_OS_DARWIN
-  m_p2p_path("/Applications/Subutai/p2p"),
-  #elif RT_OS_WINDOWS
-  m_p2p_path("p2p.exe"),
-  #endif
+  m_p2p_path(DEFAULT_P2P_PATH),
   m_notification_delay_sec(7),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
@@ -87,9 +104,8 @@ CSettingsManager::CSettingsManager() :
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
 
-  do {
-    QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    if (lst_home.empty()) break;
+  QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (!lst_home.empty()) {
     QString home_folder = lst_home[0];
 
     for (int i = 0; FOLDERS_TO_CREATE[i]; ++i) {
@@ -100,64 +116,52 @@ CSettingsManager::CSettingsManager() :
       }
       *fields[i] = dir_path;
     }
-  } while (0);
+  }
 
-  setting_val_t<QString> dct_str_vals[] = {
-    {&m_p2p_path, SM_P2P_PATH},
-    {&m_ssh_path, SM_SSH_PATH},
-    {&m_ssh_user, SM_SSH_USER},
-    {&m_rh_host, SM_RH_HOST},
-    {&m_rh_pass, SM_RH_PASS},
-    {&m_rh_user, SM_RH_USER},
-    {&m_logs_storage, SM_LOGS_STORAGE},
-    {&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE},
-    {&m_tray_guid, SM_TRAY_GUID},
-    {&m_rtm_db_dir, SM_RTM_DB_DIR},
-    {nullptr, ""}
+  setting_val_t dct_settings_vals[] = {
+    //str
+    {(void*)&m_login, SM_LOGIN, qvar_to_str},
+    {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
+    {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
+    {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
+    {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
+    {(void*)&m_rh_pass, SM_RH_PASS, qvar_to_str},
+    {(void*)&m_rh_user, SM_RH_USER, qvar_to_str},
+    {(void*)&m_logs_storage, SM_LOGS_STORAGE, qvar_to_str},
+    {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
+    {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
+    {(void*)&m_rtm_db_dir, SM_RTM_DB_DIR, qvar_to_str},
+
+    //bool
+    {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
+    {(void*)&m_p2p_autoupdate, SM_P2P_AUTOUPDATE, qvar_to_bool},
+    {(void*)&m_rh_autoupdate, SM_RH_AUTOUPDATE, qvar_to_bool},
+    {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
+
+    //uint
+    {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
+    {(void*)&m_rh_update_freq, SM_RH_UPDATE_FREQ, qvar_to_int},
+    {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
+    {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
+
+    //bytearr
+    {(void*)&m_password, SM_PASSWORD, qvar_to_byte_arr},
+
+    //end
+    {nullptr, "", nullptr}
   };
 
-  for (int i = 0; dct_str_vals[i].field != nullptr; ++i) {
-    if (!m_settings.value(dct_str_vals[i].val).isNull()) {
-      *dct_str_vals[i].field = m_settings.value(dct_str_vals[i].val).toString();
-    }
+  setting_val_t* tmp_sv = dct_settings_vals;
+  for (; tmp_sv->field != nullptr; ++tmp_sv) {
+    if (m_settings.value(tmp_sv->val).isNull()) continue;
+    tmp_sv->pf_qvar_to_T(m_settings.value(tmp_sv->val), tmp_sv->field);
   }
 
   //hack
 #ifdef RT_OS_LINUX
   if (m_p2p_path == "p2p")
-    m_p2p_path = DEFAULT_LINUX_P2P_PATH;
+    m_p2p_path = DEFAULT_P2P_PATH;
 #endif
-  /////
-
-  setting_val_t<bool> dct_bool_vals[] = {
-    {&m_remember_me, SM_REMEMBER_ME},
-    {&m_p2p_autoupdate, SM_P2P_AUTOUPDATE},
-    {&m_rh_autoupdate, SM_RH_AUTOUPDATE},
-    {&m_tray_autoupdate, SM_TRAY_AUTOUPDATE},
-    {nullptr, ""}
-  };
-
-  for (int i = 0; dct_bool_vals[i].field != nullptr; ++i) {
-    if (!m_settings.value(dct_bool_vals[i].val).isNull()) {
-      *dct_bool_vals[i].field = m_settings.value(dct_bool_vals[i].val).toBool();
-    }
-  }
-  /////
-
-  setting_val_t<uint32_t> dct_uint32_vals[] = {
-    {&m_p2p_update_freq, SM_P2P_UPDATE_FREQ},
-    {&m_rh_update_freq, SM_RH_UPDATE_FREQ},
-    {(uint32_t*)&m_rh_port, SM_RH_PORT},
-    {&m_tray_update_freq, SM_TRAY_UPDATE_FREQ},
-    {nullptr, ""}
-  };
-
-  for (int i = 0; dct_uint32_vals[i].field != nullptr; ++i) {
-    if (!m_settings.value(dct_uint32_vals[i].val).isNull()) {
-      *dct_uint32_vals[i].field = m_settings.value(dct_uint32_vals[i].val).toUInt();
-    }
-  }
-  /////
 
   bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
@@ -174,7 +178,8 @@ CSettingsManager::CSettingsManager() :
     m_tray_guid = QUuid::createUuid().toString();
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
   }
-  /////
+
+  init_password();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +202,88 @@ uint32_t CSettingsManager::update_freq_to_sec(CSettingsManager::update_freq_t fr
         hr, hr*3, hr*5, day,
         day*7, day*28, 0 }; //let's say 1 month = 4 week
   return time_sec[fr%UF_LAST];
+}
+////////////////////////////////////////////////////////////////////////////
+
+static const uint32_t pass_magic = 0xbaedcf3f;
+static const uint32_t pass_magic2 = 0xedff019b;
+
+void CSettingsManager::init_password() {
+  if (m_password.isEmpty()) {
+    CApplicationLog::Instance()->LogError("Password array is empty");
+    return;
+  }
+
+  do {
+    uint32_t* ptr_magic = (uint32_t*)(m_password.data());
+    if (m_password.length() <= 8    ||
+        ptr_magic[0] != pass_magic  ||
+        ptr_magic[1] != pass_magic2) {
+      break;
+    }
+
+    //decrypt
+    QByteArray ba = m_password.mid(8);
+    int cnt = ba.length();
+    char lc = 0;
+    uchar* key = QUuid(m_tray_guid).data4;
+
+    for (int pos = 0; pos < cnt; ++pos) {
+      char cc = ba.at(pos);
+      ba[pos] = ba.at(pos) ^ lc ^ key[pos % 8];
+      lc = cc;
+    }
+
+    ba = ba.mid(1); //remove random byte
+
+    if (ba.length() < 20) {
+      CApplicationLog::Instance()->LogError("Decryption error. ba.length() < 20");
+      break;
+    }
+
+    QByteArray st_h = ba.left(20);
+    ba = ba.mid(20);
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    hash.addData(ba);
+
+    if (hash.result() != st_h) {
+      CApplicationLog::Instance()->LogError("Decryption error. hash.result() != stored_hash");
+      break;
+    }
+
+    m_password_str = QString(ba);
+    return;
+
+  } while (0);
+
+  m_password_str = QString(m_password);
+  set_password(m_password_str);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void CSettingsManager::set_password(const QString &password) {
+  QByteArray ba = password.toUtf8();
+  QCryptographicHash hash(QCryptographicHash::Sha1);
+  hash.addData(ba);
+  QByteArray ip = hash.result();
+  char rc = (char) (qrand() % 0xff);
+  ba = rc + ip + ba;
+
+  int lc = 0;
+  uchar* key = QUuid(m_tray_guid).data4;
+  int cnt = ba.length();
+  for (int pos = 0; pos < cnt; ++pos) {
+    ba[pos] = ba.at(pos) ^ key[pos % 8] ^ lc;
+    lc = ba.at(pos);
+  }
+
+  QByteArray ra;
+  ra.append((const char*)&pass_magic, 4);
+  ra.append((const char*)&pass_magic2, 4);
+  ra.append(ba);
+
+  m_password = ra;
+  m_settings.setValue(SM_PASSWORD, m_password);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -254,7 +341,6 @@ CSettingsManager::set_tray_autoupdate(const bool tray_autoupdate) {
 
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
 SET_FIELD_DEF(login, SM_LOGIN, QString&)
-SET_FIELD_DEF(password, SM_PASSWORD, QString&)
 SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
 SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
 SET_FIELD_DEF(p2p_path, SM_P2P_PATH, QString&)

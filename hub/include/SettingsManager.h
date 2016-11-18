@@ -11,49 +11,41 @@
 class CSettingsManager
 {
 private:
-  static const QString LIBSSH2_APP_NAME;
-
   static const QString ORG_NAME;
   static const QString APP_NAME;
 
   static const QString SM_LOGIN;
   static const QString SM_PASSWORD;
   static const QString SM_REMEMBER_ME;
-
   static const QString SM_REFRESH_TIME;
-
   static const QString SM_P2P_PATH;
-
   static const QString SM_NOTIFICATION_DELAY_SEC;
-
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
-
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
   static const QString SM_RH_HOST;
   static const QString SM_RH_PORT;
-
   static const QString SM_LOGS_STORAGE;
   static const QString SM_SSH_KEYS_STORAGE;
-
   static const QString SM_TRAY_GUID;
-
   static const QString SM_P2P_UPDATE_FREQ;
   static const QString SM_RH_UPDATE_FREQ;
   static const QString SM_TRAY_UPDATE_FREQ;
   static const QString SM_P2P_AUTOUPDATE;
   static const QString SM_RH_AUTOUPDATE;
   static const QString SM_TRAY_AUTOUPDATE;
-
   static const QString SM_RTM_DB_DIR;
 
   CSettingsManager();
 
   QSettings m_settings;
   QString m_login;
-  QString m_password;
+
+  QByteArray m_password;
+  QString m_password_str;
+
   bool m_remember_me;
 
   uint32_t m_refresh_time_sec;
@@ -83,23 +75,16 @@ private:
 
   QString m_rtm_db_dir;
 
+  void init_password();
+
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
   static const int NOTIFICATION_DELAY_MAX = 300;
 
   enum update_freq_t {
-    UF_MIN1 = 0,
-    UF_MIN5,
-    UF_MIN10,
-    UF_MIN30,
-    UF_HOUR1,
-    UF_HOUR3,
-    UF_HOUR5,
-    UF_DAILY,
-    UF_WEEKLY,
-    UF_MONTHLY,
-    UF_NEVER,
-    UF_LAST
+    UF_MIN1 = 0, UF_MIN5, UF_MIN10, UF_MIN30,
+    UF_HOUR1, UF_HOUR3, UF_HOUR5, UF_DAILY,
+    UF_WEEKLY, UF_MONTHLY, UF_NEVER, UF_LAST
   };
 
   static const QString& update_freq_to_str(update_freq_t fr);
@@ -115,7 +100,7 @@ public:
   ////////////////////////////////////////////////////////////////////////////
 
   const QString& login() const {return m_login;}
-  const QString& password() const {return m_password;}
+  const QString& password() const {return m_password_str;}
   bool remember_me() const {return m_remember_me;}
 
   uint32_t refresh_time_sec() const {return m_refresh_time_sec;}
@@ -142,6 +127,7 @@ public:
   bool tray_autoupdate() const { return m_tray_autoupdate; }
 
   const QString& rtm_db_dir() const {return m_rtm_db_dir;}
+  bool is_writable() const {return m_settings.isWritable();}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {

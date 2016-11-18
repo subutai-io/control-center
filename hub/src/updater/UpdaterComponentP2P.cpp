@@ -105,7 +105,12 @@ CUpdaterComponentP2P::update_available_internal() {
 chue_t
 CUpdaterComponentP2P::update_internal() {
   std::string str_p2p_path = p2p_path();
-  if (str_p2p_path.empty()) return CHUE_FAILED;
+  if (str_p2p_path.empty() ||
+      str_p2p_path == P2P.toStdString()) {
+    CApplicationLog::Instance()->LogError("Update p2p failed. Path = %s",
+                                          (str_p2p_path.empty() ? "empty" : str_p2p_path.c_str()));
+    return CHUE_FAILED;
+  }
 
   //original file path
   QString str_p2p_executable_path = QString::fromStdString(p2p_path());
@@ -148,8 +153,22 @@ void
 CUpdaterComponentP2P::update_post_action() {
   CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
   int rse_err = 0;
+
+  QString download_path = QApplication::applicationDirPath() +
+                          QDir::separator() +
+                          QString(P2P);
+  QFile df(download_path);
+
+  if (df.exists()) {
+    if (df.remove()) {
+      CApplicationLog::Instance()->LogInfo("p2p file from tray directory removed");
+    } else {
+      CApplicationLog::Instance()->LogInfo("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
+    }
+  }
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::restart_p2p_service(&rse_err);
+
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->NotifyAboutError(QString("p2p post update failed. err : ").
                                                         arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
