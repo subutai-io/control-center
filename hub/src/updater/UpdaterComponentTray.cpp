@@ -19,47 +19,30 @@ template<os_t v> struct Os2Type {
   enum {val = v};
 };
 
-template<class BR, class OS> const char* tray_kurjun_file_name_temp();
-//todo use some type list for generating these methods.
+template<class BR, class OS> const char* tray_kurjun_file_name_internal();
 
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_LINUX> >() {
-  return "SubutaiTray";
-}
+#define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const char* tray_kurjun_file_name_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    return STRING; \
+  }
 
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_MAC> >() {
-  return "SubutaiTray_osx";
-}
+tray_kurjun_file_name_def(BT_MASTER, OS_LINUX, "SubutaiTray")
+tray_kurjun_file_name_def(BT_MASTER, OS_MAC, "SubutaiTray_osx")
+tray_kurjun_file_name_def(BT_MASTER, OS_WIN, "SubutaiTray.exe")
+tray_kurjun_file_name_def(BT_DEV, OS_LINUX, "SubutaiTray_dev")
+tray_kurjun_file_name_def(BT_DEV, OS_MAC, "SubutaiTray_osx_dev")
+tray_kurjun_file_name_def(BT_DEV, OS_WIN, "SubutaiTray_dev.exe")
 
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_WIN> >() {
-  return "SubutaiTray.exe";
-}
-
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_LINUX> >() {
-  return "SubutaiTray_dev";
-}
-
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_MAC> >() {
-  return "SubutaiTray_osx_dev";
-}
-
-template<>
-const char* tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_WIN> >() {
-  return "SubutaiTray_dev.exe";
-}
 ////////////////////////////////////////////////////////////////////////////
 
 const char* CUpdaterComponentTray::tray_kurjun_file_name() {
   static const QString branch(GIT_BRANCH);
   static const QString master("master");
   if (branch == master)
-    return tray_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> >();
+    return tray_kurjun_file_name_internal<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> >();
   else // if (branch == dev)
-    return tray_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> >();
+    return tray_kurjun_file_name_internal<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 

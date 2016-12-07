@@ -21,37 +21,19 @@ template<os_t v> struct Os2Type {
 };
 
 template<class BR, class OS> const char* p2p_kurjun_file_name_temp();
-//todo use some type list for generating these methods.
 
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_LINUX> >() {
-  return "p2p";
-}
+#define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const char* p2p_kurjun_file_name_temp<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    return STRING; \
+  }
 
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_MAC> >() {
-  return "p2p_osx";
-}
-
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<OS_WIN> >() {
-  return "p2p.exe";
-}
-
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_LINUX> >() {
-  return "p2p_dev";
-}
-
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_MAC> >() {
-  return "p2p_osx_dev";
-}
-
-template<>
-const char* p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<OS_WIN> >() {
-  return "p2p_dev.exe";
-}
+p2p_kurjun_file_name_def(BT_MASTER, OS_LINUX, "p2p")
+p2p_kurjun_file_name_def(BT_MASTER, OS_MAC, "p2p_osx")
+p2p_kurjun_file_name_def(BT_MASTER, OS_WIN, "p2p.exe")
+p2p_kurjun_file_name_def(BT_DEV, OS_LINUX, "p2p_dev")
+p2p_kurjun_file_name_def(BT_DEV, OS_MAC, "p2p_osx_dev")
+p2p_kurjun_file_name_def(BT_DEV, OS_WIN, "p2p_dev.exe")
 
 static const char* p2p_kurjun_file_name() {
   static const QString branch(GIT_BRANCH);
