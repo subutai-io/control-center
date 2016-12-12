@@ -322,7 +322,7 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   system_call_wrapper_error_t res =
       ssystem_th2(cmd, args0, lst_out0, ec, true);
   res = ssystem_th2(cmd, args1, lst_out1, ec, true);
-  *res_code = *RSE_SUCCESS;
+  *res_code = RSE_SUCCESS;
   return res;
 #else
   QString cmd("osascript");
@@ -333,7 +333,7 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   int ec = 0;
   system_call_wrapper_error_t res =
       ssystem_th2(cmd, args, lst_out, ec, true);
-  *res = *RSE_SUCCESS;
+  *res = RSE_SUCCESS;
   return res;
 #endif
 }
