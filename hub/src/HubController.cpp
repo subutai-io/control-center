@@ -44,10 +44,16 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
   }
 
   if (!found) {
+    CApplicationLog::Instance()->LogError("Container with id %s wasn't found in environment with id %s",
+                                          cont->id().toStdString().c_str(),
+                                          env->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
     return;
   }
+
   if (rh_ip.empty()) {
+    CApplicationLog::Instance()->LogError("Resourse host IP is empty. Conteiner ID : %s",
+                                          cont->id());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
     return;
   }
@@ -335,9 +341,9 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     }
   }
 
-  err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
-                                                m_ip.c_str(),
-                                                m_cont_port.c_str(),
+  err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
+                                                QString(m_ip.c_str()),
+                                                QString(m_cont_port.c_str()), //todo change to QString!!!
                                                 key.empty() ? NULL : key.c_str());
 
   if (err != SCWE_SUCCESS) {
