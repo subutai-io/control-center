@@ -86,7 +86,7 @@ bool VectorEq(const std::vector<T>& arg1,
 /*!
  * \brief This class represents environment
  */
-class CSSEnvironment {
+class CEnvironment {
 private:
   QString m_name;
   QString m_hash;
@@ -97,8 +97,8 @@ private:
   QString m_status_descr;
   std::vector<CHubContainer> m_lst_containers;
 public:
-  CSSEnvironment() : m_name(""){}
-  explicit CSSEnvironment(const QJsonObject& obj) {
+  CEnvironment() : m_name(""){}
+  explicit CEnvironment(const QJsonObject& obj) {
     m_name = obj["environment_name"].toString();
     m_hash = obj["environment_hash"].toString();
     m_aes_key = obj["environment_key"].toString();
@@ -114,10 +114,10 @@ public:
     }
   }
 
-  ~CSSEnvironment(){}
+  ~CEnvironment(){}
 
   //todo use id
-  bool operator==(const CSSEnvironment& arg) const {
+  bool operator==(const CEnvironment& arg) const {
     bool res =
         m_id == arg.m_id &&
         m_name == arg.m_name &&
@@ -130,7 +130,7 @@ public:
     return res;
   }
 
-  bool operator!=(const CSSEnvironment& arg) const {
+  bool operator!=(const CEnvironment& arg) const {
     return !(this->operator ==(arg));
   }
 
@@ -150,6 +150,9 @@ public:
    * \brief Environment's id
    */
   const QString& id() const {return m_id;}
+
+  const QString& ttl() const {return m_ttl;}
+
   /*!
    * \brief Environment's list of containers.
    */
@@ -173,14 +176,14 @@ public:
 /*!
  * \brief This class represents user's balance
  */
-class CSSBalance {
+class CHubBalance {
 private:
   QString m_balance;
 public:
-  CSSBalance() : m_balance("") {}
-  explicit CSSBalance(const QString& balance) : m_balance(balance) {
+  CHubBalance() : m_balance("") {}
+  explicit CHubBalance(const QString& balance) : m_balance(balance) {
   }
-  ~CSSBalance(){}
+  ~CHubBalance(){}
 
   /*!
    * \brief String representation of user's balance

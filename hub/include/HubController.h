@@ -6,9 +6,10 @@
 #include <QObject>
 #include "Locker.h"
 
-class CSSEnvironment;
+class CEnvironment;
 class CRHInfo;
 class CHubContainer;
+class CHubController;
 
 typedef enum ssh_launch_error {
   SLE_SUCCESS = 0,
@@ -50,6 +51,58 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+
+class CHubContainerEx {
+private:
+  QString m_name;
+  QString m_ip;
+  QString m_id;
+  QString m_port;
+  QString m_rh_ip;
+
+public:
+
+  CHubContainerEx(const CHubContainer& cont,
+                  const std::vector<CRHInfo>& lst_resource_hosts);
+  ~CHubContainerEx(){}
+
+  const QString& name() const {return m_name;}
+  const QString& ip() const {return m_ip;}
+  const QString& id() const {return m_id;}
+  const QString& port() const {return m_port;}
+  const QString& rh_ip() const {return m_rh_ip;}
+};
+////////////////////////////////////////////////////////////////////////////
+
+class CEnvironmentEx {
+private:
+  QString m_name;
+  QString m_hash;
+  QString m_aes_key;
+  QString m_ttl;
+  QString m_id;
+  QString m_status;
+  QString m_status_descr;
+  std::vector<CHubContainerEx> m_lst_containers;
+
+public:
+
+  CEnvironmentEx(const CEnvironment& env,
+                 const std::vector<CRHInfo>& lst_resource_hosts);
+  ~CEnvironmentEx() {}
+
+  const QString& name() const {return m_name;}
+  const QString& hash() const {return m_hash;}
+  const QString& key() const {return m_aes_key;}
+  const QString& ttl() const {return m_ttl;}
+  const QString& id() const {return m_id;}
+  const QString& status() const {return m_status;}
+  const QString& status_description() const {return m_status_descr;}
+  const std::vector<CHubContainerEx>& containers() const {return m_lst_containers;}
+  bool healthy() const {return m_status == "HEALTHY";}
+};
+////////////////////////////////////////////////////////////////////////////
+
 /*!
  * \brief This class is used for managing HUB related thins.
  * It updates environments and containers lists, user's balance.
@@ -58,8 +111,11 @@ signals:
 class CHubController : public QObject {
   Q_OBJECT
 private:
-  std::vector<CSSEnvironment> m_lst_environments;
+  std::vector<CEnvironment> m_lst_environments_internal;
   std::vector<CRHInfo> m_lst_resource_hosts;
+
+  std::vector<CEnvironmentEx> m_lst_environments;
+
   QString m_balance;
   QString m_current_user;
   QString m_current_pass;
@@ -76,10 +132,21 @@ private:
     ssh_to_cont_str
   };
 
-  void ssh_to_container_internal(const CSSEnvironment *env,
-                                 const CHubContainer *cont,
+  void ssh_to_container_internal(const CEnvironmentEx *env,
+                                 const CHubContainerEx *cont,
                                  void *additional_data,
                                  finished_slot_t slot);
+public:
+  enum refresh_environments_res_t {
+    RER_SUCCESS,
+    RER_NO_DIFF,
+    RER_EMPTY,
+    RER_ERROR
+  };
+
+private:
+  void refresh_containers_internal();
+  refresh_environments_res_t refresh_environments_internal();
 
 private slots:
   void ssh_to_container_finished_slot(int result, void* additional_data);
@@ -90,23 +157,12 @@ public:
    * \brief Force refresh balance
    */
   int refresh_balance();
-
-  enum refresh_environments_res_t {
-    RER_SUCCESS,
-    RER_NO_DIFF,
-    RER_EMPTY,
-    RER_ERROR
-  };
-
   /*!
    * \brief Force refresh environments list
    */
   refresh_environments_res_t refresh_environments();
 
-  /*!
-   * \brief Force refresh containers list
-   */
-  void refresh_containers(); //to make ssh work
+
 
   /*!
    * \brief SSH->container
@@ -114,8 +170,8 @@ public:
    * \param cont - pointer to container
    * \param additional_data - could be everything you want. here we use it for storing information about menu item
    */
-  void ssh_to_container(const CSSEnvironment *env,
-                        const CHubContainer *cont,
+  void ssh_to_container(const CEnvironmentEx *env,
+                        const CHubContainerEx *cont,
                         void *additional_data);
 
   /*!
@@ -146,12 +202,7 @@ public:
   /*!
    * \brief List of environments
    */
-  const std::vector<CSSEnvironment>& lst_environments() const { return m_lst_environments; }
-
-  /*!
-   * \brief List of resource hosts. This list is used for searching containers IP.
-   */
-  const std::vector<CRHInfo>& lst_resource_hosts() const { return m_lst_resource_hosts; }
+  const std::vector<CEnvironmentEx>& lst_environments() const {return m_lst_environments;}
 
   /*!
    * \brief Current balance represented by string

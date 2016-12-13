@@ -333,15 +333,14 @@ void
 TrayControlWindow::refresh_timer_timeout() {  
   m_refresh_timer.stop();
   refresh_balance();
-  refresh_environments();
-  CHubController::Instance().refresh_containers();  
+  refresh_environments();  
   m_refresh_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::hub_container_mi_triggered(const CSSEnvironment *env,
-                                              const CHubContainer *cont,
+TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
+                                              const CHubContainerEx *cont,
                                               void* action) {
   QAction* act = static_cast<QAction*>(action);
   if (act != NULL) {
@@ -549,13 +548,13 @@ void TrayControlWindow::refresh_environments() {
     cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
 #endif
       QAction* act = new QAction(cont_name, this);
-      act->setEnabled(env->healthy());
+      act->setEnabled(env->healthy() && !cont->rh_ip().isNull() && !cont->rh_ip().isEmpty());
 
       CHubEnvironmentMenuItem* item =
           new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
       connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
-      connect(item, SIGNAL(action_triggered(const CSSEnvironment*, const CHubContainer*, void*)),
-              this, SLOT(hub_container_mi_triggered(const CSSEnvironment*, const CHubContainer*, void*)));
+      connect(item, SIGNAL(action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)),
+              this, SLOT(hub_container_mi_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)));
       env_menu->addAction(act);
       m_lst_hub_menu_items.push_back(item);
     }

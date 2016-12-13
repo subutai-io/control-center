@@ -11,46 +11,24 @@
 #define UNDEFINED_BALANCE "Undefined balance"
 
 CHubController::CHubController() :
-  m_lst_environments(),
+  m_lst_environments_internal(),
   m_lst_resource_hosts(),
   m_balance(UNDEFINED_BALANCE)
 {
 }
 
 CHubController::~CHubController() {
-  for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
     CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
   }
 }
 
 void
-CHubController::ssh_to_container_internal(const CSSEnvironment *env,
-                                          const CHubContainer *cont,
+CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
+                                          const CHubContainerEx *cont,
                                           void *additional_data,
                                           finished_slot_t slot) {
-  std::string rh_ip;
-  bool found = false;
-  {
-    SynchroPrimitives::Locker lock(&m_refresh_cs);
-
-    for (auto rh = m_lst_resource_hosts.begin(); !found && rh != m_lst_resource_hosts.end(); ++rh) {
-      for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
-        if (rh_cont->id() != cont->id()) continue;
-        rh_ip = rh->rh_ip().toStdString();
-        found = true;
-        break;
-      }
-    }
-  }
-
-  if (!found) {
-    CApplicationLog::Instance()->LogError("Container with id %s wasn't found in environment with id %s",
-                                          cont->id().toStdString().c_str(),
-                                          env->id().toStdString().c_str());
-    emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
-    return;
-  }
-
+  std::string rh_ip = cont->rh_ip().toStdString();
   if (rh_ip.empty()) {
     CApplicationLog::Instance()->LogError("Resourse host IP is empty. Conteiner ID : %s",
                                           cont->id().toStdString().c_str());
@@ -98,7 +76,7 @@ CHubController::ssh_to_container_finished_str_slot(int result,
 
 int CHubController::refresh_balance() {
   int http_code, err_code, network_error;
-  CSSBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);  
+  CHubBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
 
   if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh balance. Received not json. Trying to re-login");
@@ -122,50 +100,14 @@ int CHubController::refresh_balance() {
 CHubController::refresh_environments_res_t
 CHubController::refresh_environments() {
 
-  int http_code, err_code, network_error;
-  std::vector<CSSEnvironment> res;
-  res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
-
-  if (err_code == RE_NOT_JSON_DOC) {
-    CApplicationLog::Instance()->LogInfo("Failed to refresh environments. Received not json. Trying to re-login");
-    int lhttp, lerr, lnet;
-    CRestWorker::Instance()->login(m_current_user, m_current_pass,
-                                   lhttp, lerr, lnet);
-    if (lerr == RE_SUCCESS) {
-      res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
-    } else {
-      CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
-    }
-  }
-
-  if (err_code || network_error) {
-    CApplicationLog::Instance()->LogError("Refresh environments failed. Err_code : %d, Net_err : %d",
-                                          err_code, network_error);
-  }
-
-  //that means that about network error notified RestWorker.
-  if (err_code && err_code != RE_NETWORK_ERROR) {
-    QString err_msg = QString("Refresh environments error : %1").
-                      arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
-    CNotificationObserver::NotifyAboutError(err_msg);
-    return RER_ERROR;
-  }
-
-  if (network_error != 0)
-    return RER_ERROR;
-
-  if (res == m_lst_environments)
-    return m_lst_environments.empty() ? RER_EMPTY : RER_NO_DIFF;
-
-  {
-    SynchroPrimitives::Locker lock(&m_refresh_cs);    
-    m_lst_environments = std::move(res);
-  }
-  return RER_SUCCESS;
+  refresh_containers_internal();
+  CHubController::refresh_environments_res_t res =
+      refresh_environments_internal();
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CHubController::refresh_containers() {
+void CHubController::refresh_containers_internal() {
   int http_code, err_code, network_error;
   std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
 
@@ -202,9 +144,58 @@ void CHubController::refresh_containers() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+CHubController::refresh_environments_res_t
+CHubController::refresh_environments_internal() {
+  int http_code, err_code, network_error;
+  std::vector<CEnvironment> res;
+  res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
+
+  if (err_code == RE_NOT_JSON_DOC) {
+    CApplicationLog::Instance()->LogInfo("Failed to refresh environments. Received not json. Trying to re-login");
+    int lhttp, lerr, lnet;
+    CRestWorker::Instance()->login(m_current_user, m_current_pass,
+                                   lhttp, lerr, lnet);
+    if (lerr == RE_SUCCESS) {
+      res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
+    } else {
+      CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
+    }
+  }
+
+  if (err_code || network_error) {
+    CApplicationLog::Instance()->LogError("Refresh environments failed. Err_code : %d, Net_err : %d",
+                                          err_code, network_error);
+  }
+
+  //that means that about network error notified RestWorker.
+  if (err_code && err_code != RE_NETWORK_ERROR) {
+    QString err_msg = QString("Refresh environments error : %1").
+                      arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
+    CNotificationObserver::NotifyAboutError(err_msg);
+    return RER_ERROR;
+  }
+
+  if (network_error != 0)
+    return RER_ERROR;
+
+  if (res == m_lst_environments_internal)
+    return m_lst_environments_internal.empty() ? RER_EMPTY : RER_NO_DIFF;
+
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    m_lst_environments_internal = std::move(res);
+    m_lst_environments.erase(m_lst_environments.begin(), m_lst_environments.end());
+    for (auto env = m_lst_environments_internal.cbegin(); env != m_lst_environments_internal.cend(); ++env) {
+      m_lst_environments.push_back(CEnvironmentEx(*env, m_lst_resource_hosts));
+    }
+  }
+  return RER_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
-CHubController::ssh_to_container(const CSSEnvironment *env,
-                                 const CHubContainer *cont,
+CHubController::ssh_to_container(const CEnvironmentEx *env,
+                                 const CHubContainerEx *cont,
                                  void* additional_data) {
 
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont);
@@ -215,8 +206,8 @@ void
 CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
                                      void *additional_data) {
-  CSSEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
+  CEnvironmentEx *env = NULL;
+  const CHubContainerEx *cont = NULL;
 
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
@@ -356,5 +347,34 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   }
 
   emit ssh_to_container_finished((int)SLE_SUCCESS, m_additional_data);
+}
+////////////////////////////////////////////////////////////////////////////
+
+CHubContainerEx::CHubContainerEx(const CHubContainer &cont,
+                                 const std::vector<CRHInfo>& lst_resource_hosts) :
+  m_name(cont.name()), m_ip(cont.ip()),
+  m_id(cont.id()), m_port(cont.port()), m_rh_ip(QString()) {
+
+  bool found = false;
+  for (auto rh = lst_resource_hosts.begin(); !found && rh != lst_resource_hosts.end(); ++rh) {
+    for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
+      if (rh_cont->id() != m_id) continue;
+      m_rh_ip = rh->rh_ip();
+      found = true;
+      break;
+    }
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+CEnvironmentEx::CEnvironmentEx(const CEnvironment &env,
+                               const std::vector<CRHInfo>& lst_resource_hosts) :
+  m_name(env.name()), m_hash(env.hash()), m_aes_key(env.key()),
+  m_ttl(env.ttl()), m_id(env.id()), m_status(env.status()),
+  m_status_descr(env.status_description()) {
+
+  for (auto cont = env.containers().cbegin(); cont != env.containers().cend(); ++cont) {
+    m_lst_containers.push_back( CHubContainerEx(*cont, lst_resource_hosts));
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
