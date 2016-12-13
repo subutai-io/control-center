@@ -189,7 +189,7 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
                   " with administrator privileges'";
   int ec = 0;
   system_call_wrapper_error_t res =
-      ssystem_th2(cmd, args, lst_out, ec, true);
+      ssystem_th(cmd, args, lst_out, ec, true);
   *res_code = RSE_SUCCESS;
   return res;
 #endif
