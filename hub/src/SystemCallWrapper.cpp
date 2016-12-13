@@ -177,8 +177,8 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   args1 << "start" << "\"Subutai Social P2P\"";
   int ec = 0;
   system_call_wrapper_error_t res =
-      ssystem_th2(cmd, args0, lst_out0, ec, true);
-  res = ssystem_th2(cmd, args1, lst_out1, ec, true);
+      ssystem_th(cmd, args0, lst_out0, ec, true);
+  res = ssystem_th(cmd, args1, lst_out1, ec, true);
   *res_code = RSE_SUCCESS;
   return res;
 #else
