@@ -397,8 +397,8 @@ CSystemCallWrapper::generate_ssh_key(const QString &comment,
   QStringList lst_args;
   lst_args << "-t" << "rsa" <<
               "-f" << file_path <<
-              "-C" << comment;// <<
-//              "-N" << "\'\'";
+              "-C" << comment <<
+              "-N" << "''";
   QStringList lst_out;
   int ec;
   system_call_wrapper_error_t res =
