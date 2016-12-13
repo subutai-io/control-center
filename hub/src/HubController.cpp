@@ -53,7 +53,7 @@ CHubController::ssh_to_container_internal(const CSSEnvironment *env,
 
   if (rh_ip.empty()) {
     CApplicationLog::Instance()->LogError("Resourse host IP is empty. Conteiner ID : %s",
-                                          cont->id());
+                                          cont->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
     return;
   }

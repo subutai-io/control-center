@@ -333,7 +333,7 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   int ec = 0;
   system_call_wrapper_error_t res =
       ssystem_th2(cmd, args, lst_out, ec, true);
-  *res = RSE_SUCCESS;
+  *res_code = RSE_SUCCESS;
   return res;
 #endif
 }
@@ -370,11 +370,11 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
   QString cmd("osascript");
   QStringList args;
   args << "-e" <<
-          QString("\'Tell application \"Terminal\"\n"
+          QString("Tell application \"Terminal\"\n"
                   "  Activate\n"
                   "  do script \""
                   "%1\"\n"
-                  " end tell\'").arg(str_command);
+                  " end tell").arg(str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #elif RT_OS_LINUX
   QString cmd("xterm");
