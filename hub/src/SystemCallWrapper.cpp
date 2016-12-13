@@ -393,12 +393,13 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 system_call_wrapper_error_t
 CSystemCallWrapper::generate_ssh_key(const QString &comment,
                                      const QString &file_path) {
-  QString cmd("ssh-keygen");
+  QString cmd;
+  which("ssh-keygen", cmd);
   QStringList lst_args;
   lst_args << "-t" << "rsa" <<
               "-f" << file_path <<
               "-C" << comment <<
-              "-N" << "''";
+              "-N" << "";
   QStringList lst_out;
   int ec;
   system_call_wrapper_error_t res =
@@ -549,7 +550,7 @@ CSystemCallWrapper::p2p_status(std::string &status) {
 
 system_call_wrapper_error_t
 CSystemCallWrapper::which(const QString &prog,
-                          std::string &path) {
+                          QString &path) {
 
   static int success_ec = 0;
 #ifdef RT_OS_WINDOWS
@@ -566,13 +567,10 @@ CSystemCallWrapper::which(const QString &prog,
   if (res != SCWE_SUCCESS) return res;
 
   if (exit_code == success_ec && !lst_out.empty()) {
-    path = lst_out[0].toStdString();
+    path = lst_out[0];
+    path.replace("\n", "\0");
+    path.replace("\r", "\0");
     return SCWE_SUCCESS;
-//    size_t index ;
-//    if ((index = path.find('\n')) != std::string::npos)
-//      path.replace(index, 1, "\0");
-//    if ((index = path.find('\r')) != std::string::npos)
-//      path.replace(index, 1, "\0");
   }
 
   return SCWE_WHICH_CALL_FAILED;

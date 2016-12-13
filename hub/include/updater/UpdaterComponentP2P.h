@@ -13,7 +13,7 @@ namespace update_system {
     /*!
      * \brief Path of p2p executable file. Could be value in Settings or result of `which` (`where` on Windows) command
      */
-    static std::string p2p_path();
+    static QString p2p_path();
 
     // IUpdaterComponent interface
   protected:
