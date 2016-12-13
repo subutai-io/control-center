@@ -184,9 +184,9 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
 #else
   QString cmd("osascript");
   QStringList args, lst_out;
-  args << "-e" << "'do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
+  args << "-e" << "do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
                   " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-                  " with administrator privileges'";
+                  " with administrator privileges";
   int ec = 0;
   system_call_wrapper_error_t res =
       ssystem_th(cmd, args, lst_out, ec, true);
