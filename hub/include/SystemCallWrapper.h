@@ -39,43 +39,7 @@ enum restart_service_error_t {
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class helps us to use system calls (like system("ls -la")) in separate thread
- */
 class CSystemCallThreadWrapper : public QObject {
-  Q_OBJECT
-private:
-  system_call_wrapper_error_t m_result;
-  int m_exit_code;
-  std::string m_command;
-  std::vector<std::string> m_lst_output;
-  bool m_read_output;
-
-public:
-  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
-    m_command(""), m_read_output(true) {}
-  CSystemCallThreadWrapper(const char *command, bool arg_read_output, QObject *parent = 0) :
-    QObject(parent),
-    m_result(SCWE_SUCCESS),
-    m_exit_code(0),
-    m_command(command),
-    m_read_output(arg_read_output){}
-
-
-  system_call_wrapper_error_t result() const { return m_result;}
-  int exit_code() const {return m_exit_code;}
-  std::vector<std::string> lst_output() const {return m_lst_output;}
-  bool read_output() const {return m_read_output;}
-
-public slots:
-  void do_system_call();
-
-signals:
-  void finished();
-};
-////////////////////////////////////////////////////////////////////////////
-
-class CSystemCallThreadWrapper2 : public QObject {
   Q_OBJECT
 private:
   system_call_wrapper_error_t m_result;
@@ -86,9 +50,9 @@ private:
   bool m_read_output;
 
 public:
-  CSystemCallThreadWrapper2(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
+  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
     m_command(""), m_read_output(true) {}
-  CSystemCallThreadWrapper2(const QString& command, const QStringList &args, bool arg_read_output, QObject *parent = 0) :
+  CSystemCallThreadWrapper(const QString& command, const QStringList &args, bool arg_read_output, QObject *parent = 0) :
     QObject(parent),
     m_result(SCWE_SUCCESS),
     m_exit_code(0),
@@ -127,31 +91,14 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
-  /*!
-   * \brief Run system call in separate thread
-   * \param command to run
-   * \param lst_output result output of command
-   * \param exit_code process exit code
-   * \param read_output if true - read output.
-   * \param time_msec timeout
-   * \return system_call_wrapper_error_t
-   */
-  static system_call_wrapper_error_t ssystem_th(const char *command,
-                                                std::vector<std::string> &lst_output,
-                                                int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
-
-  static system_call_wrapper_error_t ssystem_th2(const QString &cmd,
+  static system_call_wrapper_error_t ssystem_th(const QString &cmd,
                                                  const QStringList &args,
                                                  QStringList &lst_out,
                                                  int &exit_code,
                                                  bool read_output,
                                                  unsigned long timeout_msec = ULONG_MAX);
 
-  static system_call_wrapper_error_t ssystem(const char *command,
-                                             std::vector<std::string> &lst_output,
-                                             int& exit_code, bool read_output = true);
-
-  static system_call_wrapper_error_t ssystem2(const QString& cmd,
+  static system_call_wrapper_error_t ssystem(const QString& cmd,
                                               const QStringList& args,
                                               QStringList &lst_output,
                                               int &exit_code,
