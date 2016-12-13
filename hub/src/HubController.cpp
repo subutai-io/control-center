@@ -341,9 +341,9 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     }
   }
 
-  err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user().toStdString().c_str(),
-                                                m_ip.c_str(),
-                                                m_cont_port.c_str(),
+  err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
+                                                QString(m_ip.c_str()),
+                                                QString(m_cont_port.c_str()), //todo change to QString!!!
                                                 key.empty() ? NULL : key.c_str());
 
   if (err != SCWE_SUCCESS) {

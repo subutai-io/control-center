@@ -62,7 +62,7 @@ std::string CUpdaterComponentP2P::p2p_path()
     p2p_path = CSettingsManager::Instance().p2p_path().toStdString();
   } else {
     system_call_wrapper_error_t cr;
-    if ((cr = CSystemCallWrapper::which(P2P.toStdString(), p2p_path)) != SCWE_SUCCESS) {
+    if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
       CNotificationObserver::Instance()->NotifyAboutError(QString("Can't find p2p in PATH. Err : %1").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)));
     }
