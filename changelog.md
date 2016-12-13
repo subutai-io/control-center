@@ -1,3 +1,27 @@
+## Version 4.0.11
+
+1. Removed all "system()" calls from code.
+2. Made all those calls UNICODE compatible.
+3. Removed unused parts of code.
+4. Changed environments and containers refreshing mechanism.
+5. Refactored many thins.
+
+## Version 4.0.10
+## Version 4.0.9
+
+1. Nothing changed. This new version made for all components compatibility.
+
+## Version 4.0.7
+
+1. Optimized dev/master updating system for p2p and tray.
+2. Refactoring
+
+## Version 4.0.6
+
+1. Bug fix with p2p updating.
+2. Code size optimization.
+3. Settings refactoring.
+
 ## Version 4.0.5
 
 1. Fixed bug in logging system that caused to segmentation fault on unix like systems (with POSIX threads). 
