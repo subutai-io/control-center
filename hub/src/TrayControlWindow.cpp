@@ -399,15 +399,9 @@ TrayControlWindow::launch_Hub() {
   args << "--new-window";
 #endif
   args << hub_url;
-  system_call_wrapper_error_t err = CSystemCallWrapper::fork_process(
-                                      browser,
-                                      args,
-                                      folder);
 
-  //system_call_wrapper_error_t err = CSystemCallWrapper::open_url(hub_url);
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Launch hub website failed. Error code : %1").
-                      arg(CSystemCallWrapper::scwe_error_to_str(err));
+  if (!QProcess::startDetached(browser, args, folder)) {
+    QString err_msg = QString("Launch hub website failed");
     CNotificationObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
@@ -660,13 +654,9 @@ void TrayControlWindow::launch_ss(QAction* act) const {
 #endif
 
   args << hub_url;
-  err = CSystemCallWrapper::fork_process(browser,
-                                         args,
-                                         folder);
 
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Run SS console failed. Error code : %1").
-                      arg(CSystemCallWrapper::scwe_error_to_str(err));
+  if (!QProcess::startDetached(browser, args, folder)) {
+    QString err_msg = QString("Run SS console failed. Can't start process");
     CNotificationObserver::NotifyAboutError(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     act->setEnabled(true);

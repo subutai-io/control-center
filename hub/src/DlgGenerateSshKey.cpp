@@ -46,8 +46,8 @@ DlgGenerateSshKey::generate_new_ssh() {
   }
 
   system_call_wrapper_error_t scwe =
-      CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user().toStdString().c_str(),
-                                           ssh_private_key_path().toStdString().c_str());
+      CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user(),
+                                           ssh_private_key_path());
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->NotifyAboutError(
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));

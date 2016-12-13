@@ -106,11 +106,9 @@ CCommons::NetworkErrorToString(int err_code) {
 ////////////////////////////////////////////////////////////////////////////
 
 void CCommons::RestartTray() {
-  QProcess* proc = new QProcess;
   QStringList args;
   args << RESTARTED_ARG;
-  proc->startDetached(QApplication::applicationFilePath(), args);
-  delete proc;
+  QProcess::startDetached(QApplication::applicationFilePath(), args);
   QApplication::exit(0);
 }
 ////////////////////////////////////////////////////////////////////////////
