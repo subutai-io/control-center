@@ -54,12 +54,13 @@ CUpdaterComponentP2P::~CUpdaterComponentP2P() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-std::string CUpdaterComponentP2P::p2p_path()
+QString
+CUpdaterComponentP2P::p2p_path()
 {
-  std::string p2p_path = P2P.toStdString();
+  QString p2p_path = P2P;
 
   if (CSettingsManager::Instance().p2p_path() != P2P) {
-    p2p_path = CSettingsManager::Instance().p2p_path().toStdString();
+    p2p_path = CSettingsManager::Instance().p2p_path();
   } else {
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
@@ -76,9 +77,9 @@ CUpdaterComponentP2P::update_available_internal() {
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_file_name());
   if (fi.empty()) return false;
-  std::string str_p2p_path = p2p_path();
-  if (str_p2p_path == P2P.toStdString()) return false;
-  QString md5_current = CCommons::FileMd5(QString::fromStdString(str_p2p_path));
+  QString str_p2p_path = p2p_path();
+  if (str_p2p_path == P2P) return false;
+  QString md5_current = CCommons::FileMd5(str_p2p_path);
   QString md5_kurjun = fi[0].md5_sum();
   return md5_current != md5_kurjun;
 }
@@ -86,21 +87,22 @@ CUpdaterComponentP2P::update_available_internal() {
 
 chue_t
 CUpdaterComponentP2P::update_internal() {
-  std::string str_p2p_path = p2p_path();
-  if (str_p2p_path.empty() ||
-      str_p2p_path == P2P.toStdString()) {
+  QString str_p2p_path = p2p_path();
+  if (str_p2p_path.isNull() ||
+      str_p2p_path.isEmpty() ||
+      str_p2p_path == P2P) {
     CApplicationLog::Instance()->LogError("Update p2p failed. Path = %s",
-                                          (str_p2p_path.empty() ? "empty" : str_p2p_path.c_str()));
+                                          (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
+                                             "empty" : str_p2p_path.toStdString().c_str()));
     return CHUE_FAILED;
   }
 
   //original file path
-  QString str_p2p_executable_path = QString::fromStdString(p2p_path());
+  QString str_p2p_executable_path = p2p_path();
 
   //this file will replace original file
   QString str_p2p_downloaded_path = QApplication::applicationDirPath() +
-                                  QDir::separator() +
-                                  QString(P2P);
+                                  QDir::separator() + P2P;
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       p2p_kurjun_file_name());

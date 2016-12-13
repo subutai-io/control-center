@@ -198,7 +198,7 @@ public:
   static system_call_wrapper_error_t p2p_status(std::string& status);
 
   static system_call_wrapper_error_t which(const QString &prog,
-                                           std::string& path);
+                                           QString &path);
 
   static system_call_wrapper_error_t chrome_version(std::string& version);
   static QString virtual_box_version();
