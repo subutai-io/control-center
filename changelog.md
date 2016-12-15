@@ -4,7 +4,7 @@
 2. Made all those calls UNICODE compatible.
 3. Removed unused parts of code.
 4. Changed environments and containers refreshing mechanism.
-5. Refactored many thins.
+5. Refactored many things.
 
 ## Version 4.0.10
 ## Version 4.0.9
