@@ -226,7 +226,8 @@ void CSettingsManager::init_password() {
     QByteArray ba = m_password.mid(8);
     int cnt = ba.length();
     char lc = 0;
-    uchar* key = QUuid(m_tray_guid).data4;
+    QUuid tmp_uuid = QUuid(m_tray_guid);
+    uchar* key = tmp_uuid.data4;
 
     for (int pos = 0; pos < cnt; ++pos) {
       char cc = ba.at(pos);
@@ -270,7 +271,8 @@ void CSettingsManager::set_password(const QString &password) {
   ba = rc + ip + ba;
 
   int lc = 0;
-  uchar* key = QUuid(m_tray_guid).data4;
+  QUuid tmp_uuid = QUuid(m_tray_guid);
+  uchar* key = tmp_uuid.data4;
   int cnt = ba.length();
   for (int pos = 0; pos < cnt; ++pos) {
     ba[pos] = ba.at(pos) ^ key[pos % 8] ^ lc;

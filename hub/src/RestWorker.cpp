@@ -82,30 +82,30 @@ CRestWorker::get_request_json_document(const QString &link,
 
 ////////////////////////////////////////////////////////////////////////////
 
-std::vector<CSSEnvironment>
+std::vector<CEnvironment>
 CRestWorker::get_environments(int& http_code,
                               int& err_code,
                               int& network_error) {
-  std::vector<CSSEnvironment> lst_res;
+  std::vector<CEnvironment> lst_res;
   QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);
   QJsonArray arr = doc.array();
   for (auto i = arr.begin(); i != arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;
-    lst_res.push_back(CSSEnvironment(i->toObject()));
+    lst_res.push_back(CEnvironment(i->toObject()));
   }
   return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-CSSBalance
+CHubBalance
 CRestWorker::get_balance(int& http_code,
                          int& err_code,
                          int& network_error) {
   QJsonDocument doc = get_request_json_document("balance", http_code, err_code, network_error);
-  if (err_code != 0) return CSSBalance();
-  if (!doc.isObject()) { err_code = RE_NOT_JSON_OBJECT; return CSSBalance(); }
+  if (err_code != 0) return CHubBalance();
+  if (!doc.isObject()) { err_code = RE_NOT_JSON_OBJECT; return CHubBalance(); }
   QJsonObject balance = doc.object();
-  return CSSBalance(balance["currentBalance"].toString());
+  return CHubBalance(balance["currentBalance"].toString());
 }
 ////////////////////////////////////////////////////////////////////////////
 
