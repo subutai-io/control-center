@@ -28,7 +28,8 @@ enum system_call_wrapper_error_t {
 
   /*other errors*/
   SCWE_TIMEOUT,
-  SCWE_WHICH_CALL_FAILED
+  SCWE_WHICH_CALL_FAILED,
+  SCWE_PROCESS_CRASHED
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -38,32 +39,31 @@ enum restart_service_error_t {
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class helps us to use system calls (like system("ls -la")) in separate thread
- */
 class CSystemCallThreadWrapper : public QObject {
   Q_OBJECT
 private:
   system_call_wrapper_error_t m_result;
   int m_exit_code;
-  std::string m_command;
-  std::vector<std::string> m_lst_output;
+  QString m_command;
+  QStringList m_args;
+  QStringList m_lst_output;
   bool m_read_output;
 
 public:
   CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
     m_command(""), m_read_output(true) {}
-  CSystemCallThreadWrapper(const char *command, bool arg_read_output, QObject *parent = 0) :
+  CSystemCallThreadWrapper(const QString& command, const QStringList &args, bool arg_read_output, QObject *parent = 0) :
     QObject(parent),
     m_result(SCWE_SUCCESS),
     m_exit_code(0),
     m_command(command),
+    m_args(args),
     m_read_output(arg_read_output){}
 
 
   system_call_wrapper_error_t result() const { return m_result;}
   int exit_code() const {return m_exit_code;}
-  std::vector<std::string> lst_output() const {return m_lst_output;}
+  const QStringList& lst_output() const {return m_lst_output;}
   bool read_output() const {return m_read_output;}
 
 public slots:
@@ -91,22 +91,18 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
-  /*!
-   * \brief Run system call in separate thread
-   * \param command to run
-   * \param lst_output result output of command
-   * \param exit_code process exit code
-   * \param read_output if true - read output.
-   * \param time_msec timeout
-   * \return system_call_wrapper_error_t
-   */
-  static system_call_wrapper_error_t ssystem_th(const char *command,
-                                                std::vector<std::string> &lst_output,
-                                                int &exit_code, bool read_output, unsigned long time_msec = ULONG_MAX);
+  static system_call_wrapper_error_t ssystem_th(const QString &cmd,
+                                                 const QStringList &args,
+                                                 QStringList &lst_out,
+                                                 int &exit_code,
+                                                 bool read_output,
+                                                 unsigned long timeout_msec = ULONG_MAX);
 
-  static system_call_wrapper_error_t ssystem(const char *command,
-                                             std::vector<std::string> &lst_output,
-                                             int& exit_code, bool read_output = true);
+  static system_call_wrapper_error_t ssystem(const QString& cmd,
+                                              const QStringList& args,
+                                              QStringList &lst_output,
+                                              int &exit_code,
+                                              bool read_output);
 
   static bool is_in_swarm(const char* hash);
 
@@ -120,13 +116,13 @@ public:
   static system_call_wrapper_error_t check_container_state(const char* hash,
                                                            const char* ip);
 
-  static system_call_wrapper_error_t run_ssh_in_terminal(const char *user,
-                                                         const char *ip,
-                                                         const char *port,
-                                                         const char *key);
+  static system_call_wrapper_error_t run_ssh_in_terminal(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port,
+                                                         const QString &key);
 
-  static system_call_wrapper_error_t generate_ssh_key(const char *comment,
-                                                      const char *file_path);
+  static system_call_wrapper_error_t generate_ssh_key(const QString &comment,
+                                                      const QString &file_path);
 
   static system_call_wrapper_error_t is_rh_update_available(bool& available);
 
@@ -143,18 +139,13 @@ public:
                                                            int &exit_code,
                                                            std::string& ip);
 
-  static system_call_wrapper_error_t fork_process(const QString program,
-                                                  const QStringList argv,
-                                                  const QString& folder);
-  static system_call_wrapper_error_t open_url(QString s_url);
-
   static QString rh_version();
 
   static system_call_wrapper_error_t p2p_version(std::string& version);
   static system_call_wrapper_error_t p2p_status(std::string& status);
 
-  static system_call_wrapper_error_t which(const std::string& prog,
-                                           std::string& path);
+  static system_call_wrapper_error_t which(const QString &prog,
+                                           QString &path);
 
   static system_call_wrapper_error_t chrome_version(std::string& version);
   static QString virtual_box_version();

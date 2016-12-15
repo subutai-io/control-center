@@ -49,16 +49,16 @@ rtm::sysinfo_t os_get_sysinfo() {
 }
 #endif
 
-std::vector<std::string>
-rtm::CRtmController::get_output_by_syscall(const char *cmd,
-                                           bool *success) {
-  std::vector<std::string> lst_out;
-  int ec = -1;
-  system_call_wrapper_error_t scwe =
-      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
-  *success = scwe == SCWE_SUCCESS;
-  return lst_out;
-}
+//std::vector<std::string>
+//rtm::CRtmController::get_output_by_syscall(const char *cmd,
+//                                           bool *success) {
+//  std::vector<std::string> lst_out;
+//  int ec = -1;
+//  system_call_wrapper_error_t scwe =
+//      CSystemCallWrapper::ssystem_th(cmd, lst_out, ec, true);
+//  *success = scwe == SCWE_SUCCESS;
+//  return lst_out;
+//}
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string>
@@ -79,7 +79,7 @@ rtm::CRtmController::get_output_by_libssh2(const char *cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 rtm::CRtmController::CRtmController() {
-  m_rpp_syscall = new CRtmProcParser(CRtmController::get_output_by_syscall);
+//  m_rpp_syscall = new CRtmProcParser(CRtmController::get_output_by_syscall);
   m_rpp_libssh2 = new CRtmProcParser(CRtmController::get_output_by_libssh2);
 }
 

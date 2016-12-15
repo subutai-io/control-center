@@ -97,6 +97,7 @@ CVirtualMachineLinux::turn_off(IProgress **progress) {
 
 nsresult
 CVirtualMachineLinux::remove(IProgress **progress) {
+  UNUSED_ARG(progress);
   nsresult rc;
   IMedium **aMedia;
   PRUint32 cMedia;
