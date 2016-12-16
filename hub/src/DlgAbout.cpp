@@ -10,9 +10,8 @@
 using namespace update_system;
 
 QString get_p2p_version() {
-  std::string str_version = "";
-  CSystemCallWrapper::p2p_version(str_version);
-  QString p2p_version = QString::fromStdString(str_version);
+  QString p2p_version = "";
+  CSystemCallWrapper::p2p_version(p2p_version);
   return p2p_version;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -28,6 +27,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
   connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
+  connect(ui->btn_rhm_update, SIGNAL(released()), this, SLOT(btn_rhm_update_released()));
 
   connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(const QString&,qint64,qint64)),
           this, SLOT(download_progress(const QString&,qint64,qint64)));
@@ -39,6 +39,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   static bool p2p_in_progress = false;
   static bool tray_in_progress = false;
   static bool rh_in_progress = false;
+  static bool rhm_in_progress = false;
 
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p, ui->btn_p2p_update,
                                        &p2p_in_progress, get_p2p_version};
@@ -46,6 +47,8 @@ DlgAbout::DlgAbout(QWidget *parent) :
                                         &tray_in_progress, NULL};
   m_dct_fpb[IUpdaterComponent::RH] = {ui->lbl_rh_version_val, ui->pb_rh, ui->btn_rh_update,
                                       &rh_in_progress, CSystemCallWrapper::rh_version};
+  m_dct_fpb[IUpdaterComponent::RHMANAGEMENT] = {ui->lbl_rhm_version_val, ui->pb_rhm, ui->btn_rhm_update,
+                                                &rhm_in_progress, CSystemCallWrapper::rhm_version};
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
@@ -58,6 +61,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(di, SIGNAL(got_chrome_version(QString)), this, SLOT(got_chrome_version_sl(QString)));
   connect(di, SIGNAL(got_p2p_version(QString)), this, SLOT(got_p2p_version_sl(QString)));
   connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
+  connect(di, SIGNAL(got_rh_management_version(QString)), this, SLOT(got_rh_management_version_sl(QString)));
   connect(di, SIGNAL(got_vbox_version(QString)), this, SLOT(got_vbox_version_sl(QString)));
 
   connect(di, SIGNAL(update_available(const QString&,bool)),
@@ -98,8 +102,21 @@ void
 DlgAbout::btn_rh_update_released() {
   ui->btn_rh_update->setEnabled(false);
   ui->pb_rh->setEnabled(false);
+  ui->pb_rh->setRange(0, 0);
   *m_dct_fpb[IUpdaterComponent::RH].in_progress = true;
-  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update, IUpdaterComponent::RH);
+  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
+                    IUpdaterComponent::RH);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgAbout::btn_rhm_update_released() {
+  ui->btn_rhm_update->setEnabled(false);
+  ui->pb_rhm->setEnabled(false);
+  ui->pb_rhm->setRange(0,0);
+  *m_dct_fpb[IUpdaterComponent::RHMANAGEMENT].in_progress = true;
+  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
+                    IUpdaterComponent::RHMANAGEMENT);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +145,7 @@ DlgAbout::update_finished(const QString& file_id,
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);
   m_dct_fpb[file_id].pb->setValue(0);
+  m_dct_fpb[file_id].pb->setRange(0, 100);
   *m_dct_fpb[file_id].in_progress = false;
   if (m_dct_fpb[file_id].pf_version) {
     m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
@@ -175,6 +193,12 @@ DlgAbout::got_rh_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+DlgAbout::got_rh_management_version_sl(QString version) {
+  ui->lbl_rhm_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 DlgAbout::update_available_sl(const QString& component_id,
                               bool available) {
   auto item = m_dct_fpb.find(component_id);
@@ -208,9 +232,13 @@ DlgAboutInitializer::do_initialization() {
   emit got_rh_version(rh_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+  QString rhm_version = CSystemCallWrapper::rhm_version();
+  emit got_rh_management_version(rhm_version);
+  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
   QString uas[] = {
     IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
-    IUpdaterComponent::RH, ""};
+    IUpdaterComponent::RH, IUpdaterComponent::RHMANAGEMENT, ""};
 
   for (int i = 0; uas[i] != ""; ++i) {
     bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);

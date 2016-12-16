@@ -23,19 +23,26 @@ private:
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
+
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
   static const QString SM_RH_HOST;
   static const QString SM_RH_PORT;
+
   static const QString SM_LOGS_STORAGE;
   static const QString SM_SSH_KEYS_STORAGE;
+
   static const QString SM_TRAY_GUID;
+
   static const QString SM_P2P_UPDATE_FREQ;
   static const QString SM_RH_UPDATE_FREQ;
   static const QString SM_TRAY_UPDATE_FREQ;
+  static const QString SM_RHMANAGEMENT_FREQ;
   static const QString SM_P2P_AUTOUPDATE;
   static const QString SM_RH_AUTOUPDATE;
   static const QString SM_TRAY_AUTOUPDATE;
+  static const QString SM_RHMANAGEMENT_AUTOUPDATE;
+
   static const QString SM_RTM_DB_DIR;
 
   CSettingsManager();
@@ -69,9 +76,11 @@ private:
   uint32_t m_p2p_update_freq;
   uint32_t m_rh_update_freq;
   uint32_t m_tray_update_freq;
+  uint32_t m_rh_management_update_freq;
   bool m_p2p_autoupdate;
   bool m_rh_autoupdate;
   bool m_tray_autoupdate;
+  bool m_rh_management_autoupdate;
 
   QString m_rtm_db_dir;
 
@@ -122,9 +131,13 @@ public:
   update_freq_t p2p_update_freq() const { return (update_freq_t)m_p2p_update_freq; }
   update_freq_t rh_update_freq() const { return (update_freq_t)m_rh_update_freq; }
   update_freq_t tray_update_freq() const { return (update_freq_t)m_tray_update_freq; }
+  update_freq_t rh_management_update_freq() const {
+    return (update_freq_t)m_rh_management_update_freq;
+  }
   bool p2p_autoupdate() const { return m_p2p_autoupdate; }
   bool rh_autoupdate() const { return m_rh_autoupdate; }
   bool tray_autoupdate() const { return m_tray_autoupdate; }
+  bool rh_management_autoupdate() const { return m_rh_management_autoupdate;}
 
   const QString& rtm_db_dir() const {return m_rtm_db_dir;}
   bool is_writable() const {return m_settings.isWritable();}
@@ -140,6 +153,7 @@ public:
   void set_p2p_update_freq(int fr);
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
+  void set_rh_management_freq(int fr);
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
@@ -159,6 +173,7 @@ public:
   SET_FIELD_DECL(p2p_autoupdate, bool)
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
+  SET_FIELD_DECL(rh_management_autoupdate, bool)
   SET_FIELD_DECL(rtm_db_dir, QString&)
 #undef SET_FIELD_DECL
 };

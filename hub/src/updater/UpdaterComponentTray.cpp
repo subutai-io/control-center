@@ -47,7 +47,7 @@ const char* CUpdaterComponentTray::tray_kurjun_file_name() {
 ////////////////////////////////////////////////////////////////////////////
 
 CUpdaterComponentTray::CUpdaterComponentTray() {
-  m_component_id = QString(TRAY);
+  m_component_id = TRAY;
 }
 
 CUpdaterComponentTray::~CUpdaterComponentTray() {
@@ -108,7 +108,12 @@ CUpdaterComponentTray::update_internal() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CUpdaterComponentTray::update_post_action() {
+CUpdaterComponentTray::update_post_action(bool success) {
+  if (!success) {
+    CNotificationObserver::NotifyAboutError("Tray application has not been updated");
+    return;
+  }
+
   QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, "Attention! Tray update finished",
                       "Tray application has been updated. Do you want to restart it now?",
                       QMessageBox::Yes | QMessageBox::No);

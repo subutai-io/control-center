@@ -46,7 +46,7 @@ static const char* p2p_kurjun_file_name() {
 ////////////////////////////////////////////////////////////////////////////
 
 CUpdaterComponentP2P::CUpdaterComponentP2P() {
-  m_component_id = QString(P2P);
+  m_component_id = P2P;
 }
 
 CUpdaterComponentP2P::~CUpdaterComponentP2P() {
@@ -134,7 +134,12 @@ CUpdaterComponentP2P::update_internal() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CUpdaterComponentP2P::update_post_action() {
+CUpdaterComponentP2P::update_post_action(bool success) {
+  if (!success) {
+    CNotificationObserver::Instance()->NotifyAboutError("P2P has not been updated");
+    return;
+  }
+
   CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
   int rse_err = 0;
 

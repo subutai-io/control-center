@@ -51,7 +51,8 @@ SOURCES += \
     libssh2/src/LibsshController.cpp \
     rtm/src/RtmProcParser.cpp \
     rtm/src/RtmController.cpp \
-    rtm/src/RtmDbController.cpp
+    rtm/src/RtmDbController.cpp \
+    hub/src/updater/UpdaterComponentRHManagement.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -95,7 +96,8 @@ HEADERS  += \
     libssh2/include/LibsshController.h \
     rtm/include/RtmProcParser.h \
     rtm/include/RtmController.h \
-    rtm/include/RtmDbController.h
+    rtm/include/RtmDbController.h \
+    hub/include/updater/UpdaterComponentRHManagement.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

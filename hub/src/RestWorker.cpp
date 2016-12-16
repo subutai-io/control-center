@@ -180,14 +180,14 @@ CRestWorker::is_ss_console_ready(const QString &url,
 
 void
 CRestWorker::send_health_request(int &http_code,
-                                int &err_code,
-                                int &network_err,
-                                 const std::string& p2p_version,
-                                 const std::string& p2p_status) {
+                                 int &err_code,
+                                 int &network_err,
+                                 const QString& p2p_version,
+                                 const QString& p2p_status) {
 
   CHealthReportData report_data(
-        QString(p2p_status.c_str()),
-        QString(p2p_version.c_str()),
+        p2p_status,
+        p2p_version,
         QSysInfo::kernelType() + " " + QSysInfo::kernelVersion());
 
   CTrayReport<CHealthReportData> report(report_data);
@@ -305,7 +305,7 @@ CRestWorker::send_request(QNetworkRequest &req,
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",
-                              reply->errorString().toStdString().c_str());
+                                          reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
       CNotificationObserver::NotifyAboutError(reply->errorString());
     err_code = RE_NETWORK_ERROR;

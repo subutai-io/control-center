@@ -8,3 +8,4 @@ const QString IUpdaterComponent::P2P = "p2p.exe";
 #endif
 const QString IUpdaterComponent::TRAY = "tray";
 const QString IUpdaterComponent::RH = "resource_host";
+const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
