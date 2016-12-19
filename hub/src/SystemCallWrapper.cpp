@@ -220,9 +220,8 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 
   if (key != NULL) {
     CNotificationObserver::Instance()->NotifyAboutInfo(QString("Using %1 ssh key").arg(key));
-    str_command += QString(" -i '%1' ").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
   }
-  qDebug() << str_command;
 
 #ifdef RT_OS_DARWIN
   QString cmd("osascript");
@@ -233,18 +232,16 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                   "  do script \""
                   "%1\"\n"
                   " end tell").arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #elif RT_OS_LINUX
   QString cmd("xterm");
   QStringList args;
   args << "-e" << QString("%1;bash").arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #elif RT_OS_WINDOWS
   QString cmd("cmd");
   QStringList args;
   args << "/k" << str_command;
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #endif
+  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
 ////////////////////////////////////////////////////////////////////////////
 
