@@ -29,7 +29,7 @@ namespace update_system {
     /*!
      * \brief See IUpdaterComponent
      */
-    virtual void update_post_action();
+    virtual void update_post_action(bool success);
 
   public:
     CUpdaterComponentTray();

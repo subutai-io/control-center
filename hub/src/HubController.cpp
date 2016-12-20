@@ -18,9 +18,9 @@ CHubController::CHubController() :
 }
 
 CHubController::~CHubController() {
-  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
-    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
-  }
+//  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
+//    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
+//  }
 }
 
 void

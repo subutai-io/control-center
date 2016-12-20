@@ -19,7 +19,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 private:
 public:
-  static const int COMPONENTS_COUNT = 7;
+  static const int COMPONENTS_COUNT = 9;
 public slots:
   void do_initialization();
   void abort();
@@ -30,6 +30,7 @@ signals:
   void got_chrome_version(QString version);
   void got_vbox_version(QString version);
   void got_rh_version(QString version);
+  void got_rh_management_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -64,6 +65,7 @@ private slots:
   void btn_tray_update_released();
   void btn_p2p_update_released();
   void btn_rh_update_released();
+  void btn_rhm_update_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
@@ -75,6 +77,7 @@ private slots:
   void got_chrome_version_sl(QString version);
   void got_vbox_version_sl(QString version);
   void got_rh_version_sl(QString version);
+  void got_rh_management_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 

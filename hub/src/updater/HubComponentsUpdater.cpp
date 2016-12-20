@@ -11,45 +11,36 @@
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentRH.h"
+#include "updater/UpdaterComponentRHManagement.h"
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
+  uc_rhm  = new CUpdaterComponentRHM;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
   m_dct_components[IUpdaterComponent::RH]   = CUpdaterComponentItem(uc_rh);
+  m_dct_components[IUpdaterComponent::RHMANAGEMENT] = CUpdaterComponentItem(uc_rhm);
 
-  connect(&m_dct_components[IUpdaterComponent::TRAY], SIGNAL(timer_timeout(const QString&)),
-      this, SLOT(update_component_timer_timeout(const QString&)));
-  connect(&m_dct_components[IUpdaterComponent::P2P], SIGNAL(timer_timeout(const QString&)),
-      this, SLOT(update_component_timer_timeout(const QString&)));
-  connect(&m_dct_components[IUpdaterComponent::RH], SIGNAL(timer_timeout(const QString&)),
-      this, SLOT(update_component_timer_timeout(const QString&)));
-
-  ///
-  connect(uc_tray, SIGNAL(update_progress(const QString&,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
-  connect(uc_p2p, SIGNAL(update_progress(const QString&,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
-  connect(uc_rh, SIGNAL(update_progress(const QString&,qint64,qint64)),
-          this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
-
-  connect(uc_tray, SIGNAL(update_finished(const QString&,bool)),
-          this, SLOT(update_component_finished_sl(const QString&,bool)));
-  connect(uc_p2p, SIGNAL(update_finished(const QString&,bool)),
-          this, SLOT(update_component_finished_sl(const QString&,bool)));
-  connect(uc_rh, SIGNAL(update_finished(const QString&,bool)),
-          this, SLOT(update_component_finished_sl(const QString&,bool)));
-
+  for(int i = 0; ucs[i] ;++i) {
+    connect(&m_dct_components[ucs[i]->component_id()], SIGNAL(timer_timeout(const QString&)),
+        this, SLOT(update_component_timer_timeout(const QString&)));
+    connect(ucs[i], SIGNAL(update_progress(const QString&,qint64,qint64)),
+        this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
+    connect(ucs[i], SIGNAL(update_finished(const QString&,bool)),
+        this, SLOT(update_component_finished_sl(const QString&,bool)));
+  }
   ///
   set_p2p_update_freq();
   set_rh_update_freq();
   set_tray_update_freq();
+  set_rh_management_update_freq();
 }
 
 CHubComponentsUpdater::~CHubComponentsUpdater() {
@@ -132,20 +123,37 @@ CHubComponentsUpdater::set_tray_update_freq() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CHubComponentsUpdater::set_rh_management_update_freq() {
+  set_update_freq(IUpdaterComponent::RHMANAGEMENT,
+                  CSettingsManager::Instance().rh_management_update_freq());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CHubComponentsUpdater::set_p2p_autoupdate() {
-  set_component_autoupdate(IUpdaterComponent::P2P, CSettingsManager::Instance().p2p_autoupdate());
+  set_component_autoupdate(IUpdaterComponent::P2P,
+                           CSettingsManager::Instance().p2p_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CHubComponentsUpdater::set_rh_autoupdate() {
-  set_component_autoupdate(IUpdaterComponent::RH, CSettingsManager::Instance().rh_autoupdate());
+  set_component_autoupdate(IUpdaterComponent::RH,
+                           CSettingsManager::Instance().rh_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CHubComponentsUpdater::set_tray_autoupdate() {
-  set_component_autoupdate(IUpdaterComponent::TRAY, CSettingsManager::Instance().tray_autoupdate());
+  set_component_autoupdate(IUpdaterComponent::TRAY,
+                           CSettingsManager::Instance().tray_autoupdate());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubComponentsUpdater::set_rh_management_autoupdate() {
+  set_component_autoupdate(IUpdaterComponent::RHMANAGEMENT,
+                           CSettingsManager::Instance().rh_management_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
 
