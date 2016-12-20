@@ -28,6 +28,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
   connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
   connect(ui->btn_rhm_update, SIGNAL(released()), this, SLOT(btn_rhm_update_released()));
+  connect(ui->btn_recheck, SIGNAL(released()), this, SLOT(btn_recheck_released()));
 
   connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(const QString&,qint64,qint64)),
           this, SLOT(download_progress(const QString&,qint64,qint64)));
@@ -51,7 +52,16 @@ DlgAbout::DlgAbout(QWidget *parent) :
                                                 &rhm_in_progress, CSystemCallWrapper::rhm_version};
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
+  check_for_versions_and_updates();
+}
 
+DlgAbout::~DlgAbout() {
+  delete ui;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::check_for_versions_and_updates() {
+  ui->btn_recheck->setEnabled(false);
   QThread* th = new QThread;
   DlgAboutInitializer* di = new DlgAboutInitializer;
   connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
@@ -75,10 +85,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   di->moveToThread(th);
   th->start();
-}
-
-DlgAbout::~DlgAbout() {
-  delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -120,6 +126,11 @@ DlgAbout::btn_rhm_update_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::btn_recheck_released() {
+  check_for_versions_and_updates();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 DlgAbout::download_progress(const QString& file_id,
                             qint64 rec,
@@ -157,6 +168,7 @@ void
 DlgAbout::initialization_finished() {
   ui->lbl_about_init->setEnabled(false);
   ui->pb_initialization_progress->setEnabled(false);
+  ui->btn_recheck->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
