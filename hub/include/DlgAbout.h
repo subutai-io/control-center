@@ -61,11 +61,14 @@ private:
   };
   std::map<QString, progress_item_t> m_dct_fpb;
 
+  void check_for_versions_and_updates();
+
 private slots:
   void btn_tray_update_released();
   void btn_p2p_update_released();
   void btn_rh_update_released();
   void btn_rhm_update_released();
+  void btn_recheck_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);

@@ -40,14 +40,17 @@ DlgSettings::DlgSettings(QWidget *parent) :
   fill_freq_combobox(ui->cb_p2p_frequency);
   fill_freq_combobox(ui->cb_rh_frequency);
   fill_freq_combobox(ui->cb_tray_frequency);
+  fill_freq_combobox(ui->cb_rhm_frequency);
 
   ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
   ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
   ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
+  ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
 
   ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
   ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
   ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
+  ui->chk_rhm_autoupdate->setCheckable(CSettingsManager::Instance().rh_management_autoupdate());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -175,10 +178,14 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_p2p_autoupdate(ui->chk_p2p_autoupdate->checkState()==Qt::Checked);
   CSettingsManager::Instance().set_rh_autoupdate(ui->chk_rh_autoupdate->checkState()==Qt::Checked);
   CSettingsManager::Instance().set_tray_autoupdate(ui->chk_tray_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_rh_management_autoupdate(
+        ui->chk_rhm_autoupdate->checkState()==Qt::Checked);
 
   CSettingsManager::Instance().set_p2p_update_freq(ui->cb_p2p_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_update_freq(ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
+  CSettingsManager::Instance().set_rh_management_freq(
+        ui->cb_rhm_frequency->currentIndex());
 
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().save_all();

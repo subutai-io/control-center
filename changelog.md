@@ -1,3 +1,9 @@
+## Version 4.0.12
+
+1. Added recheck button to about dialog.
+2. Added RH management updater and updating mechanism.
+3. Fixed minor bugs and typos. 
+
 ## Version 4.0.11
 
 1. Removed all "system()" calls from code.
