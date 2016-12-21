@@ -354,7 +354,7 @@ void
 TrayControlWindow::report_timer_timeout() {
   m_report_timer.stop();
   int http_code, err_code, network_err;
-  std::string p2p_version, p2p_status;
+  QString p2p_version, p2p_status;
   CSystemCallWrapper::p2p_version(p2p_version);
   CSystemCallWrapper::p2p_status(p2p_status);
   CRestWorker::Instance()->send_health_request(http_code, err_code, network_err, p2p_version, p2p_status);

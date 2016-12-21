@@ -36,9 +36,11 @@ const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 const QString CSettingsManager::SM_P2P_UPDATE_FREQ("P2p_update_freq");
 const QString CSettingsManager::SM_RH_UPDATE_FREQ("Rh_update_freq");
 const QString CSettingsManager::SM_TRAY_UPDATE_FREQ("Tray_update_freq");
+const QString CSettingsManager::SM_RHMANAGEMENT_FREQ("Rh_management_update_freq");
 const QString CSettingsManager::SM_P2P_AUTOUPDATE("P2p_Autoupdate");
 const QString CSettingsManager::SM_RH_AUTOUPDATE("Rh_Autoupdate");
 const QString CSettingsManager::SM_TRAY_AUTOUPDATE("Tray_Autoupdate");
+const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoupdate");
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
@@ -97,9 +99,11 @@ CSettingsManager::CSettingsManager() :
   m_p2p_update_freq(UF_MIN30),
   m_rh_update_freq(UF_MIN30),
   m_tray_update_freq(UF_MIN30),
+  m_rh_management_update_freq(UF_MIN30),
   m_p2p_autoupdate(false),
   m_rh_autoupdate(false),
-  m_tray_autoupdate(false)
+  m_tray_autoupdate(false),
+  m_rh_management_autoupdate(false)
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -317,6 +321,12 @@ CSettingsManager::set_tray_update_freq(int fr) {
   m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
   update_system::CHubComponentsUpdater::Instance()->set_tray_update_freq();
 }
+
+void CSettingsManager::set_rh_management_freq(int fr) {
+  m_rh_management_update_freq = (update_freq_t) fr%UF_LAST;
+  m_settings.setValue(SM_RHMANAGEMENT_FREQ, (int8_t)m_rh_management_update_freq);
+  update_system::CHubComponentsUpdater::Instance()->set_rh_management_update_freq();
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -340,6 +350,13 @@ CSettingsManager::set_tray_autoupdate(const bool tray_autoupdate) {
   update_system::CHubComponentsUpdater::Instance()->set_tray_autoupdate();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::set_rh_management_autoupdate(const bool rh_management_autoupdate) {
+  m_rh_management_autoupdate = rh_management_autoupdate;
+  m_settings.setValue(SM_RHMANAGEMENT_AUTOUPDATE, m_rh_management_autoupdate);
+  update_system::CHubComponentsUpdater::Instance()->set_rh_management_autoupdate();
+}
 
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
 SET_FIELD_DEF(login, SM_LOGIN, QString&)

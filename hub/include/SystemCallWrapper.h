@@ -125,12 +125,19 @@ public:
                                                       const QString &file_path);
 
   static system_call_wrapper_error_t is_rh_update_available(bool& available);
+  static system_call_wrapper_error_t is_rh_management_update_available(bool& available);
 
-  static system_call_wrapper_error_t run_ss_updater(const char* host,
+  static system_call_wrapper_error_t run_rh_updater(const char* host,
                                                     uint16_t port,
                                                     const char* user,
                                                     const char* pass,
                                                     int &exit_code);
+
+  static system_call_wrapper_error_t run_rh_management_updater(const char* host,
+                                                               uint16_t port,
+                                                               const char* user,
+                                                               const char* pass,
+                                                               int &exit_code);
 
   static system_call_wrapper_error_t get_rh_ip_via_libssh2(const char* host,
                                                            uint16_t port,
@@ -140,9 +147,10 @@ public:
                                                            std::string& ip);
 
   static QString rh_version();
+  static QString rhm_version();
 
-  static system_call_wrapper_error_t p2p_version(std::string& version);
-  static system_call_wrapper_error_t p2p_status(std::string& status);
+  static system_call_wrapper_error_t p2p_version(QString &version);
+  static system_call_wrapper_error_t p2p_status(QString &status);
 
   static system_call_wrapper_error_t which(const QString &prog,
                                            QString &path);

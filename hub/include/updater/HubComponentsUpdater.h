@@ -101,6 +101,8 @@ namespace update_system {
      */
     void set_tray_update_freq();
 
+    void set_rh_management_update_freq();
+
     /*!
      * \brief Set p2p autoupdate using SettingsManager
      */
@@ -116,6 +118,7 @@ namespace update_system {
      */
     void set_tray_autoupdate();
 
+    void set_rh_management_autoupdate();
     /*!
      * \brief Is update available for component with component_id identificator
      */

@@ -31,11 +31,11 @@ static QString error_strings[] = {
 
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem_th(const QString &cmd,
-                                const QStringList &args,
-                                QStringList &lst_out,
-                                int &exit_code,
-                                bool read_output,
-                                unsigned long timeout_msec) {
+                               const QStringList &args,
+                               QStringList &lst_out,
+                               int &exit_code,
+                               bool read_output,
+                               unsigned long timeout_msec) {
   CSystemCallThreadWrapper sctw(cmd, args, read_output);
   QThread* th = new QThread;
   QObject::connect(&sctw, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
@@ -57,10 +57,10 @@ CSystemCallWrapper::ssystem_th(const QString &cmd,
 
 system_call_wrapper_error_t
 CSystemCallWrapper::ssystem(const QString &cmd,
-                             const QStringList &args,
-                             QStringList &lst_output,
-                             int &exit_code,
-                             bool read_output) {
+                            const QStringList &args,
+                            QStringList &lst_output,
+                            int &exit_code,
+                            bool read_output) {
   QProcess proc;
   proc.start(cmd, args);
 
@@ -220,9 +220,8 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 
   if (key != NULL) {
     CNotificationObserver::Instance()->NotifyAboutInfo(QString("Using %1 ssh key").arg(key));
-    str_command += QString(" -i '%1' ").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
   }
-  qDebug() << str_command;
 
 #ifdef RT_OS_DARWIN
   QString cmd("osascript");
@@ -233,18 +232,16 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                   "  do script \""
                   "%1\"\n"
                   " end tell").arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #elif RT_OS_LINUX
   QString cmd("xterm");
   QStringList args;
   args << "-e" << QString("%1;bash").arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #elif RT_OS_WINDOWS
   QString cmd("cmd");
   QStringList args;
   args << "/k" << str_command;
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 #endif
+  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -282,8 +279,8 @@ CSystemCallWrapper::run_libssh2_command(const char *host,
                                         std::vector<std::string>& lst_output) {
   static const int default_timeout = 10;
   exit_code = CLibsshController::run_ssh_command_pass_auth(host, port, user,
-                                                 pass, cmd, default_timeout,
-                                                 lst_output);
+                                                           pass, cmd, default_timeout,
+                                                           lst_output);
 
   return SCWE_SUCCESS;
 }
@@ -308,7 +305,27 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::run_ss_updater(const char *host,
+CSystemCallWrapper::is_rh_management_update_available(bool &available) {
+  available = false;
+  int exit_code = 0;
+  std::vector<std::string> lst_out;
+
+  system_call_wrapper_error_t res =
+      run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port(),
+                          CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                          "sudo subutai update management -c",
+                          exit_code,
+                          lst_out);
+  if (res != SCWE_SUCCESS) return res;
+  available = exit_code == 0;
+  return SCWE_SUCCESS; //doesn't matter I guess.
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t
+CSystemCallWrapper::run_rh_updater(const char *host,
                                    uint16_t port,
                                    const char *user,
                                    const char *pass,
@@ -316,6 +333,18 @@ CSystemCallWrapper::run_ss_updater(const char *host,
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
       run_libssh2_command(host, port, user, pass, "sudo subutai update rh", exit_code, lst_out);
+  return res;
+}
+
+system_call_wrapper_error_t
+CSystemCallWrapper::run_rh_management_updater(const char *host,
+                                              uint16_t port,
+                                              const char *user,
+                                              const char *pass,
+                                              int &exit_code) {
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res =
+      run_libssh2_command(host, port, user, pass, "sudo subutai update management", exit_code, lst_out);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -368,8 +397,36 @@ CSystemCallWrapper::rh_version() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QString
+CSystemCallWrapper::rhm_version() {
+  int exit_code;
+  std::string version = "undefined";
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res =
+      run_libssh2_command(CSettingsManager::Instance().rh_host().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_port(),
+                          CSettingsManager::Instance().rh_user().toStdString().c_str(),
+                          CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+                          "cat /mnt/lib/lxc/management/opt/subutai-mng/etc/git.properties",
+                          exit_code,
+                          lst_out);
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
+    for (auto str = lst_out.begin(); str != lst_out.end(); ++str) {
+      if (str->find("git.build.version") == std::string::npos) continue;
+      version = str->substr(str->find("=")+1);
+    }
+  }
+
+  size_t index ;
+  if ((index = version.find('\n')) != std::string::npos)
+    version.replace(index, 1, " ");
+
+  return QString::fromStdString(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
 system_call_wrapper_error_t
-CSystemCallWrapper::p2p_version(std::string &version) {
+CSystemCallWrapper::p2p_version(QString &version) {
   int exit_code;
   version = "undefined";
   QString cmd = CSettingsManager::Instance().p2p_path();
@@ -379,13 +436,13 @@ CSystemCallWrapper::p2p_version(std::string &version) {
       ssystem_th(cmd, args, lst_out, exit_code, true);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
-    version = lst_out[0].toStdString();
+    version = lst_out[0];
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::p2p_status(std::string &status) {
+CSystemCallWrapper::p2p_status(QString &status) {
   int exit_code;
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
@@ -395,9 +452,8 @@ CSystemCallWrapper::p2p_status(std::string &status) {
       ssystem_th(cmd, args, lst_out, exit_code, true);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-    for (auto i = lst_out.begin(); i != lst_out.end(); ++i) {
-      status += (*i).toStdString();
-    }
+    for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
+      status += *i;
   }
   else {
     status = "undefined";

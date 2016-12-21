@@ -51,13 +51,14 @@ namespace update_system {
     /*!
      * \brief Run post update action
      */
-    virtual void update_post_action() = 0;
+    virtual void update_post_action(bool success) = 0;
 
   public:
 
     static const QString P2P;
     static const QString TRAY;
     static const QString RH;
+    static const QString RHMANAGEMENT;
 
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
@@ -91,7 +92,7 @@ namespace update_system {
 
   protected slots:
     void update_finished_sl(bool success) {
-      update_post_action();
+      update_post_action(success);
       emit update_finished(m_component_id, success);
     }
 

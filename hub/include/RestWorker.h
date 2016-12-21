@@ -73,8 +73,8 @@ public:
   void send_health_request(int &http_code,
                            int &err_code,
                            int &network_err,
-                           const std::string &p2p_version,
-                           const std::string &p2p_status);
+                           const QString &p2p_version,
+                           const QString &p2p_status);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
   QNetworkReply* download_file(const QUrl& url);

@@ -283,6 +283,40 @@
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
           <layout class="QGridLayout" name="gridLayout_9" columnstretch="2,1,1">
+           <item row="2" column="0">
+            <widget class="QLabel" name="lbl_rh_update">
+             <property name="text">
+              <string>Resource Host check for updates frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="lbl_tray_update">
+             <property name="text">
+              <string>SubutaiTray check for updates frequency:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="cb_tray_frequency"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="cb_rh_frequency"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="chk_tray_autoupdate">
+             <property name="text">
+              <string>Automatic tray update</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QCheckBox" name="chk_rh_autoupdate">
+             <property name="text">
+              <string>Automatic rh update</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_p2p_update">
              <property name="text">
@@ -300,37 +334,20 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lbl_tray_update">
+           <item row="3" column="0">
+            <widget class="QLabel" name="lbl_rhm_update">
              <property name="text">
-              <string>SubutaiTray check for updates frequency:</string>
+              <string>Management check for updates frequency:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="cb_tray_frequency"/>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="cb_rhm_frequency"/>
            </item>
-           <item row="1" column="2">
-            <widget class="QCheckBox" name="chk_tray_autoupdate">
+           <item row="3" column="2">
+            <widget class="QCheckBox" name="chk_rhm_autoupdate">
              <property name="text">
-              <string>Automatic tray update</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="lbl_rh_update">
-             <property name="text">
-              <string>Resource Host check for updates frequency:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="cb_rh_frequency"/>
-           </item>
-           <item row="2" column="2">
-            <widget class="QCheckBox" name="chk_rh_autoupdate">
-             <property name="text">
-              <string>Automatic rh update</string>
+              <string>Automatic mh update</string>
              </property>
             </widget>
            </item>
