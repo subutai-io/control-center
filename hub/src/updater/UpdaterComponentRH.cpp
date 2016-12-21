@@ -36,7 +36,7 @@ CUpdaterComponentRH::update_internal() {
                                     exit_code);
 
   if (res == SCWE_SUCCESS && exit_code == 0) {
-    static const char* msg = "Resource host update succesfull finished";
+    static const char* msg = "Resource host update succesfully finished";
     CNotificationObserver::NotifyAboutInfo(msg);
     CApplicationLog::Instance()->LogInfo(msg);
     update_finished_sl(true);

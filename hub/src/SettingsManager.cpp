@@ -99,9 +99,11 @@ CSettingsManager::CSettingsManager() :
   m_p2p_update_freq(UF_MIN30),
   m_rh_update_freq(UF_MIN30),
   m_tray_update_freq(UF_MIN30),
+  m_rh_management_update_freq(UF_MIN30),
   m_p2p_autoupdate(false),
   m_rh_autoupdate(false),
-  m_tray_autoupdate(false)
+  m_tray_autoupdate(false),
+  m_rh_management_autoupdate(false)
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
