@@ -116,8 +116,6 @@ main(int argc, char *argv[]) {
     }
   }
 
-  CRestWorker::Instance()->create_network_manager();
-
   int result = 0;
   do {
     DlgLogin dlg;
@@ -137,8 +135,6 @@ main(int argc, char *argv[]) {
     result = app.exec();
   } while (0);
 
-
-  CRestWorker::Instance()->free_network_manager();
   return result;
 }
 ////////////////////////////////////////////////////////////////////////////
