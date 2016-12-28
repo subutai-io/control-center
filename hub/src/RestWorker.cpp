@@ -10,27 +10,11 @@ static const QString HEALTH_URL("https://hub.subut.ai/rest/v1/tray/tray-data");
 static const QString GORJUN_URL("https://cdn.subut.ai:8338/kurjun/rest/%1");
 
 CRestWorker::CRestWorker() :
-  m_network_manager(NULL) {
+  m_network_manager(new QNetworkAccessManager) {
 }
 
 CRestWorker::~CRestWorker() {
-  free_network_manager();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CRestWorker::create_network_manager() {
-  if (m_network_manager == NULL) {
-    m_network_manager = new QNetworkAccessManager;
-  }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CRestWorker::free_network_manager() {
-  if (m_network_manager)
-    delete m_network_manager;
-  m_network_manager = NULL;
+  if (m_network_manager != NULL) delete m_network_manager;
 }
 ////////////////////////////////////////////////////////////////////////////
 

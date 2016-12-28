@@ -52,7 +52,9 @@ SOURCES += \
     rtm/src/RtmProcParser.cpp \
     rtm/src/RtmController.cpp \
     rtm/src/RtmDbController.cpp \
-    hub/src/updater/UpdaterComponentRHManagement.cpp
+    hub/src/updater/UpdaterComponentRHManagement.cpp \
+    csshx/src/CsshxController.cpp \
+    csshx/src/DlgCsshx.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -97,14 +99,17 @@ HEADERS  += \
     rtm/include/RtmProcParser.h \
     rtm/include/RtmController.h \
     rtm/include/RtmDbController.h \
-    hub/include/updater/UpdaterComponentRHManagement.h
+    hub/include/updater/UpdaterComponentRHManagement.h \
+    csshx/include/CsshxController.h \
+    csshx/include/DlgCsshx.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
     hub/forms/DlgSettings.ui \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
-    hub/forms/DlgGenerateSshKey.ui
+    hub/forms/DlgGenerateSshKey.ui \
+    csshx/forms/DlgCsshx.ui
 
 RESOURCES += \
     resources/resources.qrc

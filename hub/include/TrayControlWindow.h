@@ -120,7 +120,6 @@ private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
   /*hub*/
-  QTimer m_refresh_timer;
   QTimer m_report_timer;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
@@ -161,11 +160,9 @@ private:
   void fill_launch_menu();  
   /*tray icon end*/
 
-  void refresh_balance();
-  void refresh_environments();
   void launch_ss(QAction *act) const;
-
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
@@ -192,14 +189,14 @@ private slots:
   void launch_ss_triggered();
 
   /*hub slots*/
-  void refresh_timer_timeout();
+  void environments_updated_sl(int rr);
+  void balance_updated_sl();
   void hub_container_mi_triggered(const CEnvironmentEx *env,
                                const CHubContainerEx *cont, void *action);
   void ssh_key_generate_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/
-  void report_timer_timeout();
   void update_available(QString file_id);
   void update_finished(QString file_id, bool success);
 };
