@@ -47,15 +47,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   create_tray_icon();
   m_sys_tray_icon->show();
 
-  refresh_timer_timeout(); //update data on start. hack
-  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()*1000);
-  m_refresh_timer.start();  
 
-  m_report_timer.setInterval(60*1000); //minute
-  m_report_timer.start();
-
-  connect(&m_refresh_timer, SIGNAL(timeout()),
-          this, SLOT(refresh_timer_timeout()));
 
   connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_add(const QString&)),
           this, SLOT(vm_added(const QString&)));
@@ -69,13 +61,17 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
   connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
           this, SLOT(ssh_to_container_finished(int,void*)));
-
-  connect(&m_report_timer, SIGNAL(timeout()), this, SLOT(report_timer_timeout()));
+  connect(&CHubController::Instance(), SIGNAL(balance_updated()),
+          this, SLOT(balance_updated_sl()));
+  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
+          this, SLOT(environments_updated_sl(int)));
 
   connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
           this, SLOT(update_finished(QString,bool)));
   connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
           this, SLOT(update_available(QString)));
+
+  CHubController::Instance().force_refresh();
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -248,7 +244,7 @@ TrayControlWindow::notification_received(notification_level_t level,
 
 void
 TrayControlWindow::logout() {
-  this->m_refresh_timer.stop();
+  CHubController::Instance().suspend();
   this->m_report_timer.stop();
   this->m_sys_tray_icon->hide();
 
@@ -263,8 +259,7 @@ TrayControlWindow::logout() {
 
 void
 TrayControlWindow::login_success() {
-  refresh_timer_timeout(); //update data on start. hack
-  this->m_refresh_timer.start();
+  CHubController::Instance().start();
   this->m_report_timer.start();
   this->m_sys_tray_icon->show();
 }
@@ -328,15 +323,6 @@ TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
 }
 ////////////////////////////////////////////////////////////////////////////
 
-/*** Refresh ***/
-void
-TrayControlWindow::refresh_timer_timeout() {  
-  m_refresh_timer.stop();
-  refresh_balance();
-  refresh_environments();  
-  m_refresh_timer.start();
-}
-////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
@@ -347,18 +333,6 @@ TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
     act->setEnabled(false);
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::report_timer_timeout() {
-  m_report_timer.stop();
-  int http_code, err_code, network_err;
-  QString p2p_version, p2p_status;
-  CSystemCallWrapper::p2p_version(p2p_version);
-  CSystemCallWrapper::p2p_status(p2p_status);
-  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err, p2p_version, p2p_status);
-  m_report_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -417,90 +391,14 @@ TrayControlWindow::launch_ss_triggered() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
-  nsresult rc;
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
-  if (vm == NULL)
-    return;
-  MachineState_T state = vm->state();
-  if (state < 5) { //Powered off
-    rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
-    return;
-  }
-
-  if (state == MachineState_Running) {
-    rc = CVBoxManagerSingleton::Instance()->pause(vm_id);
-    return;
-  }
-
-  if (state == MachineState_Paused ||
-      state == MachineState_Teleporting ||
-      state == MachineState_LiveSnapshotting) {
-    rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
-    return;
-  }
-  //todo use rc
-  (void)rc;
-  return;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
-  nsresult rc;
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
-  if (vm == NULL)
-    return;
-  MachineState_T state = vm->state();
-  if (state < 5) {
-    CApplicationLog::Instance()->LogTrace("state : %d", state);
-    return;
-  }
-
-  rc = CVBoxManagerSingleton::Instance()->turn_off(vm_id);
-  //todo check rc
-  (void)rc;
-  return;
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::vbox_menu_btn_add_triggered(const QString& vm_id) {
-  //todo check result
-  CVBoxManagerSingleton::Instance()->add(vm_id);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
-  //todo check result
-  CVBoxManagerSingleton::Instance()->remove(vm_id);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-TrayControlWindow::refresh_balance() {
-  if (CHubController::Instance().refresh_balance()) return;
-  m_act_info->setText(CHubController::Instance().balance());
-}
-////////////////////////////////////////////////////////////////////////////
-
-static std::vector<QString> lst_checked_unhealthy_env;
-
-void TrayControlWindow::refresh_environments() {
-  CHubController::refresh_environments_res_t rr =
-      CHubController::Instance().refresh_environments();
-
-  if (rr == CHubController::RER_NO_DIFF)
-    return;
-
+TrayControlWindow::environments_updated_sl(int rr) {
+  UNUSED_ARG(rr);
+  static std::vector<QString> lst_checked_unhealthy_env;
   m_hub_menu->clear();
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
   m_lst_hub_menu_items.clear();
-
-  //todo somehow notify user about the reason of environment's unhealty status.
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
 
@@ -581,6 +479,78 @@ void TrayControlWindow::refresh_environments() {
   CNotificationObserver::Instance()->NotifyAboutInfo(str_notification);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::balance_updated_sl() {
+  m_act_info->setText(CHubController::Instance().balance());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
+  nsresult rc;
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+  MachineState_T state = vm->state();
+  if (state < 5) { //Powered off
+    rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
+    return;
+  }
+
+  if (state == MachineState_Running) {
+    rc = CVBoxManagerSingleton::Instance()->pause(vm_id);
+    return;
+  }
+
+  if (state == MachineState_Paused ||
+      state == MachineState_Teleporting ||
+      state == MachineState_LiveSnapshotting) {
+    rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
+    return;
+  }
+  //todo use rc
+  (void)rc;
+  return;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
+  nsresult rc;
+  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  if (vm == NULL)
+    return;
+  MachineState_T state = vm->state();
+  if (state < 5) {
+    CApplicationLog::Instance()->LogTrace("state : %d", state);
+    return;
+  }
+
+  rc = CVBoxManagerSingleton::Instance()->turn_off(vm_id);
+  //todo check rc
+  (void)rc;
+  return;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::vbox_menu_btn_add_triggered(const QString& vm_id) {
+  //todo check result
+  CVBoxManagerSingleton::Instance()->add(vm_id);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
+  //todo check result
+  CVBoxManagerSingleton::Instance()->remove(vm_id);
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 void TrayControlWindow::launch_ss(QAction* act) const {
   QString browser; // "/etc/alternatives/x-www-browser";

@@ -1,6 +1,7 @@
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
+#include <QObject>
 #include <stdint.h>
 #include <QSettings>
 #include <QString>
@@ -8,8 +9,9 @@
 /*!
  * \brief This class is used for managing application settings
  */
-class CSettingsManager
+class CSettingsManager : public QObject
 {
+  Q_OBJECT
 private:
   static const QString ORG_NAME;
   static const QString APP_NAME;
@@ -86,6 +88,9 @@ private:
 
   void init_password();
 
+signals:
+  void settings_changed();
+
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
   static const int NOTIFICATION_DELAY_MAX = 300;
@@ -104,7 +109,7 @@ public:
     return instance;
   }
 
-  void save_all() { m_settings.sync(); }
+  void save_all() { m_settings.sync(); emit settings_changed();}
   void clear_all() { m_settings.clear(); m_settings.sync(); }
   ////////////////////////////////////////////////////////////////////////////
 

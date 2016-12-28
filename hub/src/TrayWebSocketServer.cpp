@@ -88,8 +88,7 @@ CTrayServer::handle_ssh(const QString &msg,
                        .arg("");
     pClient->sendTextMessage(response);
     return;
-  }
-  CHubController::Instance().refresh_environments();
+  }  
   CHubController::Instance().ssh_to_container_str(args[1], args[2], (void*)pClient);
 }
 ////////////////////////////////////////////////////////////////////////////
