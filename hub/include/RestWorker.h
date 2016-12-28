@@ -43,9 +43,6 @@ public:
     return &instance;
   }
 
-  void create_network_manager();
-  void free_network_manager();
-
   void login(const QString& login,
              const QString& password,
              int &http_code,

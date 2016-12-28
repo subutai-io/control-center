@@ -4,6 +4,7 @@
 #include <vector>
 #include <QString>
 #include <QObject>
+#include <QTimer>
 #include "Locker.h"
 
 class CEnvironment;
@@ -110,6 +111,14 @@ public:
  */
 class CHubController : public QObject {
   Q_OBJECT
+public:
+  enum refresh_environments_res_t {
+    RER_SUCCESS,
+    RER_NO_DIFF,
+    RER_EMPTY,
+    RER_ERROR
+  };
+
 private:
   std::vector<CEnvironment> m_lst_environments_internal;
   std::vector<CRHInfo> m_lst_resource_hosts;
@@ -119,8 +128,9 @@ private:
   QString m_balance;
   QString m_current_user;
   QString m_current_pass;
-
   SynchroPrimitives::CriticalSection m_refresh_cs;
+  QTimer m_refresh_timer;
+  QTimer m_report_timer;
 
   CHubController();
   ~CHubController();
@@ -136,33 +146,24 @@ private:
                                  const CHubContainerEx *cont,
                                  void *additional_data,
                                  finished_slot_t slot);
-public:
-  enum refresh_environments_res_t {
-    RER_SUCCESS,
-    RER_NO_DIFF,
-    RER_EMPTY,
-    RER_ERROR
-  };
 
-private:
   void refresh_containers_internal();
   refresh_environments_res_t refresh_environments_internal();
+  int refresh_balance();
 
 private slots:
   void ssh_to_container_finished_slot(int result, void* additional_data);
   void ssh_to_container_finished_str_slot(int result, void* additional_data);
 
+  void refresh_timer_timeout();
+  void settings_changed();
+  void report_timer_timeout();
+
 public:
-  /*!
-   * \brief Force refresh balance
-   */
-  int refresh_balance();
-  /*!
-   * \brief Force refresh environments list
-   */
-  refresh_environments_res_t refresh_environments();
 
-
+  void suspend() {m_refresh_timer.stop();}
+  void start() {m_refresh_timer.start();}
+  void force_refresh();
 
   /*!
    * \brief SSH->container
@@ -230,6 +231,9 @@ public:
 signals:
   void ssh_to_container_finished(int result, void* additional_data);
   void ssh_to_container_str_finished(int result, void* additional_data);
+
+  void environments_updated(int);
+  void balance_updated();
 };
 
 #endif // HUBCONTROLLER_H

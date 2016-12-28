@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QThread>
 #include <QApplication>
+#include <QtConcurrent/QtConcurrent>
 
 #include "RestWorker.h"
 #include "HubController.h"
@@ -15,9 +16,18 @@ CHubController::CHubController() :
   m_lst_resource_hosts(),
   m_balance(UNDEFINED_BALANCE)
 {
+  connect(&m_refresh_timer, SIGNAL(timeout()),
+          this, SLOT(refresh_timer_timeout()));
+  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() * 1000);
+  m_refresh_timer.start();
+
+  connect(&m_report_timer, SIGNAL(timeout()), this, SLOT(report_timer_timeout()));
+  m_report_timer.setInterval(60*1000); //minute
+  m_report_timer.start();
 }
 
 CHubController::~CHubController() {
+//  we can free p2p resources. but we won't do it.
 //  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
 //    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
 //  }
@@ -66,6 +76,7 @@ void
 CHubController::ssh_to_container_finished_slot(int result, void *additional_data) {
   emit ssh_to_container_finished(result, additional_data);
 }
+////////////////////////////////////////////////////////////////////////////
 
 void
 CHubController::ssh_to_container_finished_str_slot(int result,
@@ -74,7 +85,47 @@ CHubController::ssh_to_container_finished_str_slot(int result,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CHubController::refresh_balance() {
+void
+CHubController::refresh_timer_timeout() {
+  refresh_environments_res_t rr = RER_ERROR;
+  refresh_containers_internal();
+  if ((rr=refresh_environments_internal()) == RER_NO_DIFF)
+    return;
+  emit environments_updated((int)rr);
+
+  if (refresh_balance() == 0)
+    emit balance_updated();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::settings_changed() {
+  m_refresh_timer.stop();
+  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() * 1000);
+  m_refresh_timer.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::report_timer_timeout() {
+  m_report_timer.stop();
+  int http_code, err_code, network_err;
+  QString p2p_version, p2p_status;
+  CSystemCallWrapper::p2p_version(p2p_version);
+  CSystemCallWrapper::p2p_status(p2p_status);
+  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err, p2p_version, p2p_status);
+  m_report_timer.start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::force_refresh() {
+  QtConcurrent::run(this, &CHubController::refresh_timer_timeout);
+}
+////////////////////////////////////////////////////////////////////////////
+
+int
+CHubController::refresh_balance() {
   int http_code, err_code, network_error;
   CHubBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
 
@@ -94,16 +145,6 @@ int CHubController::refresh_balance() {
 
   m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: %1").arg(balance.value());
   return 0;
-}
-////////////////////////////////////////////////////////////////////////////
-
-CHubController::refresh_environments_res_t
-CHubController::refresh_environments() {
-
-  refresh_containers_internal();
-  CHubController::refresh_environments_res_t res =
-      refresh_environments_internal();
-  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -146,6 +187,7 @@ void CHubController::refresh_containers_internal() {
 
 CHubController::refresh_environments_res_t
 CHubController::refresh_environments_internal() {
+
   int http_code, err_code, network_error;
   std::vector<CEnvironment> res;
   res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
@@ -206,6 +248,8 @@ void
 CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
                                      void *additional_data) {
+  refresh_environments_internal();
+
   CEnvironmentEx *env = NULL;
   const CHubContainerEx *cont = NULL;
 
