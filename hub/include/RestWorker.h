@@ -17,6 +17,7 @@
 #include <vector>
 #include "ApplicationLog.h"
 #include "RestContainers.h"
+#include "EventLoop.h"
 
 typedef enum rest_error {
   RE_SUCCESS = 0,
@@ -34,6 +35,46 @@ typedef enum rest_error {
  */
 class CRestWorker : public QObject {
   Q_OBJECT
+
+private:
+  //todo use EventLoop
+#ifndef RT_OS_WINDOWS
+  CEventLoop<SynchroPrimitives::CLinuxManualResetEvent> *m_el;
+#else
+  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_el;
+#endif
+
+  QNetworkAccessManager *m_network_manager;
+  static QNetworkAccessManager* create_network_manager();
+  static int free_network_manager(QNetworkAccessManager*nam);
+
+  static QByteArray send_request_aux(
+      QNetworkAccessManager *nam,
+      QNetworkRequest &req,
+      bool get,
+      int& http_status_code,
+      int& err_code,
+      int &network_error,
+      QByteArray data,
+      bool show_network_err_msg);
+
+  QByteArray send_request(QNetworkAccessManager *nam,
+      QNetworkRequest &req,
+      bool get,
+      int& http_status_code,
+      int& err_code,
+      int &network_error,
+      QByteArray data,
+      bool show_network_err_msg);
+
+  QJsonDocument get_request_json_document(const QString& link,
+                                          int& http_code,
+                                          int &err_code,
+                                          int &network_error);
+
+  CRestWorker();
+  ~CRestWorker(void);
+
 public:
   /*!
    * \brief Instance of this singleton class
@@ -82,29 +123,6 @@ public:
                     int &err_code,
                     int &network_err);
 
-private:
-  QNetworkAccessManager *m_network_manager;
-  QByteArray send_request(QNetworkRequest &req,
-                          bool get,
-                          int& http_status_code,
-                          int& err_code,
-                          int &network_error,
-                          QByteArray data,
-                          bool ignore_ssl_errors,
-                          bool show_network_err_msg);
-
-  QJsonDocument get_request_json_document(const QString& link,
-                                          int& http_code,
-                                          int &err_code,
-                                          int &network_error);
-
-  CRestWorker();
-  CRestWorker(const QString& login,
-              const QString& password);
-  CRestWorker(const CRestWorker& worker);
-  ~CRestWorker(void);
- private slots:
-  void ssl_errors_appeared(QList<QSslError> lst_errors);
 };
 
 #endif // CRESTWORKER_H
