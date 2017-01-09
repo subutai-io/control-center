@@ -217,12 +217,20 @@ CRestWorker::download_gorjun_file(const QString &file_id) {
   url.setQuery(query);
   return download_file(url);
 }
+
+QNetworkReply *
+CRestWorker::download_file_aux(QNetworkAccessManager *nam,
+                               const QUrl &url) {
+  QNetworkRequest request(url);
+  return nam->get(request);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 QNetworkReply*
 CRestWorker::download_file(const QUrl &url) {
-  QNetworkRequest request(url);
-  return m_network_manager->get(request);
+  IFunctor* functor = new FunctorWithResult<QNetworkReply*, QNetworkAccessManager*, const QUrl&>
+      (download_file_aux, m_network_manager, url, "download file");
+  return EVENT_LOOP::GetSyncResult<QNetworkReply*>(m_el, functor, true);
 }
 
 const QString&
