@@ -104,17 +104,17 @@ public:
                                               int &exit_code,
                                               bool read_output);
 
-  static bool is_in_swarm(const char* hash);
+  static bool is_in_swarm(const QString &hash);
 
-  static system_call_wrapper_error_t join_to_p2p_swarm(const char* hash,
-                                                       const char* key,
-                                                       const char* ip);
+  static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
+                                                       const QString &key,
+                                                       const QString &ip);
 
   static system_call_wrapper_error_t leave_p2p_swarm(const char* hash);
   static system_call_wrapper_error_t restart_p2p_service(int *res_code);
 
-  static system_call_wrapper_error_t check_container_state(const char* hash,
-                                                           const char* ip);
+  static system_call_wrapper_error_t check_container_state(const QString &hash,
+                                                           const QString &ip);
 
   static system_call_wrapper_error_t run_ssh_in_terminal(const QString &user,
                                                          const QString &ip,
@@ -155,7 +155,7 @@ public:
   static system_call_wrapper_error_t which(const QString &prog,
                                            QString &path);
 
-  static system_call_wrapper_error_t chrome_version(std::string& version);
+  static system_call_wrapper_error_t chrome_version(QString& version);
   static QString virtual_box_version();
   static const QString& scwe_error_to_str(system_call_wrapper_error_t err);
 };

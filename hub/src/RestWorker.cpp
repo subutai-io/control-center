@@ -41,7 +41,8 @@ CRestWorker::login(const QString& login,
                    int &http_code,
                    int &err_code,
                    int &network_error) {
-  QUrl url_login(POST_URL.arg("login"));
+  static const QString str_url(POST_URL.arg("login"));
+  QUrl url_login(str_url);
   QUrlQuery query_login;
   query_login.addQueryItem("email", login);
   query_login.addQueryItem("password", password);
@@ -257,13 +258,14 @@ CRestWorker::send_ssh_key(const QString &key,
                           int &http_code,
                           int &err_code,
                           int &network_err) {
+  static const QString str_url(POST_URL.arg("ssh-keys"));
   QJsonObject obj;
   QJsonArray keys_arr;
   keys_arr.push_back(QJsonValue(key));
   obj["sshKeys"] = keys_arr;
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
-  QUrl url(POST_URL.arg("ssh-keys"));
+  QUrl url(str_url);
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   send_request(m_network_manager, req, false,
@@ -272,13 +274,62 @@ CRestWorker::send_ssh_key(const QString &key,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QNetworkAccessManager *
+bool
+CRestWorker::is_sshkey_in_environment(const QString &key,
+                                   const QString &env) {
+  static const QString str_url(POST_URL.arg("environments/check-key"));
+  QJsonObject obj;
+  obj["sshKey"] = QJsonValue(key);
+  obj["envId"]  = QJsonValue(env);
+  QJsonDocument doc(obj);
+  QByteArray doc_serialized = doc.toJson();
+  QUrl url(str_url);
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  int http_code, err_code, network_err;
+  QByteArray res_arr = send_request(m_network_manager, req, false,
+                                    http_code, err_code, network_err,
+                                    doc_serialized, false);
+  return QString(res_arr) == "true";
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::add_sshkey_to_environments(const QString &key,
+                                        const std::vector<QString> &lst_environments,
+                                        int &http_code,
+                                        int &err_code,
+                                        int &network_err) {
+  static const QString str_url(POST_URL.arg("environments/ssh-keys"));
+  QJsonObject obj;
+  QJsonArray arr_environments;
+
+  for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
+    arr_environments.push_back(QJsonValue(*i));
+
+  obj["sshKey"] = QJsonValue(key);
+  obj["environments"] = arr_environments;
+
+  QJsonDocument doc(obj);
+  QByteArray doc_serialized = doc.toJson();
+  QUrl url(str_url);
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+
+  QByteArray res_arr = send_request(m_network_manager, req, false,
+                                    http_code, err_code, network_err,
+                                    doc_serialized, false);
+}
+////////////////////////////////////////////////////////////////////////////
+
+QNetworkAccessManager*
 CRestWorker::create_network_manager() {
   return new QNetworkAccessManager;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int CRestWorker::free_network_manager(QNetworkAccessManager *nam) {
+int
+CRestWorker::free_network_manager(QNetworkAccessManager *nam) {
   if (nam) delete nam;
   return 0;
 }

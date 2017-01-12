@@ -89,7 +89,7 @@ CSystemCallWrapper::ssystem(const QString &cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 bool
-CSystemCallWrapper::is_in_swarm(const char *hash) {
+CSystemCallWrapper::is_in_swarm(const QString& hash) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args, lst_out;
   args << "show";
@@ -112,9 +112,9 @@ CSystemCallWrapper::is_in_swarm(const char *hash) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::join_to_p2p_swarm(const char *hash,
-                                      const char *key,
-                                      const char *ip)
+CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
+                                      const QString& key,
+                                      const QString& ip)
 {
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
@@ -197,8 +197,8 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::check_container_state(const char *hash,
-                                          const char *ip) {
+CSystemCallWrapper::check_container_state(const QString& hash,
+                                          const QString& ip) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args, lst_out;
   args << "show" << "-hash" << hash << "-check" << ip;
@@ -492,7 +492,7 @@ CSystemCallWrapper::which(const QString &prog,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::chrome_version(std::string &version) {
+CSystemCallWrapper::chrome_version(QString &version) {
 #if defined(RT_OS_LINUX)
   static const char* command= "/usr/bin/google-chrome-stable";
 #elif defined(RT_OS_DARWIN)
@@ -512,10 +512,10 @@ CSystemCallWrapper::chrome_version(std::string &version) {
       ssystem_th(cmd, args, lst_out, exit_code, true);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
-    version = lst_out[0].toStdString();
+    version = lst_out[0];
 
-  size_t index ;
-  if ((index = version.find('\n')) != std::string::npos)
+  int index ;
+  if ((index = version.indexOf('\n')) != -1)
     version.replace(index, 1, " ");
   return res;
 }

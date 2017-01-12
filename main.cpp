@@ -132,6 +132,9 @@ main(int argc, char *argv[]) {
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
     TrayControlWindow tcw;
+//    CRestWorker::Instance()->is_sshkey_in_environment("id_rsa", "test_env_key' OR '1'='1' /*");
+//    CRestWorker::Instance()->is_sshkey_in_environment("id_rsa", "8345fcec-f742-4caa-ae4a-2e680ff708e1");
+
     result = app.exec();
   } while (0);
 

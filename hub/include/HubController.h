@@ -29,16 +29,16 @@ typedef enum ssh_launch_error {
 class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
-  std::string m_env_hash;
-  std::string m_env_key;
-  std::string m_ip;
-  std::string m_cont_port;
+  QString m_env_hash;
+  QString m_env_key;
+  QString m_ip;
+  QString m_cont_port;
   void *m_additional_data;
 public:
-  CHubControllerP2PWorker(const std::string& env_hash,
-                          const std::string& env_key,
-                          const std::string& ip,
-                          const std::string& cont_port,
+  CHubControllerP2PWorker(const QString& env_hash,
+                          const QString& env_key,
+                          const QString& ip,
+                          const QString& cont_port,
                           void* additional_data);
   ~CHubControllerP2PWorker();
 private slots:
