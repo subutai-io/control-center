@@ -275,12 +275,17 @@ CRestWorker::send_ssh_key(const QString &key,
 ////////////////////////////////////////////////////////////////////////////
 
 bool
-CRestWorker::is_sshkey_in_environment(const QString &key,
-                                   const QString &env) {
+CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
+                                       const QString &env) {
   static const QString str_url(POST_URL.arg("environments/check-key"));
   QJsonObject obj;
-  obj["sshKey"] = QJsonValue(key);
+  QJsonArray json_keys;
+  for (auto i = keys.begin(); i != keys.end(); ++i)
+    json_keys.push_back(QJsonValue(*i));
+
+  obj["sshKeys"] = json_keys;
   obj["envId"]  = QJsonValue(env);
+
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
   QUrl url(str_url);

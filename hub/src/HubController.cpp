@@ -360,11 +360,11 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
                      QString(".pub"));
   QFile key_file_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
                          CHubController::Instance().current_user());
-  std::string key;
+  QString key;
 
   if (key_file_pub.exists() &&  key_file_private.exists()) {
     key = (CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-           CHubController::Instance().current_user()).toStdString();
+           CHubController::Instance().current_user());
   } else {
     QFile standard_key_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
                                 "id_rsa.pub");
@@ -373,14 +373,14 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
 
     if (standard_key_pub.exists() && standard_key_private.exists()) {
       key = (CSettingsManager::Instance().ssh_keys_storage() +
-            QDir::separator() + "id_rsa").toStdString();
+            QDir::separator() + "id_rsa");
     }
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
                                                 m_ip,
                                                 m_cont_port,
-                                                key.empty() ? NULL : key.c_str());
+                                                key);
 
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SSH failed. Error code : %1").

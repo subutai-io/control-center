@@ -218,7 +218,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                         arg(CSettingsManager::Instance().ssh_path()).
                         arg(user).arg(ip).arg(port);
 
-  if (key != NULL) {
+  if (!key.isEmpty()) {
     CNotificationObserver::Instance()->NotifyAboutInfo(QString("Using %1 ssh key").arg(key));
     str_command += QString(" -i %1 ").arg(key);
   }

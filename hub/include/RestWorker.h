@@ -126,7 +126,7 @@ public:
                     int &err_code,
                     int &network_err);
 
-  bool is_sshkey_in_environment(const QString& key,
+  bool is_sshkeys_in_environment(const QStringList &keys,
                              const QString& env);
 
   void add_sshkey_to_environments(const QString& key,

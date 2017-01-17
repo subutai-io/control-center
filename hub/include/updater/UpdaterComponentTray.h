@@ -12,7 +12,7 @@ namespace update_system {
 
   private:
 
-    static std::string tray_path();
+    static QString tray_path();
 
     // IUpdaterComponent interface
   protected:
