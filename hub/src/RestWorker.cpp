@@ -274,10 +274,11 @@ CRestWorker::send_ssh_key(const QString &key,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool
+std::vector<bool>
 CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
                                        const QString &env) {
   static const QString str_url(POST_URL.arg("environments/check-key"));
+  std::vector<bool> lst_res;
   QJsonObject obj;
   QJsonArray json_keys;
   for (auto i = keys.begin(); i != keys.end(); ++i)
@@ -295,7 +296,14 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
   QByteArray res_arr = send_request(m_network_manager, req, false,
                                     http_code, err_code, network_err,
                                     doc_serialized, false);
-  return QString(res_arr) == "true";
+
+  QJsonDocument res_doc = QJsonDocument::fromJson(res_arr);
+  if (res_doc.isEmpty()) return lst_res;
+  if (!res_doc.isArray()) return lst_res;  
+  QJsonArray json_arr = res_doc.array();
+  for (auto i = json_arr.begin(); i != json_arr.end(); ++i)
+    lst_res.push_back(i->toString() == "true");
+  return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -359,15 +367,18 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
   network_error = 0;
   http_status_code = -1;
 
-  QEventLoop loop;
-  QTimer timer(&loop);
-  timer.setSingleShot(true);
-  timer.start(8000);
+  QEventLoop* loop = new QEventLoop;
+  QTimer* timer = new QTimer;
+  timer->setSingleShot(true);
+  timer->start(8000);
 
   QNetworkReply* reply = get ? nam->get(req) : nam->post(req, data);
 
-  QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-  QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+  QObject::connect(timer, SIGNAL(timeout()), loop, SLOT(quit()));
+  QObject::connect(reply, SIGNAL(finished()), loop, SLOT(quit()));
+
+  QObject::connect(timer, SIGNAL(timeout()), loop, SLOT(deleteLater()));
+  QObject::connect(reply, SIGNAL(finished()), loop, SLOT(deleteLater()));
 
   QList<QSslError> errors2ignore;
   errors2ignore << QSslError(QSslError::CertificateUntrusted);
@@ -375,17 +386,19 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
   errors2ignore << QSslError(QSslError::HostNameMismatch);
   reply->ignoreSslErrors();
 
-  loop.exec();
+  loop->exec();
 
   //timer is active if timeout didn't fire
-  if (!timer.isActive()) {
+  if (!timer->isActive()) {
     reply->abort();
     err_code = RE_TIMEOUT;
     reply->deleteLater();
+    timer->deleteLater();
     return QByteArray();
   }
 
-  timer.stop();
+  timer->stop();
+  timer->deleteLater();
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
     CApplicationLog::Instance()->LogError("Send request network error : %s",

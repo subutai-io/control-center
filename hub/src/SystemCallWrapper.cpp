@@ -153,7 +153,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
-CSystemCallWrapper::leave_p2p_swarm(const char *hash) {
+CSystemCallWrapper::leave_p2p_swarm(const QString& hash) {
   if (hash == NULL || !is_in_swarm(hash))
     return SCWE_SUCCESS;
   QString cmd = CSettingsManager::Instance().p2p_path();

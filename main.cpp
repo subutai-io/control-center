@@ -127,7 +127,7 @@ main(int argc, char *argv[]) {
 
     dlg.run_dialog(&sc);
     if (dlg.result() == QDialog::Rejected)
-      break;    
+      break;
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();

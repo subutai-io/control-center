@@ -91,7 +91,7 @@ public:
                           QSystemTrayIcon* tray_icon) :
     m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
 
-  ~CHubEnvironmentMenuItem(){}
+  virtual ~CHubEnvironmentMenuItem(){}
 
 signals:
   void action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void* action);

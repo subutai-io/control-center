@@ -29,7 +29,7 @@ CHubController::CHubController() :
 CHubController::~CHubController() {
 //  we can free p2p resources. but we won't do it.
 //  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
-//    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
+//    CSystemCallWrapper::leave_p2p_swarm(i->hash());
 //  }
 }
 

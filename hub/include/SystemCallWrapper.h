@@ -110,7 +110,7 @@ public:
                                                        const QString &key,
                                                        const QString &ip);
 
-  static system_call_wrapper_error_t leave_p2p_swarm(const char* hash);
+  static system_call_wrapper_error_t leave_p2p_swarm(const QString &hash);
   static system_call_wrapper_error_t restart_p2p_service(int *res_code);
 
   static system_call_wrapper_error_t check_container_state(const QString &hash,

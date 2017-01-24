@@ -2,15 +2,15 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
-
 #include <RestWorker.h>
 #include <QFileDialog>
 
-#include <QLayout>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QLabel>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QListView>
+#include <QModelIndexList>
+#include <QItemSelectionModel>
+#include <algorithm>
 
 #include "DlgGenerateSshKey.h"
 #include "ui_DlgGenerateSshKey.h"
@@ -19,63 +19,39 @@
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
 
-class SshKeyWidget : public QObject {
-  Q_OBJECT
-private:
-  QString m_id;
-  QLabel* m_lbl_name;
-  QComboBox* m_combo_box;
-  QPushButton* m_btn_add_to_environment;
-
-public:
-  SshKeyWidget(const CEnvironmentEx* env,
-               QWidget* parent = nullptr) : QObject(parent), m_id(env->id()) {
-    m_lbl_name = new QLabel(env->name(), parent);
-  }
-
-  virtual ~SshKeyWidget(){}
-
-private slots:
-  void btn_add_to_environment_released_sl();
-signals:
-  void btn_add_to_environment_released(const QString&);
-};
-////////////////////////////////////////////////////////////////////////////
-
-
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgGenerateSshKey)
 {
   ui->setupUi(this);
 
-  m_btn_generate = new QPushButton("Generate", this);
-  m_layout_grid = new QGridLayout;
-  m_layout_hbox = new QHBoxLayout;
+  m_model_disabled_keys = new QStandardItemModel(this);
+  m_model_enabled_keys = new QStandardItemModel(this);
+  m_model_environments = new QStandardItemModel(this);
 
-  m_layout_grid->addWidget(m_btn_generate, 1, 1);
+  ui->lstv_disabled->setModel(m_model_disabled_keys);
+  ui->lstv_enabled->setModel(m_model_enabled_keys);
+  ui->cb_environments->setModel(m_model_environments);
 
-//  QPushButton** buttons = new QPushButton*[9];
-//  int i, j;
-//  for (i = 0, j = -1; i < 9; ++i) {
-//    if (i % 3 == 0) ++j;
-//    buttons[i] = new QPushButton(QString("ttt%1").arg(i), this);
-//    m_layout_grid->addWidget(buttons[i], j, i%3);
-//  }
-  m_layout_grid->removeWidget(m_btn_generate);
-  m_layout_grid->addWidget(m_btn_generate, 3, 0, 1, 3);
+  //don't change order of these 2 functions :)
+  environments_updated(0);
+  refresh_key_files();
 
-  m_layout_hbox->addLayout(m_layout_grid);
-  this->setLayout(m_layout_hbox);
+  connect(ui->btn_generate_new_key, SIGNAL(released()), this, SLOT(btn_generate_released()));
+  connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));
 
-  connect(m_btn_generate, SIGNAL(released()), this, SLOT(btn_generate_released()));
+  connect(ui->btn_to_disabled, SIGNAL(released()), this, SLOT(btn_to_disabled_released()));
+  connect(ui->btn_to_enabled, SIGNAL(released()), this, SLOT(btn_to_enabled_released()));
+
+  connect(ui->cb_environments, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(cb_environments_index_changed(int)));
+
+  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
+          this, SLOT(environments_updated(int)));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 DlgGenerateSshKey::~DlgGenerateSshKey() {
-  if (m_layout_grid) m_layout_grid->deleteLater();
-  if (m_layout_hbox) m_layout_hbox->deleteLater();
-  if (m_btn_generate) m_btn_generate->deleteLater();
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -83,12 +59,19 @@ DlgGenerateSshKey::~DlgGenerateSshKey() {
 void
 DlgGenerateSshKey::generate_new_ssh() {
 
-  QString str_file = QFileDialog::getSaveFileName(this, "Generate new ssh key pair",
-                                                  CSettingsManager::Instance().ssh_keys_storage());
+  QString str_file = QFileDialog::getSaveFileName(this, "Generate new ssh key pair. Don't change directory, please",
+                                                  CSettingsManager::Instance().ssh_keys_storage(),
+                                                  "Ssh keys (*.pub);; All files (*.*)");
   if (str_file.isEmpty()) return;
+  QFileInfo fi(str_file);
 
-  QFile key(ssh_key_path(SP_PRIV_KEY));
-  QFile key_pub(ssh_key_path(SP_PUB_KEY));
+  QString str_private = CSettingsManager::Instance().ssh_keys_storage() +
+                        QDir::separator() + fi.baseName();
+
+  QString str_public = str_file + (str_private == str_file ? ".pub" : "");
+
+  QFile key(str_private);
+  QFile key_pub(str_public);
 
   if (key.exists() && key_pub.exists()) {
     key.remove();
@@ -97,45 +80,66 @@ DlgGenerateSshKey::generate_new_ssh() {
 
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user(),
-                                           ssh_key_path(SP_PRIV_KEY));
+                                           str_private);
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->NotifyAboutError(
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
-
-  set_key_text();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::set_key_text() {
-  QString path = ssh_key_path(SP_PUB_KEY);
-  QFile file(path);
-  if (file.exists()) {
-    file.open(QFile::ReadOnly);
-    QByteArray bytes = file.readAll();
-    qDebug() << bytes;
-  } else {
-    QFile standard_key_file(ssh_key_path(SP_STANDARD_PUB_KEY));
-    if (standard_key_file.exists()) {
-      standard_key_file.open(QFile::ReadOnly);
-      QByteArray bytes = standard_key_file.readAll();
-      qDebug() << bytes;
-    }
+DlgGenerateSshKey::move_items(QListView *src,
+                              QListView *dst,
+                              std::vector<QString>& lst_src,
+                              std::vector<QString>& lst_dst) {
+  QStandardItemModel* src_model = static_cast<QStandardItemModel*>(src->model());
+  QStandardItemModel* dst_model = static_cast<QStandardItemModel*>(dst->model());
+
+  QModelIndexList indexes = src->selectionModel()->selectedIndexes();
+  std::sort(indexes.begin(), indexes.end());
+
+  for(auto i = indexes.cbegin(); i != indexes.cend(); ++i) {
+    dst_model->appendRow(new QStandardItem(i->data().toString()));
+    lst_dst.push_back(i->data().toString());
+  }
+
+  //remove in desc order!!!
+  for(auto i = indexes.crbegin(); i != indexes.crend(); ++i) {
+    src_model->removeRow(i->row(), i->parent());
+    lst_src.erase(lst_src.begin() + i->row());
   }
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString
-DlgGenerateSshKey::ssh_key_path(DlgGenerateSshKey::ssh_key_paths path) {
-  QString base_path = CSettingsManager::Instance().ssh_keys_storage() +
-                      QDir::separator();
-  QString file_path[] = {CHubController::Instance().current_user(),
-                         CHubController::Instance().current_user(),
-                         "id_rsa", "id_rsa"};
-  static QString ext[] = {".pub", "", ".pub", ""};
-  return base_path + file_path[path] + ext[path];
+void
+DlgGenerateSshKey::refresh_key_files() {
+  QDir dir(CSettingsManager::Instance().ssh_keys_storage());
+  if (!dir.exists()) {
+    CApplicationLog::Instance()->LogError("Wrong ssh keys storage");
+    return;
+  }
+
+  QStringList name_filters({"*.pub"});
+  m_lst_key_files = dir.entryList(name_filters, QDir::Files | QDir::NoSymLinks);
+
+  QStringList lst_key_content;
+  for (auto i = m_lst_key_files.begin(); i != m_lst_key_files.end(); ++i) {
+    QString file_path = dir.path() + QDir::separator() + *i;
+    QFile key_file(file_path);
+    key_file.open(QFile::ReadOnly);
+    lst_key_content.push_back(QString(key_file.readAll()));
+    key_file.close();
+  }
+
+  for (auto i = CHubController::Instance().lst_environments().begin();
+       i != CHubController::Instance().lst_environments().end(); ++i) {
+    m_dct_environment_keyflags[i->id()] =
+        CRestWorker::Instance()->is_sshkeys_in_environment(lst_key_content, i->id());
+  }
+
+  cb_environments_index_changed(ui->cb_environments->currentIndex());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -144,26 +148,67 @@ DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
     CNotificationObserver::Instance()->NotifyAboutInfo(
-          "You don't have write permission to ssh-keys directory. Please change it in settings. Thanks");
+          "You don't have write permission to ssh-keys directory. "
+          "Please add write permission or change ssh-keys storage in settings. Thanks");
     return;
   }
+  generate_new_ssh();
+  refresh_key_files();
+}
+////////////////////////////////////////////////////////////////////////////
 
-  //todo use some flag
-  if (true) {
-    generate_new_ssh();
-  } else {
-    QMessageBox *msg_question = new QMessageBox;
-    do  {
-      msg_question->setWindowTitle("New SSH key generation");
-      msg_question->setText("Are you sure you want to generate new SSH key? You will need to update your environments");
-      msg_question->addButton(QMessageBox::Yes);
-      msg_question->addButton(QMessageBox::No);
-      msg_question->setDefaultButton(QMessageBox::No);
-      if (msg_question->exec() == QMessageBox::No)
-        break;
-      generate_new_ssh();
-    } while (0);
-    msg_question->deleteLater();
+void
+DlgGenerateSshKey::btn_send_to_hub_released() {
+  for (auto i = m_current_enabled.begin(); i != m_current_enabled.end(); ++i) {
+    qDebug() << *i;
   }
+  refresh_key_files();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::btn_to_disabled_released() {
+  move_items(ui->lstv_enabled, ui->lstv_disabled, m_current_enabled, m_current_disabled);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::btn_to_enabled_released() {
+  move_items(ui->lstv_disabled, ui->lstv_enabled, m_current_disabled, m_current_enabled);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::cb_environments_index_changed(int ix) {
+  QString env_id = CHubController::Instance().lst_environments()[ix].id();
+  ix = 0;
+  m_model_disabled_keys->clear();
+  m_model_enabled_keys->clear();
+  for (auto i = m_dct_environment_keyflags[env_id].begin();
+       i != m_dct_environment_keyflags[env_id].end(); ++i, ++ix) {
+    if (*i) {
+      m_model_enabled_keys->appendRow(new QStandardItem(m_lst_key_files.at(ix)));
+      m_current_enabled.push_back(m_lst_key_files.at(ix));
+    } else {
+      m_model_disabled_keys->appendRow(new QStandardItem(m_lst_key_files.at(ix)));
+      m_current_disabled.push_back(m_lst_key_files.at(ix));
+    }
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::environments_updated(int update_result) {
+  UNUSED_ARG(update_result);
+  for (auto i = CHubController::Instance().lst_environments().begin();
+       i != CHubController::Instance().lst_environments().end(); ++i) {
+    m_model_environments->appendRow(new QStandardItem(i->name()));
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKeyInitializer::start_initialization() {
+
 }
 ////////////////////////////////////////////////////////////////////////////
