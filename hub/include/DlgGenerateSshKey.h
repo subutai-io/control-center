@@ -31,19 +31,12 @@ public:
 
 private:
   Ui::DlgGenerateSshKey *ui;
-
-  QStandardItemModel* m_model_environments;
-  QStandardItemModel* m_model_enabled_keys;
-  QStandardItemModel* m_model_disabled_keys;
-
   QStringList m_lst_key_files;
+
   std::map<QString, std::vector<bool> > m_dct_environment_keyflags;
-  //current environment.
-  std::vector<QString> m_current_enabled;
-  std::vector<QString> m_current_disabled;
+  std::map<QString, std::vector<QString> > m_dct_key_environments;
 
   void generate_new_ssh();
-  void move_items(QListView* src, QListView* dst, std::vector<QString> &lst_src, std::vector<QString> &lst_dst);
   void refresh_key_files();
 
 private slots:

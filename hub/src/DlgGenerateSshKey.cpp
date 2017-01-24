@@ -25,27 +25,12 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  m_model_disabled_keys = new QStandardItemModel(this);
-  m_model_enabled_keys = new QStandardItemModel(this);
-  m_model_environments = new QStandardItemModel(this);
-
-  ui->lstv_disabled->setModel(m_model_disabled_keys);
-  ui->lstv_enabled->setModel(m_model_enabled_keys);
-  ui->cb_environments->setModel(m_model_environments);
-
   //don't change order of these 2 functions :)
   environments_updated(0);
   refresh_key_files();
 
   connect(ui->btn_generate_new_key, SIGNAL(released()), this, SLOT(btn_generate_released()));
-  connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));
-
-  connect(ui->btn_to_disabled, SIGNAL(released()), this, SLOT(btn_to_disabled_released()));
-  connect(ui->btn_to_enabled, SIGNAL(released()), this, SLOT(btn_to_enabled_released()));
-
-  connect(ui->cb_environments, SIGNAL(currentIndexChanged(int)),
-          this, SLOT(cb_environments_index_changed(int)));
-
+  connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));  
   connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
           this, SLOT(environments_updated(int)));
 }
@@ -89,29 +74,6 @@ DlgGenerateSshKey::generate_new_ssh() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void
-DlgGenerateSshKey::move_items(QListView *src,
-                              QListView *dst,
-                              std::vector<QString>& lst_src,
-                              std::vector<QString>& lst_dst) {
-  QStandardItemModel* src_model = static_cast<QStandardItemModel*>(src->model());
-  QStandardItemModel* dst_model = static_cast<QStandardItemModel*>(dst->model());
-
-  QModelIndexList indexes = src->selectionModel()->selectedIndexes();
-  std::sort(indexes.begin(), indexes.end());
-
-  for(auto i = indexes.cbegin(); i != indexes.cend(); ++i) {
-    dst_model->appendRow(new QStandardItem(i->data().toString()));
-    lst_dst.push_back(i->data().toString());
-  }
-
-  //remove in desc order!!!
-  for(auto i = indexes.crbegin(); i != indexes.crend(); ++i) {
-    src_model->removeRow(i->row(), i->parent());
-    lst_src.erase(lst_src.begin() + i->row());
-  }
-}
-////////////////////////////////////////////////////////////////////////////
 
 void
 DlgGenerateSshKey::refresh_key_files() {
@@ -138,8 +100,6 @@ DlgGenerateSshKey::refresh_key_files() {
     m_dct_environment_keyflags[i->id()] =
         CRestWorker::Instance()->is_sshkeys_in_environment(lst_key_content, i->id());
   }
-
-  cb_environments_index_changed(ui->cb_environments->currentIndex());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -159,51 +119,14 @@ DlgGenerateSshKey::btn_generate_released() {
 
 void
 DlgGenerateSshKey::btn_send_to_hub_released() {
-  for (auto i = m_current_enabled.begin(); i != m_current_enabled.end(); ++i) {
-    qDebug() << *i;
-  }
+
   refresh_key_files();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgGenerateSshKey::btn_to_disabled_released() {
-  move_items(ui->lstv_enabled, ui->lstv_disabled, m_current_enabled, m_current_disabled);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgGenerateSshKey::btn_to_enabled_released() {
-  move_items(ui->lstv_disabled, ui->lstv_enabled, m_current_disabled, m_current_enabled);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgGenerateSshKey::cb_environments_index_changed(int ix) {
-  QString env_id = CHubController::Instance().lst_environments()[ix].id();
-  ix = 0;
-  m_model_disabled_keys->clear();
-  m_model_enabled_keys->clear();
-  for (auto i = m_dct_environment_keyflags[env_id].begin();
-       i != m_dct_environment_keyflags[env_id].end(); ++i, ++ix) {
-    if (*i) {
-      m_model_enabled_keys->appendRow(new QStandardItem(m_lst_key_files.at(ix)));
-      m_current_enabled.push_back(m_lst_key_files.at(ix));
-    } else {
-      m_model_disabled_keys->appendRow(new QStandardItem(m_lst_key_files.at(ix)));
-      m_current_disabled.push_back(m_lst_key_files.at(ix));
-    }
-  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgGenerateSshKey::environments_updated(int update_result) {
   UNUSED_ARG(update_result);
-  for (auto i = CHubController::Instance().lst_environments().begin();
-       i != CHubController::Instance().lst_environments().end(); ++i) {
-    m_model_environments->appendRow(new QStandardItem(i->name()));
-  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

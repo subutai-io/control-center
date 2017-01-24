@@ -32,6 +32,7 @@
         <file>about.png</file>
         <file>logout.png</file>
         <file>tray_splash.png</file>
+        <file>ssh-keys.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

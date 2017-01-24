@@ -318,7 +318,10 @@ CSystemCallWrapper::is_rh_management_update_available(bool &available) {
                           "sudo subutai update management -c",
                           exit_code,
                           lst_out);
-  if (res != SCWE_SUCCESS) return res;
+  if (res != SCWE_SUCCESS) {
+    CApplicationLog::Instance()->LogError("is_rh_management_update_available failed with code %d", res);
+    return res;
+  }
   available = exit_code == 0;
   return SCWE_SUCCESS; //doesn't matter I guess.
 }
