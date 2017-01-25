@@ -73,10 +73,14 @@ CRestWorker::get_request_json_document(const QString &link,
   QByteArray arr = send_request(m_network_manager, req, true,
                                 http_code, err_code, network_error,
                                 QByteArray(), true);
+
   QJsonDocument doc  = QJsonDocument::fromJson(arr);
   if (doc.isNull()) {
-    if (err_code != RE_NETWORK_ERROR && err_code != RE_TIMEOUT)
+    if (err_code != RE_NETWORK_ERROR &&
+        err_code != RE_TIMEOUT &&
+        QString(arr) != "[]") {
       err_code = RE_NOT_JSON_DOC;
+    }
     CApplicationLog::Instance()->LogInfo("Received not json document from url : %s", link.toStdString().c_str());
     return QJsonDocument();
   }
@@ -217,12 +221,20 @@ CRestWorker::download_gorjun_file(const QString &file_id) {
   url.setQuery(query);
   return download_file(url);
 }
+
+QNetworkReply *
+CRestWorker::download_file_aux(QNetworkAccessManager *nam,
+                               const QUrl &url) {
+  QNetworkRequest request(url);
+  return nam->get(request);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 QNetworkReply*
 CRestWorker::download_file(const QUrl &url) {
-  QNetworkRequest request(url);
-  return m_network_manager->get(request);
+  IFunctor* functor = new FunctorWithResult<QNetworkReply*, QNetworkAccessManager*, const QUrl&>
+      (download_file_aux, m_network_manager, url, "download file");
+  return EVENT_LOOP::GetSyncResult<QNetworkReply*>(m_el, functor, true);
 }
 
 const QString&

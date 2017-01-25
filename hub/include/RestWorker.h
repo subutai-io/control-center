@@ -115,6 +115,8 @@ public:
                            const QString &p2p_status);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
+  static QNetworkReply* download_file_aux(QNetworkAccessManager* nam,
+                                          const QUrl& url);
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);
