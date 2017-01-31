@@ -98,7 +98,7 @@ public:
                          int& err_code,
                          int &network_error);
 
-  std::vector<CRHInfo> get_ssh_containers(int &http_code,
+  std::vector<CRHInfo> get_containers(int &http_code,
                                           int& err_code,
                                           int &network_error);
 

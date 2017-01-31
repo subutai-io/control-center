@@ -151,7 +151,7 @@ CHubController::refresh_balance() {
 
 void CHubController::refresh_containers_internal() {
   int http_code, err_code, network_error;
-  std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
+  std::vector<CRHInfo> res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
 
   if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh containers. Received not json. Trying to re-login");
@@ -159,7 +159,7 @@ void CHubController::refresh_containers_internal() {
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
+      res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
     }
@@ -231,6 +231,11 @@ CHubController::refresh_environments_internal() {
     for (auto env = m_lst_environments_internal.cbegin(); env != m_lst_environments_internal.cend(); ++env) {
       m_lst_environments.push_back(CEnvironmentEx(*env, m_lst_resource_hosts));
     }
+    m_lst_healthy_environments.erase(m_lst_healthy_environments.begin(), m_lst_healthy_environments.end());
+    std::copy_if(m_lst_environments.begin(),
+                 m_lst_environments.end(),
+                 std::back_inserter(m_lst_healthy_environments),
+                 [](const CEnvironmentEx& env){return env.healthy();});
   }
   return RER_SUCCESS;
 }

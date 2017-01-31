@@ -118,9 +118,9 @@ CRestWorker::get_balance(int& http_code,
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<CRHInfo>
-CRestWorker::get_ssh_containers(int &http_code,
-                                int &err_code,
-                                int &network_error) {
+CRestWorker::get_containers(int &http_code,
+                            int &err_code,
+                            int &network_error) {
   QJsonDocument doc = get_request_json_document("containers", http_code, err_code, network_error);
   if (err_code != 0) return std::vector<CRHInfo>();
 
@@ -287,6 +287,10 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
   obj["sshKeys"] = json_keys;
   obj["envId"]  = QJsonValue(env);
 
+  qDebug() << "****";
+  qDebug() << obj;
+  qDebug() << "****";
+
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
   QUrl url(str_url);
@@ -297,6 +301,7 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
                                     http_code, err_code, network_err,
                                     doc_serialized, false);
 
+  qDebug() << res_arr;
   QJsonDocument res_doc = QJsonDocument::fromJson(res_arr);
   if (res_doc.isEmpty()) return lst_res;
   if (!res_doc.isArray()) return lst_res;  

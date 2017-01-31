@@ -124,6 +124,7 @@ private:
   std::vector<CRHInfo> m_lst_resource_hosts;
 
   std::vector<CEnvironmentEx> m_lst_environments;
+  std::vector<CEnvironmentEx> m_lst_healthy_environments;
 
   QString m_balance;
   QString m_current_user;
@@ -204,6 +205,7 @@ public:
    * \brief List of environments
    */
   const std::vector<CEnvironmentEx>& lst_environments() const {return m_lst_environments;}
+  const std::vector<CEnvironmentEx>& lst_healthy_environments() const {return m_lst_healthy_environments;}
 
   /*!
    * \brief Current balance represented by string
