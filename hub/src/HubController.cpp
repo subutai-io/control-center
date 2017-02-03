@@ -9,12 +9,13 @@
 #include "SystemCallWrapper.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
-#define UNDEFINED_BALANCE "Undefined balance"
+#include "SshKeysController.h"
+static const QString undefined_balance("Undefined balance");
 
 CHubController::CHubController() :
   m_lst_environments_internal(),
   m_lst_resource_hosts(),
-  m_balance(UNDEFINED_BALANCE)
+  m_balance(undefined_balance)
 {
   connect(&m_refresh_timer, SIGNAL(timeout()),
           this, SLOT(refresh_timer_timeout()));
@@ -46,7 +47,8 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
   }
 
   CHubControllerP2PWorker* th_worker =
-      new CHubControllerP2PWorker(env->hash(),
+      new CHubControllerP2PWorker(env->id(),
+                                  env->hash(),
                                   env->key(),
                                   cont->rh_ip(),
                                   cont->port(),
@@ -144,7 +146,7 @@ CHubController::refresh_balance() {
     }
   }
 
-  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: %1").arg(balance.value());
+  m_balance = err_code ? undefined_balance : QString("Balance: %1").arg(balance.value());
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -298,11 +300,13 @@ CHubController::ssh_launch_err_to_str(int err) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_hash,
+CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_id, 
+                                                 const QString &env_hash,
                                                  const QString &env_key,
                                                  const QString &ip,
                                                  const QString &cont_port,
                                                  void *additional_data) :
+  m_env_id(env_id),
   m_env_hash(env_hash),
   m_env_key(env_key),
   m_ip(ip),
@@ -360,26 +364,18 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
-  QFile key_file_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                     CHubController::Instance().current_user() +
-                     QString(".pub"));
-  QFile key_file_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                         CHubController::Instance().current_user());
   QString key;
+  QStringList keys_in_env =
+      CSshKeysController::Instance().keys_in_environment(m_env_id);
 
-  if (key_file_pub.exists() &&  key_file_private.exists()) {
-    key = (CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-           CHubController::Instance().current_user());
-  } else {
-    QFile standard_key_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                                "id_rsa.pub");
-    QFile standard_key_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                               "id_rsa");
+  if (!keys_in_env.empty()) {
+    QString str_file = CSettingsManager::Instance().ssh_keys_storage() +
+                       QDir::separator() +
+                       keys_in_env[0];
+    QFileInfo fi(str_file);
 
-    if (standard_key_pub.exists() && standard_key_private.exists()) {
-      key = (CSettingsManager::Instance().ssh_keys_storage() +
-            QDir::separator() + "id_rsa");
-    }
+    key = CSettingsManager::Instance().ssh_keys_storage() +
+          QDir::separator() + fi.baseName();
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),

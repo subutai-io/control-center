@@ -29,13 +29,15 @@ typedef enum ssh_launch_error {
 class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
+  QString m_env_id;
   QString m_env_hash;
   QString m_env_key;
   QString m_ip;
   QString m_cont_port;
   void *m_additional_data;
 public:
-  CHubControllerP2PWorker(const QString& env_hash,
+  CHubControllerP2PWorker(const QString& env_id,
+                          const QString& env_hash,
                           const QString& env_key,
                           const QString& ip,
                           const QString& cont_port,
