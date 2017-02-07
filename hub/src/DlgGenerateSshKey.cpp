@@ -23,7 +23,8 @@
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::DlgGenerateSshKey)
+  ui(new Ui::DlgGenerateSshKey),
+  m_change_everything_on_all_select(false)
 {
   ui->setupUi(this);
   ui->btn_send_to_hub->setEnabled(false);
@@ -41,6 +42,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(ui->lstv_sshkeys->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
           this, SLOT(lstv_keys_current_changed(QModelIndex,QModelIndex)));
+
+  connect(ui->chk_select_all, SIGNAL(stateChanged(int)),
+          this, SLOT(chk_select_all_checked_changed(int)));
 
   connect(m_model_environments, SIGNAL(itemChanged(QStandardItem*)),
           this, SLOT(environments_item_changed(QStandardItem*)));
@@ -68,7 +72,7 @@ DlgGenerateSshKey::set_environments_checked_flag() {
   for (int r = 0; r < m_model_environments->rowCount(); ++r) {
     QStandardItem* item = m_model_environments->item(r);
     Qt::CheckState st =
-        CSshKeysController::Instance().current_key_environments_bitmask()[r] ? Qt::Checked : Qt::Unchecked;
+        CSshKeysController::Instance().get_key_environments_bit(r) ? Qt::Checked : Qt::Unchecked;
     item->setCheckState(st);
     item->setEditable(st != Qt::Checked);
   }
@@ -139,19 +143,34 @@ DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex ix0,
   CSshKeysController::Instance().set_current_key(
         ui->lstv_sshkeys->currentIndex().data().toString());
   set_environments_checked_flag();
+  ui->chk_select_all->setChecked(
+        CSshKeysController::Instance().current_key_is_allselected());
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgGenerateSshKey::ssh_key_send_progress(int part, int total) {
-  qDebug() << part << "   " << total;
+  UNUSED_ARG(part);
+  UNUSED_ARG(total);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
+  if (!m_change_everything_on_all_select) return;
+  if (CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked))
+    set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgGenerateSshKey::environments_item_changed(QStandardItem *item) {
-  CSshKeysController::Instance().current_key_environments_bitmask()[item->index().row()] =
-      item->checkState() == Qt::Checked;
+  CSshKeysController::Instance().set_key_environments_bit(item->index().row(),
+      item->checkState() == Qt::Checked);
   ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  m_change_everything_on_all_select = false;
+  ui->chk_select_all->setChecked(
+        CSshKeysController::Instance().current_key_is_allselected());
+  m_change_everything_on_all_select = true;
 }
 ////////////////////////////////////////////////////////////////////////////

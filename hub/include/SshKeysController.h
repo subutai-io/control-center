@@ -30,6 +30,7 @@ private:
   map_string_bitmask m_dct_environment_keyflags;
   map_string_bitmask m_dct_key_environments;
   map_string_bitmask m_dct_key_environments_original;
+  std::map<QString, bool> m_dct_key_allselected;
 
   CSshKeysController();
   virtual ~CSshKeysController();
@@ -50,7 +51,13 @@ public:
   bool has_current_key() const {return !m_current_key.isEmpty();}
   void set_current_key(const QString& key) {m_current_key = key;}
   bool something_changed() const {return m_dct_key_environments != m_dct_key_environments_original;}
-  std::vector<bool>& current_key_environments_bitmask();
+
+  void set_key_environments_bit(int index, bool bit);
+  bool get_key_environments_bit(int index);
+
+  bool current_key_is_allselected() const;
+  bool set_current_key_allselected(bool flag);
+
   const QStringList& lst_key_files() const {return m_lst_key_files;}
   QStringList keys_in_environment(const QString& env_id) const;
 

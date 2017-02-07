@@ -76,6 +76,7 @@ CSshKeysController::rebuild_bitmasks() {
   for (int i = 0; i < m_lst_key_files.size(); ++i) {
     m_dct_key_environments[m_lst_key_files[i]] =
         std::vector<bool>(CHubController::Instance().lst_healthy_environments().size());
+    m_dct_key_allselected[m_lst_key_files[i]] = false;
 
     int k = 0;
     for (auto j = m_dct_environment_keyflags.begin();
@@ -158,11 +159,46 @@ CSshKeysController::send_data_to_hub() const {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-std::vector<bool>&
-CSshKeysController::current_key_environments_bitmask() {
-  bool invalid = m_current_key.isEmpty() ||
-               m_dct_key_environments.find(m_current_key) == m_dct_key_environments.end();
-  return invalid ?  empty_environments_bitmask : m_dct_key_environments[m_current_key];
+void
+CSshKeysController::set_key_environments_bit(int index, bool bit) {
+  if (m_current_key.isEmpty()) return;
+  m_dct_key_environments[m_current_key][index] = bit;
+
+  bit = true;
+  for (index = 0; index < m_dct_key_environments[m_current_key].size(); ++index) {
+    if (m_dct_key_environments[m_current_key][index]) continue;
+    bit = false;
+  }
+  m_dct_key_allselected[m_current_key] = bit;
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+CSshKeysController::get_key_environments_bit(int index) {
+  if (m_current_key.isEmpty()) return false;
+  return m_dct_key_environments[m_current_key][index];
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+CSshKeysController::current_key_is_allselected() const {
+  return m_dct_key_allselected.find(m_current_key) !=
+      m_dct_key_allselected.end() && m_dct_key_allselected.at(m_current_key);
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+CSshKeysController::set_current_key_allselected(bool flag) {
+  if (m_dct_key_allselected.find(m_current_key) == m_dct_key_allselected.end())
+    return false;
+  if (m_dct_key_environments.find(m_current_key) == m_dct_key_environments.end())
+    return false;
+
+  for (size_t i = 0;  i < m_dct_key_environments[m_current_key].size(); ++i) {
+    m_dct_key_environments[m_current_key][i] =
+        m_dct_key_environments_original[m_current_key][i] || flag;
+  }
+  return true;
 }
 ////////////////////////////////////////////////////////////////////////////
 
