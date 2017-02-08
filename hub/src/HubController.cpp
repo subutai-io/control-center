@@ -9,12 +9,13 @@
 #include "SystemCallWrapper.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
-#define UNDEFINED_BALANCE "Undefined balance"
+#include "SshKeysController.h"
+static const QString undefined_balance("Undefined balance");
 
 CHubController::CHubController() :
   m_lst_environments_internal(),
   m_lst_resource_hosts(),
-  m_balance(UNDEFINED_BALANCE)
+  m_balance(undefined_balance)
 {
   connect(&m_refresh_timer, SIGNAL(timeout()),
           this, SLOT(refresh_timer_timeout()));
@@ -29,7 +30,7 @@ CHubController::CHubController() :
 CHubController::~CHubController() {
 //  we can free p2p resources. but we won't do it.
 //  for (auto i = m_lst_environments_internal.begin(); i != m_lst_environments_internal.end(); ++i) {
-//    CSystemCallWrapper::leave_p2p_swarm(i->hash().toStdString().c_str());
+//    CSystemCallWrapper::leave_p2p_swarm(i->hash());
 //  }
 }
 
@@ -38,8 +39,7 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
                                           const CHubContainerEx *cont,
                                           void *additional_data,
                                           finished_slot_t slot) {
-  std::string rh_ip = cont->rh_ip().toStdString();
-  if (rh_ip.empty()) {
+  if (cont->rh_ip().isEmpty()) {
     CApplicationLog::Instance()->LogError("Resourse host IP is empty. Conteiner ID : %s",
                                           cont->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
@@ -47,10 +47,11 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
   }
 
   CHubControllerP2PWorker* th_worker =
-      new CHubControllerP2PWorker(env->hash().toStdString(),
-                                  env->key().toStdString(),
-                                  rh_ip,
-                                  cont->port().toStdString(),
+      new CHubControllerP2PWorker(env->id(),
+                                  env->hash(),
+                                  env->key(),
+                                  cont->rh_ip(),
+                                  cont->port(),
                                   additional_data);
 
   QThread* th = new QThread;
@@ -59,9 +60,11 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
 
   /*hack, but I haven't enough time*/
   if (slot == ssh_to_cont)
-    connect(th_worker, SIGNAL(ssh_to_container_finished(int, void*)), this, SLOT(ssh_to_container_finished_slot(int, void*)));
+    connect(th_worker, SIGNAL(ssh_to_container_finished(int, void*)),
+            this, SLOT(ssh_to_container_finished_slot(int, void*)));
   else if (slot == ssh_to_cont_str)
-    connect(th_worker, SIGNAL(ssh_to_container_finished(int,void*)), this, SLOT(ssh_to_container_finished_str_slot(int,void*)));
+    connect(th_worker, SIGNAL(ssh_to_container_finished(int,void*)),
+            this, SLOT(ssh_to_container_finished_str_slot(int,void*)));
 
   connect(th_worker, SIGNAL(ssh_to_container_finished(int, void*)), th, SLOT(quit()));
   connect(th, SIGNAL(finished()), th_worker, SLOT(deleteLater()));
@@ -143,14 +146,14 @@ CHubController::refresh_balance() {
     }
   }
 
-  m_balance = err_code ? QString(UNDEFINED_BALANCE) : QString("Balance: %1").arg(balance.value());
+  m_balance = err_code ? undefined_balance : QString("Balance: %1").arg(balance.value());
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_containers_internal() {
   int http_code, err_code, network_error;
-  std::vector<CRHInfo> res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
+  std::vector<CRHInfo> res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
 
   if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh containers. Received not json. Trying to re-login");
@@ -158,7 +161,7 @@ void CHubController::refresh_containers_internal() {
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      res = CRestWorker::Instance()->get_ssh_containers(http_code, err_code, network_error);
+      res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
     }
@@ -230,6 +233,11 @@ CHubController::refresh_environments_internal() {
     for (auto env = m_lst_environments_internal.cbegin(); env != m_lst_environments_internal.cend(); ++env) {
       m_lst_environments.push_back(CEnvironmentEx(*env, m_lst_resource_hosts));
     }
+    m_lst_healthy_environments.erase(m_lst_healthy_environments.begin(), m_lst_healthy_environments.end());
+    std::copy_if(m_lst_environments.begin(),
+                 m_lst_environments.end(),
+                 std::back_inserter(m_lst_healthy_environments),
+                 [](const CEnvironmentEx& env){return env.healthy();});
   }
   return RER_SUCCESS;
 }
@@ -292,11 +300,13 @@ CHubController::ssh_launch_err_to_str(int err) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-CHubControllerP2PWorker::CHubControllerP2PWorker(const std::string &env_hash,
-                                                 const std::string &env_key,
-                                                 const std::string &ip,
-                                                 const std::string &cont_port,
+CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_id, 
+                                                 const QString &env_hash,
+                                                 const QString &env_key,
+                                                 const QString &ip,
+                                                 const QString &cont_port,
                                                  void *additional_data) :
+  m_env_id(env_id),
   m_env_hash(env_hash),
   m_env_key(env_key),
   m_ip(ip),
@@ -314,8 +324,8 @@ CHubControllerP2PWorker::~CHubControllerP2PWorker()
 
 void
 CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
-  system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash.c_str(),
-                                                                          m_env_key.c_str(),
+  system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash,
+                                                                          m_env_key,
                                                                           "dhcp");
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Failed to join to p2p network. Error : %1").
@@ -342,8 +352,8 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   CNotificationObserver::NotifyAboutInfo("Checking container. Please, wait");
   static const int MAX_ATTEMTS_COUNT = 25;
   for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
-    err = CSystemCallWrapper::check_container_state(m_env_hash.c_str(),
-                                                    m_ip.c_str());
+    err = CSystemCallWrapper::check_container_state(m_env_hash,
+                                                    m_ip);
     if (err == SCWE_SUCCESS) break;
     QThread::currentThread()->sleep(1);
   }
@@ -354,32 +364,24 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
-  QFile key_file_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                     CHubController::Instance().current_user() +
-                     QString(".pub"));
-  QFile key_file_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                         CHubController::Instance().current_user());
-  std::string key;
+  QString key;
+  QStringList keys_in_env =
+      CSshKeysController::Instance().keys_in_environment(m_env_id);
 
-  if (key_file_pub.exists() &&  key_file_private.exists()) {
-    key = (CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-           CHubController::Instance().current_user()).toStdString();
-  } else {
-    QFile standard_key_pub(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                                "id_rsa.pub");
-    QFile standard_key_private(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-                               "id_rsa");
+  if (!keys_in_env.empty()) {
+    QString str_file = CSettingsManager::Instance().ssh_keys_storage() +
+                       QDir::separator() +
+                       keys_in_env[0];
+    QFileInfo fi(str_file);
 
-    if (standard_key_pub.exists() && standard_key_private.exists()) {
-      key = (CSettingsManager::Instance().ssh_keys_storage() +
-            QDir::separator() + "id_rsa").toStdString();
-    }
+    key = CSettingsManager::Instance().ssh_keys_storage() +
+          QDir::separator() + fi.baseName();
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
-                                                QString(m_ip.c_str()),
-                                                QString(m_cont_port.c_str()), //todo change to QString!!!
-                                                key.empty() ? NULL : key.c_str());
+                                                m_ip,
+                                                m_cont_port,
+                                                key);
 
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SSH failed. Error code : %1").

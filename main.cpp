@@ -127,11 +127,16 @@ main(int argc, char *argv[]) {
 
     dlg.run_dialog(&sc);
     if (dlg.result() == QDialog::Rejected)
-      break;    
+      break;
 
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
     TrayControlWindow tcw;
+//    QStringList keys;
+//    keys << "id_rsa" << "id_rsa2";
+//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "test_env_key' OR '1'='1' /*");
+//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "8345fcec-f742-4caa-ae4a-2e680ff708e1");
+
     result = app.exec();
   } while (0);
 

@@ -69,10 +69,9 @@ CUpdaterComponentTray::update_available_internal() {
 
 chue_t
 CUpdaterComponentTray::update_internal() {
-  std::string str_tray_path = tray_path();
-  if (str_tray_path.empty()) return CHUE_FAILED;
+  QString str_tray_path = tray_path();
+  if (str_tray_path.isEmpty()) return CHUE_FAILED;
 
-  QString str_tray_exe_path = QString::fromStdString(tray_path());
   QString str_tray_download_path = QApplication::applicationDirPath() +
                                    QDir::separator() +
                                    QString(tray_kurjun_file_name() +
@@ -92,7 +91,7 @@ CUpdaterComponentTray::update_internal() {
                                                       item->size());
 
   CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
-                                                  str_tray_exe_path);
+                                                  str_tray_path);
 
   connect(dm, SIGNAL(download_progress_sig(qint64,qint64)),
           this, SLOT(update_progress_sl(qint64,qint64)));
@@ -125,8 +124,8 @@ CUpdaterComponentTray::update_post_action(bool success) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-std::string
+QString
 CUpdaterComponentTray::tray_path() {
-  return QApplication::applicationFilePath().toStdString();
+  return QApplication::applicationFilePath();
 }
 ////////////////////////////////////////////////////////////////////////////
