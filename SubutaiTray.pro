@@ -54,7 +54,8 @@ SOURCES += \
     rtm/src/RtmDbController.cpp \
     hub/src/updater/UpdaterComponentRHManagement.cpp \
     csshx/src/CsshxController.cpp \
-    csshx/src/DlgCsshx.cpp
+    csshx/src/DlgCsshx.cpp \
+    hub/src/SshKeysController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -101,7 +102,8 @@ HEADERS  += \
     rtm/include/RtmDbController.h \
     hub/include/updater/UpdaterComponentRHManagement.h \
     csshx/include/CsshxController.h \
-    csshx/include/DlgCsshx.h
+    csshx/include/DlgCsshx.h \
+    hub/include/SshKeysController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
