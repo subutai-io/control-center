@@ -119,7 +119,8 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
 
-  CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s", hash);
+  CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s",
+                                        hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args, lst_out;
   args << "start" <<

@@ -165,8 +165,8 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
   m_dct_key_environments[m_current_key][index] = bit;
 
   bit = true;
-  for (index = 0; index < m_dct_key_environments[m_current_key].size(); ++index) {
-    if (m_dct_key_environments[m_current_key][index]) continue;
+  for (size_t i = 0; i < m_dct_key_environments[m_current_key].size(); ++i) {
+    if (m_dct_key_environments[m_current_key][i]) continue;
     bit = false;
   }
   m_dct_key_allselected[m_current_key] = bit;
