@@ -44,6 +44,9 @@ const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoup
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
+const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
+const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
+
 /*!
  * \brief This template is used like field initializer for code size reduction
  */
@@ -72,10 +75,16 @@ static void qvar_to_byte_arr(const QVariant& var, void* field) {
 ////////////////////////////////////////////////////////////////////////////
 #ifdef RT_OS_LINUX
   #define DEFAULT_P2P_PATH "/opt/subutai/bin/p2p"
+  #define DEFAULT_TERMINAL "xterm"
+  #define DEFAULT_TERM_ARG "-e"
 #elif RT_OS_DARWIN
   #define DEFAULT_P2P_PATH "/Applications/Subutai/p2p"
+  #define DEFAULT_TERMINAL "osascript"
+  #define DEFAULT_TERM_ARG "-e"
 #elif RT_OS_WINDOWS
   #define DEFAULT_P2P_PATH "p2p.exe"
+  #define DEFAULT_TERMINAL "cmd"
+  #define DEFAULT_TERM_ARG "/k"
 #endif
 
 static const int def_timeout = 120;
@@ -103,7 +112,9 @@ CSettingsManager::CSettingsManager() :
   m_p2p_autoupdate(false),
   m_rh_autoupdate(false),
   m_tray_autoupdate(false),
-  m_rh_management_autoupdate(false)
+  m_rh_management_autoupdate(false),
+  m_terminal_cmd(DEFAULT_TERMINAL),
+  m_terminal_arg(DEFAULT_TERM_ARG)
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -118,7 +129,7 @@ CSettingsManager::CSettingsManager() :
       if (!dir.exists()) {
         if (!dir.mkdir(dir_path)) continue;
       }
-      *fields[i] = dir_path;
+    *fields[i] = dir_path;
     }
   }
 
@@ -135,6 +146,8 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
     {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
     {(void*)&m_rtm_db_dir, SM_RTM_DB_DIR, qvar_to_str},
+    {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
+    {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -372,4 +385,6 @@ SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
 SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
 SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
 SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
+SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
+SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 #undef SET_FIELD_DEF
