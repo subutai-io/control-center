@@ -47,6 +47,9 @@ private:
 
   static const QString SM_RTM_DB_DIR;
 
+  static const QString SM_TERMINAL_CMD;
+  static const QString SM_TERMINAL_ARG;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -85,6 +88,9 @@ private:
   bool m_rh_management_autoupdate;
 
   QString m_rtm_db_dir;
+
+  QString m_terminal_cmd;
+  QString m_terminal_arg;
 
   void init_password();
 
@@ -146,6 +152,10 @@ public:
 
   const QString& rtm_db_dir() const {return m_rtm_db_dir;}
   bool is_writable() const {return m_settings.isWritable();}
+
+  //osascript for macOS . don't ask. don't change :(
+  const QString& terminal_cmd() const {return m_terminal_cmd;}
+  const QString& terminal_arg() const {return m_terminal_arg;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -180,6 +190,8 @@ public:
   SET_FIELD_DECL(tray_autoupdate, bool)
   SET_FIELD_DECL(rh_management_autoupdate, bool)
   SET_FIELD_DECL(rtm_db_dir, QString&)
+  SET_FIELD_DECL(terminal_cmd, QString&)
+  SET_FIELD_DECL(terminal_arg, QString&)
 #undef SET_FIELD_DECL
 };
 

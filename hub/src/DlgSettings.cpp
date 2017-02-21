@@ -5,6 +5,7 @@
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
+#include "SystemCallWrapper.h"
 
 static void fill_freq_combobox(QComboBox* cb) {
   for (int i = 0; i < CSettingsManager::UF_LAST; ++i)
@@ -54,6 +55,13 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
+
+  ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
+  ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
+
+#ifdef RT_OS_DARWIN
+  ui->gb_terminal_settings->setVisible(false);
+#endif
 
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
@@ -105,6 +113,19 @@ is_path_valid(const QLineEdit* le) {
   QFileInfo fi(le->text());
   return fi.exists();
 }
+
+bool
+can_launch_application(const QLineEdit* le) {
+  QFileInfo fi(le->text());
+  if (fi.exists() && fi.isExecutable())
+    return true;
+  QString cmd;
+  system_call_wrapper_error_t which_res =
+      CSystemCallWrapper::which(le->text(), cmd);
+  if (which_res != SCWE_SUCCESS) return false;
+  QFileInfo fi2(cmd);
+  return fi2.exists() && fi2.isExecutable();
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -112,6 +133,7 @@ DlgSettings::btn_ok_released() {
   static const char* empty_validator_msg = "Field can't be empty";
   static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
   static const char* path_invalid_validator_msg = "Invalid path";
+  static const char* can_launch_application_msg = "Can't launch application";
 
   QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
                     ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder};
@@ -143,6 +165,10 @@ DlgSettings::btn_ok_released() {
 
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_command, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_terminal_cmd, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
 
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
@@ -173,19 +199,25 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text().toUInt());
   CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
-  CSettingsManager::Instance().set_notification_delay_sec(ui->sb_notification_delay->value());
+  CSettingsManager::Instance().set_notification_delay_sec(
+        ui->sb_notification_delay->value());
 
-  CSettingsManager::Instance().set_p2p_autoupdate(ui->chk_p2p_autoupdate->checkState()==Qt::Checked);
-  CSettingsManager::Instance().set_rh_autoupdate(ui->chk_rh_autoupdate->checkState()==Qt::Checked);
-  CSettingsManager::Instance().set_tray_autoupdate(ui->chk_tray_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_p2p_autoupdate(
+        ui->chk_p2p_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_rh_autoupdate(
+        ui->chk_rh_autoupdate->checkState()==Qt::Checked);
+  CSettingsManager::Instance().set_tray_autoupdate(
+        ui->chk_tray_autoupdate->checkState()==Qt::Checked);
   CSettingsManager::Instance().set_rh_management_autoupdate(
         ui->chk_rhm_autoupdate->checkState()==Qt::Checked);
 
   CSettingsManager::Instance().set_p2p_update_freq(ui->cb_p2p_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_update_freq(ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
-  CSettingsManager::Instance().set_rh_management_freq(
-        ui->cb_rhm_frequency->currentIndex());
+  CSettingsManager::Instance().set_rh_management_freq(ui->cb_rhm_frequency->currentIndex());
+
+  CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
+  CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().save_all();
