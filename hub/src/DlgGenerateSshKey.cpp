@@ -2,8 +2,16 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
-#include <QClipboard>
 #include <RestWorker.h>
+#include <QFileDialog>
+#include <QThread>
+
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QListView>
+#include <QModelIndexList>
+#include <QItemSelectionModel>
+#include <algorithm>
 
 #include "DlgGenerateSshKey.h"
 #include "ui_DlgGenerateSshKey.h"
@@ -11,23 +19,48 @@
 #include "HubController.h"
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
+#include "SshKeysController.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgGenerateSshKey),
-  m_standard_key_used(true)
+  m_change_everything_on_all_select(false)
 {
   ui->setupUi(this);
-  ui->lbl_status->setText("");
-  ui->lbl_status->setVisible(false);
-  set_key_text();
+  ui->btn_send_to_hub->setEnabled(false);
 
-  connect(ui->btn_generate, SIGNAL(released()), this, SLOT(btn_generate_released()));
-  connect(ui->btn_copy_to_clipboard, SIGNAL(released()),
-          this, SLOT(btn_copy_to_clipboard_released()));
-  connect(ui->btn_add_to_environments, SIGNAL(released()),
-          this, SLOT(btn_add_to_environments_released()));
+  m_model_environments  = new QStandardItemModel(this);
+  m_model_keys          = new QStandardItemModel(this);
+
+  ui->lstv_environments->setModel(m_model_environments);
+  ui->lstv_sshkeys->setModel(m_model_keys);
+
+  connect(ui->btn_generate_new_key, SIGNAL(released()), this, SLOT(btn_generate_released()));
+  connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));  
+  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
+          this, SLOT(environments_updated(int)));
+
+  connect(ui->lstv_sshkeys->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+          this, SLOT(lstv_keys_current_changed(QModelIndex,QModelIndex)));
+
+  connect(ui->chk_select_all, SIGNAL(stateChanged(int)),
+          this, SLOT(chk_select_all_checked_changed(int)));
+
+  connect(m_model_environments, SIGNAL(itemChanged(QStandardItem*)),
+          this, SLOT(environments_item_changed(QStandardItem*)));
+
+  CSshKeysController::Instance().refresh_key_files();
+  rebuild_keys_model();
+
+  rebuild_environments_model();
+  set_environments_checked_flag();
+
+  if (m_model_keys->rowCount() && CSshKeysController::Instance().has_current_key()) {
+    ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
+          m_model_keys->index(0, 0), QItemSelectionModel::Select);
+  }
 }
+////////////////////////////////////////////////////////////////////////////
 
 DlgGenerateSshKey::~DlgGenerateSshKey() {
   delete ui;
@@ -35,84 +68,40 @@ DlgGenerateSshKey::~DlgGenerateSshKey() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::generate_new_ssh() {
-
-  QFile key(ssh_private_key_path());
-  QFile key_pub(ssh_pub_key_path());
-
-  if (key.exists() && key_pub.exists()) {
-    key.remove();
-    key_pub.remove();
+DlgGenerateSshKey::set_environments_checked_flag() {
+  for (int r = 0; r < m_model_environments->rowCount(); ++r) {
+    QStandardItem* item = m_model_environments->item(r);
+    Qt::CheckState st =
+        CSshKeysController::Instance().get_key_environments_bit(r) ? Qt::Checked : Qt::Unchecked;
+    item->setCheckState(st);
+    item->setEditable(st != Qt::Checked);
   }
-
-  system_call_wrapper_error_t scwe =
-      CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user(),
-                                           ssh_private_key_path());
-  if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->NotifyAboutError(
-          QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
-    return;
-  }
-  m_standard_key_used = false;
-  ui->lbl_status->setVisible(false);
-  ui->lbl_status->setText("");
-  set_key_text();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::set_key_text() {
-  QString path = ssh_pub_key_path();
-  QFile file(path);
-  if (file.exists()) {
-    file.open(QFile::ReadOnly);
-    QByteArray bytes = file.readAll();
-    ui->te_ssh_key->setText(QString(bytes));
-    m_standard_key_used = false;
-  } else {
-    QFile standard_key_file(ssh_standard_pub_key_path());
-    if (standard_key_file.exists()) {
-      standard_key_file.open(QFile::ReadOnly);
-      QByteArray bytes = standard_key_file.readAll();
-      ui->te_ssh_key->setText(QString(bytes));
-      ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText("<font color='blue'>Warning! Using standard id_rsa ssh key!</font>");
-    }
+DlgGenerateSshKey::rebuild_environments_model() {
+  m_model_environments->clear();
+  for (auto i = CHubController::Instance().lst_healthy_environments().begin();
+       i != CHubController::Instance().lst_healthy_environments().end(); ++i) {
+    QStandardItem* nitem = new QStandardItem(i->name());
+    nitem->setCheckable(true);
+    nitem->setCheckState(Qt::Unchecked);
+    nitem->setEditable(false);
+    m_model_environments->appendRow(nitem);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString
-DlgGenerateSshKey::ssh_pub_key_path() const {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() +
-                 CHubController::Instance().current_user() + ".pub";
-  return path;
-}
-////////////////////////////////////////////////////////////////////////////
-
-QString
-DlgGenerateSshKey::ssh_private_key_path() const {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() +
-                 CHubController::Instance().current_user();
-  return path;
-}
-////////////////////////////////////////////////////////////////////////////
-
-QString
-DlgGenerateSshKey::ssh_standard_pub_key_path() const {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() + "id_rsa.pub";
-  return path;
-}
-////////////////////////////////////////////////////////////////////////////
-
-QString
-DlgGenerateSshKey::ssh_standard_private_key_path() const {
-  QString path = CSettingsManager::Instance().ssh_keys_storage() +
-                 QDir::separator() + "id_rsa";
-  return path;
+void
+DlgGenerateSshKey::rebuild_keys_model() {
+  m_model_keys->clear();
+  for (auto i = CSshKeysController::Instance().lst_key_files().begin();
+       i != CSshKeysController::Instance().lst_key_files().end(); ++i) {
+    QStandardItem* item = new QStandardItem(*i);
+    item->setEditable(false);
+    m_model_keys->appendRow(item);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -121,57 +110,67 @@ DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
     CNotificationObserver::Instance()->NotifyAboutInfo(
-          "You don't have write permission to ssh-keys directory. Please change it in settings. Thanks");
+          "You don't have write permission to ssh-keys directory. "
+          "Please add write permission or change ssh-keys storage in settings. Thanks");
     return;
   }
-
-  if (ui->te_ssh_key->toPlainText().isEmpty() || m_standard_key_used) {
-    generate_new_ssh();
-  } else {
-    QMessageBox *msg_question = new QMessageBox;
-    do  {
-      msg_question->setWindowTitle("New SSH key generation");
-      msg_question->setText("Are you sure you want to generate new SSH key? You will need to update your environments");
-      msg_question->addButton(QMessageBox::Yes);
-      msg_question->addButton(QMessageBox::No);
-      msg_question->setDefaultButton(QMessageBox::No);
-      if (msg_question->exec() == QMessageBox::No)
-        break;
-      generate_new_ssh();
-    } while (0);
-    msg_question->deleteLater();
-  }
+  CSshKeysController::Instance().generate_new_ssh_key(this);
+  CSshKeysController::Instance().refresh_key_files();
+  rebuild_keys_model();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::btn_copy_to_clipboard_released() {
-  QString text = ui->te_ssh_key->toPlainText();
-  if (text.isEmpty()) return;
-  ui->te_ssh_key->selectAll();
-  QApplication::clipboard()->setText(text, QClipboard::Clipboard);
+DlgGenerateSshKey::btn_send_to_hub_released() {
+  CSshKeysController::Instance().send_data_to_hub();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::btn_add_to_environments_released() {
-  QString text = ui->te_ssh_key->toPlainText();
-  if (text.isEmpty()) return;
-  int http_code, err_code, network_err;
-  CRestWorker::Instance()->send_ssh_key(text, http_code, err_code, network_err);
-  CApplicationLog::Instance()->LogTrace("send ssh results : %d %d %d",
-                                        http_code, err_code, network_err);
-  QMessageBox *msg = new QMessageBox(this);
-  if (err_code == RE_SUCCESS) {
-    msg->setWindowTitle("Success");
-    msg->setText("Operation successfuly completed");
-    msg->addButton(QMessageBox::Yes);
-  } else {
-    msg->setWindowTitle("Operation failed");
-    msg->setText("Add ssh to environments failed");
-    msg->addButton(QMessageBox::Yes);
-  }
-  msg->exec();
-  delete msg;
+DlgGenerateSshKey::environments_updated(int update_result) {
+  UNUSED_ARG(update_result);
+  CSshKeysController::Instance().rebuild_bitmasks();
+  rebuild_environments_model();
+  set_environments_checked_flag();
+}
+/////////////////////////////////////////////////////// /////////////////////
+
+void
+DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex ix0,
+                                             QModelIndex ix1) {
+  UNUSED_ARG(ix1);
+  UNUSED_ARG(ix0);
+  CSshKeysController::Instance().set_current_key(
+        ui->lstv_sshkeys->currentIndex().data().toString());
+  set_environments_checked_flag();
+  ui->chk_select_all->setChecked(
+        CSshKeysController::Instance().current_key_is_allselected());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::ssh_key_send_progress(int part, int total) {
+  UNUSED_ARG(part);
+  UNUSED_ARG(total);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
+  if (!m_change_everything_on_all_select) return;
+  if (CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked))
+    set_environments_checked_flag();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::environments_item_changed(QStandardItem *item) {
+  CSshKeysController::Instance().set_key_environments_bit(item->index().row(),
+      item->checkState() == Qt::Checked);
+  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  m_change_everything_on_all_select = false;
+  ui->chk_select_all->setChecked(
+        CSshKeysController::Instance().current_key_is_allselected());
+  m_change_everything_on_all_select = true;
 }
 ////////////////////////////////////////////////////////////////////////////

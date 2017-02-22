@@ -2,14 +2,16 @@
 #define DLGGENERATESSHKEY_H
 
 #include <QDialog>
+#include <QModelIndex>
 
 namespace Ui {
   class DlgGenerateSshKey;
 }
 
-/*!
- * \brief This class is used for managing behavior of "Generate SSH key" dialog
- */
+class QStandardItemModel;
+class QStandardItem;
+class QListView;
+
 class DlgGenerateSshKey : public QDialog
 {
   Q_OBJECT
@@ -20,19 +22,24 @@ public:
 
 private:
   Ui::DlgGenerateSshKey *ui;
-  bool m_standard_key_used;
-  void generate_new_ssh();
-  void set_key_text();
+  QStandardItemModel* m_model_environments;
+  QStandardItemModel* m_model_keys;
+  bool m_change_everything_on_all_select;
 
-  QString ssh_pub_key_path() const;
-  QString ssh_private_key_path() const;
-  QString ssh_standard_pub_key_path() const;
-  QString ssh_standard_private_key_path() const;
+  void set_environments_checked_flag();
+  void rebuild_environments_model();
+  void rebuild_keys_model();
 
 private slots:
   void btn_generate_released();
-  void btn_copy_to_clipboard_released();
-  void btn_add_to_environments_released();
-};
+  void btn_send_to_hub_released();
 
+  void environments_updated(int update_result);
+  void environments_item_changed(QStandardItem* item);
+
+  void lstv_keys_current_changed(QModelIndex ix0, QModelIndex ix1);
+  void ssh_key_send_progress(int part, int total);
+
+  void chk_select_all_checked_changed(int st);
+};
 #endif // DLGGENERATESSHKEY_H

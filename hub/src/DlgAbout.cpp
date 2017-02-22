@@ -225,14 +225,14 @@ DlgAbout::update_available_sl(const QString& component_id,
 
 void
 DlgAboutInitializer::do_initialization() {
-  std::string str_version;
   int initialized_component_count = 0;
   QString p2p_version = get_p2p_version();
   emit got_p2p_version(p2p_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-  CSystemCallWrapper::chrome_version(str_version);
-  QString chrome_version = QString::fromStdString(str_version);
+  QString chrome_version;
+  CSystemCallWrapper::chrome_version(chrome_version);
+
   emit got_chrome_version(chrome_version);
   emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 

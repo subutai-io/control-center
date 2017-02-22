@@ -17,6 +17,7 @@
 #include <vector>
 #include "ApplicationLog.h"
 #include "RestContainers.h"
+#include "EventLoop.h"
 
 typedef enum rest_error {
   RE_SUCCESS = 0,
@@ -34,6 +35,46 @@ typedef enum rest_error {
  */
 class CRestWorker : public QObject {
   Q_OBJECT
+
+private:
+  //todo use EventLoop
+#ifndef RT_OS_WINDOWS
+  CEventLoop<SynchroPrimitives::CLinuxManualResetEvent> *m_el;
+#else
+  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_el;
+#endif
+
+  QNetworkAccessManager *m_network_manager;
+  static QNetworkAccessManager* create_network_manager();
+  static int free_network_manager(QNetworkAccessManager*nam);
+
+  static QByteArray send_request_aux(
+      QNetworkAccessManager *nam,
+      QNetworkRequest &req,
+      bool get,
+      int& http_status_code,
+      int& err_code,
+      int &network_error,
+      QByteArray data,
+      bool show_network_err_msg);
+
+  QByteArray send_request(QNetworkAccessManager *nam,
+      QNetworkRequest &req,
+      bool get,
+      int& http_status_code,
+      int& err_code,
+      int &network_error,
+      QByteArray data,
+      bool show_network_err_msg);
+
+  QJsonDocument get_request_json_document(const QString& link,
+                                          int& http_code,
+                                          int &err_code,
+                                          int &network_error);
+
+  CRestWorker();
+  ~CRestWorker(void);
+
 public:
   /*!
    * \brief Instance of this singleton class
@@ -57,7 +98,7 @@ public:
                          int& err_code,
                          int &network_error);
 
-  std::vector<CRHInfo> get_ssh_containers(int &http_code,
+  std::vector<CRHInfo> get_containers(int &http_code,
                                           int& err_code,
                                           int &network_error);
 
@@ -74,37 +115,26 @@ public:
                            const QString &p2p_status);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
+  static QNetworkReply* download_file_aux(QNetworkAccessManager* nam,
+                                          const QUrl& url);
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);
+
   void send_ssh_key(const QString &key,
                     int &http_code,
                     int &err_code,
                     int &network_err);
 
-private:
-  QNetworkAccessManager *m_network_manager;
-  QByteArray send_request(QNetworkRequest &req,
-                          bool get,
-                          int& http_status_code,
-                          int& err_code,
-                          int &network_error,
-                          QByteArray data,
-                          bool ignore_ssl_errors,
-                          bool show_network_err_msg);
+  std::vector<bool> is_sshkeys_in_environment(const QStringList &keys,
+                                              const QString& env);
 
-  QJsonDocument get_request_json_document(const QString& link,
-                                          int& http_code,
-                                          int &err_code,
-                                          int &network_error);
+  void add_sshkey_to_environments(const QString& key,
+                                  const std::vector<QString>& lst_environments,
+                                  int& http_code,
+                                  int& err_code,
+                                  int& network_err);
 
-  CRestWorker();
-  CRestWorker(const QString& login,
-              const QString& password);
-  CRestWorker(const CRestWorker& worker);
-  ~CRestWorker(void);
- private slots:
-  void ssl_errors_appeared(QList<QSslError> lst_errors);
 };
 
 #endif // CRESTWORKER_H
