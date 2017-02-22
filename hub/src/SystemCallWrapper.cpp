@@ -243,7 +243,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                   "%1\"\n"
                   " end tell").arg(str_command);
 #elif RT_OS_LINUX
-  args << str_command;
+  args << QString("%1;bash").arg(str_command);
 #elif RT_OS_WINDOWS
   args << str_command;
 #endif
