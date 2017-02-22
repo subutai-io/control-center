@@ -224,23 +224,28 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
     str_command += QString(" -i %1 ").arg(key);
   }
 
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res ;
+    if ((tmp_res = which(CSettingsManager::Instance().terminal_cmd(), cmd)) != SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
+
 #ifdef RT_OS_DARWIN
-  QString cmd("osascript");
-  QStringList args;
-  args << "-e" <<
-          QString("Tell application \"Terminal\"\n"
+  args << QString("Tell application \"Terminal\"\n"
                   "  Activate\n"
                   "  do script \""
                   "%1\"\n"
                   " end tell").arg(str_command);
 #elif RT_OS_LINUX
-  QString cmd("xterm");
-  QStringList args;
-  args << "-e" << QString("%1;bash").arg(str_command);
+  args << QString("%1;bash").arg(str_command);
 #elif RT_OS_WINDOWS
-  QString cmd("cmd");
-  QStringList args;
-  args << "/k" << str_command;
+  args << str_command;
 #endif
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }

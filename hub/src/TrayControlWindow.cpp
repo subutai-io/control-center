@@ -650,6 +650,9 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
     dlg->move(curpos.x(), 0);
 #endif
     dlg->show();
+    dlg->activateWindow();
+    dlg->raise();
+    dlg->setFocus();
     connect(dlg, SIGNAL(finished(int)), this, SLOT(dialog_closed(int)));
   } else {
     if (iter->second) {
