@@ -34,11 +34,6 @@ namespace update_system {
   public:
     CUpdaterComponentTray();
     virtual ~CUpdaterComponentTray();
-
-    /*!
-     * \brief OS specific names of tray executable on kurjun
-     */
-    static const char *tray_kurjun_file_name();
   };
 }
 

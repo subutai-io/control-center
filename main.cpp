@@ -17,6 +17,7 @@
 #include "updater/UpdaterComponentTray.h"
 
 #include "rtm/include/RtmController.h"
+#include "OsBranchConsts.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -107,7 +108,7 @@ main(int argc, char *argv[]) {
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {
-    QString tmp_file_path = QString(update_system::CUpdaterComponentTray::tray_kurjun_file_name()) + tmp[i];
+    QString tmp_file_path = QString(tray_kurjun_file_name()) + tmp[i];
     QFile tmp_file(tmp_file_path);
     if (tmp_file.exists()) {
       if (!tmp_file.remove()) {
@@ -132,11 +133,6 @@ main(int argc, char *argv[]) {
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
     TrayControlWindow tcw;
-//    QStringList keys;
-//    keys << "id_rsa" << "id_rsa2";
-//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "test_env_key' OR '1'='1' /*");
-//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "8345fcec-f742-4caa-ae4a-2e680ff708e1");
-
     result = app.exec();
   } while (0);
 

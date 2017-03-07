@@ -38,7 +38,7 @@ private slots:
   void environments_item_changed(QStandardItem* item);
 
   void lstv_keys_current_changed(QModelIndex ix0, QModelIndex ix1);
-  void ssh_key_send_progress(int part, int total);
+  void ssh_key_send_progress_sl(int part, int total);
 
   void chk_select_all_checked_changed(int st);
 };

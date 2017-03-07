@@ -55,7 +55,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentRHManagement.cpp \
     csshx/src/CsshxController.cpp \
     csshx/src/DlgCsshx.cpp \
-    hub/src/SshKeysController.cpp
+    hub/src/SshKeysController.cpp \
+    commons/src/OsBranchConsts.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -103,7 +104,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRHManagement.h \
     csshx/include/CsshxController.h \
     csshx/include/DlgCsshx.h \
-    hub/include/SshKeysController.h
+    hub/include/SshKeysController.h \
+    commons/include/OsBranchConsts.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -118,8 +120,23 @@ RESOURCES += \
 
 GIT_VERSION = $$system(git describe)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
-GIT_BRANCH = $$system(git rev-parse --abbrev-ref HEAD)
-DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH\\\"
+
+GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
+DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
+
+GBV = BT_DEV
+equals(GIT_BRANCH_STR, "master") {
+  GBV=BT_MASTER
+}
+
+equals(GIT_BRANCH_STR, "stage") {
+  GBV=BT_STAGE
+}
+
+equals(GIT_BRANCH_STR, "dev") {
+  GBV=BT_DEV
+}
+DEFINES += CURRENT_BRANCH=$$GBV
 #////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
