@@ -49,14 +49,10 @@ SOURCES += \
     hub/src/updater/UpdaterComponentTray.cpp \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
-    rtm/src/RtmProcParser.cpp \
-    rtm/src/RtmController.cpp \
-    rtm/src/RtmDbController.cpp \
     hub/src/updater/UpdaterComponentRHManagement.cpp \
-    csshx/src/CsshxController.cpp \
-    csshx/src/DlgCsshx.cpp \
     hub/src/SshKeysController.cpp \
-    commons/src/OsBranchConsts.cpp
+    commons/src/OsBranchConsts.cpp \
+    hub/src/SsdpController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -98,14 +94,10 @@ HEADERS  += \
     commons/include/Commons.h \
     commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
-    rtm/include/RtmProcParser.h \
-    rtm/include/RtmController.h \
-    rtm/include/RtmDbController.h \
     hub/include/updater/UpdaterComponentRHManagement.h \
-    csshx/include/CsshxController.h \
-    csshx/include/DlgCsshx.h \
     hub/include/SshKeysController.h \
-    commons/include/OsBranchConsts.h
+    commons/include/OsBranchConsts.h \
+    hub/include/SsdpController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -113,7 +105,6 @@ FORMS    += \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
-    csshx/forms/DlgCsshx.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -206,6 +197,3 @@ win32: {
   LIBS += $$PWD/libssh2/lib/win32/libssh2.exp
 }
 #////////////////////////////////////////////////////////////////////////////
-
-DISTFILES += \
-    resources/Tray_icon_set-07.png

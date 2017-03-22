@@ -1,0 +1,226 @@
+#include "SsdpController.h"
+#include "SettingsManager.h"
+
+#include <stdio.h>
+
+
+static const char* ssdp_start_lines[] = {
+  "NOTIFY * HTTP/1.1\r\n",
+  "M-SEARCH * HTTP/1.1\r\n",
+  "HTTP/1.1 200 OK\r\n"
+};
+
+static const char* SSDP_HOST_ADDRESS = "239.255.255.250";
+static const char* SUBUTAI_SEARCH_TARGET  = "urn:subutai:management:peer:4";
+static const int   SSDP_PORT = 1900;
+
+void
+CSsdpController::init(std::vector<vertex_t> &dma) {
+  vertex_t root;
+  root.parent = root.link = 0;
+  dma.push_back(root);
+}
+////////////////////////////////////////////////////////
+
+void
+CSsdpController::add_string(const std::string& str,
+                            std::vector<vertex_t> &dma,
+                            size_t si,
+                            interested_fields_en ife) {
+  int32_t v = 0;
+  int32_t sz = (int32_t)dma.size();
+
+  for (size_t i=0; i < str.length(); ++i) {
+    int8_t c = str[i];
+    if (dma[v].next.find(c) == dma[v].next.end()) {
+      vertex_t node;
+      node.parent = v;
+      node.p_ch = c;
+      dma[v].next[c] = sz++;
+      dma.push_back(node);
+    }
+    v = dma[v].next[c];
+  }
+  dma[v].leaf = true;
+  dma[v].si = si;
+  dma[v].ife = ife;
+}
+////////////////////////////////////////////////////////
+
+int32_t
+CSsdpController::go(int32_t v, int8_t c, std::vector<vertex_t> &dma) {
+  if (dma[v].go.find(c) == dma[v].go.end()) {
+    if (dma[v].next.find(c) != dma[v].next.end())
+      dma[v].go[c] = dma[v].next[c];
+    else
+      dma[v].go[c] = v==0 ? 0 : go(get_link(v, dma), c, dma);
+  }
+  return dma[v].go[c];
+}
+////////////////////////////////////////////////////////
+
+int32_t
+CSsdpController::get_link(int32_t v, std::vector<vertex_t> &dma) {
+  if (dma[v].link == vertex_t::NOT_INITIALIZED) {
+    if (v == 0 || dma[v].parent == 0)
+      dma[v].link = 0;
+    else
+      dma[v].link = go(get_link(dma[v].parent, dma), dma[v].p_ch, dma);
+  }
+  return dma[v].link;
+}
+////////////////////////////////////////////////////////
+
+int32_t
+CSsdpController::nearest(int32_t v, std::vector<vertex_t> &dma) {
+  if (dma[v].nl != vertex_t::NOT_INITIALIZED) return dma[v].nl;
+  int32_t cv = v;
+  while ((cv = get_link(cv, dma))) {
+    if (!dma[cv].leaf) continue;
+    return dma[v].nl = cv;
+  }
+  return dma[v].nl;
+}
+////////////////////////////////////////////////////////
+
+static std::vector<std::string> interested_fields_strings[] = {
+  {"\r\nLOCATION:", "\r\nlocation:",
+   "\r\nNT:", "\r\nnt:",
+   "\r\nNTS:", "\r\nnts:",
+   "\r\nUSN:", "\r\nusn:"},
+
+  {"\r\nLOCATION:",
+   "\r\nlocation:"},
+
+  {"\r\nLOCATION:", "\r\nlocation:",
+   "\r\nST:", "\r\nst:",
+   "\r\nUSN:", "\r\nusn:"}
+};
+
+static std::vector<interested_fields_en> interested_fields[] = {
+  {ife_location, ife_location,
+   ife_nt, ife_nt,
+   ife_nts, ife_nts,
+   ife_usn, ife_usn},
+
+  {ife_location, ife_location},
+
+  {ife_location, ife_location,
+   ife_st, ife_st,
+   ife_usn, ife_usn},
+};
+////////////////////////////////////////////////////////////////////////////
+
+CSsdpController::CSsdpController(QObject *parent) :
+  QObject(parent),
+  m_group_address(SSDP_HOST_ADDRESS) {
+
+  std::vector<vertex_t>* dmas[] =
+    {&m_ak_notify_dma, &m_ak_search_dma, &m_ak_ok_dma};
+
+
+  for (int i = 0; i <= smt_ok; ++i) {
+    init(*dmas[i]);
+
+    for (size_t fi = 0; fi < interested_fields_strings[i].size(); ++fi) {
+      add_string(interested_fields_strings[i][fi], *dmas[i], fi, interested_fields[i][fi]);
+    }
+
+    for (int32_t j = 0; j < (int32_t)dmas[i]->size(); ++j) {
+      get_link(j, *dmas[i]);
+    }
+  }
+
+  m_socket = new QUdpSocket(this);
+  m_socket->bind(QHostAddress::AnyIPv4, SSDP_PORT, QUdpSocket::ShareAddress);
+  m_socket->joinMulticastGroup(m_group_address);
+  set_ttl(2);
+  send_search();
+  connect(m_socket, SIGNAL(readyRead()), this, SLOT(process_pending_datagrams()));
+}
+
+CSsdpController::~CSsdpController() {
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::set_ttl(int ttl) {
+  m_socket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttl);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::send_datagram(const QByteArray &dtgr) {
+  m_socket->writeDatagram(dtgr.data(), dtgr.size(), m_group_address, SSDP_PORT);
+}
+
+void
+CSsdpController::handle_ssdp_notify(const QByteArray &dtgr) {
+  int cs = 0; //current state
+  std::map<interested_fields_en, std::string> dct_packet;
+
+  for (int i = 0; i < dtgr.size(); ++i) {
+    char cc = dtgr.data()[i];
+
+    if (m_ak_notify_dma[cs].leaf ||
+        nearest(cs, m_ak_notify_dma) != vertex_t::NOT_INITIALIZED) {
+
+    }
+    cs = go(cs, cc, m_ak_notify_dma);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::handle_ssdp_search(const QByteArray &dtgr) {
+  qDebug() << "***SEARCH***";
+  qDebug() << dtgr.data();
+  /*do nothing*/
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::hanvle_ssdp_ok(const QByteArray &dtgr) {
+  qDebug() << "***OK***";
+  qDebug() << dtgr.data();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::handle_ssdp_packet(const QByteArray &dtgr) {
+  void (CSsdpController::*ssdp_handlers[])(const QByteArray &dtgr) =
+  {&CSsdpController::handle_ssdp_notify, &CSsdpController::handle_ssdp_search, &CSsdpController::hanvle_ssdp_ok};
+
+  bool valid = false;
+  int li ; //line index
+  for (li = 0; li <= smt_ok; ++li) {
+    if ((valid = dtgr.startsWith(ssdp_start_lines[li])))
+      break;
+  }
+  if (!valid) return; //ignore unknown messages
+  (this->*ssdp_handlers[li])(dtgr);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::send_search() {
+  static const int send_buff_size = 116; //watch out
+  static const char* search_format =
+      "%sHOST: %s:%d\r\nST: %s\r\nMAN: \"ssdp:discover\"\r\nMX: 2\r\n\r\n";
+  char buffer[send_buff_size] = {0}; //let this buffer located on stack
+  snprintf(buffer, send_buff_size, search_format,
+        ssdp_start_lines[smt_search], SSDP_HOST_ADDRESS, SSDP_PORT, SUBUTAI_SEARCH_TARGET);
+  send_datagram(QByteArray(buffer));
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSsdpController::process_pending_datagrams() {
+  while (m_socket->hasPendingDatagrams()) {
+    QByteArray datagram;
+    datagram.resize(m_socket->pendingDatagramSize());
+    m_socket->readDatagram(datagram.data(), datagram.size());
+    handle_ssdp_packet(datagram);
+  }
+}
+////////////////////////////////////////////////////////////////////////////

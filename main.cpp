@@ -16,8 +16,8 @@
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentTray.h"
 
-#include "rtm/include/RtmController.h"
 #include "OsBranchConsts.h"
+#include "SsdpController.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -32,8 +32,6 @@
 
 int
 main(int argc, char *argv[]) {
-
-//  rtm::CRtmController::Instance()->Megatest();
 
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
@@ -116,6 +114,8 @@ main(int argc, char *argv[]) {
       }
     }
   }
+
+  qDebug() << CSsdpController::Instance()->isWidgetType();
 
   int result = 0;
   do {
