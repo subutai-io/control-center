@@ -17,7 +17,7 @@
 #include "updater/UpdaterComponentTray.h"
 
 #include "OsBranchConsts.h"
-#include "SsdpController.h"
+#include "RhController.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -115,7 +115,7 @@ main(int argc, char *argv[]) {
     }
   }
 
-  qDebug() << CSsdpController::Instance()->isWidgetType();
+  CRhController::Instance()->Init();
 
   int result = 0;
   do {

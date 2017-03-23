@@ -1,6 +1,6 @@
 #include "SsdpController.h"
 #include "SettingsManager.h"
-
+#include "Commons.h"
 #include <stdio.h>
 
 
@@ -154,35 +154,63 @@ CSsdpController::send_datagram(const QByteArray &dtgr) {
   m_socket->writeDatagram(dtgr.data(), dtgr.size(), m_group_address, SSDP_PORT);
 }
 
-void
-CSsdpController::handle_ssdp_notify(const QByteArray &dtgr) {
+std::map<interested_fields_en, std::string>
+CSsdpController::parse_ssdp_datagram(const QByteArray &dtgr,
+                                     std::vector<CSsdpController::vertex_t> &dma) {
   int cs = 0; //current state
   std::map<interested_fields_en, std::string> dct_packet;
 
   for (int i = 0; i < dtgr.size(); ++i) {
     char cc = dtgr.data()[i];
 
-    if (m_ak_notify_dma[cs].leaf ||
-        nearest(cs, m_ak_notify_dma) != vertex_t::NOT_INITIALIZED) {
-
+    if (dma[cs].leaf ||
+        nearest(cs, dma) != vertex_t::NOT_INITIALIZED) {
+      int j;
+      for (j = i; j < dtgr.size()-1; ++j) {
+        if (dtgr.data()[j] == '\r' && dtgr.data()[j+1] == '\n') break;
+      }
+      int k = 0;
+      for (k = i; k < j; ++k)
+        if (dtgr.data()[k] != ' ') break;
+      dct_packet[dma[cs].ife] = std::string(&dtgr.data()[k], j - k);
     }
-    cs = go(cs, cc, m_ak_notify_dma);
+    cs = go(cs, cc, dma);
   }
+  return dct_packet;
+}
+
+void
+CSsdpController::handle_ssdp_notify(const QByteArray &dtgr) {
+  std::map<interested_fields_en, std::string> dct_packet =
+      parse_ssdp_datagram(dtgr, m_ak_notify_dma);
+  if (dct_packet.find(ife_usn) == dct_packet.end())
+    return;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSsdpController::handle_ssdp_search(const QByteArray &dtgr) {
-  qDebug() << "***SEARCH***";
-  qDebug() << dtgr.data();
+  UNUSED_ARG(dtgr);
   /*do nothing*/
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSsdpController::hanvle_ssdp_ok(const QByteArray &dtgr) {
-  qDebug() << "***OK***";
-  qDebug() << dtgr.data();
+  std::map<interested_fields_en, std::string> dct_packet =
+      parse_ssdp_datagram(dtgr, m_ak_ok_dma);
+  if (dct_packet[ife_st] != std::string(SUBUTAI_SEARCH_TARGET))
+    return;
+
+  if (dct_packet.find(ife_location) == dct_packet.end())
+    return;
+
+  if (dct_packet.find(ife_usn) == dct_packet.end())
+    return;
+
+  emit found_device(
+        QString::fromStdString(dct_packet[ife_usn]),
+        QString::fromStdString(dct_packet[ife_location]));
 }
 ////////////////////////////////////////////////////////////////////////////
 

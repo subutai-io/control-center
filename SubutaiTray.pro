@@ -52,7 +52,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentRHManagement.cpp \
     hub/src/SshKeysController.cpp \
     commons/src/OsBranchConsts.cpp \
-    hub/src/SsdpController.cpp
+    hub/src/SsdpController.cpp \
+    hub/src/RhController.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -97,7 +98,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRHManagement.h \
     hub/include/SshKeysController.h \
     commons/include/OsBranchConsts.h \
-    hub/include/SsdpController.h
+    hub/include/SsdpController.h \
+    hub/include/RhController.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \

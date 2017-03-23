@@ -30,7 +30,8 @@ public:
   static CSsdpController* Instance() {
     static CSsdpController instance;
     return &instance;
-  }
+  }  
+  void search() {send_search();}
 
 private:  
 
@@ -83,6 +84,8 @@ private:
   void set_ttl(int ttl);
   void send_datagram(const QByteArray& dtgr);
 
+  std::map<interested_fields_en, std::string> parse_ssdp_datagram(const QByteArray& dtgr,
+                                                             std::vector<vertex_t>& dma);
   void handle_ssdp_notify(const QByteArray &dtgr);
   void handle_ssdp_search(const QByteArray &dtgr);
   void hanvle_ssdp_ok(const QByteArray &dtgr);
@@ -90,6 +93,9 @@ private:
 
 private slots:
   void process_pending_datagrams();
+
+signals:
+  void found_device(QString uid, QString location);
 };
 
 #endif // SSDPRECEIVER_H
