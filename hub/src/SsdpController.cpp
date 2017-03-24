@@ -165,14 +165,19 @@ CSsdpController::parse_ssdp_datagram(const QByteArray &dtgr,
 
     if (dma[cs].leaf ||
         nearest(cs, dma) != vertex_t::NOT_INITIALIZED) {
-      int j;
-      for (j = i; j < dtgr.size()-1; ++j) {
-        if (dtgr.data()[j] == '\r' && dtgr.data()[j+1] == '\n') break;
+
+      int k = i;
+      for (; i < dtgr.size()-1; ++i) {
+        if (dtgr.data()[i] == '\r' && dtgr.data()[i+1] == '\n') {
+          --i; break;
+        }
       }
-      int k = 0;
-      for (k = i; k < j; ++k)
+
+      for (; k < i; ++k) {
         if (dtgr.data()[k] != ' ') break;
-      dct_packet[dma[cs].ife] = std::string(&dtgr.data()[k], j - k);
+      }
+
+      dct_packet[dma[cs].ife] = std::string(&dtgr.data()[k], i - k + 1);
     }
     cs = go(cs, cc, dma);
   }
