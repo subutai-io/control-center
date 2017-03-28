@@ -1,5 +1,6 @@
 #include "RhController.h"
 #include "SsdpController.h"
+#include "SettingsManager.h"
 
 CRhController::CRhController(QObject *parent) :
   QObject(parent),
@@ -7,7 +8,7 @@ CRhController::CRhController(QObject *parent) :
   m_refresh_in_progress(false) {
 
   m_refresh_timer.setInterval(60*1000);
-  m_delay_timer.setInterval(6*1000); //ssdp should use 5 seconds. BUT we will give 1 extra second :)
+  m_delay_timer.setInterval(REFRESH_DELAY_SEC*1000); //ssdp should use 5 seconds. BUT we will give 1 extra second :)
 
   connect(CSsdpController::Instance(), SIGNAL(found_device(QString, QString)),
           this, SLOT(found_device_slot(QString, QString)));
@@ -19,6 +20,22 @@ CRhController::CRhController(QObject *parent) :
 }
 
 CRhController::~CRhController() {
+}
+
+void
+CRhController::init() {
+  refresh();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRhController::refresh() {
+  m_dct_resource_hosts.clear();
+  m_dct_resource_hosts["current_setting"] =
+      CSettingsManager::Instance().rh_host();
+  CSsdpController::Instance()->search();
+  m_refresh_in_progress = true;
+  m_delay_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -32,10 +49,7 @@ CRhController::found_device_slot(QString uid, QString location) {
 
 void
 CRhController::refresh_timer_timeout() {
-  m_dct_resource_hosts.clear();
-  CSsdpController::Instance()->search();
-  m_refresh_in_progress = true;
-  m_delay_timer.start();
+  refresh();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +57,7 @@ void
 CRhController::delay_timer_timeout() {
   m_refresh_in_progress = false;
   m_delay_timer.stop();
-
-  if (m_has_changes)
-    emit resource_host_list_updated();
+  emit resource_host_list_updated(m_has_changes);
   m_has_changes = false;
 }
 ////////////////////////////////////////////////////////////////////////////

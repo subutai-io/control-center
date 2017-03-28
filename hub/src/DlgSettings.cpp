@@ -2,10 +2,17 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 
+#include <QStandardItemModel>
+#include <QStandardItem>
+#include <QListView>
+
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
+#include "Commons.h"
+#include "RhController.h"
+#include "ApplicationLog.h"
 
 static void fill_freq_combobox(QComboBox* cb) {
   for (int i = 0; i < CSettingsManager::UF_LAST; ++i)
@@ -16,7 +23,9 @@ static void fill_freq_combobox(QComboBox* cb) {
 DlgSettings::DlgSettings(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgSettings),
-  m_tab_resize_filter(NULL)
+  m_tab_resize_filter(nullptr),
+  m_model_resource_hosts(nullptr),
+  m_refresh_rh_list_progress_val(0)
 {
   ui->setupUi(this);
   ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
@@ -63,26 +72,52 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->gb_terminal_settings->setVisible(false);
 #endif
 
+  m_model_resource_hosts = new QStandardItemModel(this);
+  ui->lstv_resource_hosts->setModel(m_model_resource_hosts);
+
+  ui->pb_refresh_rh_list->setMinimum(0);
+  ui->pb_refresh_rh_list->setMaximum(CRhController::REFRESH_DELAY_SEC);
+  ui->pb_refresh_rh_list->setValue(m_refresh_rh_list_progress_val);
+  m_refresh_rh_list_timer.setInterval(1000);
+
+  rebuild_rh_list_model();
+
   connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
   connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
-
   connect(ui->btn_p2p_file_dialog, SIGNAL(released()),
           this, SLOT(btn_p2p_file_dialog_released()));
-
   connect(ui->btn_ssh_command, SIGNAL(released()),
           this, SLOT(btn_ssh_command_released()));
-
   connect(ui->btn_logs_storage, SIGNAL(released()),
           this, SLOT(btn_logs_storage_released()));
-
   connect(ui->btn_ssh_keys_storage, SIGNAL(released()),
-          this, SLOT(btn_ssh_keys_storage_released()));
+          this, SLOT(btn_ssh_keys_storage_released()));  
+  connect(ui->btn_refresh_rh_list, SIGNAL(released()),
+          this, SLOT(btn_refresh_rh_list_released()));
+  connect(ui->lstv_resource_hosts, SIGNAL(doubleClicked(QModelIndex)),
+          this, SLOT(lstv_resource_hosts_double_clicked(QModelIndex)));
+  connect(CRhController::Instance(), SIGNAL(resource_host_list_updated(bool)),
+          this, SLOT(resource_host_list_updated_sl(bool)));
+  connect(&m_refresh_rh_list_timer, SIGNAL(timeout()),
+          this, SLOT(refresh_rh_list_timer_timeout()));
 }
 
 DlgSettings::~DlgSettings()
 {
   if (m_tab_resize_filter) delete m_tab_resize_filter;
   delete ui;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::rebuild_rh_list_model() {
+  m_model_resource_hosts->clear();
+  for (auto i = CRhController::Instance()->dct_resource_hosts().begin();
+       i != CRhController::Instance()->dct_resource_hosts().end(); ++i) {
+    QStandardItem* item = new QStandardItem(i->second);
+    item->setEditable(false);
+    m_model_resource_hosts->appendRow(item);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -194,10 +229,12 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
+
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
   CSettingsManager::Instance().set_rh_port(ui->le_rhip_port->text().toUInt());
   CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
+
   CSettingsManager::Instance().set_refresh_time_sec(ui->sb_refresh_timeout->value());
   CSettingsManager::Instance().set_notification_delay_sec(
         ui->sb_notification_delay->value());
@@ -268,5 +305,36 @@ DlgSettings::btn_rtm_db_folder_released() {
   QString dir = QFileDialog::getExistingDirectory(this, "DB storage");
   if (dir == "") return;
   ui->le_rtm_db_folder->setText(dir);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::lstv_resource_hosts_double_clicked(QModelIndex ix0) {
+  if (!ix0.isValid()) return;
+  ui->le_rhip_host->setText(ix0.data().toString());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_refresh_rh_list_released() {
+  m_refresh_rh_list_progress_val = 0;
+  ui->btn_refresh_rh_list->setEnabled(false);
+  m_refresh_rh_list_timer.start();
+  CRhController::Instance()->refresh();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::refresh_rh_list_timer_timeout() {
+  ui->pb_refresh_rh_list->setValue(++m_refresh_rh_list_progress_val);
+  if (m_refresh_rh_list_progress_val == CRhController::REFRESH_DELAY_SEC)
+    m_refresh_rh_list_timer.stop();
+}
+
+void
+DlgSettings::resource_host_list_updated_sl(bool has_changes) {
+  UNUSED_ARG(has_changes);
+  rebuild_rh_list_model();
+  ui->btn_refresh_rh_list->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////

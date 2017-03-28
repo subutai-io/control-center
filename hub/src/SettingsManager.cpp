@@ -7,6 +7,7 @@
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
 #include "updater/HubComponentsUpdater.h"
+#include "OsBranchConsts.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -73,19 +74,6 @@ static void qvar_to_byte_arr(const QVariant& var, void* field) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-#ifdef RT_OS_LINUX
-  #define DEFAULT_P2P_PATH "/opt/subutai/bin/p2p"
-  #define DEFAULT_TERMINAL "xterm"
-  #define DEFAULT_TERM_ARG "-e"
-#elif RT_OS_DARWIN
-  #define DEFAULT_P2P_PATH "/Applications/Subutai/p2p"
-  #define DEFAULT_TERMINAL "osascript"
-  #define DEFAULT_TERM_ARG "-e"
-#elif RT_OS_WINDOWS
-  #define DEFAULT_P2P_PATH "p2p.exe"
-  #define DEFAULT_TERMINAL "cmd"
-  #define DEFAULT_TERM_ARG "/k"
-#endif
 
 static const int def_timeout = 120;
 CSettingsManager::CSettingsManager() :
@@ -93,15 +81,17 @@ CSettingsManager::CSettingsManager() :
   m_password_str(""),
   m_remember_me(false),
   m_refresh_time_sec(def_timeout),
-  m_p2p_path(DEFAULT_P2P_PATH),
+  m_p2p_path(default_p2p_path()),
   m_notification_delay_sec(7),
   m_plugin_port(9998),
   m_ssh_path("ssh"),
   m_ssh_user("root"),
+
   m_rh_host("127.0.0.1"),
   m_rh_user("subutai"),
   m_rh_pass("ubuntai"),
   m_rh_port(4567),
+
   m_logs_storage(QApplication::applicationDirPath()),
   m_ssh_keys_storage(QApplication::applicationDirPath()),
   m_tray_guid(""),
@@ -113,8 +103,8 @@ CSettingsManager::CSettingsManager() :
   m_rh_autoupdate(false),
   m_tray_autoupdate(false),
   m_rh_management_autoupdate(false),
-  m_terminal_cmd(DEFAULT_TERMINAL),
-  m_terminal_arg(DEFAULT_TERM_ARG)
+  m_terminal_cmd(default_terminal()),
+  m_terminal_arg(default_term_arg())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -177,7 +167,7 @@ CSettingsManager::CSettingsManager() :
   //hack
 #ifdef RT_OS_LINUX
   if (m_p2p_path == "p2p")
-    m_p2p_path = DEFAULT_P2P_PATH;
+    m_p2p_path = default_p2p_path();
 #endif
 
   bool ok = false;

@@ -26,10 +26,17 @@ template<os_t v> struct Os2Type {
 
 const QString& tray_kurjun_file_name();
 const QString& p2p_kurjun_file_name();
+const QString& p2p_dht_arg();
 
 const QString& hub_post_url();
 const QString& hub_get_url();
 const QString& hub_health_url();
 const QString& hub_gorjun_url();
+
+const char* ssdp_rh_search_target();
+
+const QString& default_p2p_path();
+const QString& default_terminal();
+const QString& default_term_arg();
 
 #endif // OSBRANCHCONSTS_H

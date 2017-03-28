@@ -1,7 +1,9 @@
+#include <stdio.h>
+
 #include "SsdpController.h"
 #include "SettingsManager.h"
 #include "Commons.h"
-#include <stdio.h>
+#include "OsBranchConsts.h"
 
 
 static const char* ssdp_start_lines[] = {
@@ -11,7 +13,6 @@ static const char* ssdp_start_lines[] = {
 };
 
 static const char* SSDP_HOST_ADDRESS = "239.255.255.250";
-static const char* SUBUTAI_SEARCH_TARGET  = "urn:subutai:management:peer:4";
 static const int   SSDP_PORT = 1900;
 
 void
@@ -204,14 +205,11 @@ void
 CSsdpController::hanvle_ssdp_ok(const QByteArray &dtgr) {
   std::map<interested_fields_en, std::string> dct_packet =
       parse_ssdp_datagram(dtgr, m_ak_ok_dma);
-  if (dct_packet[ife_st] != std::string(SUBUTAI_SEARCH_TARGET))
-    return;
 
-  if (dct_packet.find(ife_location) == dct_packet.end())
-    return;
-
-  if (dct_packet.find(ife_usn) == dct_packet.end())
-    return;
+  if (dct_packet.find(ife_st) == dct_packet.end()) return;
+  if (dct_packet[ife_st] != std::string(ssdp_rh_search_target())) return;
+  if (dct_packet.find(ife_location) == dct_packet.end()) return;
+  if (dct_packet.find(ife_usn) == dct_packet.end()) return;
 
   emit found_device(
         QString::fromStdString(dct_packet[ife_usn]),
@@ -237,13 +235,13 @@ CSsdpController::handle_ssdp_packet(const QByteArray &dtgr) {
 
 void
 CSsdpController::send_search() {
-  static const int send_buff_size = 116; //watch out
+  static const int send_buff_size = 0xff;
   static const char* search_format =
       "%sHOST: %s:%d\r\nST: %s\r\nMAN: \"ssdp:discover\"\r\nMX: 2\r\n\r\n";
   char buffer[send_buff_size] = {0}; //let this buffer located on stack
-  snprintf(buffer, send_buff_size, search_format,
-        ssdp_start_lines[smt_search], SSDP_HOST_ADDRESS, SSDP_PORT, SUBUTAI_SEARCH_TARGET);
-  send_datagram(QByteArray(buffer));
+  int res_size = snprintf(buffer, send_buff_size, search_format,
+                          ssdp_start_lines[smt_search], SSDP_HOST_ADDRESS, SSDP_PORT, ssdp_rh_search_target());
+  send_datagram(QByteArray(buffer, res_size));
 }
 ////////////////////////////////////////////////////////////////////////////
 

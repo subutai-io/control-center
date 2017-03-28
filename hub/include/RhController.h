@@ -19,13 +19,16 @@ private:
   bool m_refresh_in_progress;
 
 public:
-  static CRhController* Instance()  {
+
+  static const int REFRESH_DELAY_SEC = 6;
+  static CRhController* Instance() {
     static CRhController inst;
     return &inst;
   }
-  void Init() const{;}
+  void init();
+  void refresh();
 
-  const std::map<QString, QString>& dctresource_hosts() const {
+  const std::map<QString, QString>& dct_resource_hosts() const {
     return m_dct_resource_hosts;
   }
 
@@ -35,7 +38,7 @@ private slots:
   void delay_timer_timeout();
 
 signals:
-  void resource_host_list_updated();
+  void resource_host_list_updated(bool);
 };
 
 #endif // RHCONTROLLER_H

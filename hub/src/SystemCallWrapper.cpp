@@ -15,6 +15,7 @@
 #include "vbox/include/IVBoxManager.h"
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
+#include "OsBranchConsts.h"
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -126,7 +127,8 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
   args << "start" <<
           "-ip" << ip <<
           "-key" << key <<
-          "-hash" << hash;
+          "-hash" << hash <<
+          "-dht" << p2p_dht_arg();
 
   system_call_wrapper_error_t res = SCWE_SUCCESS;
   int exit_code = 0;

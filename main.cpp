@@ -115,7 +115,7 @@ main(int argc, char *argv[]) {
     }
   }
 
-  CRhController::Instance()->Init();
+  CRhController::Instance()->init();
 
   int result = 0;
   do {

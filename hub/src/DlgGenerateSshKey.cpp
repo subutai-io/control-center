@@ -20,6 +20,7 @@
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
 #include "SshKeysController.h"
+#include "RhController.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
@@ -52,6 +53,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(&CSshKeysController::Instance(), SIGNAL(ssh_key_send_progress(int,int)),
           this, SLOT(ssh_key_send_progress_sl(int,int)));
+
+  connect(CRhController::Instance(), SIGNAL(resource_host_list_updated()),
+          this, SLOT(resource_host_list_updated_sl()));
 
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
