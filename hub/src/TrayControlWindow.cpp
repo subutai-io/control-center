@@ -20,6 +20,7 @@
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
 #include "updater/HubComponentsUpdater.h"
+#include "DlgNotifications.h"
 
 using namespace update_system;
 
@@ -178,6 +179,9 @@ TrayControlWindow::create_tray_actions() {
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
+
+  m_act_notifications_history = new QAction("Notifications history", this);
+  connect(m_act_notifications_history, SIGNAL(triggered()), this, SLOT(show_notifications_triggered()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -213,6 +217,7 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_logout);
+  m_tray_menu->addAction(m_act_notifications_history);
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 
@@ -696,6 +701,12 @@ QDialog* create_ssh_key_generate_dialog(QWidget* p) {return new DlgGenerateSshKe
 void
 TrayControlWindow::ssh_key_generate_triggered() {
   show_dialog(create_ssh_key_generate_dialog, "SSH key generation");
+}
+
+QDialog* create_notifications_dialog(QWidget* p) {return new DlgNotifications(p);}
+void
+TrayControlWindow::show_notifications_triggered() {
+  show_dialog(create_notifications_dialog, "Notifications history");
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////

@@ -55,8 +55,6 @@ public:
   static void NotifyAboutInfo(const QString& msg) {
     Instance()->notify_all_int(NL_INFO, msg);
   }
-
 };
 
 #endif // NOTIFIACTIONOBSERVER_H
-

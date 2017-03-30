@@ -53,7 +53,9 @@ SOURCES += \
     hub/src/SshKeysController.cpp \
     commons/src/OsBranchConsts.cpp \
     hub/src/SsdpController.cpp \
-    hub/src/RhController.cpp
+    hub/src/RhController.cpp \
+    hub/src/NotificationLogger.cpp \
+    hub/src/DlgNotifications.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -99,7 +101,9 @@ HEADERS  += \
     hub/include/SshKeysController.h \
     commons/include/OsBranchConsts.h \
     hub/include/SsdpController.h \
-    hub/include/RhController.h
+    hub/include/RhController.h \
+    hub/include/NotificationLogger.h \
+    hub/include/DlgNotifications.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -107,6 +111,7 @@ FORMS    += \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
+    hub/forms/DlgNotifications.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -122,7 +127,11 @@ equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
 
-equals(GIT_BRANCH_STR, "stage") {
+equals(GIT_BRANCH_STR, "HEAD") {
+  GBV=BT_STAGE
+}
+
+equals(GIT_BRANCH_STR, "head") {
   GBV=BT_STAGE
 }
 

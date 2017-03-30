@@ -148,6 +148,7 @@ private:
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
   QAction *m_act_logout;
+  QAction *m_act_notifications_history;
 
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
@@ -194,6 +195,7 @@ private slots:
   void hub_container_mi_triggered(const CEnvironmentEx *env,
                                const CHubContainerEx *cont, void *action);
   void ssh_key_generate_triggered();
+  void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/
