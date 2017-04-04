@@ -49,13 +49,13 @@ SOURCES += \
     hub/src/updater/UpdaterComponentTray.cpp \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
-    rtm/src/RtmProcParser.cpp \
-    rtm/src/RtmController.cpp \
-    rtm/src/RtmDbController.cpp \
     hub/src/updater/UpdaterComponentRHManagement.cpp \
-    csshx/src/CsshxController.cpp \
-    csshx/src/DlgCsshx.cpp \
-    hub/src/SshKeysController.cpp
+    hub/src/SshKeysController.cpp \
+    commons/src/OsBranchConsts.cpp \
+    hub/src/SsdpController.cpp \
+    hub/src/RhController.cpp \
+    hub/src/NotificationLogger.cpp \
+    hub/src/DlgNotifications.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -97,13 +97,13 @@ HEADERS  += \
     commons/include/Commons.h \
     commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
-    rtm/include/RtmProcParser.h \
-    rtm/include/RtmController.h \
-    rtm/include/RtmDbController.h \
     hub/include/updater/UpdaterComponentRHManagement.h \
-    csshx/include/CsshxController.h \
-    csshx/include/DlgCsshx.h \
-    hub/include/SshKeysController.h
+    hub/include/SshKeysController.h \
+    commons/include/OsBranchConsts.h \
+    hub/include/SsdpController.h \
+    hub/include/RhController.h \
+    hub/include/NotificationLogger.h \
+    hub/include/DlgNotifications.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -111,15 +111,34 @@ FORMS    += \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
-    csshx/forms/DlgCsshx.ui
+    hub/forms/DlgNotifications.ui
 
 RESOURCES += \
     resources/resources.qrc
 
 GIT_VERSION = $$system(git describe)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
-GIT_BRANCH = $$system(git rev-parse --abbrev-ref HEAD)
-DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH\\\"
+
+GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
+DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
+
+GBV=BT_DEV
+equals(GIT_BRANCH_STR, "master") {
+  GBV=BT_MASTER
+}
+
+equals(GIT_BRANCH_STR, "HEAD") {
+  GBV=BT_STAGE
+}
+
+equals(GIT_BRANCH_STR, "head") {
+  GBV=BT_STAGE
+}
+
+equals(GIT_BRANCH_STR, "dev") {
+  GBV=BT_DEV
+}
+DEFINES += CURRENT_BRANCH=$$GBV
 #////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
@@ -189,6 +208,3 @@ win32: {
   LIBS += $$PWD/libssh2/lib/win32/libssh2.exp
 }
 #////////////////////////////////////////////////////////////////////////////
-
-DISTFILES += \
-    resources/Tray_icon_set-07.png

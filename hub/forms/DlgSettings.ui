@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>705</width>
-    <height>294</height>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -260,7 +260,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <layout class="QGridLayout" name="gridLayout_8" columnstretch="1,3">
+          <layout class="QGridLayout" name="gridLayout_11" columnstretch="0,2,0">
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_rhip_host">
              <property name="text">
@@ -268,37 +268,65 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="le_rhip_host"/>
-           </item>
            <item row="1" column="0">
+            <widget class="QLabel" name="lbl_rh_list">
+             <property name="text">
+              <string>Resource hosts:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QListView" name="lstv_resource_hosts"/>
+           </item>
+           <item row="1" column="2">
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="btn_refresh_rh_list">
+               <property name="text">
+                <string>Refresh</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QProgressBar" name="pb_refresh_rh_list">
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="2" column="0">
             <widget class="QLabel" name="lbl_rhip_port">
              <property name="text">
               <string>RH port:</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="le_rhip_port"/>
-           </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="lbl_rhip_user">
              <property name="text">
               <string>RH user:</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="le_rhip_user"/>
-           </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="lbl_rhip_pass">
              <property name="text">
               <string>RH password:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="0" column="1" colspan="2">
+            <widget class="QLineEdit" name="le_rhip_host"/>
+           </item>
+           <item row="2" column="1" colspan="2">
+            <widget class="QLineEdit" name="le_rhip_port"/>
+           </item>
+           <item row="3" column="1" colspan="2">
+            <widget class="QLineEdit" name="le_rhip_user"/>
+           </item>
+           <item row="4" column="1" colspan="2">
             <widget class="QLineEdit" name="le_rhip_password">
              <property name="echoMode">
               <enum>QLineEdit::Password</enum>

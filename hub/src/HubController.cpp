@@ -216,7 +216,7 @@ CHubController::refresh_environments_internal() {
   if (err_code && err_code != RE_NETWORK_ERROR) {
     QString err_msg = QString("Refresh environments error : %1").
                       arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
-    CNotificationObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::Error(err_msg);
     return RER_ERROR;
   }
 
@@ -330,7 +330,7 @@ CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Failed to join to p2p network. Error : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotificationObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
     return;
@@ -349,7 +349,7 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
-  CNotificationObserver::NotifyAboutInfo("Checking container. Please, wait");
+  CNotificationObserver::Info("Checking container. Please, wait");
   static const int MAX_ATTEMTS_COUNT = 25;
   for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
     err = CSystemCallWrapper::check_container_state(m_env_hash,
@@ -359,7 +359,7 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   }
 
   if (err != SCWE_SUCCESS) {
-    CNotificationObserver::NotifyAboutError("Failed to run SSH because container isn't ready. Try little bit later.");
+    CNotificationObserver::Error("Failed to run SSH because container isn't ready. Try little bit later.");
     emit ssh_to_container_finished((int)SLE_CONT_NOT_READY, m_additional_data);
     return;
   }
@@ -386,7 +386,7 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   if (err != SCWE_SUCCESS) {
     QString err_msg = QString("Run SSH failed. Error code : %1").
                       arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotificationObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     emit ssh_to_container_finished((int)SLE_SYSTEM_CALL_FAILED, m_additional_data);
     return ;

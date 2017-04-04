@@ -33,6 +33,7 @@
         <file>logout.png</file>
         <file>tray_splash.png</file>
         <file>ssh-keys.png</file>
+        <file>notifications_history.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

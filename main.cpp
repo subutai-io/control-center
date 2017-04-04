@@ -16,7 +16,9 @@
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentTray.h"
 
-#include "rtm/include/RtmController.h"
+#include "OsBranchConsts.h"
+#include "RhController.h"
+#include "NotificationLogger.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -31,8 +33,6 @@
 
 int
 main(int argc, char *argv[]) {
-
-//  rtm::CRtmController::Instance()->Megatest();
 
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
@@ -100,6 +100,8 @@ main(int argc, char *argv[]) {
     std::cout << GIT_VERSION << std::endl;
     return 0;
   }
+  CRhController::Instance()->init();
+  CNotificationLogger::Instance()->init();
   CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
@@ -107,7 +109,7 @@ main(int argc, char *argv[]) {
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {
-    QString tmp_file_path = QString(update_system::CUpdaterComponentTray::tray_kurjun_file_name()) + tmp[i];
+    QString tmp_file_path = QString(tray_kurjun_file_name()) + tmp[i];
     QFile tmp_file(tmp_file_path);
     if (tmp_file.exists()) {
       if (!tmp_file.remove()) {
@@ -132,11 +134,6 @@ main(int argc, char *argv[]) {
     CTrayServer::Instance()->Init();
     CVBoxManagerSingleton::Instance()->init_com();
     TrayControlWindow tcw;
-//    QStringList keys;
-//    keys << "id_rsa" << "id_rsa2";
-//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "test_env_key' OR '1'='1' /*");
-//    CRestWorker::Instance()->is_sshkeys_in_environment(keys, "8345fcec-f742-4caa-ae4a-2e680ff708e1");
-
     result = app.exec();
   } while (0);
 

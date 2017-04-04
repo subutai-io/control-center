@@ -15,6 +15,7 @@
 #include "vbox/include/IVBoxManager.h"
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
+#include "OsBranchConsts.h"
 
 #ifdef RT_OS_WINDOWS
 #include <Windows.h>
@@ -97,7 +98,7 @@ CSystemCallWrapper::is_in_swarm(const QString& hash) {
   system_call_wrapper_error_t res = ssystem_th(cmd, args, lst_out, exit_code, true);
 
   if (res != SCWE_SUCCESS && exit_code != 1) {
-    CNotificationObserver::NotifyAboutError(error_strings[res]);
+    CNotificationObserver::Error(error_strings[res]);
     CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
     return false;
   }
@@ -126,7 +127,8 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
   args << "start" <<
           "-ip" << ip <<
           "-key" << key <<
-          "-hash" << hash;
+          "-hash" << hash <<
+          "-dht" << p2p_dht_arg();
 
   system_call_wrapper_error_t res = SCWE_SUCCESS;
   int exit_code = 0;
@@ -220,7 +222,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                         arg(user).arg(ip).arg(port);
 
   if (!key.isEmpty()) {
-    CNotificationObserver::Instance()->NotifyAboutInfo(QString("Using %1 ssh key").arg(key));
+    CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
     str_command += QString(" -i %1 ").arg(key);
   }
 

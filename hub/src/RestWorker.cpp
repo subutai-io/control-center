@@ -5,11 +5,7 @@
 #include "NotifiactionObserver.h"
 #include "IFunctor.h"
 #include "FunctorWithResult.h"
-
-static const QString POST_URL("https://hub.subut.ai/rest/v1/tray/%1");
-static const QString GET_URL("https://hub.subut.ai/rest/v1/tray/%1");
-static const QString HEALTH_URL("https://hub.subut.ai/rest/v1/tray/tray-data");
-static const QString GORJUN_URL("https://cdn.subut.ai:8338/kurjun/rest/%1");
+#include "OsBranchConsts.h"
 
 #ifndef RT_OS_WINDOWS
 #define EVENT_LOOP CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>
@@ -41,7 +37,7 @@ CRestWorker::login(const QString& login,
                    int &http_code,
                    int &err_code,
                    int &network_error) {
-  static const QString str_url(POST_URL.arg("login"));
+  static const QString str_url(hub_post_url().arg("login"));
   QUrl url_login(str_url);
   QUrlQuery query_login;
   query_login.addQueryItem("email", login);
@@ -68,7 +64,7 @@ CRestWorker::get_request_json_document(const QString &link,
                                        int &http_code,
                                        int &err_code,
                                        int &network_error) {
-  QUrl url_env(GET_URL.arg(link));
+  QUrl url_env(hub_get_url().arg(link));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QByteArray arr = send_request(m_network_manager, req, true,
@@ -144,7 +140,7 @@ std::vector<CGorjunFileInfo>
 CRestWorker::get_gorjun_file_info(const QString &file_name) {
   static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(GORJUN_URL.arg(str_fi));
+  QUrl url_gorjun_fi(hub_gorjun_url().arg(str_fi));
   QUrlQuery query_gorjun_fi;
   query_gorjun_fi.addQueryItem("name", file_name);
   url_gorjun_fi.setQuery(query_gorjun_fi);
@@ -204,7 +200,7 @@ CRestWorker::send_health_request(int &http_code,
   CTrayReport<CHealthReportData> report(report_data);
   QJsonDocument doc(report.to_json_object());
 
-  QUrl url(HEALTH_URL);
+  QUrl url(hub_health_url());
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   send_request(m_network_manager, req, false,
@@ -216,7 +212,7 @@ CRestWorker::send_health_request(int &http_code,
 QNetworkReply*
 CRestWorker::download_gorjun_file(const QString &file_id) {
   static const QString str_file_url("raw/download");
-  QUrl url(GORJUN_URL.arg(str_file_url));
+  QUrl url(hub_gorjun_url().arg(str_file_url));
   QUrlQuery query;
   query.addQueryItem("id", file_id);
   url.setQuery(query);
@@ -258,7 +254,7 @@ CRestWorker::send_ssh_key(const QString &key,
                           int &http_code,
                           int &err_code,
                           int &network_err) {
-  static const QString str_url(POST_URL.arg("ssh-keys"));
+  static const QString str_url(hub_post_url().arg("ssh-keys"));
   QJsonObject obj;
   QJsonArray keys_arr;
   keys_arr.push_back(QJsonValue(key));
@@ -277,7 +273,7 @@ CRestWorker::send_ssh_key(const QString &key,
 std::vector<bool>
 CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
                                        const QString &env) {
-  static const QString str_url(POST_URL.arg("environments/check-key"));
+  static const QString str_url(hub_post_url().arg("environments/check-key"));
   std::vector<bool> lst_res;
   QJsonObject obj;
   QJsonArray json_keys;
@@ -309,18 +305,20 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CRestWorker::add_sshkey_to_environments(const QString &key,
+CRestWorker::add_sshkey_to_environments(const QString &key_name,
+                                        const QString &key,
                                         const std::vector<QString> &lst_environments,
                                         int &http_code,
                                         int &err_code,
                                         int &network_err) {
-  static const QString str_url(POST_URL.arg("environments/ssh-keys"));
+  static const QString str_url(hub_post_url().arg("environments/ssh-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
 
   for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
     arr_environments.push_back(QJsonValue(*i));
 
+  obj["key_name"] = key_name;
   obj["sshKey"] = QJsonValue(key);
   obj["environments"] = arr_environments;
 
@@ -405,7 +403,7 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                                           reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
-      CNotificationObserver::NotifyAboutError(reply->errorString());
+      CNotificationObserver::Error(reply->errorString());
     err_code = RE_NETWORK_ERROR;
     reply->deleteLater();
     return QByteArray();

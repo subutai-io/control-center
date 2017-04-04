@@ -7,9 +7,11 @@ class SshControllerBackgroundWorker : public QObject {
   Q_OBJECT
 private:
   std::map<QString, std::vector<QString> > m_dct_key_environments;
+  std::vector<QString> m_lst_key_names;
+
 public:
-  SshControllerBackgroundWorker(const std::map<QString,
-                                 std::vector<QString> >& dct_key_environments);
+  SshControllerBackgroundWorker(const std::map<QString, std::vector<QString> >& dct_key_environments,
+                                const std::vector<QString>& lst_key_names);
   virtual ~SshControllerBackgroundWorker();
 public slots:
   void start_send_keys_to_hub();
@@ -62,11 +64,12 @@ public:
   QStringList keys_in_environment(const QString& env_id) const;
 
 private slots:
-  void ssh_key_send_progress(int part, int total);
+  void ssh_key_send_progress_sl(int part, int total);
   void environments_updated(int rr);
 
 signals:
   void key_files_changed();
+  void ssh_key_send_progress(int part, int total);
 };
 
 #endif // SSHKEYSCONTROLLER_H
