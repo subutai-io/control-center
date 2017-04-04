@@ -34,12 +34,12 @@ template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal(
     return res; \
   }
 
-tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiTray_master")
-tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiTray_osx_master")
-tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiTray_master.exe")
-tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiTray_dev")
-tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiTray_osx_dev")
-tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiTray_dev.exe")
+tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiTray")
+tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiTray_osx")
+tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiTray.exe")
+tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiTray")
+tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiTray_osx")
+tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiTray.exe")
 tray_kurjun_file_name_def(BT_STAGE,     OS_LINUX,   "SubutaiTray")
 tray_kurjun_file_name_def(BT_STAGE,     OS_MAC,     "SubutaiTray_osx")
 tray_kurjun_file_name_def(BT_STAGE,     OS_WIN,     "SubutaiTray.exe")
