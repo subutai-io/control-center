@@ -6,8 +6,7 @@
 #include "ApplicationLog.h"
 
 static const QString notifications_file = "notifications.log";
-static QString level_str[] = {"info", "warning",
-                              "error", "critical"};
+QString CNotification::LEVEL_STR[] = {"info", "warning", "error", "critical"};
 
 CNotificationLogger::CNotificationLogger(QObject *parent) : QObject(parent) {
   connect(CNotificationObserver::Instance(), SIGNAL(notify(notification_level_t,QString)),
@@ -87,7 +86,7 @@ CNotificationLogger::notification_received(notification_level_t level,
     return;
   }
   file.seek(file.size());
-  CNotification notification(QDateTime::currentDateTime(), level_str[level], str);
+  CNotification notification(QDateTime::currentDateTime(), level, str);
   m_clear_mutex.lock();
   m_lst_notifications.push_back(notification);
   emit notifications_updated();
@@ -109,7 +108,7 @@ CNotificationLogger::clear_timer_timeout() {
 QString
 CNotification::toString() const {
   QString date_str = m_date_time.toString(Qt::ISODate);
-  QString res = QString("%1###%2###%3###\n").arg(date_str).arg(m_level).arg(m_msg);
+  QString res = QString("%1###%2###%3###\n").arg(date_str).arg(m_level_str).arg(m_msg);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -123,7 +122,11 @@ CNotification::fromString(const QString &str, bool& converted) {
   QDateTime date = QDateTime::fromString(parts[0], Qt::ISODate);
   if (!date.isValid() || date.isNull()) return res;
   res.m_date_time = date;
-  res.m_level = parts[1];
+  res.m_level_str = parts[1];
+  for (int i = 0; i < 4; ++i) {
+    if (LEVEL_STR[i] != res.m_level_str) continue;
+    res.m_level = (notification_level_t)i;
+  }
   res.m_msg = parts[2];
   converted = true;
   return res;

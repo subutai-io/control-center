@@ -3,6 +3,7 @@
 
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QAbstractItemView>
 #include "NotificationLogger.h"
 
 DlgNotifications::DlgNotifications(QWidget *parent) :
@@ -13,16 +14,35 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
   m_model = new QStandardItemModel(this);
   ui->tv_notifications->setModel(m_model);
 
+  ui->tv_notifications->setSelectionBehavior(QAbstractItemView::SelectRows);
+  ui->tv_notifications->setAlternatingRowColors(true);
+
+  rebuild_model();
+  connect(CNotificationLogger::Instance(), SIGNAL(notifications_updated()),
+          this, SLOT(rebuild_model()));
+}
+
+DlgNotifications::~DlgNotifications() {
+  delete ui;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgNotifications::rebuild_model() {
   int row_count = 0;
   for (auto i : CNotificationLogger::Instance()->notifications()) {
-    QStandardItem *ni_date, *ni_level, *ni_msg;
-    ni_date = new QStandardItem(i.date_time().toString(Qt::ISODate));
-    ni_level = new QStandardItem(i.level());
-    ni_msg = new QStandardItem(i.message());
-
-    m_model->setItem(row_count, 0, ni_date);
-    m_model->setItem(row_count, 1, ni_level);
-    m_model->setItem(row_count, 2, ni_msg);
+    QStandardItem *ni[3];
+    ni[0] = new QStandardItem(i.date_time().toString(Qt::TextDate));
+    ni[1] = new QStandardItem(i.level_str());
+    ni[2] = new QStandardItem(i.message());
+    for (int j = 0; j < 3; ++j) {
+      static QColor color[4] = {QColor::fromRgb(145,255,200),
+                                QColor::fromRgb(255,200,145),
+                                QColor::fromRgb(255,145,145),
+                                QColor::fromRgb(210,0,15)};
+      ni[j]->setBackground(QBrush(color[(int)i.level()]));
+      m_model->setItem(row_count, j, ni[j]);
+    }
     ++row_count;
   }
 
@@ -33,9 +53,5 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
   ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
   ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
   ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-}
-
-DlgNotifications::~DlgNotifications() {
-  delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////

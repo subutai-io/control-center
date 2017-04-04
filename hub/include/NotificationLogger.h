@@ -10,21 +10,27 @@
 class CNotification {
 private:
   QDateTime m_date_time;
-  QString m_level;
+  notification_level_t m_level;
+  QString m_level_str;
   QString m_msg;
+
+  static QString LEVEL_STR[];
 public:
   CNotification(){}
   CNotification(const CNotification& copy) :
-    m_date_time(copy.m_date_time), m_level(copy.m_level), m_msg(copy.m_msg){}
+    m_date_time(copy.m_date_time), m_level(copy.m_level), m_msg(copy.m_msg){
+    m_level_str = LEVEL_STR[m_level];
+  }
   CNotification(const QDateTime& datetime,
-                 const QString& level,
+                 notification_level_t level,
                  const QString& msg) : m_date_time(datetime), m_level(level), m_msg(msg){}
   ~CNotification(){}
 
   QString toString() const;
 
   const QDateTime& date_time() const {return m_date_time;}
-  const QString& level() const {return m_level;}
+  notification_level_t level() const {return m_level;}
+  const QString& level_str() const {return m_level_str;}
   const QString& message() const {return m_msg;}
 
   static CNotification fromString(const QString& str, bool &converted);

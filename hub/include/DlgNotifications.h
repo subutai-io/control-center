@@ -23,6 +23,7 @@ private:
   QStandardItemModel *m_model;
 
 private slots:
+  void rebuild_model();
 };
 
 #endif // DLGNOTIFICATIONS_H

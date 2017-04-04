@@ -32,7 +32,7 @@ CUpdaterComponentP2P::p2p_path()
   } else {
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
-      CNotificationObserver::Instance()->NotifyAboutError(QString("Can't find p2p in PATH. Err : %1").arg(
+      CNotificationObserver::Instance()->Error(QString("Can't find p2p in PATH. Err : %1").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)));
     }
   }
@@ -104,11 +104,11 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->NotifyAboutError("P2P has not been updated");
+    CNotificationObserver::Instance()->Error("P2P has not been updated");
     return;
   }
 
-  CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
+  CNotificationObserver::Instance()->Info("P2P has been updated");
   int rse_err = 0;
 
   QString download_path = QApplication::applicationDirPath() +
@@ -127,7 +127,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
       CSystemCallWrapper::restart_p2p_service(&rse_err);
 
   if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->NotifyAboutError(QString("p2p post update failed. err : ").
+    CNotificationObserver::Instance()->Error(QString("p2p post update failed. err : ").
                                                         arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }

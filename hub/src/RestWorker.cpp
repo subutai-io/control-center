@@ -403,7 +403,7 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
     CApplicationLog::Instance()->LogError("Send request network error : %s",
                                           reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
-      CNotificationObserver::NotifyAboutError(reply->errorString());
+      CNotificationObserver::Error(reply->errorString());
     err_code = RE_NETWORK_ERROR;
     reply->deleteLater();
     return QByteArray();
