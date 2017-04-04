@@ -54,9 +54,6 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(&CSshKeysController::Instance(), SIGNAL(ssh_key_send_progress(int,int)),
           this, SLOT(ssh_key_send_progress_sl(int,int)));
 
-  connect(CRhController::Instance(), SIGNAL(resource_host_list_updated()),
-          this, SLOT(resource_host_list_updated_sl()));
-
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
 
@@ -117,7 +114,7 @@ void
 DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
-    CNotificationObserver::Instance()->NotifyAboutInfo(
+    CNotificationObserver::Instance()->Info(
           "You don't have write permission to ssh-keys directory. "
           "Please add write permission or change ssh-keys storage in settings. Thanks");
     return;

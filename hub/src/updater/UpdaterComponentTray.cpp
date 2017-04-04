@@ -78,7 +78,7 @@ CUpdaterComponentTray::update_internal() {
 void
 CUpdaterComponentTray::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::NotifyAboutError("Tray application has not been updated");
+    CNotificationObserver::Error("Tray application has not been updated");
     return;
   }
 

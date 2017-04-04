@@ -18,6 +18,7 @@
 
 #include "OsBranchConsts.h"
 #include "RhController.h"
+#include "NotificationLogger.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -99,6 +100,8 @@ main(int argc, char *argv[]) {
     std::cout << GIT_VERSION << std::endl;
     return 0;
   }
+  CRhController::Instance()->init();
+  CNotificationLogger::Instance()->init();
   CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
@@ -114,8 +117,6 @@ main(int argc, char *argv[]) {
       }
     }
   }
-
-  CRhController::Instance()->init();
 
   int result = 0;
   do {
