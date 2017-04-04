@@ -20,6 +20,7 @@
 #include "SettingsManager.h"
 #include "NotifiactionObserver.h"
 #include "SshKeysController.h"
+#include "RhController.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
@@ -34,6 +35,7 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   ui->lstv_environments->setModel(m_model_environments);
   ui->lstv_sshkeys->setModel(m_model_keys);
+  ui->pb_send_to_hub->setVisible(false);
 
   connect(ui->btn_generate_new_key, SIGNAL(released()), this, SLOT(btn_generate_released()));
   connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));  
@@ -48,6 +50,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(m_model_environments, SIGNAL(itemChanged(QStandardItem*)),
           this, SLOT(environments_item_changed(QStandardItem*)));
+
+  connect(&CSshKeysController::Instance(), SIGNAL(ssh_key_send_progress(int,int)),
+          this, SLOT(ssh_key_send_progress_sl(int,int)));
 
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
@@ -109,7 +114,7 @@ void
 DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
-    CNotificationObserver::Instance()->NotifyAboutInfo(
+    CNotificationObserver::Instance()->Info(
           "You don't have write permission to ssh-keys directory. "
           "Please add write permission or change ssh-keys storage in settings. Thanks");
     return;
@@ -122,6 +127,7 @@ DlgGenerateSshKey::btn_generate_released() {
 
 void
 DlgGenerateSshKey::btn_send_to_hub_released() {
+  ui->pb_send_to_hub->setVisible(true);
   CSshKeysController::Instance().send_data_to_hub();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -149,9 +155,9 @@ DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex ix0,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::ssh_key_send_progress(int part, int total) {
-  UNUSED_ARG(part);
-  UNUSED_ARG(total);
+DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
+  ui->pb_send_to_hub->setMaximum(total);
+  ui->pb_send_to_hub->setValue(part);
 }
 ////////////////////////////////////////////////////////////////////////////
 

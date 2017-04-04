@@ -9,41 +9,9 @@
 #include "NotifiactionObserver.h"
 #include "DownloadFileManager.h"
 #include "Commons.h"
+#include "OsBranchConsts.h"
 
 using namespace update_system;
-
-template<branch_t v> struct Branch2Type {
-  enum {val = v};
-};
-
-template<os_t v> struct Os2Type {
-  enum {val = v};
-};
-
-template<class BR, class OS> const char* p2p_kurjun_file_name_temp();
-
-#define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
-  template<> \
-  const char* p2p_kurjun_file_name_temp<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
-    return STRING; \
-  }
-
-p2p_kurjun_file_name_def(BT_MASTER, OS_LINUX, "p2p")
-p2p_kurjun_file_name_def(BT_MASTER, OS_MAC, "p2p_osx")
-p2p_kurjun_file_name_def(BT_MASTER, OS_WIN, "p2p.exe")
-p2p_kurjun_file_name_def(BT_DEV, OS_LINUX, "p2p_dev")
-p2p_kurjun_file_name_def(BT_DEV, OS_MAC, "p2p_osx_dev")
-p2p_kurjun_file_name_def(BT_DEV, OS_WIN, "p2p_dev.exe")
-
-static const char* p2p_kurjun_file_name() {
-  static const QString branch(GIT_BRANCH);
-  static const QString master("master");
-  if (branch == master)
-    return p2p_kurjun_file_name_temp<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> >();
-  else // if (branch == dev)
-    return p2p_kurjun_file_name_temp<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> >();
-}
-////////////////////////////////////////////////////////////////////////////
 
 CUpdaterComponentP2P::CUpdaterComponentP2P() {
   m_component_id = P2P;
@@ -64,7 +32,7 @@ CUpdaterComponentP2P::p2p_path()
   } else {
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
-      CNotificationObserver::Instance()->NotifyAboutError(QString("Can't find p2p in PATH. Err : %1").arg(
+      CNotificationObserver::Instance()->Error(QString("Can't find p2p in PATH. Err : %1").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)));
     }
   }
@@ -136,11 +104,11 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->NotifyAboutError("P2P has not been updated");
+    CNotificationObserver::Instance()->Error("P2P has not been updated");
     return;
   }
 
-  CNotificationObserver::Instance()->NotifyAboutInfo("P2P has been updated");
+  CNotificationObserver::Instance()->Info("P2P has been updated");
   int rse_err = 0;
 
   QString download_path = QApplication::applicationDirPath() +
@@ -159,7 +127,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
       CSystemCallWrapper::restart_p2p_service(&rse_err);
 
   if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->NotifyAboutError(QString("p2p post update failed. err : ").
+    CNotificationObserver::Instance()->Error(QString("p2p post update failed. err : ").
                                                         arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }

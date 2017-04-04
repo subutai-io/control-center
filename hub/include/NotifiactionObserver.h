@@ -45,18 +45,24 @@ public:
   /*!
    * \brief Notify all subscribers about something with "error" level
    */
-  static void NotifyAboutError(const QString& msg) {
+  static void Error(const QString& msg) {
     Instance()->notify_all_int(NL_ERROR, msg);
   }
 
   /*!
    * \brief Notify all subscribers about something with "info" level
    */
-  static void NotifyAboutInfo(const QString& msg) {
+  static void Info(const QString& msg) {
     Instance()->notify_all_int(NL_INFO, msg);
   }
 
+  static void Warning(const QString& msg) {
+    Instance()->notify_all_int(NL_WARNING, msg);
+  }
+
+  static void Critical(const QString& msg) {
+    Instance()->notify_all_int(NL_CRITICAL, msg);
+  }
 };
 
 #endif // NOTIFIACTIONOBSERVER_H
-

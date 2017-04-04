@@ -115,7 +115,7 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
       CSystemCallWrapper::generate_ssh_key(CHubController::Instance().current_user(),
                                            str_private);
   if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Instance()->Error(
           QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
@@ -127,12 +127,19 @@ CSshKeysController::send_data_to_hub() const {
   map_string_bitmask::const_iterator current = m_dct_key_environments.cbegin();
   map_string_bitmask::const_iterator original = m_dct_key_environments_original.cbegin();
   std::map<QString, std::vector<QString> > dct_to_send;
+  std::vector<QString> lst_key_names;
 
   for (size_t k = 0; current != m_dct_key_environments.cend();
        ++current, ++original, ++k) {
+    bool contains = false;
     for (size_t i = 0; i < current->second.size(); ++i) {
-      if (current->second[i] == original->second[i]) continue;
-      if (!current->second[i]) continue;
+      if (!current->second[i] ||
+          current->second[i] == original->second[i]) continue;
+
+      if (!contains) {
+        lst_key_names.push_back(current->first);
+        contains = true;
+      }
 
       if (dct_to_send.find(m_lst_key_content[k]) == dct_to_send.end())
         dct_to_send[m_lst_key_content[k]] = std::vector<QString>();
@@ -144,16 +151,15 @@ CSshKeysController::send_data_to_hub() const {
 
   QThread* st = new QThread;
   SshControllerBackgroundWorker* bw =
-      new SshControllerBackgroundWorker(dct_to_send);
+      new SshControllerBackgroundWorker(dct_to_send, lst_key_names);
 
   connect(bw, SIGNAL(send_key_finished()), st, SLOT(quit()));
   connect(st, SIGNAL(started()), bw, SLOT(start_send_keys_to_hub()));
+  connect(bw, SIGNAL(send_key_finished()), st, SLOT(quit()));
+  connect(bw, SIGNAL(send_key_progress(int,int)),
+          this, SLOT(ssh_key_send_progress_sl(int,int)));
   connect(st, SIGNAL(finished()), st, SLOT(deleteLater()));
   connect(st, SIGNAL(finished()), bw, SLOT(deleteLater()));
-  connect(this, SIGNAL(finished(int)), st, SLOT(quit()));
-  connect(bw, SIGNAL(send_key_progress(int,int)),
-          this, SLOT(ssh_key_send_progress(int,int)));
-
   bw->moveToThread(st);
   st->start();
 }
@@ -217,8 +223,8 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CSshKeysController::ssh_key_send_progress(int part, int total) {
-  qDebug() << part << " " << total;
+CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
+  emit ssh_key_send_progress(part, total);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -231,9 +237,10 @@ CSshKeysController::environments_updated(int rr) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-SshControllerBackgroundWorker::SshControllerBackgroundWorker(
-    const std::map<QString, std::vector<QString> > &dct_key_environments) :
-  m_dct_key_environments(dct_key_environments) {
+SshControllerBackgroundWorker::SshControllerBackgroundWorker(const std::map<QString, std::vector<QString> > &dct_key_environments,
+    const std::vector<QString>& lst_key_names) :
+  m_dct_key_environments(std::move(dct_key_environments)),
+  m_lst_key_names(std::move(lst_key_names)) {
 }
 
 SshControllerBackgroundWorker::~SshControllerBackgroundWorker() {
@@ -244,10 +251,14 @@ void
 SshControllerBackgroundWorker::start_send_keys_to_hub() {
   int part = 0;
   int total = (int) m_dct_key_environments.size();
-  for (auto i = m_dct_key_environments.begin();
-       i != m_dct_key_environments.end(); ++i) {
+  size_t j = 0;
+  for (auto i = m_dct_key_environments.begin(); i != m_dct_key_environments.end(); ++i, ++j) {
     int http_code, err_code, network_err;
-    CRestWorker::Instance()->add_sshkey_to_environments(i->first, i->second,
+    qDebug() << m_lst_key_names[j];
+    qDebug() << i->first;
+    CRestWorker::Instance()->add_sshkey_to_environments(m_lst_key_names[j],
+                                                        i->first,
+                                                        i->second,
                                                         http_code, err_code,
                                                         network_err);
     emit send_key_progress(++part, total);

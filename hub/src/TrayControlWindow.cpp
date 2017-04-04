@@ -20,6 +20,7 @@
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
 #include "updater/HubComponentsUpdater.h"
+#include "DlgNotifications.h"
 
 using namespace update_system;
 
@@ -178,6 +179,9 @@ TrayControlWindow::create_tray_actions() {
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
+
+  m_act_notifications_history = new QAction(QIcon(":hub/notifications_history.png"), "Notifications history", this);
+  connect(m_act_notifications_history, SIGNAL(triggered()), this, SLOT(show_notifications_triggered()));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -213,6 +217,7 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_logout);
+  m_tray_menu->addAction(m_act_notifications_history);
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 
@@ -338,7 +343,7 @@ TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
 
 void
 TrayControlWindow::update_available(QString file_id) {
-  CNotificationObserver::Instance()->NotifyAboutInfo(
+  CNotificationObserver::Info(
         QString("Update for %1 is available. Check \"About\" dialog").arg(file_id));
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -347,7 +352,7 @@ void
 TrayControlWindow::update_finished(QString file_id,
                                    bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Error(
           QString("Failed to update %1. See details in error logs").arg(file_id));
     return;
   }
@@ -375,7 +380,7 @@ TrayControlWindow::launch_Hub() {
 
   if (!QProcess::startDetached(browser, args, folder)) {
     QString err_msg = QString("Launch hub website failed");
-    CNotificationObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     return;
   }
@@ -434,7 +439,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
       }
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
-        CNotificationObserver::Instance()->NotifyAboutInfo(QString("Environment %1 became healthy").arg(env->name()));
+        CNotificationObserver::Info(QString("Environment %1 became healthy").arg(env->name()));
         CApplicationLog::Instance()->LogTrace("Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
       }
@@ -476,7 +481,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
                              arg(lst_unhealthy_envs.size() > 1 ? "are" : "is").
                              arg(str_statuses);
 
-  CNotificationObserver::Instance()->NotifyAboutInfo(str_notification);
+  CNotificationObserver::Instance()->Info(str_notification);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -576,7 +581,7 @@ void TrayControlWindow::launch_ss(QAction* act) const {
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
-    CNotificationObserver::Instance()->NotifyAboutInfo(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+    CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                                         arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err)).
                                                         arg(ec));
     act->setEnabled(true);
@@ -606,7 +611,7 @@ void TrayControlWindow::launch_ss(QAction* act) const {
     } else {
       err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     }
-    CNotificationObserver::Instance()->NotifyAboutInfo(err_msg);
+    CNotificationObserver::Info(err_msg);
     act->setEnabled(true);
     return;
   }
@@ -626,7 +631,7 @@ void TrayControlWindow::launch_ss(QAction* act) const {
 
   if (!QProcess::startDetached(browser, args, folder)) {
     QString err_msg = QString("Run SS console failed. Can't start process");
-    CNotificationObserver::NotifyAboutError(err_msg);
+    CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     act->setEnabled(true);
     return;
@@ -696,6 +701,12 @@ QDialog* create_ssh_key_generate_dialog(QWidget* p) {return new DlgGenerateSshKe
 void
 TrayControlWindow::ssh_key_generate_triggered() {
   show_dialog(create_ssh_key_generate_dialog, "SSH key generation");
+}
+
+QDialog* create_notifications_dialog(QWidget* p) {return new DlgNotifications(p);}
+void
+TrayControlWindow::show_notifications_triggered() {
+  show_dialog(create_notifications_dialog, "Notifications history");
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -857,7 +868,7 @@ void
 TrayControlWindow::ssh_to_container_finished(int result,
                                              void *additional_data) {
   if (result != SLE_SUCCESS) {
-    CNotificationObserver::Instance()->NotifyAboutError(
+    CNotificationObserver::Error(
           QString("Can't ssh to container. Err : %1").arg(CHubController::ssh_launch_err_to_str(result)));
   }
   QAction* act = static_cast<QAction*>(additional_data);

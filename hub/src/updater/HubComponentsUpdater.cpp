@@ -92,11 +92,11 @@ CHubComponentsUpdater::update_component_timer_timeout(const QString &component_i
   m_dct_components[component_id].timer_stop();
   if (m_dct_components[component_id].Component()->update_available()) {
     if (m_dct_components[component_id].autoupdate) {
-      CNotificationObserver::Instance()->NotifyAboutInfo(
+      CNotificationObserver::Instance()->Info(
             QString("%1 updating started").arg(component_id));
       m_dct_components[component_id].Component()->update();
     } else {
-      CNotificationObserver::Instance()->NotifyAboutInfo(
+      CNotificationObserver::Instance()->Info(
             QString("New version of %1 is available!").arg(component_id));
     }
   }
