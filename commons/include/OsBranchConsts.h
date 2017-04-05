@@ -5,7 +5,7 @@
 
 enum branch_t {
   BT_MASTER = 0,
-  BT_STAGE = 1,
+  BT_PROD = 1,
   BT_DEV = 2
 };
 
