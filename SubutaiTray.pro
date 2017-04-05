@@ -128,11 +128,11 @@ equals(GIT_BRANCH_STR, "master") {
 }
 
 equals(GIT_BRANCH_STR, "HEAD") {
-  GBV=BT_STAGE
+  GBV=BT_PROD
 }
 
 equals(GIT_BRANCH_STR, "head") {
-  GBV=BT_STAGE
+  GBV=BT_PROD
 }
 
 equals(GIT_BRANCH_STR, "dev") {
