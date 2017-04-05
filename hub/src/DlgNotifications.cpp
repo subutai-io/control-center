@@ -50,8 +50,10 @@ DlgNotifications::rebuild_model() {
   m_model->setHeaderData(1, Qt::Horizontal, "Level");
   m_model->setHeaderData(2, Qt::Horizontal, "Message");
 
-  ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-  ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-  ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  if (m_model->rowCount() > 0) {
+    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
