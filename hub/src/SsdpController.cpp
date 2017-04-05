@@ -239,8 +239,9 @@ CSsdpController::send_search() {
   static const char* search_format =
       "%sHOST: %s:%d\r\nST: %s\r\nMAN: \"ssdp:discover\"\r\nMX: 2\r\n\r\n";
   char buffer[send_buff_size] = {0}; //let this buffer located on stack
-  int res_size = snprintf(buffer, send_buff_size, search_format,
-                          ssdp_start_lines[smt_search], SSDP_HOST_ADDRESS, SSDP_PORT, ssdp_rh_search_target());
+  int res_size = sprintf(buffer, search_format, ssdp_start_lines[smt_search],
+                         SSDP_HOST_ADDRESS, SSDP_PORT, ssdp_rh_search_target());
+
   send_datagram(QByteArray(buffer, res_size));
 }
 ////////////////////////////////////////////////////////////////////////////
