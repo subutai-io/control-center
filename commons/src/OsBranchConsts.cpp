@@ -116,9 +116,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_MASTER, "https://cdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_STAGE,  "https://stagecdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,    "https://devcdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_STAGE,    "https://cdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://stagecdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subut.ai:8338/kurjun/rest/%1")
 
 const QString &
 hub_gorjun_url() {
