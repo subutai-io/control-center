@@ -45,7 +45,7 @@ CVboxManager::update_machine_state(const QString &vm_id) {
 
   if (st_res != SCWE_SUCCESS) {
     CApplicationLog::Instance()->LogTrace("update_machine_state failed with err : %s",
-                                          CSystemCallWrapper::scwe_error_to_str(st_res));
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return;
   }
   CApplicationLog::Instance()->LogTrace("update_machine_state exit code : %d", exit_code);
@@ -72,7 +72,8 @@ CVboxManager::init_machines() {
                                      args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
   if (st_res != SCWE_SUCCESS) {
-    //todo log and notify
+    CApplicationLog::Instance()->LogTrace("init_machines failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
   CApplicationLog::Instance()->LogTrace("init_machines exit code : %d", exit_code);
@@ -122,7 +123,8 @@ CVboxManager::launch_vm(const QString &vm_id) {
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
   if (sc_res != SCWE_SUCCESS) {
-    //todo log/notify
+    CApplicationLog::Instance()->LogTrace("launch_vm failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return sc_res;
   }
 
@@ -145,7 +147,8 @@ CVboxManager::pause(const QString &vm_id) {
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
   if (sc_res != SCWE_SUCCESS) {
-    //todo log/notify
+    CApplicationLog::Instance()->LogTrace("pause failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return sc_res;
   }
   CApplicationLog::Instance()->LogTrace("pause exit code : %d", exit_code);
@@ -167,7 +170,8 @@ CVboxManager::resume(const QString &vm_id) {
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
   if (sc_res != SCWE_SUCCESS) {
-    //todo log/notify
+    CApplicationLog::Instance()->LogTrace("resume failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return sc_res;
   }
   CApplicationLog::Instance()->LogTrace("resume exit code : %d", exit_code);
@@ -189,7 +193,8 @@ CVboxManager::poweroff(const QString &vm_id) {
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
   if (sc_res != SCWE_SUCCESS) {
-    //todo log/notify
+    CApplicationLog::Instance()->LogTrace("poweroff failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return sc_res;
   }
   CApplicationLog::Instance()->LogTrace("powerofff exit code : %d", exit_code);
