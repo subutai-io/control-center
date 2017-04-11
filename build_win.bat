@@ -1,6 +1,3 @@
-set arg_vboxrt_dll=%1
-echo "argument : %arg_vboxrt_dll%"
-
 if exist "subutai_tray_bin" ( 
   echo "Try to remove subutai_tray_bin"
   rd /Q /S "subutai_tray_bin"
@@ -19,5 +16,4 @@ del *.cpp
 del *.h
 del *.moc
 windeployqt --release --no-translations --compiler-runtime SubutaiTray.exe
-copy %arg_vboxrt_dll% . && echo "SUCCESS"
 cd ../..

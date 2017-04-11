@@ -8,6 +8,7 @@
 #include "ApplicationLog.h"
 #include "updater/HubComponentsUpdater.h"
 #include "OsBranchConsts.h"
+#include "SystemCallWrapper.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -47,6 +48,7 @@ const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
+const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
 
 /*!
  * \brief This template is used like field initializer for code size reduction
@@ -104,7 +106,8 @@ CSettingsManager::CSettingsManager() :
   m_tray_autoupdate(false),
   m_rh_management_autoupdate(false),
   m_terminal_cmd(default_terminal()),
-  m_terminal_arg(default_term_arg())
+  m_terminal_arg(default_term_arg()),
+  m_vboxmanage_path(vboxmanage_command_str())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -138,6 +141,7 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_rtm_db_dir, SM_RTM_DB_DIR, qvar_to_str},
     {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
     {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
+    {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -184,6 +188,12 @@ CSettingsManager::CSettingsManager() :
   if (m_tray_guid.isEmpty()) {
     m_tray_guid = QUuid::createUuid().toString();
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
+  }
+
+  if (m_vboxmanage_path == vboxmanage_command_str()) {
+    QString tmp;
+    if (CSystemCallWrapper::which(m_vboxmanage_path, tmp) == SCWE_SUCCESS)
+      m_vboxmanage_path = tmp;
   }
 
   init_password();
@@ -377,4 +387,5 @@ SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
 SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
 SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
+SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 #undef SET_FIELD_DEF

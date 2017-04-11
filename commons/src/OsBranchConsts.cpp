@@ -15,9 +15,9 @@ p2p_kurjun_file_name_def(BT_MASTER,     OS_WIN,     "p2p.exe")
 p2p_kurjun_file_name_def(BT_DEV,        OS_LINUX,   "p2p")
 p2p_kurjun_file_name_def(BT_DEV,        OS_MAC,     "p2p_osx")
 p2p_kurjun_file_name_def(BT_DEV,        OS_WIN,     "p2p.exe")
-p2p_kurjun_file_name_def(BT_STAGE,      OS_LINUX,   "p2p")
-p2p_kurjun_file_name_def(BT_STAGE,      OS_MAC,     "p2p_osx")
-p2p_kurjun_file_name_def(BT_STAGE,      OS_WIN,     "p2p.exe")
+p2p_kurjun_file_name_def(BT_PROD,      OS_LINUX,   "p2p")
+p2p_kurjun_file_name_def(BT_PROD,      OS_MAC,     "p2p_osx")
+p2p_kurjun_file_name_def(BT_PROD,      OS_WIN,     "p2p.exe")
 
 const QString &
 p2p_kurjun_file_name() {
@@ -40,9 +40,9 @@ tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiTray.exe")
 tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiTray")
 tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiTray_osx")
 tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiTray.exe")
-tray_kurjun_file_name_def(BT_STAGE,     OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_STAGE,     OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_STAGE,     OS_WIN,     "SubutaiTray.exe")
+tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiTray")
+tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiTray_osx")
+tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiTray.exe")
 
 const QString &
 tray_kurjun_file_name() {
@@ -59,8 +59,8 @@ template<class BR> const QString& hub_post_url_temp_internal();
     return res; \
   }
 
-hub_post_url_temp_internal_def(BT_MASTER, "https://hub.subut.ai/rest/v1/tray/%1")
-hub_post_url_temp_internal_def(BT_STAGE,  "https://stage.subut.ai/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_MASTER, "https://stage.subut.ai/rest/v1/tray/%1")
 hub_post_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/rest/v1/tray/%1")
 
 const QString &
@@ -78,9 +78,9 @@ template<class BR> const QString& hub_get_url_temp_internal();
     return res; \
   }
 
-hub_get_url_temp_internal_def(BT_MASTER, "https://hub.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_STAGE,  "https://stage.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_PROD,    "https://hub.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_MASTER,  "https://stage.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_DEV,     "https://dev.subut.ai/rest/v1/tray/%1")
 
 const QString &
 hub_get_url() {
@@ -97,8 +97,8 @@ template<class BR> const QString& hub_healt_url_temp_internal();
     return res; \
   }
 
-hub_health_url_temp_internal_def(BT_MASTER, "https://hub.subut.ai/rest/v1/tray/tray-data")
-hub_health_url_temp_internal_def(BT_STAGE,  "https://stage.subut.ai/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_MASTER, "https://stage.subut.ai/rest/v1/tray/tray-data")
 hub_health_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/rest/v1/tray/tray-data")
 
 const QString &
@@ -116,9 +116,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_MASTER, "https://cdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_STAGE,  "https://stagecdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,    "https://devcdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://stagecdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subut.ai:8338/kurjun/rest/%1")
 
 const QString &
 hub_gorjun_url() {
@@ -135,7 +135,7 @@ template<class BR> const char* ssdp_rh_search_target_temp_internal();
   }
 
 ssdp_rh_search_target_temp_internal_def(BT_MASTER, "urn:subutai-master:management:peer:4")
-ssdp_rh_search_target_temp_internal_def(BT_STAGE,  "urn:subutai:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   "urn:subutai:management:peer:4")
 ssdp_rh_search_target_temp_internal_def(BT_DEV,    "urn:subutai-dev:management:peer:4")
 
 const char *
@@ -154,7 +154,7 @@ template<class BR> const QString& p2p_dht_arg_temp_internal();
   }
 
 p2p_dht_arg_internal_def(BT_MASTER, "mastercdn.subut.ai:6881")
-p2p_dht_arg_internal_def(BT_STAGE,  "dht.subut.ai:6881")
+p2p_dht_arg_internal_def(BT_PROD,   "dht.subut.ai:6881")
 p2p_dht_arg_internal_def(BT_DEV,    "devcdn.subut.ai:6881")
 
 const QString &
@@ -217,5 +217,25 @@ default_term_arg_internal_def(OS_WIN, "/k")
 const QString &
 default_term_arg() {
   return default_term_arg_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+template<class OS> const QString& vboxmanage_command_internal();
+
+#define vboxmanage_command_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& vboxmanage_command_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vboxmanage_command_internal_def(OS_LINUX, "vboxmanage")
+vboxmanage_command_internal_def(OS_MAC, "vboxmanage")
+vboxmanage_command_internal_def(OS_WIN, "vboxmanage.exe")
+
+const QString &
+vboxmanage_command_str() {
+  return vboxmanage_command_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////

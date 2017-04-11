@@ -49,6 +49,7 @@ private:
 
   static const QString SM_TERMINAL_CMD;
   static const QString SM_TERMINAL_ARG;
+  static const QString SM_VBOXMANAGE_PATH;
 
   CSettingsManager();
 
@@ -91,6 +92,8 @@ private:
 
   QString m_terminal_cmd;
   QString m_terminal_arg;
+
+  QString m_vboxmanage_path;
 
   void init_password();
 
@@ -156,6 +159,8 @@ public:
   //osascript for macOS . don't ask. don't change :(
   const QString& terminal_cmd() const {return m_terminal_cmd;}
   const QString& terminal_arg() const {return m_terminal_arg;}
+
+  const QString& vboxmanage_path() const {return m_vboxmanage_path;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -192,6 +197,7 @@ public:
   SET_FIELD_DECL(rtm_db_dir, QString&)
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
+  SET_FIELD_DECL(vboxmanage_path, QString&)
 #undef SET_FIELD_DECL
 };
 

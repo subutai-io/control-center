@@ -5,7 +5,7 @@
 
 enum branch_t {
   BT_MASTER = 0,
-  BT_STAGE = 1,
+  BT_PROD = 1,
   BT_DEV = 2
 };
 
@@ -38,5 +38,7 @@ const char* ssdp_rh_search_target();
 const QString& default_p2p_path();
 const QString& default_terminal();
 const QString& default_term_arg();
+
+const QString& vboxmanage_command_str();
 
 #endif // OSBRANCHCONSTS_H
