@@ -161,6 +161,7 @@ macx: {
 win32: {
   LIBS += Ole32.lib Rpcrt4.lib
   DEFINES += CURRENT_OS=OS_WIN
+  DEFINES += RT_OS_WINDOWS
   LIBS += ws2_32.lib
   LIBS += $$PWD/libssh2/lib/win32/libssh2.lib
   LIBS += $$PWD/libssh2/lib/win32/libssh2.exp

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include "VirtualMachine.h"
+#include <stdint.h>
 
 class CVboxManager : public QObject {
   Q_OBJECT
