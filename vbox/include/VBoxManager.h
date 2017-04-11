@@ -34,7 +34,7 @@ public:
   int32_t launch_vm(const QString& vm_id);
   int32_t pause(const QString& vm_id);
   int32_t resume(const QString& vm_id);
-  int32_t turn_off(const QString& vm_id);
+  int32_t poweroff(const QString& vm_id);
   int32_t add(const QString& vm_id);
   int32_t remove(const QString& vm_id);
 

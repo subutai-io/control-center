@@ -531,7 +531,7 @@ TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
     return;
   }
 
-  rc = CVboxManager::Instance()->turn_off(vm_id);
+  rc = CVboxManager::Instance()->poweroff(vm_id);
   //todo check rc
   (void)rc;
   return;

@@ -1,9 +1,11 @@
 #include <QRegExp>
+
 #include "VBoxManager.h"
 #include "SystemCallWrapper.h"
 #include "OsBranchConsts.h"
 #include "Commons.h"
 #include "SettingsManager.h"
+#include "ApplicationLog.h"
 
 static const int VBOXMANAGE_TIMEOUT = 5000;
 
@@ -42,9 +44,11 @@ CVboxManager::update_machine_state(const QString &vm_id) {
                                      args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
   if (st_res != SCWE_SUCCESS) {
-    //todo log
+    CApplicationLog::Instance()->LogTrace("update_machine_state failed with err : %s",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res));
     return;
   }
+  CApplicationLog::Instance()->LogTrace("update_machine_state exit code : %d", exit_code);
 
   for (QString item : out) {
     int index;
@@ -71,6 +75,7 @@ CVboxManager::init_machines() {
     //todo log and notify
     return st_res;
   }
+  CApplicationLog::Instance()->LogTrace("init_machines exit code : %d", exit_code);
 
   QRegExp part0("\".+\"");
   QRegExp part1("\\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\}");
@@ -121,6 +126,7 @@ CVboxManager::launch_vm(const QString &vm_id) {
     return sc_res;
   }
 
+  CApplicationLog::Instance()->LogTrace("launch_vm exit code : %d", exit_code);
   update_machine_state(vm_id);
   return 0;
 }
@@ -142,6 +148,7 @@ CVboxManager::pause(const QString &vm_id) {
     //todo log/notify
     return sc_res;
   }
+  CApplicationLog::Instance()->LogTrace("pause exit code : %d", exit_code);
   update_machine_state(vm_id);
   return 0;
 }
@@ -163,13 +170,14 @@ CVboxManager::resume(const QString &vm_id) {
     //todo log/notify
     return sc_res;
   }
+  CApplicationLog::Instance()->LogTrace("resume exit code : %d", exit_code);
   update_machine_state(vm_id);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 int32_t
-CVboxManager::turn_off(const QString &vm_id) {
+CVboxManager::poweroff(const QString &vm_id) {
   int exit_code;
   QStringList args, out;
   if (m_dct_machines.find(vm_id) == m_dct_machines.end())
@@ -184,6 +192,7 @@ CVboxManager::turn_off(const QString &vm_id) {
     //todo log/notify
     return sc_res;
   }
+  CApplicationLog::Instance()->LogTrace("powerofff exit code : %d", exit_code);
   update_machine_state(vm_id);
   return 0;
 }
