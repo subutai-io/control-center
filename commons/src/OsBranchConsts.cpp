@@ -219,3 +219,23 @@ default_term_arg() {
   return default_term_arg_temp_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+
+template<class OS> const QString& vboxmanage_command_internal();
+
+#define vboxmanage_command_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& vboxmanage_command_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vboxmanage_command_internal_def(OS_LINUX, "vboxmanage")
+vboxmanage_command_internal_def(OS_MAC, "vboxmanage")
+vboxmanage_command_internal_def(OS_WIN, "vboxmanage.exe")
+
+const QString &
+vboxmanage_command_str() {
+  return vboxmanage_command_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 #ifndef MRE_WINDOWS_H
 #define MRE_WINDOWS_H
 
-#include <Windows.h>
+#include <windows.h>
 #include "InternalCriticalSection.h"
 
 #include <string>

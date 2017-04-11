@@ -9,16 +9,17 @@
 #include <QProcess>
 #include <QDesktopServices>
 #include <QUrl>
-
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
-#include "vbox/include/IVBoxManager.h"
+
+
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
 #include "OsBranchConsts.h"
+#include "VBoxManager.h"
 
 #ifdef RT_OS_WINDOWS
-#include <Windows.h>
+#include <windows.h>
 #include <Process.h>
 #endif
 #include "ApplicationLog.h"
@@ -532,9 +533,9 @@ CSystemCallWrapper::chrome_version(QString &version) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString
+const QString&
 CSystemCallWrapper::virtual_box_version() {
-  return CVBoxManagerSingleton::Instance()->version();
+  return CVboxManager::Instance()->version();
 }
 ////////////////////////////////////////////////////////////////////////////
 
