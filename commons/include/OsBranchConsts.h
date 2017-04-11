@@ -39,4 +39,6 @@ const QString& default_p2p_path();
 const QString& default_terminal();
 const QString& default_term_arg();
 
+const QString& vboxmanage_command_str();
+
 #endif // OSBRANCHCONSTS_H
