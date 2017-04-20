@@ -62,6 +62,7 @@ CSystemCallWrapper::ssystem(const QString &cmd,
 
   if (!proc.waitForStarted()) {
     CApplicationLog::Instance()->LogError("Failed to wait for started process %s", cmd.toStdString().c_str());
+    CApplicationLog::Instance()->LogError("%s", proc.errorString().toStdString().c_str());
     return SCWE_CREATE_PROCESS;
   }
 
@@ -517,8 +518,12 @@ CSystemCallWrapper::chrome_version(QString &version) {
   system_call_wrapper_error_t res =
       ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     version = lst_out[0];
+  }
+  else {
+
+  }
 
   int index ;
   if ((index = version.indexOf('\n')) != -1)
