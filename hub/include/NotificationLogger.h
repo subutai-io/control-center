@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QTimer>
-#include <mutex>
+#include <QMutex>
 #include "NotifiactionObserver.h"
 
 class CNotification {
@@ -54,7 +54,7 @@ private:
   void init_records(const QDateTime& from); //todo move from to settings
 
   std::vector<CNotification> m_lst_notifications;
-  std::mutex m_clear_mutex;
+  QMutex m_clear_mutex;
   QTimer m_clear_timer;
 
 public:

@@ -4,24 +4,18 @@
 #include <QHostAddress>
 #include <QApplication>
 #include <SystemCallWrapper.h>
-#include "SettingsManager.h"
-#include "NotifiactionObserver.h"
 #include <QProcess>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 
-
+#include "SettingsManager.h"
+#include "NotifiactionObserver.h"
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
 #include "OsBranchConsts.h"
 #include "VBoxManager.h"
-
-#ifdef RT_OS_WINDOWS
-#include <windows.h>
-#include <Process.h>
-#endif
 #include "ApplicationLog.h"
 
 static QString error_strings[] = {
@@ -150,7 +144,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
       res = SCWE_CREATE_PROCESS;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    QThread::currentThread()->msleep(500);
   } while (exit_code && --attempts_count);
   return res;
 }

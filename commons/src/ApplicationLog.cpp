@@ -8,7 +8,7 @@
 #include "ApplicationLog.h"
 
 #ifndef RT_OS_WINDOWS
-#include "commons/include/MRE_Linux.h"
+#include "commons/include/MRE_Pthread.h"
 #else
 #include "commons/include/MRE_Windows.h"
 #endif
@@ -20,7 +20,7 @@ CApplicationLog::CApplicationLog( void ) :
   m_log_level(LT_INFO)
 {
 #ifndef RT_OS_WINDOWS
-  m_logEventLoop = new CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>(NULL, NULL, NULL, 5000, false);
+  m_logEventLoop = new CEventLoop<SynchroPrimitives::CPthreadMRE>(NULL, NULL, NULL, 5000, false);
 #else
   m_logEventLoop = new CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>(NULL, NULL, NULL, 5000, false);
 #endif  
@@ -84,7 +84,7 @@ CApplicationLog::Log(CApplicationLog::LOG_TYPE log_type,
                                                             m_lst_files_by_log_type[log_type],
                                                             "AppendLog");
 #ifndef RT_OS_WINDOWS
-  if (CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
+  if (CEventLoop<SynchroPrimitives::CPthreadMRE>::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)
     qCritical() << "AppendLog failed";
 #else
   if (CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>::GetSyncResult<int>(m_logEventLoop, functor, true) == -1)

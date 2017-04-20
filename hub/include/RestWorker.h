@@ -37,13 +37,7 @@ class CRestWorker : public QObject {
   Q_OBJECT
 
 private:
-  //todo use EventLoop
-#ifndef RT_OS_WINDOWS
-  CEventLoop<SynchroPrimitives::CLinuxManualResetEvent> *m_el;
-#else
-  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_el;
-#endif
-
+  CEventLoop<SynchroPrimitives::CPthreadMRE> *m_el;
   QNetworkAccessManager *m_network_manager;
   static QNetworkAccessManager* create_network_manager();
   static int free_network_manager(QNetworkAccessManager*nam);

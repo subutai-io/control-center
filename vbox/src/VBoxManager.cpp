@@ -43,12 +43,11 @@ CVboxManager::update_machine_state(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("update_machine_state failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return;
   }
-  CApplicationLog::Instance()->LogTrace("update_machine_state exit code : %d", exit_code);
 
   for (QString item : out) {
     int index;
@@ -71,12 +70,11 @@ CVboxManager::init_machines() {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("init_machines failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
-  CApplicationLog::Instance()->LogTrace("init_machines exit code : %d", exit_code);
 
   QRegExp part0("\".+\"");
   QRegExp part1("\\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\}");
@@ -122,13 +120,12 @@ CVboxManager::launch_vm(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("launch_vm failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
 
-  CApplicationLog::Instance()->LogTrace("launch_vm exit code : %d", exit_code);
   update_machine_state(vm_id);
   return 0;
 }
@@ -146,12 +143,12 @@ CVboxManager::pause(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("pause failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
-  CApplicationLog::Instance()->LogTrace("pause exit code : %d", exit_code);
+
   update_machine_state(vm_id);
   return 0;
 }
@@ -169,12 +166,12 @@ CVboxManager::resume(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("resume failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
-  CApplicationLog::Instance()->LogTrace("resume exit code : %d", exit_code);
+
   update_machine_state(vm_id);
   return 0;
 }
@@ -192,12 +189,12 @@ CVboxManager::poweroff(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("poweroff failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
     return st_res;
   }
-  CApplicationLog::Instance()->LogTrace("powerofff exit code : %d", exit_code);
+
   update_machine_state(vm_id);
   return 0;
 }
@@ -222,7 +219,7 @@ CVboxManager::remove(const QString &vm_id) {
       CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
                                      args, out, exit_code, false, VBOXMANAGE_TIMEOUT);
 
-  if (st_res != SCWE_SUCCESS) {
+  if (st_res != SCWE_SUCCESS || exit_code != 0) {
     //todo log/notify
     return st_res;
   }

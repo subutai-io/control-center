@@ -23,7 +23,6 @@ SOURCES += \
     commons/src/IFunctor.cpp \
     commons/src/ApplicationLog.cpp \
     commons/src/InternalCriticalSection.cpp \
-    commons/src/MRE_Linux.cpp \
     commons/src/Commons.cpp \
     hub/src/RestWorker.cpp \
     hub/src/DlgLogin.cpp \
@@ -51,7 +50,8 @@ SOURCES += \
     hub/src/NotificationLogger.cpp \
     hub/src/DlgNotifications.cpp \
     vbox/src/VBoxManager.cpp \
-    vbox/src/VirtualMachine.cpp
+    vbox/src/VirtualMachine.cpp \
+    commons/src/MRE_Pthread.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -84,7 +84,6 @@ HEADERS  += \
     commons/include/InternalCriticalSection.h \
     commons/include/IRunnable.h \
     commons/include/Locker.h \
-    commons/include/MRE_Linux.h \
     commons/include/MRE_Wrapper.h \
     commons/include/ThreadWrapper.h \
     commons/include/Commons.h \
@@ -98,7 +97,8 @@ HEADERS  += \
     hub/include/NotificationLogger.h \
     hub/include/DlgNotifications.h \
     vbox/include/VBoxManager.h \
-    vbox/include/VirtualMachine.h
+    vbox/include/VirtualMachine.h \
+    commons/include/MRE_Pthread.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -146,7 +146,6 @@ unix:!macx {
 #////////////////////////////////////////////////////////////////////////////
 
 macx: {
-  QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += RT_OS_DARWIN  
   DEFINES += CURRENT_OS=OS_MAC
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
@@ -155,15 +154,16 @@ macx: {
   ICON = $$PWD/resources/tray_logo.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
   LIBS += -L/usr/local/lib/ -lssh2
+#  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11
+#  QMAKE_LFLAGS += -stdlib=libc++
+#  LIBS += -L/home/lezh1k/ -lssh2
 }
 #////////////////////////////////////////////////////////////////////////////
 
 win32: {
-  LIBS += Ole32.lib Rpcrt4.lib
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
-  LIBS += ws2_32.lib
-  LIBS += $$PWD/libssh2/lib/win32/libssh2.lib
-  LIBS += $$PWD/libssh2/lib/win32/libssh2.exp
+  LIBS += -lws2_32 -lpthread -L$$PWD/libssh2/lib/win32 -lssh2
+  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////

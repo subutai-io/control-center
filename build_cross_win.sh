@@ -9,6 +9,6 @@ if [ -d "$subutai_tray_bin" ]; then
 fi 
 mkdir subutai_tray_bin
 cd subutai_tray_bin
-qmake ../SubutaiTray.pro -r -spec linux-g++
+qmake ../SubutaiTray.pro -r -spec win32-x-g++
 make -j$core_number 
 cd ../

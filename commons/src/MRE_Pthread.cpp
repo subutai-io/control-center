@@ -1,13 +1,11 @@
-
-#ifndef RT_OS_WINDOWS
 #include <stdio.h>
 #include <errno.h>
 #include <sys/time.h>
 
-#include "MRE_Linux.h"
+#include "MRE_Pthread.h"
 #include "Locker.h"
 
-int SynchroPrimitives::CLinuxManualResetEvent::MRE_Wait(CLinuxManualResetEvent *lpMre, int timeInMs) {
+int SynchroPrimitives::CPthreadMRE::MRE_Wait(CPthreadMRE *lpMre, int timeInMs) {
   int res = 0;
   timeval tv;
   timespec ts;
@@ -32,7 +30,7 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Wait(CLinuxManualResetEvent *
 }
 //////////////////////////////////////////////////////////////////////////
 
-int SynchroPrimitives::CLinuxManualResetEvent::MRE_Set(CLinuxManualResetEvent *lpMre) {
+int SynchroPrimitives::CPthreadMRE::MRE_Set(CPthreadMRE *lpMre) {
   SynchroPrimitives::Locker lock(&lpMre->m_mreInfo.m_cs);
   lpMre->m_mreInfo.m_signaled = true;
   int res = pthread_cond_signal(&lpMre->m_mreInfo.m_cond);
@@ -40,14 +38,14 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Set(CLinuxManualResetEvent *l
 }
 //////////////////////////////////////////////////////////////////////////
 
-int SynchroPrimitives::CLinuxManualResetEvent::MRE_Reset(CLinuxManualResetEvent *lpMre) {
+int SynchroPrimitives::CPthreadMRE::MRE_Reset(CPthreadMRE *lpMre) {
   SynchroPrimitives::Locker lock(&lpMre->m_mreInfo.m_cs);
   lpMre->m_mreInfo.m_signaled = false;
   return 0;
 }
 //////////////////////////////////////////////////////////////////////////
 
-int SynchroPrimitives::CLinuxManualResetEvent::MRE_Init(CLinuxManualResetEvent *lpMre) {
+int SynchroPrimitives::CPthreadMRE::MRE_Init(CPthreadMRE *lpMre) {
   int result = pthread_mutex_init(&lpMre->m_mreInfo.m_mutex, NULL);
   if (result != 0)
     return result;
@@ -59,11 +57,10 @@ int SynchroPrimitives::CLinuxManualResetEvent::MRE_Init(CLinuxManualResetEvent *
 }
 //////////////////////////////////////////////////////////////////////////
 
-int SynchroPrimitives::CLinuxManualResetEvent::MRE_Destroy(CLinuxManualResetEvent *lpMre) {
+int SynchroPrimitives::CPthreadMRE::MRE_Destroy(CPthreadMRE *lpMre) {
   int res = pthread_mutex_destroy(&lpMre->m_mreInfo.m_mutex);
   if (res != 0) return res;
   res = pthread_cond_destroy(&lpMre->m_mreInfo.m_cond);
   return res;
 }
 //////////////////////////////////////////////////////////////////////////
-#endif //#ifndef RT_OS_WINDOWS

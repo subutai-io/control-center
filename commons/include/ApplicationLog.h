@@ -5,7 +5,7 @@
 #include "EventLoop.h"
 #include "FunctorWithResult.h"
 #ifndef RT_OS_WINDOWS
-#include "commons/include/MRE_Linux.h"
+#include "commons/include/MRE_Pthread.h"
 #else
 #include "commons/include/MRE_Windows.h"
 #endif
@@ -84,7 +84,7 @@ private:
 
   //event loop for logging.
 #ifndef RT_OS_WINDOWS
-  CEventLoop<SynchroPrimitives::CLinuxManualResetEvent> *m_logEventLoop;
+  CEventLoop<SynchroPrimitives::CPthreadMRE> *m_logEventLoop;
 #else
   CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_logEventLoop;
 #endif

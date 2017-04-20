@@ -7,16 +7,11 @@
 #include "FunctorWithResult.h"
 #include "OsBranchConsts.h"
 
-#ifndef RT_OS_WINDOWS
-#define EVENT_LOOP CEventLoop<SynchroPrimitives::CLinuxManualResetEvent>
-#else
-#define EVENT_LOOP CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>
-#endif
+#define EVENT_LOOP CEventLoop<SynchroPrimitives::CPthreadMRE>
 
 CRestWorker::CRestWorker() {
   m_el = new EVENT_LOOP(NULL, NULL, NULL, 15000, false);
   m_el->Run();
-
   IFunctor* functor = new FunctorWithResult<QNetworkAccessManager*>(
                         CRestWorker::create_network_manager, "create network manager");
   m_network_manager = EVENT_LOOP::GetSyncResult<QNetworkAccessManager*>(

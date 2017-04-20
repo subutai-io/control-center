@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/home/lezh1k/osx_cross/osxcross/target/bin:$PATH
 nproc_count="$(nproc)"
 core_number=$((nproc_count*2+1))
 subutai_tray_bin="subutai_tray_bin"
@@ -9,6 +10,7 @@ if [ -d "$subutai_tray_bin" ]; then
 fi 
 mkdir subutai_tray_bin
 cd subutai_tray_bin
-qmake ../SubutaiTray.pro -r -spec linux-g++
+#qmake ../SubutaiTray.pro -r -spec macx-x-g++ 
+qmake ../SubutaiTray.pro -r -spec macx-clang
 make -j$core_number 
 cd ../

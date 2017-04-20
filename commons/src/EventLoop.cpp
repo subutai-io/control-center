@@ -2,7 +2,7 @@
 #define EVENT_LOOP_CPP
 
 #include <stdio.h>
-#include <thread>
+#include <QThread>
 #include "EventLoop.h"
 
 using namespace SynchroPrimitives;
@@ -29,8 +29,6 @@ CEventLoop<TMRE>::~CEventLoop() {
     return;
 
   m_loopWorker.m_isDisposing = true;
-  //   if (m_loopWorkerThread.Wait(m_methodTimeout) != 0)
-  //     m_loopWorkerThread.Terminate(-1);
   m_loopWorkerThread.Join();
 }
 //////////////////////////////////////////////////////////////////////////
@@ -105,7 +103,6 @@ void *CEventLoop<TMRE>::InvokeActionWithResult(IFunctor *functor,
 
 template<class TMRE>
 void CEventLoop<TMRE>::LoopWorker::InvokeMethod_S(IFunctor *action) {
-#ifndef RT_OS_WINDOWS
   try {
     (*action)();
   }
@@ -115,17 +112,6 @@ void CEventLoop<TMRE>::LoopWorker::InvokeMethod_S(IFunctor *action) {
   catch (...) {
     action->SetExceptionOccured(true);
   }
-#else
-  __try {
-     (*action)();
-   }
-  __except (EXCEPTION_EXECUTE_HANDLER) {
-     action->SetExceptionOccured(true);
-     ///*todo run it in separate method*/
-//     m_eventLoop->InvokeHandleExceptionCallback(CEventLoopException(std::string("SEH exception in method ")
-//           + std::string(action->MethodName())));
-   }
-#endif
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +145,7 @@ bool CEventLoop<TMRE>::LoopWorker::QueueIsEmpty() {
 template<class TMRE>
 void CEventLoop<TMRE>::LoopWorker::Run(void) {
   while(!m_isDisposing) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    QThread::currentThread()->msleep(1);
     while(!QueueIsEmpty()) {
       IFunctor* action = DequeAction();
       InvokeMethod_S(action);

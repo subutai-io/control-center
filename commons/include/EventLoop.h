@@ -11,7 +11,7 @@
 #include "EventLoopException.h"
 #include "InternalCriticalSection.h"
 #include "Locker.h"
-#include "MRE_Linux.h"
+#include "MRE_Pthread.h"
 #include "MRE_Wrapper.h"
 #include "ThreadWrapper.h"
 
