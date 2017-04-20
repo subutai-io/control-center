@@ -439,7 +439,7 @@ CSystemCallWrapper::p2p_version(QString &version) {
   QStringList args, lst_out;
   args << "version";
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
@@ -455,7 +455,7 @@ CSystemCallWrapper::p2p_status(QString &status) {
   QStringList args, lst_out;
   args << "status";
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
@@ -515,7 +515,7 @@ CSystemCallWrapper::chrome_version(QString &version) {
   args << "--version";
 
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
