@@ -503,7 +503,7 @@ CSystemCallWrapper::chrome_version(QString &version) {
 #if defined(RT_OS_LINUX)
   static const char* command= "/usr/bin/google-chrome-stable";
 #elif defined(RT_OS_DARWIN)
-  static const char* command = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
+  static const char* command = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 #elif defined(RT_OS_WINDOWS)
   static const char* command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
   version = "Couldn't get version on Win, sorry";
