@@ -18,7 +18,7 @@
 #include "SystemCallWrapper.h"
 #include "HubController.h"
 #include "SettingsManager.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "SshKeysController.h"
 #include "RhController.h"
 

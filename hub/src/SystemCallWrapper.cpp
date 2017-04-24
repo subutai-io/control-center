@@ -11,7 +11,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "SettingsManager.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
 #include "OsBranchConsts.h"

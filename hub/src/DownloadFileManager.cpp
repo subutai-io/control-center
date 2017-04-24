@@ -1,6 +1,6 @@
 #include "DownloadFileManager.h"
 #include "RestWorker.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 
 CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
                                            const QString &dst_file,

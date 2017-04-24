@@ -2,7 +2,7 @@
 #include <QEventLoop>
 #include "RestWorker.h"
 #include "ApplicationLog.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "IFunctor.h"
 #include "FunctorWithResult.h"
 #include "OsBranchConsts.h"

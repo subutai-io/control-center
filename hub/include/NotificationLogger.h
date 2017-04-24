@@ -5,7 +5,7 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QMutex>
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 
 class CNotification {
 private:

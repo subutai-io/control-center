@@ -4,7 +4,7 @@
 
 #include "TrayWebSocketServer.h"
 #include "SettingsManager.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "ApplicationLog.h"
 #include "SystemCallWrapper.h"
 

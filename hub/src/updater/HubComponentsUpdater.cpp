@@ -6,7 +6,7 @@
 #include "DownloadFileManager.h"
 #include "SystemCallWrapper.h"
 #include "RestWorker.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "DownloadFileManager.h"
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/UpdaterComponentTray.h"

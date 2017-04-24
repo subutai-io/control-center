@@ -1,6 +1,6 @@
 #include "updater/IUpdaterComponent.h"
 #include "SystemCallWrapper.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentRH.h"

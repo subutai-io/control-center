@@ -5,7 +5,7 @@
 
 #include "RestWorker.h"
 #include "HubController.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "SystemCallWrapper.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"

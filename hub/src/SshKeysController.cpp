@@ -8,7 +8,7 @@
 
 #include "HubController.h"
 #include "SystemCallWrapper.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 
 std::vector<bool> CSshKeysController::empty_environments_bitmask;
 

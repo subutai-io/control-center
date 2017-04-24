@@ -13,7 +13,7 @@
 #include <QWidgetAction>
 
 #include "RestWorker.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "HubController.h"
 #include "VirtualMachine.h"
 

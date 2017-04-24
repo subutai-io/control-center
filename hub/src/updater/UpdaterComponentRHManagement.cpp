@@ -1,6 +1,6 @@
 #include "updater/UpdaterComponentRHManagement.h"
 #include "SystemCallWrapper.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "libssh2/include/LibsshController.h"

@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 TARGET = SubutaiTray
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -Wall
+
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
@@ -51,7 +53,8 @@ SOURCES += \
     hub/src/DlgNotifications.cpp \
     vbox/src/VBoxManager.cpp \
     vbox/src/VirtualMachine.cpp \
-    commons/src/MRE_Pthread.cpp
+    commons/src/MRE_Pthread.cpp \
+    hub/src/NotificationObserver.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -60,7 +63,6 @@ HEADERS  += \
     hub/include/DlgSettings.h \
     hub/include/TrayControlWindow.h \
     hub/include/SystemCallWrapper.h \
-    hub/include/NotifiactionObserver.h \
     hub/include/TrayWebSocketServer.h \
     hub/include/HubController.h \
     hub/include/DlgAbout.h \
@@ -98,7 +100,8 @@ HEADERS  += \
     hub/include/DlgNotifications.h \
     vbox/include/VBoxManager.h \
     vbox/include/VirtualMachine.h \
-    commons/include/MRE_Pthread.h
+    commons/include/MRE_Pthread.h \
+    hub/include/NotificationObserver.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -154,9 +157,10 @@ macx: {
   ICON = $$PWD/resources/tray_logo.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
   LIBS += -L/usr/local/lib/ -lssh2
+#  USE WITH CROSS COMPILATION
+#  LIBS += -L$$PWD/libssh2/lib -lssh2
 #  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11
 #  QMAKE_LFLAGS += -stdlib=libc++
-#  LIBS += -L/home/lezh1k/ -lssh2
 }
 #////////////////////////////////////////////////////////////////////////////
 
