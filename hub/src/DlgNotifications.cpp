@@ -13,7 +13,6 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
 
   m_model = new QStandardItemModel(this);
   ui->tv_notifications->setModel(m_model);
-
   ui->tv_notifications->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tv_notifications->setAlternatingRowColors(true);
 
@@ -42,6 +41,9 @@ DlgNotifications::rebuild_model() {
                                 QColor::fromRgb(210,0,15)};
       ni[j]->setBackground(QBrush(color[(int)i.level()]));
       m_model->setItem(row_count, j, ni[j]);
+
+      ni[j]->setEditable(false);
+      ni[j]->setRowCount(10);
     }
     ++row_count;
   }
@@ -54,6 +56,7 @@ DlgNotifications::rebuild_model() {
     ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
     ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+    ui->tv_notifications->resizeRowsToContents();
   }
 }
 ////////////////////////////////////////////////////////////////////////////

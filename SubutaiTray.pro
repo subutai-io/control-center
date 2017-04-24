@@ -12,8 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 TARGET = SubutaiTray
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -Wall
-
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include

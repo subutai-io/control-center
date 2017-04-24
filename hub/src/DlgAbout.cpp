@@ -1,11 +1,13 @@
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
+
 #include "Commons.h"
 #include "DlgAbout.h"
 #include "ui_DlgAbout.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
 #include "updater/HubComponentsUpdater.h"
+#include "NotificationObserver.h"
 
 using namespace update_system;
 
@@ -152,7 +154,10 @@ DlgAbout::update_available(const QString& file_id) {
 void
 DlgAbout::update_finished(const QString& file_id,
                           bool success) {
-  (void)success;
+  if (!success) {
+    CNotificationObserver::Error(QString("Couldn't update component %1").arg(file_id));
+  }
+
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);

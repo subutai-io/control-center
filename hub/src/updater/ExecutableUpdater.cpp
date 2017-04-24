@@ -26,8 +26,15 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
   QString tmp = m_dst_file_str + ".tmp";
   QFile src(m_src_file_str);
   QFile dst(m_dst_file_str);
-  QFile::Permissions perm = dst.permissions();
   bool replaced = true;
+  QFile::Permissions perm;
+  if (dst.exists()) {
+    perm = dst.permissions();
+  } else {
+    perm = QFile::ReadUser | QFile::WriteUser | QFile::ExeUser  |
+           QFile::ReadGroup | QFile::ExeGroup |
+           QFile::ReadOther | QFile::ExeOther ; // 0x0755 :)
+  }
 
   CApplicationLog::Instance()->LogTrace("dst : %s", m_dst_file_str.toStdString().c_str());
   CApplicationLog::Instance()->LogTrace("tmp : %s", tmp.toStdString().c_str());

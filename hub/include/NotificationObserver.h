@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QSystemTrayIcon>
 
 typedef enum notification_level {
   NL_INFO = 0,
@@ -11,11 +12,6 @@ typedef enum notification_level {
   NL_CRITICAL
 } notification_level_t;
 
-/*!
- * \brief This class is used for notifications. Many instances could be notified.
- * All subscribers will receive notification message and notification level. Level
- * could be "error" or "info". In our case we use it for pop up notification messages.
- */
 class CNotificationObserver : public QObject {
   Q_OBJECT
 
@@ -28,40 +24,34 @@ private:
   CNotificationObserver(const CNotificationObserver&);
   CNotificationObserver& operator=(const CNotificationObserver&);
 
-  void notify_all_int(notification_level_t level,
-                      const QString& msg) {
-    emit notify(level, msg);
-  }
+  void notify_all_internal(notification_level_t level,
+                      const QString& msg);
+
+  QSystemTrayIcon* m_sys_tray_icon;
 
 public:
-  /*!
-   * \brief Instance of this singleton class
-   */
   static CNotificationObserver* Instance() {
     static CNotificationObserver obs;
     return &obs;
   }
 
-  /*!
-   * \brief Notify all subscribers about something with "error" level
-   */
+  void
+  set_sys_tray_icon(QSystemTrayIcon* sti) {m_sys_tray_icon = sti;}
+
   static void Error(const QString& msg) {
-    Instance()->notify_all_int(NL_ERROR, msg);
+    Instance()->notify_all_internal(NL_ERROR, msg);
   }
 
-  /*!
-   * \brief Notify all subscribers about something with "info" level
-   */
   static void Info(const QString& msg) {
-    Instance()->notify_all_int(NL_INFO, msg);
+    Instance()->notify_all_internal(NL_INFO, msg);
   }
 
   static void Warning(const QString& msg) {
-    Instance()->notify_all_int(NL_WARNING, msg);
+    Instance()->notify_all_internal(NL_WARNING, msg);
   }
 
   static void Critical(const QString& msg) {
-    Instance()->notify_all_int(NL_CRITICAL, msg);
+    Instance()->notify_all_internal(NL_CRITICAL, msg);
   }
 };
 
