@@ -1,7 +1,7 @@
 #include <QFile>
 #include "Commons.h"
 #include "ApplicationLog.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "updater/ExecutableUpdater.h"
 
 using namespace update_system;

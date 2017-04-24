@@ -9,7 +9,6 @@
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
 #include "DlgLogin.h"
-#include "IVBoxManager.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include "libssh2/include/LibsshController.h"
@@ -21,6 +20,7 @@
 #include "DlgGenerateSshKey.h"
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotifications.h"
+#include "VBoxManager.h"
 
 using namespace update_system;
 
@@ -50,11 +50,11 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
 
 
 
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_add(const QString&)),
+  connect(CVboxManager::Instance(), SIGNAL(vm_add(const QString&)),
           this, SLOT(vm_added(const QString&)));
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_remove(const QString&)),
+  connect(CVboxManager::Instance(), SIGNAL(vm_remove(const QString&)),
           this, SLOT(vm_removed(const QString&)));
-  connect(CVBoxManagerSingleton::Instance(), SIGNAL(vm_state_changed(const QString&)),
+  connect(CVboxManager::Instance(), SIGNAL(vm_state_changed(const QString&)),
           this, SLOT(vm_state_changed(const QString&)));
 
   connect(CNotificationObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
@@ -85,11 +85,11 @@ TrayControlWindow::~TrayControlWindow() {
 
 int
 TrayControlWindow::fill_vm_menu(){
-  if (CVBoxManagerSingleton::Instance()->init_machines() != 0)
+  if (CVboxManager::Instance()->init_machines() != 0)
     return 0;
   ushort rh_count = 0;
-  for (auto i = CVBoxManagerSingleton::Instance()->dct_machines().begin();
-       i != CVBoxManagerSingleton::Instance()->dct_machines().end(); ++i) {
+  for (auto i = CVboxManager::Instance()->dct_machines().begin();
+       i != CVboxManager::Instance()->dct_machines().end(); ++i) {
     add_vm_menu(i->first);
     rh_count++;
   }
@@ -119,7 +119,7 @@ TrayControlWindow::application_quit() {
 
 void
 TrayControlWindow::add_vm_menu(const QString &vm_id) {
-  const IVirtualMachine* vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  const CVirtualMachine* vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
 
   CVBPlayerItem *pl = new CVBPlayerItem(vm, m_w_Player);
@@ -298,7 +298,7 @@ void
 TrayControlWindow::vm_state_changed(const QString &vm_id) {
   auto ip = m_dct_player_menus.find(vm_id);
   if (ip == m_dct_player_menus.end()) return;
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  const CVirtualMachine *vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL) {
     //todo log
     return;
@@ -316,13 +316,13 @@ TrayControlWindow::vm_session_state_changed(const QString &vm_id) {
 
 void
 TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  const CVirtualMachine *vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
   bool on = vm->state() == MachineState_PoweredOff;
 
   if (on) {
-    CVBoxManagerSingleton::Instance()->pause(vm_id);
+    CVboxManager::Instance()->pause(vm_id);
     return;
   } //turn on
 }
@@ -493,25 +493,25 @@ TrayControlWindow::balance_updated_sl() {
 
 void
 TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
-  nsresult rc;
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  int32_t rc;
+  const CVirtualMachine *vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
   MachineState_T state = vm->state();
   if (state < 5) { //Powered off
-    rc = CVBoxManagerSingleton::Instance()->launch_vm(vm_id);
+    rc = CVboxManager::Instance()->launch_vm(vm_id);
     return;
   }
 
   if (state == MachineState_Running) {
-    rc = CVBoxManagerSingleton::Instance()->pause(vm_id);
+    rc = CVboxManager::Instance()->pause(vm_id);
     return;
   }
 
   if (state == MachineState_Paused ||
       state == MachineState_Teleporting ||
       state == MachineState_LiveSnapshotting) {
-    rc = CVBoxManagerSingleton::Instance()->resume(vm_id);
+    rc = CVboxManager::Instance()->resume(vm_id);
     return;
   }
   //todo use rc
@@ -522,17 +522,16 @@ TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
 
 void
 TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
-  nsresult rc;
-  const IVirtualMachine *vm = CVBoxManagerSingleton::Instance()->vm_by_id(vm_id);
+  int32_t rc;
+  const CVirtualMachine *vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL)
     return;
   MachineState_T state = vm->state();
   if (state < 5) {
-    CApplicationLog::Instance()->LogTrace("state : %d", state);
     return;
   }
 
-  rc = CVBoxManagerSingleton::Instance()->turn_off(vm_id);
+  rc = CVboxManager::Instance()->poweroff(vm_id);
   //todo check rc
   (void)rc;
   return;
@@ -542,20 +541,16 @@ TrayControlWindow::vbox_menu_btn_stop_triggered(const QString& vm_id) {
 void
 TrayControlWindow::vbox_menu_btn_add_triggered(const QString& vm_id) {
   //todo check result
-  CVBoxManagerSingleton::Instance()->add(vm_id);
+  CVboxManager::Instance()->add(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
   //todo check result
-  CVBoxManagerSingleton::Instance()->remove(vm_id);
+  CVboxManager::Instance()->remove(vm_id);
 }
 ////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 void TrayControlWindow::launch_ss(QAction* act) const {
   QString browser; // "/etc/alternatives/x-www-browser";
@@ -775,7 +770,7 @@ CVBPlayer::remove(CVBPlayerItem* pItem) {
 }
 /////////////////////////////////////////////////////////////////////////////
 
-CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
+CVBPlayerItem::CVBPlayerItem(const CVirtualMachine *vm, QWidget* parent) :
   m_vm_player_item_id(vm->id()) {
 
   UNUSED_ARG(parent);
@@ -790,7 +785,7 @@ CVBPlayerItem::CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent) :
   m_lbl_state->setMaximumWidth(100);
 
   m_lbl_name->setText(vm->name());
-  m_lbl_state->setText(CVBoxCommons::vm_state_to_str(vm->state()));
+  m_lbl_state->setText(CVirtualMachine::vm_state_to_str(vm->state()));
 
   m_btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
   m_btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
@@ -838,7 +833,7 @@ CVBPlayerItem::set_buttons(MachineState_T state) {
     {QIcon(":/hub/Pause_na-07.png"), QIcon(":/hub/Stop_na-07.png"), QIcon(":/hub/Delete_na-07.png")}
   };
 
-  m_lbl_state->setText(CVBoxCommons::vm_state_to_str(state));
+  m_lbl_state->setText(CVirtualMachine::vm_state_to_str(state));
   int isi = 0;
   if (state < 5) isi = 0;
   else if (state == MachineState_Running) isi = 1;

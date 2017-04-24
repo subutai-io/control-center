@@ -7,8 +7,6 @@
 #include <QSharedMemory>
 #include <QSystemSemaphore>
 #include <QMessageBox>
-
-#include "IVBoxManager.h"
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
@@ -132,7 +130,6 @@ main(int argc, char *argv[]) {
       break;
 
     CTrayServer::Instance()->Init();
-    CVBoxManagerSingleton::Instance()->init_com();
     TrayControlWindow tcw;
     result = app.exec();
   } while (0);

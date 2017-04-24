@@ -2,7 +2,7 @@
 #define INTERNALCRITICALSECTION_H
 
 #include <Commons.h>
-#include <mutex>
+#include <QMutex>
 
 #define CRITICAL_SECTION_SLEEP_TIMEOUT 1000
 
@@ -15,7 +15,7 @@ namespace SynchroPrimitives
     */
   typedef struct CriticalSection
   {
-    std::mutex mut;
+    QMutex mut;
     CriticalSection();
   } CriticalSection, *LPMCriticalSection;
 

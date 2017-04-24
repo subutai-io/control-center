@@ -41,6 +41,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
+  ui->le_vboxmanage_command->setText(CSettingsManager::Instance().vboxmanage_path());
 
   ui->le_rtm_db_folder->setText(CSettingsManager::Instance().rtm_db_dir());
   ui->le_rtm_db_folder->setVisible(false);
@@ -100,6 +101,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
           this, SLOT(resource_host_list_updated_sl(bool)));
   connect(&m_refresh_rh_list_timer, SIGNAL(timeout()),
           this, SLOT(refresh_rh_list_timer_timeout()));
+  connect(ui->btn_vboxmanage_command, SIGNAL(released()),
+          this, SLOT(btn_vboxmanage_command_released()));
 }
 
 DlgSettings::~DlgSettings()
@@ -171,7 +174,8 @@ DlgSettings::btn_ok_released() {
   static const char* can_launch_application_msg = "Can't launch application";
 
   QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
-                    ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder};
+                    ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder,
+                    ui->le_vboxmanage_command};
   QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
 
@@ -204,6 +208,8 @@ DlgSettings::btn_ok_released() {
     {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_terminal_cmd, can_launch_application, 1, can_launch_application_msg},
     {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, can_launch_application, 1, can_launch_application_msg},
 
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
@@ -229,6 +235,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
+  CSettingsManager::Instance().set_vboxmanage_path(ui->le_vboxmanage_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
@@ -281,6 +288,14 @@ DlgSettings::btn_ssh_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_vboxmanage_command_released() {
+  QString fn = QFileDialog::getOpenFileName(this, "Vboxmanage command");
+  if (fn == "") return;
+  ui->le_vboxmanage_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 

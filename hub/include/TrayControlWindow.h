@@ -12,10 +12,10 @@
 #include <QPushButton>
 #include <QWidgetAction>
 
-#include "IVirtualMachine.h"
 #include "RestWorker.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "HubController.h"
+#include "VirtualMachine.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -39,7 +39,7 @@ private:
     QPushButton *m_btn_add;
 
 public:
-    CVBPlayerItem(const IVirtualMachine* vm, QWidget* parent);
+    CVBPlayerItem(const CVirtualMachine* vm, QWidget* parent);
     virtual ~CVBPlayerItem();
     void set_buttons(MachineState_T state);
 

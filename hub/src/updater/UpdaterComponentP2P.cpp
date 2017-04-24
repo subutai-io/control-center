@@ -6,7 +6,7 @@
 #include "updater/ExecutableUpdater.h"
 #include "RestWorker.h"
 #include "SystemCallWrapper.h"
-#include "NotifiactionObserver.h"
+#include "NotificationObserver.h"
 #include "DownloadFileManager.h"
 #include "Commons.h"
 #include "OsBranchConsts.h"

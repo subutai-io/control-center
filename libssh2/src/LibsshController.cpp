@@ -6,7 +6,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <winsock2.h>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 #else
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -176,9 +176,7 @@ run_ssh_command_internal(const char *str_host,
   ul_host_addr = inet_addr(str_host);
 #else
   SOCKET sock;
-  if (InetPtonA(AF_INET, str_host, &ul_host_addr) != 1) {
-    return RLE_INET_ADDR;
-  }
+  ul_host_addr = inet_addr(str_host);
 #endif
   sin.sin_family = AF_INET;
   sin.sin_port = htons(port);

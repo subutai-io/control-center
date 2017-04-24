@@ -4,23 +4,18 @@
 #include <QHostAddress>
 #include <QApplication>
 #include <SystemCallWrapper.h>
-#include "SettingsManager.h"
-#include "NotifiactionObserver.h"
 #include <QProcess>
 #include <QDesktopServices>
 #include <QUrl>
-
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
-#include "vbox/include/IVBoxManager.h"
+
+#include "SettingsManager.h"
+#include "NotificationObserver.h"
 #include "HubController.h"
 #include "libssh2/include/LibsshController.h"
 #include "OsBranchConsts.h"
-
-#ifdef RT_OS_WINDOWS
-#include <Windows.h>
-#include <Process.h>
-#endif
+#include "VBoxManager.h"
 #include "ApplicationLog.h"
 
 static QString error_strings[] = {
@@ -67,6 +62,7 @@ CSystemCallWrapper::ssystem(const QString &cmd,
 
   if (!proc.waitForStarted()) {
     CApplicationLog::Instance()->LogError("Failed to wait for started process %s", cmd.toStdString().c_str());
+    CApplicationLog::Instance()->LogError("%s", proc.errorString().toStdString().c_str());
     return SCWE_CREATE_PROCESS;
   }
 
@@ -149,7 +145,7 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
       res = SCWE_CREATE_PROCESS;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    QThread::currentThread()->msleep(500);
   } while (exit_code && --attempts_count);
   return res;
 }
@@ -444,7 +440,7 @@ CSystemCallWrapper::p2p_version(QString &version) {
   QStringList args, lst_out;
   args << "version";
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
     version = lst_out[0];
@@ -460,7 +456,7 @@ CSystemCallWrapper::p2p_status(QString &status) {
   QStringList args, lst_out;
   args << "status";
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
@@ -507,7 +503,7 @@ CSystemCallWrapper::chrome_version(QString &version) {
 #if defined(RT_OS_LINUX)
   static const char* command= "/usr/bin/google-chrome-stable";
 #elif defined(RT_OS_DARWIN)
-  static const char* command = "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome";
+  static const char* command = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 #elif defined(RT_OS_WINDOWS)
   static const char* command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
   version = "Couldn't get version on Win, sorry";
@@ -520,10 +516,14 @@ CSystemCallWrapper::chrome_version(QString &version) {
   args << "--version";
 
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
+  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
     version = lst_out[0];
+  }
+  else {
+
+  }
 
   int index ;
   if ((index = version.indexOf('\n')) != -1)
@@ -532,9 +532,9 @@ CSystemCallWrapper::chrome_version(QString &version) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString
+const QString&
 CSystemCallWrapper::virtual_box_version() {
-  return CVBoxManagerSingleton::Instance()->version();
+  return CVboxManager::Instance()->version();
 }
 ////////////////////////////////////////////////////////////////////////////
 
