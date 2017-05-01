@@ -2,10 +2,7 @@
 #define DLGNOTIFICATIONS_H
 
 #include <QDialog>
-
-class QStandardItemModel;
-class QStandardItem;
-
+#include "DlgNotificationsModel.h"
 namespace Ui {
   class DlgNotifications;
 }
@@ -20,7 +17,8 @@ public:
 
 private:
   Ui::DlgNotifications *ui;
-  QStandardItemModel *m_model;
+  DlgNotificationsTableModel *m_notifications_model;
+  DlgNotificationSortProxyModel *m_notification_sort_proxy_model;
 
 private slots:
   void rebuild_model();

@@ -52,7 +52,8 @@ SOURCES += \
     vbox/src/VBoxManager.cpp \
     vbox/src/VirtualMachine.cpp \
     commons/src/MRE_Pthread.cpp \
-    hub/src/NotificationObserver.cpp
+    hub/src/NotificationObserver.cpp \
+    hub/src/DlgNotificationsModel.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -99,7 +100,8 @@ HEADERS  += \
     vbox/include/VBoxManager.h \
     vbox/include/VirtualMachine.h \
     commons/include/MRE_Pthread.h \
-    hub/include/NotificationObserver.h
+    hub/include/NotificationObserver.h \
+    hub/include/DlgNotificationsModel.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
