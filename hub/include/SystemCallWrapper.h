@@ -66,6 +66,7 @@ public:
   const QStringList& lst_output() const {return m_lst_output;}
   bool read_output() const {return m_read_output;}
 
+  void abort() {emit finished();}
 public slots:
   void do_system_call();
 

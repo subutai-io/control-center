@@ -34,9 +34,9 @@ CSystemCallWrapper::ssystem_th(const QString &cmd,
                                unsigned long timeout_msec) {
   CSystemCallThreadWrapper sctw(cmd, args, read_output);
   QThread* th = new QThread;
-  QObject::connect(&sctw, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
-  QObject::connect(th, SIGNAL(started()), &sctw, SLOT(do_system_call()));
-  QObject::connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+  QObject::connect(&sctw, &CSystemCallThreadWrapper::finished, th, &QThread::quit, Qt::DirectConnection);
+  QObject::connect(th, &QThread::started, &sctw, &CSystemCallThreadWrapper::do_system_call);
+  QObject::connect(th, &QThread::finished, th, &QThread::deleteLater);
 
   sctw.moveToThread(th);
   th->start();

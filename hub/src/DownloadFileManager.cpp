@@ -65,12 +65,12 @@ void
 CDownloadFileManager::start_download() {
   if (m_network_reply != NULL) return;
   m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_id);
-  connect(m_network_reply, SIGNAL(downloadProgress(qint64,qint64)),
-          this, SLOT(download_progress(qint64,qint64)));
-  connect(m_network_reply, SIGNAL(readyRead()),
-          this, SLOT(network_reply_ready_read()));
-  connect(m_network_reply, SIGNAL(finished()),
-          this, SLOT(reply_finished()));
+  connect(m_network_reply, &QNetworkReply::downloadProgress,
+          this, &CDownloadFileManager::download_progress);
+  connect(m_network_reply, &QNetworkReply::readyRead,
+          this, &CDownloadFileManager::network_reply_ready_read);
+  connect(m_network_reply, &QNetworkReply::finished,
+          this, &CDownloadFileManager::reply_finished);
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -37,22 +37,24 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   ui->lstv_sshkeys->setModel(m_model_keys);
   ui->pb_send_to_hub->setVisible(false);
 
-  connect(ui->btn_generate_new_key, SIGNAL(released()), this, SLOT(btn_generate_released()));
-  connect(ui->btn_send_to_hub, SIGNAL(released()), this, SLOT(btn_send_to_hub_released()));  
-  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
-          this, SLOT(environments_updated(int)));
+  connect(ui->btn_generate_new_key, &QPushButton::released,
+          this, &DlgGenerateSshKey::btn_generate_released);
+  connect(ui->btn_send_to_hub, &QPushButton::released,
+          this, &DlgGenerateSshKey::btn_send_to_hub_released);
+  connect(&CHubController::Instance(), &CHubController::environments_updated,
+          this, &DlgGenerateSshKey::environments_updated);
 
-  connect(ui->lstv_sshkeys->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-          this, SLOT(lstv_keys_current_changed(QModelIndex,QModelIndex)));
+  connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
+          this, &DlgGenerateSshKey::lstv_keys_current_changed);
 
-  connect(ui->chk_select_all, SIGNAL(stateChanged(int)),
-          this, SLOT(chk_select_all_checked_changed(int)));
+  connect(ui->chk_select_all, &QCheckBox::stateChanged,
+          this, &DlgGenerateSshKey::chk_select_all_checked_changed);
 
-  connect(m_model_environments, SIGNAL(itemChanged(QStandardItem*)),
-          this, SLOT(environments_item_changed(QStandardItem*)));
+  connect(m_model_environments, &QStandardItemModel::itemChanged,
+          this, &DlgGenerateSshKey::environments_item_changed);
 
-  connect(&CSshKeysController::Instance(), SIGNAL(ssh_key_send_progress(int,int)),
-          this, SLOT(ssh_key_send_progress_sl(int,int)));
+  connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
+          this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
 
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();

@@ -62,13 +62,13 @@ CUpdaterComponentTray::update_internal() {
   CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
                                                   str_tray_path);
 
-  connect(dm, SIGNAL(download_progress_sig(qint64,qint64)),
-          this, SLOT(update_progress_sl(qint64,qint64)));
+  connect(dm, &CDownloadFileManager::download_progress_sig,
+          this, &CUpdaterComponentTray::update_progress_sl);
 
-  connect(dm, SIGNAL(finished(bool)), eu, SLOT(replace_executables(bool)));
-  connect(eu, SIGNAL(finished(bool)), this, SLOT(update_finished_sl(bool)));
-  connect(eu, SIGNAL(finished(bool)), dm, SLOT(deleteLater()));
-  connect(eu, SIGNAL(finished(bool)), eu, SLOT(deleteLater()));
+  connect(dm, &CDownloadFileManager::finished, eu, &CExecutableUpdater::replace_executables);
+  connect(eu, &CExecutableUpdater::finished, this, &CUpdaterComponentTray::update_finished_sl);
+  connect(eu, &CExecutableUpdater::finished, dm, &CDownloadFileManager::deleteLater);
+  connect(eu, &CExecutableUpdater::finished, eu, &CExecutableUpdater::deleteLater);
 
   dm->start_download();
   return CHUE_SUCCESS;
@@ -85,7 +85,7 @@ CUpdaterComponentTray::update_post_action(bool success) {
   QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, "Attention! Tray update finished",
                       "Tray application has been updated. Do you want to restart it now?",
                       QMessageBox::Yes | QMessageBox::No);
-  connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+  connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::No)
     return;
 

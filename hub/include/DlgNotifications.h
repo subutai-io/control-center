@@ -24,6 +24,7 @@ private:
 
 private slots:
   void rebuild_model();
+  void chk_full_info_toggled(bool checked);
 };
 
 #endif // DLGNOTIFICATIONS_H

@@ -137,7 +137,8 @@ CSsdpController::CSsdpController(QObject *parent) :
   m_socket->joinMulticastGroup(m_group_address);
   set_ttl(2);
   send_search();
-  connect(m_socket, SIGNAL(readyRead()), this, SLOT(process_pending_datagrams()));
+  connect(m_socket, &QUdpSocket::readyRead,
+          this, &CSsdpController::process_pending_datagrams);
 }
 
 CSsdpController::~CSsdpController() {

@@ -15,8 +15,8 @@ std::vector<bool> CSshKeysController::empty_environments_bitmask;
 CSshKeysController::CSshKeysController() {
   refresh_key_files();
   rebuild_bitmasks();
-  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
-          this, SLOT(environments_updated(int)));
+  connect(&CHubController::Instance(), &CHubController::environments_updated,
+          this, &CSshKeysController::environments_updated);
 }
 
 CSshKeysController::~CSshKeysController() {
@@ -116,7 +116,8 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
                                            str_private);
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(
-          QString("Can't generate ssh-key. Err : %1").arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
+          QString("Can't generate ssh-key. Err : %1").
+          arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
 }
@@ -153,13 +154,13 @@ CSshKeysController::send_data_to_hub() const {
   SshControllerBackgroundWorker* bw =
       new SshControllerBackgroundWorker(dct_to_send, lst_key_names);
 
-  connect(bw, SIGNAL(send_key_finished()), st, SLOT(quit()));
-  connect(st, SIGNAL(started()), bw, SLOT(start_send_keys_to_hub()));
-  connect(bw, SIGNAL(send_key_finished()), st, SLOT(quit()));
-  connect(bw, SIGNAL(send_key_progress(int,int)),
-          this, SLOT(ssh_key_send_progress_sl(int,int)));
-  connect(st, SIGNAL(finished()), st, SLOT(deleteLater()));
-  connect(st, SIGNAL(finished()), bw, SLOT(deleteLater()));
+  connect(bw, &SshControllerBackgroundWorker::send_key_finished, st, &QThread::quit);
+  connect(st, &QThread::started, bw, &SshControllerBackgroundWorker::start_send_keys_to_hub);
+  connect(bw, &SshControllerBackgroundWorker::send_key_finished, st, &QThread::quit);
+  connect(bw, &SshControllerBackgroundWorker::send_key_progress,
+          this, &CSshKeysController::ssh_key_send_progress_sl);
+  connect(st, &QThread::finished, st, &QThread::deleteLater);
+  connect(st, &QThread::finished, bw, &SshControllerBackgroundWorker::deleteLater);
   bw->moveToThread(st);
   st->start();
 }

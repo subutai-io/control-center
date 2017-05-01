@@ -368,11 +368,9 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
 
   QNetworkReply* reply = get ? nam->get(req) : nam->post(req, data);
 
-  QObject::connect(timer, SIGNAL(timeout()), loop, SLOT(quit()));
-  QObject::connect(reply, SIGNAL(finished()), loop, SLOT(quit()));
-
-  QObject::connect(timer, SIGNAL(timeout()), loop, SLOT(deleteLater()));
-  QObject::connect(reply, SIGNAL(finished()), loop, SLOT(deleteLater()));
+  QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
+  QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
+  QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::deleteLater);
 
   QList<QSslError> errors2ignore;
   errors2ignore << QSslError(QSslError::CertificateUntrusted);

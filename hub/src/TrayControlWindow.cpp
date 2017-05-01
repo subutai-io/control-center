@@ -48,29 +48,37 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   create_tray_icon();
   m_sys_tray_icon->show();
 
+  QThread* th = new QThread;
 
+  connect(CVboxManager::Instance(), &CVboxManager::vm_add,
+          this, &TrayControlWindow::vm_added);
+  connect(CVboxManager::Instance(), &CVboxManager::vm_remove,
+          this, &TrayControlWindow::vm_removed);
+  connect(CVboxManager::Instance(), &CVboxManager::vm_state_changed,
+          this, &TrayControlWindow::vm_state_changed);
+  connect(CVboxManager::Instance(), &CVboxManager::initialized,
+          this, &TrayControlWindow::fill_vm_menu);
 
-  connect(CVboxManager::Instance(), SIGNAL(vm_add(const QString&)),
-          this, SLOT(vm_added(const QString&)));
-  connect(CVboxManager::Instance(), SIGNAL(vm_remove(const QString&)),
-          this, SLOT(vm_removed(const QString&)));
-  connect(CVboxManager::Instance(), SIGNAL(vm_state_changed(const QString&)),
-          this, SLOT(vm_state_changed(const QString&)));
+  connect(th, &QThread::started, CVboxManager::Instance(), &CVboxManager::start_work);
+  connect(CVboxManager::Instance(), &CVboxManager::finished, th, &QThread::quit);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
+  CVboxManager::Instance()->moveToThread(th);
+  th->start();
 
-  connect(CNotificationObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
-          this, SLOT(notification_received(notification_level_t, const QString&)));
+  connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
+          this, &TrayControlWindow::notification_received);
 
-  connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
-          this, SLOT(ssh_to_container_finished(int,void*)));
-  connect(&CHubController::Instance(), SIGNAL(balance_updated()),
-          this, SLOT(balance_updated_sl()));
-  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
-          this, SLOT(environments_updated_sl(int)));
+  connect(&CHubController::Instance(), &CHubController::ssh_to_container_finished,
+          this, &TrayControlWindow::ssh_to_container_finished);
+  connect(&CHubController::Instance(), &CHubController::balance_updated,
+          this, &TrayControlWindow::balance_updated_sl);
+  connect(&CHubController::Instance(), &CHubController::environments_updated,
+          this, &TrayControlWindow::environments_updated_sl);
 
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
-          this, SLOT(update_finished(QString,bool)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
-          this, SLOT(update_available(QString)));
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::updating_finished,
+          this, &TrayControlWindow::update_finished);
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::update_available,
+          this, &TrayControlWindow::update_available);
 
   CHubController::Instance().force_refresh();
 }
@@ -83,27 +91,22 @@ TrayControlWindow::~TrayControlWindow() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int
+void
 TrayControlWindow::fill_vm_menu(){
-  if (CVboxManager::Instance()->init_machines() != 0)
-    return 0;
-  ushort rh_count = 0;
   for (auto i = CVboxManager::Instance()->dct_machines().begin();
        i != CVboxManager::Instance()->dct_machines().end(); ++i) {
     add_vm_menu(i->first);
-    rh_count++;
   }
-  return rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::fill_launch_menu() {
   m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
-  connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_ss_triggered()));
+  connect(m_act_launch_SS, &QAction::triggered, this, &TrayControlWindow::launch_ss_triggered);
 
   m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
-  connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
+  connect(m_act_launch_Hub, &QAction::triggered, this, &TrayControlWindow::launch_Hub);
 
   m_launch_menu->addAction(m_act_launch_SS);
   m_launch_menu->addAction(m_act_launch_Hub);
@@ -159,29 +162,30 @@ TrayControlWindow::create_tray_actions() {
   m_act_launch = new QAction(QIcon(":/hub/Launch-07.png") ,tr("Launch"), this);
 
   m_act_settings = new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
-  connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
+  connect(m_act_settings, &QAction::triggered, this, &TrayControlWindow::show_settings_dialog);
 
   m_act_vbox = new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
-  connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+  connect(m_act_vbox, &QAction::triggered, this, &TrayControlWindow::show_vbox);
 
   m_act_hub = new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
-  connect(m_act_quit, SIGNAL(triggered()), this, SLOT(application_quit()));
+  connect(m_act_quit, &QAction::triggered, this, &TrayControlWindow::application_quit);
 
   m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
 
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
-  connect(m_act_about, SIGNAL(triggered()), this, SLOT(show_about()));
+  connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
 
   m_act_generate_ssh = new QAction(tr("Generate SSH key"), this);
-  connect(m_act_generate_ssh, SIGNAL(triggered()), this, SLOT(ssh_key_generate_triggered()));
+  connect(m_act_generate_ssh, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
-  connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
+  connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
 
   m_act_notifications_history = new QAction(QIcon(":hub/notifications_history.png"), "Notifications history", this);
-  connect(m_act_notifications_history, SIGNAL(triggered()), this, SLOT(show_notifications_triggered()));
+  connect(m_act_notifications_history, &QAction::triggered,
+          this, &TrayControlWindow::show_notifications_triggered);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -228,7 +232,7 @@ TrayControlWindow::create_tray_icon() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::notification_received(notification_level_t level,
+TrayControlWindow::notification_received(CNotificationObserver::notification_level_t level,
                                          const QString &msg) {
   static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
 
@@ -238,6 +242,12 @@ TrayControlWindow::notification_received(notification_level_t level,
     QSystemTrayIcon::Information, QSystemTrayIcon::Warning,
     QSystemTrayIcon::Warning, QSystemTrayIcon::Critical
   };
+
+  if (CSettingsManager::Instance().is_notification_ignored(msg)) {
+    //do we need som logs here ?
+    return;
+  }
+
   if (QSystemTrayIcon::supportsMessages()) {
     m_sys_tray_icon->showMessage(titles[level],
                                  msg,
@@ -254,7 +264,7 @@ TrayControlWindow::logout() {
   this->m_sys_tray_icon->hide();
 
   DlgLogin dlg;
-  connect(&dlg, SIGNAL(login_success()), this, SLOT(login_success()));
+  connect(&dlg, &DlgLogin::login_success, this, &TrayControlWindow::login_success);
   dlg.setModal(true);
   if (dlg.exec() != QDialog::Accepted) {
     qApp->exit(0);
@@ -455,9 +465,10 @@ TrayControlWindow::environments_updated_sl(int rr) {
 
       CHubEnvironmentMenuItem* item =
           new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-      connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
-      connect(item, SIGNAL(action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)),
-              this, SLOT(hub_container_mi_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)));
+      connect(act, &QAction::triggered, item,
+              &CHubEnvironmentMenuItem::internal_action_triggered);
+      connect(item, &CHubEnvironmentMenuItem::action_triggered,
+              this, &TrayControlWindow::hub_container_mi_triggered);
       env_menu->addAction(act);
       m_lst_hub_menu_items.push_back(item);
     }
@@ -653,7 +664,7 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
     dlg->activateWindow();
     dlg->raise();
     dlg->setFocus();
-    connect(dlg, SIGNAL(finished(int)), this, SLOT(dialog_closed(int)));
+    connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
     if (iter->second) {
       iter->second->show();
@@ -792,10 +803,10 @@ CVBPlayerItem::CVBPlayerItem(const CVirtualMachine *vm, QWidget* parent) :
 
   m_btn_play->setToolTip("Play/Pause/Resume");
   m_btn_stop->setToolTip("Power off");
-  connect(m_btn_play, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_play_released()), Qt::QueuedConnection);
-  connect(m_btn_stop, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
+  connect(m_btn_play, &QPushButton::released,
+          this, &CVBPlayerItem::vbox_menu_btn_play_released, Qt::QueuedConnection);
+  connect(m_btn_stop, &QPushButton::released,
+          this, &CVBPlayerItem::vbox_menu_btn_stop_released, Qt::QueuedConnection);
 
   set_buttons(vm->state());
   p_h_Layout->addWidget(m_lbl_name);

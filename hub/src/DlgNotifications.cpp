@@ -5,6 +5,7 @@
 #include <QStandardItem>
 #include <QAbstractItemView>
 #include "NotificationLogger.h"
+#include "Commons.h"
 
 DlgNotifications::DlgNotifications(QWidget *parent) :
   QDialog(parent),
@@ -16,9 +17,13 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
   ui->tv_notifications->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tv_notifications->setAlternatingRowColors(true);
 
+  ui->cb_full_info->setCheckState(Qt::Checked);
+
+  connect(CNotificationLogger::Instance(), &CNotificationLogger::notifications_updated,
+          this, &DlgNotifications::rebuild_model);
+  connect(ui->cb_full_info, &QCheckBox::toggled, this, &DlgNotifications::chk_full_info_toggled);
+
   rebuild_model();
-  connect(CNotificationLogger::Instance(), SIGNAL(notifications_updated()),
-          this, SLOT(rebuild_model()));
 }
 
 DlgNotifications::~DlgNotifications() {
@@ -28,35 +33,69 @@ DlgNotifications::~DlgNotifications() {
 
 void
 DlgNotifications::rebuild_model() {
+  bool full_info = ui->cb_full_info->checkState() == Qt::Checked;
+  static QColor color[4] = {QColor::fromRgb(145,255,200),
+                            QColor::fromRgb(255,200,145),
+                            QColor::fromRgb(255,145,145),
+                            QColor::fromRgb(210,0,15)};
   int row_count = 0;
-  for (auto i : CNotificationLogger::Instance()->notifications()) {
-    QStandardItem *ni[3];
-    ni[0] = new QStandardItem(i.date_time().toString(Qt::TextDate));
-    ni[1] = new QStandardItem(i.level_str());
-    ni[2] = new QStandardItem(i.message());
-    for (int j = 0; j < 3; ++j) {
-      static QColor color[4] = {QColor::fromRgb(145,255,200),
-                                QColor::fromRgb(255,200,145),
-                                QColor::fromRgb(255,145,145),
-                                QColor::fromRgb(210,0,15)};
-      ni[j]->setBackground(QBrush(color[(int)i.level()]));
-      m_model->setItem(row_count, j, ni[j]);
+  m_model->clear();
 
-      ni[j]->setEditable(false);
-      ni[j]->setRowCount(10);
+  if (full_info) {
+    for (auto i : CNotificationLogger::Instance()->notifications()) {
+      QStandardItem *ni[3];
+      QString ni_str[3] = {i.date_time().toString(Qt::TextDate),
+                           i.level_str(), i.message()};
+
+      for (int j = 0; j < 3; ++j) {
+        ni[j] = new QStandardItem(ni_str[j]);
+        ni[j]->setBackground(QBrush(color[(int)i.level()]));
+        m_model->setItem(row_count, j, ni[j]);
+        ni[j]->setEditable(false);
+      }
+      ++row_count;
     }
-    ++row_count;
-  }
 
-  m_model->setHeaderData(0, Qt::Horizontal, "Date");
-  m_model->setHeaderData(1, Qt::Horizontal, "Level");
-  m_model->setHeaderData(2, Qt::Horizontal, "Message");
+    m_model->setHeaderData(0, Qt::Horizontal, "Date");
+    m_model->setHeaderData(1, Qt::Horizontal, "Level");
+    m_model->setHeaderData(2, Qt::Horizontal, "Message");
 
-  if (m_model->rowCount() > 0) {
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    ui->tv_notifications->resizeRowsToContents();
+    if (m_model->rowCount() > 0) {
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+      ui->tv_notifications->resizeRowsToContents();
+    }
+  } else {
+    for (auto i : CNotificationLogger::Instance()->notification_unions()) {
+      QStandardItem *ni[3]; //maybe more
+      QString ni_str[3] = {i.level_str(), i.message(), QString("%1").arg(i.count())};
+      for (int j = 0; j < 3; ++j) {
+        ni[j] = new QStandardItem(ni_str[j]);
+        ni[j]->setBackground(QBrush(color[(int)i.level()]));
+        m_model->setItem(row_count, j, ni[j]);
+        ni[j]->setEditable(false);
+      }
+      ++row_count;
+    }
+
+    m_model->setHeaderData(0, Qt::Horizontal, "Level");
+    m_model->setHeaderData(1, Qt::Horizontal, "Message");
+    m_model->setHeaderData(2, Qt::Horizontal, "Count");
+
+    if (m_model->rowCount() > 0) {
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+      ui->tv_notifications->resizeRowsToContents();
+    }
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgNotifications::chk_full_info_toggled(bool checked) {
+  UNUSED_ARG(checked);
+  rebuild_model();
 }
 ////////////////////////////////////////////////////////////////////////////

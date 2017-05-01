@@ -17,12 +17,13 @@ CHubController::CHubController() :
   m_lst_resource_hosts(),
   m_balance(undefined_balance)
 {
-  connect(&m_refresh_timer, SIGNAL(timeout()),
-          this, SLOT(refresh_timer_timeout()));
+  connect(&m_refresh_timer, &QTimer::timeout,
+          this, &CHubController::refresh_timer_timeout);
   m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() * 1000);
   m_refresh_timer.start();
 
-  connect(&m_report_timer, SIGNAL(timeout()), this, SLOT(report_timer_timeout()));
+  connect(&m_report_timer, &QTimer::timeout,
+          this, &CHubController::report_timer_timeout);
   m_report_timer.setInterval(60*1000); //minute
   m_report_timer.start();
 }
@@ -55,20 +56,24 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
                                   additional_data);
 
   QThread* th = new QThread;
-  connect(th, SIGNAL(started()), th_worker, SLOT(join_to_p2p_swarm_begin()));
-  connect(th_worker, SIGNAL(join_to_p2p_swarm_finished(int)), th_worker, SLOT(ssh_to_container_begin(int)));
+  connect(th, &QThread::started,
+          th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_begin);
+  connect(th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_finished,
+          th_worker, &CHubControllerP2PWorker::ssh_to_container_begin);
 
   /*hack, but I haven't enough time*/
-  if (slot == ssh_to_cont)
-    connect(th_worker, SIGNAL(ssh_to_container_finished(int, void*)),
-            this, SLOT(ssh_to_container_finished_slot(int, void*)));
-  else if (slot == ssh_to_cont_str)
-    connect(th_worker, SIGNAL(ssh_to_container_finished(int,void*)),
-            this, SLOT(ssh_to_container_finished_str_slot(int,void*)));
+  if (slot == ssh_to_cont) {
+    connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished,
+            this, &CHubController::ssh_to_container_finished_slot);
+  }
+  else if (slot == ssh_to_cont_str) {
+    connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished,
+            this, &CHubController::ssh_to_container_finished_str_slot);
+  }
 
-  connect(th_worker, SIGNAL(ssh_to_container_finished(int, void*)), th, SLOT(quit()));
-  connect(th, SIGNAL(finished()), th_worker, SLOT(deleteLater()));
-  connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
+  connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished, th, &QThread::quit);
+  connect(th, &QThread::finished, th_worker, &CHubControllerP2PWorker::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
 
   th_worker->moveToThread(th);
   th->start();

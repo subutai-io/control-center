@@ -60,7 +60,7 @@ main(int argc, char *argv[]) {
     QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Already running",
                         "One instance of tray application is already running",
                         QMessageBox::Ok);
-    QObject::connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
     return 0;
   }
@@ -103,7 +103,7 @@ main(int argc, char *argv[]) {
   CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<notification_level_t>("notification_level_t");
+  qRegisterMetaType<CNotificationObserver::notification_level_t>("notification_level_t");
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {

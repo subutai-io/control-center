@@ -157,7 +157,7 @@ private:
 
   void create_tray_actions();
   void create_tray_icon();
-  int fill_vm_menu();
+
   void fill_launch_menu();  
   /*tray icon end*/
 
@@ -170,12 +170,13 @@ private slots:
   void show_about();
   void application_quit();
   void show_settings_dialog();  \
-  void notification_received(notification_level_t level,
+  void notification_received(CNotificationObserver::notification_level_t level,
                              const QString& msg);
   void logout();
   void login_success();
 
   /*virtualbox slots*/
+  void fill_vm_menu();
   void show_vbox();
   void vm_added(const QString& vm_id);
   void vm_removed(const QString& vm_id);
