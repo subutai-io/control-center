@@ -36,4 +36,33 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+class DlgNotificationUnionSortProxyModel : public QSortFilterProxyModel {
+public:
+  DlgNotificationUnionSortProxyModel(QObject *parent = nullptr) : QSortFilterProxyModel(parent){}
+  virtual ~DlgNotificationUnionSortProxyModel() {}
+
+protected:
+  // QSortFilterProxyModel interface
+  virtual void sort(int column, Qt::SortOrder order);
+private:
+};
+////////////////////////////////////////////////////////////////////////////
+
+class DlgNotificationUnionsTableModel : public QAbstractTableModel {
+  Q_OBJECT
+private:
+  const std::vector<CNotificationUnion>* m_ds;
+
+public:
+  explicit DlgNotificationUnionsTableModel(QObject *parent = nullptr);
+  virtual ~DlgNotificationUnionsTableModel();
+
+  virtual int rowCount(const QModelIndex &parent) const;
+  virtual int columnCount(const QModelIndex &parent) const;
+  virtual QVariant data(const QModelIndex &index, int role) const;
+  virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+  virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+};
+////////////////////////////////////////////////////////////////////////////
+
 #endif // DLGNOTIFICATIONSMODEL_H

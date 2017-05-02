@@ -94,11 +94,11 @@ public:
   void init() const{;}
   void clear_old_records();
 
-  const std::vector<CNotification>& notifications() const {
+  std::vector<CNotification>& notifications() {
     return m_lst_notifications;
   }
 
-  const std::vector<CNotificationUnion>& notification_unions() const {
+  std::vector<CNotificationUnion>& notification_unions() {
     return m_lst_notification_unions;
   }
 
