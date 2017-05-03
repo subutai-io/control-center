@@ -10,7 +10,7 @@ enum {
   NTM_COL_COUNT
 };
 
-static QColor color[4] = {QColor::fromRgb(145,255,200),
+static QColor colors_by_level[4] = {QColor::fromRgb(145,255,200),
                           QColor::fromRgb(255,200,145),
                           QColor::fromRgb(255,145,145),
                           QColor::fromRgb(210,0,15)};
@@ -86,7 +86,7 @@ DlgNotificationsTableModel::data(const QModelIndex &index, int role) const {
     return QVariant();
 
   if (role == Qt::BackgroundColorRole)
-    return QBrush(color[(*m_ds)[index.row()].level()]);
+    return QBrush(colors_by_level[(*m_ds)[index.row()].level()]);
 
   if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
@@ -205,7 +205,7 @@ DlgNotificationUnionsTableModel::data(const QModelIndex &index,
     return QVariant();
 
   if (role == Qt::BackgroundColorRole)
-    return QBrush(color[(*m_ds)[index.row()].level()]);
+    return QBrush(colors_by_level[(*m_ds)[index.row()].level()]);
 
   if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
