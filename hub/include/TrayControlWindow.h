@@ -81,20 +81,20 @@ public:
 class CHubEnvironmentMenuItem : public QObject {
  Q_OBJECT
 private:
-  const CEnvironmentEx* m_hub_environment;
+  const CEnvironment* m_hub_environment;
   QSystemTrayIcon* m_tray_icon;
-  const CHubContainerEx* m_hub_container;
+  const CHubContainer* m_hub_container;
 
 public:
-  CHubEnvironmentMenuItem(const CEnvironmentEx* env,
-                          const CHubContainerEx* cont,
+  CHubEnvironmentMenuItem(const CEnvironment* env,
+                          const CHubContainer* cont,
                           QSystemTrayIcon* tray_icon) :
     m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
 
   virtual ~CHubEnvironmentMenuItem(){}
 
 signals:
-  void action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void* action);
+  void action_triggered(const CEnvironment*, const CHubContainer*, void* action);
 
 public slots:
   void internal_action_triggered();
@@ -161,7 +161,7 @@ private:
   void fill_launch_menu();  
   /*tray icon end*/
 
-  void launch_ss(QAction *act) const;
+  void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 
 private slots:
@@ -193,8 +193,9 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
-  void hub_container_mi_triggered(const CEnvironmentEx *env,
-                               const CHubContainerEx *cont, void *action);
+  void got_ss_console_readiness_sl(bool is_ready, QString err);
+  void hub_container_mi_triggered(const CEnvironment *env,
+                               const CHubContainer *cont, void *action);
   void ssh_key_generate_triggered();
   void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);

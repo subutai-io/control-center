@@ -63,6 +63,8 @@ namespace update_system {
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
 
+    static const QString& component_id_to_user_view(const QString &id);
+
     /*!
      * \brief If update is available returns true and emits `update_available_changed` signal
      */

@@ -414,7 +414,7 @@ CSystemCallWrapper::rhm_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "cat /mnt/lib/lxc/management/opt/subutai-mng/etc/git.properties",
+                          "sudo subutai attach management grep git.build.version /opt/subutai-mng/etc/git.properties",
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {

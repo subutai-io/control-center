@@ -6,9 +6,8 @@
 #include <QObject>
 #include <QTimer>
 #include "Locker.h"
-
+#include "RestContainers.h"
 class CEnvironment;
-class CRHInfo;
 class CHubContainer;
 class CHubController;
 
@@ -50,61 +49,9 @@ public slots:
 signals:
   void join_to_p2p_swarm_finished(int result);
   void ssh_to_container_finished(int result, void *additional_data);
-
 };
 ////////////////////////////////////////////////////////////////////////////
 
-
-class CHubContainerEx {
-private:
-  QString m_name;
-  QString m_ip;
-  QString m_id;
-  QString m_port;
-  QString m_rh_ip;
-
-public:
-
-  CHubContainerEx(const CHubContainer& cont,
-                  const std::vector<CRHInfo>& lst_resource_hosts);
-  ~CHubContainerEx(){}
-
-  const QString& name() const {return m_name;}
-  const QString& ip() const {return m_ip;}
-  const QString& id() const {return m_id;}
-  const QString& port() const {return m_port;}
-  const QString& rh_ip() const {return m_rh_ip;}
-};
-////////////////////////////////////////////////////////////////////////////
-
-class CEnvironmentEx {
-private:
-  QString m_name;
-  QString m_hash;
-  QString m_aes_key;
-  QString m_ttl;
-  QString m_id;
-  QString m_status;
-  QString m_status_descr;
-  std::vector<CHubContainerEx> m_lst_containers;
-
-public:
-
-  CEnvironmentEx(const CEnvironment& env,
-                 const std::vector<CRHInfo>& lst_resource_hosts);
-  ~CEnvironmentEx() {}
-
-  const QString& name() const {return m_name;}
-  const QString& hash() const {return m_hash;}
-  const QString& key() const {return m_aes_key;}
-  const QString& ttl() const {return m_ttl;}
-  const QString& id() const {return m_id;}
-  const QString& status() const {return m_status;}
-  const QString& status_description() const {return m_status_descr;}
-  const std::vector<CHubContainerEx>& containers() const {return m_lst_containers;}
-  bool healthy() const {return m_status == "HEALTHY";}
-};
-////////////////////////////////////////////////////////////////////////////
 
 /*!
  * \brief This class is used for managing HUB related thins.
@@ -123,10 +70,8 @@ public:
 
 private:
   std::vector<CEnvironment> m_lst_environments_internal;
-  std::vector<CRHInfo> m_lst_resource_hosts;
-
-  std::vector<CEnvironmentEx> m_lst_environments;
-  std::vector<CEnvironmentEx> m_lst_healthy_environments;
+  std::vector<CEnvironment> m_lst_environments;
+  std::vector<CEnvironment> m_lst_healthy_environments;
 
   QString m_balance;
   QString m_current_user;
@@ -145,27 +90,37 @@ private:
     ssh_to_cont_str
   };
 
-  void ssh_to_container_internal(const CEnvironmentEx *env,
-                                 const CHubContainerEx *cont,
+  void ssh_to_container_internal(const CEnvironment *env,
+                                 const CHubContainer *cont,
                                  void *additional_data,
                                  finished_slot_t slot);
 
-  void refresh_containers_internal();
-  refresh_environments_res_t refresh_environments_internal();
-  int refresh_balance();
+  void refresh_environments_internal();
+  void refresh_balance_internal();
 
 private slots:
   void ssh_to_container_finished_slot(int result, void* additional_data);
   void ssh_to_container_finished_str_slot(int result, void* additional_data);
 
-  void refresh_timer_timeout();
   void settings_changed();
+
   void report_timer_timeout();
+  void refresh_timer_timeout();
+
+  void on_balance_updated_sl(CHubBalance balance,
+                             int http_code,
+                             int err_code,
+                             int network_error);
+
+  void on_environments_updated_sl(std::vector<CEnvironment> lst_environments,
+                                  int http_code,
+                                  int err_code,
+                                  int network_error);
 
 public:
 
   void suspend() {m_refresh_timer.stop();}
-  void start() {m_refresh_timer.start();}
+  void start();
   void force_refresh();
 
   /*!
@@ -174,8 +129,8 @@ public:
    * \param cont - pointer to container
    * \param additional_data - could be everything you want. here we use it for storing information about menu item
    */
-  void ssh_to_container(const CEnvironmentEx *env,
-                        const CHubContainerEx *cont,
+  void ssh_to_container(const CEnvironment *env,
+                        const CHubContainer *cont,
                         void *additional_data);
 
   /*!
@@ -206,8 +161,8 @@ public:
   /*!
    * \brief List of environments
    */
-  const std::vector<CEnvironmentEx>& lst_environments() const {return m_lst_environments;}
-  const std::vector<CEnvironmentEx>& lst_healthy_environments() const {return m_lst_healthy_environments;}
+  const std::vector<CEnvironment>& lst_environments() const {return m_lst_environments;}
+  const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
 
   /*!
    * \brief Current balance represented by string

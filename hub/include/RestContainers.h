@@ -18,16 +18,18 @@ private:
   QString m_ip;
   QString m_id;
   QString m_port;
+  QString m_rh_ip;
 
 public:
   explicit CHubContainer(QJsonObject obj) :
     m_name(obj["container_name"].toString()),
     m_ip(obj["container_ip"].toString()),
-    m_id(obj["container_id"].toString())
+    m_id(obj["container_id"].toString()),
+    m_rh_ip(obj["rh_ip"].toString())
   {
-    QHostAddress addr(m_ip.split("/")[0]);
-    if (!addr.isNull()) {
-      quint32 ip = addr.toIPv4Address();
+    QHostAddress cont_ip_addr(m_ip.split("/")[0]);
+    if (!cont_ip_addr.isNull()) {
+      quint32 ip = cont_ip_addr.toIPv4Address();
       quint8 port = ip & 0x000000ff; //last octet
       m_port = QString("%1").arg(10000+port);
     }
@@ -55,8 +57,13 @@ public:
    */
   const QString& port() const {return m_port;}
 
+  const QString& rh_ip() const {return m_rh_ip;}
+
   bool operator==(const CHubContainer& arg) const {
-    return m_id == arg.m_id && m_ip == arg.m_ip && m_port == arg.m_port;
+    return m_id == arg.m_id &&
+        m_ip == arg.m_ip &&
+        m_port == arg.m_port &&
+        m_rh_ip == arg.m_rh_ip;
   }
   bool operator!=(const CHubContainer& arg) const {
     return !(this->operator ==(arg));
@@ -189,67 +196,6 @@ public:
    * \brief String representation of user's balance
    */
   const QString& value() const {return m_balance;}
-};
-////////////////////////////////////////////////////////////////////////////
-
-/*!
- * \brief Represents information about control host
- */
-class CCHInfo {
-private:
-  QString m_id;
-  QString m_ch_ip;
-public:
-  explicit CCHInfo(const QJsonObject& obj) {
-    m_id = obj["id"].toString();
-    m_ch_ip = obj["ip"].toString();
-  }
-
-  const QString& id() const {return m_id;}
-  const QString& ch_ip() const {return m_ch_ip;}
-
-  bool operator==(const CCHInfo& arg) const {
-    return m_id==arg.m_id && m_ch_ip == arg.m_ch_ip;
-  }
-
-  bool operator!=(const CCHInfo& arg) const {
-    return !(this->operator ==(arg));
-  }
-};
-
-/*!
- * \brief Represents information about resource host
- */
-class CRHInfo {
-private:
-  QString m_id;
-  QString m_rh_ip;
-  std::vector<CCHInfo> m_lst_ch;
-public:
-  explicit CRHInfo(const QJsonObject& obj) {
-    m_id = obj["peer_id"].toString();
-    m_rh_ip = obj["rh_ip"].toString();
-
-    QJsonArray arr= obj["containers"].toArray();
-    for (auto i = arr.begin(); i != arr.end(); ++i) {
-      if (i->isNull() || !i->isObject()) continue;
-      m_lst_ch.push_back(CCHInfo(i->toObject()));
-    }
-  }
-
-  const QString& id() const {return m_id;}
-  const QString& rh_ip() const {return m_rh_ip;}
-  const std::vector<CCHInfo>& lst_containers() const {return m_lst_ch;}
-
-  bool operator==(const CRHInfo& arg) const {
-    return m_id==arg.m_id &&
-        m_rh_ip == arg.m_rh_ip &&
-        VectorEq<CCHInfo>(m_lst_ch, arg.m_lst_ch);
-  }
-
-  bool operator!=(const CRHInfo& arg) const {
-    return !(this->operator ==(arg));
-  }
 };
 ////////////////////////////////////////////////////////////////////////////
 

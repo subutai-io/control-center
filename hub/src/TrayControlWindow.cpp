@@ -75,12 +75,16 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &TrayControlWindow::environments_updated_sl);
 
+  connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
+          this, &TrayControlWindow::got_ss_console_readiness_sl);
+
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::updating_finished,
           this, &TrayControlWindow::update_finished);
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::update_available,
           this, &TrayControlWindow::update_available);
 
   CHubController::Instance().force_refresh();
+  login_success();
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -340,8 +344,8 @@ TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
 
 
 void
-TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
-                                              const CHubContainerEx *cont,
+TrayControlWindow::hub_container_mi_triggered(const CEnvironment *env,
+                                              const CHubContainer *cont,
                                               void* action) {
   QAction* act = static_cast<QAction*>(action);
   if (act != NULL) {
@@ -401,7 +405,7 @@ void
 TrayControlWindow::launch_ss_triggered() {
   QAction* act = qobject_cast<QAction*>(sender());
   act->setEnabled(false);
-  QtConcurrent::run(this, &TrayControlWindow::launch_ss, act);
+  QtConcurrent::run(this, &TrayControlWindow::launch_ss);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -413,6 +417,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
+
   m_lst_hub_menu_items.clear();
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
@@ -503,6 +508,68 @@ TrayControlWindow::balance_updated_sl() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
+                                               QString err) {
+  if (!is_ready) {
+    CNotificationObserver::Info(err);
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+
+  QString hub_url = "https://localhost:9999";
+
+  std::string rh_ip;
+  int ec = 0;
+
+  system_call_wrapper_error_t scwe =
+      CSystemCallWrapper::get_rh_ip_via_libssh2(
+        CSettingsManager::Instance().rh_host().toStdString().c_str(),
+        CSettingsManager::Instance().rh_port(),
+        CSettingsManager::Instance().rh_user().toStdString().c_str(),
+        CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+        ec,
+        rh_ip);
+
+  if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
+    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  } else {
+    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
+                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
+    CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
+                                                        arg(ec));
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+
+  QString browser; // "/etc/alternatives/x-www-browser";
+  QString folder;
+  QStringList args;
+
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+  args << "--new-window";
+#elif defined(RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
+#elif defined(RT_OS_WINDOWS)
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  args << "--new-window";
+#endif
+
+  args << hub_url;
+  if (!QProcess::startDetached(browser, args, folder)) {
+    QString err_msg = QString("Run SS console failed. Can't start process");
+    CNotificationObserver::Error(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+  m_act_launch_SS->setEnabled(true);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 TrayControlWindow::vbox_menu_btn_play_triggered(const QString& vm_id) {
   int32_t rc;
   const CVirtualMachine *vm = CVboxManager::Instance()->vm_by_id(vm_id);
@@ -563,17 +630,11 @@ TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss(QAction* act) const {
-  QString browser; // "/etc/alternatives/x-www-browser";
-  QString folder;
-  QString hub_url;
-  QStringList args;
+void TrayControlWindow::launch_ss() {
   std::string rh_ip;
   int ec = 0;
 
-  hub_url = "https://localhost:9999";
-
-  system_call_wrapper_error_t err =
+  system_call_wrapper_error_t scwe =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rh_host().toStdString().c_str(),
         CSettingsManager::Instance().rh_port(),
@@ -582,67 +643,19 @@ void TrayControlWindow::launch_ss(QAction* act) const {
         ec,
         rh_ip);
 
-  if (err == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
-    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
+  //after that got_ss_console_readiness_sl will be called
+  CRestWorker::Instance()->check_if_ss_console_is_ready(
+        QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
-                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
+                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err)).
+                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                                         arg(ec));
-    act->setEnabled(true);
+    m_act_launch_SS->setEnabled(true);
     return;
   }
-
-  int http_code, network_err, err_code;
-  http_code = CRestWorker::Instance()->is_ss_console_ready(
-                QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()), err_code, network_err);
-
-  if (network_err != 0 || err_code != 0 || http_code != 200) {
-    QString err_msg;
-    if (network_err == 0 && err_code == 0) {
-      switch (http_code) {
-        case 500:
-          err_msg = "Some modules failed (SS restart might be needed)";
-          break;
-        case 503:
-          err_msg = "Not ready yet/ loading";
-          break;
-        case 404:
-          err_msg = "Endpoint itself not loaded yet (edited)";
-          break;
-        default:
-          err_msg = QString("Undefined error. Code : %1").arg(http_code);
-      }
-    } else {
-      err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
-    }
-    CNotificationObserver::Info(err_msg);
-    act->setEnabled(true);
-    return;
-  }
-
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
-  args << "--new-window";
-#elif defined(RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
-#elif defined(RT_OS_WINDOWS)
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  args << "--new-window";
-#endif
-
-  args << hub_url;
-
-  if (!QProcess::startDetached(browser, args, folder)) {
-    QString err_msg = QString("Run SS console failed. Can't start process");
-    CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    act->setEnabled(true);
-    return;
-  }
-  act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 

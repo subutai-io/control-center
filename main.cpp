@@ -103,7 +103,7 @@ main(int argc, char *argv[]) {
   CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
-  qRegisterMetaType<CNotificationObserver::notification_level_t>("notification_level_t");
+  qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {
@@ -129,8 +129,8 @@ main(int argc, char *argv[]) {
     if (dlg.result() == QDialog::Rejected)
       break;
 
-    CTrayServer::Instance()->Init();
     TrayControlWindow tcw;
+    CTrayServer::Instance()->Init();
     result = app.exec();
   } while (0);
 

@@ -101,6 +101,7 @@ DlgLogin::run_dialog(QSplashScreen* sc) {
     return;
   }
 
+  emit login_success();
   if(sc) sc->hide();
 }
 ////////////////////////////////////////////////////////////////////////////

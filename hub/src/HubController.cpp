@@ -10,20 +10,31 @@
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "SshKeysController.h"
+
 static const QString undefined_balance("Undefined balance");
+static volatile int UPDATED_COMPONENTS_COUNT = 2;
+
+static const int UPDATE_ATTEMPT_MAX = 5;
+static volatile int UPDATE_BALANCE_ATTEMPT_COUNT = 0;
+static volatile int UPDATE_ENVIRONMENTS_ATTEMTP_COUNT = 0;
 
 CHubController::CHubController() :
   m_lst_environments_internal(),
-  m_lst_resource_hosts(),
   m_balance(undefined_balance)
 {
   connect(&m_refresh_timer, &QTimer::timeout,
           this, &CHubController::refresh_timer_timeout);
-  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() * 1000);
-  m_refresh_timer.start();
+  connect(CRestWorker::Instance(), &CRestWorker::on_get_balance_finished,
+          this, &CHubController::on_balance_updated_sl);
+  connect(CRestWorker::Instance(), &CRestWorker::on_get_environments_finished,
+          this, &CHubController::on_environments_updated_sl);
 
   connect(&m_report_timer, &QTimer::timeout,
           this, &CHubController::report_timer_timeout);
+
+  m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() * 1000);
+  m_refresh_timer.start();
+
   m_report_timer.setInterval(60*1000); //minute
   m_report_timer.start();
 }
@@ -36,8 +47,8 @@ CHubController::~CHubController() {
 }
 
 void
-CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
-                                          const CHubContainerEx *cont,
+CHubController::ssh_to_container_internal(const CEnvironment *env,
+                                          const CHubContainer *cont,
                                           void *additional_data,
                                           finished_slot_t slot) {
   if (cont->rh_ip().isEmpty()) {
@@ -81,6 +92,18 @@ CHubController::ssh_to_container_internal(const CEnvironmentEx *env,
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CHubController::refresh_environments_internal() {
+  CRestWorker::Instance()->update_environments();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::refresh_balance_internal() {
+  CRestWorker::Instance()->update_balance();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CHubController::ssh_to_container_finished_slot(int result, void *additional_data) {
   emit ssh_to_container_finished(result, additional_data);
 }
@@ -95,14 +118,10 @@ CHubController::ssh_to_container_finished_str_slot(int result,
 
 void
 CHubController::refresh_timer_timeout() {
-  refresh_environments_res_t rr = RER_ERROR;
-  refresh_containers_internal();
-  if ((rr=refresh_environments_internal()) == RER_NO_DIFF)
-    return;
-  emit environments_updated((int)rr);
-
-  if (refresh_balance() == 0)
-    emit balance_updated();
+  m_refresh_timer.stop();
+  UPDATED_COMPONENTS_COUNT = 0;
+  refresh_balance_internal();
+  refresh_environments_internal();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -117,88 +136,55 @@ CHubController::settings_changed() {
 void
 CHubController::report_timer_timeout() {
   m_report_timer.stop();
-  int http_code, err_code, network_err;
   QString p2p_version, p2p_status;
   CSystemCallWrapper::p2p_version(p2p_version);
   CSystemCallWrapper::p2p_status(p2p_status);
-  CRestWorker::Instance()->send_health_request(http_code, err_code, network_err, p2p_version, p2p_status);
+  CRestWorker::Instance()->send_health_request(p2p_version, p2p_status);
   m_report_timer.start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubController::force_refresh() {
-  QtConcurrent::run(this, &CHubController::refresh_timer_timeout);
-}
-////////////////////////////////////////////////////////////////////////////
+CHubController::on_balance_updated_sl(CHubBalance balance,
+                                      int http_code,
+                                      int err_code,
+                                      int network_error) {
+  UNUSED_ARG(http_code);
+  UNUSED_ARG(network_error);
 
-int
-CHubController::refresh_balance() {
-  int http_code, err_code, network_error;
-  CHubBalance balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
+  if (++UPDATED_COMPONENTS_COUNT == 2) {
+    m_refresh_timer.start();
+  }
 
   if (err_code == RE_NOT_JSON_DOC) {
-    CApplicationLog::Instance()->LogInfo("Failed to refresh balance. Received not json. Trying to re-login");
     int lhttp, lerr, lnet;
-    CRestWorker::Instance()->login(m_current_user, m_current_pass,
-                                   lhttp, lerr, lnet);
+    CRestWorker::Instance()->login(m_current_user, m_current_pass, lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      CApplicationLog::Instance()->LogInfo("Re-login successful. Trying to get balance again");
-      balance = CRestWorker::Instance()->get_balance(http_code, err_code, network_error);
-      CApplicationLog::Instance()->LogInfo("%d - %d - %d", http_code, err_code, network_error);
+      if (++UPDATE_BALANCE_ATTEMPT_COUNT <= UPDATE_ATTEMPT_MAX) {
+        CRestWorker::Instance()->update_balance();
+      } else {
+        UPDATE_BALANCE_ATTEMPT_COUNT = 0;
+      }
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
     }
   }
-
-  m_balance = err_code ? undefined_balance : QString("Balance: %1").arg(balance.value());
-  return 0;
+  m_balance = err_code != RE_SUCCESS ? undefined_balance : QString("Balance: %1").arg(balance.value());
+  emit balance_updated();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CHubController::refresh_containers_internal() {
-  int http_code, err_code, network_error;
-  std::vector<CRHInfo> res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
+void
+CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environments,
+                                           int http_code,
+                                           int err_code,
+                                           int network_error) {
+  UNUSED_ARG(http_code);
+  CHubController::refresh_environments_res_t rer_res = RER_SUCCESS;
 
-  if (err_code == RE_NOT_JSON_DOC) {
-    CApplicationLog::Instance()->LogInfo("Failed to refresh containers. Received not json. Trying to re-login");
-    int lhttp, lerr, lnet;
-    CRestWorker::Instance()->login(m_current_user, m_current_pass,
-                                   lhttp, lerr, lnet);
-    if (lerr == RE_SUCCESS) {
-      res = CRestWorker::Instance()->get_containers(http_code, err_code, network_error);
-    } else {
-      CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
-    }
+  if (++UPDATED_COMPONENTS_COUNT == 2) {
+    m_refresh_timer.start();
   }
-
-  if (err_code) {
-    CApplicationLog::Instance()->LogError(
-          "Refresh containers info error : %s", CRestWorker::rest_err_to_str((rest_error_t)err_code).toStdString().c_str());
-    return;
-  }
-
-  if (network_error != 0) {    
-    CApplicationLog::Instance()->LogError("Refresh containers network error : %d", network_error);
-    return;
-  }
-
-  if (res == m_lst_resource_hosts)
-    return;
-
-  {
-    SynchroPrimitives::Locker lock(&m_refresh_cs);
-    m_lst_resource_hosts = std::move(res);
-  }
-}
-////////////////////////////////////////////////////////////////////////////
-
-CHubController::refresh_environments_res_t
-CHubController::refresh_environments_internal() {
-
-  int http_code, err_code, network_error;
-  std::vector<CEnvironment> res;
-  res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
 
   if (err_code == RE_NOT_JSON_DOC) {
     CApplicationLog::Instance()->LogInfo("Failed to refresh environments. Received not json. Trying to re-login");
@@ -206,15 +192,21 @@ CHubController::refresh_environments_internal() {
     CRestWorker::Instance()->login(m_current_user, m_current_pass,
                                    lhttp, lerr, lnet);
     if (lerr == RE_SUCCESS) {
-      res = CRestWorker::Instance()->get_environments(http_code, err_code, network_error);
+      if (++UPDATE_ENVIRONMENTS_ATTEMTP_COUNT <= UPDATE_ATTEMPT_MAX) {
+        CRestWorker::Instance()->update_environments();
+      } else {
+        UPDATE_ENVIRONMENTS_ATTEMTP_COUNT = 0;
+      }
     } else {
       CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d", lhttp, lerr, lnet);
+      return;
     }
   }
 
   if (err_code || network_error) {
     CApplicationLog::Instance()->LogError("Refresh environments failed. Err_code : %d, Net_err : %d",
                                           err_code, network_error);
+    return;
   }
 
   //that means that about network error notified RestWorker.
@@ -222,35 +214,54 @@ CHubController::refresh_environments_internal() {
     QString err_msg = QString("Refresh environments error : %1").
                       arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg);
-    return RER_ERROR;
+    return;
   }
 
-  if (network_error != 0)
-    return RER_ERROR;
+  if (network_error != 0) return;
 
-  if (res == m_lst_environments_internal)
-    return m_lst_environments_internal.empty() ? RER_EMPTY : RER_NO_DIFF;
+  if (lst_environments == m_lst_environments_internal) {
+    rer_res = m_lst_environments_internal.empty() ? RER_EMPTY : RER_NO_DIFF;
+    emit environments_updated(rer_res);
+    return;
+  }
 
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
-    m_lst_environments_internal = std::move(res);
+    m_lst_environments_internal = std::move(lst_environments);
     m_lst_environments.erase(m_lst_environments.begin(), m_lst_environments.end());
     for (auto env = m_lst_environments_internal.cbegin(); env != m_lst_environments_internal.cend(); ++env) {
-      m_lst_environments.push_back(CEnvironmentEx(*env, m_lst_resource_hosts));
+      m_lst_environments.push_back(CEnvironment(*env)); //todo check do we need this extra copy?
     }
+
     m_lst_healthy_environments.erase(m_lst_healthy_environments.begin(), m_lst_healthy_environments.end());
     std::copy_if(m_lst_environments.begin(),
                  m_lst_environments.end(),
                  std::back_inserter(m_lst_healthy_environments),
-                 [](const CEnvironmentEx& env){return env.healthy();});
+                 [](const CEnvironment& env){return env.healthy();});
   }
-  return RER_SUCCESS;
+  emit environments_updated(rer_res);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubController::ssh_to_container(const CEnvironmentEx *env,
-                                 const CHubContainerEx *cont,
+CHubController::start() {
+  if (UPDATED_COMPONENTS_COUNT >= 2) {
+    m_refresh_timer.start();
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::force_refresh() {
+  if (UPDATED_COMPONENTS_COUNT >= 2) {
+    refresh_timer_timeout();
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::ssh_to_container(const CEnvironment *env,
+                                 const CHubContainer *cont,
                                  void* additional_data) {
 
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont);
@@ -260,11 +271,11 @@ CHubController::ssh_to_container(const CEnvironmentEx *env,
 void
 CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
-                                     void *additional_data) {
-  refresh_environments_internal();
+                                     void *additional_data) {  
 
-  CEnvironmentEx *env = NULL;
-  const CHubContainerEx *cont = NULL;
+  //todo refresh environments
+  CEnvironment *env = NULL;
+  const CHubContainer *cont = NULL;
 
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
@@ -398,34 +409,5 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   }
 
   emit ssh_to_container_finished((int)SLE_SUCCESS, m_additional_data);
-}
-////////////////////////////////////////////////////////////////////////////
-
-CHubContainerEx::CHubContainerEx(const CHubContainer &cont,
-                                 const std::vector<CRHInfo>& lst_resource_hosts) :
-  m_name(cont.name()), m_ip(cont.ip()),
-  m_id(cont.id()), m_port(cont.port()), m_rh_ip(QString()) {
-
-  bool found = false;
-  for (auto rh = lst_resource_hosts.begin(); !found && rh != lst_resource_hosts.end(); ++rh) {
-    for (auto rh_cont = rh->lst_containers().begin(); rh_cont != rh->lst_containers().end(); ++rh_cont) {
-      if (rh_cont->id() != m_id) continue;
-      m_rh_ip = rh->rh_ip();
-      found = true;
-      break;
-    }
-  }
-}
-////////////////////////////////////////////////////////////////////////////
-
-CEnvironmentEx::CEnvironmentEx(const CEnvironment &env,
-                               const std::vector<CRHInfo>& lst_resource_hosts) :
-  m_name(env.name()), m_hash(env.hash()), m_aes_key(env.key()),
-  m_ttl(env.ttl()), m_id(env.id()), m_status(env.status()),
-  m_status_descr(env.status_description()) {
-
-  for (auto cont = env.containers().cbegin(); cont != env.containers().cend(); ++cont) {
-    m_lst_containers.push_back( CHubContainerEx(*cont, lst_resource_hosts));
-  }
 }
 ////////////////////////////////////////////////////////////////////////////

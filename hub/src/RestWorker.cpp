@@ -3,26 +3,128 @@
 #include "RestWorker.h"
 #include "ApplicationLog.h"
 #include "NotificationObserver.h"
+
+#include "OsBranchConsts.h"
 #include "IFunctor.h"
 #include "FunctorWithResult.h"
-#include "OsBranchConsts.h"
+
+#include <QDebug>
 
 #define EVENT_LOOP CEventLoop<SynchroPrimitives::CPthreadMRE>
 
 CRestWorker::CRestWorker() {
-  m_el = new EVENT_LOOP(NULL, NULL, NULL, 15000, false);
-  m_el->Run();
-  IFunctor* functor = new FunctorWithResult<QNetworkAccessManager*>(
-                        CRestWorker::create_network_manager, "create network manager");
-  m_network_manager = EVENT_LOOP::GetSyncResult<QNetworkAccessManager*>(
-                        m_el, functor, true);
+  m_network_manager = create_network_manager();
 }
 
 CRestWorker::~CRestWorker() {
-  IFunctor* functor = new FunctorWithResult<int, QNetworkAccessManager*>(free_network_manager,
-                                                                         m_network_manager,
-                                                                         "free network manager");
-  EVENT_LOOP::GetSyncResult<int>(m_el, functor, true);
+  free_network_manager(m_network_manager);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::login_finished_sl() {
+  static QString str_ok = "\"OK\"";
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    //todo handle this;
+  }
+
+  int http_code, err_code, network_error;
+  pre_handle_reply(reply, http_code, err_code, network_error);
+  QByteArray arr = reply->readAll();
+  if (err_code == RE_SUCCESS)
+    err_code = (QString(arr) != str_ok) ? RE_LOGIN_OR_EMAIL : RE_SUCCESS;
+  emit on_login_finished(http_code, err_code, network_error);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::get_environments_finished_sl() {  
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    qDebug() << "reply is null . get_environments_finished_sl()";
+    return;
+  }
+
+  int http_code, err_code, network_error;
+  pre_handle_reply(reply, http_code, err_code, network_error);
+
+  QByteArray reply_arr = reply->readAll();
+  QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
+  QJsonArray doc_arr = doc.array();
+
+  std::vector<CEnvironment> lst_res;
+  for (auto i = doc_arr.begin(); i != doc_arr.end(); ++i) {
+    if (i->isNull() || !i->isObject()) continue;
+    lst_res.push_back(CEnvironment(i->toObject()));
+  }
+
+  emit on_get_environments_finished(lst_res,
+                                    http_code,
+                                    err_code,
+                                    network_error);
+  reply->deleteLater();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::get_balance_finished_sl() {
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    return;
+  }
+
+  int http_code, err_code, network_error;
+  pre_handle_reply(reply, http_code, err_code, network_error);
+  QByteArray reply_arr = reply->readAll();
+  QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
+  CHubBalance res_balance;
+  do {
+    if (err_code != 0) break;
+    if (!doc.isObject()) { err_code = RE_NOT_JSON_OBJECT; break; }
+    QJsonObject balance = doc.object();
+    res_balance = CHubBalance(balance["currentBalance"].toString());
+  } while (0);
+  emit on_get_balance_finished(res_balance, http_code, err_code, network_error);
+  reply->deleteLater();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::check_if_ss_console_is_ready_finished_sl() {
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    return;
+  }
+
+  int http_code, err_code, network_err;
+  pre_handle_reply(reply, http_code, err_code, network_err);
+  bool is_ready = false;
+  QString err_msg;
+  if (network_err != 0 || err_code != 0 || http_code != 200) {
+    if (network_err == 0 && err_code == 0) {
+      switch (http_code) {
+        case 500:
+          err_msg = "Some modules failed (SS restart might be needed)";
+          break;
+        case 503:
+          err_msg = "Not ready yet/ loading";
+          break;
+        case 404:
+          err_msg = "Endpoint itself not loaded yet (edited)";
+          break;
+        default:
+          err_msg = QString("Undefined error. Code : %1").arg(http_code);
+      }
+    } else {
+      err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
+    }
+  } else {
+    is_ready = true;
+  }
+
+  emit on_got_ss_console_readiness(is_ready, err_msg);
+  reply->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -54,80 +156,25 @@ CRestWorker::login(const QString& login,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QJsonDocument
-CRestWorker::get_request_json_document(const QString &link,
-                                       int &http_code,
-                                       int &err_code,
-                                       int &network_error) {
-  QUrl url_env(hub_get_url().arg(link));
+void
+CRestWorker::update_environments() {
+  QUrl url_env(hub_get_url().arg("environments"));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  QByteArray arr = send_request(m_network_manager, req, true,
-                                http_code, err_code, network_error,
-                                QByteArray(), true);
-
-  QJsonDocument doc  = QJsonDocument::fromJson(arr);
-  if (doc.isNull()) {
-    if (err_code != RE_NETWORK_ERROR &&
-        err_code != RE_TIMEOUT &&
-        QString(arr) != "[]") {
-      err_code = RE_NOT_JSON_DOC;
-    }
-    CApplicationLog::Instance()->LogInfo("Received not json document from url : %s", link.toStdString().c_str());
-    return QJsonDocument();
-  }
-  return doc;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-std::vector<CEnvironment>
-CRestWorker::get_environments(int& http_code,
-                              int& err_code,
-                              int& network_error) {
-  std::vector<CEnvironment> lst_res;
-  QJsonDocument doc = get_request_json_document("environments", http_code, err_code, network_error);
-  QJsonArray arr = doc.array();
-  for (auto i = arr.begin(); i != arr.end(); ++i) {
-    if (i->isNull() || !i->isObject()) continue;
-    lst_res.push_back(CEnvironment(i->toObject()));
-  }
-  return lst_res;
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
+  connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_environments_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
 
-CHubBalance
-CRestWorker::get_balance(int& http_code,
-                         int& err_code,
-                         int& network_error) {
-  QJsonDocument doc = get_request_json_document("balance", http_code, err_code, network_error);
-  if (err_code != 0) return CHubBalance();
-  if (!doc.isObject()) { err_code = RE_NOT_JSON_OBJECT; return CHubBalance(); }
-  QJsonObject balance = doc.object();
-  return CHubBalance(balance["currentBalance"].toString());
-}
-////////////////////////////////////////////////////////////////////////////
-
-std::vector<CRHInfo>
-CRestWorker::get_containers(int &http_code,
-                            int &err_code,
-                            int &network_error) {
-  QJsonDocument doc = get_request_json_document("containers", http_code, err_code, network_error);
-  if (err_code != 0) return std::vector<CRHInfo>();
-
-  if (!doc.isArray()) {
-    err_code = RE_NOT_JSON_OBJECT;
-    return std::vector<CRHInfo>();
-  }
-
-  std::vector<CRHInfo> lst_res;
-  QJsonArray arr = doc.array();
-
-  for (auto i = arr.begin(); i != arr.end(); ++i) {
-    if (i->isNull() || !i->isObject()) continue;
-    lst_res.push_back(CRHInfo(i->toObject()));
-  }
-  return lst_res;
+void
+CRestWorker::update_balance() {
+  QUrl url_env(hub_get_url().arg("balance"));
+  QNetworkRequest req(url_env);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();  
+  connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_balance_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -166,25 +213,17 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int
-CRestWorker::is_ss_console_ready(const QString &url,
-                                 int& err_code,
-                                 int& network_err) {
-  int http_code;
+void
+CRestWorker::check_if_ss_console_is_ready(const QString &url) {
   QUrl req_url(url);
-  QNetworkRequest request(req_url);
-  send_request(m_network_manager, request, true,
-               http_code, err_code, network_err,
-               QByteArray(), false);
-  return http_code;
+  QNetworkRequest req(req_url);
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  connect(reply, &QNetworkReply::finished, this, &CRestWorker::check_if_ss_console_is_ready_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CRestWorker::send_health_request(int &http_code,
-                                 int &err_code,
-                                 int &network_err,
-                                 const QString& p2p_version,
+CRestWorker::send_health_request(const QString& p2p_version,
                                  const QString& p2p_status) {
 
   CHealthReportData report_data(
@@ -198,9 +237,21 @@ CRestWorker::send_health_request(int &http_code,
   QUrl url(hub_health_url());
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  send_request(m_network_manager, req, false,
-               http_code, err_code, network_err,
-               doc.toJson(), true);
+  QNetworkReply* reply = post_reply(m_network_manager, doc.toJson(), req);
+  connect(reply, &QNetworkReply::finished, [this]() {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (reply == nullptr) {
+      return;
+    }
+
+    int http_code, err_code, network_error;
+    pre_handle_reply(reply, http_code, err_code, network_error);
+    if (err_code != RE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("send_health_request failed. %d, %d, %d",
+                                            http_code, err_code, network_error);
+    }
+    reply->deleteLater();
+  });
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -213,31 +264,21 @@ CRestWorker::download_gorjun_file(const QString &file_id) {
   url.setQuery(query);
   return download_file(url);
 }
-
-QNetworkReply *
-CRestWorker::download_file_aux(QNetworkAccessManager *nam,
-                               const QUrl &url) {
-  QNetworkRequest request(url);
-  return nam->get(request);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 QNetworkReply*
 CRestWorker::download_file(const QUrl &url) {
-  IFunctor* functor = new FunctorWithResult<QNetworkReply*, QNetworkAccessManager*, const QUrl&>
-      (download_file_aux, m_network_manager, url, "download file");
-  return EVENT_LOOP::GetSyncResult<QNetworkReply*>(m_el, functor, true);
+  QNetworkRequest request(url);
+  return m_network_manager->get(request);
 }
+////////////////////////////////////////////////////////////////////////////
 
 const QString&
 CRestWorker::rest_err_to_str(rest_error_t err) {
   static QString login_err_str[] = {
-    "SUCCESS",
-    "HTTP_ERROR",
-    "LOGIN_OR_EMAIL_ERROR",
-    "TIMEOUT_ERROR",
-    "NOT_JSON_DOC_ERROR",
-    "NOT_JSON_OBJECT_ERROR",
+    "SUCCESS", "HTTP_ERROR",
+    "LOGIN_OR_EMAIL_ERROR", "TIMEOUT_ERROR",
+    "NOT_JSON_DOC_ERROR", "NOT_JSON_OBJECT_ERROR",
     "NETWORK_ERROR"
   };
   return login_err_str[err];
@@ -340,17 +381,74 @@ CRestWorker::free_network_manager(QNetworkAccessManager *nam) {
   if (nam) delete nam;
   return 0;
 }
+
+void
+CRestWorker::pre_handle_reply(const QNetworkReply *reply,
+                              int& http_code,
+                              int& err_code,
+                              int& network_error) {
+  bool parsed = false;
+  http_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
+  err_code = RE_SUCCESS;
+  network_error = 0;
+  if (reply->error() != QNetworkReply::NoError) {
+    network_error = reply->error();
+    err_code = RE_NETWORK_ERROR;
+    CApplicationLog::Instance()->LogError("Send request network error : %s",
+                                          reply->errorString().toStdString().c_str());
+    CNotificationObserver::Error(reply->errorString());
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
+QJsonDocument
+CRestWorker::qjson_doc_from_arr(const QByteArray &arr, int& err_code) {
+  QJsonDocument doc  = QJsonDocument::fromJson(arr);
+  if (doc.isNull()) {
+    if (err_code != RE_NETWORK_ERROR &&
+        err_code != RE_TIMEOUT &&
+        QString(arr) != "[]") {
+      err_code = RE_NOT_JSON_DOC;
+    }
+    return QJsonDocument();
+  }
+  return doc;
+}
+////////////////////////////////////////////////////////////////////////////
+
+QNetworkReply *
+CRestWorker::get_reply(QNetworkAccessManager *nam,
+                       QNetworkRequest &req) {
+  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
+  if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
+    CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
+    nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
+  }
+  return nam->get(req);
+}
+
+QNetworkReply *
+CRestWorker::post_reply(QNetworkAccessManager *nam,
+                        const QByteArray& data,
+                        QNetworkRequest &req) {
+  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
+  if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
+    CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
+    nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
+  }
+  return nam->post(req, data);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 QByteArray
-CRestWorker::send_request_aux(QNetworkAccessManager *nam,
-                              QNetworkRequest &req,
-                              bool get,
-                              int &http_status_code,
-                              int &err_code,
-                              int &network_error,
-                              QByteArray data,
-                              bool show_network_err_msg) {
+CRestWorker::send_request(QNetworkAccessManager *nam,
+                          QNetworkRequest &req,
+                          bool get,
+                          int& http_status_code,
+                          int& err_code,
+                          int &network_error,
+                          QByteArray data,
+                          bool show_network_err_msg) {
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
@@ -370,6 +468,8 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
+
+  QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::deleteLater);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::deleteLater);
 
   QList<QSslError> errors2ignore;
@@ -377,6 +477,7 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
   errors2ignore << QSslError(QSslError::SelfSignedCertificate);
   errors2ignore << QSslError(QSslError::HostNameMismatch);
   reply->ignoreSslErrors();
+//  reply->ignoreSslErrors(errors2ignore);
 
   loop->exec();
 
@@ -407,23 +508,5 @@ CRestWorker::send_request_aux(QNetworkAccessManager *nam,
   QByteArray res = reply->readAll();
   reply->deleteLater();
   return res;
-}
-////////////////////////////////////////////////////////////////////////////
-
-QByteArray
-CRestWorker::send_request(QNetworkAccessManager *nam,
-                          QNetworkRequest &req,
-                          bool get,
-                          int& http_status_code,
-                          int& err_code,
-                          int &network_error,
-                          QByteArray data,
-                          bool show_network_err_msg) {
-  IFunctor* functor = new FunctorWithResult<QByteArray, QNetworkAccessManager*,
-            QNetworkRequest&, bool, int&, int&, int &, QByteArray, bool>(send_request_aux,
-                                                                        nam, req, get, http_status_code,
-                                                                        err_code, network_error, data,
-                                                                        show_network_err_msg, "send request");
-  return EVENT_LOOP::GetSyncResult<QByteArray>(m_el, functor, true);
 }
 ////////////////////////////////////////////////////////////////////////////
