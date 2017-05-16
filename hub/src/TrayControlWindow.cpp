@@ -405,7 +405,7 @@ void
 TrayControlWindow::launch_ss_triggered() {
   QAction* act = qobject_cast<QAction*>(sender());
   act->setEnabled(false);
-  QtConcurrent::run(this, &TrayControlWindow::launch_ss);
+  launch_ss();
 }
 ////////////////////////////////////////////////////////////////////////////
 

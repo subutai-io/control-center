@@ -215,9 +215,10 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
 
 void
 CRestWorker::check_if_ss_console_is_ready(const QString &url) {
+  qDebug() << url;
   QUrl req_url(url);
   QNetworkRequest req(req_url);
-  QNetworkReply* reply = get_reply(m_network_manager, req);
+  QNetworkReply* reply = get_reply(m_network_manager, req);  
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::check_if_ss_console_is_ready_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -424,7 +425,9 @@ CRestWorker::get_reply(QNetworkAccessManager *nam,
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
-  return nam->get(req);
+  QNetworkReply* reply = nam->get(req);
+  reply->ignoreSslErrors();
+  return reply;
 }
 
 QNetworkReply *
@@ -435,8 +438,10 @@ CRestWorker::post_reply(QNetworkAccessManager *nam,
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
-  }
-  return nam->post(req, data);
+  }  
+  QNetworkReply* reply = nam->post(req, data);
+  reply->ignoreSslErrors();
+  return reply;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -464,7 +469,7 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
   timer->setSingleShot(true);
   timer->start(8000);
 
-  QNetworkReply* reply = get ? nam->get(req) : nam->post(req, data);
+  QNetworkReply* reply = get ? get_reply(nam, req) : post_reply(nam, data, req);
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
