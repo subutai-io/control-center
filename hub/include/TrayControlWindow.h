@@ -120,7 +120,6 @@ private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
   /*hub*/
-  QTimer m_report_timer;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
 

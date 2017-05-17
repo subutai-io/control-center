@@ -271,9 +271,14 @@ CHubController::ssh_to_container(const CEnvironment *env,
 void
 CHubController::ssh_to_container_str(const QString &env_id,
                                      const QString &cont_id,
-                                     void *additional_data) {  
+                                     void *additional_data) {
 
-  //todo refresh environments
+  QEventLoop el;
+  connect(Instance(), &CHubController::environments_updated,
+          &el, &QEventLoop::quit);
+  refresh_environments_internal();
+  el.exec();
+
   CEnvironment *env = NULL;
   const CHubContainer *cont = NULL;
 
@@ -316,7 +321,7 @@ CHubController::ssh_launch_err_to_str(int err) {
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_id, 
+CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_id,
                                                  const QString &env_hash,
                                                  const QString &env_key,
                                                  const QString &ip,

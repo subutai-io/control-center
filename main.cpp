@@ -129,8 +129,8 @@ main(int argc, char *argv[]) {
     if (dlg.result() == QDialog::Rejected)
       break;
 
-    TrayControlWindow tcw;
     CTrayServer::Instance()->Init();
+    TrayControlWindow tcw;
     result = app.exec();
   } while (0);
 

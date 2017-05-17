@@ -264,7 +264,6 @@ TrayControlWindow::notification_received(CNotificationObserver::notification_lev
 void
 TrayControlWindow::logout() {
   CHubController::Instance().suspend();
-  this->m_report_timer.stop();
   this->m_sys_tray_icon->hide();
 
   DlgLogin dlg;
@@ -279,7 +278,6 @@ TrayControlWindow::logout() {
 void
 TrayControlWindow::login_success() {
   CHubController::Instance().start();
-  this->m_report_timer.start();
   this->m_sys_tray_icon->show();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -645,8 +643,8 @@ void TrayControlWindow::launch_ss() {
 
   if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
   //after that got_ss_console_readiness_sl will be called
-  CRestWorker::Instance()->check_if_ss_console_is_ready(
-        QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
+    CRestWorker::Instance()->check_if_ss_console_is_ready(
+          QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);

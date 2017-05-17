@@ -3,14 +3,7 @@
 #include "RestWorker.h"
 #include "ApplicationLog.h"
 #include "NotificationObserver.h"
-
 #include "OsBranchConsts.h"
-#include "IFunctor.h"
-#include "FunctorWithResult.h"
-
-#include <QDebug>
-
-#define EVENT_LOOP CEventLoop<SynchroPrimitives::CPthreadMRE>
 
 CRestWorker::CRestWorker() {
   m_network_manager = create_network_manager();
@@ -35,14 +28,14 @@ CRestWorker::login_finished_sl() {
   if (err_code == RE_SUCCESS)
     err_code = (QString(arr) != str_ok) ? RE_LOGIN_OR_EMAIL : RE_SUCCESS;
   emit on_login_finished(http_code, err_code, network_error);
+  reply->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CRestWorker::get_environments_finished_sl() {  
+CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
   if (reply == nullptr) {
-    qDebug() << "reply is null . get_environments_finished_sl()";
     return;
   }
 
@@ -173,7 +166,7 @@ CRestWorker::update_balance() {
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
-  reply->ignoreSslErrors();  
+  reply->ignoreSslErrors();
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_balance_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -215,10 +208,9 @@ CRestWorker::get_gorjun_file_info(const QString &file_name) {
 
 void
 CRestWorker::check_if_ss_console_is_ready(const QString &url) {
-  qDebug() << url;
   QUrl req_url(url);
   QNetworkRequest req(req_url);
-  QNetworkReply* reply = get_reply(m_network_manager, req);  
+  QNetworkReply* reply = get_reply(m_network_manager, req);
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::check_if_ss_console_is_ready_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -332,7 +324,7 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
 
   QJsonDocument res_doc = QJsonDocument::fromJson(res_arr);
   if (res_doc.isEmpty()) return lst_res;
-  if (!res_doc.isArray()) return lst_res;  
+  if (!res_doc.isArray()) return lst_res;
   QJsonArray json_arr = res_doc.array();
   for (auto i = json_arr.begin(); i != json_arr.end(); ++i)
     lst_res.push_back(i->toBool());
@@ -438,7 +430,7 @@ CRestWorker::post_reply(QNetworkAccessManager *nam,
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
-  }  
+  }
   QNetworkReply* reply = nam->post(req, data);
   reply->ignoreSslErrors();
   return reply;
@@ -482,7 +474,6 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
   errors2ignore << QSslError(QSslError::SelfSignedCertificate);
   errors2ignore << QSslError(QSslError::HostNameMismatch);
   reply->ignoreSslErrors();
-//  reply->ignoreSslErrors(errors2ignore);
 
   loop->exec();
 
