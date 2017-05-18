@@ -21,6 +21,7 @@
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotifications.h"
 #include "VBoxManager.h"
+#include "OsBranchConsts.h"
 
 using namespace update_system;
 
@@ -375,7 +376,6 @@ void
 TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;
-  QString hub_url = "https://hub.subut.ai";
   QStringList args;
 
 #if defined(RT_OS_LINUX)
@@ -388,7 +388,7 @@ TrayControlWindow::launch_Hub() {
   folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
   args << "--new-window";
 #endif
-  args << hub_url;
+  args << hub_site();
 
   if (!QProcess::startDetached(browser, args, folder)) {
     QString err_msg = QString("Launch hub website failed");

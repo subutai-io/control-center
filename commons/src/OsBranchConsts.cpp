@@ -241,3 +241,23 @@ vboxmanage_command_str() {
   return vboxmanage_command_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+
+template<class BR> const QString& hub_site_temp_internal();
+
+#define hub_site_temp_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& hub_site_temp_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+hub_site_temp_internal_def(BT_PROD,   "https://hub.subut.ai")
+hub_site_temp_internal_def(BT_MASTER, "https://stage.subut.ai")
+hub_site_temp_internal_def(BT_DEV,    "https://dev.subut.ai")
+
+const QString &
+hub_site() {
+  return hub_site_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
