@@ -466,16 +466,15 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
 
-  QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::deleteLater);
-  QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::deleteLater);
-
   QList<QSslError> errors2ignore;
   errors2ignore << QSslError(QSslError::CertificateUntrusted);
   errors2ignore << QSslError(QSslError::SelfSignedCertificate);
   errors2ignore << QSslError(QSslError::HostNameMismatch);
   reply->ignoreSslErrors();
+  //reply->ignoreSslErrors(errors2ignore);
 
   loop->exec();
+  loop->deleteLater();
 
   //timer is active if timeout didn't fire
   if (!timer->isActive()) {
