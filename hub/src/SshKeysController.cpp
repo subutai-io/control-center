@@ -10,8 +10,6 @@
 #include "SystemCallWrapper.h"
 #include "NotificationObserver.h"
 
-std::vector<bool> CSshKeysController::empty_environments_bitmask;
-
 CSshKeysController::CSshKeysController() {
   refresh_key_files();
   rebuild_bitmasks();
@@ -64,26 +62,51 @@ CSshKeysController::refresh_key_files() {
 
 void
 CSshKeysController::rebuild_bitmasks() {
-  empty_environments_bitmask = std::vector<bool>(
-                                 CHubController::Instance().lst_healthy_environments().size());
-
-  for (auto i = CHubController::Instance().lst_healthy_environments().begin();
-       i != CHubController::Instance().lst_healthy_environments().end(); ++i) {
-    m_dct_environment_keyflags[i->id()] =
-        CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content, i->id());
+  size_t healthy_environments_count = CHubController::Instance().lst_healthy_environments().size();
+  size_t cols, rows;
+  rows = healthy_environments_count;
+  cols = m_lst_key_files.size();
+  uint8_t **bit_map = new uint8_t*[rows];
+  for (size_t row = 0; row < rows; ++row) {
+    bit_map[row] = new uint8_t[m_lst_key_files.size()];
+    memset(bit_map[row], 0, cols*sizeof(uint8_t));
   }
 
-  for (int i = 0; i < m_lst_key_files.size(); ++i) {
-    m_dct_key_environments[m_lst_key_files[i]] =
-        std::vector<bool>(CHubController::Instance().lst_healthy_environments().size());
-    m_dct_key_allselected[m_lst_key_files[i]] = false;
-
-    int k = 0;
-    for (auto j = m_dct_environment_keyflags.begin();
-         j != m_dct_environment_keyflags.end(); ++j, ++k) {
-       m_dct_key_environments[m_lst_key_files[i]][k] = j->second[i];
+  for (size_t row = 0; row < rows; ++row) {
+    std::vector<bool> tmp =
+        CRestWorker::Instance()->
+        is_sshkeys_in_environment(m_lst_key_content,
+                                  CHubController::Instance().lst_healthy_environments()[row].id());
+    for (size_t col = 0; col < cols; ++col) {
+      if (!tmp[col]) continue;
+      bit_map[row][col] = 1;
     }
   }
+
+  //fill dct_environment_keyflags
+  for (size_t row = 0; row < rows; ++row) {
+    QString env_id = CHubController::Instance().lst_healthy_environments()[row].id();
+    if (m_dct_environment_keyflags.find(env_id) == m_dct_environment_keyflags.end())
+      m_dct_environment_keyflags[env_id] = std::vector<bool>(cols);
+
+    for (size_t col = 0; col < cols; ++col) {
+      m_dct_environment_keyflags[env_id][col] = bit_map[row][col] != 0;
+    }
+  }
+
+  //fill dct_key_environments
+  for (size_t col = 0; col < cols; ++col) {
+    QString key_file = m_lst_key_files[col];
+    m_dct_key_environments[key_file] = std::vector<bool>(rows);
+    m_dct_key_allselected[key_file] = false;
+    for (size_t row = 0; row < rows; ++row) {
+      m_dct_key_environments[key_file][row] = bit_map[row][col] != 0;
+    }
+  }
+
+  for (size_t row = 0; row < rows; ++row)
+    delete [] bit_map[row];
+  delete [] bit_map;
 
   m_dct_key_environments_original.insert(m_dct_key_environments.begin(),
                                          m_dct_key_environments.end());
@@ -124,10 +147,11 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CSshKeysController::send_data_to_hub() const {
+CSshKeysController::send_data_to_hub() {
   map_string_bitmask::const_iterator current = m_dct_key_environments.cbegin();
   map_string_bitmask::const_iterator original = m_dct_key_environments_original.cbegin();
-  std::map<QString, std::vector<QString> > dct_to_send;
+
+  std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::vector<QString> lst_key_names;
 
   for (size_t k = 0; current != m_dct_key_environments.cend();
@@ -142,33 +166,32 @@ CSshKeysController::send_data_to_hub() const {
         contains = true;
       }
 
-      if (dct_to_send.find(m_lst_key_content[k]) == dct_to_send.end())
-        dct_to_send[m_lst_key_content[k]] = std::vector<QString>();
+      if (dct_to_send.find(m_lst_key_content[k]) == dct_to_send.end()) {
+        dct_to_send[m_lst_key_content[k]].second = std::vector<QString>();
+      }
 
-      dct_to_send[m_lst_key_content[k]].push_back(
-        CHubController::Instance().lst_healthy_environments()[i].id());
+      dct_to_send[m_lst_key_content[k]].first = lst_key_names[k];
+      dct_to_send[m_lst_key_content[k]].second.push_back(
+            CHubController::Instance().lst_healthy_environments()[i].id());
     }
   }
 
-  QThread* st = new QThread;
-  SshControllerBackgroundWorker* bw =
-      new SshControllerBackgroundWorker(dct_to_send, lst_key_names);
-
-  connect(bw, &SshControllerBackgroundWorker::send_key_finished, st, &QThread::quit);
-  connect(st, &QThread::started, bw, &SshControllerBackgroundWorker::start_send_keys_to_hub);
-  connect(bw, &SshControllerBackgroundWorker::send_key_finished, st, &QThread::quit);
-  connect(bw, &SshControllerBackgroundWorker::send_key_progress,
-          this, &CSshKeysController::ssh_key_send_progress_sl);
-  connect(st, &QThread::finished, st, &QThread::deleteLater);
-  connect(st, &QThread::finished, bw, &SshControllerBackgroundWorker::deleteLater);
-  bw->moveToThread(st);
-  st->start();
+  int part = 0;
+  int total = (int) dct_to_send.size();
+  for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
+    CRestWorker::Instance()->add_sshkey_to_environments(i->second.first,
+                                                        i->first,
+                                                        i->second.second);
+    emit ssh_key_send_progress(++part, total);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSshKeysController::set_key_environments_bit(int index, bool bit) {
   if (m_current_key.isEmpty()) return;
+  if (m_dct_key_environments.find(m_current_key) == m_dct_key_environments.end()) return;
+  if (m_dct_key_environments[m_current_key].empty()) return;
   m_dct_key_environments[m_current_key][index] = bit;
 
   bit = true;
@@ -183,6 +206,9 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
 bool
 CSshKeysController::get_key_environments_bit(int index) {
   if (m_current_key.isEmpty()) return false;
+  if (m_dct_key_environments.find(m_current_key) ==
+      m_dct_key_environments.end()) return false;
+  if (m_dct_key_environments[m_current_key].empty()) return false;
   return m_dct_key_environments[m_current_key][index];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -231,37 +257,8 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  UNUSED_ARG(rr);
+  if (rr == CHubController::RER_EMPTY ||
+      rr == CHubController::RER_NO_DIFF) return;
   rebuild_bitmasks();
-}
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-
-SshControllerBackgroundWorker::SshControllerBackgroundWorker(const std::map<QString, std::vector<QString> > &dct_key_environments,
-    const std::vector<QString>& lst_key_names) :
-  m_dct_key_environments(std::move(dct_key_environments)),
-  m_lst_key_names(std::move(lst_key_names)) {
-}
-
-SshControllerBackgroundWorker::~SshControllerBackgroundWorker() {
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-SshControllerBackgroundWorker::start_send_keys_to_hub() {
-  int part = 0;
-  int total = (int) m_dct_key_environments.size();
-  size_t j = 0;
-  for (auto i = m_dct_key_environments.begin(); i != m_dct_key_environments.end(); ++i, ++j) {
-    qDebug() << m_lst_key_names[j];
-    qDebug() << i->first;
-    CRestWorker::Instance()->add_sshkey_to_environments(m_lst_key_names[j],
-                                                        i->first,
-                                                        i->second);
-    emit send_key_progress(++part, total);
-  }
-
-  emit send_key_finished();
 }
 ////////////////////////////////////////////////////////////////////////////

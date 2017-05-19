@@ -3,24 +3,6 @@
 
 #include <QObject>
 
-class SshControllerBackgroundWorker : public QObject {
-  Q_OBJECT
-private:
-  std::map<QString, std::vector<QString> > m_dct_key_environments;
-  std::vector<QString> m_lst_key_names;
-
-public:
-  SshControllerBackgroundWorker(const std::map<QString, std::vector<QString> >& dct_key_environments,
-                                const std::vector<QString>& lst_key_names);
-  virtual ~SshControllerBackgroundWorker();
-public slots:
-  void start_send_keys_to_hub();
-signals:
-  void send_key_progress(int part, int total);
-  void send_key_finished();
-};
-////////////////////////////////////////////////////////////////////////////
-
 class CSshKeysController : public QObject {
   Q_OBJECT
 private:
@@ -37,13 +19,11 @@ private:
   CSshKeysController();
   virtual ~CSshKeysController();
 
-  static std::vector<bool> empty_environments_bitmask;
-
 public:
   void refresh_key_files();
   void rebuild_bitmasks();
   void generate_new_ssh_key(QWidget *parent);
-  void send_data_to_hub() const;
+  void send_data_to_hub();
 
   static CSshKeysController& Instance() {
     static CSshKeysController instance;

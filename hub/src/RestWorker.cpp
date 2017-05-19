@@ -327,6 +327,10 @@ CRestWorker::add_sshkey_to_environments(const QString &key_name,
   obj["sshKey"] = QJsonValue(key);
   obj["environments"] = arr_environments;
 
+  qDebug() << "****";
+  qDebug() << obj;
+  qDebug() << " ";
+
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
   QUrl url(str_url);

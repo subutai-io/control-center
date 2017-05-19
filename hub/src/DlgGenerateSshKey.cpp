@@ -136,7 +136,9 @@ DlgGenerateSshKey::btn_send_to_hub_released() {
 
 void
 DlgGenerateSshKey::environments_updated(int update_result) {
-  UNUSED_ARG(update_result);
+  if (update_result == CHubController::RER_EMPTY ||
+      update_result == CHubController::RER_NO_DIFF) return;
+
   CSshKeysController::Instance().rebuild_bitmasks();
   rebuild_environments_model();
   set_environments_checked_flag();
