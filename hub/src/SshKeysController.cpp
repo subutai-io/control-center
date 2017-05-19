@@ -254,14 +254,11 @@ SshControllerBackgroundWorker::start_send_keys_to_hub() {
   int total = (int) m_dct_key_environments.size();
   size_t j = 0;
   for (auto i = m_dct_key_environments.begin(); i != m_dct_key_environments.end(); ++i, ++j) {
-    int http_code, err_code, network_err;
     qDebug() << m_lst_key_names[j];
     qDebug() << i->first;
     CRestWorker::Instance()->add_sshkey_to_environments(m_lst_key_names[j],
                                                         i->first,
-                                                        i->second,
-                                                        http_code, err_code,
-                                                        network_err);
+                                                        i->second);
     emit send_key_progress(++part, total);
   }
 

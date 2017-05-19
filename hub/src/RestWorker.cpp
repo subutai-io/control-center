@@ -278,27 +278,6 @@ CRestWorker::rest_err_to_str(rest_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void
-CRestWorker::send_ssh_key(const QString &key,
-                          int &http_code,
-                          int &err_code,
-                          int &network_err) {
-  static const QString str_url(hub_post_url().arg("ssh-keys"));
-  QJsonObject obj;
-  QJsonArray keys_arr;
-  keys_arr.push_back(QJsonValue(key));
-  obj["sshKeys"] = keys_arr;
-  QJsonDocument doc(obj);
-  QByteArray doc_serialized = doc.toJson();
-  QUrl url(str_url);
-  QNetworkRequest req(url);
-  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-  send_request(m_network_manager, req, false,
-               http_code, err_code, network_err,
-               doc_serialized, true);
-}
-////////////////////////////////////////////////////////////////////////////
-
 std::vector<bool>
 CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
                                        const QString &env) {
@@ -336,10 +315,7 @@ CRestWorker::is_sshkeys_in_environment(const QStringList &keys,
 void
 CRestWorker::add_sshkey_to_environments(const QString &key_name,
                                         const QString &key,
-                                        const std::vector<QString> &lst_environments,
-                                        int &http_code,
-                                        int &err_code,
-                                        int &network_err) {
+                                        const std::vector<QString> &lst_environments) {
   static const QString str_url(hub_post_url().arg("environments/ssh-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
@@ -357,9 +333,8 @@ CRestWorker::add_sshkey_to_environments(const QString &key_name,
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 
-  QByteArray res_arr = send_request(m_network_manager, req, false,
-                                    http_code, err_code, network_err,
-                                    doc_serialized, false);
+  QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 

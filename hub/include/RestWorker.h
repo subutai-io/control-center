@@ -125,20 +125,12 @@ public:
 
   static const QString& rest_err_to_str(rest_error_t err);
 
-  void send_ssh_key(const QString &key,
-                    int &http_code,
-                    int &err_code,
-                    int &network_err);
-
   std::vector<bool> is_sshkeys_in_environment(const QStringList &keys,
                                               const QString& env);
 
   void add_sshkey_to_environments(const QString &key_name,
                                   const QString& key,
-                                  const std::vector<QString>& lst_environments,
-                                  int& http_code,
-                                  int& err_code,
-                                  int& network_err);
+                                  const std::vector<QString>& lst_environments);
 };
 
 #endif // CRESTWORKER_H
