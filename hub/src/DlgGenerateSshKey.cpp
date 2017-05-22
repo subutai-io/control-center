@@ -139,7 +139,7 @@ DlgGenerateSshKey::environments_updated(int update_result) {
   if (update_result == CHubController::RER_EMPTY ||
       update_result == CHubController::RER_NO_DIFF) return;
 
-  CSshKeysController::Instance().rebuild_bitmasks();
+  CSshKeysController::Instance().rebuild_bit_matrix();
   rebuild_environments_model();
   set_environments_checked_flag();
 }
