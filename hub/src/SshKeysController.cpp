@@ -10,15 +10,15 @@
 #include "SystemCallWrapper.h"
 #include "NotificationObserver.h"
 
-CSshKeysController::CSshKeysController() {
+CSshKeysController::CSshKeysController() :
+  m_current_key_col(-1) {
   refresh_key_files();
-  rebuild_bitmasks();
+  rebuild_bit_matrix();
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &CSshKeysController::environments_updated);
 }
 
 CSshKeysController::~CSshKeysController() {
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -54,62 +54,37 @@ CSshKeysController::refresh_key_files() {
   }
 
   if (!m_lst_key_files.empty() && m_current_key.isEmpty())
-    m_current_key = m_lst_key_files[0];
+    set_current_key(m_lst_key_files[0]);
 
-  rebuild_bitmasks();
+  rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CSshKeysController::rebuild_bitmasks() {
+CSshKeysController::rebuild_bit_matrix() {
   size_t healthy_environments_count = CHubController::Instance().lst_healthy_environments().size();
   size_t cols, rows;
   rows = healthy_environments_count;
   cols = m_lst_key_files.size();
-  uint8_t **bit_map = new uint8_t*[rows];
+  m_current_bit_matrix.erase(m_current_bit_matrix.begin(), m_current_bit_matrix.end());
+
+  m_current_bit_matrix.reserve(rows);
+  m_current_bit_matrix.resize(rows);
+
+  m_lst_all_selected.reserve(cols);
+  m_lst_all_selected.resize(cols);
+
   for (size_t row = 0; row < rows; ++row) {
-    bit_map[row] = new uint8_t[m_lst_key_files.size()];
-    memset(bit_map[row], 0, cols*sizeof(uint8_t));
+    m_current_bit_matrix[row] = std::vector<bool>(cols);
   }
 
   for (size_t row = 0; row < rows; ++row) {
-    std::vector<bool> tmp =
-        CRestWorker::Instance()->
-        is_sshkeys_in_environment(m_lst_key_content,
+    m_current_bit_matrix[row] = CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content,
                                   CHubController::Instance().lst_healthy_environments()[row].id());
-    for (size_t col = 0; col < cols; ++col) {
-      if (!tmp[col]) continue;
-      bit_map[row][col] = 1;
-    }
   }
-
-  //fill dct_environment_keyflags
-  for (size_t row = 0; row < rows; ++row) {
-    QString env_id = CHubController::Instance().lst_healthy_environments()[row].id();
-    if (m_dct_environment_keyflags.find(env_id) == m_dct_environment_keyflags.end())
-      m_dct_environment_keyflags[env_id] = std::vector<bool>(cols);
-
-    for (size_t col = 0; col < cols; ++col) {
-      m_dct_environment_keyflags[env_id][col] = bit_map[row][col] != 0;
-    }
-  }
-
-  //fill dct_key_environments
-  for (size_t col = 0; col < cols; ++col) {
-    QString key_file = m_lst_key_files[col];
-    m_dct_key_environments[key_file] = std::vector<bool>(rows);
-    m_dct_key_allselected[key_file] = false;
-    for (size_t row = 0; row < rows; ++row) {
-      m_dct_key_environments[key_file][row] = bit_map[row][col] != 0;
-    }
-  }
-
-  for (size_t row = 0; row < rows; ++row)
-    delete [] bit_map[row];
-  delete [] bit_map;
-
-  m_dct_key_environments_original.insert(m_dct_key_environments.begin(),
-                                         m_dct_key_environments.end());
+  m_original_bit_matrix.erase(m_original_bit_matrix.begin(), m_original_bit_matrix.end());
+  std::copy(m_current_bit_matrix.begin(), m_current_bit_matrix.end(),
+            std::back_inserter(m_original_bit_matrix));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -148,31 +123,20 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 
 void
 CSshKeysController::send_data_to_hub() {
-  map_string_bitmask::const_iterator current = m_dct_key_environments.cbegin();
-  map_string_bitmask::const_iterator original = m_dct_key_environments_original.cbegin();
-
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
-  std::vector<QString> lst_key_names;
+  size_t cols, rows;
+  cols = m_lst_key_files.size();
+  rows = CHubController::Instance().lst_healthy_environments().size();
 
-  for (size_t k = 0; current != m_dct_key_environments.cend();
-       ++current, ++original, ++k) {
-    bool contains = false;
-    for (size_t i = 0; i < current->second.size(); ++i) {
-      if (!current->second[i] ||
-          current->second[i] == original->second[i]) continue;
+  for (size_t col = 0; col < cols; ++col) {
+    QString key = m_lst_key_content[col];
+    QString key_name = m_lst_key_files[col];
 
-      if (!contains) {
-        lst_key_names.push_back(current->first);
-        contains = true;
-      }
-
-      if (dct_to_send.find(m_lst_key_content[k]) == dct_to_send.end()) {
-        dct_to_send[m_lst_key_content[k]].second = std::vector<QString>();
-      }
-
-      dct_to_send[m_lst_key_content[k]].first = lst_key_names[k];
-      dct_to_send[m_lst_key_content[k]].second.push_back(
-            CHubController::Instance().lst_healthy_environments()[i].id());
+    for (size_t row = 0; row < rows; ++row) {
+      if (!m_current_bit_matrix[row][col] ||
+          (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col])) continue; //check
+      dct_to_send[key].first = key_name;
+      dct_to_send[key].second.push_back(CHubController::Instance().lst_healthy_environments()[row].id());
     }
   }
 
@@ -188,48 +152,52 @@ CSshKeysController::send_data_to_hub() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CSshKeysController::set_current_key(const QString &key) {
+  m_current_key_col = m_lst_key_files.indexOf(key);
+  if (m_current_key_col != -1) m_current_key = key;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CSshKeysController::set_key_environments_bit(int index, bool bit) {
   if (m_current_key.isEmpty()) return;
-  if (m_dct_key_environments.find(m_current_key) == m_dct_key_environments.end()) return;
-  if (m_dct_key_environments[m_current_key].empty()) return;
-  m_dct_key_environments[m_current_key][index] = bit;
+  if (index < 0 || index >= (int)m_current_bit_matrix.size()) return;
+  m_current_bit_matrix[index][m_current_key_col] = bit;
 
   bit = true;
-  for (size_t i = 0; i < m_dct_key_environments[m_current_key].size(); ++i) {
-    if (m_dct_key_environments[m_current_key][i]) continue;
+  for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
+    if (m_current_bit_matrix[row][m_current_key_col]) continue;
     bit = false;
   }
-  m_dct_key_allselected[m_current_key] = bit;
+  m_lst_all_selected[m_current_key_col] = bit;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 bool
-CSshKeysController::get_key_environments_bit(int index) {
+CSshKeysController::get_key_environments_bit(int index) const {
   if (m_current_key.isEmpty()) return false;
-  if (m_dct_key_environments.find(m_current_key) ==
-      m_dct_key_environments.end()) return false;
-  if (m_dct_key_environments[m_current_key].empty()) return false;
-  return m_dct_key_environments[m_current_key][index];
+  if (index < 0 || index >= (int)m_current_bit_matrix.size()) return false;
+  return m_current_bit_matrix[index][m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
 
 bool
 CSshKeysController::current_key_is_allselected() const {
-  return m_dct_key_allselected.find(m_current_key) !=
-      m_dct_key_allselected.end() && m_dct_key_allselected.at(m_current_key);
+  if (m_current_key.isEmpty()) return false;
+  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  return m_lst_all_selected[m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
 
 bool
 CSshKeysController::set_current_key_allselected(bool flag) {
-  if (m_dct_key_allselected.find(m_current_key) == m_dct_key_allselected.end())
-    return false;
-  if (m_dct_key_environments.find(m_current_key) == m_dct_key_environments.end())
-    return false;
+  if (m_current_key.isEmpty()) return false;
+  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
 
-  for (size_t i = 0;  i < m_dct_key_environments[m_current_key].size(); ++i) {
-    m_dct_key_environments[m_current_key][i] =
-        m_dct_key_environments_original[m_current_key][i] || flag;
+  m_lst_all_selected[m_current_key_col] = flag;
+  for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
+    m_current_bit_matrix[row][m_current_key_col] =
+        m_original_bit_matrix[row][m_current_key_col] || flag;
   }
   return true;
 }
@@ -238,13 +206,22 @@ CSshKeysController::set_current_key_allselected(bool flag) {
 QStringList
 CSshKeysController::keys_in_environment(const QString &env_id) const {
   QStringList result;
-  if (m_dct_environment_keyflags.find(env_id) == m_dct_environment_keyflags.end())
-    return result;
+  size_t row = 0;
+  bool found = false;
+  for (row = 0; row < CHubController::Instance().lst_healthy_environments().size(); ++row) {
+    if (CHubController::Instance().lst_healthy_environments()[row].id() != env_id) continue;
 
-  for (size_t i = 0; i < m_dct_environment_keyflags.at(env_id).size(); ++i) {
-    if (!m_dct_environment_keyflags.at(env_id)[i]) continue;
-    result << m_lst_key_files[i];
+    found = true;
+    break;
   }
+
+  if (!found) return result;
+
+  for (int col = 0; col < m_lst_key_files.size(); ++col) {
+    if (!m_current_bit_matrix[row][col]) continue;
+    result << m_lst_key_files[col];
+  }
+
   return result;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -259,6 +236,6 @@ void
 CSshKeysController::environments_updated(int rr) {
   if (rr == CHubController::RER_EMPTY ||
       rr == CHubController::RER_NO_DIFF) return;
-  rebuild_bitmasks();
+  rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
