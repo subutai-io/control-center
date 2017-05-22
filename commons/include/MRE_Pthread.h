@@ -1,6 +1,7 @@
 #ifndef MRE_LINUX_H
 #define MRE_LINUX_H
 
+#ifndef RT_OS_WINDOWS
 #include <pthread.h>
 #include "InternalCriticalSection.h"
 
@@ -29,5 +30,5 @@ namespace SynchroPrimitives {
     static int MRE_Destroy(CPthreadMRE* lpMre);
   };
 }
-
+#endif // RT_OS_WINDOWS
 #endif // MRE_LINUX_H

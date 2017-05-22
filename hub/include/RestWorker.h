@@ -37,7 +37,6 @@ class CRestWorker : public QObject {
   Q_OBJECT
 
 private:
-  CEventLoop<SynchroPrimitives::CPthreadMRE> *m_el;
   QNetworkAccessManager *m_network_manager;
 
   static QNetworkAccessManager* create_network_manager();

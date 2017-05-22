@@ -2,6 +2,7 @@
 #define SSHKEYSCONTROLLER_H
 
 #include <QObject>
+#include <stdint.h>
 
 class CSshKeysController : public QObject {
   Q_OBJECT

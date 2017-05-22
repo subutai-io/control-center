@@ -167,7 +167,8 @@ macx: {
 win32: {
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
-  LIBS += -lws2_32 -lpthread -L$$PWD/libssh2/lib/win32 -lssh2
-  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
+  LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
+#  LIBS += -lpthread
+#  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////
