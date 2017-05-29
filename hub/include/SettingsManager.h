@@ -54,6 +54,8 @@ private:
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
 
+  static const QString SM_USE_ANIMATIONS;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -99,6 +101,8 @@ private:
   QString m_vboxmanage_path;
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
+
+  bool m_use_animations;
 
   void init_password();
 
@@ -167,6 +171,7 @@ public:
   const QString& terminal_arg() const {return m_terminal_arg;}
 
   const QString& vboxmanage_path() const {return m_vboxmanage_path;}
+  bool use_animations() const {return m_use_animations;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -211,6 +216,7 @@ public:
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
   SET_FIELD_DECL(vboxmanage_path, QString&)
+  SET_FIELD_DECL(use_animations, bool)
 #undef SET_FIELD_DECL
 };
 

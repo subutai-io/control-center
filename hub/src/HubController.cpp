@@ -274,7 +274,7 @@ CHubController::ssh_to_container_str(const QString &env_id,
                                      void *additional_data) {
 
   QEventLoop el;
-  connect(this, SIGNAL(environments_updated(int)), &el, SLOT(quit()));
+  connect(this, &CHubController::environments_updated, &el, &QEventLoop::quit);
   refresh_environments_internal();
   el.exec();
 

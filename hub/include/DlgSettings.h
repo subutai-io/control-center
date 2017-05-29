@@ -12,8 +12,6 @@ namespace Ui {
   class DlgSettings;
 }
 
-
-
 class QStandardItemModel;
 class QStandardItem;
 class QListView;

@@ -117,6 +117,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->pb_refresh_rh_list->setValue(m_refresh_rh_list_progress_val);
   m_refresh_rh_list_timer.setInterval(1000);
 
+  ui->chk_use_animations->setChecked(CSettingsManager::Instance().use_animations());
+
   rebuild_rh_list_model();
 
   connect(ui->btn_ok, &QPushButton::released,
@@ -143,8 +145,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
           this, &DlgSettings::btn_vboxmanage_command_released);
 }
 
-DlgSettings::~DlgSettings()
-{
+DlgSettings::~DlgSettings() {
   if (m_tab_resize_filter) delete m_tab_resize_filter;
   delete ui;
 }
@@ -302,6 +303,9 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
+  CSettingsManager::Instance().set_use_animations(
+        ui->chk_use_animations->checkState() == Qt::Checked);
+
   CSettingsManager::Instance().save_all();
   this->close();
 }
