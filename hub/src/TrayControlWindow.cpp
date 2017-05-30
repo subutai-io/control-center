@@ -6,6 +6,7 @@
 #include <QWidgetAction>
 #include <QtConcurrent/QtConcurrent>
 #include <QtGui>
+#include <QDesktopWidget>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
@@ -281,9 +282,14 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   sw = QApplication::primaryScreen()->geometry().width();
   sh = QApplication::primaryScreen()->geometry().height();
 
-  src_x = icon_x < sw/2 ? -dlg_w : sw+dlg_w;
-  src_y = icon_y < sh/2 ? 0 : sh-dlg_h;
-  dst_x = icon_x < sw/2 ? 0 : sw-dlg_w;
+  int dx, dy;
+  dx = sw - QApplication::desktop()->availableGeometry().width();
+  dy = sh - QApplication::desktop()->availableGeometry().height();
+
+  src_x = icon_x < sw/2 ? -dlg_w+dx : sw-dx;
+  dst_x = icon_x < sw/2 ? src_x+dlg_w : src_x-dlg_w;
+
+  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h-50;
   dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -741,6 +747,7 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
       gr->addAnimation(pos_anim);
       gr->addAnimation(opa_anim);
 
+      dlg->move(src_x, src_y);
       dlg->show();
       gr->start();
       connect(gr, &QParallelAnimationGroup::finished, [dlg]() {
