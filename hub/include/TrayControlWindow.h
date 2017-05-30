@@ -156,6 +156,9 @@ private:
   void create_tray_actions();
   void create_tray_icon();
 
+  void get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                     int &dst_x, int &dst_y, int dlg_w, int dlg_h,
+                                     bool use_cursor_position);
   void fill_launch_menu();  
   /*tray icon end*/
 

@@ -176,8 +176,10 @@ TrayControlWindow::remove_vm_menu(const QString &vm_id) {
 
 void
 TrayControlWindow::show_vbox() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
+  int src_x, src_y, dst_x, dst_y;
+  get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                           m_vbox_menu->width(), m_vbox_menu->height(), true);
+  QPoint curpos(dst_x, dst_y);
   if (m_w_Player->vm_count() > 0)
     m_vbox_menu->exec(curpos);
 }
@@ -257,6 +259,33 @@ TrayControlWindow::create_tray_icon() {
 
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 }
+
+void
+TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                                            int &dst_x, int &dst_y,
+                                                            int dlg_w, int dlg_h,
+                                                            bool use_cursor_position) {
+  int icon_x, icon_y;
+  dst_x = dst_y = 0;
+  src_x = src_y = 0;
+
+  icon_x = m_sys_tray_icon->geometry().x();
+  icon_y = m_sys_tray_icon->geometry().y();
+
+  if (icon_x == 0 && icon_y == 0 && use_cursor_position) {
+    icon_x = QCursor::pos().x();
+    icon_y = QCursor::pos().y();
+  }
+
+  int sw, sh;
+  sw = QApplication::primaryScreen()->geometry().width();
+  sh = QApplication::primaryScreen()->geometry().height();
+
+  src_x = icon_x < sw/2 ? -dlg_w : sw+dlg_w;
+  src_y = icon_y < sh/2 ? 0 : sh-dlg_h;
+  dst_x = icon_x < sw/2 ? 0 : sw-dlg_w;
+  dst_y = src_y;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -302,7 +331,7 @@ TrayControlWindow::logout() {
 void
 TrayControlWindow::login_success() {
   CHubController::Instance().start();
-  this->m_sys_tray_icon->show();
+  m_sys_tray_icon->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -690,27 +719,9 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
     dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
-    int dst_x, dst_y, src_x, src_y, icon_x, icon_y;
-    dst_x = dst_y = 0;
-    src_x = src_y = 0;
-
-    icon_x = m_sys_tray_icon->geometry().x();
-    icon_y = m_sys_tray_icon->geometry().y();
-
-    qDebug() << m_sys_tray_icon->geometry();
-    if (icon_x == 0 && icon_y == 0) {
-      icon_x = QCursor::pos().x();
-      icon_y = QCursor::pos().y();
-    }
-
-    int sw, sh;
-    sw = QApplication::primaryScreen()->geometry().width();
-    sh = QApplication::primaryScreen()->geometry().height();
-
-    src_x = icon_x < sw/2 ? -dlg->width() : sw+dlg->width();
-    src_y = icon_y < sh/2 ? 0 : sh-dlg->height();
-    dst_x = icon_x < sw/2 ? 0 : sw-dlg->width();
-    dst_y = src_y;
+    int src_x, src_y, dst_x, dst_y;
+    get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                             dlg->width(), dlg->height(), true);
 
     if (CSettingsManager::Instance().use_animations()) {
       QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
