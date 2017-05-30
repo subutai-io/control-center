@@ -114,7 +114,7 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  ~TrayControlWindow();
+  virtual ~TrayControlWindow();
 
 private:
   CVBPlayer *m_w_Player;
@@ -133,7 +133,6 @@ private:
   /*tray icon*/
   QMenu *m_hub_menu;
   QMenu *m_vbox_menu;
-  QMenu *m_player_menu;
   QMenu *m_launch_menu;
 
   QAction *m_act_generate_ssh;

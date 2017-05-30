@@ -93,6 +93,26 @@ TrayControlWindow::~TrayControlWindow() {
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
+
+  QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu, nullptr};
+  QAction *acts[] = { m_act_generate_ssh, m_act_quit,
+                      m_act_settings, m_act_info, m_act_vbox,
+                      m_act_hub, m_act_launch, m_act_launch_SS,
+                      m_act_launch_Hub, m_act_about, m_act_logout,
+                      m_act_notifications_history, nullptr};
+
+  for (int i = 0; menus[i]; ++i) {
+    try { delete menus[i]; }
+    catch (...) {}
+  }
+
+  for (int i = 0; acts[i]; ++i) {
+    try { delete acts[i]; }
+    catch (...) {}
+  }
+
+  try { delete m_sys_tray_icon; }
+  catch (...) {}
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -197,7 +217,11 @@ TrayControlWindow::create_tray_actions() {
 
 void
 TrayControlWindow::create_tray_icon() {
+
+  m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
+  m_sys_tray_icon->setContextMenu(m_tray_menu);
+
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
@@ -221,7 +245,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vboxAction = new QWidgetAction(m_vbox_menu);
   m_vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(m_vboxAction);
+  m_vbox_menu->addAction(m_vboxAction);  
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
@@ -231,8 +255,6 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 
-  m_sys_tray_icon = new QSystemTrayIcon(this);
-  m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -675,6 +697,7 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
     icon_x = m_sys_tray_icon->geometry().x();
     icon_y = m_sys_tray_icon->geometry().y();
 
+    qDebug() << m_sys_tray_icon->geometry();
     if (icon_x == 0 && icon_y == 0) {
       icon_x = QCursor::pos().x();
       icon_y = QCursor::pos().y();
@@ -691,18 +714,30 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
 
     if (CSettingsManager::Instance().use_animations()) {
       QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
+      QPropertyAnimation *opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
+
       pos_anim->setStartValue(QPoint(src_x, src_y));
       pos_anim->setEndValue(QPoint(dst_x, dst_y));
       pos_anim->setEasingCurve(QEasingCurve::OutBack);
       pos_anim->setDuration(800);
+
+      opa_anim->setStartValue(0.0);
+      opa_anim->setEndValue(1.0);
+      opa_anim->setEasingCurve(QEasingCurve::Linear);
+      opa_anim->setDuration(800);
+
+      QParallelAnimationGroup *gr = new QParallelAnimationGroup;
+      gr->addAnimation(pos_anim);
+      gr->addAnimation(opa_anim);
+
       dlg->show();
-      pos_anim->start();
-      connect(pos_anim, &QPropertyAnimation::finished, [dlg]() {
+      gr->start();
+      connect(gr, &QParallelAnimationGroup::finished, [dlg]() {
         dlg->activateWindow();
         dlg->raise();
         dlg->setFocus();
       });
-      connect(pos_anim, &QPropertyAnimation::finished, pos_anim, &QPropertyAnimation::deleteLater);
+      connect(gr, &QParallelAnimationGroup::finished, gr, &QParallelAnimationGroup::deleteLater);
     } else {
       dlg->move(dst_x, dst_y);
       dlg->show();

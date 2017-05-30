@@ -31,6 +31,10 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
 
 DlgNotifications::~DlgNotifications() {
   delete ui;
+  delete m_notifications_model;
+  delete m_notification_unions_model;
+  delete m_notification_sort_proxy_model;
+  delete m_notification_unions_sort_proxy_model;
 }
 ////////////////////////////////////////////////////////////////////////////
 
