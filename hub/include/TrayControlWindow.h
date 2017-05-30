@@ -114,7 +114,7 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  ~TrayControlWindow();
+  virtual ~TrayControlWindow();
 
 private:
   CVBPlayer *m_w_Player;
@@ -133,7 +133,6 @@ private:
   /*tray icon*/
   QMenu *m_hub_menu;
   QMenu *m_vbox_menu;
-  QMenu *m_player_menu;
   QMenu *m_launch_menu;
 
   QAction *m_act_generate_ssh;
@@ -157,6 +156,9 @@ private:
   void create_tray_actions();
   void create_tray_icon();
 
+  void get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                     int &dst_x, int &dst_y, int dlg_w, int dlg_h,
+                                     bool use_cursor_position);
   void fill_launch_menu();  
   /*tray icon end*/
 

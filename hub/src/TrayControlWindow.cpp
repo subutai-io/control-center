@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QWidgetAction>
 #include <QtConcurrent/QtConcurrent>
+#include <QtGui>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
@@ -92,6 +93,26 @@ TrayControlWindow::~TrayControlWindow() {
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
+
+  QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu, nullptr};
+  QAction *acts[] = { m_act_generate_ssh, m_act_quit,
+                      m_act_settings, m_act_info, m_act_vbox,
+                      m_act_hub, m_act_launch, m_act_launch_SS,
+                      m_act_launch_Hub, m_act_about, m_act_logout,
+                      m_act_notifications_history, nullptr};
+
+  for (int i = 0; menus[i]; ++i) {
+    try { delete menus[i]; }
+    catch (...) {}
+  }
+
+  for (int i = 0; acts[i]; ++i) {
+    try { delete acts[i]; }
+    catch (...) {}
+  }
+
+  try { delete m_sys_tray_icon; }
+  catch (...) {}
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -146,7 +167,7 @@ TrayControlWindow::add_vm_menu(const QString &vm_id) {
 void
 TrayControlWindow::remove_vm_menu(const QString &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
-  if (it == m_dct_player_menus.end()) return;  
+  if (it == m_dct_player_menus.end()) return;
   m_w_Player->remove(it->second);
   delete it->second;
   m_dct_player_menus.erase(it);
@@ -155,8 +176,10 @@ TrayControlWindow::remove_vm_menu(const QString &vm_id) {
 
 void
 TrayControlWindow::show_vbox() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
+  int src_x, src_y, dst_x, dst_y;
+  get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                           m_vbox_menu->width(), m_vbox_menu->height(), true);
+  QPoint curpos(dst_x, dst_y);
   if (m_w_Player->vm_count() > 0)
     m_vbox_menu->exec(curpos);
 }
@@ -196,7 +219,11 @@ TrayControlWindow::create_tray_actions() {
 
 void
 TrayControlWindow::create_tray_icon() {
+
+  m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
+  m_sys_tray_icon->setContextMenu(m_tray_menu);
+
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
@@ -220,7 +247,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vboxAction = new QWidgetAction(m_vbox_menu);
   m_vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(m_vboxAction);
+  m_vbox_menu->addAction(m_vboxAction);  
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
@@ -230,9 +257,34 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 
-  m_sys_tray_icon = new QSystemTrayIcon(this);
-  m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
+}
+
+void
+TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                                            int &dst_x, int &dst_y,
+                                                            int dlg_w, int dlg_h,
+                                                            bool use_cursor_position) {
+  int icon_x, icon_y;
+  dst_x = dst_y = 0;
+  src_x = src_y = 0;
+
+  icon_x = m_sys_tray_icon->geometry().x();
+  icon_y = m_sys_tray_icon->geometry().y();
+
+  if (icon_x == 0 && icon_y == 0 && use_cursor_position) {
+    icon_x = QCursor::pos().x();
+    icon_y = QCursor::pos().y();
+  }
+
+  int sw, sh;
+  sw = QApplication::primaryScreen()->geometry().width();
+  sh = QApplication::primaryScreen()->geometry().height();
+
+  src_x = icon_x < sw/2 ? -dlg_w : sw+dlg_w;
+  src_y = icon_y < sh/2 ? 0 : sh-dlg_h;
+  dst_x = icon_x < sw/2 ? 0 : sw-dlg_w;
+  dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -279,7 +331,7 @@ TrayControlWindow::logout() {
 void
 TrayControlWindow::login_success() {
   CHubController::Instance().start();
-  this->m_sys_tray_icon->show();
+  m_sys_tray_icon->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -461,7 +513,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
       QString cont_name = cont->name();
 #ifdef RT_OS_LINUX
-    cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+      cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
 #endif
       QAction* act = new QAction(cont_name, this);
       act->setEnabled(env->healthy() && !cont->rh_ip().isNull() && !cont->rh_ip().isEmpty());
@@ -534,8 +586,8 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
-                                                        arg(ec));
+                                arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
+                                arg(ec));
     m_act_launch_SS->setEnabled(true);
     return;
   }
@@ -642,15 +694,15 @@ void TrayControlWindow::launch_ss() {
         rh_ip);
 
   if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
-  //after that got_ss_console_readiness_sl will be called
+    //after that got_ss_console_readiness_sl will be called
     CRestWorker::Instance()->check_if_ss_console_is_ready(
           QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
-                                                        arg(ec));
+                                arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
+                                arg(ec));
     m_act_launch_SS->setEnabled(true);
     return;
   }
@@ -660,21 +712,50 @@ void TrayControlWindow::launch_ss() {
 void
 TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString& title) {
   std::map<QString, QDialog*>::iterator iter =
-    m_dct_active_dialogs.find(title);
+      m_dct_active_dialogs.find(title);
 
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
-#ifdef RT_OS_LINUX
-    QPoint curpos = QCursor::pos();
-    curpos.setX(curpos.x() - 250);
-    dlg->move(curpos.x(), 0);
-#endif
-    dlg->show();
-    dlg->activateWindow();
-    dlg->raise();
-    dlg->setFocus();
+
+    int src_x, src_y, dst_x, dst_y;
+    get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                             dlg->width(), dlg->height(), true);
+
+    if (CSettingsManager::Instance().use_animations()) {
+      QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
+      QPropertyAnimation *opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
+
+      pos_anim->setStartValue(QPoint(src_x, src_y));
+      pos_anim->setEndValue(QPoint(dst_x, dst_y));
+      pos_anim->setEasingCurve(QEasingCurve::OutBack);
+      pos_anim->setDuration(800);
+
+      opa_anim->setStartValue(0.0);
+      opa_anim->setEndValue(1.0);
+      opa_anim->setEasingCurve(QEasingCurve::Linear);
+      opa_anim->setDuration(800);
+
+      QParallelAnimationGroup *gr = new QParallelAnimationGroup;
+      gr->addAnimation(pos_anim);
+      gr->addAnimation(opa_anim);
+
+      dlg->show();
+      gr->start();
+      connect(gr, &QParallelAnimationGroup::finished, [dlg]() {
+        dlg->activateWindow();
+        dlg->raise();
+        dlg->setFocus();
+      });
+      connect(gr, &QParallelAnimationGroup::finished, gr, &QParallelAnimationGroup::deleteLater);
+    } else {
+      dlg->move(dst_x, dst_y);
+      dlg->show();
+      dlg->activateWindow();
+      dlg->raise();
+      dlg->setFocus();
+    }
     connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
     if (iter->second) {
@@ -682,7 +763,7 @@ TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QStrin
       iter->second->activateWindow();
       iter->second->raise();
       iter->second->setFocus();
-    }    
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -696,7 +777,7 @@ TrayControlWindow::dialog_closed(int unused) {
   dlg->deleteLater();
   auto iter = m_dct_active_dialogs.find(title);
   if (iter == m_dct_active_dialogs.end()) return;
-  m_dct_active_dialogs.erase(iter);  
+  m_dct_active_dialogs.erase(iter);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -771,7 +852,7 @@ CVBPlayer::add(CVBPlayerItem* pItem) {
 
   m_vm_count++;
   this->setLayout(m_vLayout);
-  this->setVisible(true);  
+  this->setVisible(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -801,7 +882,7 @@ CVBPlayerItem::CVBPlayerItem(const CVirtualMachine *vm, QWidget* parent) :
   m_btn_play = new QPushButton("", this);
   m_btn_stop = new QPushButton("", this);
 
-  p_h_Layout = new QHBoxLayout(NULL);  
+  p_h_Layout = new QHBoxLayout(NULL);
   m_lbl_name->setMinimumWidth(180);
   m_lbl_state->setMinimumWidth(100);
   m_lbl_state->setMaximumWidth(100);

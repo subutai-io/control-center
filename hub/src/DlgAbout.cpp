@@ -25,6 +25,19 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui->setupUi(this);
   ui->lbl_tray_version_val->setText(GIT_VERSION);
 
+  this->setMinimumWidth(700);
+
+
+  QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
+                    this->ui->lbl_p2p_version_val,
+                    this->ui->lbl_rhm_version_val,
+                    this->ui->lbl_rh_version_val,
+                    this->ui->lbl_tray_version_val ,
+                    nullptr};
+  for (int i = 0; lbls[i]; ++i) {
+    lbls[i]->setWordWrap(true);
+  }
+
   //connect
   connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);
   connect(ui->btn_tray_update, &QPushButton::released, this, &DlgAbout::btn_tray_update_released);

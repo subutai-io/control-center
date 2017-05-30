@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>705</width>
-    <height>305</height>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,7 +113,7 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_logs_storage">
@@ -168,7 +168,7 @@
              </item>
             </layout>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">
@@ -181,6 +181,13 @@
               <widget class="QLineEdit" name="le_ssh_user"/>
              </item>
             </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="chk_use_animations">
+             <property name="text">
+              <string>Use animations</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
