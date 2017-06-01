@@ -172,6 +172,8 @@ public:
 
   const QString& vboxmanage_path() const {return m_vboxmanage_path;}
   bool use_animations() const {return m_use_animations;}
+
+  uint32_t notifications_level() const {return m_notifications_level;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -217,6 +219,7 @@ public:
   SET_FIELD_DECL(terminal_arg, QString&)
   SET_FIELD_DECL(vboxmanage_path, QString&)
   SET_FIELD_DECL(use_animations, bool)
+  SET_FIELD_DECL(notifications_level, uint32_t)
 #undef SET_FIELD_DECL
 };
 

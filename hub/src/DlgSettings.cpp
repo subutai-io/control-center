@@ -93,6 +93,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
   ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
   ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
+  ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
 
   ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
   ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
@@ -299,6 +300,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_management_freq(ui->cb_rhm_frequency->currentIndex());
 
+  CSettingsManager::Instance().set_notifications_level(ui->cb_notification_level->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 

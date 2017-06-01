@@ -22,6 +22,7 @@
 #include "DlgGenerateSshKey.h"
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotifications.h"
+#include "DlgNotification.h"
 #include "VBoxManager.h"
 #include "OsBranchConsts.h"
 
@@ -119,7 +120,7 @@ TrayControlWindow::~TrayControlWindow() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::fill_vm_menu(){
+TrayControlWindow::fill_vm_menu() {
   for (auto i = CVboxManager::Instance()->dct_machines().begin();
        i != CVboxManager::Instance()->dct_machines().end(); ++i) {
     add_vm_menu(i->first);
@@ -297,25 +298,42 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
 void
 TrayControlWindow::notification_received(CNotificationObserver::notification_level_t level,
                                          const QString &msg) {
-  static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
 
-  //3rd element is warning, because critical shows messagebox when we need only notification.
-  //we will show message box when critical errors appears
-  static const QSystemTrayIcon::MessageIcon icons[] = {
-    QSystemTrayIcon::Information, QSystemTrayIcon::Warning,
-    QSystemTrayIcon::Warning, QSystemTrayIcon::Critical
-  };
-
-  if (CSettingsManager::Instance().is_notification_ignored(msg)) {
-    //do we need som logs here ?
+  if (CSettingsManager::Instance().is_notification_ignored(msg) ||
+      level < CSettingsManager::Instance().notifications_level()) {
     return;
   }
 
-  if (QSystemTrayIcon::supportsMessages()) {
-    m_sys_tray_icon->showMessage(titles[level],
-                                 msg,
-                                 icons[level],
-                                 CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+  QDialog* dlg = new DlgNotification(level, msg, this);
+  int src_x, src_y, dst_x, dst_y;
+  get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                           dlg->width(), dlg->height(), true);
+
+  if (CSettingsManager::Instance().use_animations()) {
+    QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
+    QPropertyAnimation *opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
+
+    pos_anim->setStartValue(QPoint(src_x, src_y));
+    pos_anim->setEndValue(QPoint(dst_x, dst_y));
+    pos_anim->setEasingCurve(QEasingCurve::OutBack);
+    pos_anim->setDuration(800);
+
+    opa_anim->setStartValue(0.0);
+    opa_anim->setEndValue(1.0);
+    opa_anim->setEasingCurve(QEasingCurve::Linear);
+    opa_anim->setDuration(800);
+
+    QParallelAnimationGroup *gr = new QParallelAnimationGroup;
+    gr->addAnimation(pos_anim);
+    gr->addAnimation(opa_anim);
+
+    dlg->move(src_x, src_y);
+    dlg->show();
+    gr->start();
+    connect(gr, &QParallelAnimationGroup::finished, gr, &QParallelAnimationGroup::deleteLater);
+  } else {
+    dlg->move(dst_x, dst_y);
+    dlg->show();
   }
 }
 ////////////////////////////////////////////////////////////////////////////

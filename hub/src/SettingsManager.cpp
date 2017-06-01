@@ -367,6 +367,7 @@ CSettingsManager::is_notification_ignored(const QString& msg) const {
 void
 CSettingsManager::ignore_notification(const QString &msg) {
   m_dct_notification_ignore[msg] = QVariant(true);
+  m_settings.setValue(SM_DCT_NOTIFICATIONS_IGNORE, m_dct_notification_ignore);
   emit notifications_ignored_changed();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -374,6 +375,7 @@ CSettingsManager::ignore_notification(const QString &msg) {
 void
 CSettingsManager::not_ignore_notification(const QString &msg) {
   m_dct_notification_ignore[msg] = QVariant(false);
+  m_settings.setValue(SM_DCT_NOTIFICATIONS_IGNORE, m_dct_notification_ignore);
   emit notifications_ignored_changed();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -425,4 +427,5 @@ SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
+SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 #undef SET_FIELD_DEF
