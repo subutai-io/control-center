@@ -51,7 +51,7 @@ private:
 class DlgNotificationUnionsTableModel : public QAbstractTableModel {
   Q_OBJECT
 private:
-  const std::vector<CNotificationUnion>* m_ds;
+  std::vector<CNotificationUnion>* m_ds;
 
 public:
   explicit DlgNotificationUnionsTableModel(QObject *parent = nullptr);
@@ -60,6 +60,7 @@ public:
   virtual int rowCount(const QModelIndex &parent) const;
   virtual int columnCount(const QModelIndex &parent) const;
   virtual QVariant data(const QModelIndex &index, int role) const;
+  virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
   virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 };

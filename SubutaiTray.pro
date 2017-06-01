@@ -53,7 +53,8 @@ SOURCES += \
     vbox/src/VirtualMachine.cpp \
     commons/src/MRE_Pthread.cpp \
     hub/src/NotificationObserver.cpp \
-    hub/src/DlgNotificationsModel.cpp
+    hub/src/DlgNotificationsModel.cpp \
+    hub/src/DlgNotification.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -101,7 +102,8 @@ HEADERS  += \
     vbox/include/VirtualMachine.h \
     commons/include/MRE_Pthread.h \
     hub/include/NotificationObserver.h \
-    hub/include/DlgNotificationsModel.h
+    hub/include/DlgNotificationsModel.h \
+    hub/include/DlgNotification.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -109,7 +111,8 @@ FORMS    += \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
-    hub/forms/DlgNotifications.ui
+    hub/forms/DlgNotifications.ui \
+    hub/forms/DlgNotification.ui
 
 RESOURCES += \
     resources/resources.qrc

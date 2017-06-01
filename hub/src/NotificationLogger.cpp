@@ -162,3 +162,16 @@ CNotification::fromString(const QString &str, bool& converted) {
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+CNotificationUnion::CNotificationUnion(const CNotification &notification,
+                                       uint32_t count) :
+  m_level(notification.level()), m_level_str(notification.level_str()),
+  m_msg(notification.message()), m_count(count), m_is_ignored(false) {
+  m_is_ignored = CSettingsManager::Instance().is_notification_ignored(m_msg);
+}
+
+CNotificationUnion::~CNotificationUnion() {
+}
+////////////////////////////////////////////////////////////////////////////

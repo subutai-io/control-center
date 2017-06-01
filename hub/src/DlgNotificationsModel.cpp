@@ -93,7 +93,7 @@ DlgNotificationsTableModel::data(const QModelIndex &index, int role) const {
 
   QVariant vals[] = {(*m_ds)[index.row()].date_time(),
                      (*m_ds)[index.row()].level_str(),
-                     (*m_ds)[index.row()].message()};
+                     (*m_ds)[index.row()].message() };
 
   return vals[index.column()];
 }
@@ -130,6 +130,7 @@ enum {
   NUC_COUNT,
   NUC_LEVEL,
   NUC_MESSAGE,
+  NUC_COL_CHK_IGNORED,
   NUC_COL_COUNT
 };
 
@@ -160,6 +161,15 @@ sort_notification_unions_by_message(std::vector<CNotificationUnion>* ds,
   });
 }
 
+static void
+sort_notification_unions_by_ignored(std::vector<CNotificationUnion>* ds,
+                                  bool asc) {
+  std::sort(ds->begin(), ds->end(),
+            [asc](const CNotificationUnion& l, const CNotificationUnion& r) {
+    return asc ? l.is_ignored() < r.is_ignored() : l.is_ignored() > r.is_ignored();
+  });
+}
+
 void
 DlgNotificationUnionSortProxyModel::sort(int column,
                                          Qt::SortOrder order) {
@@ -167,7 +177,8 @@ DlgNotificationUnionSortProxyModel::sort(int column,
   void (*pf_sorters[])(std::vector<CNotificationUnion>*, bool) = {
     sort_notification_unions_by_count,
     sort_notification_unions_by_level,
-    sort_notification_unions_by_message
+    sort_notification_unions_by_message,
+    sort_notification_unions_by_ignored
   };
   pf_sorters[column](&CNotificationLogger::Instance()->notification_unions(), order == Qt::AscendingOrder);
   this->invalidate();
@@ -180,7 +191,6 @@ DlgNotificationUnionsTableModel::DlgNotificationUnionsTableModel(QObject *parent
 }
 
 DlgNotificationUnionsTableModel::~DlgNotificationUnionsTableModel() {
-
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -207,21 +217,39 @@ DlgNotificationUnionsTableModel::data(const QModelIndex &index,
   if (role == Qt::BackgroundColorRole)
     return QBrush(colors_by_level[(*m_ds)[index.row()].level()]);
 
+  if (role == Qt::CheckStateRole && index.column() == NUC_COL_CHK_IGNORED) {
+    return (*m_ds)[index.row()].is_ignored() ? Qt::Checked : Qt::Unchecked;
+  }
+
   if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
 
   QVariant vals[] = {(*m_ds)[index.row()].count(),
                      (*m_ds)[index.row()].level_str(),
                      (*m_ds)[index.row()].message()};
-
   return vals[index.column()];
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+DlgNotificationUnionsTableModel::setData(const QModelIndex &index,
+                                         const QVariant &value,
+                                         int role) {
+  if (!index.isValid())
+    return false;
+
+  if (role == Qt::CheckStateRole && index.column() == NUC_COL_CHK_IGNORED) {
+    (*m_ds)[index.row()].set_ignored(value.toBool());
+    return true;
+  }
+  return false;
 }
 
 QVariant
 DlgNotificationUnionsTableModel::headerData(int section,
                                             Qt::Orientation orientation,
                                             int role) const {
-  static const QString hdrs[] = {"Count", "Level", "Message"};
+  static const QString hdrs[] = {"Count", "Level", "Message", "Ignore"};
 
   if(role != Qt::DisplayRole)
     return QVariant();
@@ -237,7 +265,11 @@ DlgNotificationUnionsTableModel::headerData(int section,
 Qt::ItemFlags
 DlgNotificationUnionsTableModel::flags(const QModelIndex &index) const {
   if (!index.isValid())
-    return Qt::ItemIsEnabled;
+    return Qt::NoItemFlags;
+
+  if (index.column() == NUC_COL_CHK_IGNORED)
+    return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
+
   return Qt::ItemIsEnabled;
 }
 ////////////////////////////////////////////////////////////////////////////

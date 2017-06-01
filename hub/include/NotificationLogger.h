@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <stdint.h>
 #include "NotificationObserver.h"
+#include "SettingsManager.h"
 
 class CNotification {
 private:
@@ -47,18 +48,21 @@ private:
   QString m_level_str;
   QString m_msg;
   uint32_t m_count;
+  bool m_is_ignored;
 public:
-  explicit CNotificationUnion(const CNotification& notification, uint32_t count) :
-    m_level(notification.level()), m_level_str(notification.level_str()),
-    m_msg(notification.message()), m_count(count){}
-  ~CNotificationUnion(){}
+  explicit CNotificationUnion(const CNotification& notification, uint32_t count);
+  ~CNotificationUnion();
 
   CNotificationObserver::notification_level_t level() const {return m_level;}
   const QString& level_str() const {return m_level_str;}
   const QString& message() const {return m_msg;}
   uint32_t count() const {return m_count;}
+  bool is_ignored() const {return m_is_ignored;}
   void increment_count() {++m_count;}
   void decrement_count() {--m_count;}
+  void set_ignored(bool val) {m_is_ignored = val;
+                             if (m_is_ignored) CSettingsManager::Instance().ignore_notification(m_msg);
+                             else CSettingsManager::Instance().not_ignore_notification(m_msg);}
 };
 ////////////////////////////////////////////////////////////////////////////
 

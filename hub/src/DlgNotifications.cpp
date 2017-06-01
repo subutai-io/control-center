@@ -13,6 +13,7 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
 
   m_notification_sort_proxy_model = new DlgNotificationSortProxyModel;
   m_notification_sort_proxy_model->setSourceModel(m_notifications_model);
+
   m_notification_unions_sort_proxy_model = new DlgNotificationUnionSortProxyModel;
   m_notification_unions_sort_proxy_model->setSourceModel(m_notification_unions_model);
 
@@ -56,6 +57,7 @@ DlgNotifications::rebuild_model() {
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
       ui->tv_notifications->resizeRowsToContents();
     }
     m_notification_unions_sort_proxy_model->invalidate();
