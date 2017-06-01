@@ -226,7 +226,8 @@ DlgNotificationUnionsTableModel::data(const QModelIndex &index,
 
   QVariant vals[] = {(*m_ds)[index.row()].count(),
                      (*m_ds)[index.row()].level_str(),
-                     (*m_ds)[index.row()].message()};
+                     (*m_ds)[index.row()].message(),
+                     (*m_ds)[index.row()].is_ignored()};
   return vals[index.column()];
 }
 ////////////////////////////////////////////////////////////////////////////

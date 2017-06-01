@@ -38,12 +38,6 @@ CNotificationObserver::Critical(const QString &msg) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QWidget *
-CNotificationObserver::create_notification_window() {
-
-}
-////////////////////////////////////////////////////////////////////////////
-
 void
 CNotificationObserver::notify_all_internal(notification_level_t level,
                                            const QString &msg) {

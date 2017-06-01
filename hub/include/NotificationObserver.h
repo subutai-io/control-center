@@ -33,7 +33,6 @@ private:
   CNotificationObserver(const CNotificationObserver&);
   CNotificationObserver& operator=(const CNotificationObserver&);
 
-  QWidget* create_notification_window();
   void notify_all_internal(notification_level_t level,
                       const QString& msg);
 signals:
