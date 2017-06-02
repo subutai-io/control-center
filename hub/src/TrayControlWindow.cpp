@@ -96,21 +96,21 @@ TrayControlWindow::~TrayControlWindow() {
     delete *i;
   }
 
-  QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu, nullptr};
+  QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
   QAction *acts[] = { m_act_generate_ssh, m_act_quit,
                       m_act_settings, m_act_info, m_act_vbox,
                       m_act_hub, m_act_launch, m_act_launch_SS,
                       m_act_launch_Hub, m_act_about, m_act_logout,
-                      m_act_notifications_history, nullptr};
+                      m_act_notifications_history};
 
-  for (int i = 0; menus[i]; ++i) {
-    try { delete menus[i]; }
-    catch (...) {}
+  for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
+    if (menus[i] == nullptr) continue;
+    try { delete menus[i]; } catch(...) {/*do nothing*/}
   }
 
-  for (int i = 0; acts[i]; ++i) {
-    try { delete acts[i]; }
-    catch (...) {}
+  for (size_t i = 0; i < sizeof(acts) / sizeof(QAction*); ++i) {
+    if (acts[i] == nullptr) continue;
+    try { delete acts[i]; } catch (...) {/*do nothing*/}
   }
 
   try { delete m_sys_tray_icon; }
