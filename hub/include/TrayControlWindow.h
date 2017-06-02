@@ -81,20 +81,20 @@ public:
 class CHubEnvironmentMenuItem : public QObject {
  Q_OBJECT
 private:
-  const CEnvironmentEx* m_hub_environment;
+  const CEnvironment* m_hub_environment;
   QSystemTrayIcon* m_tray_icon;
-  const CHubContainerEx* m_hub_container;
+  const CHubContainer* m_hub_container;
 
 public:
-  CHubEnvironmentMenuItem(const CEnvironmentEx* env,
-                          const CHubContainerEx* cont,
+  CHubEnvironmentMenuItem(const CEnvironment* env,
+                          const CHubContainer* cont,
                           QSystemTrayIcon* tray_icon) :
     m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
 
   virtual ~CHubEnvironmentMenuItem(){}
 
 signals:
-  void action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void* action);
+  void action_triggered(const CEnvironment*, const CHubContainer*, void* action);
 
 public slots:
   void internal_action_triggered();
@@ -114,13 +114,12 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  ~TrayControlWindow();
+  virtual ~TrayControlWindow();
 
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
   /*hub*/
-  QTimer m_report_timer;
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
   /*hub end*/
 
@@ -134,7 +133,6 @@ private:
   /*tray icon*/
   QMenu *m_hub_menu;
   QMenu *m_vbox_menu;
-  QMenu *m_player_menu;
   QMenu *m_launch_menu;
 
   QAction *m_act_generate_ssh;
@@ -157,11 +155,14 @@ private:
 
   void create_tray_actions();
   void create_tray_icon();
-  int fill_vm_menu();
+
+  void get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                     int &dst_x, int &dst_y, int dlg_w, int dlg_h,
+                                     bool use_cursor_position);
   void fill_launch_menu();  
   /*tray icon end*/
 
-  void launch_ss(QAction *act) const;
+  void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 
 private slots:
@@ -170,12 +171,13 @@ private slots:
   void show_about();
   void application_quit();
   void show_settings_dialog();  \
-  void notification_received(notification_level_t level,
+  void notification_received(CNotificationObserver::notification_level_t level,
                              const QString& msg);
   void logout();
   void login_success();
 
   /*virtualbox slots*/
+  void fill_vm_menu();
   void show_vbox();
   void vm_added(const QString& vm_id);
   void vm_removed(const QString& vm_id);
@@ -192,8 +194,9 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
-  void hub_container_mi_triggered(const CEnvironmentEx *env,
-                               const CHubContainerEx *cont, void *action);
+  void got_ss_console_readiness_sl(bool is_ready, QString err);
+  void hub_container_mi_triggered(const CEnvironment *env,
+                               const CHubContainer *cont, void *action);
   void ssh_key_generate_triggered();
   void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);

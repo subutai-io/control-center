@@ -88,13 +88,13 @@ CUpdaterComponentP2P::update_internal() {
   CExecutableUpdater *eu = new CExecutableUpdater(str_p2p_downloaded_path,
                                                   str_p2p_executable_path);
 
-  connect(dm, SIGNAL(download_progress_sig(qint64,qint64)),
-          this, SLOT(update_progress_sl(qint64,qint64)));
+  connect(dm, &CDownloadFileManager::download_progress_sig,
+          this, &CUpdaterComponentP2P::update_progress_sl);
 
-  connect(dm, SIGNAL(finished(bool)), eu, SLOT(replace_executables(bool)));
-  connect(eu, SIGNAL(finished(bool)), this, SLOT(update_finished_sl(bool)));
-  connect(eu, SIGNAL(finished(bool)), dm, SLOT(deleteLater()));
-  connect(eu, SIGNAL(finished(bool)), eu, SLOT(deleteLater()));
+  connect(dm, &CDownloadFileManager::finished, eu, &CExecutableUpdater::replace_executables);
+  connect(eu, &CExecutableUpdater::finished, this, &CUpdaterComponentP2P::update_finished_sl);
+  connect(eu, &CExecutableUpdater::finished, dm, &CDownloadFileManager::deleteLater);
+  connect(eu, &CExecutableUpdater::finished, eu, &CExecutableUpdater::deleteLater);
 
   dm->start_download();
   return CHUE_SUCCESS;
@@ -136,7 +136,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! P2P update finished",
                                            "P2P has been updated. Restart p2p daemon, please",
                                            QMessageBox::Ok);
-    connect(msg_box, SIGNAL(finished(int)), msg_box, SLOT(deleteLater()));
+    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
   }
 }

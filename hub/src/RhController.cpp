@@ -10,12 +10,12 @@ CRhController::CRhController(QObject *parent) :
   m_refresh_timer.setInterval(60*1000);
   m_delay_timer.setInterval(REFRESH_DELAY_SEC*1000); //ssdp should use 5 seconds. BUT we will give 1 extra second :)
 
-  connect(CSsdpController::Instance(), SIGNAL(found_device(QString, QString)),
-          this, SLOT(found_device_slot(QString, QString)));
-  connect(&m_refresh_timer, SIGNAL(timeout()),
-          this, SLOT(refresh_timer_timeout()));
-  connect(&m_delay_timer, SIGNAL(timeout()),
-          this, SLOT(delay_timer_timeout()));
+  connect(CSsdpController::Instance(), &CSsdpController::found_device,
+          this, &CRhController::found_device_slot);
+  connect(&m_refresh_timer, &QTimer::timeout,
+          this, &CRhController::refresh_timer_timeout);
+  connect(&m_delay_timer, &QTimer::timeout,
+          this, &CRhController::delay_timer_timeout);
   m_refresh_timer.start();
 }
 

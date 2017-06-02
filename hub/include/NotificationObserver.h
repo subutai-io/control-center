@@ -2,25 +2,30 @@
 #define NOTIFIACTIONOBSERVER_H
 
 #include <QObject>
-#include <QString>
 
-typedef enum notification_level {
-  NL_INFO = 0,
-  NL_WARNING,
-  NL_ERROR,
-  NL_CRITICAL
-} notification_level_t;
+class QWidget;
 
-/*!
- * \brief This class is used for notifications. Many instances could be notified.
- * All subscribers will receive notification message and notification level. Level
- * could be "error" or "info". In our case we use it for pop up notification messages.
- */
 class CNotificationObserver : public QObject {
   Q_OBJECT
 
-signals:
-  void notify(notification_level_t, const QString&);
+public:
+  enum notification_level_t {
+    NL_INFO = 0,
+    NL_WARNING,
+    NL_ERROR,
+    NL_CRITICAL
+  };
+
+  static CNotificationObserver* Instance() {
+    static CNotificationObserver obs;
+    return &obs;
+  }
+
+  static const QString& notification_level_to_str(notification_level_t nt);
+  static void Error(const QString& msg);
+  static void Info(const QString& msg);
+  static void Warning(const QString& msg);
+  static void Critical(const QString& msg);
 
 private:
   CNotificationObserver(){}
@@ -28,41 +33,10 @@ private:
   CNotificationObserver(const CNotificationObserver&);
   CNotificationObserver& operator=(const CNotificationObserver&);
 
-  void notify_all_int(notification_level_t level,
-                      const QString& msg) {
-    emit notify(level, msg);
-  }
-
-public:
-  /*!
-   * \brief Instance of this singleton class
-   */
-  static CNotificationObserver* Instance() {
-    static CNotificationObserver obs;
-    return &obs;
-  }
-
-  /*!
-   * \brief Notify all subscribers about something with "error" level
-   */
-  static void Error(const QString& msg) {
-    Instance()->notify_all_int(NL_ERROR, msg);
-  }
-
-  /*!
-   * \brief Notify all subscribers about something with "info" level
-   */
-  static void Info(const QString& msg) {
-    Instance()->notify_all_int(NL_INFO, msg);
-  }
-
-  static void Warning(const QString& msg) {
-    Instance()->notify_all_int(NL_WARNING, msg);
-  }
-
-  static void Critical(const QString& msg) {
-    Instance()->notify_all_int(NL_CRITICAL, msg);
-  }
+  void notify_all_internal(notification_level_t level,
+                      const QString& msg);
+signals:
+  void notify(CNotificationObserver::notification_level_t, const QString&);
 };
 
 #endif // NOTIFIACTIONOBSERVER_H

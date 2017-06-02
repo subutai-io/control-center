@@ -37,20 +37,25 @@ class CRestWorker : public QObject {
   Q_OBJECT
 
 private:
-  CEventLoop<SynchroPrimitives::CPthreadMRE> *m_el;
   QNetworkAccessManager *m_network_manager;
+
   static QNetworkAccessManager* create_network_manager();
   static int free_network_manager(QNetworkAccessManager*nam);
 
-  static QByteArray send_request_aux(
-      QNetworkAccessManager *nam,
-      QNetworkRequest &req,
-      bool get,
-      int& http_status_code,
-      int& err_code,
-      int &network_error,
-      QByteArray data,
-      bool show_network_err_msg);
+  static void pre_handle_reply(const QNetworkReply *reply,
+                               int &http_code,
+                               int &err_code,
+                               int &network_error);
+
+  static QJsonDocument qjson_doc_from_arr(const QByteArray& arr,
+                                          int &err_code);
+
+  static QNetworkReply* get_reply(QNetworkAccessManager* nam,
+                                  QNetworkRequest &req);
+
+  static QNetworkReply* post_reply(QNetworkAccessManager* nam,
+                                   const QByteArray &data,
+                                   QNetworkRequest &req);
 
   QByteArray send_request(QNetworkAccessManager *nam,
       QNetworkRequest &req,
@@ -61,13 +66,33 @@ private:
       QByteArray data,
       bool show_network_err_msg);
 
-  QJsonDocument get_request_json_document(const QString& link,
-                                          int& http_code,
-                                          int &err_code,
-                                          int &network_error);
-
   CRestWorker();
   ~CRestWorker(void);
+
+private slots:
+  void login_finished_sl();
+  void get_environments_finished_sl();
+  void get_balance_finished_sl();
+  void check_if_ss_console_is_ready_finished_sl();
+
+signals:
+
+  void on_login_finished(int http_code,
+                         int err_code,
+                         int network_error);
+
+  void on_get_environments_finished(std::vector<CEnvironment>,
+                                    int http_code,
+                                    int err_code,
+                                    int network_error);
+
+  void on_get_balance_finished(CHubBalance,
+                               int http_code,
+                               int err_code,
+                               int network_error);  
+
+  void on_got_ss_console_readiness(bool is_ready,
+                                   QString err);
 
 public:
   /*!
@@ -84,52 +109,27 @@ public:
              int &err_code,
              int &network_error);
 
-  std::vector<CEnvironment> get_environments(int &http_code,
-                                               int& err_code,
-                                               int &network_error);
-
-  CHubBalance get_balance(int &http_code,
-                         int& err_code,
-                         int &network_error);
-
-  std::vector<CRHInfo> get_containers(int &http_code,
-                                          int& err_code,
-                                          int &network_error);
+  void update_environments();
+  void update_balance();
 
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
 
-  int is_ss_console_ready(const QString& url,
-                          int &err_code,
-                          int &network_err);
+  void check_if_ss_console_is_ready(const QString& url);
 
-  void send_health_request(int &http_code,
-                           int &err_code,
-                           int &network_err,
-                           const QString &p2p_version,
+  void send_health_request(const QString &p2p_version,
                            const QString &p2p_status);
 
   QNetworkReply* download_gorjun_file(const QString& file_id);
-  static QNetworkReply* download_file_aux(QNetworkAccessManager* nam,
-                                          const QUrl& url);
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);
-
-  void send_ssh_key(const QString &key,
-                    int &http_code,
-                    int &err_code,
-                    int &network_err);
 
   std::vector<bool> is_sshkeys_in_environment(const QStringList &keys,
                                               const QString& env);
 
   void add_sshkey_to_environments(const QString &key_name,
                                   const QString& key,
-                                  const std::vector<QString>& lst_environments,
-                                  int& http_code,
-                                  int& err_code,
-                                  int& network_err);
-
+                                  const std::vector<QString>& lst_environments);
 };
 
 #endif // CRESTWORKER_H

@@ -1,59 +1,73 @@
 #include "DlgNotifications.h"
 #include "ui_DlgNotifications.h"
-
-#include <QStandardItemModel>
-#include <QStandardItem>
-#include <QAbstractItemView>
 #include "NotificationLogger.h"
+#include "Commons.h"
 
 DlgNotifications::DlgNotifications(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgNotifications) {
   ui->setupUi(this);
 
-  m_model = new QStandardItemModel(this);
-  ui->tv_notifications->setModel(m_model);
+  m_notifications_model = new DlgNotificationsTableModel(this);
+  m_notification_unions_model = new DlgNotificationUnionsTableModel(this);
 
-  ui->tv_notifications->setSelectionBehavior(QAbstractItemView::SelectRows);
+  m_notification_sort_proxy_model = new DlgNotificationSortProxyModel;
+  m_notification_sort_proxy_model->setSourceModel(m_notifications_model);
+
+  m_notification_unions_sort_proxy_model = new DlgNotificationUnionSortProxyModel;
+  m_notification_unions_sort_proxy_model->setSourceModel(m_notification_unions_model);
+
   ui->tv_notifications->setAlternatingRowColors(true);
+  ui->tv_notifications->setSortingEnabled(true);
+
+  ui->tv_notifications->setModel(m_notification_sort_proxy_model);
+  ui->cb_full_info->setCheckState(Qt::Checked);
+
+  connect(CNotificationLogger::Instance(), &CNotificationLogger::notifications_updated,
+          this, &DlgNotifications::rebuild_model);
+  connect(ui->cb_full_info, &QCheckBox::toggled, this, &DlgNotifications::chk_full_info_toggled);
 
   rebuild_model();
-  connect(CNotificationLogger::Instance(), SIGNAL(notifications_updated()),
-          this, SLOT(rebuild_model()));
 }
 
 DlgNotifications::~DlgNotifications() {
   delete ui;
+  delete m_notifications_model;
+  delete m_notification_unions_model;
+  delete m_notification_sort_proxy_model;
+  delete m_notification_unions_sort_proxy_model;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 DlgNotifications::rebuild_model() {
-  int row_count = 0;
-  for (auto i : CNotificationLogger::Instance()->notifications()) {
-    QStandardItem *ni[3];
-    ni[0] = new QStandardItem(i.date_time().toString(Qt::TextDate));
-    ni[1] = new QStandardItem(i.level_str());
-    ni[2] = new QStandardItem(i.message());
-    for (int j = 0; j < 3; ++j) {
-      static QColor color[4] = {QColor::fromRgb(145,255,200),
-                                QColor::fromRgb(255,200,145),
-                                QColor::fromRgb(255,145,145),
-                                QColor::fromRgb(210,0,15)};
-      ni[j]->setBackground(QBrush(color[(int)i.level()]));
-      m_model->setItem(row_count, j, ni[j]);
+  bool full_info = ui->cb_full_info->checkState() == Qt::Checked;  
+  if (full_info) {    
+    ui->tv_notifications->setModel(m_notification_sort_proxy_model);
+    if (m_notifications_model->rowCount(QModelIndex()) > 0) {
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+      ui->tv_notifications->resizeRowsToContents();
     }
-    ++row_count;
+    m_notification_sort_proxy_model->invalidate();
+  } else {
+    ui->tv_notifications->setModel(m_notification_unions_sort_proxy_model);
+    if (m_notification_unions_model->rowCount(QModelIndex()) > 0) {
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Fixed);
+      ui->tv_notifications->resizeRowsToContents();
+    }
+    m_notification_unions_sort_proxy_model->invalidate();
   }
+}
+////////////////////////////////////////////////////////////////////////////
 
-  m_model->setHeaderData(0, Qt::Horizontal, "Date");
-  m_model->setHeaderData(1, Qt::Horizontal, "Level");
-  m_model->setHeaderData(2, Qt::Horizontal, "Message");
-
-  if (m_model->rowCount() > 0) {
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-    ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-  }
+void
+DlgNotifications::chk_full_info_toggled(bool checked) {
+  UNUSED_ARG(checked);
+  rebuild_model();
 }
 ////////////////////////////////////////////////////////////////////////////

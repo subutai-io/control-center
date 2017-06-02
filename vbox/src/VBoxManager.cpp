@@ -9,22 +9,10 @@
 
 static const int VBOXMANAGE_TIMEOUT = 5000;
 
-CVboxManager::CVboxManager() {
-  connect(&m_refresh_timer, SIGNAL(timeout()), this, SLOT(refresh_timer_timeout()));
-  m_refresh_timer.setInterval(VBOXMANAGE_TIMEOUT);
-  m_refresh_timer.start();
+CVboxManager::CVboxManager(QObject* parent) :
+  QObject(parent),
+  m_refresh_timer(nullptr) {
 
-  int exit_code;
-  QStringList args, out;
-
-  args << "-v";
-  system_call_wrapper_error_t st_res =
-      CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
-                                     args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
-
-  if (st_res == SCWE_SUCCESS && !out.empty()) {
-    m_version = out[0];
-  }
 }
 
 CVboxManager::~CVboxManager() {
@@ -44,8 +32,9 @@ CVboxManager::update_machine_state(const QString &vm_id) {
                                      args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
   if (st_res != SCWE_SUCCESS || exit_code != 0) {
-    CApplicationLog::Instance()->LogTrace("update_machine_state failed with err : %s",
-                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
+    CApplicationLog::Instance()->LogTrace("update_machine_state failed with err : %s, exit_code : %d",
+                                          CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str(),
+                                          exit_code);
     return;
   }
 
@@ -63,16 +52,18 @@ CVboxManager::update_machine_state(const QString &vm_id) {
 
 int32_t
 CVboxManager::init_machines() {
+  m_refresh_timer->stop();
   int exit_code;
   QStringList args, out;
   args << "list" << "vms";
   system_call_wrapper_error_t st_res =
-      CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
-                                     args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
+      CSystemCallWrapper::ssystem(CSettingsManager::Instance().vboxmanage_path(),
+                                  args, out, exit_code, true);
 
   if (st_res != SCWE_SUCCESS || exit_code != 0) {
     CApplicationLog::Instance()->LogTrace("init_machines failed with err : %s",
                                           CSystemCallWrapper::scwe_error_to_str(st_res).toStdString().c_str());
+    m_refresh_timer->start();
     return st_res;
   }
 
@@ -97,6 +88,7 @@ CVboxManager::init_machines() {
     m_dct_machines[id] = machine;
     update_machine_state(id);
   }
+  m_refresh_timer->start();
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -230,11 +222,35 @@ CVboxManager::remove(const QString &vm_id) {
 
 void
 CVboxManager::refresh_timer_timeout() {
-  m_refresh_timer.stop();
+  m_refresh_timer->stop();
   init_machines();
   for (auto pair : m_dct_machines) {
     update_machine_state(pair.first);
   }
-  m_refresh_timer.start();
+  m_refresh_timer->start();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CVboxManager::start_work() {
+  m_refresh_timer = new QTimer(this);
+  connect(m_refresh_timer, &QTimer::timeout, this, &CVboxManager::refresh_timer_timeout);
+  m_refresh_timer->setInterval(VBOXMANAGE_TIMEOUT+1000);
+  m_refresh_timer->start();
+
+  init_machines();
+
+  int exit_code;
+  QStringList args, out;
+
+  args << "-v";
+  system_call_wrapper_error_t st_res =
+      CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
+                                     args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
+
+  if (st_res == SCWE_SUCCESS && !out.empty()) {
+    m_version = out[0];
+  }
+  emit initialized();
 }
 ////////////////////////////////////////////////////////////////////////////

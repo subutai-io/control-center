@@ -29,12 +29,12 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::RHMANAGEMENT] = CUpdaterComponentItem(uc_rhm);
 
   for(int i = 0; ucs[i] ;++i) {
-    connect(&m_dct_components[ucs[i]->component_id()], SIGNAL(timer_timeout(const QString&)),
-        this, SLOT(update_component_timer_timeout(const QString&)));
-    connect(ucs[i], SIGNAL(update_progress(const QString&,qint64,qint64)),
-        this, SLOT(update_component_progress_sl(const QString&,qint64,qint64)));
-    connect(ucs[i], SIGNAL(update_finished(const QString&,bool)),
-        this, SLOT(update_component_finished_sl(const QString&,bool)));
+    connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
+        this, &CHubComponentsUpdater::update_component_timer_timeout);
+    connect(ucs[i], &IUpdaterComponent::update_progress,
+        this, &CHubComponentsUpdater::update_component_progress_sl);
+    connect(ucs[i], &IUpdaterComponent::update_finished,
+        this, &CHubComponentsUpdater::update_component_finished_sl);
   }
   ///
   set_p2p_update_freq();
@@ -93,11 +93,11 @@ CHubComponentsUpdater::update_component_timer_timeout(const QString &component_i
   if (m_dct_components[component_id].Component()->update_available()) {
     if (m_dct_components[component_id].autoupdate) {
       CNotificationObserver::Instance()->Info(
-            QString("%1 updating started").arg(component_id));
+            QString("%1 updating started").arg(IUpdaterComponent::component_id_to_user_view(component_id)));
       m_dct_components[component_id].Component()->update();
     } else {
       CNotificationObserver::Instance()->Info(
-            QString("New version of %1 is available!").arg(component_id));
+            QString("New version of %1 is available!").arg(IUpdaterComponent::component_id_to_user_view(component_id)));
     }
   }
   m_dct_components[component_id].timer_start();

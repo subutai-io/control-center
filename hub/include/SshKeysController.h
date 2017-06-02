@@ -2,24 +2,7 @@
 #define SSHKEYSCONTROLLER_H
 
 #include <QObject>
-
-class SshControllerBackgroundWorker : public QObject {
-  Q_OBJECT
-private:
-  std::map<QString, std::vector<QString> > m_dct_key_environments;
-  std::vector<QString> m_lst_key_names;
-
-public:
-  SshControllerBackgroundWorker(const std::map<QString, std::vector<QString> >& dct_key_environments,
-                                const std::vector<QString>& lst_key_names);
-  virtual ~SshControllerBackgroundWorker();
-public slots:
-  void start_send_keys_to_hub();
-signals:
-  void send_key_progress(int part, int total);
-  void send_key_finished();
-};
-////////////////////////////////////////////////////////////////////////////
+#include <stdint.h>
 
 class CSshKeysController : public QObject {
   Q_OBJECT
@@ -28,22 +11,21 @@ private:
   QStringList m_lst_key_content;
 
   QString m_current_key;
-  typedef std::map<QString, std::vector<bool> > map_string_bitmask;
-  map_string_bitmask m_dct_environment_keyflags;
-  map_string_bitmask m_dct_key_environments;
-  map_string_bitmask m_dct_key_environments_original;
-  std::map<QString, bool> m_dct_key_allselected;
+  int32_t m_current_key_col;
+
+  std::vector<bool> m_lst_all_selected;
+  typedef std::vector<std::vector<bool> > bit_matrix;
+  bit_matrix m_original_bit_matrix;
+  bit_matrix m_current_bit_matrix;
 
   CSshKeysController();
   virtual ~CSshKeysController();
 
-  static std::vector<bool> empty_environments_bitmask;
-
 public:
   void refresh_key_files();
-  void rebuild_bitmasks();
+  void rebuild_bit_matrix();
   void generate_new_ssh_key(QWidget *parent);
-  void send_data_to_hub() const;
+  void send_data_to_hub();
 
   static CSshKeysController& Instance() {
     static CSshKeysController instance;
@@ -51,11 +33,11 @@ public:
   }
 
   bool has_current_key() const {return !m_current_key.isEmpty();}
-  void set_current_key(const QString& key) {m_current_key = key;}
-  bool something_changed() const {return m_dct_key_environments != m_dct_key_environments_original;}
+  bool something_changed() const {return m_original_bit_matrix != m_current_bit_matrix;}
+  void set_current_key(const QString& key) ;
 
   void set_key_environments_bit(int index, bool bit);
-  bool get_key_environments_bit(int index);
+  bool get_key_environments_bit(int index) const;
 
   bool current_key_is_allselected() const;
   bool set_current_key_allselected(bool flag);

@@ -12,8 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 TARGET = SubutaiTray
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -Wall
-
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
@@ -54,7 +52,9 @@ SOURCES += \
     vbox/src/VBoxManager.cpp \
     vbox/src/VirtualMachine.cpp \
     commons/src/MRE_Pthread.cpp \
-    hub/src/NotificationObserver.cpp
+    hub/src/NotificationObserver.cpp \
+    hub/src/DlgNotificationsModel.cpp \
+    hub/src/DlgNotification.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -101,7 +101,9 @@ HEADERS  += \
     vbox/include/VBoxManager.h \
     vbox/include/VirtualMachine.h \
     commons/include/MRE_Pthread.h \
-    hub/include/NotificationObserver.h
+    hub/include/NotificationObserver.h \
+    hub/include/DlgNotificationsModel.h \
+    hub/include/DlgNotification.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -109,7 +111,8 @@ FORMS    += \
     hub/forms/TrayControlWindow.ui \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
-    hub/forms/DlgNotifications.ui
+    hub/forms/DlgNotifications.ui \
+    hub/forms/DlgNotification.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -167,7 +170,8 @@ macx: {
 win32: {
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
-  LIBS += -lws2_32 -lpthread -L$$PWD/libssh2/lib/win32 -lssh2
-  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
+  LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
+#  LIBS += -lpthread
+#  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////

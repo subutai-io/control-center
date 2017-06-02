@@ -5,6 +5,8 @@
 #include <QPushButton>
 #include <QWidgetAction>
 #include <QtConcurrent/QtConcurrent>
+#include <QtGui>
+#include <QDesktopWidget>
 
 #include "TrayControlWindow.h"
 #include "ui_TrayControlWindow.h"
@@ -20,7 +22,9 @@
 #include "DlgGenerateSshKey.h"
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotifications.h"
+#include "DlgNotification.h"
 #include "VBoxManager.h"
+#include "OsBranchConsts.h"
 
 using namespace update_system;
 
@@ -48,62 +52,89 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   create_tray_icon();
   m_sys_tray_icon->show();
 
+  QThread* th = new QThread;
 
+  connect(CVboxManager::Instance(), &CVboxManager::vm_add,
+          this, &TrayControlWindow::vm_added);
+  connect(CVboxManager::Instance(), &CVboxManager::vm_remove,
+          this, &TrayControlWindow::vm_removed);
+  connect(CVboxManager::Instance(), &CVboxManager::vm_state_changed,
+          this, &TrayControlWindow::vm_state_changed);
+  connect(CVboxManager::Instance(), &CVboxManager::initialized,
+          this, &TrayControlWindow::fill_vm_menu);
 
-  connect(CVboxManager::Instance(), SIGNAL(vm_add(const QString&)),
-          this, SLOT(vm_added(const QString&)));
-  connect(CVboxManager::Instance(), SIGNAL(vm_remove(const QString&)),
-          this, SLOT(vm_removed(const QString&)));
-  connect(CVboxManager::Instance(), SIGNAL(vm_state_changed(const QString&)),
-          this, SLOT(vm_state_changed(const QString&)));
+  connect(th, &QThread::started, CVboxManager::Instance(), &CVboxManager::start_work);
+  connect(CVboxManager::Instance(), &CVboxManager::finished, th, &QThread::quit);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
+  CVboxManager::Instance()->moveToThread(th);
+  th->start();
 
-  connect(CNotificationObserver::Instance(), SIGNAL(notify(notification_level_t, const QString&)),
-          this, SLOT(notification_received(notification_level_t, const QString&)));
+  connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
+          this, &TrayControlWindow::notification_received);
 
-  connect(&CHubController::Instance(), SIGNAL(ssh_to_container_finished(int,void*)),
-          this, SLOT(ssh_to_container_finished(int,void*)));
-  connect(&CHubController::Instance(), SIGNAL(balance_updated()),
-          this, SLOT(balance_updated_sl()));
-  connect(&CHubController::Instance(), SIGNAL(environments_updated(int)),
-          this, SLOT(environments_updated_sl(int)));
+  connect(&CHubController::Instance(), &CHubController::ssh_to_container_finished,
+          this, &TrayControlWindow::ssh_to_container_finished);
+  connect(&CHubController::Instance(), &CHubController::balance_updated,
+          this, &TrayControlWindow::balance_updated_sl);
+  connect(&CHubController::Instance(), &CHubController::environments_updated,
+          this, &TrayControlWindow::environments_updated_sl);
 
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(QString,bool)),
-          this, SLOT(update_finished(QString,bool)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(QString)),
-          this, SLOT(update_available(QString)));
+  connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
+          this, &TrayControlWindow::got_ss_console_readiness_sl);
+
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::updating_finished,
+          this, &TrayControlWindow::update_finished);
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::update_available,
+          this, &TrayControlWindow::update_available);
 
   CHubController::Instance().force_refresh();
+  login_success();
 }
 
 TrayControlWindow::~TrayControlWindow() {
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
+
+  QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
+  QAction *acts[] = { m_act_generate_ssh, m_act_quit,
+                      m_act_settings, m_act_info, m_act_vbox,
+                      m_act_hub, m_act_launch, m_act_launch_SS,
+                      m_act_launch_Hub, m_act_about, m_act_logout,
+                      m_act_notifications_history};
+
+  for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
+    if (menus[i] == nullptr) continue;
+    try { delete menus[i]; } catch(...) {/*do nothing*/}
+  }
+
+  for (size_t i = 0; i < sizeof(acts) / sizeof(QAction*); ++i) {
+    if (acts[i] == nullptr) continue;
+    try { delete acts[i]; } catch (...) {/*do nothing*/}
+  }
+
+  try { delete m_sys_tray_icon; }
+  catch (...) {}
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-int
-TrayControlWindow::fill_vm_menu(){
-  if (CVboxManager::Instance()->init_machines() != 0)
-    return 0;
-  ushort rh_count = 0;
+void
+TrayControlWindow::fill_vm_menu() {
   for (auto i = CVboxManager::Instance()->dct_machines().begin();
        i != CVboxManager::Instance()->dct_machines().end(); ++i) {
     add_vm_menu(i->first);
-    rh_count++;
   }
-  return rh_count;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::fill_launch_menu() {
   m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
-  connect(m_act_launch_SS, SIGNAL(triggered()), this, SLOT(launch_ss_triggered()));
+  connect(m_act_launch_SS, &QAction::triggered, this, &TrayControlWindow::launch_ss_triggered);
 
   m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
-  connect(m_act_launch_Hub, SIGNAL(triggered()), this, SLOT(launch_Hub()));
+  connect(m_act_launch_Hub, &QAction::triggered, this, &TrayControlWindow::launch_Hub);
 
   m_launch_menu->addAction(m_act_launch_SS);
   m_launch_menu->addAction(m_act_launch_Hub);
@@ -138,7 +169,7 @@ TrayControlWindow::add_vm_menu(const QString &vm_id) {
 void
 TrayControlWindow::remove_vm_menu(const QString &vm_id) {
   auto it = m_dct_player_menus.find(vm_id);
-  if (it == m_dct_player_menus.end()) return;  
+  if (it == m_dct_player_menus.end()) return;
   m_w_Player->remove(it->second);
   delete it->second;
   m_dct_player_menus.erase(it);
@@ -147,8 +178,10 @@ TrayControlWindow::remove_vm_menu(const QString &vm_id) {
 
 void
 TrayControlWindow::show_vbox() {
-  QPoint curpos = QCursor::pos();
-  curpos.setX(curpos.x() - 250);
+  int src_x, src_y, dst_x, dst_y;
+  get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                           m_vbox_menu->width(), m_vbox_menu->height(), true);
+  QPoint curpos(dst_x, dst_y);
   if (m_w_Player->vm_count() > 0)
     m_vbox_menu->exec(curpos);
 }
@@ -159,35 +192,40 @@ TrayControlWindow::create_tray_actions() {
   m_act_launch = new QAction(QIcon(":/hub/Launch-07.png") ,tr("Launch"), this);
 
   m_act_settings = new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
-  connect(m_act_settings, SIGNAL(triggered()), this, SLOT(show_settings_dialog()));
+  connect(m_act_settings, &QAction::triggered, this, &TrayControlWindow::show_settings_dialog);
 
   m_act_vbox = new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
-  connect(m_act_vbox, SIGNAL(triggered()), this, SLOT(show_vbox()));
+  connect(m_act_vbox, &QAction::triggered, this, &TrayControlWindow::show_vbox);
 
   m_act_hub = new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
-  connect(m_act_quit, SIGNAL(triggered()), this, SLOT(application_quit()));
+  connect(m_act_quit, &QAction::triggered, this, &TrayControlWindow::application_quit);
 
   m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
 
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
-  connect(m_act_about, SIGNAL(triggered()), this, SLOT(show_about()));
+  connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
 
   m_act_generate_ssh = new QAction(tr("Generate SSH key"), this);
-  connect(m_act_generate_ssh, SIGNAL(triggered()), this, SLOT(ssh_key_generate_triggered()));
+  connect(m_act_generate_ssh, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
-  connect(m_act_logout, SIGNAL(triggered()), this, SLOT(logout()));
+  connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
 
   m_act_notifications_history = new QAction(QIcon(":hub/notifications_history.png"), "Notifications history", this);
-  connect(m_act_notifications_history, SIGNAL(triggered()), this, SLOT(show_notifications_triggered()));
+  connect(m_act_notifications_history, &QAction::triggered,
+          this, &TrayControlWindow::show_notifications_triggered);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::create_tray_icon() {
+
+  m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
+  m_sys_tray_icon->setContextMenu(m_tray_menu);
+
   m_tray_menu->addAction(m_act_info);
   m_tray_menu->addAction(m_act_generate_ssh);
   m_tray_menu->addSeparator();
@@ -211,7 +249,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vboxAction = new QWidgetAction(m_vbox_menu);
   m_vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(m_vboxAction);
+  m_vbox_menu->addAction(m_vboxAction);  
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
@@ -221,28 +259,85 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addAction(m_act_quit);
 
-  m_sys_tray_icon = new QSystemTrayIcon(this);
-  m_sys_tray_icon->setContextMenu(m_tray_menu);
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
+}
+
+void
+TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
+                                                            int &dst_x, int &dst_y,
+                                                            int dlg_w, int dlg_h,
+                                                            bool use_cursor_position) {
+  int icon_x, icon_y;
+  dst_x = dst_y = 0;
+  src_x = src_y = 0;
+
+  icon_x = m_sys_tray_icon->geometry().x();
+  icon_y = m_sys_tray_icon->geometry().y();
+
+  if (icon_x == 0 && icon_y == 0 && use_cursor_position) {
+    icon_x = QCursor::pos().x();
+    icon_y = QCursor::pos().y();
+  }
+
+  int sw, sh;
+  sw = QApplication::primaryScreen()->geometry().width();
+  sh = QApplication::primaryScreen()->geometry().height();
+
+  int dx, dy;
+#ifdef RT_OS_WINDOWS
+  dx = sw - QApplication::desktop()->availableGeometry().width();
+  dy = sh - QApplication::desktop()->availableGeometry().height();
+#else
+  dx = dy = 0;
+#endif
+
+  src_x = icon_x < sw/2 ? -dlg_w+dx : sw-dx;
+  dst_x = icon_x < sw/2 ? src_x+dlg_w : src_x-dlg_w;
+
+  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h-50;
+  dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-TrayControlWindow::notification_received(notification_level_t level,
+TrayControlWindow::notification_received(CNotificationObserver::notification_level_t level,
                                          const QString &msg) {
-  static const QString titles[] = {"Info", "Warning", "Error", "Critical"};
 
-  //3rd element is warning, because critical shows messagebox when we need only notification.
-  //we will show message box when critical errors appears
-  static const QSystemTrayIcon::MessageIcon icons[] = {
-    QSystemTrayIcon::Information, QSystemTrayIcon::Warning,
-    QSystemTrayIcon::Warning, QSystemTrayIcon::Critical
-  };
-  if (QSystemTrayIcon::supportsMessages()) {
-    m_sys_tray_icon->showMessage(titles[level],
-                                 msg,
-                                 icons[level],
-                                 CSettingsManager::Instance().notification_delay_sec() * 1000); //todo add delay to settings
+  if (CSettingsManager::Instance().is_notification_ignored(msg) ||
+      level < CSettingsManager::Instance().notifications_level()) {
+    return;
+  }
+
+  QDialog* dlg = new DlgNotification(level, msg, this);
+  int src_x, src_y, dst_x, dst_y;
+  get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                           dlg->width(), dlg->height(), true);
+
+  if (CSettingsManager::Instance().use_animations()) {
+    QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
+    QPropertyAnimation *opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
+
+    pos_anim->setStartValue(QPoint(src_x, src_y));
+    pos_anim->setEndValue(QPoint(dst_x, dst_y));
+    pos_anim->setEasingCurve(QEasingCurve::OutBack);
+    pos_anim->setDuration(800);
+
+    opa_anim->setStartValue(0.0);
+    opa_anim->setEndValue(1.0);
+    opa_anim->setEasingCurve(QEasingCurve::Linear);
+    opa_anim->setDuration(800);
+
+    QParallelAnimationGroup *gr = new QParallelAnimationGroup;
+    gr->addAnimation(pos_anim);
+    gr->addAnimation(opa_anim);
+
+    dlg->move(src_x, src_y);
+    dlg->show();
+    gr->start();
+    connect(gr, &QParallelAnimationGroup::finished, gr, &QParallelAnimationGroup::deleteLater);
+  } else {
+    dlg->move(dst_x, dst_y);
+    dlg->show();
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -250,11 +345,10 @@ TrayControlWindow::notification_received(notification_level_t level,
 void
 TrayControlWindow::logout() {
   CHubController::Instance().suspend();
-  this->m_report_timer.stop();
   this->m_sys_tray_icon->hide();
 
   DlgLogin dlg;
-  connect(&dlg, SIGNAL(login_success()), this, SLOT(login_success()));
+  connect(&dlg, &DlgLogin::login_success, this, &TrayControlWindow::login_success);
   dlg.setModal(true);
   if (dlg.exec() != QDialog::Accepted) {
     qApp->exit(0);
@@ -265,8 +359,7 @@ TrayControlWindow::logout() {
 void
 TrayControlWindow::login_success() {
   CHubController::Instance().start();
-  this->m_report_timer.start();
-  this->m_sys_tray_icon->show();
+  m_sys_tray_icon->show();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -330,8 +423,8 @@ TrayControlWindow::vmc_player_act_released(const QString &vm_id) { // remove
 
 
 void
-TrayControlWindow::hub_container_mi_triggered(const CEnvironmentEx *env,
-                                              const CHubContainerEx *cont,
+TrayControlWindow::hub_container_mi_triggered(const CEnvironment *env,
+                                              const CHubContainer *cont,
                                               void* action) {
   QAction* act = static_cast<QAction*>(action);
   if (act != NULL) {
@@ -363,7 +456,6 @@ void
 TrayControlWindow::launch_Hub() {
   QString browser = "/etc/alternatives/x-www-browser"; //default browser
   QString folder;
-  QString hub_url = "https://hub.subut.ai";
   QStringList args;
 
 #if defined(RT_OS_LINUX)
@@ -376,7 +468,7 @@ TrayControlWindow::launch_Hub() {
   folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
   args << "--new-window";
 #endif
-  args << hub_url;
+  args << hub_site();
 
   if (!QProcess::startDetached(browser, args, folder)) {
     QString err_msg = QString("Launch hub website failed");
@@ -391,7 +483,7 @@ void
 TrayControlWindow::launch_ss_triggered() {
   QAction* act = qobject_cast<QAction*>(sender());
   act->setEnabled(false);
-  QtConcurrent::run(this, &TrayControlWindow::launch_ss, act);
+  launch_ss();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -403,6 +495,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
   for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end(); ++i) {
     delete *i;
   }
+
   m_lst_hub_menu_items.clear();
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
@@ -448,16 +541,17 @@ TrayControlWindow::environments_updated_sl(int rr) {
     for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
       QString cont_name = cont->name();
 #ifdef RT_OS_LINUX
-    cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+      cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
 #endif
       QAction* act = new QAction(cont_name, this);
       act->setEnabled(env->healthy() && !cont->rh_ip().isNull() && !cont->rh_ip().isEmpty());
 
       CHubEnvironmentMenuItem* item =
           new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-      connect(act, SIGNAL(triggered()), item, SLOT(internal_action_triggered()));
-      connect(item, SIGNAL(action_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)),
-              this, SLOT(hub_container_mi_triggered(const CEnvironmentEx*, const CHubContainerEx*, void*)));
+      connect(act, &QAction::triggered, item,
+              &CHubEnvironmentMenuItem::internal_action_triggered);
+      connect(item, &CHubEnvironmentMenuItem::action_triggered,
+              this, &TrayControlWindow::hub_container_mi_triggered);
       env_menu->addAction(act);
       m_lst_hub_menu_items.push_back(item);
     }
@@ -488,6 +582,68 @@ TrayControlWindow::environments_updated_sl(int rr) {
 void
 TrayControlWindow::balance_updated_sl() {
   m_act_info->setText(CHubController::Instance().balance());
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
+                                               QString err) {
+  if (!is_ready) {
+    CNotificationObserver::Info(err);
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+
+  QString hub_url = "https://localhost:9999";
+
+  std::string rh_ip;
+  int ec = 0;
+
+  system_call_wrapper_error_t scwe =
+      CSystemCallWrapper::get_rh_ip_via_libssh2(
+        CSettingsManager::Instance().rh_host().toStdString().c_str(),
+        CSettingsManager::Instance().rh_port(),
+        CSettingsManager::Instance().rh_user().toStdString().c_str(),
+        CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+        ec,
+        rh_ip);
+
+  if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
+    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  } else {
+    CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
+                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
+    CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
+                                arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
+                                arg(ec));
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+
+  QString browser; // "/etc/alternatives/x-www-browser";
+  QString folder;
+  QStringList args;
+
+#if defined(RT_OS_LINUX)
+  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
+  args << "--new-window";
+#elif defined(RT_OS_DARWIN)
+  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
+#elif defined(RT_OS_WINDOWS)
+  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
+  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
+  args << "--new-window";
+#endif
+
+  args << hub_url;
+  if (!QProcess::startDetached(browser, args, folder)) {
+    QString err_msg = QString("Run SS console failed. Can't start process");
+    CNotificationObserver::Error(err_msg);
+    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    m_act_launch_SS->setEnabled(true);
+    return;
+  }
+  m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -552,17 +708,11 @@ TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss(QAction* act) const {
-  QString browser; // "/etc/alternatives/x-www-browser";
-  QString folder;
-  QString hub_url;
-  QStringList args;
+void TrayControlWindow::launch_ss() {
   std::string rh_ip;
   int ec = 0;
 
-  hub_url = "https://localhost:9999";
-
-  system_call_wrapper_error_t err =
+  system_call_wrapper_error_t scwe =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rh_host().toStdString().c_str(),
         CSettingsManager::Instance().rh_port(),
@@ -571,96 +721,78 @@ void TrayControlWindow::launch_ss(QAction* act) const {
         ec,
         rh_ip);
 
-  if (err == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
-    hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
+  if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
+    //after that got_ss_console_readiness_sl will be called
+    CRestWorker::Instance()->check_if_ss_console_is_ready(
+          QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
-                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err), ec);
+                                          CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
-                                                        arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)err)).
-                                                        arg(ec));
-    act->setEnabled(true);
+                                arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
+                                arg(ec));
+    m_act_launch_SS->setEnabled(true);
     return;
   }
-
-  int http_code, network_err, err_code;
-  http_code = CRestWorker::Instance()->is_ss_console_ready(
-                QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()), err_code, network_err);
-
-  if (network_err != 0 || err_code != 0 || http_code != 200) {
-    QString err_msg;
-    if (network_err == 0 && err_code == 0) {
-      switch (http_code) {
-        case 500:
-          err_msg = "Some modules failed (SS restart might be needed)";
-          break;
-        case 503:
-          err_msg = "Not ready yet/ loading";
-          break;
-        case 404:
-          err_msg = "Endpoint itself not loaded yet (edited)";
-          break;
-        default:
-          err_msg = QString("Undefined error. Code : %1").arg(http_code);
-      }
-    } else {
-      err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
-    }
-    CNotificationObserver::Info(err_msg);
-    act->setEnabled(true);
-    return;
-  }
-
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
-  args << "--new-window";
-#elif defined(RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
-#elif defined(RT_OS_WINDOWS)
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  args << "--new-window";
-#endif
-
-  args << hub_url;
-
-  if (!QProcess::startDetached(browser, args, folder)) {
-    QString err_msg = QString("Run SS console failed. Can't start process");
-    CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    act->setEnabled(true);
-    return;
-  }
-  act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString& title) {
   std::map<QString, QDialog*>::iterator iter =
-    m_dct_active_dialogs.find(title);
+      m_dct_active_dialogs.find(title);
 
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
-#ifdef RT_OS_LINUX
-    QPoint curpos = QCursor::pos();
-    curpos.setX(curpos.x() - 250);
-    dlg->move(curpos.x(), 0);
-#endif
-    dlg->show();
-    dlg->activateWindow();
-    dlg->raise();
-    dlg->setFocus();
-    connect(dlg, SIGNAL(finished(int)), this, SLOT(dialog_closed(int)));
+
+    int src_x, src_y, dst_x, dst_y;
+    get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
+                                             dlg->width(), dlg->height(), true);
+
+    if (CSettingsManager::Instance().use_animations()) {
+      QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
+      QPropertyAnimation *opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
+
+      pos_anim->setStartValue(QPoint(src_x, src_y));
+      pos_anim->setEndValue(QPoint(dst_x, dst_y));
+      pos_anim->setEasingCurve(QEasingCurve::OutBack);
+      pos_anim->setDuration(800);
+
+      opa_anim->setStartValue(0.0);
+      opa_anim->setEndValue(1.0);
+      opa_anim->setEasingCurve(QEasingCurve::Linear);
+      opa_anim->setDuration(800);
+
+      QParallelAnimationGroup *gr = new QParallelAnimationGroup;
+      gr->addAnimation(pos_anim);
+      gr->addAnimation(opa_anim);
+
+      dlg->move(src_x, src_y);
+      dlg->show();
+      gr->start();
+      connect(gr, &QParallelAnimationGroup::finished, [dlg]() {
+        dlg->activateWindow();
+        dlg->raise();
+        dlg->setFocus();
+      });
+      connect(gr, &QParallelAnimationGroup::finished, gr, &QParallelAnimationGroup::deleteLater);
+    } else {
+      dlg->move(dst_x, dst_y);
+      dlg->show();
+      dlg->activateWindow();
+      dlg->raise();
+      dlg->setFocus();
+    }
+    connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
     if (iter->second) {
       iter->second->show();
       iter->second->activateWindow();
       iter->second->raise();
       iter->second->setFocus();
-    }    
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -674,7 +806,7 @@ TrayControlWindow::dialog_closed(int unused) {
   dlg->deleteLater();
   auto iter = m_dct_active_dialogs.find(title);
   if (iter == m_dct_active_dialogs.end()) return;
-  m_dct_active_dialogs.erase(iter);  
+  m_dct_active_dialogs.erase(iter);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -749,7 +881,7 @@ CVBPlayer::add(CVBPlayerItem* pItem) {
 
   m_vm_count++;
   this->setLayout(m_vLayout);
-  this->setVisible(true);  
+  this->setVisible(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -779,7 +911,7 @@ CVBPlayerItem::CVBPlayerItem(const CVirtualMachine *vm, QWidget* parent) :
   m_btn_play = new QPushButton("", this);
   m_btn_stop = new QPushButton("", this);
 
-  p_h_Layout = new QHBoxLayout(NULL);  
+  p_h_Layout = new QHBoxLayout(NULL);
   m_lbl_name->setMinimumWidth(180);
   m_lbl_state->setMinimumWidth(100);
   m_lbl_state->setMaximumWidth(100);
@@ -792,10 +924,10 @@ CVBPlayerItem::CVBPlayerItem(const CVirtualMachine *vm, QWidget* parent) :
 
   m_btn_play->setToolTip("Play/Pause/Resume");
   m_btn_stop->setToolTip("Power off");
-  connect(m_btn_play, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_play_released()), Qt::QueuedConnection);
-  connect(m_btn_stop, SIGNAL(released()),
-          this, SLOT(vbox_menu_btn_stop_released()), Qt::QueuedConnection);
+  connect(m_btn_play, &QPushButton::released,
+          this, &CVBPlayerItem::vbox_menu_btn_play_released, Qt::QueuedConnection);
+  connect(m_btn_stop, &QPushButton::released,
+          this, &CVBPlayerItem::vbox_menu_btn_stop_released, Qt::QueuedConnection);
 
   set_buttons(vm->state());
   p_h_Layout->addWidget(m_lbl_name);

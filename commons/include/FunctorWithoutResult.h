@@ -43,8 +43,8 @@ template< class P1> class FunctorWithoutResult<P1> : public IFunctor
 {
 private:
 
-  P1 m_param1;
   void(*m_pf)(P1);
+  P1 m_param1;
 
 public:
   FunctorWithoutResult(void(*pf)(P1), P1 param1, const char* methodName) : IFunctor(methodName),\
@@ -70,9 +70,9 @@ template< class P1, class P2> class FunctorWithoutResult<P1, P2> : public IFunct
 {
 private:
 
+  void(*m_pf)(P1, P2);
   P1 m_param1;
   P2 m_param2;
-  void(*m_pf)(P1, P2);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2), P1 param1, P2 param2, const char* methodName) : IFunctor(methodName),\
@@ -102,10 +102,10 @@ template< class P1, class P2, class P3> class FunctorWithoutResult< P1, P2, P3> 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
-  void(*m_pf)(P1, P2, P3);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3), P1 param1, P2 param2, P3 param3, const char* methodName) : IFunctor(methodName),\
@@ -161,12 +161,12 @@ template< class P1, class P2, class P3, class P4, class P5> class FunctorWithout
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
   P4 m_param4;
   P5 m_param5;
-  void(*m_pf)(P1, P2, P3, P4, P5);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5), P1 param1, P2 param2, P3 param3, P4 param4,
@@ -193,13 +193,13 @@ template< class P1, class P2, class P3, class P4, class P5, class P6> class Func
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
   P4 m_param4;
   P5 m_param5;
   P6 m_param6;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5,
@@ -227,6 +227,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7> 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -234,7 +235,6 @@ private:
   P5 m_param5;
   P6 m_param6;
   P7 m_param7;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5,
@@ -262,6 +262,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -270,7 +271,6 @@ private:
   P6 m_param6;
   P7 m_param7;
   P8 m_param8;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5,
@@ -298,6 +298,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -307,7 +308,6 @@ private:
   P7 m_param7;
   P8 m_param8;
   P9 m_param9;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6,
@@ -335,6 +335,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -345,7 +346,6 @@ private:
   P8 m_param8;
   P9 m_param9;
   P10 m_param10;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5, P6 param6,
@@ -373,6 +373,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -384,7 +385,6 @@ private:
   P9 m_param9;
   P10 m_param10;
   P11 m_param11;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11), P1 param1, P2 param2, P3 param3, P4 param4,
@@ -412,6 +412,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -424,7 +425,6 @@ private:
   P10 m_param10;
   P11 m_param11;
   P12 m_param12;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5,
@@ -454,6 +454,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -467,7 +468,6 @@ private:
   P11 m_param11;
   P12 m_param12;
   P13 m_param13;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13), P1 param1, P2 param2, P3 param3, P4 param4, P5 param5,
@@ -497,6 +497,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -511,7 +512,6 @@ private:
   P12 m_param12;
   P13 m_param13;
   P14 m_param14;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14), P1 param1, P2 param2, P3 param3, P4 param4,
@@ -541,6 +541,7 @@ template< class P1, class P2, class P3, class P4, class P5, class P6, class P7, 
 {
 private:
 
+  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15);
   P1 m_param1;
   P2 m_param2;
   P3 m_param3;
@@ -556,7 +557,6 @@ private:
   P13 m_param13;
   P14 m_param14;
   P15 m_param15;
-  void(*m_pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15);
 
 public:
   FunctorWithoutResult(void(*pf)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15), P1 param1, P2 param2, P3 param3, P4 param4,

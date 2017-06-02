@@ -1,11 +1,13 @@
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
+
 #include "Commons.h"
 #include "DlgAbout.h"
 #include "ui_DlgAbout.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
 #include "updater/HubComponentsUpdater.h"
+#include "NotificationObserver.h"
 
 using namespace update_system;
 
@@ -23,19 +25,32 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui->setupUi(this);
   ui->lbl_tray_version_val->setText(GIT_VERSION);
 
-  //connect
-  connect(ui->btn_p2p_update, SIGNAL(released()), this, SLOT(btn_p2p_update_released()));
-  connect(ui->btn_tray_update, SIGNAL(released()), this, SLOT(btn_tray_update_released()));
-  connect(ui->btn_rh_update, SIGNAL(released()), this, SLOT(btn_rh_update_released()));
-  connect(ui->btn_rhm_update, SIGNAL(released()), this, SLOT(btn_rhm_update_released()));
-  connect(ui->btn_recheck, SIGNAL(released()), this, SLOT(btn_recheck_released()));
+  this->setMinimumWidth(700);
 
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(download_file_progress(const QString&,qint64,qint64)),
-          this, SLOT(download_progress(const QString&,qint64,qint64)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(update_available(const QString&)),
-          this, SLOT(update_available(const QString&)));
-  connect(CHubComponentsUpdater::Instance(), SIGNAL(updating_finished(const QString&,bool)),
-          this, SLOT(update_finished(const QString&,bool)));
+
+  QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
+                    this->ui->lbl_p2p_version_val,
+                    this->ui->lbl_rhm_version_val,
+                    this->ui->lbl_rh_version_val,
+                    this->ui->lbl_tray_version_val ,
+                    nullptr};
+  for (int i = 0; lbls[i]; ++i) {
+    lbls[i]->setWordWrap(true);
+  }
+
+  //connect
+  connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);
+  connect(ui->btn_tray_update, &QPushButton::released, this, &DlgAbout::btn_tray_update_released);
+  connect(ui->btn_rh_update, &QPushButton::released, this, &DlgAbout::btn_rh_update_released);
+  connect(ui->btn_rhm_update, &QPushButton::released, this, &DlgAbout::btn_rhm_update_released);
+  connect(ui->btn_recheck, &QPushButton::released, this, &DlgAbout::btn_recheck_released);
+
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
+          this, &DlgAbout::download_progress);
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::update_available,
+          this, &DlgAbout::update_available);
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::updating_finished,
+          this, &DlgAbout::update_finished);
 
   static bool p2p_in_progress = false;
   static bool tray_in_progress = false;
@@ -65,24 +80,32 @@ void DlgAbout::check_for_versions_and_updates() {
   ui->pb_initialization_progress->setEnabled(true);
   QThread* th = new QThread;
   DlgAboutInitializer* di = new DlgAboutInitializer;
-  connect(di, SIGNAL(finished()), th, SLOT(quit()), Qt::DirectConnection);
-  connect(di, SIGNAL(finished()), this, SLOT(initialization_finished()), Qt::DirectConnection);
 
-  connect(th, SIGNAL(started()), di, SLOT(do_initialization()));
-  connect(di, SIGNAL(got_chrome_version(QString)), this, SLOT(got_chrome_version_sl(QString)));
-  connect(di, SIGNAL(got_p2p_version(QString)), this, SLOT(got_p2p_version_sl(QString)));
-  connect(di, SIGNAL(got_rh_version(QString)), this, SLOT(got_rh_version_sl(QString)));
-  connect(di, SIGNAL(got_rh_management_version(QString)), this, SLOT(got_rh_management_version_sl(QString)));
-  connect(di, SIGNAL(got_vbox_version(QString)), this, SLOT(got_vbox_version_sl(QString)));
+  connect(di, &DlgAboutInitializer::finished,
+          th, &QThread::quit, Qt::DirectConnection);
+  connect(di, &DlgAboutInitializer::finished,
+          this, &DlgAbout::initialization_finished, Qt::DirectConnection);
+  connect(th, &QThread::started, di,
+          &DlgAboutInitializer::do_initialization);
+  connect(di, &DlgAboutInitializer::got_chrome_version,
+          this, &DlgAbout::got_chrome_version_sl);
+  connect(di, &DlgAboutInitializer::got_p2p_version,
+          this, &DlgAbout::got_p2p_version_sl);
+  connect(di, &DlgAboutInitializer::got_rh_version,
+          this, &DlgAbout::got_rh_version_sl);
+  connect(di, &DlgAboutInitializer::got_rh_management_version,
+          this, &DlgAbout::got_rh_management_version_sl);
+  connect(di, &DlgAboutInitializer::got_vbox_version,
+          this, &DlgAbout::got_vbox_version_sl);
 
-  connect(di, SIGNAL(update_available(const QString&,bool)),
-          this, SLOT(update_available_sl(const QString&,bool)));
-  connect(di, SIGNAL(init_progress(int,int)), this, SLOT(init_progress_sl(int,int)));
+  connect(di, &DlgAboutInitializer::update_available,
+          this, &DlgAbout::update_available_sl);
+  connect(di, &DlgAboutInitializer::init_progress,
+          this, &DlgAbout::init_progress_sl);
 
-  connect(th, SIGNAL(finished()), di, SLOT(deleteLater()));
-  connect(th, SIGNAL(finished()), th, SLOT(deleteLater()));
-
-  connect(this, SIGNAL(finished(int)), di, SLOT(abort()));
+  connect(th, &QThread::finished, di, &DlgAboutInitializer::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
+  connect(this, &DlgAbout::finished, di, &DlgAboutInitializer::abort);
 
   di->moveToThread(th);
   th->start();
@@ -152,7 +175,10 @@ DlgAbout::update_available(const QString& file_id) {
 void
 DlgAbout::update_finished(const QString& file_id,
                           bool success) {
-  (void)success;
+  if (!success) {
+    CNotificationObserver::Error(QString("Couldn't update component %1").arg(file_id));
+  }
+
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);

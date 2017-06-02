@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <QSettings>
 #include <QString>
+#include <QMap>
 
 /*!
  * \brief This class is used for managing application settings
@@ -50,6 +51,10 @@ private:
   static const QString SM_TERMINAL_CMD;
   static const QString SM_TERMINAL_ARG;
   static const QString SM_VBOXMANAGE_PATH;
+  static const QString SM_DCT_NOTIFICATIONS_IGNORE;
+  static const QString SM_NOTIFICATIONS_LEVEL;
+
+  static const QString SM_USE_ANIMATIONS;
 
   CSettingsManager();
 
@@ -94,11 +99,16 @@ private:
   QString m_terminal_arg;
 
   QString m_vboxmanage_path;
+  QMap<QString, QVariant> m_dct_notification_ignore;
+  uint32_t m_notifications_level;
+
+  bool m_use_animations;
 
   void init_password();
 
 signals:
   void settings_changed();
+  void notifications_ignored_changed();
 
 public:
   static const int NOTIFICATION_DELAY_MIN = 3;
@@ -161,6 +171,9 @@ public:
   const QString& terminal_arg() const {return m_terminal_arg;}
 
   const QString& vboxmanage_path() const {return m_vboxmanage_path;}
+  bool use_animations() const {return m_use_animations;}
+
+  uint32_t notifications_level() const {return m_notifications_level;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -174,6 +187,13 @@ public:
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
   void set_rh_management_freq(int fr);
+
+  bool is_notification_ignored(const QString &msg) const;
+  void ignore_notification(const QString& msg);
+  void not_ignore_notification(const QString& msg);
+  const QMap<QString, QVariant>& dct_notification_ignored() const {
+    return m_dct_notification_ignore;
+  }
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
@@ -198,6 +218,8 @@ public:
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
   SET_FIELD_DECL(vboxmanage_path, QString&)
+  SET_FIELD_DECL(use_animations, bool)
+  SET_FIELD_DECL(notifications_level, uint32_t)
 #undef SET_FIELD_DECL
 };
 

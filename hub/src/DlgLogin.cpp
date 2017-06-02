@@ -26,9 +26,9 @@ DlgLogin::DlgLogin(QWidget *parent) :
     ui->cb_save_credentials->setChecked(true);
   }
 
-  connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
-  connect(ui->btn_cancel,  SIGNAL(released()), this, SLOT(btn_cancel_released()));
-  connect(ui->cb_show_pass, SIGNAL(stateChanged(int)), this, SLOT(cb_show_pass_state_changed(int)));
+  connect(ui->btn_ok, &QPushButton::released, this, &DlgLogin::btn_ok_released);
+  connect(ui->btn_cancel, &QPushButton::released, this, &DlgLogin::btn_cancel_released);
+  connect(ui->cb_show_pass, &QCheckBox::stateChanged, this, &DlgLogin::cb_show_pass_state_changed);
 }
 
 DlgLogin::~DlgLogin()
@@ -101,6 +101,7 @@ DlgLogin::run_dialog(QSplashScreen* sc) {
     return;
   }
 
+  emit login_success();
   if(sc) sc->hide();
 }
 ////////////////////////////////////////////////////////////////////////////

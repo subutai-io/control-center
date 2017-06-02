@@ -40,5 +40,6 @@ const QString& default_terminal();
 const QString& default_term_arg();
 
 const QString& vboxmanage_command_str();
+const QString& hub_site();
 
 #endif // OSBRANCHCONSTS_H

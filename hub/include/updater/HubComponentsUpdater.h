@@ -25,12 +25,12 @@ namespace update_system {
     bool autoupdate;
 
     CUpdaterComponentItem() : m_component(NULL), autoupdate(false){
-      connect(&m_timer, SIGNAL(timeout()), this, SLOT(timer_timeout_sl()));
+      connect(&m_timer, &QTimer::timeout, this, &CUpdaterComponentItem::timer_timeout_sl);
     }
 
     explicit CUpdaterComponentItem(IUpdaterComponent* component) :
       m_component(component), autoupdate(false) {
-      connect(&m_timer, SIGNAL(timeout()), this, SLOT(timer_timeout_sl()));
+      connect(&m_timer, &QTimer::timeout, this, &CUpdaterComponentItem::timer_timeout_sl);
     }
 
     CUpdaterComponentItem(const CUpdaterComponentItem& arg); //copy constructor prohibited

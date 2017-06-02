@@ -13,6 +13,41 @@
 #include "Commons.h"
 #include "RhController.h"
 #include "ApplicationLog.h"
+#include "NotificationObserver.h"
+
+/*!
+ * \brief This class makes tabs of the same width in QTabWidget
+ */
+class TabResizeFilter : public QObject {
+private:
+  QTabWidget* m_target;
+
+  static void expandingTypeStyleSheet(QTabWidget* tw) {
+    int w = tw->width()-tw->count(); //don't know why. but looks OK only with this -tw->count(). MAGIC!!!
+    int wb = floor(w / (tw->count()*1.0));
+    int ws = w - wb*(tw->count()-1);
+    tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
+                              "QTabBar::tab:selected {width : %2px;}").
+                      arg(wb).
+                      arg(ws));
+  }
+
+public:
+  TabResizeFilter(QTabWidget* target) : QObject(target), m_target(target) {}
+  bool eventFilter(QObject *, QEvent *ev) {
+    if (ev->type() == QEvent::Resize)
+      expandingTypeStyleSheet(m_target);
+    return false;
+  }
+};
+////////////////////////////////////////////////////////////////////////////
+
+static void fill_notifications_level_combobox(QComboBox* cb) {
+  for (int i = 0; i <= CNotificationObserver::NL_CRITICAL; ++i)
+    cb->addItem(CNotificationObserver::notification_level_to_str(
+                  (CNotificationObserver::notification_level_t)i));
+}
+////////////////////////////////////////////////////////////////////////////
 
 static void fill_freq_combobox(QComboBox* cb) {
   for (int i = 0; i < CSettingsManager::UF_LAST; ++i)
@@ -52,11 +87,13 @@ DlgSettings::DlgSettings(QWidget *parent) :
   fill_freq_combobox(ui->cb_rh_frequency);
   fill_freq_combobox(ui->cb_tray_frequency);
   fill_freq_combobox(ui->cb_rhm_frequency);
+  fill_notifications_level_combobox(ui->cb_notification_level);
 
   ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
   ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
   ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
   ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
+  ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
 
   ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
   ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
@@ -81,32 +118,35 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->pb_refresh_rh_list->setValue(m_refresh_rh_list_progress_val);
   m_refresh_rh_list_timer.setInterval(1000);
 
+  ui->chk_use_animations->setChecked(CSettingsManager::Instance().use_animations());
+
   rebuild_rh_list_model();
 
-  connect(ui->btn_ok, SIGNAL(released()), this, SLOT(btn_ok_released()));
-  connect(ui->btn_cancel, SIGNAL(released()), this, SLOT(btn_cancel_released()));
-  connect(ui->btn_p2p_file_dialog, SIGNAL(released()),
-          this, SLOT(btn_p2p_file_dialog_released()));
-  connect(ui->btn_ssh_command, SIGNAL(released()),
-          this, SLOT(btn_ssh_command_released()));
-  connect(ui->btn_logs_storage, SIGNAL(released()),
-          this, SLOT(btn_logs_storage_released()));
-  connect(ui->btn_ssh_keys_storage, SIGNAL(released()),
-          this, SLOT(btn_ssh_keys_storage_released()));  
-  connect(ui->btn_refresh_rh_list, SIGNAL(released()),
-          this, SLOT(btn_refresh_rh_list_released()));
-  connect(ui->lstv_resource_hosts, SIGNAL(doubleClicked(QModelIndex)),
-          this, SLOT(lstv_resource_hosts_double_clicked(QModelIndex)));
-  connect(CRhController::Instance(), SIGNAL(resource_host_list_updated(bool)),
-          this, SLOT(resource_host_list_updated_sl(bool)));
-  connect(&m_refresh_rh_list_timer, SIGNAL(timeout()),
-          this, SLOT(refresh_rh_list_timer_timeout()));
-  connect(ui->btn_vboxmanage_command, SIGNAL(released()),
-          this, SLOT(btn_vboxmanage_command_released()));
+  connect(ui->btn_ok, &QPushButton::released,
+          this, &DlgSettings::btn_ok_released);
+  connect(ui->btn_cancel, &QPushButton::released,
+          this, &DlgSettings::btn_cancel_released);
+  connect(ui->btn_p2p_file_dialog, &QPushButton::released,
+          this, &DlgSettings::btn_p2p_file_dialog_released);
+  connect(ui->btn_ssh_command, &QPushButton::released,
+          this, &DlgSettings::btn_ssh_command_released);
+  connect(ui->btn_logs_storage, &QPushButton::released,
+          this, &DlgSettings::btn_logs_storage_released);
+  connect(ui->btn_ssh_keys_storage, &QPushButton::released,
+          this, &DlgSettings::btn_ssh_keys_storage_released);
+  connect(ui->btn_refresh_rh_list, &QPushButton::released,
+          this, &DlgSettings::btn_refresh_rh_list_released);
+  connect(ui->lstv_resource_hosts, &QListView::doubleClicked,
+          this, &DlgSettings::lstv_resource_hosts_double_clicked);
+  connect(CRhController::Instance(), &CRhController::resource_host_list_updated,
+          this, &DlgSettings::resource_host_list_updated_sl);
+  connect(&m_refresh_rh_list_timer, &QTimer::timeout,
+          this, &DlgSettings::refresh_rh_list_timer_timeout);
+  connect(ui->btn_vboxmanage_command, &QPushButton::released,
+          this, &DlgSettings::btn_vboxmanage_command_released);
 }
 
-DlgSettings::~DlgSettings()
-{
+DlgSettings::~DlgSettings() {
   if (m_tab_resize_filter) delete m_tab_resize_filter;
   delete ui;
 }
@@ -260,10 +300,14 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_management_freq(ui->cb_rhm_frequency->currentIndex());
 
+  CSettingsManager::Instance().set_notifications_level(ui->cb_notification_level->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
+  CSettingsManager::Instance().set_use_animations(
+        ui->chk_use_animations->checkState() == Qt::Checked);
+
   CSettingsManager::Instance().save_all();
   this->close();
 }

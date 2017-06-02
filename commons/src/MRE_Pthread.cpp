@@ -1,3 +1,4 @@
+#ifndef RT_OS_WINDOWS
 #include <stdio.h>
 #include <errno.h>
 #include <sys/time.h>
@@ -64,3 +65,4 @@ int SynchroPrimitives::CPthreadMRE::MRE_Destroy(CPthreadMRE *lpMre) {
   return res;
 }
 //////////////////////////////////////////////////////////////////////////
+#endif //RT_OS_WINDOWS

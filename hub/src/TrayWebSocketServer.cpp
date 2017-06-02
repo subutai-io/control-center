@@ -17,9 +17,10 @@ CTrayServer::CTrayServer(quint16 port,
   m_lst_clients()
 {
   if (m_web_socket_server->listen(QHostAddress::Any, port)) {
-    connect(m_web_socket_server, SIGNAL(newConnection()), this, SLOT(on_new_connection()));
-    connect(&CHubController::Instance(), SIGNAL(ssh_to_container_str_finished(int,void*)),
-            this, SLOT(ssh_to_container_finished(int,void*)));
+    connect(m_web_socket_server, &QWebSocketServer::newConnection,
+            this, &CTrayServer::on_new_connection);
+    connect(&CHubController::Instance(), &CHubController::ssh_to_container_str_finished,
+            this, &CTrayServer::ssh_to_container_finished);
   } else {
 
     QString err_msg = QString("Can't listen websocket on port : %1 Reason : %2").
@@ -107,9 +108,9 @@ CTrayServer::handle_wrong_command(const QString &msg,
 void
 CTrayServer::on_new_connection() {
   QWebSocket *n_sock = m_web_socket_server->nextPendingConnection();
-  connect(n_sock, SIGNAL(textMessageReceived(QString)), this, SLOT(process_text_msg(QString)));
-  connect(n_sock, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(process_bin_msg(QByteArray)));
-  connect(n_sock, SIGNAL(disconnected()), this, SLOT(socket_disconnected()));
+  connect(n_sock, &QWebSocket::textMessageReceived, this, &CTrayServer::process_text_msg);
+  connect(n_sock, &QWebSocket::binaryMessageReceived, this, &CTrayServer::process_bin_msg);
+  connect(n_sock, &QWebSocket::disconnected, this, &CTrayServer::socket_disconnected);
   m_lst_clients << n_sock;
 }
 ////////////////////////////////////////////////////////////////////////////

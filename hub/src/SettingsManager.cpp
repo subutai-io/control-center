@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 
+#include "NotificationObserver.h"
 #include "SettingsManager.h"
 #include "ApplicationLog.h"
 #include "updater/HubComponentsUpdater.h"
@@ -49,6 +50,10 @@ const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
 const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
+const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE("Dct_Notifications_Ignored");
+
+const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
+const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 
 /*!
  * \brief This template is used like field initializer for code size reduction
@@ -75,9 +80,12 @@ static void qvar_to_byte_arr(const QVariant& var, void* field) {
   *((QByteArray*)field) = var.toByteArray();
 }
 
+static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
+  *((QMap<QString, QVariant>*)field) = var.toMap();
+}
 ////////////////////////////////////////////////////////////////////////////
 
-static const int def_timeout = 120;
+static const int def_timeout = 20;
 CSettingsManager::CSettingsManager() :
   m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
   m_password_str(""),
@@ -107,7 +115,9 @@ CSettingsManager::CSettingsManager() :
   m_rh_management_autoupdate(false),
   m_terminal_cmd(default_terminal()),
   m_terminal_arg(default_term_arg()),
-  m_vboxmanage_path(vboxmanage_command_str())
+  m_vboxmanage_path(vboxmanage_command_str()),
+  m_notifications_level(CNotificationObserver::NL_INFO),
+  m_use_animations(true)
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -148,15 +158,20 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_p2p_autoupdate, SM_P2P_AUTOUPDATE, qvar_to_bool},
     {(void*)&m_rh_autoupdate, SM_RH_AUTOUPDATE, qvar_to_bool},
     {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
+    {(void*)&m_use_animations, SM_USE_ANIMATIONS, qvar_to_bool},
 
     //uint
     {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
     {(void*)&m_rh_update_freq, SM_RH_UPDATE_FREQ, qvar_to_int},
     {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
     {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
+    {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
 
     //bytearr
     {(void*)&m_password, SM_PASSWORD, qvar_to_byte_arr},
+
+    //QMap<QString, QVariant>
+    {(void*)&m_dct_notification_ignore, SM_DCT_NOTIFICATIONS_IGNORE, qvar_to_map_string_qvariant},
 
     //end
     {nullptr, "", nullptr}
@@ -342,6 +357,29 @@ void CSettingsManager::set_rh_management_freq(int fr) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool
+CSettingsManager::is_notification_ignored(const QString& msg) const {
+  return (m_dct_notification_ignore.find(msg) != m_dct_notification_ignore.end()) &&
+      m_dct_notification_ignore[msg].toBool();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::ignore_notification(const QString &msg) {
+  m_dct_notification_ignore[msg] = QVariant(true);
+  m_settings.setValue(SM_DCT_NOTIFICATIONS_IGNORE, m_dct_notification_ignore);
+  emit notifications_ignored_changed();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSettingsManager::not_ignore_notification(const QString &msg) {
+  m_dct_notification_ignore[msg] = QVariant(false);
+  m_settings.setValue(SM_DCT_NOTIFICATIONS_IGNORE, m_dct_notification_ignore);
+  emit notifications_ignored_changed();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 CSettingsManager::set_p2p_autoupdate(const bool p2p_autoupdate) {
   m_p2p_autoupdate = p2p_autoupdate;
@@ -388,4 +426,6 @@ SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
 SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
+SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
+SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 #undef SET_FIELD_DEF
