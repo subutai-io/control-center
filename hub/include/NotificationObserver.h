@@ -16,12 +16,21 @@ public:
     NL_CRITICAL
   };
 
+  enum notification_preffered_place_t {
+    NPP_RIGHT_UP = 0,
+    NPP_RIGHT_DOWN = 1,
+    NPP_LEFT_DOWN = 2,
+    NPP_LEFT_UP = 3,
+    NPP_LAST
+  };
+
   static CNotificationObserver* Instance() {
     static CNotificationObserver obs;
     return &obs;
   }
 
   static const QString& notification_level_to_str(notification_level_t nt);
+  static const QString& notifications_preffered_place_to_str(notification_preffered_place_t pl);
   static void Error(const QString& msg);
   static void Info(const QString& msg);
   static void Warning(const QString& msg);

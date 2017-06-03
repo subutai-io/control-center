@@ -55,6 +55,7 @@ private:
   static const QString SM_NOTIFICATIONS_LEVEL;
 
   static const QString SM_USE_ANIMATIONS;
+  static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
 
   CSettingsManager();
 
@@ -103,6 +104,7 @@ private:
   uint32_t m_notifications_level;
 
   bool m_use_animations;
+  uint32_t m_preferred_notifications_place;
 
   void init_password();
 
@@ -174,6 +176,7 @@ public:
   bool use_animations() const {return m_use_animations;}
 
   uint32_t notifications_level() const {return m_notifications_level;}
+  uint32_t preferred_notifications_place() const {return m_preferred_notifications_place;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -220,6 +223,7 @@ public:
   SET_FIELD_DECL(vboxmanage_path, QString&)
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
+  SET_FIELD_DECL(preferred_notifications_place, uint32_t)
 #undef SET_FIELD_DECL
 };
 

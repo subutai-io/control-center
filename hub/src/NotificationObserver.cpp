@@ -12,6 +12,16 @@ CNotificationObserver::notification_level_to_str(notification_level_t nt) {
   };
   return nt_str[nt];
 }
+
+const QString &
+CNotificationObserver::notifications_preffered_place_to_str(
+    CNotificationObserver::notification_preffered_place_t pl) {
+  static QString npp_str[] = {
+    "Top-right corner", "Bottom-right corner",
+    "Bottom-left corner", "Top-left corner"
+  };
+  return npp_str[pl];
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void

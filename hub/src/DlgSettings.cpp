@@ -55,6 +55,13 @@ static void fill_freq_combobox(QComboBox* cb) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static void fill_preferred_notifications_location_combobox(QComboBox* cb) {
+  for (int i = 0; i < CNotificationObserver::NPP_LAST; ++i)
+    cb->addItem(CNotificationObserver::notifications_preffered_place_to_str(
+                  (CNotificationObserver::notification_preffered_place_t)i));
+}
+////////////////////////////////////////////////////////////////////////////
+
 DlgSettings::DlgSettings(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgSettings),
@@ -88,12 +95,15 @@ DlgSettings::DlgSettings(QWidget *parent) :
   fill_freq_combobox(ui->cb_tray_frequency);
   fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
+  fill_preferred_notifications_location_combobox(ui->cb_preferred_notifications_place);
 
   ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
   ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
   ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
   ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
+  ui->cb_preferred_notifications_place->setCurrentIndex(
+        CSettingsManager::Instance().preferred_notifications_place());
 
   ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
   ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
@@ -299,6 +309,8 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rh_update_freq(ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(ui->cb_tray_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_management_freq(ui->cb_rhm_frequency->currentIndex());
+  CSettingsManager::Instance().set_preferred_notifications_place(
+        ui->cb_preferred_notifications_place->currentIndex());
 
   CSettingsManager::Instance().set_notifications_level(ui->cb_notification_level->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
