@@ -292,8 +292,7 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
 
   int dx, dy;
   dx = sw - QApplication::desktop()->availableGeometry().width();
-  //ugly hack. don't know how to calculate width and coordinates of control panels
-#ifdef RT_OS_WINDOWS
+#ifndef RT_OS_LINUX
   dy = sh - QApplication::desktop()->availableGeometry().height() + 50;
 #else
   dy = 0;
