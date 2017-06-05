@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>705</width>
-    <height>354</height>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,17 +25,17 @@
     <layout class="QGridLayout" name="gridLayout_5">
      <item row="1" column="0">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="1">
-        <widget class="QPushButton" name="btn_cancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="btn_ok">
          <property name="text">
           <string>OK</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="btn_cancel">
+         <property name="text">
+          <string>Cancel</string>
          </property>
         </widget>
        </item>
@@ -54,7 +54,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="0">
-            <layout class="QGridLayout" name="gridLayout_6">
+            <layout class="QGridLayout" name="gridLayout_6" columnstretch="1,2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_refresh_timer">
                <property name="text">
@@ -111,9 +111,36 @@
              <item row="2" column="1">
               <widget class="QComboBox" name="cb_notification_level"/>
              </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="lbl_preferred_notifications_place">
+               <property name="toolTip">
+                <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+               </property>
+               <property name="text">
+                <string>Area of notifications (only linux) :</string>
+               </property>
+               <property name="wordWrap">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QComboBox" name="cb_preferred_notifications_place">
+               <property name="toolTip">
+                <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QCheckBox" name="chk_use_animations">
+               <property name="text">
+                <string>Use animations</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
-           <item row="2" column="0">
+           <item row="1" column="0">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_logs_storage">
@@ -168,7 +195,7 @@
              </item>
             </layout>
            </item>
-           <item row="3" column="0">
+           <item row="2" column="0">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">
@@ -181,13 +208,6 @@
               <widget class="QLineEdit" name="le_ssh_user"/>
              </item>
             </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="chk_use_animations">
-             <property name="text">
-              <string>Use animations</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </item>

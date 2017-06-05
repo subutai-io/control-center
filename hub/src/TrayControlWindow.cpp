@@ -274,27 +274,35 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   icon_x = m_sys_tray_icon->geometry().x();
   icon_y = m_sys_tray_icon->geometry().y();
 
-  if (icon_x == 0 && icon_y == 0 && use_cursor_position) {
-    icon_x = QCursor::pos().x();
-    icon_y = QCursor::pos().y();
-  }
-
   int sw, sh;
   sw = QApplication::primaryScreen()->geometry().width();
   sh = QApplication::primaryScreen()->geometry().height();
 
+  if (icon_x == 0 && icon_y == 0) {
+    if (use_cursor_position) {
+      icon_x = QCursor::pos().x();
+      icon_y = QCursor::pos().y();
+    } else {
+      int coords[] = { sw, 0, sw, sh, 0, sh, 0, 0 };
+      uint32_t pc = CSettingsManager::Instance().preferred_notifications_place();
+      icon_x = coords[pc*2];
+      icon_y = coords[pc*2 + 1];
+    }
+  }
+
   int dx, dy;
-#ifdef RT_OS_WINDOWS
   dx = sw - QApplication::desktop()->availableGeometry().width();
-  dy = sh - QApplication::desktop()->availableGeometry().height();
-#else
-  dx = dy = 0;
+#ifdef RT_OS_LINUX
+  dy = 0;
+#elif RT_OS_WINDOWS
+  dy = sh - QApplication::desktop()->availableGeometry().height() + 50;
+#elif RT_OS_DARWIN
+  dy = 50;
 #endif
 
   src_x = icon_x < sw/2 ? -dlg_w+dx : sw-dx;
   dst_x = icon_x < sw/2 ? src_x+dlg_w : src_x-dlg_w;
-
-  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h-50;
+  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h;
   dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -311,7 +319,7 @@ TrayControlWindow::notification_received(CNotificationObserver::notification_lev
   QDialog* dlg = new DlgNotification(level, msg, this);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
-                                           dlg->width(), dlg->height(), true);
+                                           dlg->width(), dlg->height(), false);
 
   if (CSettingsManager::Instance().use_animations()) {
     QPropertyAnimation *pos_anim = new QPropertyAnimation(dlg, "pos");
