@@ -274,16 +274,16 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   icon_x = m_sys_tray_icon->geometry().x();
   icon_y = m_sys_tray_icon->geometry().y();
 
-  int sw, sh;
-  sw = QApplication::primaryScreen()->geometry().width();
-  sh = QApplication::primaryScreen()->geometry().height();
+  int adw, adh;
+  adw = QApplication::desktop()->availableGeometry().width();
+  adh = QApplication::desktop()->availableGeometry().height();
 
   if (icon_x == 0 && icon_y == 0) {
     if (use_cursor_position) {
       icon_x = QCursor::pos().x();
       icon_y = QCursor::pos().y();
     } else {
-      int coords[] = { sw, 0, sw, sh, 0, sh, 0, 0 };
+      int coords[] = { adw, 0, adw, adh, 0, adh, 0, 0 };
       uint32_t pc = CSettingsManager::Instance().preferred_notifications_place();
       icon_x = coords[pc*2];
       icon_y = coords[pc*2 + 1];
@@ -291,18 +291,18 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   }
 
   int dx, dy;
-  dx = sw - QApplication::desktop()->availableGeometry().width();
-#ifdef RT_OS_LINUX
-  dy = 0;
-#elif RT_OS_WINDOWS
-  dy = sh - QApplication::desktop()->availableGeometry().height() + 50;
-#elif RT_OS_DARWIN
-  dy = 50;
-#endif
+  dy = QApplication::desktop()->availableGeometry().y();
+  dx = QApplication::desktop()->availableGeometry().x();
 
-  src_x = icon_x < sw/2 ? -dlg_w+dx : sw-dx;
-  dst_x = icon_x < sw/2 ? src_x+dlg_w : src_x-dlg_w;
-  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h;
+  if (icon_x < adw/2) {
+    src_x = -dlg_w + dx;
+    dst_x = src_x + dlg_w;
+  } else {
+    src_x = adw + dx;
+    dst_x = src_x - dlg_w;
+  }
+
+  src_y = icon_y < adh / 2 ? dy : adh - dy - dlg_h;
   dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////

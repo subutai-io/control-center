@@ -52,7 +52,7 @@ void CEventLoop<TMRE>::InvokeActionSync(IFunctor *functor,
                                         unsigned int timeout) {
 
   functor->SetIsSynchronized(true);
-  if (!runInEventLoopsThread)   {
+  if (!runInEventLoopsThread) {
     m_loopWorker.InvokeMethod_S(functor);
     return;
   }
