@@ -87,8 +87,11 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 ////////////////////////////////////////////////////////////////////////////
 
 static const int def_timeout = 20;
+static const QString settings_file = "subutai_tray.conf";
+
 CSettingsManager::CSettingsManager() :
-  m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
+  m_settings(QApplication::applicationDirPath() + QDir::separator() + settings_file,
+             QSettings::NativeFormat),
   m_password_str(""),
   m_remember_me(false),
   m_refresh_time_sec(def_timeout),
