@@ -192,12 +192,6 @@ CSettingsManager::CSettingsManager() :
     tmp_sv->pf_qvar_to_T(m_settings.value(tmp_sv->val), tmp_sv->field);
   }
 
-  //hack
-#ifdef RT_OS_LINUX
-  if (m_p2p_path == "p2p")
-    m_p2p_path = default_p2p_path();
-#endif
-
   bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
     uint32_t timeout = m_settings.value(SM_REFRESH_TIME).toUInt(&ok);
@@ -217,12 +211,12 @@ CSettingsManager::CSettingsManager() :
   //which using
   QString* cmd_which[] = {
     &m_vboxmanage_path, &m_ssh_keygen_cmd,
-    &m_ssh_path, nullptr
+    &m_ssh_path, &m_p2p_path, nullptr
   };
 
   const QString default_values[] = {
     vboxmanage_command_str(), ssh_keygen_cmd_path(),
-    ssh_cmd_path()
+    ssh_cmd_path(), default_p2p_path()
   };
 
   QString tmp;
