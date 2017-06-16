@@ -243,6 +243,45 @@ vboxmanage_command_str() {
 ////////////////////////////////////////////////////////////////////////////
 
 
+template<class OS> const QString& ssh_keygen_cmd_path_internal();
+
+#define ssh_keygen_cmd_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& ssh_keygen_cmd_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+ssh_keygen_cmd_path_internal_def(OS_LINUX, "ssh-keygen")
+ssh_keygen_cmd_path_internal_def(OS_MAC, "ssh-keygen")
+ssh_keygen_cmd_path_internal_def(OS_WIN, "ssh-keygen.exe")
+
+const QString &
+ssh_keygen_cmd_path() {
+  return ssh_keygen_cmd_path_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+template<class OS> const QString& ssh_cmd_path_internal();
+
+#define ssh_cmd_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& ssh_cmd_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+ssh_cmd_path_internal_def(OS_LINUX, "ssh")
+ssh_cmd_path_internal_def(OS_MAC, "ssh")
+ssh_cmd_path_internal_def(OS_WIN, "ssh.exe")
+
+const QString &
+ssh_cmd_path() {
+  return ssh_cmd_path_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR> const QString& hub_site_temp_internal();
 
 #define hub_site_temp_internal_def(BT_TYPE, STRING) \

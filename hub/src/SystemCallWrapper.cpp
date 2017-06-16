@@ -252,8 +252,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 system_call_wrapper_error_t
 CSystemCallWrapper::generate_ssh_key(const QString &comment,
                                      const QString &file_path) {
-  QString cmd;
-  which("ssh-keygen", cmd);
+  QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();
   QStringList lst_args;
   lst_args << "-t" << "rsa" <<
               "-f" << file_path <<

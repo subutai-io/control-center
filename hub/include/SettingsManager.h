@@ -56,6 +56,7 @@ private:
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
+  static const QString SM_SSH_KEYGEN_CMD;
 
   CSettingsManager();
 
@@ -105,6 +106,7 @@ private:
 
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
+  QString m_ssh_keygen_cmd;
 
   void init_password();
 
@@ -198,6 +200,8 @@ public:
     return m_dct_notification_ignore;
   }
 
+  const QString& ssh_keygen_cmd() const {return m_ssh_keygen_cmd;}
+
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
   SET_FIELD_DECL(password, QString&)
@@ -224,6 +228,7 @@ public:
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
+  SET_FIELD_DECL(ssh_keygen_cmd, QString&)
 #undef SET_FIELD_DECL
 };
 
