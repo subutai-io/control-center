@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
-#include "VirtualMachine.h"
 #include <stdint.h>
+#include "VirtualMachine.h"
 
 class CVboxManager : public QObject {
   Q_OBJECT

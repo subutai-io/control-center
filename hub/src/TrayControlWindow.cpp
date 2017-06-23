@@ -152,6 +152,8 @@ void
 TrayControlWindow::add_vm_menu(const QString &vm_id) {
   const CVirtualMachine* vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
+  if (m_dct_player_menus.find(vm_id) !=
+      m_dct_player_menus.end()) return;
 
   CVBPlayerItem *pl = new CVBPlayerItem(vm, m_w_Player);
 
