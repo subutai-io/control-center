@@ -15,9 +15,9 @@ DlgNotification::DlgNotification(CNotificationObserver::notification_level_t lev
   ui->lbl_icon->setBackgroundRole(QPalette::Base);
   ui->lbl_icon->setAutoFillBackground(true);
 
-  static QIcon icons[] = { QIcon(":/hub/Tray_icon_set-07.png"),
-                           QIcon(":/hub/Tray_icon_set-07.png"),
-                           QIcon(":/hub/Tray_icon_set-07.png"),
+  static QIcon icons[] = { QIcon(":/hub/info_notification.png"),
+                           QIcon(":/hub/warning_notification.png"),
+                           QIcon(":/hub/error_notification.png"),
                            QIcon(":/hub/Tray_icon_set-07.png") };
   static QString titles[] = {"Info",
                              "Warning",
