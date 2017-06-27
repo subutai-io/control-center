@@ -44,29 +44,52 @@ CVirtualMachine::vm_state_to_str(MachineState_T state) {
 
 MachineState_T
 CVirtualMachine::vm_state_from_str(const QString &str) {
-  if (str.toLower() == "null") return MachineState_Null;
-  if (str.toLower() == "poweroff") return MachineState_PoweredOff;
-  if (str.toLower() == "saved") return MachineState_Saved;
-  if (str.toLower() == "teleported") return MachineState_Teleported;
-  if (str.toLower() == "aborted") return MachineState_Aborted;
-  if (str.toLower() == "running") return MachineState_Running;
-  if (str.toLower() == "paused") return MachineState_Paused;
-  if (str.toLower() == "stuck") return MachineState_Stuck;
-  if (str.toLower() == "teleporting") return MachineState_Teleporting;
-  if (str.toLower() == "live snapshotting") return MachineState_LiveSnapshotting;
-  if (str.toLower() == "starting") return MachineState_Starting;
-  if (str.toLower() == "stopping") return MachineState_Stopping;
-  if (str.toLower() == "saving") return MachineState_Saving;
-  if (str.toLower() == "restoring") return MachineState_Restoring;
-  if (str.toLower() == "teleporting paused vm") return MachineState_TeleportingPausedVM;
-  if (str.toLower() == "teleporting in") return MachineState_TeleportingIn;
-  if (str.toLower() == "fault tolerant syncing") return MachineState_FaultTolerantSyncing;
-  if (str.toLower() == "deleting snapshot online") return MachineState_DeletingSnapshotOnline;
-  if (str.toLower() == "deleting snapshot paused") return MachineState_DeletingSnapshotPaused;
-  if (str.toLower() == "online snapshotting") return MachineState_OnlineSnapshotting;
-  if (str.toLower() == "restoring snapshot") return MachineState_RestoringSnapshot;
-  if (str.toLower() == "deleting snapshot") return MachineState_DeletingSnapshot;
-  if (str.toLower() == "setting up") return MachineState_SettingUp;
+  if (str.toLower().indexOf("null") != -1)
+    return MachineState_Null;
+  if (str.toLower().indexOf("poweroff") != -1)
+    return MachineState_PoweredOff;
+  if (str.toLower().indexOf("saved") != -1)
+    return MachineState_Saved;
+  if (str.toLower().indexOf("teleported") != -1)
+    return MachineState_Teleported;
+  if (str.toLower().indexOf("aborted") != -1)
+    return MachineState_Aborted;
+  if (str.toLower().indexOf("running") != -1)
+    return MachineState_Running;
+  if (str.toLower().indexOf("paused") != -1)
+    return MachineState_Paused;
+  if (str.toLower().indexOf("stuck") != -1)
+    return MachineState_Stuck;
+  if (str.toLower().indexOf("teleporting") != -1)
+    return MachineState_Teleporting;
+  if (str.toLower().indexOf("live snapshotting") != -1)
+    return MachineState_LiveSnapshotting;
+  if (str.toLower().indexOf("starting") != -1)
+    return MachineState_Starting;
+  if (str.toLower().indexOf("stopping") != -1)
+    return MachineState_Stopping;
+  if (str.toLower().indexOf("saving") != -1)
+    return MachineState_Saving;
+  if (str.toLower().indexOf("restoring") != -1)
+    return MachineState_Restoring;
+  if (str.toLower().indexOf("teleporting paused vm") != -1)
+    return MachineState_TeleportingPausedVM;
+  if (str.toLower().indexOf("teleporting in")  != -1)
+    return MachineState_TeleportingIn;
+  if (str.toLower().indexOf("fault tolerant syncing") != -1)
+    return MachineState_FaultTolerantSyncing;
+  if (str.toLower().indexOf("deleting snapshot online") != -1)
+    return MachineState_DeletingSnapshotOnline;
+  if (str.toLower().indexOf("deleting snapshot paused") != -1)
+    return MachineState_DeletingSnapshotPaused;
+  if (str.toLower().indexOf("online snapshotting") != -1)
+    return MachineState_OnlineSnapshotting;
+  if (str.toLower().indexOf("restoring snapshot") != -1)
+    return MachineState_RestoringSnapshot;
+  if (str.toLower().indexOf("deleting snapshot") != -1)
+    return MachineState_DeletingSnapshot;
+  if (str.toLower().indexOf("setting up") != -1)
+    return MachineState_SettingUp;
   return MachineState_Null;
 }
 ////////////////////////////////////////////////////////////////////////////
