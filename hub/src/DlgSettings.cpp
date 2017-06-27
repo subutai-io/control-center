@@ -117,9 +117,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
-#ifdef RT_OS_DARWIN
+#ifndef RT_OS_LINUX
   ui->gb_terminal_settings->setVisible(false);
-#endif
+#endif  
 
   m_model_resource_hosts = new QStandardItemModel(this);
   ui->lstv_resource_hosts->setModel(m_model_resource_hosts);

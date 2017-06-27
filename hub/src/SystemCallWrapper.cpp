@@ -243,7 +243,24 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 #elif RT_OS_LINUX
   args << QString("%1;bash").arg(str_command);
 #elif RT_OS_WINDOWS
-  args << str_command;
+
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString cmd_args = QString("%1 /k \"%2\"").arg(cmd).arg(str_command);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(cmd.toStdWString().c_str(),
+                          cmd_args_lpwstr,
+                          NULL, NULL,
+                          FALSE, 0,
+                          NULL, NULL,
+                          &si, &pi);
+  if (!cp) {
+    CApplicationLog::Instance()->LogError("Failed to create process %s. Err : %d",
+                                          cmd.toStdString().c_str(), GetLastError());
+    return SCWE_SSH_LAUNCH_FAILED;
+  }
+  return SCWE_SUCCESS;
 #endif
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
