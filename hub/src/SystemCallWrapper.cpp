@@ -213,13 +213,13 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                                         const QString& port,
                                         const QString& key)
 {
-  QString str_command = QString("%1 %2@%3 -p %4").
+  QString str_command = QString("\"%1\" %2@%3 -p %4").
                         arg(CSettingsManager::Instance().ssh_path()).
                         arg(user).arg(ip).arg(port);
 
   if (!key.isEmpty()) {
     CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
   QString cmd;
@@ -246,10 +246,11 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
-  QString cmd_args = QString("%1 /k \"%2\"").arg(cmd).arg(str_command);
+  QString str_command_quoted = QString("%1").arg(str_command);
+  QString cmd_args = QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command_quoted);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(cmd.toStdWString().c_str(),
+  BOOL cp = CreateProcess(NULL,
                           cmd_args_lpwstr,
                           NULL, NULL,
                           FALSE, 0,
