@@ -296,6 +296,10 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   dy = QApplication::desktop()->availableGeometry().y();
   dx = QApplication::desktop()->availableGeometry().x();
 
+#ifdef RT_OS_WINDOWS
+  dy += dy ? 0 : 35; //don't know why -20 and 35
+#endif
+
   if (icon_x < adw/2) {
     src_x = -dlg_w + dx;
     dst_x = src_x + dlg_w;
