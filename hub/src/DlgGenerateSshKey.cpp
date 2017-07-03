@@ -4,7 +4,6 @@
 #include <QFile>
 #include <RestWorker.h>
 #include <QFileDialog>
-#include <QThread>
 
 #include <QStandardItem>
 #include <QStandardItemModel>

@@ -7,6 +7,7 @@
 #include <QSharedMemory>
 #include <QSystemSemaphore>
 #include <QMessageBox>
+#include <exception>
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
@@ -117,22 +118,27 @@ main(int argc, char *argv[]) {
   }
 
   int result = 0;
-  do {
-    DlgLogin dlg;
-    dlg.setModal(true);
+  try {
+    do {
+      DlgLogin dlg;
+      dlg.setModal(true);
 
-    QPixmap pm(":/hub/tray_splash.png");
-    QSplashScreen sc(pm);
-    sc.show();
+      QPixmap pm(":/hub/tray_splash.png");
+      QSplashScreen sc(pm);
+      sc.show();
 
-    dlg.run_dialog(&sc);
-    if (dlg.result() == QDialog::Rejected)
-      break;
+      dlg.run_dialog(&sc);
+      if (dlg.result() == QDialog::Rejected)
+        break;
 
-    CTrayServer::Instance()->Init();
-    TrayControlWindow tcw;
-    result = app.exec();
-  } while (0);
+      CTrayServer::Instance()->Init();
+      TrayControlWindow tcw;
+      result = app.exec();
+    } while (0);
+  } catch (std::exception& ge) {
+    CApplicationLog::Instance()->LogError("Global Exception : %s",
+                                          ge.what());
+  }
 
   return result;
 }

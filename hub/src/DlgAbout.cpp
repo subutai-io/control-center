@@ -8,6 +8,7 @@
 #include "SettingsManager.h"
 #include "updater/HubComponentsUpdater.h"
 #include "NotificationObserver.h"
+#include "ApplicationLog.h"
 
 using namespace update_system;
 
@@ -252,37 +253,41 @@ DlgAbout::update_available_sl(const QString& component_id,
 
 void
 DlgAboutInitializer::do_initialization() {
-  int initialized_component_count = 0;
-  QString p2p_version = get_p2p_version();
-  emit got_p2p_version(p2p_version);
-  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-  QString chrome_version;
-  CSystemCallWrapper::chrome_version(chrome_version);
-
-  emit got_chrome_version(chrome_version);
-  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-  QString vbox_version = CSystemCallWrapper::virtual_box_version();
-  emit got_vbox_version(vbox_version);
-  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-  QString rh_version = CSystemCallWrapper::rh_version();
-  emit got_rh_version(rh_version);
-  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-  QString rhm_version = CSystemCallWrapper::rhm_version();
-  emit got_rh_management_version(rhm_version);
-  emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-  QString uas[] = {
-    IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
-    IUpdaterComponent::RH, IUpdaterComponent::RHMANAGEMENT, ""};
-
-  for (int i = 0; uas[i] != ""; ++i) {
-    bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
-    emit update_available(uas[i], ua);
+  try {
+    int initialized_component_count = 0;
+    QString p2p_version = get_p2p_version();
+    emit got_p2p_version(p2p_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString chrome_version;
+    CSystemCallWrapper::chrome_version(chrome_version);
+
+    emit got_chrome_version(chrome_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString vbox_version = CSystemCallWrapper::virtual_box_version();
+    emit got_vbox_version(vbox_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString rh_version = CSystemCallWrapper::rh_version();
+    emit got_rh_version(rh_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString rhm_version = CSystemCallWrapper::rhm_version();
+    emit got_rh_management_version(rhm_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString uas[] = {
+      IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
+      IUpdaterComponent::RH, IUpdaterComponent::RHMANAGEMENT, ""};
+
+    for (int i = 0; uas[i] != ""; ++i) {
+      bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
+      emit update_available(uas[i], ua);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+  } catch (std::exception& ex) {
+    CApplicationLog::Instance()->LogError("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
   }
 
   emit finished();

@@ -253,24 +253,29 @@ CVboxManager::refresh_timer_timeout() {
 
 void
 CVboxManager::start_work() {
-  m_refresh_timer = new QTimer(this);
-  connect(m_refresh_timer, &QTimer::timeout, this, &CVboxManager::refresh_timer_timeout);
-  m_refresh_timer->setInterval(VBOXMANAGE_TIMEOUT+1000);
-  m_refresh_timer->start();
+  try {
+    m_refresh_timer = new QTimer(this);
+    connect(m_refresh_timer, &QTimer::timeout, this, &CVboxManager::refresh_timer_timeout);
+    m_refresh_timer->setInterval(VBOXMANAGE_TIMEOUT+1000);
+    m_refresh_timer->start();
 
-  init_machines();
+    init_machines();
 
-  int exit_code;
-  QStringList args, out;
+    int exit_code;
+    QStringList args, out;
 
-  args << "-v";
-  system_call_wrapper_error_t st_res =
-      CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
-                                     args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
+    args << "-v";
+    system_call_wrapper_error_t st_res =
+        CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
+                                       args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
-  if (st_res == SCWE_SUCCESS && !out.empty()) {
-    m_version = out[0];
+    if (st_res == SCWE_SUCCESS && !out.empty()) {
+      m_version = out[0];
+    }
+  } catch (std::exception& exc) {
+    CApplicationLog::Instance()->LogError("CVboxManager::start_work() exc : %s", exc.what());
   }
+
   emit initialized();
 }
 ////////////////////////////////////////////////////////////////////////////

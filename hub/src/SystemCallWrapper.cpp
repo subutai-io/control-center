@@ -570,6 +570,13 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 
 void
 CSystemCallThreadWrapper::do_system_call() {
-  m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_lst_output, m_exit_code, m_read_output);
+  try {
+    m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_lst_output, m_exit_code, m_read_output);
+  } catch (std::exception& exc) {
+    CApplicationLog::Instance()->LogError("Err in CSystemCallThreadWrapper::do_system_call(). %s",
+                                          exc.what());
+    CApplicationLog::Instance()->LogError("Err in CSystemCallThreadWrapper::do_system_call(). %s",
+                                          m_command.toStdString().c_str());
+  }
   emit finished();
 }
