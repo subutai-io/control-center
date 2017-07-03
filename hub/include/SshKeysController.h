@@ -52,6 +52,7 @@ private slots:
 signals:
   void key_files_changed();
   void ssh_key_send_progress(int part, int total);
+  void ssh_key_send_finished();
 };
 
 #endif // SSHKEYSCONTROLLER_H

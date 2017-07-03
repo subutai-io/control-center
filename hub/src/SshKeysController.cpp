@@ -147,6 +147,8 @@ CSshKeysController::send_data_to_hub() {
                                                         i->second.second);
     emit ssh_key_send_progress(++part, total);
   }
+
+  emit ssh_key_send_finished();
 }
 ////////////////////////////////////////////////////////////////////////////
 

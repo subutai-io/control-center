@@ -54,6 +54,8 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
           this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
+  connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_finished,
+          this, &DlgGenerateSshKey::ssh_key_send_finished_sl);
 
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
@@ -161,6 +163,15 @@ void
 DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
   ui->pb_send_to_hub->setMaximum(total);
   ui->pb_send_to_hub->setValue(part);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::ssh_key_send_finished_sl() {
+  ui->pb_send_to_hub->setValue(ui->pb_send_to_hub->maximum());
+  CSshKeysController::Instance().rebuild_bit_matrix();
+  rebuild_environments_model();
+  set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 
