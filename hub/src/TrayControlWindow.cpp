@@ -31,7 +31,7 @@ using namespace update_system;
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
-  m_act_generate_ssh(NULL),
+  m_act_ssh_keys_management(NULL),
   m_act_quit(NULL),
   m_act_settings(NULL),
   m_act_info(NULL),
@@ -97,7 +97,7 @@ TrayControlWindow::~TrayControlWindow() {
   }
 
   QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
-  QAction *acts[] = { m_act_generate_ssh, m_act_quit,
+  QAction *acts[] = { m_act_ssh_keys_management, m_act_quit,
                       m_act_settings, m_act_info, m_act_vbox,
                       m_act_hub, m_act_launch, m_act_launch_SS,
                       m_act_launch_Hub, m_act_about, m_act_logout,
@@ -209,8 +209,8 @@ TrayControlWindow::create_tray_actions() {
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
 
-  m_act_generate_ssh = new QAction(tr("Generate SSH key"), this);
-  connect(m_act_generate_ssh, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
+  m_act_ssh_keys_management = new QAction(tr("SSH-keys management"), this);
+  connect(m_act_ssh_keys_management, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
@@ -229,7 +229,7 @@ TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon->setContextMenu(m_tray_menu);
 
   m_tray_menu->addAction(m_act_info);
-  m_tray_menu->addAction(m_act_generate_ssh);
+  m_tray_menu->addAction(m_act_ssh_keys_management);
   m_tray_menu->addSeparator();
 
   m_launch_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),

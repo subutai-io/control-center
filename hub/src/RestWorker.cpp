@@ -327,9 +327,31 @@ CRestWorker::add_sshkey_to_environments(const QString &key_name,
   obj["sshKey"] = QJsonValue(key);
   obj["environments"] = arr_environments;
 
-  qDebug() << "****";
-  qDebug() << obj;
-  qDebug() << " ";
+  QJsonDocument doc(obj);
+  QByteArray doc_serialized = doc.toJson();
+  QUrl url(str_url);
+  QNetworkRequest req(url);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+
+  QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CRestWorker::remove_sshkey_from_environments(const QString &key_name,
+                                             const QString &key,
+                                             const std::vector<QString> &lst_environments) {
+  static const QString str_url(hub_post_url().arg("environments/remove-keys"));
+  QJsonObject obj;
+  QJsonArray arr_environments;
+
+  for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
+    arr_environments.push_back(QJsonValue(*i));
+
+  obj["key_name"] = key_name;
+  obj["sshKey"] = QJsonValue(key);
+  obj["environments"] = arr_environments;
 
   QJsonDocument doc(obj);
   QByteArray doc_serialized = doc.toJson();
