@@ -722,10 +722,10 @@ TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss() {
+void
+CSS_Launcher::start() {
   std::string rh_ip;
   int ec = 0;
-
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -739,15 +739,32 @@ void TrayControlWindow::launch_ss() {
     //after that got_ss_console_readiness_sl will be called
     CRestWorker::Instance()->check_if_ss_console_is_ready(
           QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
+    emit finished(false);
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                 arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                 arg(ec));
-    m_act_launch_SS->setEnabled(true);
-    return;
+    emit finished(true);
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::launch_ss() {
+  QThread *th = new QThread;
+  CSS_Launcher *l = new CSS_Launcher;
+
+  connect(th, &QThread::started, l, &CSS_Launcher::start);
+  connect(l, &CSS_Launcher::finished, th, &QThread::quit);
+  connect(l, &CSS_Launcher::finished, [this](bool enable_act){
+    m_act_launch_SS->setEnabled(enable_act);
+  });
+  connect(th, &QThread::finished, l, &CSS_Launcher::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
+
+  l->moveToThread(th);
+  th->start();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1017,3 +1034,4 @@ TrayControlWindow::ssh_to_container_finished(int result,
   act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
+

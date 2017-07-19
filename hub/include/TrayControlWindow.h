@@ -53,6 +53,17 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+
+class CSS_Launcher : public QObject {
+  Q_OBJECT
+private:
+public:
+public slots:
+  void start();
+signals:
+  void finished(bool enable_act);
+};
+
 /*!
  * \brief Class for managing CVBPlayerItem list
  */
