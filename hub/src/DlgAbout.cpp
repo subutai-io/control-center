@@ -83,9 +83,9 @@ void DlgAbout::check_for_versions_and_updates() {
   DlgAboutInitializer* di = new DlgAboutInitializer;
 
   connect(di, &DlgAboutInitializer::finished,
-          th, &QThread::quit, Qt::DirectConnection);
+          this, &DlgAbout::initialization_finished);
   connect(di, &DlgAboutInitializer::finished,
-          this, &DlgAbout::initialization_finished, Qt::DirectConnection);
+          th, &QThread::quit);
   connect(th, &QThread::started, di,
           &DlgAboutInitializer::do_initialization);
   connect(di, &DlgAboutInitializer::got_chrome_version,

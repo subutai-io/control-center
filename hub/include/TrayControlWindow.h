@@ -53,17 +53,6 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-
-class CSS_Launcher : public QObject {
-  Q_OBJECT
-private:
-public:
-public slots:
-  void start();
-signals:
-  void finished(bool enable_act);
-};
-
 /*!
  * \brief Class for managing CVBPlayerItem list
  */
@@ -186,6 +175,7 @@ private slots:
                              const QString& msg);
   void logout();
   void login_success();
+  void launch_ss_console_finished_sl();
 
   /*virtualbox slots*/
   void fill_vm_menu();
