@@ -34,6 +34,9 @@
         <file>tray_splash.png</file>
         <file>ssh-keys.png</file>
         <file>notifications_history.png</file>
+        <file>error_notification.png</file>
+        <file>info_notification.png</file>
+        <file>warning_notification.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

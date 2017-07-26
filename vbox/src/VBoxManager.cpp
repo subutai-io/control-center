@@ -12,7 +12,6 @@ static const int VBOXMANAGE_TIMEOUT = 5000;
 CVboxManager::CVboxManager(QObject* parent) :
   QObject(parent),
   m_refresh_timer(nullptr) {
-
 }
 
 CVboxManager::~CVboxManager() {
@@ -25,6 +24,7 @@ void
 CVboxManager::update_machine_state(const QString &vm_id) {
   int exit_code;
   QStringList args, out;
+
   args << "showvminfo" << vm_id << "--machinereadable";
 
   system_call_wrapper_error_t st_res =
@@ -70,6 +70,8 @@ CVboxManager::init_machines() {
   QRegExp part0("\".+\"");
   QRegExp part1("\\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\}");
 
+  std::vector<QString> lst_existing_vms;
+
   for (QString item : out) {
     int i0, i1, l0, l1;
     i0 = part0.indexIn(item);
@@ -82,12 +84,30 @@ CVboxManager::init_machines() {
     QString id = item.mid(i1, l1);
 
     if (name.indexOf("subutai") == -1) continue;
+
+    lst_existing_vms.push_back(id);
     if (m_dct_machines.find(id) != m_dct_machines.end()) continue;
 
     CVirtualMachine* machine = new CVirtualMachine(id, name);
     m_dct_machines[id] = machine;
+    emit vm_add(machine->id());
     update_machine_state(id);
   }
+
+  std::vector<QString> lst_vm_to_remove;
+  for (auto vm = m_dct_machines.begin(); vm != m_dct_machines.end(); ++vm) {
+    QString id = vm->first;
+    if (std::find(lst_existing_vms.begin(), lst_existing_vms.end(), id) ==
+        lst_existing_vms.end()) {
+      lst_vm_to_remove.push_back(id);
+    }
+  }
+
+  for (auto vm_id : lst_vm_to_remove) {
+    m_dct_machines.erase(vm_id);
+    emit vm_remove(vm_id);
+  }
+
   m_refresh_timer->start();
   return 0;
 }
@@ -233,24 +253,29 @@ CVboxManager::refresh_timer_timeout() {
 
 void
 CVboxManager::start_work() {
-  m_refresh_timer = new QTimer(this);
-  connect(m_refresh_timer, &QTimer::timeout, this, &CVboxManager::refresh_timer_timeout);
-  m_refresh_timer->setInterval(VBOXMANAGE_TIMEOUT+1000);
-  m_refresh_timer->start();
+  try {
+    m_refresh_timer = new QTimer(this);
+    connect(m_refresh_timer, &QTimer::timeout, this, &CVboxManager::refresh_timer_timeout);
+    m_refresh_timer->setInterval(VBOXMANAGE_TIMEOUT+1000);
+    m_refresh_timer->start();
 
-  init_machines();
+    init_machines();
 
-  int exit_code;
-  QStringList args, out;
+    int exit_code;
+    QStringList args, out;
 
-  args << "-v";
-  system_call_wrapper_error_t st_res =
-      CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
-                                     args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
+    args << "-v";
+    system_call_wrapper_error_t st_res =
+        CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().vboxmanage_path(),
+                                       args, out, exit_code, true, VBOXMANAGE_TIMEOUT);
 
-  if (st_res == SCWE_SUCCESS && !out.empty()) {
-    m_version = out[0];
+    if (st_res == SCWE_SUCCESS && !out.empty()) {
+      m_version = out[0];
+    }
+  } catch (std::exception& exc) {
+    CApplicationLog::Instance()->LogError("CVboxManager::start_work() exc : %s", exc.what());
   }
+
   emit initialized();
 }
 ////////////////////////////////////////////////////////////////////////////

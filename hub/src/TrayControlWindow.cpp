@@ -31,7 +31,7 @@ using namespace update_system;
 TrayControlWindow::TrayControlWindow(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::TrayControlWindow),
-  m_act_generate_ssh(NULL),
+  m_act_ssh_keys_management(NULL),
   m_act_quit(NULL),
   m_act_settings(NULL),
   m_act_info(NULL),
@@ -97,7 +97,7 @@ TrayControlWindow::~TrayControlWindow() {
   }
 
   QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
-  QAction *acts[] = { m_act_generate_ssh, m_act_quit,
+  QAction *acts[] = { m_act_ssh_keys_management, m_act_quit,
                       m_act_settings, m_act_info, m_act_vbox,
                       m_act_hub, m_act_launch, m_act_launch_SS,
                       m_act_launch_Hub, m_act_about, m_act_logout,
@@ -152,6 +152,8 @@ void
 TrayControlWindow::add_vm_menu(const QString &vm_id) {
   const CVirtualMachine* vm = CVboxManager::Instance()->vm_by_id(vm_id);
   if (vm == NULL) return;
+  if (m_dct_player_menus.find(vm_id) !=
+      m_dct_player_menus.end()) return;
 
   CVBPlayerItem *pl = new CVBPlayerItem(vm, m_w_Player);
 
@@ -207,8 +209,8 @@ TrayControlWindow::create_tray_actions() {
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
 
-  m_act_generate_ssh = new QAction(tr("Generate SSH key"), this);
-  connect(m_act_generate_ssh, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
+  m_act_ssh_keys_management = new QAction(tr("SSH-keys management"), this);
+  connect(m_act_ssh_keys_management, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
@@ -227,7 +229,7 @@ TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon->setContextMenu(m_tray_menu);
 
   m_tray_menu->addAction(m_act_info);
-  m_tray_menu->addAction(m_act_generate_ssh);
+  m_tray_menu->addAction(m_act_ssh_keys_management);
   m_tray_menu->addSeparator();
 
   m_launch_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
@@ -274,16 +276,16 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   icon_x = m_sys_tray_icon->geometry().x();
   icon_y = m_sys_tray_icon->geometry().y();
 
-  int sw, sh;
-  sw = QApplication::primaryScreen()->geometry().width();
-  sh = QApplication::primaryScreen()->geometry().height();
+  int adw, adh;
+  adw = QApplication::desktop()->availableGeometry().width();
+  adh = QApplication::desktop()->availableGeometry().height();
 
   if (icon_x == 0 && icon_y == 0) {
     if (use_cursor_position) {
       icon_x = QCursor::pos().x();
       icon_y = QCursor::pos().y();
     } else {
-      int coords[] = { sw, 0, sw, sh, 0, sh, 0, 0 };
+      int coords[] = { adw, 0, adw, adh, 0, adh, 0, 0 };
       uint32_t pc = CSettingsManager::Instance().preferred_notifications_place();
       icon_x = coords[pc*2];
       icon_y = coords[pc*2 + 1];
@@ -291,18 +293,22 @@ TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src
   }
 
   int dx, dy;
-  dx = sw - QApplication::desktop()->availableGeometry().width();
-#ifdef RT_OS_LINUX
-  dy = 0;
-#elif RT_OS_WINDOWS
-  dy = sh - QApplication::desktop()->availableGeometry().height() + 50;
-#elif RT_OS_DARWIN
-  dy = 50;
+  dy = QApplication::desktop()->availableGeometry().y();
+  dx = QApplication::desktop()->availableGeometry().x();
+
+#ifdef RT_OS_WINDOWS
+  dy += dy ? 0 : 35; //don't know why -20 and 35
 #endif
 
-  src_x = icon_x < sw/2 ? -dlg_w+dx : sw-dx;
-  dst_x = icon_x < sw/2 ? src_x+dlg_w : src_x-dlg_w;
-  src_y = icon_y < sh/2 ? dy : sh-dy-dlg_h;
+  if (icon_x < adw/2) {
+    src_x = -dlg_w + dx;
+    dst_x = src_x + dlg_w;
+  } else {
+    src_x = adw + dx;
+    dst_x = src_x - dlg_w;
+  }
+
+  src_y = icon_y < adh / 2 ? dy : adh - dy - dlg_h;
   dst_y = src_y;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -368,6 +374,12 @@ void
 TrayControlWindow::login_success() {
   CHubController::Instance().start();
   m_sys_tray_icon->show();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+TrayControlWindow::launch_ss_console_finished_sl() {
+  m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -719,7 +731,6 @@ TrayControlWindow::vbox_menu_btn_rem_triggered(const QString& vm_id) {
 void TrayControlWindow::launch_ss() {
   std::string rh_ip;
   int ec = 0;
-
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::get_rh_ip_via_libssh2(
         CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -733,14 +744,13 @@ void TrayControlWindow::launch_ss() {
     //after that got_ss_console_readiness_sl will be called
     CRestWorker::Instance()->check_if_ss_console_is_ready(
           QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
+    m_act_launch_SS->setEnabled(true);
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                 arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                 arg(ec));
-    m_act_launch_SS->setEnabled(true);
-    return;
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1011,3 +1021,4 @@ TrayControlWindow::ssh_to_container_finished(int result,
   act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
+

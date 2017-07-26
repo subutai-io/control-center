@@ -4,7 +4,6 @@
 #include <QFile>
 #include <RestWorker.h>
 #include <QFileDialog>
-#include <QThread>
 
 #include "HubController.h"
 #include "SystemCallWrapper.h"
@@ -124,7 +123,9 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 void
 CSshKeysController::send_data_to_hub() {
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
+  std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
+
   cols = m_lst_key_files.size();
   rows = CHubController::Instance().lst_healthy_environments().size();
 
@@ -133,21 +134,37 @@ CSshKeysController::send_data_to_hub() {
     QString key_name = m_lst_key_files[col];
 
     for (size_t row = 0; row < rows; ++row) {
-      if (!m_current_bit_matrix[row][col] ||
-          (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col])) continue; //check
-      dct_to_send[key].first = key_name;
-      dct_to_send[key].second.push_back(CHubController::Instance().lst_healthy_environments()[row].id());
+      if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) continue;
+      if (!m_current_bit_matrix[row][col]) {
+        dct_to_remove[key].first = key_name;
+        dct_to_remove[key].second.push_back(
+              CHubController::Instance().lst_healthy_environments()[row].id());
+      } else {
+        dct_to_send[key].first = key_name;
+        dct_to_send[key].second.push_back(
+              CHubController::Instance().lst_healthy_environments()[row].id());
+      }
     }
   }
 
   int part = 0;
   int total = (int) dct_to_send.size();
+
   for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
     CRestWorker::Instance()->add_sshkey_to_environments(i->second.first,
                                                         i->first,
                                                         i->second.second);
     emit ssh_key_send_progress(++part, total);
   }
+
+  for (auto i = dct_to_remove.begin(); i != dct_to_remove.end(); ++i) {
+    CRestWorker::Instance()->remove_sshkey_from_environments(i->second.first,
+                                                             i->first,
+                                                             i->second.second);
+    emit ssh_key_send_progress(++part, total);
+  }
+
+  emit ssh_key_send_finished();
 }
 ////////////////////////////////////////////////////////////////////////////
 

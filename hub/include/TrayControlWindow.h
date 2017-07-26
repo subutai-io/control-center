@@ -135,7 +135,7 @@ private:
   QMenu *m_vbox_menu;
   QMenu *m_launch_menu;
 
-  QAction *m_act_generate_ssh;
+  QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
   QAction *m_act_settings;
   QAction *m_act_info;
@@ -175,6 +175,7 @@ private slots:
                              const QString& msg);
   void logout();
   void login_success();
+  void launch_ss_console_finished_sl();
 
   /*virtualbox slots*/
   void fill_vm_menu();

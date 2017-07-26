@@ -42,6 +42,7 @@ private slots:
   void btn_cancel_released();
   void btn_p2p_file_dialog_released();
   void btn_ssh_command_released();
+  void btn_ssh_keygen_command_released();
   void btn_vboxmanage_command_released();
   void btn_logs_storage_released();
   void btn_ssh_keys_storage_released();

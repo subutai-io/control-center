@@ -344,16 +344,20 @@ CHubControllerP2PWorker::~CHubControllerP2PWorker()
 
 void
 CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
-  system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash,
-                                                                          m_env_key,
-                                                                          "dhcp");
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Failed to join to p2p network. Error : %1").
-                      arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
-    return;
+  try {
+    system_call_wrapper_error_t err = CSystemCallWrapper::join_to_p2p_swarm(m_env_hash,
+                                                                            m_env_key,
+                                                                            "dhcp");
+    if (err != SCWE_SUCCESS) {
+      QString err_msg = QString("Failed to join to p2p network. Error : %1").
+                        arg(CSystemCallWrapper::scwe_error_to_str(err));
+      CNotificationObserver::Error(err_msg);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
+      return;
+    }
+  } catch (std::exception& exc) {
+    CApplicationLog::Instance()->LogError("Err in join_to_p2p_swarm_begin. %s", exc.what());
   }
 
   emit join_to_p2p_swarm_finished((int)SLE_SUCCESS);
