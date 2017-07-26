@@ -38,10 +38,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(ui->btn_generate_new_key, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_generate_released);
+
   connect(ui->btn_send_to_hub, &QPushButton::released,
-          this, &DlgGenerateSshKey::btn_send_to_hub_released);
-  connect(&CHubController::Instance(), &CHubController::environments_updated,
-          this, &DlgGenerateSshKey::environments_updated);
+          this, &DlgGenerateSshKey::btn_send_to_hub_released); 
 
   connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
           this, &DlgGenerateSshKey::lstv_keys_current_changed);
@@ -54,8 +53,12 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
           this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
+
   connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_finished,
           this, &DlgGenerateSshKey::ssh_key_send_finished_sl);
+
+  connect(&CSshKeysController::Instance(), &CSshKeysController::matrix_updated,
+          this, &DlgGenerateSshKey::matrix_updated_slot);
 
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
@@ -90,9 +93,9 @@ DlgGenerateSshKey::set_environments_checked_flag() {
 void
 DlgGenerateSshKey::rebuild_environments_model() {
   m_model_environments->clear();
-  for (auto i = CHubController::Instance().lst_healthy_environments().begin();
-       i != CHubController::Instance().lst_healthy_environments().end(); ++i) {
-    QStandardItem* nitem = new QStandardItem(i->name());
+  std::vector<CEnvironment> tmp = CSshKeysController::Instance().lst_healthy_environments();
+  for (auto i : tmp) {
+    QStandardItem* nitem = new QStandardItem(i.name());
     nitem->setCheckable(true);
     nitem->setCheckState(Qt::Unchecked);
     nitem->setEditable(false);
@@ -104,9 +107,8 @@ DlgGenerateSshKey::rebuild_environments_model() {
 void
 DlgGenerateSshKey::rebuild_keys_model() {
   m_model_keys->clear();
-  for (auto i = CSshKeysController::Instance().lst_key_files().begin();
-       i != CSshKeysController::Instance().lst_key_files().end(); ++i) {
-    QStandardItem* item = new QStandardItem(*i);
+  for (auto i : CSshKeysController::Instance().lst_key_files()) {
+    QStandardItem* item = new QStandardItem(i);
     item->setEditable(false);
     m_model_keys->appendRow(item);
   }
@@ -136,17 +138,6 @@ DlgGenerateSshKey::btn_send_to_hub_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::environments_updated(int update_result) {
-  if (update_result == CHubController::RER_EMPTY ||
-      update_result == CHubController::RER_NO_DIFF) return;
-
-  CSshKeysController::Instance().rebuild_bit_matrix();
-  rebuild_environments_model();
-  set_environments_checked_flag();
-}
-/////////////////////////////////////////////////////// /////////////////////
-
-void
 DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex ix0,
                                              QModelIndex ix1) {
   UNUSED_ARG(ix1);
@@ -169,17 +160,19 @@ DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
 void
 DlgGenerateSshKey::ssh_key_send_finished_sl() {
   ui->pb_send_to_hub->setValue(ui->pb_send_to_hub->maximum());
-  CSshKeysController::Instance().rebuild_bit_matrix();
-  rebuild_environments_model();
-  set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
-  if (!m_change_everything_on_all_select) return;
+DlgGenerateSshKey::chk_select_all_checked_changed(int st) {  
   if (CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked))
     set_environments_checked_flag();
+}
+
+void
+DlgGenerateSshKey::matrix_updated_slot() {
+  rebuild_environments_model();
+  set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 

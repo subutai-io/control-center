@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <stdint.h>
+#include "HubController.h"
 
 class CSshKeysController : public QObject {
   Q_OBJECT
@@ -13,6 +14,7 @@ private:
   QString m_current_key;
   int32_t m_current_key_col;
 
+  std::vector<CEnvironment> m_lst_healthy_environments;
   std::vector<bool> m_lst_all_selected;
   typedef std::vector<std::vector<bool> > bit_matrix;
   bit_matrix m_original_bit_matrix;
@@ -45,6 +47,8 @@ public:
   const QStringList& lst_key_files() const {return m_lst_key_files;}
   QStringList keys_in_environment(const QString& env_id) const;
 
+  const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
+
 private slots:
   void ssh_key_send_progress_sl(int part, int total);
   void environments_updated(int rr);
@@ -53,6 +57,8 @@ signals:
   void key_files_changed();
   void ssh_key_send_progress(int part, int total);
   void ssh_key_send_finished();
+
+  void matrix_updated();
 };
 
 #endif // SSHKEYSCONTROLLER_H

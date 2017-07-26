@@ -2,15 +2,19 @@
 
 #include <QDir>
 #include <QFile>
-#include <RestWorker.h>
 #include <QFileDialog>
+#include <algorithm>
 
-#include "HubController.h"
+#include "RestWorker.h"
 #include "SystemCallWrapper.h"
 #include "NotificationObserver.h"
+#include "Locker.h"
+
+static SynchroPrimitives::CriticalSection cs_rbm;
 
 CSshKeysController::CSshKeysController() :
   m_current_key_col(-1) {
+  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
   refresh_key_files();
   rebuild_bit_matrix();
   connect(&CHubController::Instance(), &CHubController::environments_updated,
@@ -61,9 +65,10 @@ CSshKeysController::refresh_key_files() {
 
 void
 CSshKeysController::rebuild_bit_matrix() {
-  size_t healthy_environments_count = CHubController::Instance().lst_healthy_environments().size();
+  SynchroPrimitives::Locker lock(&cs_rbm);
+
   size_t cols, rows;
-  rows = healthy_environments_count;
+  rows = m_lst_healthy_environments.size();
   cols = m_lst_key_files.size();
   m_current_bit_matrix.erase(m_current_bit_matrix.begin(), m_current_bit_matrix.end());
 
@@ -79,11 +84,13 @@ CSshKeysController::rebuild_bit_matrix() {
 
   for (size_t row = 0; row < rows; ++row) {
     m_current_bit_matrix[row] = CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content,
-                                  CHubController::Instance().lst_healthy_environments()[row].id());
+                                  m_lst_healthy_environments[row].id());
   }
   m_original_bit_matrix.erase(m_original_bit_matrix.begin(), m_original_bit_matrix.end());
   std::copy(m_current_bit_matrix.begin(), m_current_bit_matrix.end(),
             std::back_inserter(m_original_bit_matrix));
+
+  emit matrix_updated();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -120,36 +127,52 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static SynchroPrimitives::CriticalSection cs_sdth;
 void
 CSshKeysController::send_data_to_hub() {
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
+  std::vector<size_t> lst_to_remove_idxs;
+  std::vector<CEnvironment> lst_to_leave;
 
-  cols = m_lst_key_files.size();
-  rows = CHubController::Instance().lst_healthy_environments().size();
+  {
+    SynchroPrimitives::Locker lock(&cs_sdth);
+    cols = m_lst_key_files.size();
+    rows = m_lst_healthy_environments.size();
+    for (size_t col = 0; col < cols; ++col) {
+      QString key = m_lst_key_content[col];
+      QString key_name = m_lst_key_files[col];
 
-  for (size_t col = 0; col < cols; ++col) {
-    QString key = m_lst_key_content[col];
-    QString key_name = m_lst_key_files[col];
+      for (size_t row = 0; row < rows; ++row) {
+        if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) {
+          continue;
+        }
 
-    for (size_t row = 0; row < rows; ++row) {
-      if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) continue;
-      if (!m_current_bit_matrix[row][col]) {
-        dct_to_remove[key].first = key_name;
-        dct_to_remove[key].second.push_back(
-              CHubController::Instance().lst_healthy_environments()[row].id());
-      } else {
-        dct_to_send[key].first = key_name;
-        dct_to_send[key].second.push_back(
-              CHubController::Instance().lst_healthy_environments()[row].id());
+        if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), row) == lst_to_remove_idxs.end()) {
+          lst_to_remove_idxs.push_back(row);
+        }
+
+        if (!m_current_bit_matrix[row][col]) {
+          dct_to_remove[key].first = key_name;
+          dct_to_remove[key].second.push_back(m_lst_healthy_environments[row].id());
+        } else {
+          dct_to_send[key].first = key_name;
+          dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
+        }
       }
     }
+
+    for (int i = 0; i < m_lst_healthy_environments.size(); ++i) {
+       if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
+       lst_to_leave.push_back(m_lst_healthy_environments[i]);
+    }
+
+    m_lst_healthy_environments = lst_to_leave;
   }
 
   int part = 0;
-  int total = (int) dct_to_send.size();
-
+  int total = (int) (dct_to_send.size() + dct_to_remove.size());
   for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
     CRestWorker::Instance()->add_sshkey_to_environments(i->second.first,
                                                         i->first,
@@ -165,6 +188,7 @@ CSshKeysController::send_data_to_hub() {
   }
 
   emit ssh_key_send_finished();
+  rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -225,9 +249,8 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
   QStringList result;
   size_t row = 0;
   bool found = false;
-  for (row = 0; row < CHubController::Instance().lst_healthy_environments().size(); ++row) {
-    if (CHubController::Instance().lst_healthy_environments()[row].id() != env_id) continue;
-
+  for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
+    if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
     break;
   }
@@ -253,6 +276,8 @@ void
 CSshKeysController::environments_updated(int rr) {
   if (rr == CHubController::RER_EMPTY ||
       rr == CHubController::RER_NO_DIFF) return;
+  SynchroPrimitives::Locker lock(&cs_sdth);
+  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
   rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
