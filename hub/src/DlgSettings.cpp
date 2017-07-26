@@ -84,6 +84,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(CSettingsManager::Instance().ssh_keys_storage());
   ui->le_vboxmanage_command->setText(CSettingsManager::Instance().vboxmanage_path());
+  ui->le_ssh_keygen_command->setText(CSettingsManager::Instance().ssh_keygen_cmd());
 
   ui->le_rtm_db_folder->setText(CSettingsManager::Instance().rtm_db_dir());
   ui->le_rtm_db_folder->setVisible(false);
@@ -116,9 +117,9 @@ DlgSettings::DlgSettings(QWidget *parent) :
   ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
-#ifdef RT_OS_DARWIN
+#ifndef RT_OS_LINUX
   ui->gb_terminal_settings->setVisible(false);
-#endif
+#endif  
 
   m_model_resource_hosts = new QStandardItemModel(this);
   ui->lstv_resource_hosts->setModel(m_model_resource_hosts);
@@ -140,6 +141,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
           this, &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_ssh_command, &QPushButton::released,
           this, &DlgSettings::btn_ssh_command_released);
+  connect(ui->btn_ssh_keygen_command, &QPushButton::released,
+          this, &DlgSettings::btn_ssh_keygen_command_released);
   connect(ui->btn_logs_storage, &QPushButton::released,
           this, &DlgSettings::btn_logs_storage_released);
   connect(ui->btn_ssh_keys_storage, &QPushButton::released,
@@ -260,6 +263,8 @@ DlgSettings::btn_ok_released() {
     {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_vboxmanage_command, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_keygen_command, can_launch_application, 1, can_launch_application_msg},
 
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
@@ -319,6 +324,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().set_use_animations(
         ui->chk_use_animations->checkState() == Qt::Checked);
+  CSettingsManager::Instance().set_ssh_keygen_cmd(ui->le_ssh_keygen_command->text());
 
   CSettingsManager::Instance().save_all();
   this->close();
@@ -344,6 +350,14 @@ DlgSettings::btn_ssh_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_ssh_keygen_command_released() {
+  QString fn = QFileDialog::getOpenFileName(this, "Ssh-keygen command");
+  if (fn == "") return;
+  ui->le_ssh_keygen_command->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -55,6 +55,7 @@ const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE("Dct_Notifications_I
 const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
+const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 /*!
  * \brief This template is used like field initializer for code size reduction
@@ -87,15 +88,18 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 ////////////////////////////////////////////////////////////////////////////
 
 static const int def_timeout = 20;
+static const QString settings_file = "subutai_tray.ini";
+
 CSettingsManager::CSettingsManager() :
-  m_settings(QSettings::NativeFormat, QSettings::UserScope, ORG_NAME, APP_NAME),
+  m_settings(QApplication::applicationDirPath() + QDir::separator() + settings_file,
+             QSettings::IniFormat),
   m_password_str(""),
   m_remember_me(false),
   m_refresh_time_sec(def_timeout),
   m_p2p_path(default_p2p_path()),
   m_notification_delay_sec(7),
   m_plugin_port(9998),
-  m_ssh_path("ssh"),
+  m_ssh_path(ssh_cmd_path()),
   m_ssh_user("root"),
 
   m_rh_host("127.0.0.1"),
@@ -119,7 +123,8 @@ CSettingsManager::CSettingsManager() :
   m_vboxmanage_path(vboxmanage_command_str()),
   m_notifications_level(CNotificationObserver::NL_INFO),
   m_use_animations(true),
-  m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP)
+  m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
+  m_ssh_keygen_cmd(ssh_keygen_cmd_path())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -154,6 +159,7 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
     {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
     {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
+    {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -186,12 +192,6 @@ CSettingsManager::CSettingsManager() :
     tmp_sv->pf_qvar_to_T(m_settings.value(tmp_sv->val), tmp_sv->field);
   }
 
-  //hack
-#ifdef RT_OS_LINUX
-  if (m_p2p_path == "p2p")
-    m_p2p_path = default_p2p_path();
-#endif
-
   bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
     uint32_t timeout = m_settings.value(SM_REFRESH_TIME).toUInt(&ok);
@@ -208,10 +208,22 @@ CSettingsManager::CSettingsManager() :
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
   }
 
-  if (m_vboxmanage_path == vboxmanage_command_str()) {
-    QString tmp;
-    if (CSystemCallWrapper::which(m_vboxmanage_path, tmp) == SCWE_SUCCESS)
-      m_vboxmanage_path = tmp;
+  //which using
+  QString* cmd_which[] = {
+    &m_vboxmanage_path, &m_ssh_keygen_cmd,
+    &m_ssh_path, &m_p2p_path, &m_terminal_cmd, nullptr
+  };
+
+  const QString default_values[] = {
+    vboxmanage_command_str(), ssh_keygen_cmd_path(),
+    ssh_cmd_path(), default_p2p_path(), default_terminal()
+  };
+
+  QString tmp;
+  for (int i = 0; cmd_which[i] ; ++i) {
+    if (*cmd_which[i] != default_values[i]) continue;
+    if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) continue;
+    *cmd_which[i] = tmp;
   }
 
   init_password();
@@ -432,4 +444,5 @@ SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
 SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE, uint32_t)
+SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
 #undef SET_FIELD_DEF

@@ -41,5 +41,7 @@ const QString& default_term_arg();
 
 const QString& vboxmanage_command_str();
 const QString& hub_site();
+const QString& ssh_keygen_cmd_path();
+const QString& ssh_cmd_path();
 
 #endif // OSBRANCHCONSTS_H

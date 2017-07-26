@@ -34,7 +34,8 @@ CSystemCallWrapper::ssystem_th(const QString &cmd,
                                unsigned long timeout_msec) {
   CSystemCallThreadWrapper sctw(cmd, args, read_output);
   QThread* th = new QThread;
-  QObject::connect(&sctw, &CSystemCallThreadWrapper::finished, th, &QThread::quit, Qt::DirectConnection);
+  QObject::connect(&sctw, &CSystemCallThreadWrapper::finished, th,
+                   &QThread::quit, Qt::DirectConnection); //have no idea why direct connection here?
   QObject::connect(th, &QThread::started, &sctw, &CSystemCallThreadWrapper::do_system_call);
   QObject::connect(th, &QThread::finished, th, &QThread::deleteLater);
 
@@ -213,13 +214,13 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                                         const QString& port,
                                         const QString& key)
 {
-  QString str_command = QString("%1 %2@%3 -p %4").
+  QString str_command = QString("\"%1\" %2@%3 -p %4").
                         arg(CSettingsManager::Instance().ssh_path()).
                         arg(user).arg(ip).arg(port);
 
   if (!key.isEmpty()) {
     CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
   QString cmd;
@@ -243,7 +244,25 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 #elif RT_OS_LINUX
   args << QString("%1;bash").arg(str_command);
 #elif RT_OS_WINDOWS
-  args << str_command;
+
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString str_command_quoted = QString("%1").arg(str_command);
+  QString cmd_args = QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command_quoted);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL,
+                          cmd_args_lpwstr,
+                          NULL, NULL,
+                          FALSE, 0,
+                          NULL, NULL,
+                          &si, &pi);
+  if (!cp) {
+    CApplicationLog::Instance()->LogError("Failed to create process %s. Err : %d",
+                                          cmd.toStdString().c_str(), GetLastError());
+    return SCWE_SSH_LAUNCH_FAILED;
+  }
+  return SCWE_SUCCESS;
 #endif
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
@@ -252,8 +271,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
 system_call_wrapper_error_t
 CSystemCallWrapper::generate_ssh_key(const QString &comment,
                                      const QString &file_path) {
-  QString cmd;
-  which("ssh-keygen", cmd);
+  QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();
   QStringList lst_args;
   lst_args << "-t" << "rsa" <<
               "-f" << file_path <<
@@ -484,7 +502,7 @@ CSystemCallWrapper::which(const QString &prog,
   args << prog;
   int exit_code;
   system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true);
+      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
   if (res != SCWE_SUCCESS) return res;
 
   if (exit_code == success_ec && !lst_out.empty()) {
@@ -553,6 +571,13 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 
 void
 CSystemCallThreadWrapper::do_system_call() {
-  m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_lst_output, m_exit_code, m_read_output);
+  try {
+    m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_lst_output, m_exit_code, m_read_output);
+  } catch (std::exception& exc) {
+    CApplicationLog::Instance()->LogError("Err in CSystemCallThreadWrapper::do_system_call(). %s",
+                                          exc.what());
+    CApplicationLog::Instance()->LogError("Err in CSystemCallThreadWrapper::do_system_call(). %s",
+                                          m_command.toStdString().c_str());
+  }
   emit finished();
 }
