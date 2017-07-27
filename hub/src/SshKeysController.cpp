@@ -208,7 +208,7 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
   bit = true;
   for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
     if (m_current_bit_matrix[row][m_current_key_col]) continue;
-    bit = false;
+    bit = false; break;
   }
   m_lst_all_selected[m_current_key_col] = bit;
 }
@@ -237,8 +237,7 @@ CSshKeysController::set_current_key_allselected(bool flag) {
 
   m_lst_all_selected[m_current_key_col] = flag;
   for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
-    m_current_bit_matrix[row][m_current_key_col] =
-        m_original_bit_matrix[row][m_current_key_col] || flag;
+    m_current_bit_matrix[row][m_current_key_col] = flag;
   }
   return true;
 }
