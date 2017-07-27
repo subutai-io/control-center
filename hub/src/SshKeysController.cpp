@@ -10,7 +10,6 @@
 #include "NotificationObserver.h"
 #include "Locker.h"
 
-static SynchroPrimitives::CriticalSection cs_rbm;
 
 CSshKeysController::CSshKeysController() :
   m_current_key_col(-1) {
@@ -65,7 +64,9 @@ CSshKeysController::refresh_key_files() {
 
 void
 CSshKeysController::rebuild_bit_matrix() {
-  SynchroPrimitives::Locker lock(&cs_rbm);
+
+  static SynchroPrimitives::CriticalSection cs;
+  SynchroPrimitives::Locker lock(&cs);
 
   size_t cols, rows;
   rows = m_lst_healthy_environments.size();
@@ -160,16 +161,16 @@ CSshKeysController::send_data_to_hub() {
           dct_to_send[key].first = key_name;
           dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
         }
-      }
-    }
+      } //for row
+    } //for col
 
-    for (int i = 0; i < m_lst_healthy_environments.size(); ++i) {
+    for (size_t i = 0; i < m_lst_healthy_environments.size(); ++i) {
        if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
        lst_to_leave.push_back(m_lst_healthy_environments[i]);
     }
 
     m_lst_healthy_environments = lst_to_leave;
-  }
+  } //lock
 
   int part = 0;
   int total = (int) (dct_to_send.size() + dct_to_remove.size());
@@ -266,6 +267,14 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CSshKeysController::refresh_healthy_environments() {
+  SynchroPrimitives::Locker lock(&cs_sdth); //do we need this lock ? o_O
+  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
+  rebuild_bit_matrix();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
   emit ssh_key_send_progress(part, total);
 }
@@ -275,8 +284,6 @@ void
 CSshKeysController::environments_updated(int rr) {
   if (rr == CHubController::RER_EMPTY ||
       rr == CHubController::RER_NO_DIFF) return;
-  SynchroPrimitives::Locker lock(&cs_sdth);
-  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
-  rebuild_bit_matrix();
+  refresh_healthy_environments();
 }
 ////////////////////////////////////////////////////////////////////////////
