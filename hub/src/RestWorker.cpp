@@ -453,6 +453,10 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
                           int &network_error,
                           QByteArray data,
                           bool show_network_err_msg) {
+
+  static SynchroPrimitives::CriticalSection cs_sr;
+  SynchroPrimitives::Locker lock(&cs_sr);
+
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());

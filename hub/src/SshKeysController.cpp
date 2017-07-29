@@ -61,11 +61,11 @@ CSshKeysController::refresh_key_files() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static SynchroPrimitives::CriticalSection cs_rbm;
 void
 CSshKeysController::rebuild_bit_matrix() {
 
-  static SynchroPrimitives::CriticalSection cs;
-  SynchroPrimitives::Locker lock(&cs);
+  SynchroPrimitives::Locker lock(&cs_rbm);
 
   size_t cols, rows;
   rows = m_lst_healthy_environments.size();
@@ -129,43 +129,49 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 
 void
 CSshKeysController::send_data_to_hub() {
+
+
+
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
   std::vector<size_t> lst_to_remove_idxs;
   std::vector<CEnvironment> lst_to_leave;
 
-  cols = m_lst_key_files.size();
-  rows = m_lst_healthy_environments.size();
-  for (size_t col = 0; col < cols; ++col) {
-    QString key = m_lst_key_content[col];
-    QString key_name = m_lst_key_files[col];
+  {
+    SynchroPrimitives::Locker lock(&cs_rbm);
+    cols = m_lst_key_files.size();
+    rows = m_lst_healthy_environments.size();
+    for (size_t col = 0; col < cols; ++col) {
+      QString key = m_lst_key_content[col];
+      QString key_name = m_lst_key_files[col];
 
-    for (size_t row = 0; row < rows; ++row) {
-      if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) {
-        continue;
-      }
+      for (size_t row = 0; row < rows; ++row) {
+        if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) {
+          continue;
+        }
 
-      if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), row) == lst_to_remove_idxs.end()) {
-        lst_to_remove_idxs.push_back(row);
-      }
+        if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), row) == lst_to_remove_idxs.end()) {
+          lst_to_remove_idxs.push_back(row);
+        }
 
-      if (!m_current_bit_matrix[row][col]) {
-        dct_to_remove[key].first = key_name;
-        dct_to_remove[key].second.push_back(m_lst_healthy_environments[row].id());
-      } else {
-        dct_to_send[key].first = key_name;
-        dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
-      }
-    } //for row
-  } //for col
+        if (!m_current_bit_matrix[row][col]) {
+          dct_to_remove[key].first = key_name;
+          dct_to_remove[key].second.push_back(m_lst_healthy_environments[row].id());
+        } else {
+          dct_to_send[key].first = key_name;
+          dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
+        }
+      } //for row
+    } //for col
 
-  for (size_t i = 0; i < m_lst_healthy_environments.size(); ++i) {
-    if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
-    lst_to_leave.push_back(m_lst_healthy_environments[i]);
+    for (size_t i = 0; i < m_lst_healthy_environments.size(); ++i) {
+      if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
+      lst_to_leave.push_back(m_lst_healthy_environments[i]);
+    }
+
+    m_lst_healthy_environments = lst_to_leave;
   }
-
-  m_lst_healthy_environments = lst_to_leave;
 
   int part = 0;
   int total = (int) (dct_to_send.size() + dct_to_remove.size());
@@ -263,6 +269,7 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 
 void
 CSshKeysController::refresh_healthy_environments() {
+  SynchroPrimitives::Locker lock(&cs_rbm);
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
   rebuild_bit_matrix();
 }

@@ -30,8 +30,10 @@ CSystemCallWrapper::ssystem_th(const QString &cmd,
                                const QStringList &args,
                                bool read_output,
                                unsigned long timeout_msec) {
-  QFuture<system_call_res_t> f1 = QtConcurrent::run(ssystem, cmd, args,
-                                                    read_output, timeout_msec);
+
+  QFuture<system_call_res_t> f1 = QtConcurrent::run(
+                                    ssystem, cmd, args,
+                                    read_output, timeout_msec);
   f1.waitForFinished();
   return f1.result();
 }
@@ -66,7 +68,7 @@ CSystemCallWrapper::ssystem(const QString &cmd,
 
   res.exit_code = proc.exitCode();
   res.res = proc.exitStatus() == QProcess::NormalExit ?
-        SCWE_SUCCESS : SCWE_PROCESS_CRASHED;
+              SCWE_SUCCESS : SCWE_PROCESS_CRASHED;
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -498,7 +500,6 @@ CSystemCallWrapper::chrome_version(QString &version) {
   version = "Couldn't get version on Win, sorry";
   return SCWE_SUCCESS;
 #endif
-  int exit_code;
   version = "undefined";
   QString cmd(command);
   QStringList args, lst_out;
