@@ -23,9 +23,10 @@ private:
   CSshKeysController();
   virtual ~CSshKeysController();
 
+  void rebuild_bit_matrix();
+
 public:
   void refresh_key_files();
-  void rebuild_bit_matrix();
   void generate_new_ssh_key(QWidget *parent);
   void send_data_to_hub();
 
@@ -48,6 +49,7 @@ public:
   QStringList keys_in_environment(const QString& env_id) const;
 
   const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
+  void refresh_healthy_environments();
 
 private slots:
   void ssh_key_send_progress_sl(int part, int total);

@@ -25,63 +25,50 @@ static QString error_strings[] = {
   "SSH launch error", "System call timeout"
 };
 
-system_call_wrapper_error_t
+system_call_res_t
 CSystemCallWrapper::ssystem_th(const QString &cmd,
                                const QStringList &args,
-                               QStringList &lst_out,
-                               int &exit_code,
                                bool read_output,
                                unsigned long timeout_msec) {
-  CSystemCallThreadWrapper sctw(cmd, args, read_output);
-  QThread* th = new QThread;
-  QObject::connect(&sctw, &CSystemCallThreadWrapper::finished, th,
-                   &QThread::quit, Qt::DirectConnection); //have no idea why direct connection here?
-  QObject::connect(th, &QThread::started, &sctw, &CSystemCallThreadWrapper::do_system_call);
-  QObject::connect(th, &QThread::finished, th, &QThread::deleteLater);
 
-  sctw.moveToThread(th);
-  th->start();
-  if (!th->wait(timeout_msec)) {
-    CApplicationLog::Instance()->LogError("Command %s failed with timeout.", cmd.toStdString().c_str());
-    return SCWE_TIMEOUT;
-  }
-
-  lst_out = sctw.lst_output();
-  exit_code = sctw.exit_code();
-  return sctw.result();
+  QFuture<system_call_res_t> f1 = QtConcurrent::run(
+                                    ssystem, cmd, args,
+                                    read_output, timeout_msec);
+  f1.waitForFinished();
+  return f1.result();
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t
+system_call_res_t
 CSystemCallWrapper::ssystem(const QString &cmd,
                             const QStringList &args,
-                            QStringList &lst_output,
-                            int &exit_code,
-                            bool read_output) {
+                            bool read_out,
+                            unsigned long timeout_msec) {
   QProcess proc;
-  proc.start(cmd, args);
+  system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
-  if (!proc.waitForStarted()) {
+  proc.start(cmd, args);
+  if (!proc.waitForStarted(timeout_msec)) {
     CApplicationLog::Instance()->LogError("Failed to wait for started process %s", cmd.toStdString().c_str());
     CApplicationLog::Instance()->LogError("%s", proc.errorString().toStdString().c_str());
-    return SCWE_CREATE_PROCESS;
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
   }
 
-  if (!proc.waitForFinished()) {
+  if (!proc.waitForFinished(timeout_msec)) {
     proc.terminate();
-    return SCWE_TIMEOUT;
+    res.res = SCWE_TIMEOUT;
+    return res;
   }
 
-  if (read_output) {
+  if (read_out) {
     QString output = QString(proc.readAll());
-    lst_output = output.split("\n", QString::SkipEmptyParts);
+    res.out = output.split("\n", QString::SkipEmptyParts);
   }
 
-  exit_code = proc.exitCode();
-  system_call_wrapper_error_t res =
-      proc.exitStatus() == QProcess::NormalExit ?
-        SCWE_SUCCESS : SCWE_PROCESS_CRASHED;
-
+  res.exit_code = proc.exitCode();
+  res.res = proc.exitStatus() == QProcess::NormalExit ?
+              SCWE_SUCCESS : SCWE_PROCESS_CRASHED;
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -89,20 +76,19 @@ CSystemCallWrapper::ssystem(const QString &cmd,
 bool
 CSystemCallWrapper::is_in_swarm(const QString& hash) {
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "show";
-  int exit_code = 0;
-  system_call_wrapper_error_t res = ssystem_th(cmd, args, lst_out, exit_code, true);
+  system_call_res_t res = ssystem_th(cmd, args, true);
 
-  if (res != SCWE_SUCCESS && exit_code != 1) {
-    CNotificationObserver::Error(error_strings[res]);
-    CApplicationLog::Instance()->LogError(error_strings[res].toStdString().c_str());
+  if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
+    CNotificationObserver::Error(error_strings[res.res]);
+    CApplicationLog::Instance()->LogError(error_strings[res.res].toStdString().c_str());
     return false;
   }
 
   //todo use indexOf
   bool is_in = false;
-  for (auto i = lst_out.begin(); i != lst_out.end() && !is_in; ++i) {
+  for (auto i = res.out.begin(); i != res.out.end() && !is_in; ++i) {
     is_in |= (i->indexOf(hash) != -1);
   }
   return is_in;
@@ -127,28 +113,29 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
           "-hash" << hash <<
           "-dht" << p2p_dht_arg();
 
-  system_call_wrapper_error_t res = SCWE_SUCCESS;
-  int exit_code = 0;
+  system_call_res_t res;
+
   int attempts_count = 5;
   do {
-    res = ssystem_th(cmd, args, lst_out, exit_code, true);
-    if (res != SCWE_SUCCESS)
+    res = ssystem_th(cmd, args, true);
+    if (res.res != SCWE_SUCCESS)
       continue;
-    if (lst_out.size() == 1 &&
-        lst_out.at(0).indexOf("[ERROR]") != -1) {
-      QString err_msg = lst_out.at(0);
+
+    if (res.out.size() == 1 &&
+        res.out.at(0).indexOf("[ERROR]") != -1) {
+      QString err_msg = res.out.at(0);
       CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-      res = SCWE_CANT_JOIN_SWARM;
+      res.res = SCWE_CANT_JOIN_SWARM;
     }
 
-    if (exit_code != 0) {
-      CApplicationLog::Instance()->LogError("Join to p2p swarm failed. Code : %d", exit_code);
-      res = SCWE_CREATE_PROCESS;
+    if (res.exit_code != 0) {
+      CApplicationLog::Instance()->LogError("Join to p2p swarm failed. Code : %d", res.exit_code);
+      res.res = SCWE_CREATE_PROCESS;
     }
 
     QThread::currentThread()->msleep(500);
-  } while (exit_code && --attempts_count);
-  return res;
+  } while (res.exit_code && --attempts_count);
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -157,11 +144,10 @@ CSystemCallWrapper::leave_p2p_swarm(const QString& hash) {
   if (hash == NULL || !is_in_swarm(hash))
     return SCWE_SUCCESS;
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "stop" << "-hash" << hash;
-  int exit_code = 0;
-  system_call_wrapper_error_t res = ssystem_th(cmd, args, lst_out, exit_code, true);
-  return res;
+  system_call_res_t res = ssystem_th(cmd, args, false); //we don't need output. AHAHA
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -172,15 +158,13 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
   return SCWE_SUCCESS;
 #elif defined(RT_OS_WINDOWS)
   QString cmd("sc");
-  QStringList args0, args1, lst_out0, lst_out1;
+  QStringList args0, args1;
   args0 << "stop" << "\"Subutai Social P2P\"";
   args1 << "start" << "\"Subutai Social P2P\"";
-  int ec = 0;
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args0, lst_out0, ec, true);
-  res = ssystem_th(cmd, args1, lst_out1, ec, true);
+  system_call_res_t res = ssystem_th(cmd, args0, false);
+  res = ssystem_th(cmd, args1, false);
   *res_code = RSE_SUCCESS;
-  return res;
+  return res.res;
 #else
   QString cmd("osascript");
   QStringList args, lst_out;
@@ -188,10 +172,9 @@ CSystemCallWrapper::restart_p2p_service(int *res_code) {
                   " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
                   " with administrator privileges";
   int ec = 0;
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, ec, true);
+  system_call_res_t res = ssystem_th(cmd, args, false);
   *res_code = RSE_SUCCESS;
-  return res;
+  return res.res;
 #endif
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -200,11 +183,10 @@ system_call_wrapper_error_t
 CSystemCallWrapper::check_container_state(const QString& hash,
                                           const QString& ip) {
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "show" << "-hash" << hash << "-check" << ip;
-  int exit_code = 0;
-  ssystem_th(cmd, args, lst_out, exit_code, false);
-  return exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
+  system_call_res_t res = ssystem_th(cmd, args, false);
+  return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -278,16 +260,14 @@ CSystemCallWrapper::generate_ssh_key(const QString &comment,
               "-C" << comment <<
               "-N" << "";
   QStringList lst_out;
-  int ec;
-  system_call_wrapper_error_t res =
-      ssystem(cmd, lst_args, lst_out, ec, true);
+  system_call_res_t res = ssystem(cmd, lst_args, true);
 
-  if (ec != 0 && res == SCWE_SUCCESS) {
-    res = SCWE_CANT_GENERATE_SSH_KEY;
-    CApplicationLog::Instance()->LogError("Can't generate ssh-key. exit_code : %d", ec);
+  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+    res.res = SCWE_CANT_GENERATE_SSH_KEY;
+    CApplicationLog::Instance()->LogError("Can't generate ssh-key. exit_code : %d", res.exit_code);
   }
 
-  return res;
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -452,38 +432,33 @@ CSystemCallWrapper::rhm_version() {
 
 system_call_wrapper_error_t
 CSystemCallWrapper::p2p_version(QString &version) {
-  int exit_code;
   version = "undefined";
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "version";
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
-    version = lst_out[0];
-  return res;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty())
+    version = res.out[0];
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t
 CSystemCallWrapper::p2p_status(QString &status) {
-  int exit_code;
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "status";
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-    for (auto i = lst_out.begin(); i != lst_out.end(); ++i)
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    for (auto i = res.out.begin(); i != res.out.end(); ++i)
       status += *i;
-  }
-  else {
+  } else {
     status = "undefined";
   }
-  return res;
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -498,15 +473,13 @@ CSystemCallWrapper::which(const QString &prog,
   static const char* which_cmd = "which";
 #endif
   QString cmd(which_cmd);
-  QStringList args, lst_out;
+  QStringList args;
   args << prog;
-  int exit_code;
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
-  if (res != SCWE_SUCCESS) return res;
+  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
+  if (res.res != SCWE_SUCCESS) return res.res;
 
-  if (exit_code == success_ec && !lst_out.empty()) {
-    path = lst_out[0];
+  if (res.exit_code == success_ec && !res.out.empty()) {
+    path = res.out[0];
     path.replace("\n", "\0");
     path.replace("\r", "\0");
     return SCWE_SUCCESS;
@@ -527,26 +500,21 @@ CSystemCallWrapper::chrome_version(QString &version) {
   version = "Couldn't get version on Win, sorry";
   return SCWE_SUCCESS;
 #endif
-  int exit_code;
   version = "undefined";
   QString cmd(command);
   QStringList args, lst_out;
   args << "--version";
 
-  system_call_wrapper_error_t res =
-      ssystem_th(cmd, args, lst_out, exit_code, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
 
-  if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
-    version = lst_out[0];
-  }
-  else {
-
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    version = res.out[0];
   }
 
   int index ;
   if ((index = version.indexOf('\n')) != -1)
     version.replace(index, 1, " ");
-  return res;
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -572,7 +540,7 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 void
 CSystemCallThreadWrapper::do_system_call() {
   try {
-    m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_lst_output, m_exit_code, m_read_output);
+    m_result = CSystemCallWrapper::ssystem(m_command, m_args, m_read_output);
   } catch (std::exception& exc) {
     CApplicationLog::Instance()->LogError("Err in CSystemCallThreadWrapper::do_system_call(). %s",
                                           exc.what());

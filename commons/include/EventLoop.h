@@ -15,6 +15,7 @@
 #include "MRE_Wrapper.h"
 #include "ThreadWrapper.h"
 
+static const int METHOD_TIMEOUT = 10000;
 template<class TMRE>
 class CEventLoop
 {
@@ -23,7 +24,6 @@ class CEventLoop
   typedef void (*pf_on_log)(const char* logMessage);
 
 private:
-  static const int METHOD_TIMEOUT = 10000;
 
   bool m_autoTerminate;
   pf_on_handle_exception m_onHandleException;

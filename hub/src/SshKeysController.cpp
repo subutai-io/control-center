@@ -10,8 +10,6 @@
 #include "NotificationObserver.h"
 #include "Locker.h"
 
-static SynchroPrimitives::CriticalSection cs_rbm;
-
 CSshKeysController::CSshKeysController() :
   m_current_key_col(-1) {
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
@@ -63,8 +61,10 @@ CSshKeysController::refresh_key_files() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static SynchroPrimitives::CriticalSection cs_rbm;
 void
 CSshKeysController::rebuild_bit_matrix() {
+
   SynchroPrimitives::Locker lock(&cs_rbm);
 
   size_t cols, rows;
@@ -127,9 +127,11 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static SynchroPrimitives::CriticalSection cs_sdth;
 void
 CSshKeysController::send_data_to_hub() {
+
+
+
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
@@ -137,7 +139,7 @@ CSshKeysController::send_data_to_hub() {
   std::vector<CEnvironment> lst_to_leave;
 
   {
-    SynchroPrimitives::Locker lock(&cs_sdth);
+    SynchroPrimitives::Locker lock(&cs_rbm);
     cols = m_lst_key_files.size();
     rows = m_lst_healthy_environments.size();
     for (size_t col = 0; col < cols; ++col) {
@@ -160,12 +162,12 @@ CSshKeysController::send_data_to_hub() {
           dct_to_send[key].first = key_name;
           dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
         }
-      }
-    }
+      } //for row
+    } //for col
 
-    for (int i = 0; i < m_lst_healthy_environments.size(); ++i) {
-       if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
-       lst_to_leave.push_back(m_lst_healthy_environments[i]);
+    for (size_t i = 0; i < m_lst_healthy_environments.size(); ++i) {
+      if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
+      lst_to_leave.push_back(m_lst_healthy_environments[i]);
     }
 
     m_lst_healthy_environments = lst_to_leave;
@@ -266,6 +268,14 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CSshKeysController::refresh_healthy_environments() {
+  SynchroPrimitives::Locker lock(&cs_rbm);
+  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
+  rebuild_bit_matrix();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
   emit ssh_key_send_progress(part, total);
 }
@@ -275,8 +285,6 @@ void
 CSshKeysController::environments_updated(int rr) {
   if (rr == CHubController::RER_EMPTY ||
       rr == CHubController::RER_NO_DIFF) return;
-  SynchroPrimitives::Locker lock(&cs_sdth);
-  m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
-  rebuild_bit_matrix();
+  refresh_healthy_environments();
 }
 ////////////////////////////////////////////////////////////////////////////

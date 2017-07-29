@@ -33,6 +33,13 @@ enum system_call_wrapper_error_t {
 };
 ////////////////////////////////////////////////////////////////////////////
 
+struct system_call_res_t {
+  system_call_wrapper_error_t res;
+  QStringList out;
+  int exit_code;
+};
+////////////////////////////////////////////////////////////////////////////
+
 enum restart_service_error_t {
   RSE_SUCCESS,
   RSE_MANUAL
@@ -42,28 +49,25 @@ enum restart_service_error_t {
 class CSystemCallThreadWrapper : public QObject {
   Q_OBJECT
 private:
-  system_call_wrapper_error_t m_result;
-  int m_exit_code;
+
+  system_call_res_t m_result;
   QString m_command;
   QStringList m_args;
-  QStringList m_lst_output;
   bool m_read_output;
 
 public:
-  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_result(SCWE_SUCCESS), m_exit_code(0),
-    m_command(""), m_read_output(true) {}
-  CSystemCallThreadWrapper(const QString& command, const QStringList &args, bool arg_read_output, QObject *parent = 0) :
+  CSystemCallThreadWrapper(QObject* parent = 0) : QObject(parent), m_command(""), m_read_output(true) {}
+
+  CSystemCallThreadWrapper(const QString& command,
+                           const QStringList &args,
+                           bool arg_read_output,
+                           QObject *parent = 0) :
     QObject(parent),
-    m_result(SCWE_SUCCESS),
-    m_exit_code(0),
     m_command(command),
     m_args(args),
     m_read_output(arg_read_output){}
 
-
-  system_call_wrapper_error_t result() const { return m_result;}
-  int exit_code() const {return m_exit_code;}
-  const QStringList& lst_output() const {return m_lst_output;}
+  system_call_res_t result() const { return m_result;}
   bool read_output() const {return m_read_output;}
 
   void abort() {emit finished();}
@@ -92,18 +96,15 @@ private:
                                                          std::vector<std::string> &lst_output);
 public:
 
-  static system_call_wrapper_error_t ssystem_th(const QString &cmd,
+  static system_call_res_t ssystem_th(const QString &cmd,
                                                  const QStringList &args,
-                                                 QStringList &lst_out,
-                                                 int &exit_code,
                                                  bool read_output,
                                                  unsigned long timeout_msec = ULONG_MAX);
 
-  static system_call_wrapper_error_t ssystem(const QString& cmd,
-                                              const QStringList& args,
-                                              QStringList &lst_output,
-                                              int &exit_code,
-                                              bool read_output);
+  static system_call_res_t ssystem(const QString &cmd,
+                                   const QStringList &args,
+                                   bool read_out,
+                                   unsigned long timeout_msec = 30000);
 
   static bool is_in_swarm(const QString &hash);
 
