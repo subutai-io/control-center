@@ -1,9 +1,11 @@
 #include <QTimer>
 #include <QEventLoop>
+
 #include "RestWorker.h"
 #include "ApplicationLog.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
+#include "Locker.h"
 
 CRestWorker::CRestWorker() {
   m_network_manager = create_network_manager();
@@ -410,9 +412,12 @@ CRestWorker::qjson_doc_from_arr(const QByteArray &arr, int& err_code) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static SynchroPrimitives::CriticalSection cs_reply;
+
 QNetworkReply *
 CRestWorker::get_reply(QNetworkAccessManager *nam,
                        QNetworkRequest &req) {
+  SynchroPrimitives::Locker lock(&cs_reply);
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
@@ -427,6 +432,7 @@ QNetworkReply *
 CRestWorker::post_reply(QNetworkAccessManager *nam,
                         const QByteArray& data,
                         QNetworkRequest &req) {
+  SynchroPrimitives::Locker lock(&cs_reply);
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
@@ -467,12 +473,7 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
 
-  QList<QSslError> errors2ignore;
-  errors2ignore << QSslError(QSslError::CertificateUntrusted);
-  errors2ignore << QSslError(QSslError::SelfSignedCertificate);
-  errors2ignore << QSslError(QSslError::HostNameMismatch);
   reply->ignoreSslErrors();
-  //reply->ignoreSslErrors(errors2ignore);
 
   loop->exec();
   loop->deleteLater();

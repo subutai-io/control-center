@@ -70,7 +70,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
   m_refresh_rh_list_progress_val(0)
 {
   ui->setupUi(this);
-  ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
+//  ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
+  ui->sb_refresh_timeout->setValue(3);
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
   ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
