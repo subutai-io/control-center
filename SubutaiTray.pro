@@ -171,6 +171,7 @@ win32: {
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
+  RC_FILE = tray.rc
 #  LIBS += -lpthread
 #  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
