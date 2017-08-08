@@ -283,8 +283,9 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  if (rr == CHubController::RER_EMPTY ||
-      rr == CHubController::RER_NO_DIFF) return;
+  UNUSED_ARG(rr);
+  if (m_lst_healthy_environments == CHubController::Instance().lst_healthy_environments())
+    return;
   refresh_healthy_environments();
 }
 ////////////////////////////////////////////////////////////////////////////

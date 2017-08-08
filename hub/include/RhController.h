@@ -20,7 +20,7 @@ private:
 
 public:
 
-  static const int REFRESH_DELAY_SEC = 6;
+  static const int REFRESH_DELAY_SEC = 8;
   static CRhController* Instance() {
     static CRhController inst;
     return &inst;
