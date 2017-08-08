@@ -208,7 +208,15 @@ CSsdpController::hanvle_ssdp_ok(const QByteArray &dtgr) {
       parse_ssdp_datagram(dtgr, m_ak_ok_dma);
 
   if (dct_packet.find(ife_st) == dct_packet.end()) return;
-  if (dct_packet[ife_st] != std::string(ssdp_rh_search_target())) return;
+  bool valid_st = false;
+  for (int i = 0; ssdp_rh_search_target_arr()[i]; ++i) {
+    if (dct_packet[ife_st] == std::string(ssdp_rh_search_target_arr()[i])) {
+      valid_st = true;
+      break;
+    }
+  }
+
+  if (!valid_st) return;
   if (dct_packet.find(ife_location) == dct_packet.end()) return;
   if (dct_packet.find(ife_usn) == dct_packet.end()) return;
 
@@ -240,10 +248,12 @@ CSsdpController::send_search() {
   static const char* search_format =
       "%sHOST: %s:%d\r\nST: %s\r\nMAN: \"ssdp:discover\"\r\nMX: 2\r\n\r\n";
   char buffer[send_buff_size] = {0}; //let this buffer located on stack
-  int res_size = sprintf(buffer, search_format, ssdp_start_lines[smt_search],
-                         SSDP_HOST_ADDRESS, SSDP_PORT, ssdp_rh_search_target());
 
-  send_datagram(QByteArray(buffer, res_size));
+  for (int i = 0; ssdp_rh_search_target_arr()[i]; ++i) {
+    int res_size = sprintf(buffer, search_format, ssdp_start_lines[smt_search],
+                           SSDP_HOST_ADDRESS, SSDP_PORT, ssdp_rh_search_target_arr()[i]);
+    send_datagram(QByteArray(buffer, res_size));
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

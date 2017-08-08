@@ -126,21 +126,45 @@ hub_gorjun_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template<class BR> const char* ssdp_rh_search_target_temp_internal();
+template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
-#define ssdp_rh_search_target_temp_internal_def(BT_TYPE, STRING) \
+#define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
   template<> \
-  const char* ssdp_rh_search_target_temp_internal<Branch2Type<BT_TYPE> >() { \
+  const char* ssdp_rh_search_target_temp_internal<Branch2Type<BT_TYPE> , Int2Type<VERSION> >() { \
     return STRING; \
   }
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, "urn:subutai-master:management:peer:4")
-ssdp_rh_search_target_temp_internal_def(BT_PROD,   "urn:subutai:management:peer:4")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    "urn:subutai-dev:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 1, "urn:subutai-master:management:peer:1")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   1,  "urn:subutai:management:peer:1")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    1,  "urn:subutai-dev:management:peer:1")
 
-const char *
-ssdp_rh_search_target() {
-  return ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 2, "urn:subutai-master:management:peer:2")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   2,  "urn:subutai:management:peer:2")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    2,  "urn:subutai-dev:management:peer:2")
+
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 3, "urn:subutai-master:management:peer:3")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   3,  "urn:subutai:management:peer:3")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    3,  "urn:subutai-dev:management:peer:3")
+
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 4, "urn:subutai-master:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   4,  "urn:subutai:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    4,  "urn:subutai-dev:management:peer:4")
+
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 5, "urn:subutai-master:management:peer:5")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   5,  "urn:subutai:management:peer:5")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    5,  "urn:subutai-dev:management:peer:5")
+
+const char **
+ssdp_rh_search_target_arr() {
+  static const char* targets[] = {
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<1> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<2> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<3> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<4> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<5> >(),
+    NULL
+  };
+  return targets;
 }
 ////////////////////////////////////////////////////////////////////////////
 
