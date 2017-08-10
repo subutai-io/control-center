@@ -119,7 +119,7 @@ private slots:
 
 public:
 
-  void suspend() {m_refresh_timer.stop();}
+  void logout();
   void start();
   void force_refresh();
 

@@ -244,6 +244,19 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CHubController::logout() {
+  m_refresh_timer.stop();
+  m_report_timer.stop();
+  m_lst_environments.clear();
+  m_lst_environments_internal.clear();
+  m_lst_healthy_environments.clear();
+  m_balance = undefined_balance;
+  emit environments_updated(RER_SUCCESS);
+  emit balance_updated();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CHubController::start() {
   if (UPDATED_COMPONENTS_COUNT >= 2) {
     m_refresh_timer.start();

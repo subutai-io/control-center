@@ -4,6 +4,7 @@
 #include "HubController.h"
 #include "RestWorker.h"
 #include <QSplashScreen>
+#include "OsBranchConsts.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -14,7 +15,7 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
 
-  ui->lbl_register_link->setText("<a href=\"https://hub.subut.ai/register\">Register</a>");
+  ui->lbl_register_link->setText(QString("<a href=\"%1\">Register</a>").arg(hub_register_url()));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
   ui->lbl_register_link->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_register_link->setOpenExternalLinks(true);
