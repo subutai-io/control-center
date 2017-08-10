@@ -112,7 +112,7 @@ CRestWorker::check_if_ss_console_is_ready_finished_sl() {
           err_msg = QString("Undefined error. Code : %1").arg(http_code);
       }
     } else {
-      err_msg = QString("Can't get SS console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
+      err_msg = QString("Can't get subutai console's status. Err : %1").arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     }
   } else {
     is_ready = true;

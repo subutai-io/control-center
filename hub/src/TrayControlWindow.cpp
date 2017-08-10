@@ -130,7 +130,7 @@ TrayControlWindow::fill_vm_menu() {
 
 void
 TrayControlWindow::fill_launch_menu() {
-  m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch SS console"), this);
+  m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch subutai console"), this);
   connect(m_act_launch_SS, &QAction::triggered, this, &TrayControlWindow::launch_ss_triggered);
 
   m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
@@ -358,7 +358,7 @@ TrayControlWindow::notification_received(CNotificationObserver::notification_lev
 
 void
 TrayControlWindow::logout() {
-  CHubController::Instance().suspend();
+  CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();
 
   DlgLogin dlg;
@@ -657,7 +657,7 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
 
   args << hub_url;
   if (!QProcess::startDetached(browser, args, folder)) {
-    QString err_msg = QString("Run SS console failed. Can't start process");
+    QString err_msg = QString("Run subutai console failed. Can't start process");
     CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
     m_act_launch_SS->setEnabled(true);
