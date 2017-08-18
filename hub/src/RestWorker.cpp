@@ -134,12 +134,12 @@ CRestWorker::login(const QString& login,
   QUrlQuery query_login;
   query_login.addQueryItem("email", login);
   query_login.addQueryItem("password", password);
-  url_login.setQuery(query_login);
+
   QNetworkRequest request(url_login);
-  request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
   QByteArray arr = send_request(m_network_manager, request, false,
                                 http_code, err_code, network_error,
-                                QByteArray(), true);
+                                query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
 
   static QString str_ok = "\"OK\"";
   if (err_code != RE_SUCCESS)
