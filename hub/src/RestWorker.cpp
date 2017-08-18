@@ -142,9 +142,13 @@ CRestWorker::login(const QString& login,
                                 query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
 
   static QString str_ok = "\"OK\"";
-  if (err_code != RE_SUCCESS)
+
+  if (err_code != RE_SUCCESS) {
+    if (http_code == 403) err_code = RE_LOGIN_OR_EMAIL;
     return;
-  if (QString(arr) != str_ok) {
+  }
+
+  if (QString(arr) != str_ok ) {
     err_code = RE_LOGIN_OR_EMAIL;
     return;
   }
@@ -500,6 +504,8 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
     if (show_network_err_msg)
       CNotificationObserver::Error(reply->errorString());
     err_code = RE_NETWORK_ERROR;
+    bool parsed = false;
+    http_status_code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt(&parsed);
     reply->deleteLater();
     return QByteArray();
   }
