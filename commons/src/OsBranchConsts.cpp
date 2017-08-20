@@ -196,9 +196,9 @@ template<class BR> const QString& p2p_dht_arg_temp_internal();
     return res; \
   }
 
-p2p_dht_arg_internal_def(BT_MASTER, "mastercdn.subut.ai:6881")
-p2p_dht_arg_internal_def(BT_PROD,   "cdn.subut.ai:6881")
-p2p_dht_arg_internal_def(BT_DEV,    "devcdn.subut.ai:6881")
+p2p_dht_arg_internal_def(BT_MASTER, "dht.mastercdn.subut.ai:6881")
+p2p_dht_arg_internal_def(BT_PROD,   "dht.cdn.subut.ai:6881")
+p2p_dht_arg_internal_def(BT_DEV,    "dht.devcdn.subut.ai:6881")
 
 const QString &
 p2p_dht_arg() {
