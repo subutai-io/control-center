@@ -75,7 +75,8 @@ static void qvar_to_int(const QVariant& var, void* field) {
 }
 
 static void qvar_to_str(const QVariant& var, void* field) {
-  *((QString*)field) = var.toString();
+  if (!var.isNull() && !var.toString().isEmpty())
+    *((QString*)field) = var.toString();
 }
 
 static void qvar_to_byte_arr(const QVariant& var, void* field) {

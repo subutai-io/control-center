@@ -24,7 +24,7 @@
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgGenerateSshKey),
-  m_change_everything_on_all_select(false)
+  m_change_everything_on_all_select(true)
 {
   ui->setupUi(this);
   ui->btn_send_to_hub->setEnabled(false);
