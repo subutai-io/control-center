@@ -138,7 +138,7 @@ private:
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
   QAction *m_act_settings;
-  QAction *m_act_info;
+  QAction *m_act_balance;
   QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;

@@ -2,6 +2,8 @@
 #include <QThread>
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
+#include <QDesktopServices>
+#include <QUrl>
 
 #include "RestWorker.h"
 #include "HubController.h"
@@ -10,6 +12,7 @@
 #include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "SshKeysController.h"
+#include "OsBranchConsts.h"
 
 static const QString undefined_balance("Undefined balance");
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -329,6 +332,12 @@ CHubController::ssh_launch_err_to_str(int err) {
     "Join to p2p swarm failed",
     "System call failed" };
   return lst_err_str[err%SLE_LAST_ERR];
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CHubController::launch_balance_page() {
+  QDesktopServices::openUrl(QUrl(QString(hub_billing_url()).arg(m_user_id)));
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////

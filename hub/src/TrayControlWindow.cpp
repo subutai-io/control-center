@@ -34,7 +34,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent) :
   m_act_ssh_keys_management(NULL),
   m_act_quit(NULL),
   m_act_settings(NULL),
-  m_act_info(NULL),
+  m_act_balance(NULL),
   m_act_vbox(NULL),
   m_act_hub(NULL),
   m_act_launch(NULL),
@@ -98,7 +98,7 @@ TrayControlWindow::~TrayControlWindow() {
 
   QMenu *menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
   QAction *acts[] = { m_act_ssh_keys_management, m_act_quit,
-                      m_act_settings, m_act_info, m_act_vbox,
+                      m_act_settings, m_act_balance, m_act_vbox,
                       m_act_hub, m_act_launch, m_act_launch_SS,
                       m_act_launch_Hub, m_act_about, m_act_logout,
                       m_act_notifications_history};
@@ -204,7 +204,9 @@ TrayControlWindow::create_tray_actions() {
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this, &TrayControlWindow::application_quit);
 
-  m_act_info = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
+  m_act_balance = new QAction(QIcon(":/hub/Balance-07.png"), CHubController::Instance().balance(), this);
+  connect(m_act_balance, &QAction::triggered,
+          []{CHubController::Instance().launch_balance_page();});
 
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
@@ -228,7 +230,7 @@ TrayControlWindow::create_tray_icon() {
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
 
-  m_tray_menu->addAction(m_act_info);
+  m_tray_menu->addAction(m_act_balance);
   m_tray_menu->addAction(m_act_ssh_keys_management);
   m_tray_menu->addSeparator();
 
@@ -601,7 +603,7 @@ TrayControlWindow::environments_updated_sl(int rr) {
 
 void
 TrayControlWindow::balance_updated_sl() {
-  m_act_info->setText(CHubController::Instance().balance());
+  m_act_balance->setText(CHubController::Instance().balance());
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -37,6 +37,7 @@ const QString& hub_register_url();
 const QString& hub_get_url();
 const QString& hub_health_url();
 const QString& hub_gorjun_url();
+const QString& hub_billing_url();
 
 //const char* ssdp_rh_search_target();
 const char ** ssdp_rh_search_target_arr();

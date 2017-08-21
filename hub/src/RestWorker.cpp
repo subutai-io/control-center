@@ -155,6 +155,31 @@ CRestWorker::login(const QString& login,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool
+CRestWorker::get_user_id(QString &user_id_str) {
+  int http_code, err_code, network_error;
+  user_id_str = "";
+  static const QString str_url(hub_get_url().arg("user-info"));
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QByteArray arr = send_request(m_network_manager, request, true,
+                                http_code, err_code, network_error,
+                                QByteArray(), true);
+
+  QJsonDocument doc  = QJsonDocument::fromJson(arr);
+  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+    CApplicationLog::Instance()->LogError("Get user id ");
+    return false;
+  }
+
+  QJsonObject obj = doc.object();
+  if (obj.find("id") != obj.end())
+    user_id_str = QString("%1").arg(obj["id"].toInt());
+  return true;
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 CRestWorker::update_environments() {
   QUrl url_env(hub_get_url().arg("environments"));

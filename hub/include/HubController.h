@@ -76,6 +76,7 @@ private:
   QString m_balance;
   QString m_current_user;
   QString m_current_pass;
+  QString m_user_id;
   SynchroPrimitives::CriticalSection m_refresh_cs;
   QTimer m_refresh_timer;
   QTimer m_report_timer;
@@ -157,6 +158,7 @@ public:
    * \brief Current password. This field is used for re-login to hub.
    */
   void set_current_pass(const QString& cp) {m_current_pass = cp;}
+  void set_current_user_id(const QString& user_id){ m_user_id = user_id; }
 
   /*!
    * \brief List of environments
@@ -174,10 +176,14 @@ public:
    */
   const QString& current_user() const {return m_current_user;}
 
+  const QString& current_user_id() const {return m_user_id;}
   /*!
    * \brief Current user's password
    */
   const QString& current_pass() const {return m_current_pass;}
+
+  void launch_balance_page();
+
 
   /*!
    * \brief Instance of this singleton class

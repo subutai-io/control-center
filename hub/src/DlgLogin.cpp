@@ -54,8 +54,12 @@ DlgLogin::login() {
                                  err_code,
                                  network_err);
 
+  QString id = "";
   switch (err_code) {
     case RE_SUCCESS:
+      if (CRestWorker::Instance()->get_user_id(id))
+        CHubController::Instance().set_current_user_id(id);
+
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())

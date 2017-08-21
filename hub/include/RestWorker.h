@@ -109,6 +109,8 @@ public:
              int &err_code,
              int &network_error);
 
+  bool get_user_id(QString& user_id_str);
+
   void update_environments();
   void update_balance();
 

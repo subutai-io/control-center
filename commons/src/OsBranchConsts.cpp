@@ -145,6 +145,25 @@ hub_gorjun_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class BR> const QString& hub_billing_temp_internal();
+
+#define hub_billing_temp_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& hub_billing_temp_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+hub_billing_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_MASTER, "https://stage.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_DEV,    "https://dev.subut.ai/users/%1")
+
+const QString &
+hub_billing_url() {
+  return hub_billing_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -173,6 +192,10 @@ ssdp_rh_search_target_temp_internal_def(BT_MASTER, 5, "urn:subutai-master:manage
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   5,  "urn:subutai:management:peer:5")
 ssdp_rh_search_target_temp_internal_def(BT_DEV,    5,  "urn:subutai-dev:management:peer:5")
 
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 6, "urn:subutai-master:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   6,  "urn:subutai:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    6,  "urn:subutai-dev:management:peer:6")
+
 const char **
 ssdp_rh_search_target_arr() {
   static const char* targets[] = {
@@ -181,6 +204,7 @@ ssdp_rh_search_target_arr() {
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<3> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<4> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<5> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<6> >(),
     NULL
   };
   return targets;
