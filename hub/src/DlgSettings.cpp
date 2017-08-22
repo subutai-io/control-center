@@ -131,6 +131,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   m_refresh_rh_list_timer.setInterval(1000);
 
   ui->chk_use_animations->setChecked(CSettingsManager::Instance().use_animations());
+  ui->chk_autostart->setChecked(CSettingsManager::Instance().autostart());
 
   rebuild_rh_list_model();
 
@@ -326,7 +327,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_use_animations(
         ui->chk_use_animations->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_ssh_keygen_cmd(ui->le_ssh_keygen_command->text());
-
+  CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() == Qt::Checked);
   CSettingsManager::Instance().save_all();
   this->close();
 }

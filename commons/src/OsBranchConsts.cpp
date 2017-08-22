@@ -329,7 +329,6 @@ ssh_keygen_cmd_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-
 template<class OS> const QString& ssh_cmd_path_internal();
 
 #define ssh_cmd_path_internal_def(OS_TYPE, STRING) \
@@ -365,5 +364,43 @@ hub_site_temp_internal_def(BT_DEV,    "https://dev.subut.ai")
 const QString &
 hub_site() {
   return hub_site_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& which_cmd_internal();
+
+#define which_cmd_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& which_cmd_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+which_cmd_internal_def(OS_LINUX, "which")
+which_cmd_internal_def(OS_MAC, "which")
+which_cmd_internal_def(OS_WIN, "where")
+
+const QString &
+which_cmd() {
+  return which_cmd_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_chrome_path_internal();
+
+#define default_chrome_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_chrome_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_chrome_path_internal_def(OS_LINUX, "/usr/bin/google-chrome-stable")
+default_chrome_path_internal_def(OS_MAC, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+default_chrome_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")
+
+const QString &
+default_chrome_path() {
+  return default_chrome_path_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
