@@ -589,9 +589,9 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template<class OS> void set_application_autostart_internal(bool start);
+template<class OS> bool set_application_autostart_internal(bool start);
 
-template<> void set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
+template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   static const QString desktop_file_content_template = "[Desktop Entry]\n"
                                       "Type=Application\n"
                                       "Name=subutai-tray\n"
@@ -607,7 +607,7 @@ template<> void set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
   if (lst_standard_locations.empty()) {
     CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
     CNotificationObserver::Error("Couldn't get home directory, sorry");
-    return;
+    return false;
   }
 
   QString directory_path = lst_standard_locations[0] +
@@ -624,14 +624,14 @@ template<> void set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
   QFile desktop_file(desktop_file_path);
 
   if (!start) {
-    if (!desktop_file.exists()) return; //already removed from autostart.
-    if (desktop_file.remove()) return;
+    if (!desktop_file.exists()) return true; //already removed from autostart.
+    if (desktop_file.remove()) return true;
     CApplicationLog::Instance()->LogError("Couldn't delete file : %s",
                                           desktop_file.errorString().toStdString().c_str());
     CNotificationObserver::Error(QString("Couldn't delete %1. %2").
                                  arg(desktop_file_name).
                                  arg(desktop_file.errorString()));
-    return true; //removed or not . who cares?
+    return false; //removed or not . who cares?
   }
 
   QString desktop_file_content = QString(desktop_file_content_template).
@@ -640,7 +640,7 @@ template<> void set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
     CApplicationLog::Instance()->LogError("Couldn't open desktop file for write");
     CNotificationObserver::Error(QString("Couldn't create autostart desktop file. Error : %1").
                                  arg(desktop_file.errorString()));
-    return true;
+    return false;
   }
 
   bool result = true;
@@ -673,6 +673,8 @@ osascript -e 'tell application "System Events" to get the name of every login it
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   static const QString item_name ="subutai-tray";
   const char *pathPtr = "";
+
+  //won't work with Japanese macosx. so there is hack below
 #ifdef RT_OS_DARWIN
     CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
     CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
@@ -683,9 +685,9 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
 #endif
 
   QString item_path;
-  if (pathPtr)
+  if (pathPtr) {
     item_path = QString(pathPtr);
-  else {
+  } else {
     //todo implement HACK
   }
 
