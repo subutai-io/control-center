@@ -665,41 +665,36 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   static const QString item_name = "subutai-tray";
   static const QString item_location = "/Library/LaunchAgents/";
-  static const QString item_path = item_location + item_name + QString(".plist");
 
-  const char *pathPtr = NULL;
-#ifdef RT_OS_DARWIN
-    CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-    CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
-                                           kCFURLPOSIXPathStyle);
-     pathPtr = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
-    qDebug("Path = %s", pathPtr);
-    CFRelease(appUrlRef);
-    CFRelease(macPath);
-#endif
-  QString bundle_path;
-  if (pathPtr) {
-    bundle_path = QString(pathPtr);
-  } else {
-    //todo hack;
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    CNotificationObserver::Error("Couldn't get home directory, sorry");
     return false;
   }
 
+  QString item_path = lst_standard_locations[0] +
+                      QDir::separator() +
+                      item_location + item_name + QString(".plist");
+
+
   QString content_template =
-      QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-      "<plist version=\"1.0\">"
-      "<dict>"
-          "<key>Label</key>"
-          "<string>%1</string>"
-          "<key>ProgramArguments</key>"
-              "<array>"
-                  "<string>%2</string>"
-              "</array>"
-          "<key>KeepAlive</key>"
-          "<false/>"
-      "</dict>"
-      "</plist>").arg(item_name).arg(bundle_path);
+      QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+      "<plist version=\"1.0\">\n"
+      "<dict>\n"
+          "\t<key>Label</key>\n"
+          "\t<string>%1</string>\n"
+          "\t<key>ProgramArguments</key>\n"
+              "\t\t<array>\n"
+                  "\t\t\t<string>%2</string>\n"
+              "\t\t</array>\n"
+          "\t<key>RunAtLoad</key>\n"
+          "\t<true/>\n"
+      "</dict>\n"
+      "</plist>\n").arg(item_name).arg(QApplication::applicationFilePath());
 
   static const QString cmd("osascript");
 
