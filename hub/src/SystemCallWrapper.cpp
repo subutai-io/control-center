@@ -22,6 +22,11 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#ifdef RT_OS_WINDOWS
+#include <Windows.h>
+#pragma comment(lib, "Advapi32.lib")
+#endif
+
 static QString error_strings[] = {
   "Success", "Shell error",
   "Pipe error", "Set handle info error",
@@ -727,6 +732,72 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
 /*********************/
 
 template<> bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
+#ifdef RT_OS_WINDOWS
+  HKEY rkey_run = NULL;
+  static const LPCWSTR val_name(L"subutai-tray");
+  DWORD disp;
+  int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                              L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                              0,
+                              NULL,
+                              REG_OPTION_NON_VOLATILE,
+                              KEY_ALL_ACCESS,
+                              NULL,
+                              &rkey_run,
+                              &disp);
+
+  if (cr != ERROR_SUCCESS || !rkey_run) {
+    CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
+                                          GetLastError(), cr);
+    CNotificationObserver::Error("Couldn't create registry key, sorry");
+    return false;
+  }
+
+  if (start) {
+    cr = RegSetKeyValueW(rkey_run,
+                         0,
+                         val_name,
+                         REG_SZ,
+                         QApplication::applicationFilePath().replace("/", "\\").utf16(),
+                         QApplication::applicationFilePath().length()*2);
+
+    if (cr == ERROR_ACCESS_DENIED) {
+      CNotificationObserver::Error("Couldn't add program to autorun due to access denied. Try to run this application as administrator");
+      RegCloseKey(rkey_run);
+      return false;
+    }
+
+    if (cr != ERROR_SUCCESS) {
+      CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d",
+                                            cr, GetLastError());
+      CNotificationObserver::Error("Couldn't add program to autorun, sorry");
+      RegCloseKey(rkey_run);
+      return false;
+    }
+  } else {
+    cr = RegDeleteKeyValueW(rkey_run,
+                            0,
+                            val_name);
+
+    if (cr == ERROR_ACCESS_DENIED) {
+      CNotificationObserver::Error("Couldn't remove program from autorun due to access denied. Try to run this application as administrator");
+      RegCloseKey(rkey_run);
+      return false;
+    }
+
+    if (cr == ERROR_PATH_NOT_FOUND) return true;
+
+    if (cr != ERROR_SUCCESS) {
+      CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
+                                            cr, GetLastError());
+      CNotificationObserver::Error("Couldn't remove program from autorun, sorry");
+      RegCloseKey(rkey_run);
+      return false;
+    }
+  }
+
+  RegCloseKey(rkey_run);
+#endif
   return true;
 }
 /*********************/

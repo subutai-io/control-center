@@ -434,7 +434,7 @@ CSettingsManager::set_rh_management_autoupdate(const bool rh_management_autoupda
 
 void
 CSettingsManager::set_autostart(const bool autostart) {
-  if (CSystemCallWrapper::set_application_autostart(m_autostart)) {
+  if (CSystemCallWrapper::set_application_autostart(autostart)) {
     m_autostart = autostart;
     m_settings.setValue(SM_AUTOSTART, m_autostart);
   }
