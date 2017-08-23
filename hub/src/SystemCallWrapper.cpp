@@ -18,6 +18,10 @@
 #include "VBoxManager.h"
 #include "ApplicationLog.h"
 
+#ifdef RT_OS_DARWIN
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 static QString error_strings[] = {
   "Success", "Shell error",
   "Pipe error", "Set handle info error",
@@ -658,49 +662,71 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 }
 /*********************/
 
-/*
-# add login item
-osascript -e 'tell application "System Events" to make login item at end with properties
-{name: "Notes",path:"/Applications/Notes.app", hidden:false}'
-
-# delete login item
-osascript -e 'tell application "System Events" to delete login item "itemname"'
-
-# list loginitems
-osascript -e 'tell application "System Events" to get the name of every login item'
-*/
-
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
-  static const QString item_name ="subutai-tray";
-  const char *pathPtr = "";
+  static const QString item_name = "subutai-tray";
+  static const QString item_location = "/Library/LaunchAgents/";
+  static const QString item_path = item_location + item_name + QString(".plist");
 
-  //won't work with Japanese macosx. so there is hack below
+  const char *pathPtr = NULL;
 #ifdef RT_OS_DARWIN
     CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
     CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
                                            kCFURLPOSIXPathStyle);
-    pathPtr = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
+     pathPtr = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
+    qDebug("Path = %s", pathPtr);
     CFRelease(appUrlRef);
     CFRelease(macPath);
 #endif
-
-  QString item_path;
+  QString bundle_path;
   if (pathPtr) {
-    item_path = QString(pathPtr);
+    bundle_path = QString(pathPtr);
   } else {
-    //todo implement HACK
+    //todo hack;
+    return false;
   }
 
-  QString cmd("osascript");
-  QStringList args;
-  QString add_command = QString("make login item at end with properties "
-                                "{name : \"%1\",path:\"%2\", hidden=false}").
-                        arg(item_name).arg(item_path);
-  QString remove_command = QString("delete login item %1").arg(item_name);
-  QString command = start ? add_command : remove_command;
-  args << "-e" << QString("tell application \"System Events\" to %1").arg(command);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
+  QString content_template =
+      QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+      "<plist version=\"1.0\">"
+      "<dict>"
+          "<key>Label</key>"
+          "<string>%1</string>"
+          "<key>ProgramArguments</key>"
+              "<array>"
+                  "<string>%2</string>"
+              "</array>"
+          "<key>KeepAlive</key>"
+          "<false/>"
+      "</dict>"
+      "</plist>").arg(item_name).arg(bundle_path);
 
+  static const QString cmd("osascript");
+
+  QFile item_file(item_path);
+  if (!item_file.exists()) {
+    if (!item_file.open(QFile::ReadWrite)) {
+      CApplicationLog::Instance()->LogError("Couldn't create subutai-tray.plist file. Error : %s",
+                                            item_file.errorString().toStdString().c_str());
+      CNotificationObserver::Error(item_file.errorString());
+      return false;
+    }
+
+    QByteArray content = content_template.toUtf8();
+    if (item_file.write(content) != content.size()) {
+      CApplicationLog::Instance()->LogError("Didn't write whole content to plist file");
+      CNotificationObserver::Error("Write plist file error");
+      item_file.close();
+      return false;
+    }
+    item_file.close();
+  }
+
+  QStringList args;
+  QString add_command = QString("launchctl load %1").arg(item_path);
+  QString rem_command = QString("launchctl unload %1").arg(item_path);
+  args << "-e" << QString("do shell script \"%1\"").arg(start ? add_command : rem_command);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
   return res.res == SCWE_SUCCESS;
 }
 /*********************/
