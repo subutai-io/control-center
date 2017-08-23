@@ -658,15 +658,48 @@ template<> void set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 }
 /*********************/
 
+/*
+# add login item
+osascript -e 'tell application "System Events" to make login item at end with properties
+{name: "Notes",path:"/Applications/Notes.app", hidden:false}'
+
+# delete login item
+osascript -e 'tell application "System Events" to delete login item "itemname"'
+
+# list loginitems
+osascript -e 'tell application "System Events" to get the name of every login item'
+*/
+
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
-//  QString cmd("osascript");
-//  QStringList args;
-//  args << "-e" << "do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
-//                  " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-//                  " with administrator privileges";
-//  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
-//  *res_code = RSE_SUCCESS;
-  return true;
+  static const QString item_name ="subutai-tray";
+  const char *pathPtr = "";
+#ifdef RT_OS_DARWIN
+    CFURLRef appUrlRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+    CFStringRef macPath = CFURLCopyFileSystemPath(appUrlRef,
+                                           kCFURLPOSIXPathStyle);
+    pathPtr = CFStringGetCStringPtr(macPath, CFStringGetSystemEncoding());
+    CFRelease(appUrlRef);
+    CFRelease(macPath);
+#endif
+
+  QString item_path;
+  if (pathPtr)
+    item_path = QString(pathPtr);
+  else {
+    //todo implement HACK
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+  QString add_command = QString("make login item at end with properties "
+                                "{name : \"%1\",path:\"%2\", hidden=false}").
+                        arg(item_name).arg(item_path);
+  QString remove_command = QString("delete login item %1").arg(item_name);
+  QString command = start ? add_command : remove_command;
+  args << "-e" << QString("tell application \"System Events\" to %1").arg(command);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
+
+  return res.res == SCWE_SUCCESS;
 }
 /*********************/
 
