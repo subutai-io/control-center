@@ -744,7 +744,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start)
   bool result = true;
 #ifdef RT_OS_WINDOWS
   HKEY rkey_run = NULL;
-  static const LPCWSTR val_name(APP_AUTOSTART_KEY.utf16());
+  static const LPCWSTR val_name((wchar_t*)APP_AUTOSTART_KEY.utf16());
   DWORD disp;
   do { //try to write value to registry
     int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
@@ -873,9 +873,9 @@ template<> bool application_autostart_internal<Os2Type<OS_MAC> >() {
 template<> bool application_autostart_internal<Os2Type<OS_WIN> >() {
   bool result = true;
 #ifdef RT_OS_WINDOWS
+  HKEY rkey_run = NULL;
   do {
-    HKEY rkey_run = NULL;
-    static const LPCWSTR val_name(APP_AUTOSTART_KEY.utf16());
+    static const LPCWSTR val_name((wchar_t*)APP_AUTOSTART_KEY.utf16());
     DWORD disp;
     int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
                                  L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
