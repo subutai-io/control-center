@@ -234,6 +234,8 @@ CSettingsManager::CSettingsManager() :
     *cmd_which[i] = tmp;
   }
 
+  m_autostart = CSystemCallWrapper::application_autostart(); //second check %)
+
   init_password();
 }
 ////////////////////////////////////////////////////////////////////////////

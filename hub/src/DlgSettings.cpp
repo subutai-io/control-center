@@ -223,10 +223,10 @@ can_launch_application(const QLineEdit* le) {
 
 void
 DlgSettings::btn_ok_released() {
-  static const char* empty_validator_msg = "Field can't be empty";
-  static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
-  static const char* path_invalid_validator_msg = "Invalid path";
-  static const char* can_launch_application_msg = "Can't launch application";
+  static const QString empty_validator_msg = tr("Field can't be empty");
+  static const QString folder_permission_validator_msg = tr("You don't have write permission to this folder");
+  static const QString path_invalid_validator_msg = tr("Invalid path");
+  static const QString can_launch_application_msg = tr("Can't launch application");
 
   QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
                     ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder,
@@ -341,7 +341,7 @@ DlgSettings::btn_cancel_released() {
 
 void
 DlgSettings::btn_p2p_file_dialog_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "P2P command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("P2P command"));
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
 }
@@ -349,7 +349,7 @@ DlgSettings::btn_p2p_file_dialog_released() {
 
 void
 DlgSettings::btn_ssh_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh command"));
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
 }
@@ -357,7 +357,7 @@ DlgSettings::btn_ssh_command_released() {
 
 void
 DlgSettings::btn_ssh_keygen_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Ssh-keygen command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh-keygen command"));
   if (fn == "") return;
   ui->le_ssh_keygen_command->setText(fn);
 }
@@ -365,7 +365,7 @@ DlgSettings::btn_ssh_keygen_command_released() {
 
 void
 DlgSettings::btn_vboxmanage_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Vboxmanage command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Vboxmanage command"));
   if (fn == "") return;
   ui->le_vboxmanage_command->setText(fn);
 }
@@ -373,7 +373,7 @@ DlgSettings::btn_vboxmanage_command_released() {
 
 void
 DlgSettings::btn_logs_storage_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "Logs storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Logs storage"));
   if (dir == "") return;
   ui->le_logs_storage->setText(dir);
 }

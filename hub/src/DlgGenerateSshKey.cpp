@@ -119,8 +119,8 @@ DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
     CNotificationObserver::Instance()->Info(
-          "You don't have write permission to ssh-keys directory. "
-          "Please add write permission or change ssh-keys storage in settings. Thanks");
+          tr("You don't have write permission to ssh-keys directory. "
+          "Please add write permission or change ssh-keys storage in settings. Thanks"));
     return;
   }
   CSshKeysController::Instance().generate_new_ssh_key(this);

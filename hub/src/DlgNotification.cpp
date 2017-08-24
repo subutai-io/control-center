@@ -19,10 +19,10 @@ DlgNotification::DlgNotification(CNotificationObserver::notification_level_t lev
                            QIcon(":/hub/warning_notification.png"),
                            QIcon(":/hub/error_notification.png"),
                            QIcon(":/hub/Tray_icon_set-07.png") };
-  static QString titles[] = {"Info",
-                             "Warning",
-                             "Error",
-                             "Critical"};
+  static QString titles[] = {tr("Info"),
+                             tr("Warning"),
+                             tr("Error"),
+                             tr("Critical")};
   this->setWindowTitle(titles[level]);
   this->setWindowIcon(icons[level]);
   QPixmap pixmap = icons[level].pixmap(ui->lbl_icon->width(),

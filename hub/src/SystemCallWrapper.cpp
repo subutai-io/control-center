@@ -598,6 +598,8 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+static const QString APP_AUTOSTART_KEY = "subutai-tray";
+
 template<class OS> bool set_application_autostart_internal(bool start);
 
 template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
@@ -609,7 +611,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
                                       "NoDisplay=false\n"
                                       "Comment=subutai software\n"
                                       "X-GNOME-Autostart-enabled=true\n";
-  static const QString desktop_file_name = "subutai-tray.desktop";
+
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
@@ -629,7 +631,11 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
     return false;
   }
 
-  QString desktop_file_path = directory_path + QDir::separator() + desktop_file_name;
+  QString desktop_file_path = directory_path +
+                              QDir::separator() +
+                              APP_AUTOSTART_KEY +
+                              ".desktop";
+
   QFile desktop_file(desktop_file_path);
 
   if (!start) {
@@ -638,7 +644,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
     CApplicationLog::Instance()->LogError("Couldn't delete file : %s",
                                           desktop_file.errorString().toStdString().c_str());
     CNotificationObserver::Error(QString("Couldn't delete %1. %2").
-                                 arg(desktop_file_name).
+                                 arg(desktop_file_path).
                                  arg(desktop_file.errorString()));
     return false; //removed or not . who cares?
   }
@@ -668,7 +674,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 /*********************/
 
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
-  static const QString item_name = "subutai-tray";
+
   static const QString item_location = "/Library/LaunchAgents/";
 
   QStringList lst_standard_locations =
@@ -682,7 +688,9 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
 
   QString item_path = lst_standard_locations[0] +
                       QDir::separator() +
-                      item_location + item_name + QString(".plist");
+                      item_location +
+                      APP_AUTOSTART_KEY +
+                      QString(".plist");
 
 
   QString content_template =
@@ -699,7 +707,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
           "\t<key>RunAtLoad</key>\n"
           "\t<true/>\n"
       "</dict>\n"
-      "</plist>\n").arg(item_name).arg(QApplication::applicationFilePath());
+      "</plist>\n").arg(APP_AUTOSTART_KEY).arg(QApplication::applicationFilePath());
 
   static const QString cmd("osascript");
 
@@ -732,79 +740,187 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
 /*********************/
 
 template<> bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
+  (void)start; //make compiler happy
+  bool result = true;
 #ifdef RT_OS_WINDOWS
   HKEY rkey_run = NULL;
-  static const LPCWSTR val_name(L"subutai-tray");
+  static const LPCWSTR val_name(APP_AUTOSTART_KEY.utf16());
   DWORD disp;
-  int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
-                              L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+  do { //try to write value to registry
+    int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                                 L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 0,
+                                 NULL,
+                                 REG_OPTION_NON_VOLATILE,
+                                 KEY_ALL_ACCESS,
+                                 NULL,
+                                 &rkey_run,
+                                 &disp);
+
+    if (cr != ERROR_SUCCESS || !rkey_run) {
+      CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
+                                            GetLastError(), cr);
+      CNotificationObserver::Error("Couldn't create registry key, sorry");
+      result = false;
+      break;
+    }
+
+    if (start) {
+      cr = RegSetKeyValueW(rkey_run,
+                           0,
+                           val_name,
+                           REG_SZ,
+                           QApplication::applicationFilePath().replace("/", "\\").utf16(),
+                           QApplication::applicationFilePath().length()*2);
+
+      if (cr == ERROR_ACCESS_DENIED) {
+        CNotificationObserver::Error("Couldn't add program to autorun due to access denied. Try to run this application as administrator");
+        result = false;
+        break;
+      }
+
+      if (cr != ERROR_SUCCESS) {
+        CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d",
+                                              cr, GetLastError());
+        CNotificationObserver::Error("Couldn't add program to autorun, sorry");
+        result = false;
+        break;
+      }
+    } else { //if (start)
+      cr = RegDeleteKeyValueW(rkey_run,
                               0,
-                              NULL,
-                              REG_OPTION_NON_VOLATILE,
-                              KEY_ALL_ACCESS,
-                              NULL,
-                              &rkey_run,
-                              &disp);
+                              val_name);
 
-  if (cr != ERROR_SUCCESS || !rkey_run) {
-    CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
-                                          GetLastError(), cr);
-    CNotificationObserver::Error("Couldn't create registry key, sorry");
-    return false;
-  }
+      if (cr == ERROR_ACCESS_DENIED) {
+        CNotificationObserver::Error("Couldn't remove program from autorun due to access denied. Try to run this application as administrator");
+        result = false;
+      }
 
-  if (start) {
-    cr = RegSetKeyValueW(rkey_run,
-                         0,
-                         val_name,
-                         REG_SZ,
-                         QApplication::applicationFilePath().replace("/", "\\").utf16(),
-                         QApplication::applicationFilePath().length()*2);
+      if (cr == ERROR_PATH_NOT_FOUND) {
+        result = true;
+        break;
+      }
 
-    if (cr == ERROR_ACCESS_DENIED) {
-      CNotificationObserver::Error("Couldn't add program to autorun due to access denied. Try to run this application as administrator");
-      RegCloseKey(rkey_run);
-      return false;
-    }
-
-    if (cr != ERROR_SUCCESS) {
-      CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d",
-                                            cr, GetLastError());
-      CNotificationObserver::Error("Couldn't add program to autorun, sorry");
-      RegCloseKey(rkey_run);
-      return false;
-    }
-  } else {
-    cr = RegDeleteKeyValueW(rkey_run,
-                            0,
-                            val_name);
-
-    if (cr == ERROR_ACCESS_DENIED) {
-      CNotificationObserver::Error("Couldn't remove program from autorun due to access denied. Try to run this application as administrator");
-      RegCloseKey(rkey_run);
-      return false;
-    }
-
-    if (cr == ERROR_PATH_NOT_FOUND) return true;
-
-    if (cr != ERROR_SUCCESS) {
-      CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
-                                            cr, GetLastError());
-      CNotificationObserver::Error("Couldn't remove program from autorun, sorry");
-      RegCloseKey(rkey_run);
-      return false;
-    }
-  }
+      if (cr != ERROR_SUCCESS) {
+        CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
+                                              cr, GetLastError());
+        CNotificationObserver::Error("Couldn't remove program from autorun, sorry");
+        result = false;
+        break;
+      }
+    } //if (start) ... else this block
+  } while(0);
 
   RegCloseKey(rkey_run);
 #endif
-  return true;
+  return result;
 }
 /*********************/
 
 bool
 CSystemCallWrapper::set_application_autostart(bool start) {
   return set_application_autostart_internal<Os2Type<CURRENT_OS> >(start);
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> bool application_autostart_internal();
+
+template<> bool application_autostart_internal<Os2Type<OS_LINUX> >() {
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    return false;
+  }
+
+  QString directory_path = lst_standard_locations[0] +
+                           QDir::separator() +
+                           ".config/autostart";
+  QString desktop_file_path = directory_path +
+                              QDir::separator() +
+                              APP_AUTOSTART_KEY +
+                              ".desktop";
+
+  QFile desktop_file(desktop_file_path);
+  return desktop_file.exists(); //todo check exec field. should be QApplication::applicationFilePath()
+}
+/*********************/
+
+template<> bool application_autostart_internal<Os2Type<OS_MAC> >() {
+
+  static const QString item_location = "/Library/LaunchAgents/";
+
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    return false;
+  }
+
+  QString item_path = lst_standard_locations[0] +
+                      QDir::separator() +
+                      item_location +
+                      APP_AUTOSTART_KEY +
+                      QString(".plist");
+
+  QFile item_file(item_path);
+  return item_file.exists(); //todo check first argument. should be QApplication::applicationFilePath()
+}
+/*********************/
+
+template<> bool application_autostart_internal<Os2Type<OS_WIN> >() {
+  bool result = true;
+#ifdef RT_OS_WINDOWS
+  do {
+    HKEY rkey_run = NULL;
+    static const LPCWSTR val_name(APP_AUTOSTART_KEY.utf16());
+    DWORD disp;
+    int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                                 L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 0,
+                                 NULL,
+                                 REG_OPTION_NON_VOLATILE,
+                                 KEY_ALL_ACCESS,
+                                 NULL,
+                                 &rkey_run,
+                                 &disp);
+
+    if (cr != ERROR_SUCCESS || !rkey_run) {
+      CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
+                                            GetLastError(), cr);
+      result = false;
+      break;
+    }
+
+    static const uint32_t buff_size = 1024;
+    uint8_t buff[buff_size] = {0};
+    DWORD cb_data;
+    DWORD rr;
+    rr = RegQueryValueEx( rkey_run,
+                          val_name,
+                          NULL,
+                          NULL,
+                          buff,
+                          &cb_data );
+    if (rr != ERROR_SUCCESS) {
+      result = false;
+      break;
+    }
+
+    QString qdata = QString::fromUtf16((ushort*)buff, cb_data);
+    result = qdata == QApplication::applicationFilePath();
+  } while (0);
+  RegCloseKey(rkey_run);
+#endif
+  return result;
+}
+/*********************/
+
+bool
+CSystemCallWrapper::application_autostart() {
+  return application_autostart_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
