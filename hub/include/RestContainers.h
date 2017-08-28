@@ -156,7 +156,9 @@ private:
 
 public:
   explicit CGorjunFileInfo(const QJsonObject& obj) {
-    m_md5_sum = obj["hash"].toString();
+    QJsonObject tmp = obj["hash"].toObject();
+    if (!tmp.isEmpty())
+      m_md5_sum = tmp["md5"].toString();
     m_name = obj["name"].toString();
     m_size = obj["size"].toInt();
     m_id = obj["id"].toString();
