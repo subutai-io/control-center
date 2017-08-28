@@ -7,9 +7,6 @@
 #include <QString>
 #include <QMap>
 
-/*!
- * \brief This class is used for managing application settings
- */
 class CSettingsManager : public QObject
 {
   Q_OBJECT

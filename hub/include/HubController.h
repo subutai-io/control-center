@@ -21,10 +21,6 @@ typedef enum ssh_launch_error {
   SLE_LAST_ERR
 } ssh_launch_error_t;
 
-/*!
- * \brief This class is used for working with p2p. At first we need to join to p2p and then to try ssh->container.
- * We do it in separate thread so we have signals here.
- */
 class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
@@ -53,11 +49,6 @@ signals:
 ////////////////////////////////////////////////////////////////////////////
 
 
-/*!
- * \brief This class is used for managing HUB related thins.
- * It updates environments and containers lists, user's balance.
- * Also it is used for doint ssh->container.
- */
 class CHubController : public QObject {
   Q_OBJECT
 public:
@@ -124,70 +115,32 @@ public:
   void start();
   void force_refresh();
 
-  /*!
-   * \brief SSH->container
-   * \param env - pointer to environment
-   * \param cont - pointer to container
-   * \param additional_data - could be everything you want. here we use it for storing information about menu item
-   */
   void ssh_to_container(const CEnvironment *env,
                         const CHubContainer *cont,
                         void *additional_data);
 
-  /*!
-   * \brief This method is used for ssh->container when we don't have pointer to environment and container, but have ids.
-   * \param env_id - environment id string
-   * \param cont_id - container id string
-   * \param additional_data - could be everything you want. here we use it for storing information about menu item
-   */
   void ssh_to_container_str(const QString& env_id,
                             const QString& cont_id,
                             void *additional_data);
 
-  /*!
-   * \brief ssh->container error to string
-   */
   static const QString& ssh_launch_err_to_str(int err);
 
-  /*!
-   * \brief Current user here is login. This field is used for re-login to hub.
-   */
   void set_current_user(const QString& cu) {m_current_user = cu;}
 
-  /*!
-   * \brief Current password. This field is used for re-login to hub.
-   */
   void set_current_pass(const QString& cp) {m_current_pass = cp;}
   void set_current_user_id(const QString& user_id){ m_user_id = user_id; }
 
-  /*!
-   * \brief List of environments
-   */
   const std::vector<CEnvironment>& lst_environments() const {return m_lst_environments;}
   const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
 
-  /*!
-   * \brief Current balance represented by string
-   */
   const QString& balance() const {return m_balance;}
 
-  /*!
-   * \brief Current user's login
-   */
   const QString& current_user() const {return m_current_user;}
 
   const QString& current_user_id() const {return m_user_id;}
-  /*!
-   * \brief Current user's password
-   */
   const QString& current_pass() const {return m_current_pass;}
 
   void launch_balance_page();
-
-
-  /*!
-   * \brief Instance of this singleton class
-   */
   static CHubController& Instance() {
     static CHubController instance;
     return instance;

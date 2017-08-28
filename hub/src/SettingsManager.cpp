@@ -60,9 +60,6 @@ const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
 
-/*!
- * \brief This template is used like field initializer for code size reduction
- */
 struct setting_val_t {
   void* field;
   QString val;

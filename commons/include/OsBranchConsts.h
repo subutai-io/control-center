@@ -40,7 +40,6 @@ const QString& hub_health_url();
 const QString& hub_gorjun_url();
 const QString& hub_billing_url();
 
-//const char* ssdp_rh_search_target();
 const char ** ssdp_rh_search_target_arr();
 
 const QString& default_p2p_path();

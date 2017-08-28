@@ -73,11 +73,7 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
       CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
       break;
     }
-#else
-//    if (dst.setPermissions(m_dst_file_str, perm)) {
-//      CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
-//    }
-#endif    
+#endif
   } while (0);
 
   emit finished(replaced);

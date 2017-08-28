@@ -12,9 +12,6 @@ namespace Ui {
   class DlgAbout;
 }
 
-/*!
- * \brief This class is used for asynchronous initialization of About dialog like available updates and component versions
- */
 class DlgAboutInitializer : public QObject {
   Q_OBJECT
 private:

@@ -4,11 +4,6 @@
 #include <pthread.h>
 #include <signal.h>
 
-/**
- * @brief The IRunnable class is used to incopsulate thread functions.
- * To run something in parallel thread create derived from CThread class
- * and implement Run method.
- */
 class IRunnable {
 private:
   pthread_t m_thread;  

@@ -17,24 +17,6 @@ CRestWorker::~CRestWorker() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CRestWorker::login_finished_sl() {
-  static QString str_ok = "\"OK\"";
-  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  if (reply == nullptr) {
-    //todo handle this;
-  }
-
-  int http_code, err_code, network_error;
-  pre_handle_reply(reply, http_code, err_code, network_error);
-  QByteArray arr = reply->readAll();
-  if (err_code == RE_SUCCESS)
-    err_code = (QString(arr) != str_ok) ? RE_LOGIN_OR_EMAIL : RE_SUCCESS;
-  emit on_login_finished(http_code, err_code, network_error);
-  reply->deleteLater();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
   if (reply == nullptr) {

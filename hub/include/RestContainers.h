@@ -9,9 +9,6 @@
 #include <QJsonObject>
 #include "SettingsManager.h"
 
-/*!
- * \brief This class represents information about container
- */
 class CHubContainer {
 private:
   QString m_name;
@@ -37,24 +34,12 @@ public:
 
   ~CHubContainer(){}
 
-  /*!
-   * \brief Container's IP
-   */
   const QString& ip() const { return m_ip;}
 
-  /*!
-   * \brief Container's name
-   */
   const QString& name() const { return m_name;}
 
-  /*!
-   * \brief Container's ID
-   */
   const QString& id() const {return m_id;}
 
-  /*!
-   * \brief Container's port. 10000 + last octet of container's IP.
-   */
   const QString& port() const {return m_port;}
 
   const QString& rh_ip() const {return m_rh_ip;}
@@ -90,9 +75,6 @@ bool VectorEq(const std::vector<T>& arg1,
   return true;
 }
 
-/*!
- * \brief This class represents environment
- */
 class CEnvironment {
 private:
   QString m_name;
@@ -141,48 +123,18 @@ public:
     return !(this->operator ==(arg));
   }
 
-  /*!
-   * \brief Environment's name
-   */
   const QString& name() const {return m_name;}
-  /*!
-   * \brief Environment's hash. Used for p2p join
-   */
   const QString& hash() const {return m_hash;}
-  /*!
-   * \brief Environment's aes key. Used by p2p for traffic encryption
-   */
   const QString& key() const {return m_aes_key;}
-  /*!
-   * \brief Environment's id
-   */
   const QString& id() const {return m_id;}
-
   const QString& ttl() const {return m_ttl;}
-
-  /*!
-   * \brief Environment's list of containers.
-   */
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
-  /*!
-   * \brief Environment's status (HEALTHY, UNDER_MODIFICATION etc.)
-   */
   const QString& status() const {return m_status;}
-  /*!
-   * \brief If status != HEALTHY we can receive reason in this field represented by string
-   */
   const QString& status_description() const {return m_status_descr;}
-
-  /*!
-   * \brief Is environment in HEALTHY state.
-   */
   bool healthy() const {return m_status == "HEALTHY";}
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class represents user's balance
- */
 class CHubBalance {
 private:
   QString m_balance;
@@ -191,17 +143,10 @@ public:
   explicit CHubBalance(const QString& balance) : m_balance(balance) {
   }
   ~CHubBalance(){}
-
-  /*!
-   * \brief String representation of user's balance
-   */
   const QString& value() const {return m_balance;}
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Represents gorjun file information like size and md5.
- */
 class CGorjunFileInfo {
 private:
   QString m_md5_sum;
@@ -237,9 +182,6 @@ typedef enum report_type {
   RT_HEALTH = 0, RT_ERROR
 } report_type_t;
 
-/*!
- * \brief Report header contains MAGIC number and tray unique identificator. And report type.
- */
 class CReportHeader {
 private:
   static const int32_t MAGIC = 0x0caa1020;
@@ -265,10 +207,6 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Represents report information. Contains header and data. Data should be represented as class
- * with to_json_object method and copy constructor
- */
 template<class DT> class CTrayReport {
 private:
   CReportHeader m_hdr;
@@ -288,9 +226,6 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class is used for wrapping health report data.
- */
 class CHealthReportData {
 private:
   QString m_p2p_status;

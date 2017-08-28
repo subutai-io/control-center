@@ -30,9 +30,6 @@ typedef enum rest_error {
 } rest_error_t;
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class contains methods and functions for working with HUB REST
- */
 class CRestWorker : public QObject {
   Q_OBJECT
 
@@ -70,16 +67,11 @@ private:
   ~CRestWorker(void);
 
 private slots:
-  void login_finished_sl();
   void get_environments_finished_sl();
   void get_balance_finished_sl();
   void check_if_ss_console_is_ready_finished_sl();
 
 signals:
-
-  void on_login_finished(int http_code,
-                         int err_code,
-                         int network_error);
 
   void on_get_environments_finished(std::vector<CEnvironment>,
                                     int http_code,
@@ -95,9 +87,6 @@ signals:
                                    QString err);
 
 public:
-  /*!
-   * \brief Instance of this singleton class
-   */
   static CRestWorker* Instance() {
     static CRestWorker instance;
     return &instance;

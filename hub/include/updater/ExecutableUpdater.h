@@ -5,9 +5,6 @@
 #include <QString>
 
 namespace update_system {
-  /*!
-   * \brief Replaces one executable with another. Then generates `finished` signal.
-   */
   class CExecutableUpdater : public QObject {
     Q_OBJECT
   private:
@@ -19,11 +16,6 @@ namespace update_system {
 
   public:
 
-    /*!
-     * \brief Constructor
-     * \param src - source file
-     * \param dst - destination file that will be replaced by source file
-     */
     CExecutableUpdater(const QString& src,
                        const QString& dst);
     ~CExecutableUpdater();

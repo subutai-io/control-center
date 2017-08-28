@@ -476,23 +476,12 @@ TrayControlWindow::update_finished(QString file_id,
 
 void
 TrayControlWindow::launch_Hub() {
-  QString browser = "/etc/alternatives/x-www-browser"; //default browser
-  QString folder;
+  QString browser = CSettingsManager::Instance().chrome_path();
   QStringList args;
-
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
   args << "--new-window";
-#elif defined(RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked if need \ for spaces
-#elif defined(RT_OS_WINDOWS)
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  args << "--new-window";
-#endif
   args << hub_site();
 
-  if (!QProcess::startDetached(browser, args, folder)) {
+  if (!QProcess::startDetached(browser, args)) {
     QString err_msg = QString("Launch hub website failed");
     CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
@@ -642,23 +631,11 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     return;
   }
 
-  QString browser; // "/etc/alternatives/x-www-browser";
-  QString folder;
+  QString browser = CSettingsManager::Instance().chrome_path();
   QStringList args;
-
-#if defined(RT_OS_LINUX)
-  browser = "/usr/bin/google-chrome-stable";//need to be checked may be we can use default browser here
   args << "--new-window";
-#elif defined(RT_OS_DARWIN)
-  browser = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"; //need to be checked
-#elif defined(RT_OS_WINDOWS)
-  browser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  folder = "C:\\Program Files (x86)\\Google\\Chrome\\Application";
-  args << "--new-window";
-#endif
-
   args << hub_url;
-  if (!QProcess::startDetached(browser, args, folder)) {
+  if (!QProcess::startDetached(browser, args)) {
     QString err_msg = QString("Run subutai console failed. Can't start process");
     CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
@@ -746,7 +723,6 @@ void TrayControlWindow::launch_ss() {
     //after that got_ss_console_readiness_sl will be called
     CRestWorker::Instance()->check_if_ss_console_is_ready(
           QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str()));
-    m_act_launch_SS->setEnabled(true);
   } else {
     CApplicationLog::Instance()->LogError("Can't get RH IP address. Err : %s, exit_code : %d",
                                           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe), ec);
@@ -754,6 +730,7 @@ void TrayControlWindow::launch_ss() {
                                 arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                 arg(ec));
   }
+  m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 

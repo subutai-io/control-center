@@ -8,27 +8,16 @@
 
 namespace SynchroPrimitives
 {
-  /*!
-    * \brief Critical section synchronization primitive.
-    * Here can be used any OS mechanism, std::mutex or processors instructions like "BTS"
-    * In SubutaiTray application std::mutex wrapped by CriticalSection structure.
-    */
   typedef struct CriticalSection
   {
+    /*we use QMutex, but it could be anything else.
+      for examle we can use asm("bts") instruction*/
     QMutex mut;
     CriticalSection();
   } CriticalSection, *LPMCriticalSection;
 
-  /*!
-   * \brief Enter critical section
-   * \param - pointer to critical section object
-   */
   void EnterInternalCriticalSection(LPMCriticalSection lpMcs);
 
-  /*!
-   * \brief Leave critical section
-   * \param - pointer to critical section object
-   */
   void LeaveInternalCriticalSection(LPMCriticalSection lpMcs);
 }
 
