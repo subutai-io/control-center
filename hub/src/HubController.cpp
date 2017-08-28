@@ -31,6 +31,8 @@ CHubController::CHubController() :
           this, &CHubController::on_balance_updated_sl);
   connect(CRestWorker::Instance(), &CRestWorker::on_get_environments_finished,
           this, &CHubController::on_environments_updated_sl);
+  connect(CRestWorker::Instance(), &CRestWorker::on_get_my_peers_finished,
+          this, &CHubController::on_my_peers_updated_sl);
 
   connect(&m_report_timer, &QTimer::timeout,
           this, &CHubController::report_timer_timeout);
@@ -95,6 +97,12 @@ CHubController::ssh_to_container_internal(const CEnvironment *env,
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CHubController::refresh_my_peers_internal() {
+  CRestWorker::Instance()->update_my_peers();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CHubController::refresh_environments_internal() {
   CRestWorker::Instance()->update_environments();
 }
@@ -125,6 +133,7 @@ CHubController::refresh_timer_timeout() {
   UPDATED_COMPONENTS_COUNT = 0;
   refresh_balance_internal();
   refresh_environments_internal();
+  refresh_my_peers_internal();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -243,6 +252,17 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
                  [](const CEnvironment& env){return env.healthy();});
   }
   emit environments_updated(rer_res);
+}
+
+void
+CHubController::on_my_peers_updated_sl(std::vector<CMyPeerInfo> lst_peers,
+                                       int http_code,
+                                       int err_code,
+                                       int network_error) {
+  UNUSED_ARG(http_code);
+  UNUSED_ARG(err_code);
+  UNUSED_ARG(network_error);
+  m_lst_my_peers = lst_peers;
 }
 ////////////////////////////////////////////////////////////////////////////
 

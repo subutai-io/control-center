@@ -16,6 +16,35 @@ CRestWorker::~CRestWorker() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+
+void
+CRestWorker::get_my_peers_finished_sl() {
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    return;
+  }
+
+  int http_code, err_code, network_error;
+  pre_handle_reply(reply, http_code, err_code, network_error);
+
+  QByteArray reply_arr = reply->readAll();
+  QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
+  QJsonArray doc_arr = doc.array();
+
+  std::vector<CMyPeerInfo> lst_res;
+  for (auto i : doc_arr) {
+    if (i.isNull() || !i.isObject()) continue;
+    lst_res.push_back(CMyPeerInfo(i.toObject()));
+  }
+
+  emit on_get_my_peers_finished(lst_res,
+                                http_code,
+                                err_code,
+                                network_error);
+  reply->deleteLater();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
@@ -159,6 +188,18 @@ CRestWorker::get_user_id(QString &user_id_str) {
   if (obj.find("id") != obj.end())
     user_id_str = QString("%1").arg(obj["id"].toInt());
   return true;
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+void
+CRestWorker::update_my_peers(){
+  QUrl url_env(hub_get_url().arg("my-peers"));
+  QNetworkRequest req(url_env);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
+  connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_my_peers_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -375,7 +416,6 @@ CRestWorker::remove_sshkey_from_environments(const QString &key_name,
   QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
-////////////////////////////////////////////////////////////////////////////
 
 QNetworkAccessManager*
 CRestWorker::create_network_manager() {

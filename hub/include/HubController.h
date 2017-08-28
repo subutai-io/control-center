@@ -63,6 +63,7 @@ private:
   std::vector<CEnvironment> m_lst_environments_internal;
   std::vector<CEnvironment> m_lst_environments;
   std::vector<CEnvironment> m_lst_healthy_environments;
+  std::vector<CMyPeerInfo> m_lst_my_peers;
 
   QString m_balance;
   QString m_current_user;
@@ -87,6 +88,7 @@ private:
                                  void *additional_data,
                                  finished_slot_t slot);
 
+  void refresh_my_peers_internal();
   void refresh_environments_internal();
   void refresh_balance_internal();
 
@@ -108,6 +110,11 @@ private slots:
                                   int http_code,
                                   int err_code,
                                   int network_error);
+
+  void on_my_peers_updated_sl(std::vector<CMyPeerInfo> lst_peers,
+                              int http_code,
+                              int err_code,
+                              int network_error);
 
 public:
 
@@ -132,6 +139,7 @@ public:
 
   const std::vector<CEnvironment>& lst_environments() const {return m_lst_environments;}
   const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
+  const std::vector<CMyPeerInfo>& lst_my_peers() const {return m_lst_my_peers;}
 
   const QString& balance() const {return m_balance;}
 

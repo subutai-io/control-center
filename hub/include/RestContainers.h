@@ -251,5 +251,46 @@ public:
     return obj;
   }
 };
+////////////////////////////////////////////////////////////////////////////
+
+class CMyPeerInfo {
+private:
+  QString m_country;
+  QString m_countryCode;
+  QString m_fingerprint;
+  QString m_id;
+  QString m_ip_address;
+  QString m_isp;
+  QString m_name;
+  int m_rh_count;
+  QString m_scope;
+  QString m_status;
+
+public:
+  explicit CMyPeerInfo(const QJsonObject& obj) {
+    m_country = obj["country"].toString();
+    m_countryCode = obj["countryCode"].toString();
+    m_fingerprint = obj["fingerprint"].toString();
+    m_id = obj["id"].toString();
+    m_ip_address = obj["ipAddress"].toString();
+    m_isp = obj["isp"].toString();
+    m_name = obj["name"].toString();
+    m_rh_count = obj["rhCount"].toInt();
+    m_scope = obj["scope"].toString();
+    m_status = obj["status"].toString();
+  }
+  ~CMyPeerInfo(){}
+
+  const QString &country() const { return m_country; }
+  const QString &countryCode() const { return m_countryCode; }
+  const QString &fingerprint() const { return m_fingerprint; }
+  const QString &id() const { return m_id; }
+  const QString &ip_address() const { return m_ip_address; }
+  const QString &isp() const { return m_isp; }
+  const QString &name() const { return m_name; }
+  int rh_count() const { return m_rh_count; }
+  const QString &scope() const { return m_scope; }
+  const QString &status() const { return m_status; }
+};
 
 #endif // RESTCONTAINERS_H
