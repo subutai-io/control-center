@@ -599,9 +599,9 @@ TrayControlWindow::balance_updated_sl() {
 void
 TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                QString err) {
+  m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
     CNotificationObserver::Info(err);
-    m_act_launch_SS->setEnabled(true);
     return;
   }
 
@@ -627,7 +627,6 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                 arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                 arg(ec));
-    m_act_launch_SS->setEnabled(true);
     return;
   }
 
@@ -639,10 +638,8 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     QString err_msg = QString("Run subutai console failed. Can't start process");
     CNotificationObserver::Error(err_msg);
     CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    m_act_launch_SS->setEnabled(true);
     return;
   }
-  m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -729,8 +726,8 @@ void TrayControlWindow::launch_ss() {
     CNotificationObserver::Info(QString("Can't get RH IP address. Error : %1, Exit_Code : %2").
                                 arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe)).
                                 arg(ec));
+    m_act_launch_SS->setEnabled(true);
   }
-  m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
