@@ -10,7 +10,6 @@ void SynchroPrimitives::LeaveInternalCriticalSection(LPMCriticalSection lpMcs ) 
 }
 //////////////////////////////////////////////////////////////////////////
 
-/*init critical section :)*/
 SynchroPrimitives::CriticalSection::CriticalSection() : mut(QMutex::Recursive) {
 }
 //////////////////////////////////////////////////////////////////////////

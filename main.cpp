@@ -18,6 +18,7 @@
 #include "OsBranchConsts.h"
 #include "RhController.h"
 #include "NotificationLogger.h"
+#include "LibsshController.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!

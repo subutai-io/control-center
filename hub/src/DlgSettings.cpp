@@ -15,9 +15,6 @@
 #include "ApplicationLog.h"
 #include "NotificationObserver.h"
 
-/*!
- * \brief This class makes tabs of the same width in QTabWidget
- */
 class TabResizeFilter : public QObject {
 private:
   QTabWidget* m_target;
@@ -70,8 +67,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   m_refresh_rh_list_progress_val(0)
 {
   ui->setupUi(this);
-//  ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
-  ui->sb_refresh_timeout->setValue(3);
+  ui->sb_refresh_timeout->setValue(CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
   ui->sb_notification_delay->setMinimum(CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(CSettingsManager::NOTIFICATION_DELAY_MAX);
@@ -131,6 +127,7 @@ DlgSettings::DlgSettings(QWidget *parent) :
   m_refresh_rh_list_timer.setInterval(1000);
 
   ui->chk_use_animations->setChecked(CSettingsManager::Instance().use_animations());
+  ui->chk_autostart->setChecked(CSettingsManager::Instance().autostart());
 
   rebuild_rh_list_model();
 
@@ -222,10 +219,10 @@ can_launch_application(const QLineEdit* le) {
 
 void
 DlgSettings::btn_ok_released() {
-  static const char* empty_validator_msg = "Field can't be empty";
-  static const char* folder_permission_validator_msg = "You don't have write permission to this folder";
-  static const char* path_invalid_validator_msg = "Invalid path";
-  static const char* can_launch_application_msg = "Can't launch application";
+  static const QString empty_validator_msg = tr("Field can't be empty");
+  static const QString folder_permission_validator_msg = tr("You don't have write permission to this folder");
+  static const QString path_invalid_validator_msg = tr("Invalid path");
+  static const QString can_launch_application_msg = tr("Can't launch application");
 
   QLineEdit* le[] = {ui->le_logs_storage, ui->le_ssh_keys_storage,
                     ui->le_p2p_command, ui->le_ssh_command, ui->le_rtm_db_folder,
@@ -326,7 +323,7 @@ DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_use_animations(
         ui->chk_use_animations->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_ssh_keygen_cmd(ui->le_ssh_keygen_command->text());
-
+  CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() == Qt::Checked);
   CSettingsManager::Instance().save_all();
   this->close();
 }
@@ -340,7 +337,7 @@ DlgSettings::btn_cancel_released() {
 
 void
 DlgSettings::btn_p2p_file_dialog_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "P2P command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("P2P command"));
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
 }
@@ -348,7 +345,7 @@ DlgSettings::btn_p2p_file_dialog_released() {
 
 void
 DlgSettings::btn_ssh_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Ssh command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh command"));
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
 }
@@ -356,7 +353,7 @@ DlgSettings::btn_ssh_command_released() {
 
 void
 DlgSettings::btn_ssh_keygen_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Ssh-keygen command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh-keygen command"));
   if (fn == "") return;
   ui->le_ssh_keygen_command->setText(fn);
 }
@@ -364,7 +361,7 @@ DlgSettings::btn_ssh_keygen_command_released() {
 
 void
 DlgSettings::btn_vboxmanage_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, "Vboxmanage command");
+  QString fn = QFileDialog::getOpenFileName(this, tr("Vboxmanage command"));
   if (fn == "") return;
   ui->le_vboxmanage_command->setText(fn);
 }
@@ -372,7 +369,7 @@ DlgSettings::btn_vboxmanage_command_released() {
 
 void
 DlgSettings::btn_logs_storage_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "Logs storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Logs storage"));
   if (dir == "") return;
   ui->le_logs_storage->setText(dir);
 }

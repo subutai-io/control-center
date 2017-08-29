@@ -57,9 +57,9 @@ const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Di
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
-/*!
- * \brief This template is used like field initializer for code size reduction
- */
+const QString CSettingsManager::SM_AUTOSTART("Autostart");
+const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
+
 struct setting_val_t {
   void* field;
   QString val;
@@ -75,7 +75,8 @@ static void qvar_to_int(const QVariant& var, void* field) {
 }
 
 static void qvar_to_str(const QVariant& var, void* field) {
-  *((QString*)field) = var.toString();
+  if (!var.isNull() && !var.toString().isEmpty())
+    *((QString*)field) = var.toString();
 }
 
 static void qvar_to_byte_arr(const QVariant& var, void* field) {
@@ -124,7 +125,9 @@ CSettingsManager::CSettingsManager() :
   m_notifications_level(CNotificationObserver::NL_INFO),
   m_use_animations(true),
   m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
-  m_ssh_keygen_cmd(ssh_keygen_cmd_path())
+  m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
+  m_autostart(false),
+  m_chrome_path(default_chrome_path())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -160,6 +163,7 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
     {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
     {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
+    {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -167,6 +171,7 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_rh_autoupdate, SM_RH_AUTOUPDATE, qvar_to_bool},
     {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
     {(void*)&m_use_animations, SM_USE_ANIMATIONS, qvar_to_bool},
+    {(void*)&m_autostart, SM_AUTOSTART, qvar_to_bool},
 
     //uint
     {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
@@ -225,6 +230,8 @@ CSettingsManager::CSettingsManager() :
     if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) continue;
     *cmd_which[i] = tmp;
   }
+
+  m_autostart = CSystemCallWrapper::application_autostart(); //second check %)
 
   init_password();
 }
@@ -424,6 +431,15 @@ CSettingsManager::set_rh_management_autoupdate(const bool rh_management_autoupda
   update_system::CHubComponentsUpdater::Instance()->set_rh_management_autoupdate();
 }
 
+void
+CSettingsManager::set_autostart(const bool autostart) {
+  if (CSystemCallWrapper::set_application_autostart(autostart)) {
+    m_autostart = autostart;
+    m_settings.setValue(SM_AUTOSTART, m_autostart);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
 #define SET_FIELD_DEF(f, fn, t) void CSettingsManager::set_##f(const t f) {m_##f = f; m_settings.setValue(fn, m_##f);}
 SET_FIELD_DEF(login, SM_LOGIN, QString&)
 SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
@@ -445,4 +461,5 @@ SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
 SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE, uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
+SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
 #undef SET_FIELD_DEF

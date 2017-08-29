@@ -13,9 +13,6 @@ typedef enum download_file_manager_errors {
 } download_file_manager_errors_t;
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class is used for downloading files from kurjun. Emits signals "finished" and "progress"
- */
 class CDownloadFileManager : public QObject {
   Q_OBJECT
 private:
@@ -39,14 +36,7 @@ private slots:
   void reply_finished();
 
 public slots:
-  /*!
-   * \brief Starts downloading from kurjun. It's slot because we use it in separated thread.
-   */
   void start_download();
-
-  /*!
-   * \brief Interrupts current downloading and emits signal finished(false).
-   */
   void interrupt_download();
 
 signals:

@@ -12,7 +12,8 @@ enum branch_t {
 enum os_t {
   OS_LINUX = 0,
   OS_WIN = 1,
-  OS_MAC = 2
+  OS_MAC = 2,
+  OS_MAC_LIN = 3
 };
 
 template<branch_t v> struct Branch2Type {
@@ -37,8 +38,8 @@ const QString& hub_register_url();
 const QString& hub_get_url();
 const QString& hub_health_url();
 const QString& hub_gorjun_url();
+const QString& hub_billing_url();
 
-//const char* ssdp_rh_search_target();
 const char ** ssdp_rh_search_target_arr();
 
 const QString& default_p2p_path();
@@ -49,5 +50,8 @@ const QString& vboxmanage_command_str();
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();
 const QString& ssh_cmd_path();
+
+const QString& which_cmd();
+const QString& default_chrome_path();
 
 #endif // OSBRANCHCONSTS_H

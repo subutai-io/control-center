@@ -145,6 +145,25 @@ hub_gorjun_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class BR> const QString& hub_billing_temp_internal();
+
+#define hub_billing_temp_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& hub_billing_temp_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+hub_billing_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_MASTER, "https://stage.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_DEV,    "https://dev.subut.ai/users/%1")
+
+const QString &
+hub_billing_url() {
+  return hub_billing_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -173,6 +192,10 @@ ssdp_rh_search_target_temp_internal_def(BT_MASTER, 5, "urn:subutai-master:manage
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   5,  "urn:subutai:management:peer:5")
 ssdp_rh_search_target_temp_internal_def(BT_DEV,    5,  "urn:subutai-dev:management:peer:5")
 
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 6, "urn:subutai-master:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_PROD,   6,  "urn:subutai:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    6,  "urn:subutai-dev:management:peer:6")
+
 const char **
 ssdp_rh_search_target_arr() {
   static const char* targets[] = {
@@ -181,6 +204,7 @@ ssdp_rh_search_target_arr() {
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<3> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<4> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<5> >(),
+    ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<6> >(),
     NULL
   };
   return targets;
@@ -305,7 +329,6 @@ ssh_keygen_cmd_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-
 template<class OS> const QString& ssh_cmd_path_internal();
 
 #define ssh_cmd_path_internal_def(OS_TYPE, STRING) \
@@ -341,5 +364,43 @@ hub_site_temp_internal_def(BT_DEV,    "https://dev.subut.ai")
 const QString &
 hub_site() {
   return hub_site_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& which_cmd_internal();
+
+#define which_cmd_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& which_cmd_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+which_cmd_internal_def(OS_LINUX, "which")
+which_cmd_internal_def(OS_MAC, "which")
+which_cmd_internal_def(OS_WIN, "where")
+
+const QString &
+which_cmd() {
+  return which_cmd_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_chrome_path_internal();
+
+#define default_chrome_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_chrome_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_chrome_path_internal_def(OS_LINUX, "/usr/bin/google-chrome-stable")
+default_chrome_path_internal_def(OS_MAC, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+default_chrome_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")
+
+const QString &
+default_chrome_path() {
+  return default_chrome_path_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////

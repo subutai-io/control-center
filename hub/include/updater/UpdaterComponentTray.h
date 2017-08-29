@@ -5,30 +5,13 @@
 
 namespace update_system {
 
-  /*!
-   * \brief Class for managing tray application updates
-   */
   class CUpdaterComponentTray : public IUpdaterComponent {
-
   private:
-
     static QString tray_path();
-
     // IUpdaterComponent interface
   protected:
-    /*!
-     * \brief See IUpdaterComponent
-     */
     virtual bool update_available_internal();
-
-    /*!
-     * \brief See IUpdaterComponent
-     */
     virtual chue_t update_internal();
-
-    /*!
-     * \brief See IUpdaterComponent
-     */
     virtual void update_post_action(bool success);
 
   public:

@@ -5,13 +5,6 @@
 #include <pthread.h>
 #include <signal.h>
 
-/**
- * The CThreadWrapper class is used to wrap thread functions.
- * To run something in parallel thread create class Executor with
- * public void Run(void) method and copy constructor. After that
- * create instance of CThreadWrapper<ExecutorClass> instance(executorObject)
- * and call Start(). This wrapper allows use stack objects.
- */
 template<class T> class CThreadWrapper {
 private:
   int m_start_res;
@@ -34,37 +27,24 @@ public:
   CThreadWrapper(T* lpExecutor, bool autoTerminate) : m_start_res(1), m_lpExecutor(lpExecutor), m_autoTerminateThread(autoTerminate){}
   ~CThreadWrapper(void){if (m_autoTerminateThread) Terminate(0);}
 
-  /*!
-   * \brief Starts executor's function in parallel thread
-   */
   int Start(void) {
     m_start_res = pthread_create(&m_thread, NULL, CThreadWrapper::thread_func, (void*)m_lpExecutor);
     return m_start_res;
   }
   //////////////////////////////////////////////////////////////////////////
 
-  /*!
-   * \brief Blocks the calling thread until the thread represented by this instance terminates somehow
-   */
   int Join(void) {
     if (m_start_res != 0) return m_start_res;
     return pthread_join(m_thread, NULL);
   }
   //////////////////////////////////////////////////////////////////////////
 
-  /*!
-   * \brief Blocks current thread until timeout elapses.
-   */
   int Wait(int timeoutInMs) {
     (void)timeoutInMs;
 //todo pthread_timed_join_np
     return 0;
   }
 
-  /*!
-   * \brief Terminates thread represented by current instance with `signal` code.
-   * \param sig - return code.
-   */
   int Terminate(int sig) {
     if (m_start_res != 0) return m_start_res;
     return pthread_kill(m_thread, sig);
@@ -77,13 +57,6 @@ public:
 #include <process.h>
 #include <iostream>
 
-/**
- * The CThreadWrapper class is used to wrap thread functions.
- * To run something in parallel thread create class Executor with
- * public void Run(void) method and copy constructor. After that
- * create instance of CThreadWrapper<ExecutorClass> instance(executorObject)
- * and call Start(). This wrapper allows use stack objects.
- */
 template<class T> class CThreadWrapper {
 private:
   HANDLE m_thread;

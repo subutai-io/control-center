@@ -21,9 +21,6 @@ namespace Ui {
   class TrayControlWindow;
 }
 
-/*!
- * \brief Class for managing VM widget. Allows user to start/pause/stop VM
- */
 class CVBPlayerItem : public QWidget {
     Q_OBJECT
 private:
@@ -53,9 +50,6 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Class for managing CVBPlayerItem list
- */
 class CVBPlayer : public QWidget{
     Q_OBJECT
 private:
@@ -75,9 +69,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Represents menu item with information about container and environment.
- */
 class CHubEnvironmentMenuItem : public QObject {
  Q_OBJECT
 private:
@@ -104,10 +95,6 @@ public slots:
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Class for main tray window (hidden) representation.
- * Main window of tray application hidden. So user has only tray menu.
- */
 class TrayControlWindow : public QMainWindow
 {
   Q_OBJECT
@@ -138,7 +125,7 @@ private:
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
   QAction *m_act_settings;
-  QAction *m_act_info;
+  QAction *m_act_balance;
   QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;

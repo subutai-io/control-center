@@ -103,7 +103,7 @@ QVariant
 DlgNotificationsTableModel::headerData(int section,
                                     Qt::Orientation orientation,
                                     int role) const {
-  static const QString hdrs[] = {"Date", "Level", "Message"};
+  static const QString hdrs[] = {tr("Date"), tr("Level"), tr("Message")};
 
   if(role != Qt::DisplayRole)
     return QVariant();
@@ -250,7 +250,7 @@ QVariant
 DlgNotificationUnionsTableModel::headerData(int section,
                                             Qt::Orientation orientation,
                                             int role) const {
-  static const QString hdrs[] = {"Count", "Level", "Message", "Ignore"};
+  static const QString hdrs[] = {tr("Count"), tr("Level"), tr("Message"), tr("Ignore")};
 
   if(role != Qt::DisplayRole)
     return QVariant();

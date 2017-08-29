@@ -7,9 +7,6 @@
 #include <QString>
 #include <QMap>
 
-/*!
- * \brief This class is used for managing application settings
- */
 class CSettingsManager : public QObject
 {
   Q_OBJECT
@@ -57,6 +54,9 @@ private:
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
   static const QString SM_SSH_KEYGEN_CMD;
+
+  static const QString SM_AUTOSTART;
+  static const QString SM_CHROME_PATH;
 
   CSettingsManager();
 
@@ -107,6 +107,9 @@ private:
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
   QString m_ssh_keygen_cmd;
+
+  bool m_autostart;
+  QString m_chrome_path;
 
   void init_password();
 
@@ -179,6 +182,10 @@ public:
 
   uint32_t notifications_level() const {return m_notifications_level;}
   uint32_t preferred_notifications_place() const {return m_preferred_notifications_place;}
+
+  const QString& ssh_keygen_cmd() const {return m_ssh_keygen_cmd;}
+  bool autostart() const {return m_autostart;}
+  const QString& chrome_path() const {return m_chrome_path;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -187,20 +194,22 @@ public:
     if (delay_sec < NOTIFICATION_DELAY_MIN) m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
   }
+  /**********************/
 
   void set_p2p_update_freq(int fr);
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
   void set_rh_management_freq(int fr);
 
+  /**********************/
   bool is_notification_ignored(const QString &msg) const;
   void ignore_notification(const QString& msg);
   void not_ignore_notification(const QString& msg);
   const QMap<QString, QVariant>& dct_notification_ignored() const {
     return m_dct_notification_ignore;
   }
+  /**********************/
 
-  const QString& ssh_keygen_cmd() const {return m_ssh_keygen_cmd;}
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
@@ -229,6 +238,8 @@ public:
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
+  SET_FIELD_DECL(autostart, bool)
+  SET_FIELD_DECL(chrome_path, QString&)
 #undef SET_FIELD_DECL
 };
 

@@ -9,9 +9,6 @@
 #include <QJsonObject>
 #include "SettingsManager.h"
 
-/*!
- * \brief This class represents information about container
- */
 class CHubContainer {
 private:
   QString m_name;
@@ -37,24 +34,12 @@ public:
 
   ~CHubContainer(){}
 
-  /*!
-   * \brief Container's IP
-   */
   const QString& ip() const { return m_ip;}
 
-  /*!
-   * \brief Container's name
-   */
   const QString& name() const { return m_name;}
 
-  /*!
-   * \brief Container's ID
-   */
   const QString& id() const {return m_id;}
 
-  /*!
-   * \brief Container's port. 10000 + last octet of container's IP.
-   */
   const QString& port() const {return m_port;}
 
   const QString& rh_ip() const {return m_rh_ip;}
@@ -90,9 +75,6 @@ bool VectorEq(const std::vector<T>& arg1,
   return true;
 }
 
-/*!
- * \brief This class represents environment
- */
 class CEnvironment {
 private:
   QString m_name;
@@ -141,48 +123,18 @@ public:
     return !(this->operator ==(arg));
   }
 
-  /*!
-   * \brief Environment's name
-   */
   const QString& name() const {return m_name;}
-  /*!
-   * \brief Environment's hash. Used for p2p join
-   */
   const QString& hash() const {return m_hash;}
-  /*!
-   * \brief Environment's aes key. Used by p2p for traffic encryption
-   */
   const QString& key() const {return m_aes_key;}
-  /*!
-   * \brief Environment's id
-   */
   const QString& id() const {return m_id;}
-
   const QString& ttl() const {return m_ttl;}
-
-  /*!
-   * \brief Environment's list of containers.
-   */
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
-  /*!
-   * \brief Environment's status (HEALTHY, UNDER_MODIFICATION etc.)
-   */
   const QString& status() const {return m_status;}
-  /*!
-   * \brief If status != HEALTHY we can receive reason in this field represented by string
-   */
   const QString& status_description() const {return m_status_descr;}
-
-  /*!
-   * \brief Is environment in HEALTHY state.
-   */
   bool healthy() const {return m_status == "HEALTHY";}
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class represents user's balance
- */
 class CHubBalance {
 private:
   QString m_balance;
@@ -191,17 +143,10 @@ public:
   explicit CHubBalance(const QString& balance) : m_balance(balance) {
   }
   ~CHubBalance(){}
-
-  /*!
-   * \brief String representation of user's balance
-   */
   const QString& value() const {return m_balance;}
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Represents gorjun file information like size and md5.
- */
 class CGorjunFileInfo {
 private:
   QString m_md5_sum;
@@ -211,7 +156,9 @@ private:
 
 public:
   explicit CGorjunFileInfo(const QJsonObject& obj) {
-    m_md5_sum = obj["id"].toString(); //I like hub team
+    QJsonObject tmp = obj["hash"].toObject();
+    if (!tmp.isEmpty())
+      m_md5_sum = tmp["md5"].toString();
     m_name = obj["name"].toString();
     m_size = obj["size"].toInt();
     m_id = obj["id"].toString();
@@ -237,9 +184,6 @@ typedef enum report_type {
   RT_HEALTH = 0, RT_ERROR
 } report_type_t;
 
-/*!
- * \brief Report header contains MAGIC number and tray unique identificator. And report type.
- */
 class CReportHeader {
 private:
   static const int32_t MAGIC = 0x0caa1020;
@@ -265,10 +209,6 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief Represents report information. Contains header and data. Data should be represented as class
- * with to_json_object method and copy constructor
- */
 template<class DT> class CTrayReport {
 private:
   CReportHeader m_hdr;
@@ -288,9 +228,6 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-/*!
- * \brief This class is used for wrapping health report data.
- */
 class CHealthReportData {
 private:
   QString m_p2p_status;
@@ -315,6 +252,47 @@ public:
     obj["os_info"] = m_os_info;
     return obj;
   }
+};
+////////////////////////////////////////////////////////////////////////////
+
+class CMyPeerInfo {
+private:
+  QString m_country;
+  QString m_countryCode;
+  QString m_fingerprint;
+  QString m_id;
+  QString m_ip_address;
+  QString m_isp;
+  QString m_name;
+  int m_rh_count;
+  QString m_scope;
+  QString m_status;
+
+public:
+  explicit CMyPeerInfo(const QJsonObject& obj) {
+    m_country = obj["country"].toString();
+    m_countryCode = obj["countryCode"].toString();
+    m_fingerprint = obj["fingerprint"].toString();
+    m_id = obj["id"].toString();
+    m_ip_address = obj["ipAddress"].toString();
+    m_isp = obj["isp"].toString();
+    m_name = obj["name"].toString();
+    m_rh_count = obj["rhCount"].toInt();
+    m_scope = obj["scope"].toString();
+    m_status = obj["status"].toString();
+  }
+  ~CMyPeerInfo(){}
+
+  const QString &country() const { return m_country; }
+  const QString &countryCode() const { return m_countryCode; }
+  const QString &fingerprint() const { return m_fingerprint; }
+  const QString &id() const { return m_id; }
+  const QString &ip_address() const { return m_ip_address; }
+  const QString &isp() const { return m_isp; }
+  const QString &name() const { return m_name; }
+  int rh_count() const { return m_rh_count; }
+  const QString &scope() const { return m_scope; }
+  const QString &status() const { return m_status; }
 };
 
 #endif // RESTCONTAINERS_H

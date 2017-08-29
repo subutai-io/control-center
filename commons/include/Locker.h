@@ -5,11 +5,6 @@
 
 namespace SynchroPrimitives {
 
-  /*!
-   * \brief The Locker class provides critical sections management mechanism.
-   * Use like this :
-   * {Locker lock; / * some critical code here * /;}
-   */
   class Locker {
   private:
     Locker(const Locker&);

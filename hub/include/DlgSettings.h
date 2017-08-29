@@ -17,9 +17,6 @@ class QStandardItem;
 class QListView;
 
 class TabResizeFilter;
-/*!
- * \brief This class is used for managing "Settings" dialog
- */
 class DlgSettings : public QDialog
 {
   Q_OBJECT

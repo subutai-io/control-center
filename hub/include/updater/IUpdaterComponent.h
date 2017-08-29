@@ -14,9 +14,6 @@ namespace update_system {
   } hub_component_updater_error_t, chue_t;
   ////////////////////////////////////////////////////////////////////////////
 
-  /*!
-   * \brief The atomic_locker is RAII struct. Constructor sets some boolean variable to true. Destructor - to false
-   */
   struct atomic_locker {
     std::atomic<bool>* m_ab;
     atomic_locker(std::atomic<bool>* ab) :
@@ -27,10 +24,6 @@ namespace update_system {
   };
   ////////////////////////////////////////////////////////////////////////////
 
-  /*!
-   * \brief The IUpdaterComponent is abstract class with pure abstract methods.
-   * It provides interface for updating system. Detailed implementation is placed in derived classes.
-   */
   class IUpdaterComponent : public QObject {
     Q_OBJECT
   private:
@@ -38,19 +31,8 @@ namespace update_system {
     QString m_component_id;
     std::atomic<bool> m_in_progress;
 
-    /*!
-     * \brief Is update available
-     */
     virtual bool update_available_internal() = 0;
-
-    /*!
-     * \brief Update component
-     */
     virtual chue_t update_internal() = 0;
-
-    /*!
-     * \brief Run post update action
-     */
     virtual void update_post_action(bool success) = 0;
 
   public:
@@ -64,10 +46,6 @@ namespace update_system {
     virtual ~IUpdaterComponent(){}
 
     static const QString& component_id_to_user_view(const QString &id);
-
-    /*!
-     * \brief If update is available returns true and emits `update_available_changed` signal
-     */
     bool update_available() {
       bool res = update_available_internal();
       if (res) {
@@ -76,20 +54,12 @@ namespace update_system {
       return res;
     }
 
-    /*!
-     * \brief Check if update in progress. If not - try to update by calling virtual method. So that method should be implemented
-     * in derived class
-     */
     chue_t update() {
       if (m_in_progress) return CHUE_IN_PROGRESS;
       atomic_locker al(&m_in_progress);
       return update_internal();
     }
 
-    /*!
-     * \brief Component identificator uses in many places. Be careful with this field
-     * \return
-     */
     const QString& component_id() const {return m_component_id;}
 
   protected slots:

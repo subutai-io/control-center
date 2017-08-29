@@ -160,6 +160,9 @@ public:
   static system_call_wrapper_error_t chrome_version(QString& version);
   static const QString &virtual_box_version();
   static const QString& scwe_error_to_str(system_call_wrapper_error_t err);
+
+  static bool set_application_autostart(bool start);
+  static bool application_autostart();
 };
 
 #endif // SYSTEMCALLWRAPPER_H

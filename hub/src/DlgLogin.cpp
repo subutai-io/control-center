@@ -15,7 +15,7 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
 
-  ui->lbl_register_link->setText(QString("<a href=\"%1\">Register</a>").arg(hub_register_url()));
+  ui->lbl_register_link->setText(QString("<a href=\"%1\">%2</a>").arg(hub_register_url()).arg(tr("Register")));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
   ui->lbl_register_link->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_register_link->setOpenExternalLinks(true);
@@ -54,8 +54,12 @@ DlgLogin::login() {
                                  err_code,
                                  network_err);
 
+  QString id = "";
   switch (err_code) {
     case RE_SUCCESS:
+      if (CRestWorker::Instance()->get_user_id(id))
+        CHubController::Instance().set_current_user_id(id);
+
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
       if (CSettingsManager::Instance().remember_me())
@@ -64,24 +68,30 @@ DlgLogin::login() {
       return true;
     case RE_LOGIN_OR_EMAIL:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText("<font color='red'>Wrong login or password. Try again!</font>");
+      ui->lbl_status->setText(QString("<font color='red'>%1</font>").
+                              arg(tr("Wrong login or password. Try again!")));
       break;
     case RE_HTTP:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText(QString("<font color='red'>HTTP error. Code : %1!</font>").arg(http_code));
+      ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
+                              arg(tr("HTTP error. Code")).arg(http_code));
       break;
     case RE_TIMEOUT:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText("<font color='red'>Timeout. Check internet connection, please!</font>");
+      ui->lbl_status->setText(QString("<font color='red'>%1</font>").
+                              arg(tr("Timeout. Check internet connection, please!")));
       break;
     case RE_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText(QString("<font color='red'>Network error. Code: %1!</font>").
+      ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
+                              arg(tr("Network error. Code")).
                               arg(CCommons::NetworkErrorToString(network_err)));
       break;
     default:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText(QString("<font color='red'>Unknown error. Code: %1!</font>").arg(err_code));
+      ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
+                              arg(tr("Unknown error. Code")).
+                              arg(err_code));
       break;
   }
   return false;

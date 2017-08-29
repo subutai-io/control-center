@@ -18,6 +18,15 @@
 #include "VBoxManager.h"
 #include "ApplicationLog.h"
 
+#ifdef RT_OS_DARWIN
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
+#ifdef RT_OS_WINDOWS
+#include <Windows.h>
+#pragma comment(lib, "Advapi32.lib")
+#endif
+
 static QString error_strings[] = {
   "Success", "Shell error",
   "Pipe error", "Set handle info error",
@@ -151,31 +160,45 @@ CSystemCallWrapper::leave_p2p_swarm(const QString& hash) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t
-CSystemCallWrapper::restart_p2p_service(int *res_code) {
-#if defined(RT_OS_LINUX)
+template<class OS> system_call_wrapper_error_t
+  restart_p2p_service_internal(int *res_code);
+
+template<> system_call_wrapper_error_t
+restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
   *res_code = RSE_MANUAL;
   return SCWE_SUCCESS;
-#elif defined(RT_OS_WINDOWS)
+}
+/*************************/
+
+template<> system_call_wrapper_error_t
+restart_p2p_service_internal<Os2Type<OS_WIN> >(int *res_code) {
   QString cmd("sc");
   QStringList args0, args1;
   args0 << "stop" << "\"Subutai Social P2P\"";
   args1 << "start" << "\"Subutai Social P2P\"";
-  system_call_res_t res = ssystem_th(cmd, args0, false);
-  res = ssystem_th(cmd, args1, false);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, false);
+  res = CSystemCallWrapper::ssystem_th(cmd, args1, false);
   *res_code = RSE_SUCCESS;
   return res.res;
-#else
+}
+/*************************/
+
+template<> system_call_wrapper_error_t
+restart_p2p_service_internal<Os2Type<OS_MAC> >(int *res_code) {
   QString cmd("osascript");
-  QStringList args, lst_out;
+  QStringList args;
   args << "-e" << "do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
                   " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
                   " with administrator privileges";
-  int ec = 0;
-  system_call_res_t res = ssystem_th(cmd, args, false);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
   *res_code = RSE_SUCCESS;
   return res.res;
-#endif
+}
+/*************************/
+
+system_call_wrapper_error_t
+CSystemCallWrapper::restart_p2p_service(int *res_code) {
+  return restart_p2p_service_internal<Os2Type<CURRENT_OS> >( res_code);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +212,59 @@ CSystemCallWrapper::check_container_state(const QString& hash,
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS> system_call_wrapper_error_t run_ssh_in_terminal_internal(
+    const QString& cmd,
+    const QString& str_command);
+
+template<> system_call_wrapper_error_t
+run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(const QString& cmd,
+                                                 const QString& str_command) {
+  QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
+  args << QString("%1;bash").arg(str_command);
+  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
+}
+/*********************/
+
+template<> system_call_wrapper_error_t
+run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
+                                               const QString& str_command) {
+  QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
+  args << QString("Tell application \"Terminal\"\n"
+                  "  Activate\n"
+                  "  do script \""
+                  "%1\"\n"
+                  " end tell").arg(str_command);
+  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
+}
+/*********************/
+
+template<> system_call_wrapper_error_t
+run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const QString& cmd,
+                                               const QString& str_command) {
+  (void)cmd;
+  (void)str_command; //make compiler happy.  %)
+#ifdef RT_OS_WINDOWS
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString str_command_quoted = QString("%1").arg(str_command);
+  QString cmd_args = QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command_quoted);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr,
+                          NULL, NULL,
+                          FALSE, 0,
+                          NULL, NULL,
+                          &si, &pi);
+  if (!cp) {
+    CApplicationLog::Instance()->LogError("Failed to create process %s. Err : %d",
+                                          cmd.toStdString().c_str(), GetLastError());
+    return SCWE_SSH_LAUNCH_FAILED;
+  }
+#endif
+  return SCWE_SUCCESS;
+}
+/*********************/
 
 system_call_wrapper_error_t
 CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
@@ -213,40 +289,8 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
       return tmp_res;
     }
   }
-
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
-
-#ifdef RT_OS_DARWIN
-  args << QString("Tell application \"Terminal\"\n"
-                  "  Activate\n"
-                  "  do script \""
-                  "%1\"\n"
-                  " end tell").arg(str_command);
-#elif RT_OS_LINUX
-  args << QString("%1;bash").arg(str_command);
-#elif RT_OS_WINDOWS
-
-  STARTUPINFO si = {0};
-  PROCESS_INFORMATION pi = {0};
-  QString str_command_quoted = QString("%1").arg(str_command);
-  QString cmd_args = QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command_quoted);
-  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
-  si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL,
-                          cmd_args_lpwstr,
-                          NULL, NULL,
-                          FALSE, 0,
-                          NULL, NULL,
-                          &si, &pi);
-  if (!cp) {
-    CApplicationLog::Instance()->LogError("Failed to create process %s. Err : %d",
-                                          cmd.toStdString().c_str(), GetLastError());
-    return SCWE_SSH_LAUNCH_FAILED;
-  }
-  return SCWE_SUCCESS;
-#endif
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
+  cmd = CSettingsManager::Instance().terminal_cmd();  
+  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(cmd, str_command);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -467,12 +511,7 @@ CSystemCallWrapper::which(const QString &prog,
                           QString &path) {
 
   static int success_ec = 0;
-#ifdef RT_OS_WINDOWS
-  static const char* which_cmd = "where";
-#else
-  static const char* which_cmd = "which";
-#endif
-  QString cmd(which_cmd);
+  QString cmd(which_cmd());
   QStringList args;
   args << prog;
   system_call_res_t res = ssystem_th(cmd, args, true, 5000);
@@ -489,23 +528,18 @@ CSystemCallWrapper::which(const QString &prog,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t
-CSystemCallWrapper::chrome_version(QString &version) {
-#if defined(RT_OS_LINUX)
-  static const char* command= "/usr/bin/google-chrome-stable";
-#elif defined(RT_OS_DARWIN)
-  static const char* command = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-#elif defined(RT_OS_WINDOWS)
-  static const char* command = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-  version = "Couldn't get version on Win, sorry";
-  return SCWE_SUCCESS;
-#endif
+template<class OS> system_call_wrapper_error_t
+  chrome_version_internal(QString &version);
+
+/********************/
+template<> system_call_wrapper_error_t
+chrome_version_internal<Os2Type<OS_MAC_LIN> >(QString& version) {
   version = "undefined";
-  QString cmd(command);
   QStringList args, lst_out;
   args << "--version";
 
-  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().chrome_path(), args,
+                                     true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     version = res.out[0];
@@ -515,6 +549,33 @@ CSystemCallWrapper::chrome_version(QString &version) {
   if ((index = version.indexOf('\n')) != -1)
     version.replace(index, 1, " ");
   return res.res;
+}
+/********************/
+
+template<> system_call_wrapper_error_t
+chrome_version_internal<Os2Type<OS_LINUX> >(QString& version) {
+  return chrome_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template<> system_call_wrapper_error_t
+chrome_version_internal<Os2Type<OS_MAC> >(QString& version) {
+  return chrome_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template<> system_call_wrapper_error_t
+chrome_version_internal<Os2Type<OS_WIN> >(QString& version) {
+  version = "Couldn't get version on Win, sorry";
+#if defined(RT_OS_WINDOWS)
+  //todo implement  with reading registry value
+#endif
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t
+CSystemCallWrapper::chrome_version(QString &version) {
+  return chrome_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -534,6 +595,332 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
     "call timeout", "which call failed", "process crashed"
   };
   return error_str[err];
+}
+////////////////////////////////////////////////////////////////////////////
+
+static const QString APP_AUTOSTART_KEY = "subutai-tray";
+
+template<class OS> bool set_application_autostart_internal(bool start);
+
+template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
+  static const QString desktop_file_content_template = "[Desktop Entry]\n"
+                                      "Type=Application\n"
+                                      "Name=subutai-tray\n"
+                                      "Exec=%1\n"
+                                      "Hidden=false\n"
+                                      "NoDisplay=false\n"
+                                      "Comment=subutai software\n"
+                                      "X-GNOME-Autostart-enabled=true\n";
+
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    CNotificationObserver::Error("Couldn't get home directory, sorry");
+    return false;
+  }
+
+  QString directory_path = lst_standard_locations[0] +
+                           QDir::separator() +
+                           ".config/autostart";
+  QDir dir(directory_path);
+  if (!dir.mkpath(directory_path)) {
+    CApplicationLog::Instance()->LogError("Couldn't create autostart directory");
+    CNotificationObserver::Error("Couldn't create autostart directory, sorry");
+    return false;
+  }
+
+  QString desktop_file_path = directory_path +
+                              QDir::separator() +
+                              APP_AUTOSTART_KEY +
+                              ".desktop";
+
+  QFile desktop_file(desktop_file_path);
+
+  if (!start) {
+    if (!desktop_file.exists()) return true; //already removed from autostart.
+    if (desktop_file.remove()) return true;
+    CApplicationLog::Instance()->LogError("Couldn't delete file : %s",
+                                          desktop_file.errorString().toStdString().c_str());
+    CNotificationObserver::Error(QString("Couldn't delete %1. %2").
+                                 arg(desktop_file_path).
+                                 arg(desktop_file.errorString()));
+    return false; //removed or not . who cares?
+  }
+
+  QString desktop_file_content = QString(desktop_file_content_template).
+                                 arg(QApplication::applicationFilePath());
+  if (!desktop_file.open(QFile::Truncate | QFile::WriteOnly)) {
+    CApplicationLog::Instance()->LogError("Couldn't open desktop file for write");
+    CNotificationObserver::Error(QString("Couldn't create autostart desktop file. Error : %1").
+                                 arg(desktop_file.errorString()));
+    return false;
+  }
+
+  bool result = true;
+  do {
+    QByteArray content_arr = desktop_file_content.toUtf8();
+    if (desktop_file.write(content_arr) != content_arr.size()) {
+      CApplicationLog::Instance()->LogError("Couldn't write content to autostart desktop file");
+      CNotificationObserver::Error("Couldn't write content to autostart desktop file");
+      result = false;
+    }
+  } while (0);
+
+  desktop_file.close();
+  return result;
+}
+/*********************/
+
+template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
+
+  static const QString item_location = "/Library/LaunchAgents/";
+
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    CNotificationObserver::Error("Couldn't get home directory, sorry");
+    return false;
+  }
+
+  QString item_path = lst_standard_locations[0] +
+                      QDir::separator() +
+                      item_location +
+                      APP_AUTOSTART_KEY +
+                      QString(".plist");
+
+
+  QString content_template =
+      QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+      "<plist version=\"1.0\">\n"
+      "<dict>\n"
+          "\t<key>Label</key>\n"
+          "\t<string>%1</string>\n"
+          "\t<key>ProgramArguments</key>\n"
+              "\t\t<array>\n"
+                  "\t\t\t<string>%2</string>\n"
+              "\t\t</array>\n"
+          "\t<key>RunAtLoad</key>\n"
+          "\t<true/>\n"
+      "</dict>\n"
+      "</plist>\n").arg(APP_AUTOSTART_KEY).arg(QApplication::applicationFilePath());
+
+  static const QString cmd("osascript");
+
+  QFile item_file(item_path);
+  if (!item_file.exists()) {
+    if (!item_file.open(QFile::ReadWrite)) {
+      CApplicationLog::Instance()->LogError("Couldn't create subutai-tray.plist file. Error : %s",
+                                            item_file.errorString().toStdString().c_str());
+      CNotificationObserver::Error(item_file.errorString());
+      return false;
+    }
+
+    QByteArray content = content_template.toUtf8();
+    if (item_file.write(content) != content.size()) {
+      CApplicationLog::Instance()->LogError("Didn't write whole content to plist file");
+      CNotificationObserver::Error("Write plist file error");
+      item_file.close();
+      return false;
+    }
+    item_file.close();
+  }
+
+  QStringList args;
+  QString add_command = QString("launchctl load %1").arg(item_path);
+  QString rem_command = QString("launchctl unload %1").arg(item_path);
+  args << "-e" << QString("do shell script \"%1\"").arg(start ? add_command : rem_command);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, false);
+  return res.res == SCWE_SUCCESS;
+}
+/*********************/
+
+template<> bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
+  (void)start; //make compiler happy
+  bool result = true;
+#ifdef RT_OS_WINDOWS
+  HKEY rkey_run = NULL;
+  static const LPCWSTR val_name((wchar_t*)APP_AUTOSTART_KEY.utf16());
+  DWORD disp;
+  do { //try to write value to registry
+    int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                                 L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 0,
+                                 NULL,
+                                 REG_OPTION_NON_VOLATILE,
+                                 KEY_ALL_ACCESS,
+                                 NULL,
+                                 &rkey_run,
+                                 &disp);
+
+    if (cr != ERROR_SUCCESS || !rkey_run) {
+      CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
+                                            GetLastError(), cr);
+      CNotificationObserver::Error("Couldn't create registry key, sorry");
+      result = false;
+      break;
+    }
+
+    if (start) {
+      cr = RegSetKeyValueW(rkey_run,
+                           0,
+                           val_name,
+                           REG_SZ,
+                           QApplication::applicationFilePath().replace("/", "\\").utf16(),
+                           QApplication::applicationFilePath().length()*2);
+
+      if (cr == ERROR_ACCESS_DENIED) {
+        CNotificationObserver::Error("Couldn't add program to autorun due to access denied. Try to run this application as administrator");
+        result = false;
+        break;
+      }
+
+      if (cr != ERROR_SUCCESS) {
+        CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d",
+                                              cr, GetLastError());
+        CNotificationObserver::Error("Couldn't add program to autorun, sorry");
+        result = false;
+        break;
+      }
+    } else { //if (start)
+      cr = RegDeleteKeyValueW(rkey_run,
+                              0,
+                              val_name);
+
+      if (cr == ERROR_ACCESS_DENIED) {
+        CNotificationObserver::Error("Couldn't remove program from autorun due to access denied. Try to run this application as administrator");
+        result = false;
+      }
+
+      if (cr == ERROR_PATH_NOT_FOUND) {
+        result = true;
+        break;
+      }
+
+      if (cr != ERROR_SUCCESS) {
+        CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
+                                              cr, GetLastError());
+        CNotificationObserver::Error("Couldn't remove program from autorun, sorry");
+        result = false;
+        break;
+      }
+    } //if (start) ... else this block
+  } while(0);
+
+  RegCloseKey(rkey_run);
+#endif
+  return result;
+}
+/*********************/
+
+bool
+CSystemCallWrapper::set_application_autostart(bool start) {
+  return set_application_autostart_internal<Os2Type<CURRENT_OS> >(start);
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> bool application_autostart_internal();
+
+template<> bool application_autostart_internal<Os2Type<OS_LINUX> >() {
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    return false;
+  }
+
+  QString directory_path = lst_standard_locations[0] +
+                           QDir::separator() +
+                           ".config/autostart";
+  QString desktop_file_path = directory_path +
+                              QDir::separator() +
+                              APP_AUTOSTART_KEY +
+                              ".desktop";
+
+  QFile desktop_file(desktop_file_path);
+  return desktop_file.exists(); //todo check exec field. should be QApplication::applicationFilePath()
+}
+/*********************/
+
+template<> bool application_autostart_internal<Os2Type<OS_MAC> >() {
+
+  static const QString item_location = "/Library/LaunchAgents/";
+
+  QStringList lst_standard_locations =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+  if (lst_standard_locations.empty()) {
+    CApplicationLog::Instance()->LogError("Couldn't get standard locations. HOME");
+    return false;
+  }
+
+  QString item_path = lst_standard_locations[0] +
+                      QDir::separator() +
+                      item_location +
+                      APP_AUTOSTART_KEY +
+                      QString(".plist");
+
+  QFile item_file(item_path);
+  return item_file.exists(); //todo check first argument. should be QApplication::applicationFilePath()
+}
+/*********************/
+
+template<> bool application_autostart_internal<Os2Type<OS_WIN> >() {
+  bool result = true;
+#ifdef RT_OS_WINDOWS
+  HKEY rkey_run = NULL;
+  do {
+    static const LPCWSTR val_name((wchar_t*)APP_AUTOSTART_KEY.utf16());
+    DWORD disp;
+    int32_t cr = RegCreateKeyExW(HKEY_LOCAL_MACHINE,
+                                 L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                                 0,
+                                 NULL,
+                                 REG_OPTION_NON_VOLATILE,
+                                 KEY_ALL_ACCESS,
+                                 NULL,
+                                 &rkey_run,
+                                 &disp);
+
+    if (cr != ERROR_SUCCESS || !rkey_run) {
+      CApplicationLog::Instance()->LogError("Create registry key error. ec = %d, cr = %d",
+                                            GetLastError(), cr);
+      result = false;
+      break;
+    }
+
+    static const uint32_t buff_size = 1024;
+    uint8_t buff[buff_size] = {0};
+    DWORD cb_data;
+    DWORD rr;
+    rr = RegQueryValueEx( rkey_run,
+                          val_name,
+                          NULL,
+                          NULL,
+                          buff,
+                          &cb_data );
+    if (rr != ERROR_SUCCESS) {
+      result = false;
+      break;
+    }
+
+    QString qdata = QString::fromUtf16((ushort*)buff, cb_data);
+    result = qdata == QApplication::applicationFilePath();
+  } while (0);
+  RegCloseKey(rkey_run);
+#endif
+  return result;
+}
+/*********************/
+
+bool
+CSystemCallWrapper::application_autostart() {
+  return application_autostart_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 

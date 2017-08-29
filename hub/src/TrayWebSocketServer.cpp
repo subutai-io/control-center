@@ -142,7 +142,7 @@ CTrayServer::process_text_msg(QString msg) {
 
 void
 CTrayServer::process_bin_msg(QByteArray msg) {
-  (void)msg; //unused arg;
+  UNUSED_ARG(msg);
   //todo implement
 }
 ////////////////////////////////////////////////////////////////////////////

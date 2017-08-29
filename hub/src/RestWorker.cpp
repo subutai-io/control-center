@@ -16,20 +16,31 @@ CRestWorker::~CRestWorker() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+
 void
-CRestWorker::login_finished_sl() {
-  static QString str_ok = "\"OK\"";
+CRestWorker::get_my_peers_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
   if (reply == nullptr) {
-    //todo handle this;
+    return;
   }
 
   int http_code, err_code, network_error;
   pre_handle_reply(reply, http_code, err_code, network_error);
-  QByteArray arr = reply->readAll();
-  if (err_code == RE_SUCCESS)
-    err_code = (QString(arr) != str_ok) ? RE_LOGIN_OR_EMAIL : RE_SUCCESS;
-  emit on_login_finished(http_code, err_code, network_error);
+
+  QByteArray reply_arr = reply->readAll();
+  QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
+  QJsonArray doc_arr = doc.array();
+
+  std::vector<CMyPeerInfo> lst_res;
+  for (auto i : doc_arr) {
+    if (i.isNull() || !i.isObject()) continue;
+    lst_res.push_back(CMyPeerInfo(i.toObject()));
+  }
+
+  emit on_get_my_peers_finished(lst_res,
+                                http_code,
+                                err_code,
+                                network_error);
   reply->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -152,6 +163,43 @@ CRestWorker::login(const QString& login,
     err_code = RE_LOGIN_OR_EMAIL;
     return;
   }
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+CRestWorker::get_user_id(QString &user_id_str) {
+  int http_code, err_code, network_error;
+  user_id_str = "";
+  static const QString str_url(hub_get_url().arg("user-info"));
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QByteArray arr = send_request(m_network_manager, request, true,
+                                http_code, err_code, network_error,
+                                QByteArray(), true);
+
+  QJsonDocument doc  = QJsonDocument::fromJson(arr);
+  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+    CApplicationLog::Instance()->LogError("Get user id ");
+    return false;
+  }
+
+  QJsonObject obj = doc.object();
+  if (obj.find("id") != obj.end())
+    user_id_str = QString("%1").arg(obj["id"].toInt());
+  return true;
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+void
+CRestWorker::update_my_peers(){
+  QUrl url_env(hub_get_url().arg("my-peers"));
+  QNetworkRequest req(url_env);
+  req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
+  connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_my_peers_finished_sl);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -368,7 +416,6 @@ CRestWorker::remove_sshkey_from_environments(const QString &key_name,
   QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
-////////////////////////////////////////////////////////////////////////////
 
 QNetworkAccessManager*
 CRestWorker::create_network_manager() {

@@ -9,9 +9,6 @@ namespace Ui {
 
 class QSplashScreen;
 
-/*!
- * \brief This class is used for managing behavior of authorization dialog.
- */
 class DlgLogin : public QDialog
 {
   Q_OBJECT
