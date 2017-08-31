@@ -117,8 +117,14 @@ FORMS    += \
 RESOURCES += \
     resources/resources.qrc
 
-GIT_VERSION = $$system(git describe)
-DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+unix: {
+  TRAY_VERSION = $$system(cat version)
+}
+win32: {
+  TRAY_VERSION = $$system(type version)
+}
+
+DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
