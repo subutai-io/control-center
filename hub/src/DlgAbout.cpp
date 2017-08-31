@@ -24,7 +24,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
-  ui->lbl_tray_version_val->setText(GIT_VERSION);
+  ui->lbl_tray_version_val->setText(TRAY_VERSION);
 
   this->setMinimumWidth(700);
 

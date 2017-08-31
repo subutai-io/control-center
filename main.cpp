@@ -97,12 +97,12 @@ main(int argc, char *argv[]) {
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_DISABLED);
 
   if (cmd_parser.isSet(version_opt)) {
-    std::cout << GIT_VERSION << std::endl;
+    std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();
-  CApplicationLog::Instance()->LogInfo("Tray application %s launched", GIT_VERSION);
+  CApplicationLog::Instance()->LogInfo("Tray application %s launched", TRAY_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
