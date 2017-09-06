@@ -18,6 +18,7 @@ enum system_call_wrapper_error_t {
   SCWE_CREATE_PROCESS,
 
   /*p2p errors*/
+  SCWE_P2P_IS_NOT_RUNNABLE,
   SCWE_CANT_JOIN_SWARM,
   SCWE_CONTAINER_IS_NOT_READY,
 

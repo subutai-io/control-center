@@ -205,15 +205,7 @@ is_path_valid(const QLineEdit* le) {
 
 bool
 can_launch_application(const QLineEdit* le) {
-  QFileInfo fi(le->text());
-  if (fi.exists() && fi.isExecutable())
-    return true;
-  QString cmd;
-  system_call_wrapper_error_t which_res =
-      CSystemCallWrapper::which(le->text(), cmd);
-  if (which_res != SCWE_SUCCESS) return false;
-  QFileInfo fi2(cmd);
-  return fi2.exists() && fi2.isExecutable();
+  return CCommons::IsApplicationLaunchable(le->text());
 }
 ////////////////////////////////////////////////////////////////////////////
 

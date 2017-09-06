@@ -26,6 +26,8 @@ public:
   static QString NetworkErrorToString(int err_code);
 
   static void RestartTray();
+
+  static bool IsApplicationLaunchable(const QString& file_path);
 };
 
 #endif // COMMONS_H

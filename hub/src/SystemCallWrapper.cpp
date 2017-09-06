@@ -112,10 +112,13 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
 
+  if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path()))
+    return SCWE_P2P_IS_NOT_RUNNABLE;
+
   CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s",
                                         hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "start" <<
           "-ip" << ip <<
           "-key" << key <<
@@ -589,7 +592,7 @@ const QString &
 CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
   static QString error_str[] = {
     "SUCCESS", "Shell error", "Pipe error",
-    "set_handle_info error", "create process error",
+    "set_handle_info error", "create process error", "p2p is not installed or hasn't execute rights",
     "can't join to swarm", "container isn't ready",
     "ssh launch failed", "can't get rh ip address", "can't generate ssh-key",
     "call timeout", "which call failed", "process crashed"
