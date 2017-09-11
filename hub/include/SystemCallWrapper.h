@@ -164,6 +164,15 @@ public:
 
   static bool set_application_autostart(bool start);
   static bool application_autostart();
+
+  struct container_ip_and_port {
+    QString ip;
+    QString port;
+  };
+
+  static container_ip_and_port container_ip_address_from_subutai_list(const QString& cont_name,
+                                                                      const QString &port,
+                                                                      const QString& cont_ip, const QString &rh_ip);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

@@ -67,8 +67,10 @@ CHubController::ssh_to_container_internal(const CEnvironment *env,
       new CHubControllerP2PWorker(env->id(),
                                   env->hash(),
                                   env->key(),
-                                  cont->rh_ip(),
+                                  cont->ip(),
                                   cont->port(),
+                                  cont->name(),
+                                  cont->rh_ip(),
                                   additional_data);
 
   QThread* th = new QThread;
@@ -365,14 +367,18 @@ CHubController::launch_balance_page() {
 CHubControllerP2PWorker::CHubControllerP2PWorker(const QString &env_id,
                                                  const QString &env_hash,
                                                  const QString &env_key,
-                                                 const QString &ip,
+                                                 const QString &cont_ip,
                                                  const QString &cont_port,
+                                                 const QString &cont_name,
+                                                 const QString &rh_ip,
                                                  void *additional_data) :
   m_env_id(env_id),
   m_env_hash(env_hash),
   m_env_key(env_key),
-  m_ip(ip),
+  m_cont_ip(cont_ip),
   m_cont_port(cont_port),
+  m_cont_name(cont_name),
+  m_rh_ip(rh_ip),
   m_additional_data(additional_data)
 {
 
@@ -415,11 +421,17 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     return;
   }
 
+  CSystemCallWrapper::container_ip_and_port cip =
+      CSystemCallWrapper::container_ip_address_from_subutai_list(m_cont_name,
+                                                                 m_cont_port,
+                                                                 m_cont_ip,
+                                                                 m_rh_ip);
+
   CNotificationObserver::Info("Checking container. Please, wait");
   static const int MAX_ATTEMTS_COUNT = 25;
   for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
     err = CSystemCallWrapper::check_container_state(m_env_hash,
-                                                    m_ip);
+                                                    cip.ip);
     if (err == SCWE_SUCCESS) break;
     QThread::currentThread()->sleep(1);
   }
@@ -445,8 +457,8 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
-                                                m_ip,
-                                                m_cont_port,
+                                                cip.ip,
+                                                cip.port,
                                                 key);
 
   if (err != SCWE_SUCCESS) {

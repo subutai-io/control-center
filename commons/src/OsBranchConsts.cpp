@@ -404,3 +404,21 @@ default_chrome_path() {
   return default_chrome_path_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& subutai_list_command_internal();
+
+#define subutai_list_command_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& subutai_list_command_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+subutai_list_command_internal_def(BT_PROD,   "/snap/subutai/current/bin/p2p")
+subutai_list_command_internal_def(BT_MASTER, "/snap/subutai-master/current/bin/p2p")
+subutai_list_command_internal_def(BT_DEV,    "/snap/subutai-dev/current/bin/p2p")
+
+const QString &
+subutai_list_command() {
+  return subutai_list_command_internal<Branch2Type<CURRENT_BRANCH> >();
+}

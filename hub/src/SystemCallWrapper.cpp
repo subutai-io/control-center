@@ -925,6 +925,34 @@ bool
 CSystemCallWrapper::application_autostart() {
   return application_autostart_internal<Os2Type<CURRENT_OS> >();
 }
+
+CSystemCallWrapper::container_ip_and_port
+CSystemCallWrapper::container_ip_address_from_subutai_list(
+    const QString &cont_name,
+    const QString &port,
+    const QString &cont_ip,
+    const QString &rh_ip) {
+
+  QString cmd = subutai_list_command();
+  QStringList args;
+  args << "list" << "i";
+  system_call_res_t scr = ssystem_th(cmd, args, true, 7000);
+  CSystemCallWrapper::container_ip_and_port res;
+  res.ip = QString(rh_ip);
+  res.port = QString(port);
+
+  if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
+    for (QString str : scr.out) {
+      int ix1, ix2;
+      if ((ix1 = str.indexOf(cont_name) == -1) ||
+          (ix2 = str.indexOf(cont_ip) == -1)) continue;
+      res.port = "22"; //MAGIC!!
+      res.ip = QString(cont_ip);
+    }
+  }
+
+  return res;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
