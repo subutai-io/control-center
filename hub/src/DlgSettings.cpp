@@ -5,6 +5,7 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QListView>
+#include <QMessageBox>
 
 #include "DlgSettings.h"
 #include "ui_DlgSettings.h"
@@ -224,7 +225,7 @@ DlgSettings::btn_ok_released() {
 
   for (size_t i = 0; i < sizeof(le)/sizeof(QLineEdit*); ++i) {
     QString txt = le[i]->text();
-    if (txt.at(0) == QChar('~')) {
+    if (!txt.isEmpty() && txt.at(0) == QChar('~')) {
       txt.replace(0, 1, home_folder);
       le[i]->setText(txt);
     }
@@ -246,13 +247,19 @@ DlgSettings::btn_ok_released() {
     {ui->le_rtm_db_folder, folder_has_write_permission, 0, folder_permission_validator_msg},
 
     {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_p2p_command, can_launch_application, 1, can_launch_application_msg},
+
     {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, can_launch_application, 1, can_launch_application_msg},
+
     {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_terminal_cmd, can_launch_application, 1, can_launch_application_msg},
+
     {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+
     {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_vboxmanage_command, can_launch_application, 1, can_launch_application_msg},
+
     {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_keygen_command, can_launch_application, 1, can_launch_application_msg},
 
@@ -264,16 +271,31 @@ DlgSettings::btn_ok_released() {
     {NULL, NULL, -1, ""}
   };
 
+  std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
+
   field_validator_t<QLineEdit>* tmp = le_validators;
   do {
     if (!tmp->fc->isVisible()) continue;
-    if (!tmp->f_validator(tmp->fc)) {
-      ui->tabWidget->setCurrentIndex(tmp->tab_index);
-      tmp->fc->setFocus();
-      QToolTip::showText(tmp->fc->mapToGlobal(QPoint()), tmp->validator_msg);
+    if (tmp->f_validator(tmp->fc)) continue;
+    lst_failed_validators.push_back(*tmp);
+  } while ((++tmp)->fc);
+
+  if (!lst_failed_validators.empty()) {
+    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! Wrong settings",
+                                           QString("You have %1 wrong settings. "
+                                                   "Would you like to correct it? "
+                                                   "Yes - try to correct, No - save anyway").
+                                           arg(lst_failed_validators.size()),
+                                           QMessageBox::Yes | QMessageBox::No);
+    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Yes) {
+      ui->tabWidget->setCurrentIndex(lst_failed_validators[0].tab_index);
+      lst_failed_validators[0].fc->setFocus();
+      QToolTip::showText(lst_failed_validators[0].fc->mapToGlobal(QPoint()),
+          lst_failed_validators[0].validator_msg);
       return;
     }
-  } while ((++tmp)->fc);
+  } //if !lst_failed_validators.empty()
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());

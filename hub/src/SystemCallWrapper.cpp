@@ -234,7 +234,7 @@ run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
   args << QString("Tell application \"Terminal\"\n"
-                  "  Activate\n"
+//                  "  Activate\n"
                   "  do script \""
                   "%1\"\n"
                   " end tell").arg(str_command);
