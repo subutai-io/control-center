@@ -171,8 +171,7 @@ public:
     bool use_p2p;
   };
 
-  static container_ip_and_port container_ip_address_from_subutai_list(const QString& cont_name,
-                                                                      const QString &port,
+  static container_ip_and_port container_ip_from_ifconfig_analog(const QString &port,
                                                                       const QString& cont_ip, const QString &rh_ip);
 };
 

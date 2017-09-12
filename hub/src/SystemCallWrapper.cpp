@@ -927,27 +927,28 @@ CSystemCallWrapper::application_autostart() {
 }
 
 CSystemCallWrapper::container_ip_and_port
-CSystemCallWrapper::container_ip_address_from_subutai_list(
-    const QString &cont_name,
+CSystemCallWrapper::container_ip_from_ifconfig_analog(
     const QString &port,
     const QString &cont_ip,
     const QString &rh_ip) {
 
-  QString cmd = subutai_list_command();
-  QStringList args;
-  args << "list" << "-i";
-  system_call_res_t scr = ssystem_th(cmd, args, true, 7000);
+  QStringList cmd_parts = CSettingsManager::Instance().ip_addr_cmd().split(" ");
   CSystemCallWrapper::container_ip_and_port res;
   res.ip = QString(rh_ip);
   res.port = QString(port);
   res.use_p2p = true;
 
+  if (cmd_parts.isEmpty())
+    return res;
+
+  QString cmd = cmd_parts[0];
+  cmd_parts.removeFirst();
+
+  system_call_res_t scr = ssystem_th(cmd, cmd_parts, true, 7000);
   if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
     for (QString str : scr.out) {
-      CApplicationLog::Instance()->LogTrace(str.toStdString().c_str());
-      int ix1, ix2;
-      if ((ix1 = str.indexOf(cont_name) == -1) ||
-          (ix2 = str.indexOf(cont_ip) == -1)) continue;
+      int ix1;
+      if ((ix1 = str.indexOf(cont_ip) == -1)) continue;
       res.port = "22"; //MAGIC!!
       res.ip = QString(cont_ip);
       res.use_p2p = false;

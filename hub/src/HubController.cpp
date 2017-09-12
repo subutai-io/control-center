@@ -416,10 +416,9 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   system_call_wrapper_error_t err;
 
   CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_address_from_subutai_list(m_cont_name,
-                                                                 m_cont_port,
-                                                                 m_cont_ip,
-                                                                 m_rh_ip);
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(m_cont_port,
+                                                            m_cont_ip,
+                                                            m_rh_ip);
   //
   if (cip.use_p2p) {
 

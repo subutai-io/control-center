@@ -422,3 +422,23 @@ const QString &
 subutai_list_command() {
   return subutai_list_command_internal<Branch2Type<CURRENT_BRANCH> >();
 }
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_ip_addr_cmd_temp_internal();
+
+#define default_ip_addr_cmd_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_ip_addr_cmd_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_ip_addr_cmd_internal_def(OS_LINUX, "ifconfig")
+default_ip_addr_cmd_internal_def(OS_MAC, "ifconfig")
+default_ip_addr_cmd_internal_def(OS_WIN, "ipconfig /all")
+
+const QString &
+default_ip_addr_cmd() {
+  return default_ip_addr_cmd_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////

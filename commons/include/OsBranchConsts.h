@@ -55,5 +55,5 @@ const QString& which_cmd();
 const QString& default_chrome_path();
 
 const QString& subutai_list_command();
-
+const QString& default_ip_addr_cmd();
 #endif // OSBRANCHCONSTS_H

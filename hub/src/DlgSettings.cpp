@@ -132,6 +132,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
 
   rebuild_rh_list_model();
 
+  ui->le_ip_addr_cmd->setText(CSettingsManager::Instance().ip_addr_cmd());
+
   connect(ui->btn_ok, &QPushButton::released,
           this, &DlgSettings::btn_ok_released);
   connect(ui->btn_cancel, &QPushButton::released,
@@ -156,6 +158,8 @@ DlgSettings::DlgSettings(QWidget *parent) :
           this, &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->btn_vboxmanage_command, &QPushButton::released,
           this, &DlgSettings::btn_vboxmanage_command_released);
+  connect(ui->btn_ip_addr_cmd, &QPushButton::released,
+          this, &DlgSettings::btn_ip_addr_cmd_released);
 }
 
 DlgSettings::~DlgSettings() {
@@ -263,6 +267,8 @@ DlgSettings::btn_ok_released() {
     {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_keygen_command, can_launch_application, 1, can_launch_application_msg},
 
+    {ui->le_ip_addr_cmd, is_le_empty_validate, 1, empty_validator_msg},
+
     {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
@@ -338,6 +344,7 @@ DlgSettings::btn_ok_released() {
         ui->chk_use_animations->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_ssh_keygen_cmd(ui->le_ssh_keygen_command->text());
   CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() == Qt::Checked);
+  CSettingsManager::Instance().set_ip_addr_cmd(ui->le_ip_addr_cmd->text());
   CSettingsManager::Instance().save_all();
   this->close();
 }
@@ -418,6 +425,14 @@ DlgSettings::btn_refresh_rh_list_released() {
   ui->btn_refresh_rh_list->setEnabled(false);
   m_refresh_rh_list_timer.start();
   CRhController::Instance()->refresh();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgSettings::btn_ip_addr_cmd_released() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("Ifconfig analog command"));
+  if (fn == "") return;
+  ui->le_ip_addr_cmd->setText(fn);
 }
 ////////////////////////////////////////////////////////////////////////////
 
