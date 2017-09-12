@@ -274,6 +274,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                                         const QString& port,
                                         const QString& key)
 {
+#ifdef RT_OS_WINDOWS
   QString str_command = QString("\"%1\" %2@%3 -p %4").
                         arg(CSettingsManager::Instance().ssh_path()).
                         arg(user).arg(ip).arg(port);
@@ -282,6 +283,16 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
     CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
     str_command += QString(" -i \"%1\" ").arg(key);
   }
+#else
+  QString str_command = QString("%1 %2@%3 -p %4").
+                        arg(CSettingsManager::Instance().ssh_path()).
+                        arg(user).arg(ip).arg(port);
+
+  if (!key.isEmpty()) {
+    CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
+    str_command += QString(" -i %1 ").arg(key);
+  }
+#endif
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
