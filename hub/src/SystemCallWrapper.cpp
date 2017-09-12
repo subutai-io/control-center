@@ -234,11 +234,14 @@ run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
   if (QSysInfo::productVersion() == "10.12") { //UGLY UGLY HACK!!! ATTENTION
+    CApplicationLog::Instance()->LogInfo("MacOSX version = 10.12");
     args << QString("Tell application \"Terminal\"\n"
                     "  do script \""
                     "%1\"\n"
                     " end tell").arg(str_command);
   } else {
+    CApplicationLog::Instance()->LogInfo("MacOSX version = %s",
+                                         QSysInfo::productVersion().toStdString().c_str());
     args << QString("Tell application \"Terminal\"\n"
                     "  Activate\n"
                     "  do script \""
