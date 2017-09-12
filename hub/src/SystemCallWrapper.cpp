@@ -233,11 +233,18 @@ template<> system_call_wrapper_error_t
 run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
-  args << QString("Tell application \"Terminal\"\n"
-                  "  Activate\n"
-                  "  do script \""
-                  "%1\"\n"
-                  " end tell").arg(str_command);
+  if (QSysInfo::productVersion() == "10.12") { //UGLY UGLY HACK!!! ATTENTION
+    args << QString("Tell application \"Terminal\"\n"
+                    "  do script \""
+                    "%1\"\n"
+                    " end tell").arg(str_command);
+  } else {
+    args << QString("Tell application \"Terminal\"\n"
+                    "  Activate\n"
+                    "  do script \""
+                    "%1\"\n"
+                    " end tell").arg(str_command);
+  }
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
 /*********************/
