@@ -233,14 +233,15 @@ template<> system_call_wrapper_error_t
 run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
+  CApplicationLog::Instance()->LogInfo("Launch command : %s",
+                                       str_command.toStdString().c_str());
+
   if (QSysInfo::productVersion() == "10.12") { //UGLY UGLY HACK!!! ATTENTION
     CApplicationLog::Instance()->LogInfo("MacOSX version = 10.12");
-    args << QString("Tell application \"Terminal\"\n"
-                    "  do script \""
-                    "%1\"\n"
-                    " end tell").arg(str_command);
+    args << QString("Tell application \"Terminal\" do script \"%1\"").arg(str_command);
+    CApplicationLog::Instance()->LogInfo("Do : %s", QString("Tell application \"Terminal\" do script \"%1\"").arg(str_command).toStdString().c_str());
   } else {
-    CApplicationLog::Instance()->LogInfo("MacOSX version = %s",
+    CApplicationLog::Instance()->LogInfo("** MacOSX version = %s",
                                          QSysInfo::productVersion().toStdString().c_str());
     args << QString("Tell application \"Terminal\"\n"
                     "  Activate\n"
