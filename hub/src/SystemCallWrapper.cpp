@@ -935,7 +935,7 @@ CSystemCallWrapper::container_ip_address_from_subutai_list(
 
   QString cmd = subutai_list_command();
   QStringList args;
-  args << "list" << "i";
+  args << "list" << "-i";
   system_call_res_t scr = ssystem_th(cmd, args, true, 7000);
   CSystemCallWrapper::container_ip_and_port res;
   res.ip = QString(rh_ip);
@@ -944,6 +944,7 @@ CSystemCallWrapper::container_ip_address_from_subutai_list(
 
   if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
     for (QString str : scr.out) {
+      CApplicationLog::Instance()->LogTrace(str.toStdString().c_str());
       int ix1, ix2;
       if ((ix1 = str.indexOf(cont_name) == -1) ||
           (ix2 = str.indexOf(cont_ip) == -1)) continue;
