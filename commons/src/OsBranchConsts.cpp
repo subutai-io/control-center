@@ -414,9 +414,9 @@ template<class BR> const QString& subutai_list_command_internal();
     return res; \
   }
 
-subutai_list_command_internal_def(BT_PROD,   "/snap/subutai/current/bin/p2p")
-subutai_list_command_internal_def(BT_MASTER, "/snap/subutai-master/current/bin/p2p")
-subutai_list_command_internal_def(BT_DEV,    "/snap/subutai-dev/current/bin/p2p")
+subutai_list_command_internal_def(BT_PROD,   "/snap/bin/subutai")
+subutai_list_command_internal_def(BT_MASTER, "/snap/bin/subutai-master")
+subutai_list_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
 
 const QString &
 subutai_list_command() {
