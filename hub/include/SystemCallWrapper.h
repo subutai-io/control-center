@@ -168,6 +168,7 @@ public:
   struct container_ip_and_port {
     QString ip;
     QString port;
+    bool use_p2p;
   };
 
   static container_ip_and_port container_ip_address_from_subutai_list(const QString& cont_name,

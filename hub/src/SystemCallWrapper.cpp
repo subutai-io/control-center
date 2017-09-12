@@ -234,7 +234,7 @@ run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
   args << QString("Tell application \"Terminal\"\n"
-//                  "  Activate\n"
+                  "  Activate\n"
                   "  do script \""
                   "%1\"\n"
                   " end tell").arg(str_command);
@@ -940,6 +940,7 @@ CSystemCallWrapper::container_ip_address_from_subutai_list(
   CSystemCallWrapper::container_ip_and_port res;
   res.ip = QString(rh_ip);
   res.port = QString(port);
+  res.use_p2p = true;
 
   if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
     for (QString str : scr.out) {
@@ -948,6 +949,7 @@ CSystemCallWrapper::container_ip_address_from_subutai_list(
           (ix2 = str.indexOf(cont_ip) == -1)) continue;
       res.port = "22"; //MAGIC!!
       res.ip = QString(cont_ip);
+      res.use_p2p = false;
     }
   }
 
