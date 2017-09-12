@@ -948,7 +948,7 @@ CSystemCallWrapper::container_ip_from_ifconfig_analog(
   if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
     for (QString str : scr.out) {
       int ix1;
-      if ((ix1 = str.indexOf(cont_ip) == -1)) continue;
+      if ((ix1 = str.indexOf(rh_ip) == -1)) continue;
       res.port = "22"; //MAGIC!!
       res.ip = QString(cont_ip);
       res.use_p2p = false;
