@@ -354,7 +354,7 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai update rh -c",
+                          QString("sudo %1 update rh -c").arg(CSettingsManager::subutai_cmd()),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) return res;
@@ -374,7 +374,7 @@ CSystemCallWrapper::is_rh_management_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai update management -c",
+                          QString("sudo %1 update management -c").arg(CSettingsManager::subutai_cmd()),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) {
@@ -394,7 +394,13 @@ CSystemCallWrapper::run_rh_updater(const char *host,
                                    int& exit_code) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, "sudo subutai update rh", exit_code, lst_out);
+      run_libssh2_command(host,
+                          port,
+                          user,
+                          pass,
+                          QString("sudo %1 update rh").arg(CSettingsManager::subutai_cmd()),
+                          exit_code,
+                          lst_out);
   return res;
 }
 
@@ -406,7 +412,13 @@ CSystemCallWrapper::run_rh_management_updater(const char *host,
                                               int &exit_code) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, "sudo subutai update management", exit_code, lst_out);
+      run_libssh2_command(host,
+                          port,
+                          user,
+                          pass,
+                          QString("sudo %1 update management").arg(CSettingsManager::subutai_cmd()),
+                          exit_code,
+                          lst_out);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -420,7 +432,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           std::string &ip) {
   system_call_wrapper_error_t res;
   std::vector<std::string> lst_out;
-  QString rh_ip_cmd = QString("sudo subutai info ipaddr");
+  QString rh_ip_cmd = QString("sudo %1 info ipaddr").arg(CSettingsManager::subutai_cmd());
   res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -445,7 +457,7 @@ CSystemCallWrapper::rh_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai -v",
+                          QString("sudo %1 -v").arg(CSettingsManager::subutai_cmd()),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
@@ -469,7 +481,8 @@ CSystemCallWrapper::rhm_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai attach management grep git.build.version /opt/subutai-mng/etc/git.properties",
+                          QString("sudo %1 attach management grep git.build.version "
+                                  "/opt/subutai-mng/etc/git.properties").arg(CSettingsManager::subutai_cmd()),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -548,7 +561,7 @@ template<class OS> system_call_wrapper_error_t
 template<> system_call_wrapper_error_t
 chrome_version_internal<Os2Type<OS_MAC_LIN> >(QString& version) {
   version = "undefined";
-  QStringList args, lst_out;
+  QStringList args;
   args << "--version";
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().chrome_path(), args,

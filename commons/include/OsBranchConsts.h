@@ -54,6 +54,6 @@ const QString& ssh_cmd_path();
 const QString& which_cmd();
 const QString& default_chrome_path();
 
-const QString& subutai_list_command();
+const QString& subutai_command();
 const QString& default_ip_addr_cmd();
 #endif // OSBRANCHCONSTS_H

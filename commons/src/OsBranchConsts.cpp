@@ -405,21 +405,21 @@ default_chrome_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template<class BR> const QString& subutai_list_command_internal();
+template<class BR> const QString& subutai_command_internal();
 
-#define subutai_list_command_internal_def(BT_TYPE, STRING) \
+#define subutai_command_internal_def(BT_TYPE, STRING) \
   template<> \
-  const QString& subutai_list_command_internal<Branch2Type<BT_TYPE> >() { \
+  const QString& subutai_command_internal<Branch2Type<BT_TYPE> >() { \
     static QString res(STRING); \
     return res; \
   }
 
-subutai_list_command_internal_def(BT_PROD,   "/snap/bin/subutai")
-subutai_list_command_internal_def(BT_MASTER, "/snap/bin/subutai-master")
-subutai_list_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
+subutai_command_internal_def(BT_PROD,   "/snap/bin/subutai")
+subutai_command_internal_def(BT_MASTER, "/snap/bin/subutai-master")
+subutai_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
 
 const QString &
-subutai_list_command() {
+subutai_command() {
   return subutai_list_command_internal<Branch2Type<CURRENT_BRANCH> >();
 }
 ////////////////////////////////////////////////////////////////////////////

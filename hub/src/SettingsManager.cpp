@@ -60,6 +60,7 @@ const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
 const QString CSettingsManager::SM_IP_ADDR_CMD("IpAddCmd");
+const QString CSettingsManager::SM_SUBUTAI_CMD("SubutaiCmd");
 
 struct setting_val_t {
   void* field;
@@ -129,7 +130,8 @@ CSettingsManager::CSettingsManager() :
   m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
   m_autostart(false),
   m_chrome_path(default_chrome_path()),
-  m_ip_addr_cmd(default_ip_addr_cmd())
+  m_ip_addr_cmd(default_ip_addr_cmd()),
+  m_subutai_cmd(subutai_command())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -167,6 +169,7 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
     {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
     {(void*)&m_ip_addr_cmd, SM_IP_ADDR_CMD, qvar_to_str},
+    {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},

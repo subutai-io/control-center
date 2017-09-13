@@ -58,6 +58,7 @@ private:
   static const QString SM_AUTOSTART;
   static const QString SM_CHROME_PATH;
   static const QString SM_IP_ADDR_CMD;
+  static const QString SM_SUBUTAI_CMD;
 
   CSettingsManager();
 
@@ -112,6 +113,7 @@ private:
   bool m_autostart;
   QString m_chrome_path;
   QString m_ip_addr_cmd;
+  QString m_subutai_cmd;
 
   void init_password();
 
@@ -189,6 +191,7 @@ public:
   bool autostart() const {return m_autostart;}
   const QString& chrome_path() const {return m_chrome_path;}
   const QString& ip_addr_cmd() const {return m_ip_addr_cmd;}
+  const QString& subutai_cmd() const {return m_subutai_cmd;}
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
@@ -244,6 +247,7 @@ public:
   SET_FIELD_DECL(autostart, bool)
   SET_FIELD_DECL(chrome_path, QString&)
   SET_FIELD_DECL(ip_addr_cmd, QString&)
+  SET_FIELD_DECL(subutai_cmd, QString&)
 #undef SET_FIELD_DECL
 };
 
