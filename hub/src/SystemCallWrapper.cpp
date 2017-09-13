@@ -688,7 +688,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
 
-  static const QString item_location = "/Library/LaunchAgents/";
+  static const QString item_location = "Library/LaunchAgents/";
 
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -862,7 +862,7 @@ template<> bool application_autostart_internal<Os2Type<OS_LINUX> >() {
 
 template<> bool application_autostart_internal<Os2Type<OS_MAC> >() {
 
-  static const QString item_location = "/Library/LaunchAgents/";
+  static const QString item_location = "Library/LaunchAgents/";
 
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
