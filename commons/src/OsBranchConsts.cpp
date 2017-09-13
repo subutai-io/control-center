@@ -442,3 +442,22 @@ default_ip_addr_cmd() {
   return default_ip_addr_cmd_temp_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& snap_p2p_path_internal();
+
+#define snap_p2p_path_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& snap_p2p_path_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+snap_p2p_path_internal_def(BT_PROD,   "/snap/subutai/current/bin/p2p")
+snap_p2p_path_internal_def(BT_MASTER, "/snap/subutai-master/current/bin/p2p")
+snap_p2p_path_internal_def(BT_DEV,    "/snap/subutai-dev/current/bin/p2p")
+
+const QString &
+snap_p2p_path() {
+  return snap_p2p_path_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
