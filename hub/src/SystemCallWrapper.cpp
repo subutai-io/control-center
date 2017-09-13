@@ -354,7 +354,8 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          QString("sudo %1 update rh -c").arg(CSettingsManager::subutai_cmd()),
+                          QString("sudo %1 update rh -c").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) return res;
@@ -374,7 +375,8 @@ CSystemCallWrapper::is_rh_management_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          QString("sudo %1 update management -c").arg(CSettingsManager::subutai_cmd()),
+                          QString("sudo %1 update management -c").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) {
@@ -398,7 +400,8 @@ CSystemCallWrapper::run_rh_updater(const char *host,
                           port,
                           user,
                           pass,
-                          QString("sudo %1 update rh").arg(CSettingsManager::subutai_cmd()),
+                          QString("sudo %1 update rh").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
                           exit_code,
                           lst_out);
   return res;
@@ -416,7 +419,9 @@ CSystemCallWrapper::run_rh_management_updater(const char *host,
                           port,
                           user,
                           pass,
-                          QString("sudo %1 update management").arg(CSettingsManager::subutai_cmd()),
+                          QString("sudo %1 update management").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
                           exit_code,
                           lst_out);
   return res;
@@ -432,7 +437,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           std::string &ip) {
   system_call_wrapper_error_t res;
   std::vector<std::string> lst_out;
-  QString rh_ip_cmd = QString("sudo %1 info ipaddr").arg(CSettingsManager::subutai_cmd());
+  QString rh_ip_cmd = QString("sudo %1 info ipaddr").arg(CSettingsManager::Instance().subutai_cmd());
   res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -457,7 +462,9 @@ CSystemCallWrapper::rh_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          QString("sudo %1 -v").arg(CSettingsManager::subutai_cmd()),
+                          QString("sudo %1 -v").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
@@ -482,7 +489,9 @@ CSystemCallWrapper::rhm_version() {
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
                           QString("sudo %1 attach management grep git.build.version "
-                                  "/opt/subutai-mng/etc/git.properties").arg(CSettingsManager::subutai_cmd()),
+                                  "/opt/subutai-mng/etc/git.properties").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {

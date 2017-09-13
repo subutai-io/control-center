@@ -420,7 +420,7 @@ subutai_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
 
 const QString &
 subutai_command() {
-  return subutai_list_command_internal<Branch2Type<CURRENT_BRANCH> >();
+  return subutai_command_internal<Branch2Type<CURRENT_BRANCH> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
