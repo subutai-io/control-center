@@ -194,7 +194,7 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
     }
 
     QStringList args;
-    args << systemctl_path << "list_units";
+    args << systemctl_path << "list_units" << "--all";
     system_call_res_t cr = CSystemCallWrapper::ssystem(gksu_path, args, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
@@ -211,14 +211,13 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
     for (QString str : cr.out) {
       if (str.indexOf("p2p.service") == -1) continue;
 
-//      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-//      if (lst_temp.empty()) {
-//        CApplicationLog::Instance()->LogError("Couldn't get standard temp location");
-//        break;
-//      }
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      if (lst_temp.empty()) {
+        CApplicationLog::Instance()->LogError("Couldn't get standard temp location");
+        break;
+      }
 
-//      QString tmpFilePath = lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
-      QString tmpFilePath = QApplication::applicationDirPath() + QDir::separator() + "reload_p2p_service.sh";
+      QString tmpFilePath = lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
         CApplicationLog::Instance()->LogError("Couldn't create reload script temp file. %s",
@@ -248,7 +247,6 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
                                               CSystemCallWrapper::scwe_error_to_str(cr_tmp.res));
         break;
       }
-//      tmpFile.remove();
       *res_code = RSE_SUCCESS;
       break; //for
     }
