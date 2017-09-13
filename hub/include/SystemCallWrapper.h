@@ -30,7 +30,9 @@ enum system_call_wrapper_error_t {
   /*other errors*/
   SCWE_TIMEOUT,
   SCWE_WHICH_CALL_FAILED,
-  SCWE_PROCESS_CRASHED
+  SCWE_PROCESS_CRASHED,
+
+  SCWE_LAST
 };
 ////////////////////////////////////////////////////////////////////////////
 

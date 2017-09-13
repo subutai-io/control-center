@@ -169,6 +169,90 @@ template<class OS> system_call_wrapper_error_t
 template<> system_call_wrapper_error_t
 restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
   *res_code = RSE_MANUAL;
+
+  do {
+    QString gksu_path;
+    system_call_wrapper_error_t scr =
+        CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find gksu command");
+      break;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find sh command");
+      break;
+    }
+
+    QString systemctl_path;
+    scr = CSystemCallWrapper::which("systemctl", systemctl_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find systemctl");
+      break;
+    }
+
+    QStringList args;
+    args << systemctl_path << "list_units";
+    system_call_res_t cr = CSystemCallWrapper::ssystem(gksu_path, args, true, 60000);
+
+    if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("gksu systemctl list-units call failed. ec = %d, res = %s",
+                                            cr.exit_code, CSystemCallWrapper::scwe_error_to_str(cr.res));
+      break;
+    }
+
+    if (cr.out.isEmpty()) {
+      CApplicationLog::Instance()->LogError("gksu systemctl list-units output is empty");
+      break;
+    }
+
+    for (QString str : cr.out) {
+      if (str.indexOf("p2p.service") == -1) continue;
+
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      if (lst_temp.empty()) {
+        CApplicationLog::Instance()->LogError("Couldn't get standard temp location");
+        break;
+      }
+
+      QString tmpFilePath = lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
+      QFile tmpFile(tmpFilePath);
+      if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+        CApplicationLog::Instance()->LogError("Couldn't create reload script temp file. %s",
+                                              tmpFile.errorString().toStdString().c_str());
+        break;
+      }
+
+      QByteArray restart_script =
+          QString("%1 disable p2p.service\n"
+                   "%1 stop p2p.service\n"
+                   "%1 enable p2p.service\n"
+                   "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
+
+      if (tmpFile.write(restart_script) != restart_script.size()) {
+        CApplicationLog::Instance()->LogError("Couldn't write restart script to temp file");
+        break;
+      }
+      tmpFile.close(); //save
+
+      system_call_res_t cr_tmp;
+      QStringList args2;
+      args2 << sh_path << tmpFilePath;
+      cr_tmp = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
+      if (cr_tmp.exit_code != 0 || cr_tmp.res != SCWE_SUCCESS) {
+        CApplicationLog::Instance()->LogError("Couldn't reload p2p.service. ec = %d, err = %s",
+                                              cr_tmp.exit_code,
+                                              CSystemCallWrapper::scwe_error_to_str(cr_tmp.res));
+        break;
+      }
+
+      *res_code = RSE_SUCCESS;
+      break; //for
+    }
+  } while (0);
+
   return SCWE_SUCCESS;
 }
 /*************************/
@@ -622,6 +706,7 @@ CSystemCallWrapper::virtual_box_version() {
 
 const QString &
 CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
+  static QString unknown("Unknown err");
   static QString error_str[] = {
     "SUCCESS", "Shell error", "Pipe error",
     "set_handle_info error", "create process error", "p2p is not installed or hasn't execute rights",
@@ -629,7 +714,7 @@ CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
     "ssh launch failed", "can't get rh ip address", "can't generate ssh-key",
     "call timeout", "which call failed", "process crashed"
   };
-  return error_str[err];
+  return (err >= 0 && err < SCWE_LAST) ? error_str[err] : unknown;
 }
 ////////////////////////////////////////////////////////////////////////////
 
