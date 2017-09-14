@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include "HubController.h"
 
+class QTimer;
+
 class CSshKeysController : public QObject {
   Q_OBJECT
 private:
@@ -19,6 +21,8 @@ private:
   typedef std::vector<std::vector<bool> > bit_matrix;
   bit_matrix m_original_bit_matrix;
   bit_matrix m_current_bit_matrix;
+
+  QTimer *m_refresh_files_timer;
 
   CSshKeysController();
   virtual ~CSshKeysController();
@@ -54,6 +58,7 @@ public:
 private slots:
   void ssh_key_send_progress_sl(int part, int total);
   void environments_updated(int rr);
+  void refresh_files_timer_timeout();
 
 signals:
   void key_files_changed();

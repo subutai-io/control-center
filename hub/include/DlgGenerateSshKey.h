@@ -43,5 +43,6 @@ private slots:
   void chk_select_all_checked_changed(int st);
 
   void matrix_updated_slot();
+  void keys_updated_slot();
 };
 #endif // DLGGENERATESSHKEY_H

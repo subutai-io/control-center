@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <algorithm>
+#include <QTimer>
 
 #include "RestWorker.h"
 #include "SystemCallWrapper.h"
@@ -11,22 +12,32 @@
 #include "Locker.h"
 
 CSshKeysController::CSshKeysController() :
-  m_current_key_col(-1) {
+  m_current_key_col(-1),
+  m_refresh_files_timer(nullptr) {
+
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
+  m_refresh_files_timer = new QTimer;
+  m_refresh_files_timer->setInterval(5000);
+
   refresh_key_files();
   rebuild_bit_matrix();
+
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &CSshKeysController::environments_updated);
+  connect(m_refresh_files_timer, &QTimer::timeout,
+          this, &CSshKeysController::refresh_files_timer_timeout);
+  m_refresh_files_timer->start();
 }
 
 CSshKeysController::~CSshKeysController() {
+  if (m_refresh_files_timer) m_refresh_files_timer->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSshKeysController::refresh_key_files() {
-  m_lst_key_content.clear();
-  m_lst_key_files.clear();
+  QStringList lst_key_content;
+  QStringList lst_key_files;
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -47,16 +58,25 @@ CSshKeysController::refresh_key_files() {
                                             key_file.errorString().toStdString().c_str());
       continue;
     }
-    m_lst_key_files.push_back(*i);
+    lst_key_files.push_back(*i);
     QByteArray arr_content = key_file.readAll();
     arr_content.truncate(arr_content.size() - 1); //hack for hub
-    m_lst_key_content.push_back(QString(arr_content));
+    lst_key_content.push_back(QString(arr_content));
     key_file.close();
   }
+
+  if (lst_key_files == m_lst_key_files) return;
+
+  m_lst_key_content.clear();
+  m_lst_key_files.clear();
+
+  m_lst_key_files = std::move(lst_key_files);
+  m_lst_key_content = std::move(lst_key_content);
 
   if (!m_lst_key_files.empty() && m_current_key.isEmpty())
     set_current_key(m_lst_key_files[0]);
 
+  emit key_files_changed();
   rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -280,9 +300,14 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  if (rr != CHubController::RER_NO_DIFF && !something_changed()) {
-    qDebug() << "refresh_healthy_environments";
-    refresh_healthy_environments();
-  }
+  if (rr == CHubController::RER_NO_DIFF || something_changed()) return;
+  refresh_healthy_environments();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSshKeysController::refresh_files_timer_timeout() {
+  if (something_changed()) return;
+  refresh_key_files();
 }
 ////////////////////////////////////////////////////////////////////////////

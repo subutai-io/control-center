@@ -60,6 +60,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(&CSshKeysController::Instance(), &CSshKeysController::matrix_updated,
           this, &DlgGenerateSshKey::matrix_updated_slot);
 
+  connect(&CSshKeysController::Instance(), &CSshKeysController::key_files_changed,
+          this, &DlgGenerateSshKey::keys_updated_slot);
+
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
 
@@ -172,6 +175,14 @@ DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
 
 void
 DlgGenerateSshKey::matrix_updated_slot() {
+  rebuild_environments_model();
+  set_environments_checked_flag();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+DlgGenerateSshKey::keys_updated_slot() {
+  rebuild_keys_model();
   rebuild_environments_model();
   set_environments_checked_flag();
 }

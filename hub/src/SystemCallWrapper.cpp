@@ -825,7 +825,6 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
                       APP_AUTOSTART_KEY +
                       QString(".plist");
 
-
   QString content_template =
       QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
@@ -845,7 +844,15 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
   static const QString cmd("osascript");
 
   QFile item_file(item_path);
-  if (!item_file.exists()) {
+
+  do {
+    if (!start) {
+      if (!item_file.exists()) break;
+      if (item_file.remove()) break;
+      CApplicationLog::Instance()->LogError("Couldn't remove autostart script");
+      break;
+    }
+    if (item_file.exists()) break;
     if (!item_file.open(QFile::ReadWrite)) {
       CApplicationLog::Instance()->LogError("Couldn't create subutai-tray.plist file. Error : %s",
                                             item_file.errorString().toStdString().c_str());
@@ -861,7 +868,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
       return false;
     }
     item_file.close();
-  }
+  } while (0);
 
   QStringList args;
   QString add_command = QString("launchctl load %1").arg(item_path);

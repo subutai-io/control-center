@@ -17,3 +17,7 @@ debian/files
 debian/subutai-tray
 
 html/
+
+# darwin
+darwin-packages/flat/*
+darwin-packages/root/*
