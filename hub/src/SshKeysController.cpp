@@ -129,9 +129,6 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 
 void
 CSshKeysController::send_data_to_hub() {
-
-
-
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
@@ -283,9 +280,9 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  UNUSED_ARG(rr);
-  if (m_lst_healthy_environments == CHubController::Instance().lst_healthy_environments())
-    return;
-  refresh_healthy_environments();
+  if (rr != CHubController::RER_NO_DIFF && !something_changed()) {
+    qDebug() << "refresh_healthy_environments";
+    refresh_healthy_environments();
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
