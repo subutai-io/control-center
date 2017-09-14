@@ -257,7 +257,7 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         CApplicationLog::Instance()->LogError("Couldn't reload p2p.service. ec = %d, err = %s",
                                               cr2.exit_code,
-                                              CSystemCallWrapper::scwe_error_to_str(cr2.res));
+                                              CSystemCallWrapper::scwe_error_to_str(cr2.res).toStdString().c_str());
         break;
       }
       *res_code = RSE_SUCCESS;
