@@ -194,12 +194,13 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
     }
 
     QStringList args;
-    args << systemctl_path << "list_units" << "--all";
+    args << QString("%1 list-units --all").arg(systemctl_path);
     system_call_res_t cr = CSystemCallWrapper::ssystem(gksu_path, args, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
       CApplicationLog::Instance()->LogError("gksu systemctl list-units call failed. ec = %d, res = %s",
-                                            cr.exit_code, CSystemCallWrapper::scwe_error_to_str(cr.res));
+                                            cr.exit_code,
+                                            CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
       break;
     }
 
@@ -218,6 +219,7 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
       }
 
       QString tmpFilePath = lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
+      qDebug() << tmpFilePath;
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
         CApplicationLog::Instance()->LogError("Couldn't create reload script temp file. %s",
@@ -226,7 +228,8 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
       }
 
       QByteArray restart_script =
-          QString("%1 disable p2p.service\n"
+          QString( "#!/bin/bash\n"
+                   "%1 disable p2p.service\n"
                    "%1 stop p2p.service\n"
                    "%1 enable p2p.service\n"
                    "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
@@ -237,19 +240,30 @@ restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
       }
       tmpFile.close(); //save
 
-      system_call_res_t cr_tmp;
+      if (!QFile::setPermissions(tmpFilePath,
+                                 QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                                 QFile::ReadUser  | QFile::WriteUser  | QFile::ExeUser  |
+                                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther )) {
+        CApplicationLog::Instance()->LogError("Couldn't set exe permission to reload script file");
+        break;
+      }
+
+      system_call_res_t cr2;
       QStringList args2;
       args2 << sh_path << tmpFilePath;
-      cr_tmp = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
-      if (cr_tmp.exit_code != 0 || cr_tmp.res != SCWE_SUCCESS) {
+      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
+      tmpFile.remove();
+      if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         CApplicationLog::Instance()->LogError("Couldn't reload p2p.service. ec = %d, err = %s",
-                                              cr_tmp.exit_code,
-                                              CSystemCallWrapper::scwe_error_to_str(cr_tmp.res));
+                                              cr2.exit_code,
+                                              CSystemCallWrapper::scwe_error_to_str(cr2.res));
         break;
       }
       *res_code = RSE_SUCCESS;
       break; //for
-    }
+    } //for
+
   } while (0);
 
   return SCWE_SUCCESS;
