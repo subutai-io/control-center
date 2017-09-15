@@ -184,7 +184,6 @@ void
 DlgGenerateSshKey::keys_updated_slot() {
   rebuild_keys_model();
   rebuild_environments_model();
-  set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 

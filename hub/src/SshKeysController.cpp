@@ -70,6 +70,9 @@ CSshKeysController::refresh_key_files() {
   m_lst_key_content.clear();
   m_lst_key_files.clear();
 
+  m_current_key = QString();
+  m_current_key_col = -1;
+
   m_lst_key_files = std::move(lst_key_files);
   m_lst_key_content = std::move(lst_key_content);
 
