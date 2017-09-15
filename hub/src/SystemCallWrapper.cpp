@@ -1077,7 +1077,7 @@ CSystemCallWrapper::container_ip_from_ifconfig_analog(
 
   for (QHostAddress address : QNetworkInterface::allAddresses()) {
     if (address == QHostAddress::LocalHost) continue;
-    if (!address.isEqual(template_ip)) continue;
+    if (address != template_ip) continue; //todo use isEqual
     res.port = "22"; //MAGIC!!
     res.ip = QString(cont_ip);
     res.use_p2p = false;
