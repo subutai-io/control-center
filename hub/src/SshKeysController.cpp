@@ -89,7 +89,6 @@ void
 CSshKeysController::rebuild_bit_matrix() {
 
   SynchroPrimitives::Locker lock(&cs_rbm);
-
   size_t cols, rows;
   rows = m_lst_healthy_environments.size();
   cols = m_lst_key_files.size();
@@ -240,7 +239,7 @@ bool
 CSshKeysController::get_key_environments_bit(int index) const {
   if (m_current_key.isEmpty()) return false;
   if (index < 0 || index >= (int)m_current_bit_matrix.size()) return false;
-  if (m_current_bit_matrix[index].empty() || m_current_key_col >= m_current_bit_matrix[index].size())
+  if (m_current_bit_matrix[index].empty() || m_current_key_col >= (int)m_current_bit_matrix[index].size())
     return false;
   return m_current_bit_matrix[index][m_current_key_col];
 }
@@ -249,7 +248,7 @@ CSshKeysController::get_key_environments_bit(int index) const {
 bool
 CSshKeysController::current_key_is_allselected() const {
   if (m_current_key.isEmpty()) return false;
-  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  if (m_current_key_col < 0 || m_current_key_col >= (int)m_lst_all_selected.size()) return false;
   return m_lst_all_selected[m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -257,7 +256,7 @@ CSshKeysController::current_key_is_allselected() const {
 bool
 CSshKeysController::set_current_key_allselected(bool flag) {
   if (m_current_key.isEmpty()) return false;
-  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  if (m_current_key_col < 0 || m_current_key_col >= (int)m_lst_all_selected.size()) return false;
 
   m_lst_all_selected[m_current_key_col] = flag;
   for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
@@ -291,7 +290,8 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 
 void
 CSshKeysController::refresh_healthy_environments() {
-  SynchroPrimitives::Locker lock(&cs_rbm);
+  static SynchroPrimitives::CriticalSection cs;
+  SynchroPrimitives::Locker lock(&cs);
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
   rebuild_bit_matrix();
 }
@@ -305,14 +305,13 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  if (rr == CHubController::RER_NO_DIFF || something_changed()) return;
+  if (rr == CHubController::RER_NO_DIFF) return;
   refresh_healthy_environments();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSshKeysController::refresh_files_timer_timeout() {
-  if (something_changed()) return;
   refresh_key_files();
 }
 ////////////////////////////////////////////////////////////////////////////
