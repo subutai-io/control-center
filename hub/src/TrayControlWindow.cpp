@@ -211,7 +211,7 @@ TrayControlWindow::create_tray_actions() {
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, &QAction::triggered, this, &TrayControlWindow::show_about);
 
-  m_act_ssh_keys_management = new QAction(tr("SSH-keys management"), this);
+  m_act_ssh_keys_management = new QAction(QIcon(":/hub/ssh-keys.png"), tr("SSH-keys management"), this);
   connect(m_act_ssh_keys_management, &QAction::triggered, this, &TrayControlWindow::ssh_key_generate_triggered);
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
