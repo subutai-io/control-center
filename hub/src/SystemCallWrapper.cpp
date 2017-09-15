@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QNetworkInterface>
 
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
@@ -1068,28 +1069,18 @@ CSystemCallWrapper::container_ip_from_ifconfig_analog(
     const QString &port,
     const QString &cont_ip,
     const QString &rh_ip) {
-
-  QStringList cmd_parts = CSettingsManager::Instance().ip_addr_cmd().split(" ");
-  CSystemCallWrapper::container_ip_and_port res;
+  container_ip_and_port res;
   res.ip = QString(rh_ip);
   res.port = QString(port);
-  res.use_p2p = true;
+  res.use_p2p = true;  
+  QHostAddress template_ip(rh_ip);
 
-  if (cmd_parts.isEmpty())
-    return res;
-
-  QString cmd = cmd_parts[0];
-  cmd_parts.removeFirst();
-
-  system_call_res_t scr = ssystem_th(cmd, cmd_parts, true, 7000);
-  if (scr.res == SCWE_SUCCESS && scr.exit_code == 0) {
-    for (QString str : scr.out) {
-      int ix1;
-      if ((ix1 = str.indexOf(rh_ip) == -1)) continue;
-      res.port = "22"; //MAGIC!!
-      res.ip = QString(cont_ip);
-      res.use_p2p = false;
-    }
+  for (QHostAddress address : QNetworkInterface::allAddresses()) {
+    if (address == QHostAddress::LocalHost) continue;
+    if (!address.isEqual(template_ip)) continue;
+    res.port = "22"; //MAGIC!!
+    res.ip = QString(cont_ip);
+    res.use_p2p = false;
   }
 
   return res;

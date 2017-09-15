@@ -240,6 +240,8 @@ bool
 CSshKeysController::get_key_environments_bit(int index) const {
   if (m_current_key.isEmpty()) return false;
   if (index < 0 || index >= (int)m_current_bit_matrix.size()) return false;
+  if (m_current_bit_matrix[index].empty() || m_current_key_col >= m_current_bit_matrix[index].size())
+    return false;
   return m_current_bit_matrix[index][m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
