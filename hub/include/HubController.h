@@ -27,8 +27,10 @@ private:
   QString m_env_id;
   QString m_env_hash;
   QString m_env_key;
-  QString m_ip;
+  QString m_cont_ip;
   QString m_cont_port;
+  QString m_cont_name;
+  QString m_rh_ip;
   void *m_additional_data;
 public:
   CHubControllerP2PWorker(const QString& env_id,
@@ -36,6 +38,8 @@ public:
                           const QString& env_key,
                           const QString& ip,
                           const QString& cont_port,
+                          const QString& cont_name,
+                          const QString& rh_ip,
                           void* additional_data);
   ~CHubControllerP2PWorker();
 private slots:

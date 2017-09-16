@@ -404,3 +404,60 @@ default_chrome_path() {
   return default_chrome_path_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& subutai_command_internal();
+
+#define subutai_command_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& subutai_command_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+subutai_command_internal_def(BT_PROD,   "/snap/bin/subutai")
+subutai_command_internal_def(BT_MASTER, "/snap/bin/subutai-master")
+subutai_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
+
+const QString &
+subutai_command() {
+  return subutai_command_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_ip_addr_cmd_temp_internal();
+
+#define default_ip_addr_cmd_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_ip_addr_cmd_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_ip_addr_cmd_internal_def(OS_LINUX, "ifconfig")
+default_ip_addr_cmd_internal_def(OS_MAC, "ifconfig")
+default_ip_addr_cmd_internal_def(OS_WIN, "ipconfig /all")
+
+const QString &
+default_ip_addr_cmd() {
+  return default_ip_addr_cmd_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& snap_p2p_path_internal();
+
+#define snap_p2p_path_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& snap_p2p_path_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+snap_p2p_path_internal_def(BT_PROD,   "/snap/subutai/current/bin/p2p")
+snap_p2p_path_internal_def(BT_MASTER, "/snap/subutai-master/current/bin/p2p")
+snap_p2p_path_internal_def(BT_DEV,    "/snap/subutai-dev/current/bin/p2p")
+
+const QString &
+snap_p2p_path() {
+  return snap_p2p_path_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////

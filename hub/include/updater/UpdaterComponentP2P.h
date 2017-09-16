@@ -8,6 +8,7 @@ namespace update_system {
   class CUpdaterComponentP2P : public IUpdaterComponent {
   private:
     static QString p2p_path();
+    static QString download_p2p_path();
     // IUpdaterComponent interface
   protected:
     virtual bool update_available_internal();

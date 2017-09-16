@@ -9,6 +9,7 @@
 #include "updater/HubComponentsUpdater.h"
 #include "NotificationObserver.h"
 #include "ApplicationLog.h"
+#include "OsBranchConsts.h"
 
 using namespace update_system;
 
@@ -38,6 +39,10 @@ DlgAbout::DlgAbout(QWidget *parent) :
   for (int i = 0; lbls[i]; ++i) {
     lbls[i]->setWordWrap(true);
   }
+
+  bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
+  ui->btn_p2p_update->setVisible(p2p_visible);
+  ui->pb_p2p->setVisible(p2p_visible);
 
   //connect
   connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);

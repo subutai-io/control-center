@@ -1,0 +1,19 @@
+subutai-tray (5.0.2-SNAPSHOT) trusty; urgency=medium
+
+  * Changed SSDP handling (optimized with Aho-Korasic algo)
+  * Changed SSH-keys management (optimized by using bit matrix)
+
+ -- Oleg Katkov (comment) <okatkov@optimal-dynamics.com>  Thu, 31 Aug 2017 11:16:17 +0600
+
+subutai-tray (5.0.0-0ubuntu1~trusty) trusty; urgency=medium
+
+  * First Release
+
+ -- Oleg Katkov (comment) <okatkov@optimal-dynamics.com>  Thu, 21 Aug 2017 09:19:04 +0600
+
+subutai-tray (4.0.15-0ubuntu1~trusty) trusty; urgency=medium
+
+  * First build
+
+ -- Oleg Katkov (comment) <okatkov@optimal-dynamics.com>  Thu, 06 Apr 2017 16:00:00 +0600
+

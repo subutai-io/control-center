@@ -59,6 +59,8 @@ const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
+const QString CSettingsManager::SM_IP_ADDR_CMD("IpAddCmd");
+const QString CSettingsManager::SM_SUBUTAI_CMD("SubutaiCmd");
 
 struct setting_val_t {
   void* field;
@@ -127,7 +129,9 @@ CSettingsManager::CSettingsManager() :
   m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
   m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
   m_autostart(false),
-  m_chrome_path(default_chrome_path())
+  m_chrome_path(default_chrome_path()),
+  m_ip_addr_cmd(default_ip_addr_cmd()),
+  m_subutai_cmd(subutai_command())
 {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
@@ -164,6 +168,8 @@ CSettingsManager::CSettingsManager() :
     {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
     {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
     {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
+    {(void*)&m_ip_addr_cmd, SM_IP_ADDR_CMD, qvar_to_str},
+    {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
 
     //bool
     {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -216,12 +222,14 @@ CSettingsManager::CSettingsManager() :
   //which using
   QString* cmd_which[] = {
     &m_vboxmanage_path, &m_ssh_keygen_cmd,
-    &m_ssh_path, &m_p2p_path, &m_terminal_cmd, nullptr
+    &m_ssh_path, &m_p2p_path, &m_terminal_cmd,
+    &m_ip_addr_cmd, nullptr
   };
 
   const QString default_values[] = {
     vboxmanage_command_str(), ssh_keygen_cmd_path(),
-    ssh_cmd_path(), default_p2p_path(), default_terminal()
+    ssh_cmd_path(), default_p2p_path(),
+    default_terminal(), default_ip_addr_cmd()
   };
 
   QString tmp;
@@ -232,7 +240,6 @@ CSettingsManager::CSettingsManager() :
   }
 
   m_autostart = CSystemCallWrapper::application_autostart(); //second check %)
-
   init_password();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -433,6 +440,7 @@ CSettingsManager::set_rh_management_autoupdate(const bool rh_management_autoupda
 
 void
 CSettingsManager::set_autostart(const bool autostart) {
+  if (m_autostart == autostart) return;
   if (CSystemCallWrapper::set_application_autostart(autostart)) {
     m_autostart = autostart;
     m_settings.setValue(SM_AUTOSTART, m_autostart);
@@ -462,4 +470,5 @@ SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE, uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
+SET_FIELD_DEF(ip_addr_cmd, SM_IP_ADDR_CMD, QString&)
 #undef SET_FIELD_DEF

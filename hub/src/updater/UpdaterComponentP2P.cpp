@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/ExecutableUpdater.h"
@@ -40,6 +41,14 @@ CUpdaterComponentP2P::p2p_path()
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QString
+CUpdaterComponentP2P::download_p2p_path() {
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]) +
+                              QDir::separator() + P2P;
+}
+////////////////////////////////////////////////////////////////////////////
+
 bool
 CUpdaterComponentP2P::update_available_internal() {
   std::vector<CGorjunFileInfo> fi =
@@ -69,8 +78,7 @@ CUpdaterComponentP2P::update_internal() {
   QString str_p2p_executable_path = p2p_path();
 
   //this file will replace original file
-  QString str_p2p_downloaded_path = QApplication::applicationDirPath() +
-                                  QDir::separator() + P2P;
+  QString str_p2p_downloaded_path = download_p2p_path();
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       p2p_kurjun_file_name());
@@ -111,9 +119,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
   CNotificationObserver::Instance()->Info("P2P has been updated");
   int rse_err = 0;
 
-  QString download_path = QApplication::applicationDirPath() +
-                          QDir::separator() +
-                          QString(P2P);
+  QString download_path = download_p2p_path();
   QFile df(download_path);
 
   if (df.exists()) {

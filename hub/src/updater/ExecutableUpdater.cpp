@@ -41,8 +41,7 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
   CApplicationLog::Instance()->LogTrace("src : %s", m_src_file_str.toStdString().c_str());
 
   do {    
-    if (dst.exists()) {      
-
+    if (dst.exists()) {
       QFile ftmp(tmp);
       if (ftmp.exists() && !ftmp.remove()) {
         CApplicationLog::Instance()->LogError("remove tmp file %s failed. %s",

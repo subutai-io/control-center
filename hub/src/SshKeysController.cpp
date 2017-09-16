@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <algorithm>
+#include <QTimer>
 
 #include "RestWorker.h"
 #include "SystemCallWrapper.h"
@@ -11,22 +12,32 @@
 #include "Locker.h"
 
 CSshKeysController::CSshKeysController() :
-  m_current_key_col(-1) {
+  m_current_key_col(-1),
+  m_refresh_files_timer(nullptr) {
+
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
+  m_refresh_files_timer = new QTimer;
+  m_refresh_files_timer->setInterval(5000);
+
   refresh_key_files();
   rebuild_bit_matrix();
+
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &CSshKeysController::environments_updated);
+  connect(m_refresh_files_timer, &QTimer::timeout,
+          this, &CSshKeysController::refresh_files_timer_timeout);
+  m_refresh_files_timer->start();
 }
 
 CSshKeysController::~CSshKeysController() {
+  if (m_refresh_files_timer) m_refresh_files_timer->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void
 CSshKeysController::refresh_key_files() {
-  m_lst_key_content.clear();
-  m_lst_key_files.clear();
+  QStringList lst_key_content;
+  QStringList lst_key_files;
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -47,16 +58,28 @@ CSshKeysController::refresh_key_files() {
                                             key_file.errorString().toStdString().c_str());
       continue;
     }
-    m_lst_key_files.push_back(*i);
+    lst_key_files.push_back(*i);
     QByteArray arr_content = key_file.readAll();
     arr_content.truncate(arr_content.size() - 1); //hack for hub
-    m_lst_key_content.push_back(QString(arr_content));
+    lst_key_content.push_back(QString(arr_content));
     key_file.close();
   }
+
+  if (lst_key_files == m_lst_key_files) return;
+
+  m_lst_key_content.clear();
+  m_lst_key_files.clear();
+
+  m_current_key = QString();
+  m_current_key_col = -1;
+
+  m_lst_key_files = std::move(lst_key_files);
+  m_lst_key_content = std::move(lst_key_content);
 
   if (!m_lst_key_files.empty() && m_current_key.isEmpty())
     set_current_key(m_lst_key_files[0]);
 
+  emit key_files_changed();
   rebuild_bit_matrix();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -66,7 +89,6 @@ void
 CSshKeysController::rebuild_bit_matrix() {
 
   SynchroPrimitives::Locker lock(&cs_rbm);
-
   size_t cols, rows;
   rows = m_lst_healthy_environments.size();
   cols = m_lst_key_files.size();
@@ -129,9 +151,6 @@ CSshKeysController::generate_new_ssh_key(QWidget* parent) {
 
 void
 CSshKeysController::send_data_to_hub() {
-
-
-
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   size_t cols, rows;
@@ -220,6 +239,8 @@ bool
 CSshKeysController::get_key_environments_bit(int index) const {
   if (m_current_key.isEmpty()) return false;
   if (index < 0 || index >= (int)m_current_bit_matrix.size()) return false;
+  if (m_current_bit_matrix[index].empty() || m_current_key_col >= (int)m_current_bit_matrix[index].size())
+    return false;
   return m_current_bit_matrix[index][m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -227,7 +248,7 @@ CSshKeysController::get_key_environments_bit(int index) const {
 bool
 CSshKeysController::current_key_is_allselected() const {
   if (m_current_key.isEmpty()) return false;
-  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  if (m_current_key_col < 0 || m_current_key_col >= (int)m_lst_all_selected.size()) return false;
   return m_lst_all_selected[m_current_key_col];
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -235,7 +256,7 @@ CSshKeysController::current_key_is_allselected() const {
 bool
 CSshKeysController::set_current_key_allselected(bool flag) {
   if (m_current_key.isEmpty()) return false;
-  if (m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  if (m_current_key_col < 0 || m_current_key_col >= (int)m_lst_all_selected.size()) return false;
 
   m_lst_all_selected[m_current_key_col] = flag;
   for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
@@ -269,7 +290,8 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
 
 void
 CSshKeysController::refresh_healthy_environments() {
-  SynchroPrimitives::Locker lock(&cs_rbm);
+  static SynchroPrimitives::CriticalSection cs;
+  SynchroPrimitives::Locker lock(&cs);
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
   rebuild_bit_matrix();
 }
@@ -283,9 +305,13 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  UNUSED_ARG(rr);
-  if (m_lst_healthy_environments == CHubController::Instance().lst_healthy_environments())
-    return;
+  if (rr == CHubController::RER_NO_DIFF) return
   refresh_healthy_environments();
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
+CSshKeysController::refresh_files_timer_timeout() {
+  refresh_key_files();
 }
 ////////////////////////////////////////////////////////////////////////////

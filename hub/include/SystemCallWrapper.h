@@ -18,6 +18,7 @@ enum system_call_wrapper_error_t {
   SCWE_CREATE_PROCESS,
 
   /*p2p errors*/
+  SCWE_P2P_IS_NOT_RUNNABLE,
   SCWE_CANT_JOIN_SWARM,
   SCWE_CONTAINER_IS_NOT_READY,
 
@@ -29,7 +30,9 @@ enum system_call_wrapper_error_t {
   /*other errors*/
   SCWE_TIMEOUT,
   SCWE_WHICH_CALL_FAILED,
-  SCWE_PROCESS_CRASHED
+  SCWE_PROCESS_CRASHED,
+
+  SCWE_LAST
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -163,6 +166,15 @@ public:
 
   static bool set_application_autostart(bool start);
   static bool application_autostart();
+
+  struct container_ip_and_port {
+    QString ip;
+    QString port;
+    bool use_p2p;
+  };
+
+  static container_ip_and_port container_ip_from_ifconfig_analog(const QString &port,
+                                                                      const QString& cont_ip, const QString &rh_ip);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

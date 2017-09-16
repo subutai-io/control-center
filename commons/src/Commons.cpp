@@ -1,11 +1,13 @@
 #include "Commons.h"
-#include <time.h>
+#include "SystemCallWrapper.h"
 
+#include <time.h>
 #include <QApplication>
 #include <QDir>
 #include <QCryptographicHash>
 #include <QProcess>
 #include <QNetworkReply>
+
 
 bool CCommons::QuitAppFlag = false;
 const char* CCommons::RESTARTED_ARG = "restarted";
@@ -110,5 +112,19 @@ void CCommons::RestartTray() {
   args << RESTARTED_ARG;
   QProcess::startDetached(QApplication::applicationFilePath(), args);
   QApplication::exit(0);
+}
+////////////////////////////////////////////////////////////////////////////
+
+bool
+CCommons::IsApplicationLaunchable(const QString &file_path) {
+  QFileInfo fi(file_path);
+  if (fi.exists() && fi.isExecutable())
+    return true;
+  QString cmd;
+  system_call_wrapper_error_t which_res =
+      CSystemCallWrapper::which(file_path, cmd);
+  if (which_res != SCWE_SUCCESS) return false;
+  QFileInfo fi2(cmd);
+  return fi2.exists() && fi2.isExecutable();
 }
 ////////////////////////////////////////////////////////////////////////////

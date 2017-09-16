@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QNetworkInterface>
 
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
@@ -112,10 +113,13 @@ CSystemCallWrapper::join_to_p2p_swarm(const QString& hash,
   if (is_in_swarm(hash))
     return SCWE_SUCCESS;
 
+  if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path()))
+    return SCWE_P2P_IS_NOT_RUNNABLE;
+
   CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s",
                                         hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
-  QStringList args, lst_out;
+  QStringList args;
   args << "start" <<
           "-ip" << ip <<
           "-key" << key <<
@@ -166,6 +170,103 @@ template<class OS> system_call_wrapper_error_t
 template<> system_call_wrapper_error_t
 restart_p2p_service_internal<Os2Type<OS_LINUX> > (int *res_code) {
   *res_code = RSE_MANUAL;
+
+  do {
+    QString gksu_path;
+    system_call_wrapper_error_t scr =
+        CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find gksu command");
+      break;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find sh command");
+      break;
+    }
+
+    QString systemctl_path;
+    scr = CSystemCallWrapper::which("systemctl", systemctl_path);
+    if (scr != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("Couldn't find systemctl");
+      break;
+    }
+
+    QStringList args;
+    args << QString("%1 list-units --all").arg(systemctl_path);
+    system_call_res_t cr = CSystemCallWrapper::ssystem(gksu_path, args, true, 60000);
+
+    if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
+      CApplicationLog::Instance()->LogError("gksu systemctl list-units call failed. ec = %d, res = %s",
+                                            cr.exit_code,
+                                            CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
+      break;
+    }
+
+    if (cr.out.isEmpty()) {
+      CApplicationLog::Instance()->LogError("gksu systemctl list-units output is empty");
+      break;
+    }
+
+    for (QString str : cr.out) {
+      if (str.indexOf("p2p.service") == -1) continue;
+
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      if (lst_temp.empty()) {
+        CApplicationLog::Instance()->LogError("Couldn't get standard temp location");
+        break;
+      }
+
+      QString tmpFilePath = lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
+      qDebug() << tmpFilePath;
+      QFile tmpFile(tmpFilePath);
+      if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+        CApplicationLog::Instance()->LogError("Couldn't create reload script temp file. %s",
+                                              tmpFile.errorString().toStdString().c_str());
+        break;
+      }
+
+      QByteArray restart_script =
+          QString( "#!/bin/bash\n"
+                   "%1 disable p2p.service\n"
+                   "%1 stop p2p.service\n"
+                   "%1 enable p2p.service\n"
+                   "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
+
+      if (tmpFile.write(restart_script) != restart_script.size()) {
+        CApplicationLog::Instance()->LogError("Couldn't write restart script to temp file");
+        break;
+      }
+      tmpFile.close(); //save
+
+      if (!QFile::setPermissions(tmpFilePath,
+                                 QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                                 QFile::ReadUser  | QFile::WriteUser  | QFile::ExeUser  |
+                                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther )) {
+        CApplicationLog::Instance()->LogError("Couldn't set exe permission to reload script file");
+        break;
+      }
+
+      system_call_res_t cr2;
+      QStringList args2;
+      args2 << sh_path << tmpFilePath;
+      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
+      tmpFile.remove();
+      if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+        CApplicationLog::Instance()->LogError("Couldn't reload p2p.service. ec = %d, err = %s",
+                                              cr2.exit_code,
+                                              CSystemCallWrapper::scwe_error_to_str(cr2.res).toStdString().c_str());
+        break;
+      }
+      *res_code = RSE_SUCCESS;
+      break; //for
+    } //for
+
+  } while (0);
+
   return SCWE_SUCCESS;
 }
 /*************************/
@@ -230,11 +331,10 @@ template<> system_call_wrapper_error_t
 run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(const QString& cmd,
                                                const QString& str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(QRegularExpression("\\s"));
-  args << QString("Tell application \"Terminal\"\n"
-                  "  Activate\n"
-                  "  do script \""
-                  "%1\"\n"
-                  " end tell").arg(str_command);
+  CApplicationLog::Instance()->LogInfo("Launch command : %s",
+                                       str_command.toStdString().c_str());
+
+  args << QString("Tell application \"Terminal\" to do script \"%1\"").arg(str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS : SCWE_SSH_LAUNCH_FAILED;
 }
 /*********************/
@@ -272,6 +372,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
                                         const QString& port,
                                         const QString& key)
 {
+#ifdef RT_OS_WINDOWS
   QString str_command = QString("\"%1\" %2@%3 -p %4").
                         arg(CSettingsManager::Instance().ssh_path()).
                         arg(user).arg(ip).arg(port);
@@ -280,6 +381,16 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
     CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
     str_command += QString(" -i \"%1\" ").arg(key);
   }
+#else
+  QString str_command = QString("%1 %2@%3 -p %4").
+                        arg(CSettingsManager::Instance().ssh_path()).
+                        arg(user).arg(ip).arg(port);
+
+  if (!key.isEmpty()) {
+    CNotificationObserver::Instance()->Info(QString("Using %1 ssh key").arg(key));
+    str_command += QString(" -i %1 ").arg(key);
+  }
+#endif
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
@@ -341,7 +452,8 @@ CSystemCallWrapper::is_rh_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai update rh -c",
+                          QString("sudo %1 update rh -c").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) return res;
@@ -361,7 +473,8 @@ CSystemCallWrapper::is_rh_management_update_available(bool &available) {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai update management -c",
+                          QString("sudo %1 update management -c").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res != SCWE_SUCCESS) {
@@ -381,7 +494,14 @@ CSystemCallWrapper::run_rh_updater(const char *host,
                                    int& exit_code) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, "sudo subutai update rh", exit_code, lst_out);
+      run_libssh2_command(host,
+                          port,
+                          user,
+                          pass,
+                          QString("sudo %1 update rh").
+                          arg(CSettingsManager::Instance().subutai_cmd()).toStdString().c_str(),
+                          exit_code,
+                          lst_out);
   return res;
 }
 
@@ -393,7 +513,15 @@ CSystemCallWrapper::run_rh_management_updater(const char *host,
                                               int &exit_code) {
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res =
-      run_libssh2_command(host, port, user, pass, "sudo subutai update management", exit_code, lst_out);
+      run_libssh2_command(host,
+                          port,
+                          user,
+                          pass,
+                          QString("sudo %1 update management").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
+                          exit_code,
+                          lst_out);
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -407,7 +535,7 @@ CSystemCallWrapper::get_rh_ip_via_libssh2(const char *host,
                                           std::string &ip) {
   system_call_wrapper_error_t res;
   std::vector<std::string> lst_out;
-  QString rh_ip_cmd = QString("sudo subutai info ipaddr");
+  QString rh_ip_cmd = QString("sudo %1 info ipaddr").arg(CSettingsManager::Instance().subutai_cmd());
   res = run_libssh2_command(host, port, user, pass, rh_ip_cmd.toStdString().c_str(), exit_code, lst_out);
 
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -432,7 +560,9 @@ CSystemCallWrapper::rh_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai -v",
+                          QString("sudo %1 -v").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty())
@@ -456,7 +586,10 @@ CSystemCallWrapper::rhm_version() {
                           CSettingsManager::Instance().rh_port(),
                           CSettingsManager::Instance().rh_user().toStdString().c_str(),
                           CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-                          "sudo subutai attach management grep git.build.version /opt/subutai-mng/etc/git.properties",
+                          QString("sudo %1 attach management grep git.build.version "
+                                  "/opt/subutai-mng/etc/git.properties").
+                          arg(CSettingsManager::Instance().subutai_cmd()).
+                          toStdString().c_str(),
                           exit_code,
                           lst_out);
   if (res == SCWE_SUCCESS && exit_code == 0 && !lst_out.empty()) {
@@ -535,7 +668,7 @@ template<class OS> system_call_wrapper_error_t
 template<> system_call_wrapper_error_t
 chrome_version_internal<Os2Type<OS_MAC_LIN> >(QString& version) {
   version = "undefined";
-  QStringList args, lst_out;
+  QStringList args;
   args << "--version";
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(CSettingsManager::Instance().chrome_path(), args,
@@ -587,14 +720,15 @@ CSystemCallWrapper::virtual_box_version() {
 
 const QString &
 CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err) {
+  static QString unknown("Unknown err");
   static QString error_str[] = {
     "SUCCESS", "Shell error", "Pipe error",
-    "set_handle_info error", "create process error",
+    "set_handle_info error", "create process error", "p2p is not installed or hasn't execute rights",
     "can't join to swarm", "container isn't ready",
     "ssh launch failed", "can't get rh ip address", "can't generate ssh-key",
     "call timeout", "which call failed", "process crashed"
   };
-  return error_str[err];
+  return (err >= 0 && err < SCWE_LAST) ? error_str[err] : unknown;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -675,7 +809,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool star
 
 template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
 
-  static const QString item_location = "/Library/LaunchAgents/";
+  static const QString item_location = "Library/LaunchAgents/";
 
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -691,7 +825,6 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
                       item_location +
                       APP_AUTOSTART_KEY +
                       QString(".plist");
-
 
   QString content_template =
       QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -712,7 +845,15 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
   static const QString cmd("osascript");
 
   QFile item_file(item_path);
-  if (!item_file.exists()) {
+
+  do {
+    if (!start) {
+      if (!item_file.exists()) break;
+      if (item_file.remove()) break;
+      CApplicationLog::Instance()->LogError("Couldn't remove autostart script");
+      break;
+    }
+    if (item_file.exists()) break;
     if (!item_file.open(QFile::ReadWrite)) {
       CApplicationLog::Instance()->LogError("Couldn't create subutai-tray.plist file. Error : %s",
                                             item_file.errorString().toStdString().c_str());
@@ -728,7 +869,7 @@ template<> bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start)
       return false;
     }
     item_file.close();
-  }
+  } while (0);
 
   QStringList args;
   QString add_command = QString("launchctl load %1").arg(item_path);
@@ -849,7 +990,7 @@ template<> bool application_autostart_internal<Os2Type<OS_LINUX> >() {
 
 template<> bool application_autostart_internal<Os2Type<OS_MAC> >() {
 
-  static const QString item_location = "/Library/LaunchAgents/";
+  static const QString item_location = "Library/LaunchAgents/";
 
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -921,6 +1062,28 @@ template<> bool application_autostart_internal<Os2Type<OS_WIN> >() {
 bool
 CSystemCallWrapper::application_autostart() {
   return application_autostart_internal<Os2Type<CURRENT_OS> >();
+}
+
+CSystemCallWrapper::container_ip_and_port
+CSystemCallWrapper::container_ip_from_ifconfig_analog(
+    const QString &port,
+    const QString &cont_ip,
+    const QString &rh_ip) {
+  container_ip_and_port res;
+  res.ip = QString(rh_ip);
+  res.port = QString(port);
+  res.use_p2p = true;  
+  QHostAddress template_ip(rh_ip);
+
+  for (QHostAddress address : QNetworkInterface::allAddresses()) {
+    if (address == QHostAddress::LocalHost) continue;
+    if (address != template_ip) continue; //todo use isEqual
+    res.port = "22"; //MAGIC!!
+    res.ip = QString(cont_ip);
+    res.use_p2p = false;
+  }
+
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 
