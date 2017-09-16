@@ -65,10 +65,9 @@ bool VectorEq(const std::vector<T>& arg1,
   for (size_t i = 0; i < arg1.size(); ++i) {
     bool found = false;
     for (size_t j = 0; j < arg2.size(); ++j) {
-      if (arg1[i] == arg2[j]) {
-        found = true;
-        break;
-      }
+      if (arg1[i] == arg2[j]) continue;
+      found = true;
+      break;
     }
     if (!found) return false;
   }
@@ -99,7 +98,9 @@ public:
     QJsonArray arr = obj["environment_containers"].toArray();
     for (auto i = arr.begin(); i != arr.end(); ++i) {
       if (i->isNull() || !i->isObject()) continue;
-      m_lst_containers.push_back(CHubContainer(i->toObject()));
+      CHubContainer hc = CHubContainer(i->toObject());
+      if (hc.name().isEmpty() || hc.name() == "") continue;
+      m_lst_containers.push_back(hc);
     }
   }
 
