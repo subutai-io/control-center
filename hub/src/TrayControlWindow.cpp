@@ -549,24 +549,30 @@ TrayControlWindow::environments_updated_sl(int rr) {
       }
     }
 
-    for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
-      QString cont_name = cont->name();
+    if (!env->containers().empty()) {
+      for (auto cont = env->containers().cbegin(); cont != env->containers().cend(); ++cont) {
+        QString cont_name = cont->name();
 #ifdef RT_OS_LINUX
-      cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
+        cont_name.replace("_", "__"); //megahack :) Don't know how to handle underscores.
 #endif
-      QAction* act = new QAction(cont_name, this);
-      act->setEnabled(env->healthy() && !cont->rh_ip().isNull() && !cont->rh_ip().isEmpty());
+        QAction* act = new QAction(cont_name, this);
+        act->setEnabled(env->healthy() && !cont->rh_ip().isNull() && !cont->rh_ip().isEmpty());
 
-      CHubEnvironmentMenuItem* item =
-          new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-      connect(act, &QAction::triggered, item,
-              &CHubEnvironmentMenuItem::internal_action_triggered);
-      connect(item, &CHubEnvironmentMenuItem::action_triggered,
-              this, &TrayControlWindow::hub_container_mi_triggered);
-      env_menu->addAction(act);
-      m_lst_hub_menu_items.push_back(item);
+        CHubEnvironmentMenuItem* item =
+            new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
+        connect(act, &QAction::triggered, item,
+                &CHubEnvironmentMenuItem::internal_action_triggered);
+        connect(item, &CHubEnvironmentMenuItem::action_triggered,
+                this, &TrayControlWindow::hub_container_mi_triggered);
+        env_menu->addAction(act);
+        m_lst_hub_menu_items.push_back(item);
+      }
+    } else {
+      QAction* empty_action = new QAction("Empty", this);
+      empty_action->setEnabled(false);
+      env_menu->addAction(empty_action);
     }
-  }
+  } //for auto env in environments list
 
   if (lst_unhealthy_envs.empty()) return;
 
