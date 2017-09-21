@@ -57,7 +57,7 @@ class CHubController : public QObject {
   Q_OBJECT
 public:
   enum refresh_environments_res_t {
-    RER_SUCCESS,
+    RER_SUCCESS = 0,
     RER_NO_DIFF,
     RER_EMPTY,
     RER_ERROR
