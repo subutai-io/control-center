@@ -305,7 +305,7 @@ CSshKeysController::ssh_key_send_progress_sl(int part, int total) {
 
 void
 CSshKeysController::environments_updated(int rr) {
-  if (rr == CHubController::RER_NO_DIFF) return
+  if (rr == CHubController::RER_NO_DIFF || something_changed()) return;
   refresh_healthy_environments();
 }
 ////////////////////////////////////////////////////////////////////////////
