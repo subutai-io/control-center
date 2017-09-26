@@ -21,3 +21,6 @@ html/
 # darwin
 darwin-packages/flat/*
 darwin-packages/root/*
+
+Makefile
+.*.stash
