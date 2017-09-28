@@ -2,10 +2,12 @@
 *.sdf
 *.sln
 *.suo
+*.swp
 bin/*
 subutai_tray_bin/
 libssh_app_bin/
 .DS_Store
+build
 
 # Debian
 *.docs
