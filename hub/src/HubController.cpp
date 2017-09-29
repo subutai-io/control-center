@@ -455,6 +455,12 @@ CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
 
     key = CSettingsManager::Instance().ssh_keys_storage() +
           QDir::separator() + fi.baseName();
+
+    if (key.isEmpty()) {
+      CNotificationObserver::Error("Failed to retrieve environment key. Try to restart application");
+      emit ssh_to_container_finished((int)SLE_CONT_NOT_READY, m_additional_data);
+      return;
+    }
   }
 
   err = CSystemCallWrapper::run_ssh_in_terminal(CSettingsManager::Instance().ssh_user(),
