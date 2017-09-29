@@ -165,7 +165,7 @@ macx: {
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/tray_logo.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
-  LIBS += -L/usr/local/lib/ -lssh2
+  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION
 #  LIBS += -L$$PWD/libssh2/lib -lssh2
 #  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11

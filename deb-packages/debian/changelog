@@ -1,3 +1,9 @@
+subutai-tray (6.0.2) trusty; urgency=medium
+
+  * Fixed issues with key management
+
+ -- Mikhail Savochkin <i@crioto.com>  Fri, 29 Sep 2017 17:40:17 +0600
+
 subutai-tray (5.0.2-SNAPSHOT) trusty; urgency=medium
 
   * Changed SSDP handling (optimized with Aho-Korasic algo)
