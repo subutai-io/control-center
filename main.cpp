@@ -154,11 +154,7 @@ main(int argc, char *argv[]) {
       // not installed p2p
       if (p2p.exitCode()) {
           qDebug() << "Not installed p2p, exit code: " << p2p.exitCode();
-          QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Error",
-                              "Can't operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from here.",
-                              QMessageBox::Ok);
-          QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-          msg_box->exec();
+          CNotificationObserver::Error("Can't operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from here.");
       } else {
           p2p.start("p2p", QStringList() << "debug");
 
@@ -174,11 +170,7 @@ main(int argc, char *argv[]) {
 
           // not working p2p daemon
           if (p2p.exitCode()) {
-              QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Error",
-                                  "Your p2p daemon is inoperative. It is either misconfigured or installed incorrectly or both. Please contact us on Slack or file an issue on GitHub.",
-                                  QMessageBox::Ok);
-              QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-              msg_box->exec();
+              CNotificationObserver::Error("Your p2p daemon is inoperative. It is either misconfigured or installed incorrectly or both. Please contact us on Slack or file an issue on GitHub.");
               qDebug() << "Installed but not running p2p, exit code: " << p2p.exitCode();
           }
       }
