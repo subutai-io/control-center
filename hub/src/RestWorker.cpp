@@ -23,7 +23,6 @@ CRestWorker::get_my_peers_finished_sl() {
   if (reply == nullptr) {
     return;
   }
-
   int http_code, err_code, network_error;
   pre_handle_reply(reply, http_code, err_code, network_error);
 
@@ -52,8 +51,10 @@ CRestWorker::get_environments_finished_sl() {
     return;
   }
 
+
   int http_code, err_code, network_error;
   pre_handle_reply(reply, http_code, err_code, network_error);
+
 
   QByteArray reply_arr = reply->readAll();
   QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
@@ -69,7 +70,11 @@ CRestWorker::get_environments_finished_sl() {
                                     http_code,
                                     err_code,
                                     network_error);
-  reply->deleteLater();
+
+
+  if (reply){ // checked whether reply was deleted before
+    reply->deleteLater();
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
