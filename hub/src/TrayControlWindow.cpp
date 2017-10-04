@@ -491,7 +491,7 @@ TrayControlWindow::launch_Hub() {
     }
   }
   else {
-    //QDesktopServices::openUrl(QUrl(hub_site()));
+    QDesktopServices::openUrl(QUrl(hub_site()));
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -655,7 +655,7 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     }
   }
   else {
-    //QDesktopServices::openUrl(QUrl(hub_url));
+    QDesktopServices::openUrl(QUrl(hub_url));
   }
 }
 ////////////////////////////////////////////////////////////////////////////
