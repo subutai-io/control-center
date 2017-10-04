@@ -643,14 +643,7 @@ bool
 CSystemCallWrapper::p2p_daemon_check() {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
-  QString which_path;
   args << "debug";
-
-  if (cmd != snap_p2p_path()) { //need to check path if it's not snap. HACK!!!!
-    if (which(cmd, which_path) != SCWE_SUCCESS)
-      return false;
-  }
-
   system_call_res_t cr = ssystem_th(cmd, args, true, 5000);
   return !(cr.exit_code || cr.res);
 }

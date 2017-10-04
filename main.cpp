@@ -135,14 +135,15 @@ main(int argc, char *argv[]) {
       if (dlg.result() == QDialog::Rejected)
         break;
 
-      if (CSystemCallWrapper::p2p_daemon_check()) {
-        CNotificationObserver::Error("Can't operate without the p2p daemon. "
-                                     "Either change the path setting in Settings or install the daemon it is not installed. "
-                                     "You can get the [production|dev|stage] daemon from here.");
-      }
-
       CTrayServer::Instance()->Init();
       TrayControlWindow tcw;
+
+      if (!CSystemCallWrapper::p2p_daemon_check()) {
+        CNotificationObserver::Error(QString("Can't operate without the p2p daemon. "
+                                             "Either change the path setting in Settings or install the daemon it is not installed. "
+                                             "You can get the [production|dev|stage] daemon from <a href=\"%1\">here</a>.").arg("https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg"));
+      }
+
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
