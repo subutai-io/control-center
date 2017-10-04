@@ -639,6 +639,16 @@ CSystemCallWrapper::p2p_status(QString &status) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool
+CSystemCallWrapper::p2p_daemon_check() {
+  QString cmd = CSettingsManager::Instance().p2p_path();
+  QStringList args;
+  args << "debug";
+  system_call_res_t cr = ssystem_th(cmd, args, true, 5000);
+  return !(cr.exit_code || cr.res);
+}
+////////////////////////////////////////////////////////////////////////////
+
 system_call_wrapper_error_t
 CSystemCallWrapper::which(const QString &prog,
                           QString &path) {

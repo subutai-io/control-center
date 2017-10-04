@@ -40,7 +40,6 @@ CRestWorker::get_my_peers_finished_sl() {
                                 http_code,
                                 err_code,
                                 network_error);
-  reply->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -70,11 +69,6 @@ CRestWorker::get_environments_finished_sl() {
                                     http_code,
                                     err_code,
                                     network_error);
-
-
-  if (reply){ // checked whether reply was deleted before
-    reply->deleteLater();
-  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +91,6 @@ CRestWorker::get_balance_finished_sl() {
     res_balance = CHubBalance(balance["currentBalance"].toString());
   } while (0);
   emit on_get_balance_finished(res_balance, http_code, err_code, network_error);
-  reply->deleteLater();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -205,6 +198,7 @@ CRestWorker::update_my_peers(){
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_my_peers_finished_sl);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -216,6 +210,7 @@ CRestWorker::update_environments() {
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_environments_finished_sl);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -227,6 +222,7 @@ CRestWorker::update_balance() {
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
   connect(reply, &QNetworkReply::finished, this, &CRestWorker::get_balance_finished_sl);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 

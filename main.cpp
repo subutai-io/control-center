@@ -21,6 +21,7 @@
 #include "RhController.h"
 #include "NotificationLogger.h"
 #include "LibsshController.h"
+#include "SystemCallWrapper.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -134,50 +135,16 @@ main(int argc, char *argv[]) {
       if (dlg.result() == QDialog::Rejected)
         break;
 
-
-      // start checking p2p is exist
-      CApplicationLog::Instance()->LogInfo("Tray after successfull sign in", "");
-      QProcess p2p;
-
-      p2p.start("which", QStringList() << "p2p");
-
-      if (!p2p.waitForStarted()) {
-          qDebug() << "waiting for p2p started";
-          return false;
-      }
-
-      if (!p2p.waitForFinished()) {
-          qDebug() << "waiting for p2p finished";
-          return false;
-      }
-
-      // not installed p2p
-      if (p2p.exitCode()) {
-          qDebug() << "Not installed p2p, exit code: " << p2p.exitCode();
-          CNotificationObserver::Error("Can't operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from here.");
-      } else {
-          p2p.start("p2p", QStringList() << "debug");
-
-          if (!p2p.waitForStarted()) {
-              qDebug() << "waiting for p2p started";
-              return false;
-          }
-
-          if (!p2p.waitForFinished()) {
-              qDebug() << "waiting for p2p finished";
-              return false;
-          }
-
-          // not working p2p daemon
-          if (p2p.exitCode()) {
-              CNotificationObserver::Error("Your p2p daemon is inoperative. It is either misconfigured or installed incorrectly or both. Please contact us on Slack or file an issue on GitHub.");
-              qDebug() << "Installed but not running p2p, exit code: " << p2p.exitCode();
-          }
-      }
-      // end checking p2p is exist
-
       CTrayServer::Instance()->Init();
       TrayControlWindow tcw;
+
+      if (!CSystemCallWrapper::p2p_daemon_check()) {
+        CNotificationObserver::Error(QString("Can't operate without the p2p daemon. "
+                                             "Either change the path setting in Settings or install the daemon it is not installed. "
+                                             "You can get the [production|dev|stage] daemon from <a href=\"%1\">here</a>.").
+                                     arg(p2p_package_url()));
+      }
+
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {

@@ -90,6 +90,7 @@ CSshKeysController::rebuild_bit_matrix() {
 
   SynchroPrimitives::Locker lock(&cs_rbm);
   size_t cols, rows;
+  std::vector<CEnvironment> lst_he = m_lst_healthy_environments; //copy because of wrong sync
   rows = m_lst_healthy_environments.size();
   cols = m_lst_key_files.size();
   m_current_bit_matrix.erase(m_current_bit_matrix.begin(), m_current_bit_matrix.end());
@@ -106,7 +107,7 @@ CSshKeysController::rebuild_bit_matrix() {
 
   for (size_t row = 0; row < rows; ++row) {
     m_current_bit_matrix[row] = CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content,
-                                  m_lst_healthy_environments[row].id());
+                                  lst_he[row].id());
   }
   m_original_bit_matrix.erase(m_original_bit_matrix.begin(), m_original_bit_matrix.end());
   std::copy(m_current_bit_matrix.begin(), m_current_bit_matrix.end(),
@@ -228,8 +229,10 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
 
   bit = true;
   for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
-    if (m_current_bit_matrix[row][m_current_key_col]) continue;
-    bit = false; break;
+    if (m_current_bit_matrix[row][m_current_key_col])
+      continue;
+    bit = false;
+    break;
   }
   m_lst_all_selected[m_current_key_col] = bit;
 }
