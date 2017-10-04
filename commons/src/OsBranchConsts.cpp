@@ -461,3 +461,28 @@ snap_p2p_path() {
   return snap_p2p_path_internal<Branch2Type<CURRENT_BRANCH> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR, class OS> const QString& p2p_package_url_temp_internal();
+
+#define p2p_package_url_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& p2p_package_url_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.deb")
+p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.pkg")
+p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.msi")
+p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.deb")
+p2p_package_url_def(BT_DEV,        OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.pkg")
+p2p_package_url_def(BT_DEV,        OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.msi")
+p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
+p2p_package_url_def(BT_PROD,       OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg")
+p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.msi")
+
+const QString &
+p2p_package_url() {
+  return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
