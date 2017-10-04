@@ -130,10 +130,10 @@ TrayControlWindow::fill_vm_menu() {
 
 void
 TrayControlWindow::fill_launch_menu() {
-  m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Launch subutai console"), this);
+  m_act_launch_SS = new QAction(QIcon(":/hub/SS-07.png"), tr("Subutai console"), this);
   connect(m_act_launch_SS, &QAction::triggered, this, &TrayControlWindow::launch_ss_triggered);
 
-  m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Launch Hub website"), this);
+  m_act_launch_Hub = new QAction(QIcon(":/hub/Hub-07.png"), tr("Hub website"), this);
   connect(m_act_launch_Hub, &QAction::triggered, this, &TrayControlWindow::launch_Hub);
 
   m_launch_menu->addAction(m_act_launch_SS);
@@ -476,16 +476,22 @@ TrayControlWindow::update_finished(QString file_id,
 
 void
 TrayControlWindow::launch_Hub() {
-  QString browser = CSettingsManager::Instance().chrome_path();
-  QStringList args;
-  args << "--new-window";
-  args << hub_site();
+  QString chrome_path = CSettingsManager::Instance().chrome_path();
+  if (CCommons::IsApplicationLaunchable(chrome_path))
+  {
+    QStringList args;
+    args << "--new-window";
+    args << hub_site();
 
-  if (!QProcess::startDetached(browser, args)) {
-    QString err_msg = QString("Launch hub website failed");
-    CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    return;
+    if (!QProcess::startDetached(chrome_path, args)) {
+      QString err_msg = QString("Launch hub website failed");
+      CNotificationObserver::Error(err_msg);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      return;
+    }
+  }
+  else {
+    QDesktopServices::openUrl(QUrl(hub_site()));
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -636,15 +642,20 @@ TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     return;
   }
 
-  QString browser = CSettingsManager::Instance().chrome_path();
-  QStringList args;
-  args << "--new-window";
-  args << hub_url;
-  if (!QProcess::startDetached(browser, args)) {
-    QString err_msg = QString("Run subutai console failed. Can't start process");
-    CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
-    return;
+  QString chrome_path = CSettingsManager::Instance().chrome_path();
+  if (CCommons::IsApplicationLaunchable(chrome_path)) {
+    QStringList args;
+    args << "--new-window";
+    args << hub_url;
+    if (!QProcess::startDetached(chrome_path, args)) {
+      QString err_msg = QString("Run subutai console failed. Can't start process");
+      CNotificationObserver::Error(err_msg);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      return;
+    }
+  }
+  else {
+    QDesktopServices::openUrl(QUrl(hub_url));
   }
 }
 ////////////////////////////////////////////////////////////////////////////
