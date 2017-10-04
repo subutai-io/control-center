@@ -8,6 +8,8 @@
 #include <QSystemSemaphore>
 #include <QMessageBox>
 #include <exception>
+#include <QProcess>
+#include <string>
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
@@ -19,6 +21,7 @@
 #include "RhController.h"
 #include "NotificationLogger.h"
 #include "LibsshController.h"
+#include "SystemCallWrapper.h"
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -134,6 +137,14 @@ main(int argc, char *argv[]) {
 
       CTrayServer::Instance()->Init();
       TrayControlWindow tcw;
+
+      if (!CSystemCallWrapper::p2p_daemon_check()) {
+        CNotificationObserver::Error(QString("Can't operate without the p2p daemon. "
+                                             "Either change the path setting in Settings or install the daemon it is not installed. "
+                                             "You can get the [production|dev|stage] daemon from <a href=\"%1\">here</a>.").
+                                     arg(p2p_package_url()));
+      }
+
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
