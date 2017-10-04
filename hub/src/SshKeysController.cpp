@@ -162,6 +162,8 @@ CSshKeysController::send_data_to_hub() {
     SynchroPrimitives::Locker lock(&cs_rbm);
     cols = m_lst_key_files.size();
     rows = m_lst_healthy_environments.size();
+    std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
+
     for (size_t col = 0; col < cols; ++col) {
       QString key = m_lst_key_content[col];
       QString key_name = m_lst_key_files[col];
@@ -177,17 +179,17 @@ CSshKeysController::send_data_to_hub() {
 
         if (!m_current_bit_matrix[row][col]) {
           dct_to_remove[key].first = key_name;
-          dct_to_remove[key].second.push_back(m_lst_healthy_environments[row].id());
+          dct_to_remove[key].second.push_back(lst_he[row].id());
         } else {
           dct_to_send[key].first = key_name;
-          dct_to_send[key].second.push_back(m_lst_healthy_environments[row].id());
+          dct_to_send[key].second.push_back(lst_he[row].id());
         }
       } //for row
     } //for col
 
-    for (size_t i = 0; i < m_lst_healthy_environments.size(); ++i) {
+    for (size_t i = 0; i < lst_he.size(); ++i) {
       if (std::find(lst_to_remove_idxs.begin(), lst_to_remove_idxs.end(), i) != lst_to_remove_idxs.end()) continue;
-      lst_to_leave.push_back(m_lst_healthy_environments[i]);
+      lst_to_leave.push_back(lst_he[i]);
     }
 
     m_lst_healthy_environments = lst_to_leave;

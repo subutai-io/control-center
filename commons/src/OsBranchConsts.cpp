@@ -1,5 +1,8 @@
 #include "OsBranchConsts.h"
 
+#include <QApplication>
+#include <QDir>
+
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 
 #define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -319,12 +322,12 @@ template<class OS> const QString& ssh_keygen_cmd_path_internal();
     return res; \
   }
 
-ssh_keygen_cmd_path_internal_def(OS_LINUX, "ssh-keygen")
-ssh_keygen_cmd_path_internal_def(OS_MAC, "ssh-keygen")
-ssh_keygen_cmd_path_internal_def(OS_WIN, "ssh-keygen.exe")
+ssh_keygen_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh-keygen")
+ssh_keygen_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh-keygen")
+ssh_keygen_cmd_path_internal_def(OS_WIN, QApplication::applicationDirPath() + QDir::separator() + "ssh-keygen.exe")
 
 const QString &
-ssh_keygen_cmd_path() {
+ssh_keygen_cmd_path() {  
   return ssh_keygen_cmd_path_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -338,9 +341,9 @@ template<class OS> const QString& ssh_cmd_path_internal();
     return res; \
   }
 
-ssh_cmd_path_internal_def(OS_LINUX, "ssh")
-ssh_cmd_path_internal_def(OS_MAC, "ssh")
-ssh_cmd_path_internal_def(OS_WIN, "ssh.exe")
+ssh_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh")
+ssh_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh")
+ssh_cmd_path_internal_def(OS_WIN, QApplication::applicationDirPath() + QDir::separator() + "ssh.exe")
 
 const QString &
 ssh_cmd_path() {
