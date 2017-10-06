@@ -55,7 +55,6 @@ const QString& which_cmd();
 const QString& default_chrome_path();
 
 const QString& subutai_command();
-const QString& default_ip_addr_cmd();
 const QString& snap_p2p_path();
 
 const QString& p2p_package_url();
