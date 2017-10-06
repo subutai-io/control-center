@@ -19,6 +19,9 @@ private:
   std::vector<CEnvironment> m_lst_healthy_environments;
   std::vector<bool> m_lst_all_selected;
   typedef std::vector<std::vector<bool> > bit_matrix;
+
+  uint32_t m_rows;
+  uint32_t m_cols;
   bit_matrix m_original_bit_matrix;
   bit_matrix m_current_bit_matrix;
 
