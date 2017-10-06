@@ -400,7 +400,7 @@ CSystemCallWrapper::run_ssh_in_terminal(const QString& user,
       return tmp_res;
     }
   }
-  cmd = CSettingsManager::Instance().terminal_cmd();  
+  cmd = CSettingsManager::Instance().terminal_cmd();
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(cmd, str_command);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1082,7 +1082,7 @@ CSystemCallWrapper::container_ip_from_ifconfig_analog(
   container_ip_and_port res;
   res.ip = QString(rh_ip);
   res.port = QString(port);
-  res.use_p2p = true;  
+  res.use_p2p = true;
   QHostAddress template_ip(rh_ip);
 
   for (QHostAddress address : QNetworkInterface::allAddresses()) {
