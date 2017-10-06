@@ -219,12 +219,14 @@ CSettingsManager::CSettingsManager() :
   //which using
   QString* cmd_which[] = {
     &m_vboxmanage_path, &m_ssh_keygen_cmd,
-    &m_ssh_path, &m_p2p_path, &m_terminal_cmd
+    &m_ssh_path, &m_p2p_path, &m_terminal_cmd,
+    nullptr
   };
 
   const QString default_values[] = {
     vboxmanage_command_str(), ssh_keygen_cmd_path(),
-    ssh_cmd_path(), default_p2p_path()
+    ssh_cmd_path(), default_p2p_path(),
+    default_terminal()
   };
 
   QString tmp;
