@@ -359,7 +359,23 @@ CHubController::ssh_launch_err_to_str(int err) {
 
 void
 CHubController::launch_balance_page() {
-  QDesktopServices::openUrl(QUrl(QString(hub_billing_url()).arg(m_user_id)));
+  QString chrome_path = CSettingsManager::Instance().chrome_path();
+  if (!CCommons::IsApplicationLaunchable(chrome_path))
+  {
+    QStringList args;
+    args << "--new-window";
+    args << QString(hub_billing_url()).arg(m_user_id);
+
+    if (!QProcess::startDetached(chrome_path, args)) {
+      QString err_msg = QString("Launch hub website failed");
+      CNotificationObserver::Error(err_msg);
+      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      return;
+     }
+   }
+   else {
+     QDesktopServices::openUrl(QUrl(QString(hub_billing_url()).arg(m_user_id)));
+   }
 }
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
