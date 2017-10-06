@@ -13,6 +13,8 @@
 
 CSshKeysController::CSshKeysController() :
   m_current_key_col(-1),
+  m_rows(0),
+  m_cols(0),
   m_refresh_files_timer(nullptr) {
 
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
@@ -65,7 +67,8 @@ CSshKeysController::refresh_key_files() {
     key_file.close();
   }
 
-  if (lst_key_files == m_lst_key_files) return;
+  if (lst_key_files == m_lst_key_files)
+    return;
 
   m_lst_key_content.clear();
   m_lst_key_files.clear();
@@ -84,28 +87,26 @@ CSshKeysController::refresh_key_files() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static SynchroPrimitives::CriticalSection cs_rbm;
+static SynchroPrimitives::CriticalSection csRbm;
 void
 CSshKeysController::rebuild_bit_matrix() {
-
-  SynchroPrimitives::Locker lock(&cs_rbm);
-  size_t cols, rows;
+  SynchroPrimitives::Locker lock(&csRbm);
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments; //copy because of wrong sync
-  rows = m_lst_healthy_environments.size();
-  cols = m_lst_key_files.size();
+  m_rows = lst_he.size();
+  m_cols = m_lst_key_files.size();
+
   m_current_bit_matrix.erase(m_current_bit_matrix.begin(), m_current_bit_matrix.end());
+  m_current_bit_matrix.reserve(m_rows);
+  m_current_bit_matrix.resize(m_rows);
 
-  m_current_bit_matrix.reserve(rows);
-  m_current_bit_matrix.resize(rows);
+  m_lst_all_selected.reserve(m_cols);
+  m_lst_all_selected.resize(m_cols);
 
-  m_lst_all_selected.reserve(cols);
-  m_lst_all_selected.resize(cols);
-
-  for (size_t row = 0; row < rows; ++row) {
-    m_current_bit_matrix[row] = std::vector<bool>(cols);
+  for (size_t row = 0; row < m_rows; ++row) {
+    m_current_bit_matrix[row] = std::vector<bool>(m_cols);
   }
 
-  for (size_t row = 0; row < rows; ++row) {
+  for (size_t row = 0; row < m_rows; ++row) {
     m_current_bit_matrix[row] = CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content,
                                   lst_he[row].id());
   }
@@ -154,21 +155,22 @@ void
 CSshKeysController::send_data_to_hub() {
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
-  size_t cols, rows;
   std::vector<size_t> lst_to_remove_idxs;
   std::vector<CEnvironment> lst_to_leave;
 
   {
-    SynchroPrimitives::Locker lock(&cs_rbm);
-    cols = m_lst_key_files.size();
-    rows = m_lst_healthy_environments.size();
+    SynchroPrimitives::Locker lock(&csRbm);
     std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
 
-    for (size_t col = 0; col < cols; ++col) {
+    for (size_t col = 0; col < m_cols; ++col) {
       QString key = m_lst_key_content[col];
       QString key_name = m_lst_key_files[col];
 
-      for (size_t row = 0; row < rows; ++row) {
+      for (size_t row = 0; row < m_rows; ++row) {
+        if (m_current_bit_matrix[row].size() <= col) {
+          continue;
+        }
+
         if (m_current_bit_matrix[row][col] == m_original_bit_matrix[row][col]) {
           continue;
         }
@@ -227,10 +229,12 @@ void
 CSshKeysController::set_key_environments_bit(int index, bool bit) {
   if (m_current_key.isEmpty()) return;
   if (index < 0 || index >= (int)m_current_bit_matrix.size()) return;
-  m_current_bit_matrix[index][m_current_key_col] = bit;
+  if (m_current_key_col >= (int)m_current_bit_matrix[index].size()) return;
 
+  SynchroPrimitives::Locker lock(&csRbm);
+  m_current_bit_matrix[index][m_current_key_col] = bit;
   bit = true;
-  for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
+  for (size_t row = 0; row < m_rows; ++row) {
     if (m_current_bit_matrix[row][m_current_key_col])
       continue;
     bit = false;
@@ -242,9 +246,10 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
 
 bool
 CSshKeysController::get_key_environments_bit(int index) const {
+  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return false;
-  if (index < 0 || index >= (int)m_current_bit_matrix.size()) return false;
-  if (m_current_bit_matrix[index].empty() || m_current_key_col >= (int)m_current_bit_matrix[index].size())
+  if (index < 0 || index >= (int)m_rows) return false;
+  if (m_current_bit_matrix[index].empty() || m_current_key_col >= m_cols)
     return false;
   return m_current_bit_matrix[index][m_current_key_col];
 }
@@ -260,11 +265,12 @@ CSshKeysController::current_key_is_allselected() const {
 
 bool
 CSshKeysController::set_current_key_allselected(bool flag) {
+  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return false;
-  if (m_current_key_col < 0 || m_current_key_col >= (int)m_lst_all_selected.size()) return false;
+  if (m_current_key_col < 0 || m_current_key_col >= (int)m_cols) return false;
 
   m_lst_all_selected[m_current_key_col] = flag;
-  for (size_t row = 0; row < m_current_bit_matrix.size(); ++row) {
+  for (size_t row = 0; row < m_rows; ++row) {
     m_current_bit_matrix[row][m_current_key_col] = flag;
   }
   return true;
@@ -276,6 +282,7 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
   QStringList result;
   size_t row = 0;
   bool found = false;
+
   for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
     if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
@@ -283,8 +290,9 @@ CSshKeysController::keys_in_environment(const QString &env_id) const {
   }
 
   if (!found) return result;
+  if (row >= m_rows) return result;
 
-  for (int col = 0; col < m_lst_key_files.size(); ++col) {
+  for (size_t col = 0; col < m_cols; ++col) {
     if (!m_current_bit_matrix[row][col]) continue;
     result << m_lst_key_files[col];
   }
