@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <algorithm>
 #include <QTimer>
+#include <QtConcurrent/QtConcurrent>
 
 #include "RestWorker.h"
 #include "SystemCallWrapper.h"
@@ -83,7 +84,7 @@ CSshKeysController::refresh_key_files() {
     set_current_key(m_lst_key_files[0]);
 
   emit key_files_changed();
-  rebuild_bit_matrix();
+  QtConcurrent::run(this, &CSshKeysController::rebuild_bit_matrix);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +197,6 @@ CSshKeysController::send_data_to_hub() {
 
     m_lst_healthy_environments = lst_to_leave;
   }
-
   int part = 0;
   int total = (int) (dct_to_send.size() + dct_to_remove.size());
   for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
@@ -231,7 +231,6 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
   if (index < 0 || index >= (int)m_current_bit_matrix.size()) return;
   if (m_current_key_col >= (int)m_current_bit_matrix[index].size()) return;
 
-  SynchroPrimitives::Locker lock(&csRbm);
   m_current_bit_matrix[index][m_current_key_col] = bit;
   bit = true;
   for (size_t row = 0; row < m_rows; ++row) {
@@ -246,7 +245,6 @@ CSshKeysController::set_key_environments_bit(int index, bool bit) {
 
 bool
 CSshKeysController::get_key_environments_bit(int index) const {
-  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return false;
   if (index < 0 || index >= (int)m_rows) return false;
   if (m_current_bit_matrix[index].empty() || m_current_key_col >= m_cols)
@@ -265,7 +263,6 @@ CSshKeysController::current_key_is_allselected() const {
 
 bool
 CSshKeysController::set_current_key_allselected(bool flag) {
-  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return false;
   if (m_current_key_col < 0 || m_current_key_col >= (int)m_cols) return false;
 
@@ -306,7 +303,7 @@ CSshKeysController::refresh_healthy_environments() {
   static SynchroPrimitives::CriticalSection cs;
   SynchroPrimitives::Locker lock(&cs);
   m_lst_healthy_environments = CHubController::Instance().lst_healthy_environments();
-  rebuild_bit_matrix();
+  QtConcurrent::run(this, &CSshKeysController::rebuild_bit_matrix);
 }
 ////////////////////////////////////////////////////////////////////////////
 

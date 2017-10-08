@@ -253,7 +253,7 @@ TrayControlWindow::create_tray_icon() {
 
   m_vboxAction = new QWidgetAction(m_vbox_menu);
   m_vboxAction->setDefaultWidget(m_w_Player);
-  m_vbox_menu->addAction(m_vboxAction);  
+  m_vbox_menu->addAction(m_vboxAction);
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);

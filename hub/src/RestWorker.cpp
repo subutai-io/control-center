@@ -374,7 +374,6 @@ CRestWorker::add_sshkey_to_environments(const QString &key_name,
   static const QString str_url(hub_post_url().arg("environments/ssh-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
-
   for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
     arr_environments.push_back(QJsonValue(*i));
 
@@ -400,9 +399,9 @@ CRestWorker::remove_sshkey_from_environments(const QString &key_name,
   static const QString str_url(hub_post_url().arg("environments/remove-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
-
   for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
     arr_environments.push_back(QJsonValue(*i));
+
 
   obj["key_name"] = key_name;
   obj["sshKey"] = QJsonValue(key);
@@ -464,12 +463,10 @@ CRestWorker::qjson_doc_from_arr(const QByteArray &arr, int& err_code) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static SynchroPrimitives::CriticalSection cs_reply;
 
 QNetworkReply *
 CRestWorker::get_reply(QNetworkAccessManager *nam,
                        QNetworkRequest &req) {
-  SynchroPrimitives::Locker lock(&cs_reply);
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
@@ -484,7 +481,6 @@ QNetworkReply *
 CRestWorker::post_reply(QNetworkAccessManager *nam,
                         const QByteArray& data,
                         QNetworkRequest &req) {
-  SynchroPrimitives::Locker lock(&cs_reply);
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
     CApplicationLog::Instance()->LogError("Network isn't accessible : %d", (int)nam->networkAccessible());
@@ -505,9 +501,6 @@ CRestWorker::send_request(QNetworkAccessManager *nam,
                           int &network_error,
                           QByteArray data,
                           bool show_network_err_msg) {
-
-  static SynchroPrimitives::CriticalSection cs_sr;
-  SynchroPrimitives::Locker lock(&cs_sr);
 
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
