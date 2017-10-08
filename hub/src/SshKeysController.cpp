@@ -91,7 +91,6 @@ CSshKeysController::refresh_key_files() {
 static SynchroPrimitives::CriticalSection csRbm;
 void
 CSshKeysController::rebuild_bit_matrix() {
-  qDebug() << "Somehow rebuilding the matrix";
   SynchroPrimitives::Locker lock(&csRbm);
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments; //copy because of wrong sync
   m_rows = lst_he.size();
@@ -184,11 +183,9 @@ CSshKeysController::send_data_to_hub() {
         if (!m_current_bit_matrix[row][col]) {
           dct_to_remove[key].first = key_name;
           dct_to_remove[key].second.push_back(lst_he[row].id());
-          qDebug() << "for removing " << dct_to_remove[key].first << " : " << dct_to_remove[key].second.size();
         } else {
           dct_to_send[key].first = key_name;
           dct_to_send[key].second.push_back(lst_he[row].id());
-          qDebug() << "for sending " << dct_to_send[key].first << " : " << dct_to_send[key].second.size();
         }
       } //for row
     } //for col
