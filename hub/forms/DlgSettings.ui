@@ -53,10 +53,30 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <widget class="QLabel" name="lbl_refresh_timer">
+           <item row="1" column="0">
+            <widget class="QLabel" name="lbl_notification_delay">
              <property name="text">
-              <string>Refresh time (sec.) :</string>
+              <string>Notification delay (sec.) :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="lbl_notification_level">
+             <property name="text">
+              <string>Notification level :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QLabel" name="lbl_preferred_notifications_place">
+             <property name="toolTip">
+              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+             </property>
+             <property name="text">
+              <string>Area of notifications (only linux) :</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -76,74 +96,52 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="lbl_notification_delay">
-             <property name="text">
-              <string>Notification delay (sec.) :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QSpinBox" name="sb_notification_delay">
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="minimum">
-              <number>3</number>
-             </property>
-             <property name="maximum">
-              <number>300</number>
-             </property>
-             <property name="value">
-              <number>5</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="lbl_notification_level">
-             <property name="text">
-              <string>Notification level :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QComboBox" name="cb_notification_level"/>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QLabel" name="lbl_preferred_notifications_place">
-             <property name="toolTip">
-              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
-             </property>
-             <property name="text">
-              <string>Area of notifications (only linux) :</string>
-             </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QComboBox" name="cb_preferred_notifications_place">
-             <property name="toolTip">
-              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QCheckBox" name="chk_use_animations">
              <property name="text">
               <string>Use animations</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1" colspan="2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="lbl_refresh_timer">
+             <property name="text">
+              <string>Refresh time (sec.) :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2">
+            <widget class="QComboBox" name="cb_preferred_notifications_place">
+             <property name="toolTip">
+              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="3">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="0">
+              <widget class="QLabel" name="lbl_ssh_user">
+               <property name="text">
+                <string>EZ-SSH User:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="le_ssh_user"/>
+             </item>
+            </layout>
+           </item>
+           <item row="5" column="1" colspan="2">
             <widget class="QCheckBox" name="chk_autostart">
              <property name="text">
               <string>Start on login</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="3">
+           <item row="2" column="2">
+            <widget class="QComboBox" name="cb_notification_level"/>
+           </item>
+           <item row="6" column="0" colspan="3">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_logs_storage">
@@ -198,19 +196,31 @@
              </item>
             </layout>
            </item>
-           <item row="6" column="0" colspan="3">
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0">
-              <widget class="QLabel" name="lbl_ssh_user">
-               <property name="text">
-                <string>EZ-SSH User:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="le_ssh_user"/>
-             </item>
-            </layout>
+           <item row="1" column="2">
+            <widget class="QSpinBox" name="sb_notification_delay">
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="minimum">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <number>300</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="lbl_log_level">
+             <property name="text">
+              <string>Log level :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QComboBox" name="cb_log_level"/>
            </item>
           </layout>
          </item>
