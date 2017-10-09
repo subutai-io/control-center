@@ -91,33 +91,38 @@ void CSshKeysController::refresh_key_files() {
 
 static SynchroPrimitives::CriticalSection csRbm;
 void CSshKeysController::rebuild_bit_matrix() {
-  SynchroPrimitives::Locker lock(&csRbm);
-  std::vector<CEnvironment> lst_he =
-      m_lst_healthy_environments;  // copy because of wrong sync
-  m_rows = lst_he.size();
-  m_cols = m_lst_key_files.size();
+  key_environment_matrix tmpMatrix;
+  uint32_t rows, cols;
 
-  m_current_ke_matrix.erase(m_current_ke_matrix.begin(),
-                             m_current_ke_matrix.end());
-  m_current_ke_matrix.reserve(m_rows);
-  m_current_ke_matrix.resize(m_rows);
+  QStringList lst_key_content = m_lst_key_content;
+  std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
+  rows = lst_he.size();
+  cols = lst_key_content.size();
 
-  m_lst_all_selected.reserve(m_cols);
-  m_lst_all_selected.resize(m_cols);
-
-  for (size_t row = 0; row < m_rows; ++row) {
-    m_current_ke_matrix[row] = std::vector<uint8_t>(m_cols);
+  tmpMatrix.reserve(rows);
+  tmpMatrix.resize(rows);
+  for (size_t row = 0; row < rows; ++row) {
+    tmpMatrix[row] = std::vector<uint8_t>(cols);
   }
 
-  for (size_t row = 0; row < m_rows; ++row) {
-    m_current_ke_matrix[row] =
-        CRestWorker::Instance()->is_sshkeys_in_environment(m_lst_key_content,
-                                                           lst_he[row].id());
+  for (size_t row = 0; row < rows; ++row) {
+    tmpMatrix[row] = CRestWorker::Instance()->is_sshkeys_in_environment(lst_key_content,
+                                                                        lst_he[row].id());
   }
-  m_original_ke_matrix.erase(m_original_ke_matrix.begin(),
-                              m_original_ke_matrix.end());
-  std::copy(m_current_ke_matrix.begin(), m_current_ke_matrix.end(),
-            std::back_inserter(m_original_ke_matrix));
+
+  {
+    SynchroPrimitives::Locker lock(&csRbm);
+    m_current_ke_matrix = std::move(tmpMatrix);
+    m_original_ke_matrix.erase(m_original_ke_matrix.begin(),
+                                m_original_ke_matrix.end());
+    std::copy(m_current_ke_matrix.begin(), m_current_ke_matrix.end(),
+              std::back_inserter(m_original_ke_matrix));
+    m_rows = rows;
+    m_cols = cols;
+
+    m_lst_all_selected.reserve(m_cols);
+    m_lst_all_selected.resize(m_cols);
+  }
 
   emit matrix_updated();
 }
@@ -228,7 +233,6 @@ void CSshKeysController::set_current_key(const QString &key) {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSshKeysController::set_key_environments_bit(int index, bool bit) {
-  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return;
   if (index < 0 || index >= (int)m_current_ke_matrix.size()) return;
   if (m_current_key_col >= (int)m_current_ke_matrix[index].size()) return;
@@ -245,7 +249,6 @@ void CSshKeysController::set_key_environments_bit(int index, bool bit) {
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSshKeysController::get_key_environments_bit(int index) const {
-  SynchroPrimitives::Locker lock(&csRbm);
   if (m_current_key.isEmpty()) return false;
   if (index < 0 || index >= (int)m_rows) return false;
   if (m_current_ke_matrix[index].empty() || m_current_key_col >= m_cols)
@@ -268,8 +271,9 @@ bool CSshKeysController::set_current_key_allselected(bool flag) {
   if (m_current_key_col < 0 || m_current_key_col >= (int)m_cols) return false;
 
   m_lst_all_selected[m_current_key_col] = flag;
+  SynchroPrimitives::Locker lock(&csRbm);
   for (size_t row = 0; row < m_rows; ++row) {
-    m_current_ke_matrix[row][m_current_key_col] = flag;
+    m_current_ke_matrix[row][m_current_key_col] = flag ? 1 : 0;
   }
   return true;
 }
@@ -277,11 +281,12 @@ bool CSshKeysController::set_current_key_allselected(bool flag) {
 
 QStringList CSshKeysController::keys_in_environment(
     const QString &env_id) const {
-  SynchroPrimitives::Locker lock(&csRbm);
+
   QStringList result;
   size_t row = 0;
   bool found = false;
 
+  SynchroPrimitives::Locker lock(&csRbm);
   for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
     if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
