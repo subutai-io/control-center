@@ -178,9 +178,11 @@ void CHubController::on_balance_updated_sl(CHubBalance balance, int http_code,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void CHubController::on_environments_updated_sl(
-    std::vector<CEnvironment> lst_environments, int http_code, int err_code,
-    int network_error) {
+void
+CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environments,
+                                           int http_code,
+                                           int err_code,
+                                           int network_error) {
   UNUSED_ARG(http_code);
   CHubController::refresh_environments_res_t rer_res = RER_SUCCESS;
 
