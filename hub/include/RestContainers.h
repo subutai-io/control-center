@@ -45,10 +45,21 @@ public:
   const QString& rh_ip() const {return m_rh_ip;}
 
   bool operator==(const CHubContainer& arg) const {
-    return m_id == arg.m_id &&
+    bool res =
+        m_name == arg.m_name &&
         m_ip == arg.m_ip &&
+        m_id == arg.m_id &&
         m_port == arg.m_port &&
         m_rh_ip == arg.m_rh_ip;
+
+//    if (!res) {
+//      qDebug() << "cont name : " << (m_name == arg.m_name);
+//      qDebug() << "cont ip : " << (m_ip == arg.m_ip);
+//      qDebug() << "cont id : " << (m_id == arg.m_id);
+//      qDebug() << "cont port : " << (m_port == arg.m_port);
+//      qDebug() << "cont rh_ip : " << (m_rh_ip == arg.m_rh_ip);
+//    }
+    return res;
   }
   bool operator!=(const CHubContainer& arg) const {
     return !(this->operator ==(arg));
@@ -65,11 +76,13 @@ bool VectorEq(const std::vector<T>& arg1,
   for (size_t i = 0; i < arg1.size(); ++i) {
     bool found = false;
     for (size_t j = 0; j < arg2.size(); ++j) {
-      if (arg1[i] == arg2[j]) continue;
+      if (arg1[i] != arg2[j]) continue;
       found = true;
       break;
     }
-    if (!found) return false;
+
+    if (!found)
+      return false;
   }
   return true;
 }
@@ -117,6 +130,16 @@ public:
         m_status == arg.m_status &&
         m_status_descr == arg.m_status_descr &&
         VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
+//    if (!res) {
+//      qDebug() << "id " << (m_id == arg.m_id);
+//      qDebug() << "name " << (m_name == arg.m_name);
+//      qDebug() << "hash " << (m_hash == arg.m_hash);
+//      qDebug() << "aes key " << (m_aes_key == arg.m_aes_key);
+//      qDebug() << "ttl " << (m_ttl == arg.m_ttl);
+//      qDebug() << "status " << (m_status == arg.m_status);
+//      qDebug() << "status descr " << (m_status_descr == arg.m_status_descr);
+//      qDebug() << "lst containers " << VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
+//    }
     return res;
   }
 

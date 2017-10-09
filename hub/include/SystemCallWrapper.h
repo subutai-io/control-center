@@ -156,6 +156,7 @@ public:
 
   static system_call_wrapper_error_t p2p_version(QString &version);
   static system_call_wrapper_error_t p2p_status(QString &status);
+  static bool p2p_daemon_check();
 
   static system_call_wrapper_error_t which(const QString &prog,
                                            QString &path);
@@ -174,7 +175,8 @@ public:
   };
 
   static container_ip_and_port container_ip_from_ifconfig_analog(const QString &port,
-                                                                      const QString& cont_ip, const QString &rh_ip);
+                                                                 const QString& cont_ip,
+                                                                 const QString &rh_ip);
 };
 
 #endif // SYSTEMCALLWRAPPER_H

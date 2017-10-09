@@ -30,6 +30,9 @@ DlgNotification::DlgNotification(CNotificationObserver::notification_level_t lev
 
   ui->lbl_icon->setPixmap(pixmap);
   ui->lbl_message->setText(msg);
+  ui->lbl_message->setTextFormat(Qt::RichText);
+  ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
+  ui->lbl_message->setOpenExternalLinks(true);
 
   m_close_timer.setInterval(CSettingsManager::Instance().notification_delay_sec() * 1000);
   ui->chk_ignore->setChecked(CSettingsManager::Instance().is_notification_ignored(msg) ? Qt::Checked : Qt::Unchecked);

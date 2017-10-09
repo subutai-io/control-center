@@ -10,29 +10,25 @@
 #include "commons/include/MRE_Windows.h"
 #endif
 
+class CApplicationLog {
+ public:
+  enum LOG_TYPE { LT_TRACE = 0, LT_INFO, LT_ERROR, LT_DISABLED };
 
-class CApplicationLog
-{
-public:
-  enum LOG_TYPE {
-    LT_TRACE = 0,
-    LT_INFO,
-    LT_ERROR,
-    LT_DISABLED
-  };
+  static const QString& log_level_to_str(LOG_TYPE lt);
 
   void SetDirectory(const std::string& directory);
   void SetLogLevel(LOG_TYPE lt);
-  void LogTrace( const char* format, ... );
-  void LogInfo ( const char* format, ... );
-  void LogError( const char* format, ... );
-  static CApplicationLog* Instance(){
+  LOG_TYPE LogLevel() const { return m_log_level; }
+  void LogTrace(const char* format, ...);
+  void LogInfo(const char* format, ...);
+  void LogError(const char* format, ...);
+  static CApplicationLog* Instance() {
     static CApplicationLog m_instance;
     return &m_instance;
   }
 
-private:
-  static const int BUFFER_SIZE = 1024*4;
+ private:
+  static const int BUFFER_SIZE = 1024 * 4;
 
   static const char* LOG_FILE_DELIMITER;
 
@@ -43,9 +39,9 @@ private:
   std::string m_lst_files_by_log_type[LT_DISABLED];
 
 #ifndef RT_OS_WINDOWS
-  CEventLoop<SynchroPrimitives::CPthreadMRE> *m_logEventLoop;
+  CEventLoop<SynchroPrimitives::CPthreadMRE>* m_logEventLoop;
 #else
-  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent> *m_logEventLoop;
+  CEventLoop<SynchroPrimitives::CWindowsManualResetEvent>* m_logEventLoop;
 #endif
 
   LOG_TYPE m_log_level;
@@ -56,14 +52,14 @@ private:
   CApplicationLog(const CApplicationLog&);
   void operator=(const CApplicationLog&);
 
-  static int AppendLog(const char *str, std::string &logFileName);
+  static int AppendLog(const char* str, std::string& logFileName);
 
-  //constructing file names based on current date
-  void UpdateLogFilesNames(void);  
+  // constructing file names based on current date
+  void UpdateLogFilesNames(void);
 
   void Log(CApplicationLog::LOG_TYPE log_type, std::string msg);
 
-public:  
+ public:
 };
 
-#endif //APPLICATION_LOG_H
+#endif  // APPLICATION_LOG_H

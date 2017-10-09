@@ -18,9 +18,12 @@ private:
 
   std::vector<CEnvironment> m_lst_healthy_environments;
   std::vector<bool> m_lst_all_selected;
-  typedef std::vector<std::vector<bool> > bit_matrix;
-  bit_matrix m_original_bit_matrix;
-  bit_matrix m_current_bit_matrix;
+  typedef std::vector<std::vector<uint8_t> > key_environment_matrix;
+
+  uint32_t m_rows;
+  uint32_t m_cols;
+  key_environment_matrix m_original_ke_matrix;
+  key_environment_matrix m_current_ke_matrix;
 
   QTimer *m_refresh_files_timer;
 
@@ -40,7 +43,7 @@ public:
   }
 
   bool has_current_key() const {return !m_current_key.isEmpty();}
-  bool something_changed() const {return m_original_bit_matrix != m_current_bit_matrix;}
+  bool something_changed() const {return m_original_ke_matrix != m_current_ke_matrix;}
   void set_current_key(const QString& key) ;
 
   void set_key_environments_bit(int index, bool bit);

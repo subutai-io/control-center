@@ -11,6 +11,7 @@
 #include <QModelIndexList>
 #include <QItemSelectionModel>
 #include <algorithm>
+#include <QtConcurrent/QtConcurrent>
 
 #include "DlgGenerateSshKey.h"
 #include "ui_DlgGenerateSshKey.h"
@@ -135,7 +136,8 @@ DlgGenerateSshKey::btn_generate_released() {
 void
 DlgGenerateSshKey::btn_send_to_hub_released() {
   ui->pb_send_to_hub->setVisible(true);
-  CSshKeysController::Instance().send_data_to_hub();
+  QtConcurrent::run(&CSshKeysController::Instance(),
+                    &CSshKeysController::send_data_to_hub);
 }
 ////////////////////////////////////////////////////////////////////////////
 

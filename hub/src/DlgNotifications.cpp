@@ -49,6 +49,7 @@ DlgNotifications::rebuild_model() {
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
       ui->tv_notifications->resizeRowsToContents();
+      ui->tv_notifications->sortByColumn(0);
     }
     m_notification_sort_proxy_model->invalidate();
   } else {
