@@ -122,7 +122,7 @@ public:
 
   static const QString& rest_err_to_str(rest_error_t err);
 
-  std::vector<bool> is_sshkeys_in_environment(const QStringList &keys,
+  std::vector<uint8_t> is_sshkeys_in_environment(const QStringList &keys,
                                               const QString& env);
 
   void add_sshkey_to_environments(const QString &key_name,

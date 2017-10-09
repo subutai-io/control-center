@@ -309,10 +309,10 @@ const QString& CRestWorker::rest_err_to_str(rest_error_t err) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-std::vector<bool> CRestWorker::is_sshkeys_in_environment(
+std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
     const QStringList& keys, const QString& env) {
   static const QString str_url(hub_post_url().arg("environments/check-key"));
-  std::vector<bool> lst_res;
+  std::vector<uint8_t> lst_res;
   QJsonObject obj;
   QJsonArray json_keys;
   for (auto i = keys.begin(); i != keys.end(); ++i)
@@ -336,7 +336,7 @@ std::vector<bool> CRestWorker::is_sshkeys_in_environment(
   if (!res_doc.isArray()) return lst_res;
   QJsonArray json_arr = res_doc.array();
   for (auto i = json_arr.begin(); i != json_arr.end(); ++i)
-    lst_res.push_back(i->toBool());
+    lst_res.push_back(i->toBool() ? 1 : 0);
 
   return lst_res;
 }
