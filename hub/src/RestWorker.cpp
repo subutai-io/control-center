@@ -361,8 +361,9 @@ void CRestWorker::add_sshkey_to_environments(
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-  QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
-  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  int http_status_code, err_code, network_error;
+  send_request(m_network_manager, req, false,
+               http_status_code, err_code, network_error, doc_serialized, true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -385,8 +386,9 @@ void CRestWorker::remove_sshkey_from_environments(
   QNetworkRequest req(url);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-  QNetworkReply* reply = post_reply(m_network_manager, doc_serialized, req);
-  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  int http_status_code, err_code, network_error;
+  send_request(m_network_manager, req, false,
+               http_status_code, err_code, network_error, doc_serialized, true);
 }
 
 QNetworkAccessManager* CRestWorker::create_network_manager() {
