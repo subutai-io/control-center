@@ -191,13 +191,13 @@ void CSshKeysController::send_data_to_hub() {
         if (!m_current_ke_matrix[row][col]) {
           CApplicationLog::Instance()->LogTrace("ssh-key %s remove from env %s",
                                                 key_name.toStdString().c_str(),
-                                                lst_he[row].name());
+                                                lst_he[row].name().toStdString().c_str());
           dct_to_remove[key].first = key_name;
           dct_to_remove[key].second.push_back(lst_he[row].id());
         } else {
           CApplicationLog::Instance()->LogTrace("ssh-key %s add to env %s",
                                                 key_name.toStdString().c_str(),
-                                                lst_he[row].name());
+                                                lst_he[row].name().toStdString().c_str());
           dct_to_send[key].first = key_name;
           dct_to_send[key].second.push_back(lst_he[row].id());
         }
