@@ -374,11 +374,12 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
   (void)cmd;
   (void)str_command;  // make compiler happy.  %)
 #ifdef RT_OS_WINDOWS
+  QString known_hosts = CSettingsManager::Instance().ssh_keys_storage() +
+                        QDir::separator() + "known_hosts";
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
-  QString str_command_quoted = QString("%1").arg(str_command);
   QString cmd_args =
-      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command_quoted);
+      QString("\"%1\" /k \"%2 -o GlobalKnownHostsFile=%3\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
