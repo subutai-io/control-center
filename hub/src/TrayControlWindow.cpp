@@ -383,6 +383,16 @@ void TrayControlWindow::notification_received(
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::logout() {
+  std::vector<QDialog*> lstActiveDialogs(m_dct_active_dialogs.size());
+  int i = 0;
+  //this extra copy because on dialog finish we are removing it from m_dct_active_dialogs
+  for (auto j = m_dct_active_dialogs.begin(); j != m_dct_active_dialogs.end(); ++j, ++i)
+    lstActiveDialogs[i] = j->second;
+
+  //close active dialogs
+  while(i--)
+    lstActiveDialogs[i]->close();
+
   CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();
 
