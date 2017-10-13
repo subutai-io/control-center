@@ -13,8 +13,7 @@
 class CApplicationLog {
  public:
   enum LOG_TYPE { LT_TRACE = 0, LT_INFO, LT_ERROR, LT_DISABLED };
-
-  static const QString& log_level_to_str(LOG_TYPE lt);
+  static const QString& LogLevelToStr(LOG_TYPE lt);
 
   void SetDirectory(const std::string& directory);
   void SetLogLevel(LOG_TYPE lt);

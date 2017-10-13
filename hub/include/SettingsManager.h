@@ -1,16 +1,15 @@
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
-#include <QObject>
 #include <stdint.h>
+#include <QMap>
+#include <QObject>
 #include <QSettings>
 #include <QString>
-#include <QMap>
 
-class CSettingsManager : public QObject
-{
+class CSettingsManager : public QObject {
   Q_OBJECT
-private:
+ private:
   static const QString ORG_NAME;
   static const QString APP_NAME;
 
@@ -115,18 +114,27 @@ private:
 
   void init_password();
 
-signals:
+ signals:
   void settings_changed();
   void notifications_ignored_changed();
 
-public:
+ public:
   static const int NOTIFICATION_DELAY_MIN = 3;
   static const int NOTIFICATION_DELAY_MAX = 300;
 
   enum update_freq_t {
-    UF_MIN1 = 0, UF_MIN5, UF_MIN10, UF_MIN30,
-    UF_HOUR1, UF_HOUR3, UF_HOUR5, UF_DAILY,
-    UF_WEEKLY, UF_MONTHLY, UF_NEVER, UF_LAST
+    UF_MIN1 = 0,
+    UF_MIN5,
+    UF_MIN10,
+    UF_MIN30,
+    UF_HOUR1,
+    UF_HOUR3,
+    UF_HOUR5,
+    UF_DAILY,
+    UF_WEEKLY,
+    UF_MONTHLY,
+    UF_NEVER,
+    UF_LAST
   };
 
   static const QString& update_freq_to_str(update_freq_t fr);
@@ -137,64 +145,80 @@ public:
     return instance;
   }
 
-  void save_all() { m_settings.sync(); emit settings_changed();}
-  void clear_all() { m_settings.clear(); m_settings.sync(); }
+  void save_all() {
+    m_settings.sync();
+    emit settings_changed();
+  }
+  void clear_all() {
+    m_settings.clear();
+    m_settings.sync();
+  }
   ////////////////////////////////////////////////////////////////////////////
 
-  const QString& login() const {return m_login;}
-  const QString& password() const {return m_password_str;}
-  bool remember_me() const {return m_remember_me;}
+  const QString& login() const { return m_login; }
+  const QString& password() const { return m_password_str; }
+  bool remember_me() const { return m_remember_me; }
 
-  uint32_t refresh_time_sec() const {return m_refresh_time_sec;}
-  const QString& p2p_path() const {return m_p2p_path;}
-  uint32_t notification_delay_sec() const {return m_notification_delay_sec;}
-  uint16_t plugin_port() const {return m_plugin_port;}
-  const QString& ssh_path() const {return m_ssh_path;}
-  const QString& ssh_user() const {return m_ssh_user;}
+  uint32_t refresh_time_sec() const { return m_refresh_time_sec; }
+  const QString& p2p_path() const { return m_p2p_path; }
+  uint32_t notification_delay_sec() const { return m_notification_delay_sec; }
+  uint16_t plugin_port() const { return m_plugin_port; }
+  const QString& ssh_path() const { return m_ssh_path; }
+  const QString& ssh_user() const { return m_ssh_user; }
 
-  const QString& rh_user() const {return m_rh_user;}
-  const QString& rh_pass() const {return m_rh_pass;}
-  const QString& rh_host() const {return m_rh_host;}
-  quint16 rh_port() const {return m_rh_port;}
+  const QString& rh_user() const { return m_rh_user; }
+  const QString& rh_pass() const { return m_rh_pass; }
+  const QString& rh_host() const { return m_rh_host; }
+  quint16 rh_port() const { return m_rh_port; }
 
-  const QString& logs_storage() const {return m_logs_storage;}
-  const QString& ssh_keys_storage() const {return m_ssh_keys_storage;}
-  const QString& tray_guid() const {return m_tray_guid;}
+  const QString& logs_storage() const { return m_logs_storage; }
+  const QString& ssh_keys_storage() const { return m_ssh_keys_storage; }
+  const QString& tray_guid() const { return m_tray_guid; }
 
-  update_freq_t p2p_update_freq() const { return (update_freq_t)m_p2p_update_freq; }
-  update_freq_t rh_update_freq() const { return (update_freq_t)m_rh_update_freq; }
-  update_freq_t tray_update_freq() const { return (update_freq_t)m_tray_update_freq; }
+  update_freq_t p2p_update_freq() const {
+    return (update_freq_t)m_p2p_update_freq;
+  }
+  update_freq_t rh_update_freq() const {
+    return (update_freq_t)m_rh_update_freq;
+  }
+  update_freq_t tray_update_freq() const {
+    return (update_freq_t)m_tray_update_freq;
+  }
   update_freq_t rh_management_update_freq() const {
     return (update_freq_t)m_rh_management_update_freq;
   }
   bool p2p_autoupdate() const { return m_p2p_autoupdate; }
   bool rh_autoupdate() const { return m_rh_autoupdate; }
   bool tray_autoupdate() const { return m_tray_autoupdate; }
-  bool rh_management_autoupdate() const { return m_rh_management_autoupdate;}
+  bool rh_management_autoupdate() const { return m_rh_management_autoupdate; }
 
-  const QString& rtm_db_dir() const {return m_rtm_db_dir;}
-  bool is_writable() const {return m_settings.isWritable();}
+  const QString& rtm_db_dir() const { return m_rtm_db_dir; }
+  bool is_writable() const { return m_settings.isWritable(); }
 
-  //osascript for macOS . don't ask. don't change :(
-  const QString& terminal_cmd() const {return m_terminal_cmd;}
-  const QString& terminal_arg() const {return m_terminal_arg;}
+  // osascript for macOS . don't ask. don't change :(
+  const QString& terminal_cmd() const { return m_terminal_cmd; }
+  const QString& terminal_arg() const { return m_terminal_arg; }
 
-  const QString& vboxmanage_path() const {return m_vboxmanage_path;}
-  bool use_animations() const {return m_use_animations;}
+  const QString& vboxmanage_path() const { return m_vboxmanage_path; }
+  bool use_animations() const { return m_use_animations; }
 
-  uint32_t notifications_level() const {return m_notifications_level;}
-  uint32_t preferred_notifications_place() const {return m_preferred_notifications_place;}
+  uint32_t notifications_level() const { return m_notifications_level; }
+  uint32_t preferred_notifications_place() const {
+    return m_preferred_notifications_place;
+  }
 
-  const QString& ssh_keygen_cmd() const {return m_ssh_keygen_cmd;}
-  bool autostart() const {return m_autostart;}
-  const QString& chrome_path() const {return m_chrome_path;}
-  const QString& subutai_cmd() const {return m_subutai_cmd;}
+  const QString& ssh_keygen_cmd() const { return m_ssh_keygen_cmd; }
+  bool autostart() const { return m_autostart; }
+  const QString& chrome_path() const { return m_chrome_path; }
+  const QString& subutai_cmd() const { return m_subutai_cmd; }
   ////////////////////////////////////////////////////////////////////////////
 
   void set_notification_delay_sec(uint32_t delay_sec) {
     m_notification_delay_sec = delay_sec;
-    if (delay_sec > NOTIFICATION_DELAY_MAX) m_notification_delay_sec = NOTIFICATION_DELAY_MAX;
-    if (delay_sec < NOTIFICATION_DELAY_MIN) m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
+    if (delay_sec > NOTIFICATION_DELAY_MAX)
+      m_notification_delay_sec = NOTIFICATION_DELAY_MAX;
+    if (delay_sec < NOTIFICATION_DELAY_MIN)
+      m_notification_delay_sec = NOTIFICATION_DELAY_MIN;
     m_settings.setValue(SM_NOTIFICATION_DELAY_SEC, m_notification_delay_sec);
   }
   /**********************/
@@ -205,14 +229,13 @@ public:
   void set_rh_management_freq(int fr);
 
   /**********************/
-  bool is_notification_ignored(const QString &msg) const;
+  bool is_notification_ignored(const QString& msg) const;
   void ignore_notification(const QString& msg);
   void not_ignore_notification(const QString& msg);
   const QMap<QString, QVariant>& dct_notification_ignored() const {
     return m_dct_notification_ignore;
   }
-  /**********************/
-
+    /**********************/
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
@@ -247,4 +270,4 @@ public:
 #undef SET_FIELD_DECL
 };
 
-#endif // CSETTINGSMANAGER_H
+#endif  // CSETTINGSMANAGER_H

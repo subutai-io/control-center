@@ -56,7 +56,7 @@ int CApplicationLog::AppendLog(const char* str, std::string& logFileName) {
 }
 //////////////////////////////////////////////////////////////////////////
 
-const QString& CApplicationLog::log_level_to_str(CApplicationLog::LOG_TYPE lt) {
+const QString& CApplicationLog::LogLevelToStr(CApplicationLog::LOG_TYPE lt) {
   static QString ll_str[] = {"Trace", "Info", "Error", "Disabled"};
   return ll_str[lt];
 }

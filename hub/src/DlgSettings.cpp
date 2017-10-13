@@ -42,8 +42,7 @@ class TabResizeFilter : public QObject {
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= CApplicationLog::LT_DISABLED; ++i)
-    cb->addItem(
-        CApplicationLog::log_level_to_str((CApplicationLog::LOG_TYPE)i));
+    cb->addItem(CApplicationLog::LogLevelToStr((CApplicationLog::LOG_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +132,7 @@ DlgSettings::DlgSettings(QWidget* parent)
       CSettingsManager::Instance().rh_autoupdate());
   ui->chk_tray_autoupdate->setChecked(
       CSettingsManager::Instance().tray_autoupdate());
-  ui->chk_rhm_autoupdate->setCheckable(
+  ui->chk_rhm_autoupdate->setChecked(
       CSettingsManager::Instance().rh_management_autoupdate());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
