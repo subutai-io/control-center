@@ -58,10 +58,12 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   proc.start(cmd, args);
   if (!proc.waitForStarted(timeout_msec)) {
     if (log) {
-      CApplicationLog::Instance()->LogError(
-          "Failed to wait for started process %s", cmd.toStdString().c_str());
-      CApplicationLog::Instance()->LogError(
-          "%s", proc.errorString().toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(
+      //    "Failed to wait for started process %s", cmd.toStdString().c_str());
+      qFatal("Failed to wait for started process %s", cmd.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(
+      //    "%s", proc.errorString().toStdString().c_str());
+      qFatal("%s", proc.errorString().toStdString().c_str());
     }
     res.res = SCWE_CREATE_PROCESS;
     return res;
@@ -91,13 +93,17 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   args << "show";
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
-  CApplicationLog::Instance()->LogInfo("is_in_swarm %s show %s",
-                                       cmd.toStdString().c_str(),
-                                       hash.toStdString().c_str());
+  //CApplicationLog::Instance()->LogInfo("is_in_swarm %s show %s",
+  //                                     cmd.toStdString().c_str(),
+  //                                     hash.toStdString().c_str());
+  qInfo("is_in_swarm %s show %s",
+        cmd.toStdString().c_str(),
+        hash.toStdString().c_str());
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
     CNotificationObserver::Error(error_strings[res.res]);
-    CApplicationLog::Instance()->LogError(
-        error_strings[res.res].toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //    error_strings[res.res].toStdString().c_str());
+    qFatal("%s", error_strings[res.res].toStdString().c_str());
     return false;
   }
 
@@ -118,8 +124,10 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
           CSettingsManager::Instance().p2p_path()))
     return SCWE_P2P_IS_NOT_RUNNABLE;
 
-  CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s",
-                                        hash.toStdString().c_str());
+  //CApplicationLog::Instance()->LogTrace("join to p2p swarm called. hash : %s",
+  //                                      hash.toStdString().c_str());
+  qInfo("join to p2p swarm called. hash : %s",
+         hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "start"
@@ -128,10 +136,13 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
   system_call_res_t res;
 
-  CApplicationLog::Instance()->LogInfo(
-      "%s start -ip %s -hash %s -dht %s", cmd.toStdString().c_str(),
-      ip.toStdString().c_str(), hash.toStdString().c_str(),
-      p2p_dht_arg().toStdString().c_str());
+  //CApplicationLog::Instance()->LogInfo(
+  //    "%s start -ip %s -hash %s -dht %s", cmd.toStdString().c_str(),
+  //    ip.toStdString().c_str(), hash.toStdString().c_str(),
+  //    p2p_dht_arg().toStdString().c_str());
+  qInfo("%s start -ip %s -hash %s -dht %s", cmd.toStdString().c_str(),
+        ip.toStdString().c_str(), hash.toStdString().c_str(),
+        p2p_dht_arg().toStdString().c_str());
 
   int attempts_count = 5;
   do {
@@ -140,13 +151,15 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
     if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
       QString err_msg = res.out.at(0);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qFatal("%s", err_msg.toStdString().c_str());
       res.res = SCWE_CANT_JOIN_SWARM;
     }
 
     if (res.exit_code != 0) {
-      CApplicationLog::Instance()->LogError(
-          "Join to p2p swarm failed. Code : %d", res.exit_code);
+      //CApplicationLog::Instance()->LogError(
+      //    "Join to p2p swarm failed. Code : %d", res.exit_code);
+      qFatal("Join to p2p swarm failed. Code : %d", res.exit_code);
       res.res = SCWE_CREATE_PROCESS;
     }
 
@@ -182,21 +195,24 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     system_call_wrapper_error_t scr =
         CSystemCallWrapper::which("gksu", gksu_path);
     if (scr != SCWE_SUCCESS) {
-      CApplicationLog::Instance()->LogError("Couldn't find gksu command");
+      //CApplicationLog::Instance()->LogError("Couldn't find gksu command");
+      qFatal("Couldn't find gksu command");
       break;
     }
 
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-      CApplicationLog::Instance()->LogError("Couldn't find sh command");
+      //CApplicationLog::Instance()->LogError("Couldn't find sh command");
+      qFatal("Couldn't find sh command");
       break;
     }
 
     QString systemctl_path;
     scr = CSystemCallWrapper::which("systemctl", systemctl_path);
     if (scr != SCWE_SUCCESS) {
-      CApplicationLog::Instance()->LogError("Couldn't find systemctl");
+      //CApplicationLog::Instance()->LogError("Couldn't find systemctl");
+      qFatal("Couldn't find systemctl");
       break;
     }
 
@@ -206,16 +222,20 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         CSystemCallWrapper::ssystem(gksu_path, args, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
-      CApplicationLog::Instance()->LogError(
-          "gksu systemctl list-units call failed. ec = %d, res = %s",
-          cr.exit_code,
-          CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(
+      //    "gksu systemctl list-units call failed. ec = %d, res = %s",
+      //    cr.exit_code,
+      //    CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
+      qFatal("gksu systemctl list-units call failed. ec = %d, res = %s",
+             cr.exit_code,
+             CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
       break;
     }
 
     if (cr.out.isEmpty()) {
-      CApplicationLog::Instance()->LogError(
-          "gksu systemctl list-units output is empty");
+      //CApplicationLog::Instance()->LogError(
+      //    "gksu systemctl list-units output is empty");
+      qFatal("gksu systemctl list-units output is empty");
       break;
     }
 
@@ -225,8 +245,9 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
       if (lst_temp.empty()) {
-        CApplicationLog::Instance()->LogError(
-            "Couldn't get standard temp location");
+        //CApplicationLog::Instance()->LogError(
+        //    "Couldn't get standard temp location");
+        qFatal("Couldn't get standard temp location");
         break;
       }
 
@@ -235,9 +256,11 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       qDebug() << tmpFilePath;
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-        CApplicationLog::Instance()->LogError(
-            "Couldn't create reload script temp file. %s",
-            tmpFile.errorString().toStdString().c_str());
+        //CApplicationLog::Instance()->LogError(
+        //    "Couldn't create reload script temp file. %s",
+        //    tmpFile.errorString().toStdString().c_str());
+        qFatal("Couldn't create reload script temp file. %s",
+               tmpFile.errorString().toStdString().c_str());
         break;
       }
 
@@ -251,8 +274,9 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                                       .toUtf8();
 
       if (tmpFile.write(restart_script) != restart_script.size()) {
-        CApplicationLog::Instance()->LogError(
-            "Couldn't write restart script to temp file");
+        //CApplicationLog::Instance()->LogError(
+        //    "Couldn't write restart script to temp file");
+        qFatal("Couldn't write restart script to temp file");
         break;
       }
       tmpFile.close();  // save
@@ -263,8 +287,9 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                   QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                   QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                   QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-        CApplicationLog::Instance()->LogError(
-            "Couldn't set exe permission to reload script file");
+        //CApplicationLog::Instance()->LogError(
+        //    "Couldn't set exe permission to reload script file");
+        qFatal("Couldn't set exe permission to reload script file");
         break;
       }
 
@@ -274,11 +299,15 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-        CApplicationLog::Instance()->LogError(
-            "Couldn't reload p2p.service. ec = %d, err = %s", cr2.exit_code,
-            CSystemCallWrapper::scwe_error_to_str(cr2.res)
-                .toStdString()
-                .c_str());
+        //CApplicationLog::Instance()->LogError(
+        //    "Couldn't reload p2p.service. ec = %d, err = %s", cr2.exit_code,
+        //    CSystemCallWrapper::scwe_error_to_str(cr2.res)
+        //        .toStdString()
+        //        .c_str());
+        qFatal("Couldn't reload p2p.service. ec = %d, err = %s", cr2.exit_code,
+               CSystemCallWrapper::scwe_error_to_str(cr2.res)
+               .toStdString()
+               .c_str());
         break;
       }
       *res_code = RSE_SUCCESS;
@@ -362,8 +391,10 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(
     const QString &cmd, const QString &str_command) {
   QStringList args = CSettingsManager::Instance().terminal_arg().split(
       QRegularExpression("\\s"));
-  CApplicationLog::Instance()->LogInfo("Launch command : %s",
-                                       str_command.toStdString().c_str());
+  //CApplicationLog::Instance()->LogInfo("Launch command : %s",
+  //                                     str_command.toStdString().c_str());
+  qInfo("Launch command : %s",
+        str_command.toStdString().c_str());
 
   args << QString("Tell application \"Terminal\" to do script \"%1\"")
               .arg(str_command);
@@ -389,9 +420,11 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
   BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
                           NULL, &si, &pi);
   if (!cp) {
-    CApplicationLog::Instance()->LogError(
-        "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
-        GetLastError());
+    //CApplicationLog::Instance()->LogError(
+    //    "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+    //    GetLastError());
+    qFatal("Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+           GetLastError());
     return SCWE_SSH_LAUNCH_FAILED;
   }
 #endif
@@ -455,9 +488,11 @@ system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
 
   if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
     res.res = SCWE_CANT_GENERATE_SSH_KEY;
-    CApplicationLog::Instance()->LogError(
-        "Can't generate ssh-key %s. exit_code : %d",
-        file_path.toStdString().c_str(), res.exit_code);
+    //CApplicationLog::Instance()->LogError(
+    //    "Can't generate ssh-key %s. exit_code : %d",
+    //    file_path.toStdString().c_str(), res.exit_code);
+    qFatal("Can't generate ssh-key %s. exit_code : %d",
+           file_path.toStdString().c_str(), res.exit_code);
   }
 
   return res.res;
@@ -512,8 +547,9 @@ CSystemCallWrapper::is_rh_management_update_available(bool &available) {
           .c_str(),
       exit_code, lst_out);
   if (res != SCWE_SUCCESS) {
-    CApplicationLog::Instance()->LogError(
-        "is_rh_management_update_available failed with code %d", res);
+    //CApplicationLog::Instance()->LogError(
+    //    "is_rh_management_update_available failed with code %d", res);
+    qFatal("is_rh_management_update_available failed with code %d", res);
     return res;
   }
   available = exit_code == 0;
@@ -789,8 +825,9 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
   if (lst_standard_locations.empty()) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't get standard locations. HOME");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't get standard locations. HOME");
+    qFatal("Couldn't get standard locations. HOME");
     CNotificationObserver::Error("Couldn't get home directory, sorry");
     return false;
   }
@@ -799,8 +836,9 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
       lst_standard_locations[0] + QDir::separator() + ".config/autostart";
   QDir dir(directory_path);
   if (!dir.mkpath(directory_path)) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't create autostart directory");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't create autostart directory");
+    qFatal("Couldn't create autostart directory");
     CNotificationObserver::Error("Couldn't create autostart directory, sorry");
     return false;
   }
@@ -813,9 +851,11 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (!start) {
     if (!desktop_file.exists()) return true;  // already removed from autostart.
     if (desktop_file.remove()) return true;
-    CApplicationLog::Instance()->LogError(
-        "Couldn't delete file : %s",
-        desktop_file.errorString().toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't delete file : %s",
+    //    desktop_file.errorString().toStdString().c_str());
+    qFatal("Couldn't delete file : %s",
+           desktop_file.errorString().toStdString().c_str());
     CNotificationObserver::Error(QString("Couldn't delete %1. %2")
                                      .arg(desktop_file_path)
                                      .arg(desktop_file.errorString()));
@@ -825,8 +865,9 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   QString desktop_file_content = QString(desktop_file_content_template)
                                      .arg(QApplication::applicationFilePath());
   if (!desktop_file.open(QFile::Truncate | QFile::WriteOnly)) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't open desktop file for write");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't open desktop file for write");
+    qFatal("Couldn't open desktop file for write");
     CNotificationObserver::Error(
         QString("Couldn't create autostart desktop file. Error : %1")
             .arg(desktop_file.errorString()));
@@ -837,9 +878,11 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   do {
     QByteArray content_arr = desktop_file_content.toUtf8();
     if (desktop_file.write(content_arr) != content_arr.size()) {
-      CApplicationLog::Instance()->LogError(
-          "Couldn't write content to autostart desktop file : %s",
-          desktop_file.errorString().toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(
+      //    "Couldn't write content to autostart desktop file : %s",
+      //    desktop_file.errorString().toStdString().c_str());
+      qFatal("Couldn't write content to autostart desktop file : %s",
+             desktop_file.errorString().toStdString().c_str());
       CNotificationObserver::Error(
           "Couldn't write content to autostart desktop file");
       result = false;
@@ -859,8 +902,9 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
   if (lst_standard_locations.empty()) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't get standard locations. HOME");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't get standard locations. HOME");
+    qFatal("Couldn't get standard locations. HOME");
     CNotificationObserver::Error("Couldn't get home directory, sorry");
     return false;
   }
@@ -896,22 +940,26 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
     if (!start) {
       if (!item_file.exists()) break;
       if (item_file.remove()) break;
-      CApplicationLog::Instance()->LogError("Couldn't remove autostart script");
+      //CApplicationLog::Instance()->LogError("Couldn't remove autostart script");
+      qFatal("Couldn't remove autostart script");
       break;
     }
     if (item_file.exists()) break;
     if (!item_file.open(QFile::ReadWrite)) {
-      CApplicationLog::Instance()->LogError(
-          "Couldn't create subutai-tray.plist file. Error : %s",
-          item_file.errorString().toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(
+      //    "Couldn't create subutai-tray.plist file. Error : %s",
+      //    item_file.errorString().toStdString().c_str());
+      qFatal("Couldn't create subutai-tray.plist file. Error : %s",
+             item_file.errorString().toStdString().c_str());
       CNotificationObserver::Error(item_file.errorString());
       return false;
     }
 
     QByteArray content = content_template.toUtf8();
     if (item_file.write(content) != content.size()) {
-      CApplicationLog::Instance()->LogError(
-          "Didn't write whole content to plist file");
+      //CApplicationLog::Instance()->LogError(
+      //    "Didn't write whole content to plist file");
+      qFatal("Didn't write whole content to plist file");
       CNotificationObserver::Error("Write plist file error");
       item_file.close();
       return false;
@@ -945,9 +993,10 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
         L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL,
         REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &rkey_run, &disp);
 
-    if (cr != ERROR_SUCCESS || !rkey_run) {
-      CApplicationLog::Instance()->LogError(
-          "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
+    if (cr != ERROR_SUCCESS || !rkey_run) {  
+      //CApplicationLog::Instance()->LogError(
+      //    "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
+      qFatal("Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
       CNotificationObserver::Error("Couldn't create registry key, sorry");
       result = false;
       break;
@@ -968,8 +1017,10 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       }
 
       if (cr != ERROR_SUCCESS) {
-        CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d", cr,
-                                              GetLastError());
+        //CApplicationLog::Instance()->LogError("RegSetKeyValue err : %d, %d", cr,
+        //                                      GetLastError());
+        qFatal("RegSetKeyValue err : %d, %d", cr,
+               GetLastError());
         CNotificationObserver::Error("Couldn't add program to autorun, sorry");
         result = false;
         break;
@@ -990,8 +1041,10 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       }
 
       if (cr != ERROR_SUCCESS) {
-        CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
-                                              cr, GetLastError());
+        //CApplicationLog::Instance()->LogError("RegDeleteKeyValueW err : %d, %d",
+        //                                      cr, GetLastError());
+        qFatal("RegDeleteKeyValueW err : %d, %d",
+               cr, GetLastError());
         CNotificationObserver::Error(
             "Couldn't remove program from autorun, sorry");
         result = false;
@@ -1020,8 +1073,9 @@ bool application_autostart_internal<Os2Type<OS_LINUX> >() {
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
   if (lst_standard_locations.empty()) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't get standard locations. HOME");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't get standard locations. HOME");
+    qFatal("Couldn't get standard locations. HOME");
     return false;
   }
 
@@ -1044,8 +1098,9 @@ bool application_autostart_internal<Os2Type<OS_MAC> >() {
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
   if (lst_standard_locations.empty()) {
-    CApplicationLog::Instance()->LogError(
-        "Couldn't get standard locations. HOME");
+    //CApplicationLog::Instance()->LogError(
+    //    "Couldn't get standard locations. HOME");
+    qFatal("Couldn't get standard locations. HOME");
     return false;
   }
 
@@ -1072,8 +1127,9 @@ bool application_autostart_internal<Os2Type<OS_WIN> >() {
         REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &rkey_run, &disp);
 
     if (cr != ERROR_SUCCESS || !rkey_run) {
-      CApplicationLog::Instance()->LogError(
-          "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
+      //CApplicationLog::Instance()->LogError(
+      //    "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
+      qFatal("Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
       result = false;
       break;
     }

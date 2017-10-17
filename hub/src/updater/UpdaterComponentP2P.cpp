@@ -68,9 +68,12 @@ CUpdaterComponentP2P::update_internal() {
   if (str_p2p_path.isNull() ||
       str_p2p_path.isEmpty() ||
       str_p2p_path == P2P) {
-    CApplicationLog::Instance()->LogError("Update p2p failed. Path = %s",
-                                          (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
-                                             "empty" : str_p2p_path.toStdString().c_str()));
+    //CApplicationLog::Instance()->LogError("Update p2p failed. Path = %s",
+    //                                      (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
+    //                                         "empty" : str_p2p_path.toStdString().c_str()));
+    qFatal("Update p2p failed. Path = %s",
+           (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
+              "empty" : str_p2p_path.toStdString().c_str()));
     return CHUE_FAILED;
   }
 
@@ -84,7 +87,8 @@ CUpdaterComponentP2P::update_internal() {
                                       p2p_kurjun_file_name());
 
   if (fi.empty()) {
-    CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    qFatal("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
     return CHUE_NOT_ON_KURJUN;
   }
 
@@ -124,9 +128,11 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 
   if (df.exists()) {
     if (df.remove()) {
-      CApplicationLog::Instance()->LogInfo("p2p file from tray directory removed");
+      //CApplicationLog::Instance()->LogInfo("p2p file from tray directory removed");
+      qInfo("p2p file from tray directory removed");
     } else {
-      CApplicationLog::Instance()->LogInfo("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
+      //CApplicationLog::Instance()->LogInfo("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
+      qInfo("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
     }
   }
   system_call_wrapper_error_t scwe =

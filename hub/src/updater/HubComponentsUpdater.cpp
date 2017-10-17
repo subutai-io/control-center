@@ -54,8 +54,9 @@ void
 CHubComponentsUpdater::set_update_freq(const QString &component_id,
                                        CSettingsManager::update_freq_t freq) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
-    CApplicationLog::Instance()->LogError(
-          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //      "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    qFatal("can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return;
   }
 
@@ -73,8 +74,9 @@ void
 CHubComponentsUpdater::set_component_autoupdate(const QString &component_id,
                                                 bool autoupdate) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
-    CApplicationLog::Instance()->LogError(
-          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //      "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    qFatal("can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return;
   }
   m_dct_components[component_id].autoupdate = autoupdate;
@@ -84,8 +86,9 @@ CHubComponentsUpdater::set_component_autoupdate(const QString &component_id,
 void
 CHubComponentsUpdater::update_component_timer_timeout(const QString &component_id) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
-    CApplicationLog::Instance()->LogError(
-          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //      "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    qFatal("can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return;
   }
 
@@ -160,8 +163,9 @@ CHubComponentsUpdater::set_rh_management_autoupdate() {
 bool
 CHubComponentsUpdater::is_update_available(const QString &component_id) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
-    CApplicationLog::Instance()->LogError(
-          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //      "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    qFatal("can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return false;
   }
   return m_dct_components[component_id].Component()->update_available();
@@ -171,8 +175,9 @@ CHubComponentsUpdater::is_update_available(const QString &component_id) {
 void
 CHubComponentsUpdater::force_update(const QString &component_id) {
   if (m_dct_components.find(component_id) == m_dct_components.end()) {
-    CApplicationLog::Instance()->LogError(
-          "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError(
+    //      "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+    qFatal("can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return;
   }
   m_dct_components[component_id].Component()->update();

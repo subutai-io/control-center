@@ -50,7 +50,8 @@ CUpdaterComponentTray::update_internal() {
                                       tray_kurjun_file_name());
 
   if (fi.empty()) {
-    CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    //CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    qFatal("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
     return CHUE_NOT_ON_KURJUN;
   }
 

@@ -507,7 +507,8 @@ void TrayControlWindow::launch_Hub() {
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = QString("Launch hub website via google chrome failed");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qFatal("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
@@ -515,7 +516,8 @@ void TrayControlWindow::launch_Hub() {
       QString err_msg =
           QString("Launch hub website via default browser failed");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qFatal("%s", err_msg.toStdString().c_str());
     }
   }
 }
@@ -566,17 +568,21 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         lst_unhealthy_envs.push_back(env_name);
         lst_unhealthy_env_statuses.push_back(env->status());
         lst_checked_unhealthy_env.push_back(env->id());
-        CApplicationLog::Instance()->LogError(
-            "Environment %s, %s is unhealthy. Reason : %s",
-            env_name.toStdString().c_str(), env->id().toStdString().c_str(),
-            env->status_description().toStdString().c_str());
+        //CApplicationLog::Instance()->LogError(
+        //    "Environment %s, %s is unhealthy. Reason : %s",
+        //    env_name.toStdString().c_str(), env->id().toStdString().c_str(),
+        //    env->status_description().toStdString().c_str());
+        qFatal("Environment %s, %s is unhealthy. Reason : %s",
+               env_name.toStdString().c_str(), env->id().toStdString().c_str(),
+               env->status_description().toStdString().c_str());
       }
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
         CNotificationObserver::Info(
             QString("Environment %1 became healthy").arg(env->name()));
-        CApplicationLog::Instance()->LogTrace(
-            "Environment %s became healthy", env->name().toStdString().c_str());
+        //CApplicationLog::Instance()->LogTrace(
+        //    "Environment %s became healthy", env->name().toStdString().c_str());
+        qInfo("Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
       }
     }
@@ -659,10 +665,13 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
   if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
-    CApplicationLog::Instance()->LogError(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
+    //CApplicationLog::Instance()->LogError(
+    //    "Can't get RH IP address. Err : %s, exit_code : %d",
+    //    CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
+    //    ec);
+    qFatal("Can't get RH IP address. Err : %s, exit_code : %d",
+           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
+           ec);
     CNotificationObserver::Info(
         QString("Can't get RH IP address. Error : %1, Exit_Code : %2")
             .arg(CLibsshController::run_libssh2_error_to_str(
@@ -680,7 +689,8 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = QString(
           "Run subutai console via chrome failed. Couldn't start process");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qFatal("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
@@ -689,7 +699,8 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
           "Run subutai console via default browser failed. Couldn't start "
           "process");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      //CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qFatal("%s", err_msg.toStdString().c_str());
     }
   }
 }
@@ -762,14 +773,19 @@ void TrayControlWindow::launch_ss() {
     QString tmp =
         QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str());
     // after that got_ss_console_readiness_sl will be called
-    CApplicationLog::Instance()->LogInfo("launch_ss : %s",
-                                         tmp.toStdString().c_str());
+    //CApplicationLog::Instance()->LogInfo("launch_ss : %s",
+    //                                     tmp.toStdString().c_str());
+    qInfo("launch_ss : %s",
+          tmp.toStdString().c_str());
     CRestWorker::Instance()->check_if_ss_console_is_ready(tmp);
   } else {
-    CApplicationLog::Instance()->LogError(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
+    //CApplicationLog::Instance()->LogError(
+    //    "Can't get RH IP address. Err : %s, exit_code : %d",
+    //    CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
+    //    ec);
+    qFatal("Can't get RH IP address. Err : %s, exit_code : %d",
+           CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
+           ec);
     CNotificationObserver::Info(
         QString("Can't get RH IP address. Error : %1, Exit_Code : %2")
             .arg(CLibsshController::run_libssh2_error_to_str(
