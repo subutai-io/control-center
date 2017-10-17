@@ -161,7 +161,7 @@ bool CRestWorker::get_user_id(QString& user_id_str) {
 
   QJsonDocument doc = QJsonDocument::fromJson(arr);
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    CApplicationLog::Instance()->LogError("Get user id failed. URL : %s",
+    qCritical("Get user id failed. URL : %s",
                                           str_url.toStdString().c_str());
     return false;
   }
@@ -274,7 +274,7 @@ void CRestWorker::send_health_request(const QString& p2p_version,
     int http_code, err_code, network_error;
     pre_handle_reply(reply, http_code, err_code, network_error);
     if (err_code != RE_SUCCESS) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "send_health_request failed. http_code : %d, err_code : %d, "
           "network_err : %d",
           http_code, err_code, network_error);
@@ -411,7 +411,7 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
     err_code = RE_NETWORK_ERROR;
-    CApplicationLog::Instance()->LogError(
+    qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
     CNotificationObserver::Error(reply->errorString());
@@ -438,7 +438,7 @@ QNetworkReply* CRestWorker::get_reply(QNetworkAccessManager* nam,
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    CApplicationLog::Instance()->LogError("Network isn't accessible : %d",
+    qCritical("Network isn't accessible : %d",
                                           (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
@@ -453,7 +453,7 @@ QNetworkReply* CRestWorker::post_reply(QNetworkAccessManager* nam,
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    CApplicationLog::Instance()->LogError("Network isn't accessible : %d",
+    qCritical("Network isn't accessible : %d",
                                           (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
@@ -471,7 +471,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    CApplicationLog::Instance()->LogError("Network isn't accessible : %d",
+    qCritical("Network isn't accessible : %d",
                                           (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
@@ -508,7 +508,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   timer->deleteLater();
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
-    CApplicationLog::Instance()->LogError(
+    qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
     if (show_network_err_msg)

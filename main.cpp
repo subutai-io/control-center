@@ -105,7 +105,7 @@ main(int argc, char *argv[]) {
   }
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();
-  CApplicationLog::Instance()->LogInfo("Tray application %s launched", TRAY_VERSION);
+  qInfo("Tray application %s launched", TRAY_VERSION);
 
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
@@ -116,7 +116,7 @@ main(int argc, char *argv[]) {
     QFile tmp_file(tmp_file_path);
     if (tmp_file.exists()) {
       if (!tmp_file.remove()) {
-        CApplicationLog::Instance()->LogError("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
+        qCritical("Couldn't remove file %s", tmp_file_path.toStdString().c_str());
       }
     }
   }
@@ -148,7 +148,7 @@ main(int argc, char *argv[]) {
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
-    CApplicationLog::Instance()->LogError("Global Exception : %s",
+    qCritical("Global Exception : %s",
                                           ge.what());
   }
 

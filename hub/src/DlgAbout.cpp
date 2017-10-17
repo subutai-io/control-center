@@ -293,7 +293,7 @@ DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
   } catch (std::exception& ex) {
-    CApplicationLog::Instance()->LogError("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
+    qCritical("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
   }
 
   emit finished();

@@ -28,7 +28,7 @@ CNotificationLogger::init_records(const QDateTime &from) {
            QDir::separator() + notifications_file);
   if (!st.exists()) return ;
   if (!st.open(QFile::ReadOnly)) {
-    CApplicationLog::Instance()->LogError("Couldn't open notifications storage file for read only : %s",
+    qCritical("Couldn't open notifications storage file for read only : %s",
                                           st.errorString().toStdString().c_str());
     return ;
   }
@@ -96,7 +96,7 @@ CNotificationLogger::clear_old_records() {
            QDir::separator() + notifications_file);
   if (!st.exists()) return ;
   if (!st.open(QFile::Truncate | QFile::ReadWrite)) {
-    CApplicationLog::Instance()->LogError("Couldn't open notifications storage file with truncate : %s",
+    qCritical("Couldn't open notifications storage file with truncate : %s",
                                           st.errorString().toStdString().c_str());
     return;
   }
@@ -114,7 +114,7 @@ CNotificationLogger::notification_received(CNotificationObserver::notification_l
   QFile file(CSettingsManager::Instance().logs_storage() +
              QDir::separator() + notifications_file);
   if (!file.open(QFile::ReadWrite)) {
-    CApplicationLog::Instance()->LogError("Couldn't open notifications storage file : %s",
+    qCritical("Couldn't open notifications storage file : %s",
                                           file.errorString().toStdString().c_str());
     return;
   }

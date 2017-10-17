@@ -271,7 +271,7 @@ static const uint32_t pass_magic2 = 0xedff019b;
 
 void CSettingsManager::init_password() {
   if (m_password.isEmpty()) {
-    CApplicationLog::Instance()->LogError("Password array is empty");
+    qCritical("Password array is empty");
     return;
   }
 
@@ -298,7 +298,7 @@ void CSettingsManager::init_password() {
     ba = ba.mid(1);  // remove random byte
 
     if (ba.length() < 20) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "Decryption error. ba.length() < 20");
       break;
     }
@@ -309,7 +309,7 @@ void CSettingsManager::init_password() {
     hash.addData(ba);
 
     if (hash.result() != st_h) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "Decryption error. hash.result() != stored_hash");
       break;
     }

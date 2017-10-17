@@ -53,7 +53,7 @@ CLibsshController::CSshInitializer::CSshInitializer()
 #ifdef WIN32
     WSADATA wsadata;
     if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-      CApplicationLog::Instance()->LogError("WSAStartup failed with error: %d", err);
+      qCritical("WSAStartup failed with error: %d", err);
       result = RLE_WSA_STARTUP;
       break;
     }
