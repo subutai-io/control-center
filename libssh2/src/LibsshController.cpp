@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <libssh2.h>
+#include <Commons.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -52,7 +53,7 @@ CLibsshController::CSshInitializer::CSshInitializer()
 #ifdef WIN32
     WSADATA wsadata;
     if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-      // qCritical ("WSAStartup failed with error: %d", err);
+      qCritical ("WSAStartup failed with error: %d", err);
       result = RLE_WSA_STARTUP;
       break;
     }
@@ -120,8 +121,8 @@ user_pass_authentication(LIBSSH2_SESSION *session, const void *rsc_user_pass_arg
 
 int
 key_pub_authentication(LIBSSH2_SESSION *session, const void *rsc_pub_key_arg) {
-  // UNUSED_ARG(session);
-  // UNUSED_ARG(rsc_pub_key_arg);
+  UNUSED_ARG(session);
+  UNUSED_ARG(rsc_pub_key_arg);
   return 0;
 }
 ////////////////////////////////////////////////////////////////////////////

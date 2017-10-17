@@ -4,6 +4,7 @@
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentRH.h"
 #include "libssh2/include/LibsshController.h"
+#include "Commons.h"
 
 using namespace update_system;
 
@@ -53,6 +54,6 @@ CUpdaterComponentRH::update_internal() {
 
 void
 CUpdaterComponentRH::update_post_action(bool success) {
-  // UNUSED_ARG(success); //do nothing
+  UNUSED_ARG(success); //do nothing
 }
 ////////////////////////////////////////////////////////////////////////////
