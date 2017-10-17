@@ -53,6 +53,6 @@ update_system::CUpdaterComponentRHM::update_internal() {
 
 void
 CUpdaterComponentRHM::update_post_action(bool success) {
-  // UNUSED_ARG(success); //do nothing
+  UNUSED_ARG(success); //do nothing
 }
 ////////////////////////////////////////////////////////////////////////////
