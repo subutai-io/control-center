@@ -19,7 +19,6 @@ INCLUDEPATH += libssh2/include
 
 SOURCES += \
     main.cpp \
-    commons/src/EventLoop.cpp \
     commons/src/IFunctor.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/Commons.cpp \
@@ -74,9 +73,6 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
     hub/include/updater/UpdaterComponentTray.h \
-    commons/include/EventLoop.h \
-    commons/include/EventLoopException.h \
-    commons/include/EventLoopExceptionInfo.h \
     commons/include/FileWrapper.h \
     commons/include/FunctorWithoutResult.h \
     commons/include/FunctorWithResult.h \

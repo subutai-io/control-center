@@ -9,6 +9,7 @@
 #include "NotificationObserver.h"
 #include "DownloadFileManager.h"
 #include "OsBranchConsts.h"
+#include "Commons.h"
 
 using namespace update_system;
 
