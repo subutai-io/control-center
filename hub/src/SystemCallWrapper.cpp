@@ -296,7 +296,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       system_call_res_t cr2;
       QStringList args2;
       args2 << sh_path << tmpFilePath;
-      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
+      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         //CApplicationLog::Instance()->LogError(
@@ -671,7 +671,7 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "version";
-  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty())
     version = res.out[0];
@@ -684,7 +684,7 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "status";
-  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     for (auto i = res.out.begin(); i != res.out.end(); ++i) status += *i;
@@ -699,7 +699,7 @@ bool CSystemCallWrapper::p2p_daemon_check() {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "debug";
-  system_call_res_t cr = ssystem_th(cmd, args, true, 5000);
+  system_call_res_t cr = ssystem_th(cmd, args, true, true, 5000);
   return !(cr.exit_code || cr.res);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -710,7 +710,7 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
   QString cmd(which_cmd());
   QStringList args;
   args << prog;
-  system_call_res_t res = ssystem_th(cmd, args, true, 5000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
   if (res.res != SCWE_SUCCESS) return res.res;
 
   if (res.exit_code == success_ec && !res.out.empty()) {
@@ -736,7 +736,7 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC_LIN> >(
   args << "--version";
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(
-      CSettingsManager::Instance().chrome_path(), args, true, 5000);
+      CSettingsManager::Instance().chrome_path(), args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     version = res.out[0];
