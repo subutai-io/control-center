@@ -8,7 +8,6 @@
 #include "SettingsManager.h"
 #include "updater/HubComponentsUpdater.h"
 #include "NotificationObserver.h"
-#include "ApplicationLog.h"
 #include "OsBranchConsts.h"
 
 using namespace update_system;

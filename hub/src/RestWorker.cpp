@@ -1,7 +1,6 @@
 #include <QEventLoop>
 #include <QTimer>
 
-#include "ApplicationLog.h"
 #include "Locker.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"

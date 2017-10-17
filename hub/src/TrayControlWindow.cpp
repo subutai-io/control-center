@@ -8,7 +8,6 @@
 #include <QtGui>
 #include <algorithm>
 
-#include "ApplicationLog.h"
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
 #include "DlgLogin.h"

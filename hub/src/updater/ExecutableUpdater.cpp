@@ -1,6 +1,5 @@
 #include <QFile>
 #include "Commons.h"
-#include "ApplicationLog.h"
 #include "NotificationObserver.h"
 #include "updater/ExecutableUpdater.h"
 

@@ -3,7 +3,6 @@
 
 #include "NotificationLogger.h"
 #include "SettingsManager.h"
-#include "ApplicationLog.h"
 
 static const QString notifications_file = "notifications.log";
 QString CNotification::LEVEL_STR[] = {"info", "warning", "error", "critical"};

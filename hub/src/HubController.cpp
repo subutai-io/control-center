@@ -5,7 +5,6 @@
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 
-#include "ApplicationLog.h"
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"

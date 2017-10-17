@@ -5,7 +5,6 @@
 #include "TrayWebSocketServer.h"
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
-#include "ApplicationLog.h"
 #include "SystemCallWrapper.h"
 
 CTrayServer::CTrayServer(quint16 port,

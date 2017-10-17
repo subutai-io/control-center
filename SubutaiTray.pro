@@ -21,7 +21,6 @@ SOURCES += \
     main.cpp \
     commons/src/EventLoop.cpp \
     commons/src/IFunctor.cpp \
-    commons/src/ApplicationLog.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/Commons.cpp \
     hub/src/RestWorker.cpp \
@@ -75,7 +74,6 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
     hub/include/updater/UpdaterComponentTray.h \
-    commons/include/ApplicationLog.h \
     commons/include/EventLoop.h \
     commons/include/EventLoopException.h \
     commons/include/EventLoopExceptionInfo.h \

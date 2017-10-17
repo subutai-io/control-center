@@ -1,6 +1,5 @@
 #include <QRegExp>
 
-#include "ApplicationLog.h"
 #include "Commons.h"
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"

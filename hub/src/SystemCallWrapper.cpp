@@ -11,7 +11,6 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include "ApplicationLog.h"
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"

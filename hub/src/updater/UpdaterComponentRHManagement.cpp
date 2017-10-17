@@ -1,7 +1,6 @@
 #include "updater/UpdaterComponentRHManagement.h"
 #include "SystemCallWrapper.h"
 #include "NotificationObserver.h"
-#include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "libssh2/include/LibsshController.h"
 
@@ -54,6 +53,6 @@ update_system::CUpdaterComponentRHM::update_internal() {
 
 void
 CUpdaterComponentRHM::update_post_action(bool success) {
-  UNUSED_ARG(success); //do nothing
+  // UNUSED_ARG(success); //do nothing
 }
 ////////////////////////////////////////////////////////////////////////////

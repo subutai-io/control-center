@@ -13,7 +13,6 @@
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
 #include "TrayWebSocketServer.h"
-#include "ApplicationLog.h"
 #include "SettingsManager.h"
 #include "updater/UpdaterComponentTray.h"
 
@@ -84,6 +83,8 @@ main(int argc, char *argv[]) {
   cmd_parser.addPositionalArgument("log_level", "Log level to use in this application");
   cmd_parser.addOption(version_opt);
   cmd_parser.addHelpOption();
+
+/*
   cmd_parser.parse(QApplication::arguments());
 
   CApplicationLog::Instance()->SetDirectory(
@@ -98,7 +99,7 @@ main(int argc, char *argv[]) {
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_ERROR);
   else if (ll == "no" || ll == "3")
     CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_DISABLED);
-
+*/
   if (cmd_parser.isSet(version_opt)) {
     std::cout << TRAY_VERSION << std::endl;
     return 0;

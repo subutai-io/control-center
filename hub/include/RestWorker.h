@@ -15,7 +15,6 @@
 #include <QUrlQuery>
 #include <QString>
 #include <vector>
-#include "ApplicationLog.h"
 #include "RestContainers.h"
 #include "EventLoop.h"
 
