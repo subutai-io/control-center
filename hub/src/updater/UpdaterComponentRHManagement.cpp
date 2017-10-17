@@ -3,6 +3,7 @@
 #include "NotificationObserver.h"
 #include "SettingsManager.h"
 #include "libssh2/include/LibsshController.h"
+#include "Commons.h"
 
 using namespace update_system;
 
