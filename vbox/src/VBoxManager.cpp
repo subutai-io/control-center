@@ -235,8 +235,8 @@ void CVboxManager::start_work() {
       m_version = st_res.out[0];
     }
   } catch (std::exception &exc) {
-    CApplicationLog::Instance()->LogError("CVboxManager::start_work() exc : %s",
-                                          exc.what());
+    /* CApplicationLog::Instance()->LogError("CVboxManager::start_work() exc : %s", exc.what()); */
+    qFatal("CVboxManager::start_work() exc : %s", exc.what());
   }
 
   emit initialized();
