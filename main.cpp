@@ -84,22 +84,6 @@ main(int argc, char *argv[]) {
   cmd_parser.addOption(version_opt);
   cmd_parser.addHelpOption();
 
-/*
-  cmd_parser.parse(QApplication::arguments());
-
-  CApplicationLog::Instance()->SetDirectory(
-        CSettingsManager::Instance().logs_storage().toStdString());
-
-  QString ll = cmd_parser.value(log_level_opt);
-  if(ll == "trace" || ll == "0")
-    CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_TRACE);
-  else if (ll == "info" || ll == "1")
-    CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_INFO);
-  else if (ll == "error" || ll == "2")
-    CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_ERROR);
-  else if (ll == "no" || ll == "3")
-    CApplicationLog::Instance()->SetLogLevel(CApplicationLog::LT_DISABLED);
-*/
   if (cmd_parser.isSet(version_opt)) {
     std::cout << TRAY_VERSION << std::endl;
     return 0;

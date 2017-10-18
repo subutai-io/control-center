@@ -48,7 +48,6 @@ SOURCES += \
     hub/src/DlgNotifications.cpp \
     vbox/src/VBoxManager.cpp \
     vbox/src/VirtualMachine.cpp \
-    commons/src/MRE_Pthread.cpp \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp
