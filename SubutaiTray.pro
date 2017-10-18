@@ -19,7 +19,6 @@ INCLUDEPATH += libssh2/include
 
 SOURCES += \
     main.cpp \
-    commons/src/IFunctor.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/Commons.cpp \
     hub/src/RestWorker.cpp \
@@ -73,17 +72,9 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
     hub/include/updater/UpdaterComponentTray.h \
-    commons/include/FileWrapper.h \
-    commons/include/FunctorWithoutResult.h \
-    commons/include/FunctorWithResult.h \
-    commons/include/IFunctor.h \
     commons/include/InternalCriticalSection.h \
-    commons/include/IRunnable.h \
     commons/include/Locker.h \
-    commons/include/MRE_Wrapper.h \
-    commons/include/ThreadWrapper.h \
     commons/include/Commons.h \
-    commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
     hub/include/updater/UpdaterComponentRHManagement.h \
     hub/include/SshKeysController.h \
@@ -94,7 +85,6 @@ HEADERS  += \
     hub/include/DlgNotifications.h \
     vbox/include/VBoxManager.h \
     vbox/include/VirtualMachine.h \
-    commons/include/MRE_Pthread.h \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h

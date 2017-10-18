@@ -13,12 +13,6 @@ class CCommons {
 public:
   static const char* RESTARTED_ARG;
 
-  static char* CurrentDateFileNameString(void);
-
-  static char* CurrentDateTimeString(void);
-
-  static bool QuitAppFlag;
-
   static QString AppNameTmp(void);
 
   static QString FileMd5(const QString& file_path);
