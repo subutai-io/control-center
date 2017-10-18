@@ -40,8 +40,6 @@ class TabResizeFilter : public QObject {
 ////////////////////////////////////////////////////////////////////////////
 
 static void fill_log_level_combobox(QComboBox* cb) {
-  // for (int i = 0; i <= CApplicationLog::LT_DISABLED; ++i)
-  //   cb->addItem(CApplicationLog::LogLevelToStr((CApplicationLog::LOG_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
