@@ -421,8 +421,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
                             .arg(port);
 
   if (!key.isEmpty()) {
-    qInfo(
-        QString("Using %1 ssh key").arg(key));
+    qInfo() << QString("Using %1 ssh key").arg(key);
     str_command += QString(" -i %1 ").arg(key);
   }
 #endif
