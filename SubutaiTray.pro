@@ -50,7 +50,8 @@ SOURCES += \
     vbox/src/VirtualMachine.cpp \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
-    hub/src/DlgNotification.cpp
+    hub/src/DlgNotification.cpp \
+
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -86,7 +87,8 @@ HEADERS  += \
     vbox/include/VirtualMachine.h \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
-    hub/include/DlgNotification.h
+    hub/include/DlgNotification.h \
+    commons/include/Logger.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -107,8 +109,9 @@ win32: {
   TRAY_VERSION = $$system(type version)
 }
 
-DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
+DEFINES += QT_MESSAGELOGCONTEXT
 
+DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 

@@ -14,6 +14,7 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include "ui_DlgSettings.h"
+#include "Logger.h"
 
 class TabResizeFilter : public QObject {
  private:
@@ -40,7 +41,8 @@ class TabResizeFilter : public QObject {
 ////////////////////////////////////////////////////////////////////////////
 
 static void fill_log_level_combobox(QComboBox* cb) {
-    UNUSED_ARG(cb);
+  for (int i = 0; i <= QtInfoMsg + 1; ++i)
+    cb->addItem(Logger::LogLevelToStr((QtMsgType)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -107,6 +109,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
+
   fill_preferred_notifications_location_combobox(
       ui->cb_preferred_notifications_place);
 
@@ -120,6 +123,10 @@ DlgSettings::DlgSettings(QWidget* parent)
       CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(
       CSettingsManager::Instance().notifications_level());
+  /* temporarily start */
+  ui->cb_log_level->setCurrentIndex(Logger::logLevel());
+  /*temporarily end*/
+
   ui->cb_preferred_notifications_place->setCurrentIndex(
       CSettingsManager::Instance().preferred_notifications_place());
 
@@ -370,7 +377,9 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_notifications_level(
       ui->cb_notification_level->currentIndex());
-
+  /*temporarily start*/
+  Logger::setLogLevel((QtMsgType)ui->cb_log_level->currentIndex());
+  /*temporarily end*/
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
