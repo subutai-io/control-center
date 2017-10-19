@@ -175,7 +175,7 @@ void CSshKeysController::send_data_to_hub() {
       QString key_name = m_lst_key_files[col];
 
       for (int32_t row = 0; row < m_rows; ++row) {
-        if (m_current_ke_matrix[row].size() <= col) {
+        if ((int32_t)m_current_ke_matrix[row].size() <= col) {
           continue;
         }
 
@@ -292,7 +292,7 @@ QStringList CSshKeysController::keys_in_environment(
   bool found = false;
 
   SynchroPrimitives::Locker lock(&csRbm);
-  for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
+  for (row = 0; row < (int32_t)m_lst_healthy_environments.size(); ++row) {
     if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
     break;
