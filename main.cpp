@@ -37,12 +37,14 @@
 
 int
 main(int argc, char *argv[]) {
+
   qInstallMessageHandler(Logger::LoggerMessageOutput);
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
   QSystemSemaphore sema(sem_guid, 1);
   bool is_first;
   sema.acquire();
+
 
   {
     QSharedMemory shmem(shmem_guid);
@@ -85,12 +87,11 @@ main(int argc, char *argv[]) {
   cmd_parser.addPositionalArgument("log_level", "Log level to use in this application");
   cmd_parser.addOption(version_opt);
   cmd_parser.addHelpOption();
-
-
   if (cmd_parser.isSet(version_opt)) {
     std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
+  Logger::Instance()->init();
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();
   qInfo("Tray application %s launched", TRAY_VERSION);

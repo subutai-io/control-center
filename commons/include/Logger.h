@@ -4,6 +4,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QTime>
+#include <QDirIterator>
 #include "SettingsManager.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -24,6 +25,9 @@ public:
     converter[(size_t)QtFatalMsg] = LOG_FATAL;
     currentLogLevel = (LOG_LEVEL)CSettingsManager::Instance().logs_level();
   }
+	void init (){
+		deleteOldLogFiles();
+	}
 
   int logLevel(){
     return (int)currentLogLevel;
@@ -63,7 +67,7 @@ public:
 
     // log output to stdout
     QTextStream stdstream(stdout);
-    stdstream << output_message;
+		stdstream << output_message;
 
     // log output to file
     Logger::Instance()->file.setFileName(QString("%1/logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).arg(QDate::currentDate().toString("yyyy.MM.dd")));
@@ -73,6 +77,26 @@ public:
 
     filestream << output_message;
   }
+
+
+	static void deleteOldLogFiles () {
+		try {
+			static QDate currentDate = QDate::currentDate();
+			static QDirIterator it(CSettingsManager::Instance().logs_storage(), QStringList() << "logs_*.*.*.txt", QDir::Files);
+			static QFile file;
+
+			while (it.hasNext())
+			{
+				QString curFile = it.next();
+				QFileInfo fileInformation(curFile);
+				if (fileInformation.created().date().daysTo(currentDate) > 7) {
+					  file.setFileName(curFile);
+						file.remove();
+				}
+			}
+		} catch(...){}
+	}
+
 
 };
 
