@@ -6,11 +6,14 @@
 #include <QTime>
 #include <QDirIterator>
 #include "SettingsManager.h"
+#include <QTimer>
 
 ////////////////////////////////////////////////////////////////////////////
 
-class Logger
+class Logger : QObject
 {
+  Q_OBJECT
+
 public:
   enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
   LOG_LEVEL currentLogLevel;
@@ -25,7 +28,11 @@ public:
     converter[(size_t)QtFatalMsg] = LOG_FATAL;
     currentLogLevel = (LOG_LEVEL)CSettingsManager::Instance().logs_level();
   }
+
   void init (){
+    QTimer *timer = new QTimer(this);
+    connect(timer , SIGNAL(timeout()), this , SLOT(deleteOldFiles()));
+    timer->start(60 * 60 * 1000);
     deleteOldFiles();
   }
 
@@ -78,7 +85,7 @@ public:
     filestream << output_message;
   }
 
-
+public slots:
 	static void deleteOldFiles () {
 		try {
 			static QDate currentDate = QDate::currentDate();
@@ -90,14 +97,12 @@ public:
 				QString curFile = it.next();
 				QFileInfo fileInformation(curFile);
 				if (fileInformation.created().date().daysTo(currentDate) > 7) {
-						file.setFileName(curFile);
-						file.remove();
+					file.setFileName(curFile);
+					file.remove();
 				}
 			}
 		} catch(...){}
 	}
-
-
 };
 
 
