@@ -41,8 +41,8 @@ class TabResizeFilter : public QObject {
 ////////////////////////////////////////////////////////////////////////////
 
 static void fill_log_level_combobox(QComboBox* cb) {
-  for (int i = 0; i <= QtInfoMsg + 1; ++i)
-    cb->addItem(Logger::LogLevelToStr((QtMsgType)i));
+  for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
+    cb->addItem(Logger::LogLevelToStr((Logger::LOG_LEVEL)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ static void fill_preferred_notifications_location_combobox(QComboBox* cb) {
         (CNotificationObserver::notification_preffered_place_t)i));
 }
 ////////////////////////////////////////////////////////////////////////////
-#include <QDebug>
+
 DlgSettings::DlgSettings(QWidget* parent)
     : QDialog(parent),
       ui(new Ui::DlgSettings),
@@ -376,7 +376,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_notifications_level(
       ui->cb_notification_level->currentIndex());
 
-  Logger::Instance()->setLogLevel((QtMsgType)ui->cb_log_level->currentIndex());
+  Logger::Instance()->setLogLevel((Logger::LOG_LEVEL)ui->cb_log_level->currentIndex());
 
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());

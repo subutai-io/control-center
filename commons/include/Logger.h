@@ -6,59 +6,63 @@
 #include <QTime>
 #include "SettingsManager.h"
 
-#include <QDebug>
-
+////////////////////////////////////////////////////////////////////////////
 
 class Logger
 {
 public:
-  QtMsgType currentLogLevel;
+  enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
+  LOG_LEVEL currentLogLevel;
   QFile file;
+  LOG_LEVEL converter[LOG_DISABLED];
 
-  static Logger* Instance() {
-      static Logger m_instance;
-      return &m_instance;
+  Logger(){
+      converter[QtDebugMsg] = LOG_DEBUG;
+      converter[QtInfoMsg] = LOG_INFO;
+      converter[QtWarningMsg] = LOG_WARNING;
+      converter[QtCriticalMsg] = LOG_CRITICAL;
+      converter[QtFatalMsg] = LOG_FATAL;
   }
 
   int logLevel(){
     return (int)currentLogLevel;
   }
 
-  void setLogLevel(QtMsgType lt) {
+  LOG_LEVEL typeToLevel(QtMsgType type){
+    return converter[(size_t)type];
+  }
+
+  void setLogLevel(LOG_LEVEL lt) {
       currentLogLevel = lt;
   }
 
-  static const QString& LogLevelToStr(QtMsgType lt) {
-    static QString ll_str[] = {"Debug", "Warning", "Critical", "Fatal" , "Info" , "Disabled"};
+  static Logger* Instance() {
+      static Logger m_instance;
+      return &m_instance;
+  }
+
+  static const QString& LogLevelToStr(LOG_LEVEL lt) {
+    static QString ll_str[] = {"Debug", "Info", "Warning", "Critical", "Fatal", "Disabled"};
     return ll_str[lt];
   }
 
   static void LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
   {
-    if ((int)type < Logger::Instance()->logLevel()) // comparing level of msg with currentLogLevel
+    if (Logger::Instance()->typeToLevel(type) < Logger::Instance()->logLevel()) // comparing level of msg with currentLogLevel
       return;
+
+    static QString embedToMessage[] = {"Debug", "Info", "Warning", "Critical", "Fatal", "Disabled"};
+    QString output_message = QString("[%1] [%2:%3] %4: %5 (in function %6)\n")
+                                .arg(QTime::currentTime().toString("HH:mm:ss"))
+                                .arg(context.file)
+                                .arg(context.line)
+                                .arg(embedToMessage[Logger::Instance()->typeToLevel(type)])
+                                .arg(msg)
+                                .arg(context.function);
 
     // log output to stdout
     QTextStream stdstream(stdout);
-    QString timestamp = (QTime::currentTime().toString("HH:mm:ss"));
-
-    switch (type) {
-      case QtDebugMsg: // 0 level
-        stdstream << QString("[%1] [%2:%3] Debug: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtWarningMsg: // 1 level
-        stdstream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtCriticalMsg: // 2 level
-        stdstream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtFatalMsg: // 3 level
-        stdstream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        abort();
-      case QtInfoMsg: // 4 level
-        stdstream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-    }
+    stdstream << output_message;
 
     // log output to file
     Logger::Instance()->file.setFileName(QString("%1\\logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).arg(QDate::currentDate().toString("yyyy.MM.dd")));
@@ -66,23 +70,7 @@ public:
       return;
     QTextStream filestream(&Logger::Instance()->file);
 
-    switch (type) {
-      case QtDebugMsg: // 0 level
-      filestream << QString("[%1] [%2:%3] Debug: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtWarningMsg: // 1 level
-        filestream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtCriticalMsg: // 2 level
-        filestream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-      case QtFatalMsg: // 3 level
-        filestream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        abort();
-      case QtInfoMsg: // 4 level
-        filestream << QString("[%1] [%2:%3] Info: %4 (in function %5)\n").arg(timestamp).arg(context.file).arg(context.line).arg(msg).arg(context.function);
-        break;
-    }
+    filestream << output_message;
   }
 
 };
