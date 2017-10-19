@@ -9,6 +9,7 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include "updater/HubComponentsUpdater.h"
+#include "Logger.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -56,6 +57,7 @@ const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE(
     "Dct_Notifications_Ignored");
 
 const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
+const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS(
     "Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE(
@@ -130,6 +132,7 @@ CSettingsManager::CSettingsManager()
       m_terminal_arg(default_term_arg()),
       m_vboxmanage_path(vboxmanage_command_str()),
       m_notifications_level(CNotificationObserver::NL_INFO),
+      m_logs_level(Logger::LOG_DEBUG),
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
@@ -188,6 +191,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
       {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
+      {(void*)&m_logs_level, SM_LOGS_LEVEL, qvar_to_int},
       {(void*)&m_preferred_notifications_place,
        SM_PREFERRED_NOTIFICATIONS_PLACE, qvar_to_int},
 
@@ -464,6 +468,7 @@ SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
 SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
+SET_FIELD_DEF(logs_level, SM_LOGS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
