@@ -87,10 +87,12 @@ main(int argc, char *argv[]) {
   cmd_parser.addHelpOption();
 
   QString ll_str[] = {"Debug", "Info", "Warning", "Critical", "Fatal", "Disabled"};
+
   QString ll = cmd_parser.value(log_level_opt);
-  for (int i = 0 ; i <= Logger::LOG_DISABLED ; ++i){
+  for (int i = 0 ; i <= Logger::LOG_DISABLED ; ++i) {
     if (ll == ll_str[i] || ll == QString::number(i)) {
-        Logger::Instance()->setLogLevel((Logger::LOG_LEVEL)i);
+      Logger::Instance()->setLogLevel((Logger::LOG_LEVEL)i);
+      CSettingsManager::Instance().set_logs_level((uint32_t)i);
     }
   }
 

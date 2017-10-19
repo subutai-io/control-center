@@ -22,6 +22,7 @@ public:
     converter[(size_t)QtWarningMsg] = LOG_WARNING;
     converter[(size_t)QtCriticalMsg] = LOG_CRITICAL;
     converter[(size_t)QtFatalMsg] = LOG_FATAL;
+    currentLogLevel = (LOG_LEVEL)CSettingsManager::Instance().logs_level();
   }
 
   int logLevel(){

@@ -123,7 +123,7 @@ DlgSettings::DlgSettings(QWidget* parent)
       CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(
       CSettingsManager::Instance().notifications_level());
-  ui->cb_log_level->setCurrentIndex(Logger::Instance()->logLevel());
+  ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
       CSettingsManager::Instance().preferred_notifications_place());
@@ -375,9 +375,10 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_notifications_level(
       ui->cb_notification_level->currentIndex());
+
   CSettingsManager::Instance().set_logs_level(
       ui->cb_log_level->currentIndex());
-
+  Logger::Instance()->setLogLevel((Logger::LOG_LEVEL)ui->cb_log_level->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
