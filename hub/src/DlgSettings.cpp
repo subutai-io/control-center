@@ -66,7 +66,7 @@ static void fill_preferred_notifications_location_combobox(QComboBox* cb) {
         (CNotificationObserver::notification_preffered_place_t)i));
 }
 ////////////////////////////////////////////////////////////////////////////
-
+#include <QDebug>
 DlgSettings::DlgSettings(QWidget* parent)
     : QDialog(parent),
       ui(new Ui::DlgSettings),
@@ -123,9 +123,7 @@ DlgSettings::DlgSettings(QWidget* parent)
       CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(
       CSettingsManager::Instance().notifications_level());
-  /* temporarily start */
-  ui->cb_log_level->setCurrentIndex(Logger::logLevel());
-  /*temporarily end*/
+  ui->cb_log_level->setCurrentIndex(Logger::Instance()->logLevel());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
       CSettingsManager::Instance().preferred_notifications_place());
@@ -377,9 +375,9 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_notifications_level(
       ui->cb_notification_level->currentIndex());
-  /*temporarily start*/
-  Logger::setLogLevel((QtMsgType)ui->cb_log_level->currentIndex());
-  /*temporarily end*/
+
+  Logger::Instance()->setLogLevel((QtMsgType)ui->cb_log_level->currentIndex());
+
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 

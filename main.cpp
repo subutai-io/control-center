@@ -74,7 +74,7 @@ main(int argc, char *argv[]) {
   QCommandLineParser cmd_parser;
   cmd_parser.setApplicationDescription("This tray application should help users to work with hub");
   QCommandLineOption log_level_opt("l",
-                                   "Log level can be TRACE (0), INFO (1) and ERROR (2). Trace is most detailed logs.",
+                                   "Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO (4). Trace is most detailed logs.",
                                    "log_level",
                                    "1");
   QCommandLineOption version_opt("v",
@@ -85,6 +85,13 @@ main(int argc, char *argv[]) {
   cmd_parser.addPositionalArgument("log_level", "Log level to use in this application");
   cmd_parser.addOption(version_opt);
   cmd_parser.addHelpOption();
+  QString ll_str[] = {"Debug", "Warning", "Critical", "Fatal" , "Info" , "Disabled"};
+  QString ll = cmd_parser.value(log_level_opt);
+  for (int i = 0 ; i < QtInfoMsg + 1 ; ++i){
+    if (ll == ll_str[i] || ll == QString::number(i)) {
+        Logger::Instance()->setLogLevel((QtMsgType)i);
+    }
+  }
 
   if (cmd_parser.isSet(version_opt)) {
     std::cout << TRAY_VERSION << std::endl;
