@@ -34,4 +34,4 @@ sed -i -e "s/{SIZE_PLACEHOLDER}/$mbsize/g" ./flat/Distribution
 ( cd root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > flat/base.pkg/Payload
 ( cd scripts && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > flat/base.pkg/Scripts
 mkbom -u 0 -g 80 root flat/base.pkg/Bom
-( cd flat && xar --compression none -cf "../SubutaiTray-$version-Installer.pkg" * )
+( cd flat && xar --compression none -cf "../subutai-tray.pkg" * )

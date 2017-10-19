@@ -95,16 +95,21 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static const int def_timeout = 20;
-static const QString settings_file = "subutai_tray.ini";
+static const int DEFAULT_REFRESH_TIMEOUT_SEC = 20;
+static QString settingsFilePath() {
+  static const QString settings_file = "subutai_tray.ini";
+  QStringList lst_home =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return (lst_home.empty() ? QApplication::applicationDirPath() : lst_home[0])
+      + QDir::separator() + settings_file;
+}
+////////////////////////////////////////////////////////////////////////////
 
 CSettingsManager::CSettingsManager()
-    : m_settings(QApplication::applicationDirPath() + QDir::separator() +
-                     settings_file,
-                 QSettings::IniFormat),
+    : m_settings(settingsFilePath(), QSettings::IniFormat),
       m_password_str(""),
       m_remember_me(false),
-      m_refresh_time_sec(def_timeout),
+      m_refresh_time_sec(DEFAULT_REFRESH_TIMEOUT_SEC),
       m_p2p_path(default_p2p_path()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
@@ -211,7 +216,7 @@ CSettingsManager::CSettingsManager()
   bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
     uint32_t timeout = m_settings.value(SM_REFRESH_TIME).toUInt(&ok);
-    m_refresh_time_sec = ok ? timeout : def_timeout;
+    m_refresh_time_sec = ok ? timeout : DEFAULT_REFRESH_TIMEOUT_SEC;
   }
 
   if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {
