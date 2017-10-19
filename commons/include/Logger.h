@@ -17,11 +17,11 @@ public:
   LOG_LEVEL converter[LOG_DISABLED];
 
   Logger(){
-      converter[QtDebugMsg] = LOG_DEBUG;
-      converter[QtInfoMsg] = LOG_INFO;
-      converter[QtWarningMsg] = LOG_WARNING;
-      converter[QtCriticalMsg] = LOG_CRITICAL;
-      converter[QtFatalMsg] = LOG_FATAL;
+    converter[(size_t)QtDebugMsg] = LOG_DEBUG;
+    converter[(size_t)QtInfoMsg] = LOG_INFO;
+    converter[(size_t)QtWarningMsg] = LOG_WARNING;
+    converter[(size_t)QtCriticalMsg] = LOG_CRITICAL;
+    converter[(size_t)QtFatalMsg] = LOG_FATAL;
   }
 
   int logLevel(){
@@ -33,12 +33,12 @@ public:
   }
 
   void setLogLevel(LOG_LEVEL lt) {
-      currentLogLevel = lt;
+    currentLogLevel = lt;
   }
 
   static Logger* Instance() {
-      static Logger m_instance;
-      return &m_instance;
+    static Logger m_instance;
+    return &m_instance;
   }
 
   static const QString& LogLevelToStr(LOG_LEVEL lt) {
@@ -66,7 +66,7 @@ public:
 
     // log output to file
     Logger::Instance()->file.setFileName(QString("%1\\logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).arg(QDate::currentDate().toString("yyyy.MM.dd")));
-    if (!Logger::Instance()->file.open(QIODevice::Append)) // if file doesn't exist
+    if (!Logger::Instance()->file.open(QIODevice::Append)) // if directory doesn't exist
       return;
     QTextStream filestream(&Logger::Instance()->file);
 
