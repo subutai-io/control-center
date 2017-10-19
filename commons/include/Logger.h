@@ -66,7 +66,7 @@ public:
     stdstream << output_message;
 
     // log output to file
-    Logger::Instance()->file.setFileName(QString("%1\\logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).arg(QDate::currentDate().toString("yyyy.MM.dd")));
+    Logger::Instance()->file.setFileName(QString("%1/logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).arg(QDate::currentDate().toString("yyyy.MM.dd")));
     if (!Logger::Instance()->file.open(QIODevice::Append)) // if directory doesn't exist
       return;
     QTextStream filestream(&Logger::Instance()->file);
