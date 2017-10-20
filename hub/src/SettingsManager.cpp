@@ -378,7 +378,6 @@ void CSettingsManager::set_password(const QString& password) {
 void CSettingsManager::set_logs_storage(const QString& logs_storage) {
   m_logs_storage = logs_storage;
   m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
-  // CApplicationLog::Instance()->SetDirectory(m_logs_storage.toStdString());
 }
 ////////////////////////////////////////////////////////////////////////////
 
