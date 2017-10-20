@@ -21,8 +21,7 @@ const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
-const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC(
-    "Notification_Delay_Sec");
+const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
@@ -40,27 +39,22 @@ const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 const QString CSettingsManager::SM_P2P_UPDATE_FREQ("P2p_update_freq");
 const QString CSettingsManager::SM_RH_UPDATE_FREQ("Rh_update_freq");
 const QString CSettingsManager::SM_TRAY_UPDATE_FREQ("Tray_update_freq");
-const QString CSettingsManager::SM_RHMANAGEMENT_FREQ(
-    "Rh_management_update_freq");
+const QString CSettingsManager::SM_RHMANAGEMENT_FREQ("Rh_management_update_freq");
 const QString CSettingsManager::SM_P2P_AUTOUPDATE("P2p_Autoupdate");
 const QString CSettingsManager::SM_RH_AUTOUPDATE("Rh_Autoupdate");
 const QString CSettingsManager::SM_TRAY_AUTOUPDATE("Tray_Autoupdate");
-const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE(
-    "Rh_Management_Autoupdate");
+const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoupdate");
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
 const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
-const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE(
-    "Dct_Notifications_Ignored");
+const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE("Dct_Notifications_Ignored");
 
 const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
-const QString CSettingsManager::SM_USE_ANIMATIONS(
-    "Use_Animations_On_Standard_Dialogs");
-const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE(
-    "Preffered_Notifications_Place");
+const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
+const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
@@ -96,17 +90,38 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 ////////////////////////////////////////////////////////////////////////////
 
 static const int DEFAULT_REFRESH_TIMEOUT_SEC = 20;
-static QString settingsFilePath() {
+static QString settings_file_path() {
   static const QString settings_file = "subutai_tray.ini";
-  QStringList lst_home =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-  return (lst_home.empty() ? QApplication::applicationDirPath() : lst_home[0])
-      + QDir::separator() + settings_file;
+  QStringList lst_config=
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  do {
+    if (lst_config.empty())
+      break;
+
+    QString dir_path = lst_config[0] + QDir::separator() + "subutai";
+    QDir dir_config(dir_path);
+    if (!dir_config.exists()) {
+      if (!dir_config.mkdir(dir_path)) {
+        //todo log this
+        break;
+      }
+    }
+
+    QFileInfo fi(dir_path);
+    if (!fi.isWritable()) {
+      //todo log this
+      break;
+    }
+
+    return dir_path + QDir::separator() + settings_file;
+  } while (false);
+
+  return QApplication::applicationDirPath() + QDir::separator() + settings_file;
 }
 ////////////////////////////////////////////////////////////////////////////
 
 CSettingsManager::CSettingsManager()
-    : m_settings(settingsFilePath(), QSettings::IniFormat),
+    : m_settings(settings_file_path(), QSettings::IniFormat),
       m_password_str(""),
       m_remember_me(false),
       m_refresh_time_sec(DEFAULT_REFRESH_TIMEOUT_SEC),
