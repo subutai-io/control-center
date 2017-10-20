@@ -9,6 +9,7 @@
 #include "NotificationObserver.h"
 #include "DownloadFileManager.h"
 #include "OsBranchConsts.h"
+#include "Commons.h"
 
 using namespace update_system;
 
@@ -50,7 +51,7 @@ CUpdaterComponentTray::update_internal() {
                                       tray_kurjun_file_name());
 
   if (fi.empty()) {
-    CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
     return CHUE_NOT_ON_KURJUN;
   }
 

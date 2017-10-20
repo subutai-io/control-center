@@ -49,6 +49,7 @@ class CSettingsManager : public QObject {
   static const QString SM_VBOXMANAGE_PATH;
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
+  static const QString SM_LOGS_LEVEL;
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
@@ -103,6 +104,7 @@ class CSettingsManager : public QObject {
   QString m_vboxmanage_path;
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
+  uint32_t m_logs_level;
 
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
@@ -203,6 +205,7 @@ class CSettingsManager : public QObject {
   bool use_animations() const { return m_use_animations; }
 
   uint32_t notifications_level() const { return m_notifications_level; }
+  uint32_t logs_level() const { return m_logs_level; }
   uint32_t preferred_notifications_place() const {
     return m_preferred_notifications_place;
   }
@@ -262,6 +265,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(vboxmanage_path, QString&)
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
+  SET_FIELD_DECL(logs_level, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
   SET_FIELD_DECL(autostart, bool)

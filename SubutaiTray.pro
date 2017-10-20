@@ -19,9 +19,6 @@ INCLUDEPATH += libssh2/include
 
 SOURCES += \
     main.cpp \
-    commons/src/EventLoop.cpp \
-    commons/src/IFunctor.cpp \
-    commons/src/ApplicationLog.cpp \
     commons/src/InternalCriticalSection.cpp \
     commons/src/Commons.cpp \
     hub/src/RestWorker.cpp \
@@ -51,10 +48,11 @@ SOURCES += \
     hub/src/DlgNotifications.cpp \
     vbox/src/VBoxManager.cpp \
     vbox/src/VirtualMachine.cpp \
-    commons/src/MRE_Pthread.cpp \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
-    hub/src/DlgNotification.cpp
+    hub/src/DlgNotification.cpp \
+    commons/src/Logger.cpp
+
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -75,21 +73,9 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
     hub/include/updater/UpdaterComponentTray.h \
-    commons/include/ApplicationLog.h \
-    commons/include/EventLoop.h \
-    commons/include/EventLoopException.h \
-    commons/include/EventLoopExceptionInfo.h \
-    commons/include/FileWrapper.h \
-    commons/include/FunctorWithoutResult.h \
-    commons/include/FunctorWithResult.h \
-    commons/include/IFunctor.h \
     commons/include/InternalCriticalSection.h \
-    commons/include/IRunnable.h \
     commons/include/Locker.h \
-    commons/include/MRE_Wrapper.h \
-    commons/include/ThreadWrapper.h \
     commons/include/Commons.h \
-    commons/include/MRE_Windows.h \
     libssh2/include/LibsshController.h \
     hub/include/updater/UpdaterComponentRHManagement.h \
     hub/include/SshKeysController.h \
@@ -100,10 +86,10 @@ HEADERS  += \
     hub/include/DlgNotifications.h \
     vbox/include/VBoxManager.h \
     vbox/include/VirtualMachine.h \
-    commons/include/MRE_Pthread.h \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
-    hub/include/DlgNotification.h
+    hub/include/DlgNotification.h \
+    commons/include/Logger.h
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -124,8 +110,9 @@ win32: {
   TRAY_VERSION = $$system(type version)
 }
 
-DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
+DEFINES += QT_MESSAGELOGCONTEXT
 
+DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
