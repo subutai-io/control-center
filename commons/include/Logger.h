@@ -13,17 +13,11 @@ class Logger : QObject
 public:
   enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
 
-  LOG_LEVEL currentLogLevel;
-
   LOG_LEVEL converter[LOG_DISABLED];
 
   void init ();
 
-  LOG_LEVEL logLevel();
-
   LOG_LEVEL typeToLevel(QtMsgType type);
-
-  void setLogLevel(LOG_LEVEL lt);
 
   static Logger* Instance();
 

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::init (){
   converter[(size_t)QtDebugMsg] = LOG_DEBUG;
@@ -16,7 +16,6 @@ void Logger::init (){
   converter[(size_t)QtWarningMsg] = LOG_WARNING;
   converter[(size_t)QtCriticalMsg] = LOG_CRITICAL;
   converter[(size_t)QtFatalMsg] = LOG_FATAL;
-  currentLogLevel = (LOG_LEVEL)CSettingsManager::Instance().logs_level();
 
   QTimer *timer = new QTimer(this);
   connect(timer , SIGNAL(timeout()), this , SLOT(deleteOldFiles()));
@@ -24,43 +23,31 @@ void Logger::init (){
   deleteOldFiles();
 }
 
-////////////////////////////////////////////////////////
-
-Logger::LOG_LEVEL Logger::logLevel(){
-  return currentLogLevel;
-}
-
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::LOG_LEVEL Logger::typeToLevel(QtMsgType type){
   return converter[(size_t)type];
 }
 
-////////////////////////////////////////////////////////
-
-void Logger::setLogLevel(LOG_LEVEL lt) {
-  currentLogLevel = lt;
-}
-
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger* Logger::Instance() {
   static Logger m_instance;
   return &m_instance;
 }
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& Logger::LogLevelToStr(LOG_LEVEL lt) {
   static QString ll_str[] = {"Debug", "Info", "Warning", "Critical", "Fatal", "Disabled"};
   return ll_str[lt];
 }
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-  if (Logger::Instance()->typeToLevel(type) < Logger::Instance()->logLevel()) // comparing level of msg with currentLogLevel
+  if (Logger::Instance()->typeToLevel(type) < (Logger::LOG_LEVEL)CSettingsManager::Instance().logs_level()) // comparing level of msg with currentLogLevel
     return;
 
   static QString embedToMessage[] = {"Debug", "Info", "Warning", "Critical", "Fatal", "Disabled"};
@@ -84,7 +71,7 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
   filestream << output_message;
 }
 
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::deleteOldFiles () {
   try {
