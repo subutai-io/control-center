@@ -646,8 +646,7 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "status";
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
-
+  system_call_res_t res = ssystem_th(cmd, args, true, false, 5000);
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     for (auto i = res.out.begin(); i != res.out.end(); ++i) status += *i;
   } else {

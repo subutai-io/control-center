@@ -8,5 +8,5 @@ Homepage: https://subut.ai
 
 Package: subutai-tray
 Architecture: any
-Depends: libssh2-1, libssh2-1-dev, ${shlibs:Depends}, ${misc:Depends}
+Depends: gksu, libssh2-1, ${shlibs:Depends}, ${misc:Depends}
 Description: Subutai Tray Application 

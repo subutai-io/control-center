@@ -522,7 +522,7 @@ void TrayControlWindow::launch_Hub() {
 void TrayControlWindow::launch_ss_triggered() {
   QAction* act = qobject_cast<QAction*>(sender());
   act->setEnabled(false);
-  launch_ss();
+  QtConcurrent::run(this, &TrayControlWindow::launch_ss);
 }
 ////////////////////////////////////////////////////////////////////////////
 

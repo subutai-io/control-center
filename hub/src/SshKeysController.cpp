@@ -96,7 +96,7 @@ void CSshKeysController::rebuild_bit_matrix() {
 
   QStringList lst_key_content = m_lst_key_content;
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
-  rows = lst_he.size();
+  rows = (uint32_t)lst_he.size();
   cols = lst_key_content.size();
 
   tmpMatrix.reserve(rows);
@@ -175,7 +175,7 @@ void CSshKeysController::send_data_to_hub() {
       QString key_name = m_lst_key_files[col];
 
       for (int32_t row = 0; row < m_rows; ++row) {
-        if (m_current_ke_matrix[row].size() <= col) {
+        if ((int32_t)m_current_ke_matrix[row].size() <= col) {
           continue;
         }
 
@@ -292,7 +292,7 @@ QStringList CSshKeysController::keys_in_environment(
   bool found = false;
 
   SynchroPrimitives::Locker lock(&csRbm);
-  for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
+  for (row = 0; row < (int32_t)m_lst_healthy_environments.size(); ++row) {
     if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
     break;
