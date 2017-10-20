@@ -11,14 +11,6 @@
 
 const char* CCommons::RESTARTED_ARG = "restarted";
 
-static const char* date_format = "%d.%m.%Y.txt";
-static char date_str_buffer[15];
-////////////////////////////////////////////////////////////////////////////
-
-static const char* date_time_format = "%d.%m.%Y %H:%M:%S";
-static char date_time_str_buffer[20];
-////////////////////////////////////////////////////////////////////////////
-
 QString
 CCommons::FileMd5(const QString &file_path) {
   QFile f(file_path);
