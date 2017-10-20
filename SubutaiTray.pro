@@ -51,6 +51,7 @@ SOURCES += \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp \
+    commons/src/Logger.cpp
 
 
 HEADERS  += \
