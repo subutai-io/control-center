@@ -341,7 +341,7 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
 void TrayControlWindow::notification_received(
     CNotificationObserver::notification_level_t level, const QString& msg) {
   if (CSettingsManager::Instance().is_notification_ignored(msg) ||
-      level < CSettingsManager::Instance().notifications_level()) {
+      (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
     return;
   }
 
