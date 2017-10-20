@@ -96,7 +96,7 @@ void CSshKeysController::rebuild_bit_matrix() {
 
   QStringList lst_key_content = m_lst_key_content;
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
-  rows = lst_he.size();
+  rows = (uint32_t)lst_he.size();
   cols = lst_key_content.size();
 
   tmpMatrix.reserve(rows);

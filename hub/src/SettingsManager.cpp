@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QUuid>
-
+#include  <QDebug>
 #include "ApplicationLog.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -112,7 +112,7 @@ static QString settings_file_path() {
       //todo log this
       break;
     }
-
+qDebug() << dir_path;
     return dir_path + QDir::separator() + settings_file;
   } while (false);
 

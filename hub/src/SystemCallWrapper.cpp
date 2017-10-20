@@ -271,7 +271,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       system_call_res_t cr2;
       QStringList args2;
       args2 << sh_path << tmpFilePath;
-      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, 60000);
+      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         CApplicationLog::Instance()->LogError(
