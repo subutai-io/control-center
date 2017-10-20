@@ -357,7 +357,7 @@ void CHubController::launch_balance_page() {
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = QString("Launch hub website with google chrome failed");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
@@ -366,7 +366,7 @@ void CHubController::launch_balance_page() {
       QString err_msg =
           QString("Launch hub website with default browser failed");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
     }
   }
 }
@@ -404,7 +404,7 @@ void CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
     if (err != SCWE_SUCCESS) {
       QString err_msg = QString("Failed to join to p2p network. Error : %1")
                             .arg(CSystemCallWrapper::scwe_error_to_str(err));
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
       return;
     }
@@ -483,7 +483,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     QString err_msg = QString("Run SSH failed. Error code : %1")
                           .arg(CSystemCallWrapper::scwe_error_to_str(err));
     CNotificationObserver::Error(err_msg);
-    qCritical(err_msg.toStdString().c_str());
+    qCritical("%s", err_msg.toStdString().c_str());
     emit ssh_to_container_finished((int)SLE_SYSTEM_CALL_FAILED,
                                    m_additional_data);
     return;

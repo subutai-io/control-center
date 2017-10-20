@@ -505,7 +505,7 @@ void TrayControlWindow::launch_Hub() {
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = QString("Launch hub website via google chrome failed");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
@@ -513,7 +513,7 @@ void TrayControlWindow::launch_Hub() {
       QString err_msg =
           QString("Launch hub website via default browser failed");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
     }
   }
 }
@@ -678,7 +678,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = QString(
           "Run subutai console via chrome failed. Couldn't start process");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
@@ -687,7 +687,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
           "Run subutai console via default browser failed. Couldn't start "
           "process");
       CNotificationObserver::Error(err_msg);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
     }
   }
 }

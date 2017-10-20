@@ -95,7 +95,7 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
                                        hash.toStdString().c_str());
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
     CNotificationObserver::Error(error_strings[res.res]);
-    qCritical(
+    qCritical("%s",
         error_strings[res.res].toStdString().c_str());
     return false;
   }
@@ -139,7 +139,7 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
     if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
       QString err_msg = res.out.at(0);
-      qCritical(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       res.res = SCWE_CANT_JOIN_SWARM;
     }
 
