@@ -58,11 +58,11 @@ main(int argc, char *argv[]) {
   }
   sema.release();
 
-  Logger::Instance()->Init();
-  qInstallMessageHandler(Logger::LoggerMessageOutput);
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
+  Logger::Instance()->Init();
+  qInstallMessageHandler(Logger::LoggerMessageOutput);
 
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
     QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Already running",
