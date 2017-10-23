@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QDebug>
 
 #include "Commons.h"
 #include "DlgSettings.h"
@@ -17,21 +18,21 @@
 #include "Logger.h"
 
 class TabResizeFilter : public QObject {
- private:
+private:
   QTabWidget* m_target;
 
   static void expandingTypeStyleSheet(QTabWidget* tw) {
     int w = tw->width() - tw->count();  // don't know why. but looks OK only
-                                        // with this -tw->count(). MAGIC!!!
+    // with this -tw->count(). MAGIC!!!
     int wb = floor(w / (tw->count() * 1.0));
     int ws = w - wb * (tw->count() - 1);
     tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
                               "QTabBar::tab:selected {width : %2px;}")
-                          .arg(wb)
-                          .arg(ws));
+                      .arg(wb)
+                      .arg(ws));
   }
 
- public:
+public:
   TabResizeFilter(QTabWidget* target) : QObject(target), m_target(target) {}
   bool eventFilter(QObject*, QEvent* ev) {
     if (ev->type() == QEvent::Resize) expandingTypeStyleSheet(m_target);
@@ -49,54 +50,54 @@ static void fill_log_level_combobox(QComboBox* cb) {
 static void fill_notifications_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= CNotificationObserver::NL_CRITICAL; ++i)
     cb->addItem(CNotificationObserver::notification_level_to_str(
-        (CNotificationObserver::notification_level_t)i));
+                  (CNotificationObserver::notification_level_t)i));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 static void fill_freq_combobox(QComboBox* cb) {
   for (int i = 0; i < CSettingsManager::UF_LAST; ++i)
     cb->addItem(CSettingsManager::update_freq_to_str(
-        (CSettingsManager::update_freq_t)i));
+                  (CSettingsManager::update_freq_t)i));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 static void fill_preferred_notifications_location_combobox(QComboBox* cb) {
   for (int i = 0; i < CNotificationObserver::NPP_LAST; ++i)
     cb->addItem(CNotificationObserver::notifications_preffered_place_to_str(
-        (CNotificationObserver::notification_preffered_place_t)i));
+                  (CNotificationObserver::notification_preffered_place_t)i));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 DlgSettings::DlgSettings(QWidget* parent)
-    : QDialog(parent),
-      ui(new Ui::DlgSettings),
-      m_tab_resize_filter(nullptr),
-      m_model_resource_hosts(nullptr),
-      m_refresh_rh_list_progress_val(0) {
+  : QDialog(parent),
+    ui(new Ui::DlgSettings),
+    m_tab_resize_filter(nullptr),
+    m_model_resource_hosts(nullptr),
+    m_refresh_rh_list_progress_val(0) {
   ui->setupUi(this);
   ui->sb_refresh_timeout->setValue(
-      CSettingsManager::Instance().refresh_time_sec());
+        CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
   ui->sb_notification_delay->setMinimum(
-      CSettingsManager::NOTIFICATION_DELAY_MIN);
+        CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(
-      CSettingsManager::NOTIFICATION_DELAY_MAX);
+        CSettingsManager::NOTIFICATION_DELAY_MAX);
   ui->sb_notification_delay->setValue(
-      CSettingsManager::Instance().notification_delay_sec());
+        CSettingsManager::Instance().notification_delay_sec());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
   ui->le_rhip_password->setText(CSettingsManager::Instance().rh_pass());
   ui->le_rhip_port->setText(
-      QString("%1").arg(CSettingsManager::Instance().rh_port()));
+        QString("%1").arg(CSettingsManager::Instance().rh_port()));
   ui->le_rhip_user->setText(CSettingsManager::Instance().rh_user());
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
-      CSettingsManager::Instance().ssh_keys_storage());
+        CSettingsManager::Instance().ssh_keys_storage());
   ui->le_vboxmanage_command->setText(
-      CSettingsManager::Instance().vboxmanage_path());
+        CSettingsManager::Instance().vboxmanage_path());
   ui->le_ssh_keygen_command->setText(
-      CSettingsManager::Instance().ssh_keygen_cmd());
+        CSettingsManager::Instance().ssh_keygen_cmd());
 
   ui->le_rtm_db_folder->setText(CSettingsManager::Instance().rtm_db_dir());
   ui->le_rtm_db_folder->setVisible(false);
@@ -111,31 +112,22 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_log_level_combobox(ui->cb_log_level);
 
   fill_preferred_notifications_location_combobox(
-      ui->cb_preferred_notifications_place);
+        ui->cb_preferred_notifications_place);
 
-  ui->cb_p2p_frequency->setCurrentIndex(
-      CSettingsManager::Instance().p2p_update_freq());
-  ui->cb_rh_frequency->setCurrentIndex(
-      CSettingsManager::Instance().rh_update_freq());
-  ui->cb_tray_frequency->setCurrentIndex(
-      CSettingsManager::Instance().tray_update_freq());
-  ui->cb_rhm_frequency->setCurrentIndex(
-      CSettingsManager::Instance().rh_management_update_freq());
-  ui->cb_notification_level->setCurrentIndex(
-      CSettingsManager::Instance().notifications_level());
+  ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
+  ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
+  ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
+  ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
+  ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
-      CSettingsManager::Instance().preferred_notifications_place());
+        CSettingsManager::Instance().preferred_notifications_place());
 
-  ui->chk_p2p_autoupdate->setChecked(
-      CSettingsManager::Instance().p2p_autoupdate());
-  ui->chk_rh_autoupdate->setChecked(
-      CSettingsManager::Instance().rh_autoupdate());
-  ui->chk_tray_autoupdate->setChecked(
-      CSettingsManager::Instance().tray_autoupdate());
-  ui->chk_rhm_autoupdate->setChecked(
-      CSettingsManager::Instance().rh_management_autoupdate());
+  ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
+  ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
+  ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
+  ui->chk_rhm_autoupdate->setChecked(CSettingsManager::Instance().rh_management_autoupdate());
 
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
@@ -156,7 +148,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   m_refresh_rh_list_timer.setInterval(1000);
 
   ui->chk_use_animations->setChecked(
-      CSettingsManager::Instance().use_animations());
+        CSettingsManager::Instance().use_animations());
   ui->chk_autostart->setChecked(CSettingsManager::Instance().autostart());
 
   rebuild_rh_list_model();
@@ -260,55 +252,53 @@ void DlgSettings::btn_ok_released() {
   }
 
   field_validator_t<QLineEdit> le_validators[] = {
-      {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
 
-      {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
-      {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
-      {ui->le_ssh_keys_storage, folder_has_write_permission, 0,
-       folder_permission_validator_msg},
+    {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_ssh_keys_storage, folder_has_write_permission, 0,
+     folder_permission_validator_msg},
 
-      {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
-      {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
-      {ui->le_logs_storage, folder_has_write_permission, 0,
-       folder_permission_validator_msg},
+    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_logs_storage, folder_has_write_permission, 0,
+     folder_permission_validator_msg},
 
-      {ui->le_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
-      {ui->le_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
-      {ui->le_rtm_db_folder, folder_has_write_permission, 0,
-       folder_permission_validator_msg},
+    {ui->le_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_rtm_db_folder, folder_has_write_permission, 0,
+     folder_permission_validator_msg},
 
-      {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
-      {ui->le_p2p_command, can_launch_application, 1,
-       can_launch_application_msg},
+    {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_p2p_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-      {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
-      {ui->le_ssh_command, can_launch_application, 1,
-       can_launch_application_msg},
+    {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-      {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
-      {ui->le_terminal_cmd, can_launch_application, 1,
-       can_launch_application_msg},
+    {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_terminal_cmd, can_launch_application, 1,
+     can_launch_application_msg},
+    {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-      {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_keygen_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-      {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
-      {ui->le_vboxmanage_command, can_launch_application, 1,
-       can_launch_application_msg},
+    {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
 
-      {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
-      {ui->le_ssh_keygen_command, can_launch_application, 1,
-       can_launch_application_msg},
-
-      {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
-      {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
-      {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
-      {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
-
-      {NULL, NULL, -1, ""}};
+    {NULL, NULL, -1, ""}};
 
   std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
-
   field_validator_t<QLineEdit>* tmp = le_validators;
+
   do {
     if (!tmp->fc->isVisible()) continue;
     if (tmp->f_validator(tmp->fc)) continue;
@@ -317,31 +307,45 @@ void DlgSettings::btn_ok_released() {
 
   if (!lst_failed_validators.empty()) {
     QMessageBox* msg_box =
-        new QMessageBox(QMessageBox::Question, "Attention! Wrong settings",
+        new QMessageBox(QMessageBox::Question, tr("Attention! Wrong settings"),
                         QString("You have %1 wrong settings. "
                                 "Would you like to correct it? "
                                 "Yes - try to correct, No - save anyway")
-                            .arg(lst_failed_validators.size()),
+                        .arg(lst_failed_validators.size()),
                         QMessageBox::Yes | QMessageBox::No);
-    connect(msg_box, &QMessageBox::finished, msg_box,
-            &QMessageBox::deleteLater);
+    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+
     if (msg_box->exec() == QMessageBox::Yes) {
       ui->tabWidget->setCurrentIndex(lst_failed_validators[0].tab_index);
       lst_failed_validators[0].fc->setFocus();
       QToolTip::showText(lst_failed_validators[0].fc->mapToGlobal(QPoint()),
-                         lst_failed_validators[0].validator_msg);
+          lst_failed_validators[0].validator_msg);
       return;
     }
   }  // if !lst_failed_validators.empty()
 
+
+  QString recommendedArg;
+  if (!CCommons::RecommendedTerminalArg(ui->le_terminal_cmd->text(),
+                                       recommendedArg)) {
+    QMessageBox *msg_box =
+        new QMessageBox(QMessageBox::Question, tr("Attention! Wrong terminal argument"),
+                        QString("Recommended argument for %1 is %2. Would you like to change it?")
+                        .arg(ui->le_terminal_cmd->text()).arg(recommendedArg));
+    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Yes) {
+      ui->le_terminal_arg->setText(recommendedArg);
+    }
+  }
+
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
   CSettingsManager::Instance().set_ssh_keys_storage(
-      ui->le_ssh_keys_storage->text());
+        ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_vboxmanage_path(
-      ui->le_vboxmanage_command->text());
+        ui->le_vboxmanage_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
@@ -349,43 +353,43 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_rh_user(ui->le_rhip_user->text());
 
   CSettingsManager::Instance().set_refresh_time_sec(
-      ui->sb_refresh_timeout->value());
+        ui->sb_refresh_timeout->value());
   CSettingsManager::Instance().set_notification_delay_sec(
-      ui->sb_notification_delay->value());
+        ui->sb_notification_delay->value());
 
   CSettingsManager::Instance().set_p2p_autoupdate(
-      ui->chk_p2p_autoupdate->checkState() == Qt::Checked);
+        ui->chk_p2p_autoupdate->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_rh_autoupdate(
-      ui->chk_rh_autoupdate->checkState() == Qt::Checked);
+        ui->chk_rh_autoupdate->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_tray_autoupdate(
-      ui->chk_tray_autoupdate->checkState() == Qt::Checked);
+        ui->chk_tray_autoupdate->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_rh_management_autoupdate(
-      ui->chk_rhm_autoupdate->checkState() == Qt::Checked);
+        ui->chk_rhm_autoupdate->checkState() == Qt::Checked);
 
   CSettingsManager::Instance().set_p2p_update_freq(
-      ui->cb_p2p_frequency->currentIndex());
+        ui->cb_p2p_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_update_freq(
-      ui->cb_rh_frequency->currentIndex());
+        ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(
-      ui->cb_tray_frequency->currentIndex());
+        ui->cb_tray_frequency->currentIndex());
   CSettingsManager::Instance().set_rh_management_freq(
-      ui->cb_rhm_frequency->currentIndex());
+        ui->cb_rhm_frequency->currentIndex());
   CSettingsManager::Instance().set_preferred_notifications_place(
-      ui->cb_preferred_notifications_place->currentIndex());
+        ui->cb_preferred_notifications_place->currentIndex());
 
   CSettingsManager::Instance().set_notifications_level(
-      ui->cb_notification_level->currentIndex());
+        ui->cb_notification_level->currentIndex());
 
   CSettingsManager::Instance().set_logs_level(
-      ui->cb_log_level->currentIndex());
+        ui->cb_log_level->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
   CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().set_use_animations(
-      ui->chk_use_animations->checkState() == Qt::Checked);
+        ui->chk_use_animations->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_ssh_keygen_cmd(
-      ui->le_ssh_keygen_command->text());
+        ui->le_ssh_keygen_command->text());
   CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() ==
                                              Qt::Checked);
   CSettingsManager::Instance().save_all();

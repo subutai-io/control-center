@@ -95,3 +95,39 @@ CCommons::IsApplicationLaunchable(const QString &file_path) {
   return fi2.exists() && fi2.isExecutable();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+static std::map<QString, QString> dct_term_arg = {
+  //linux
+  {"xterm", "-e"},
+  {"terminator", "-e"},
+  {"gnome-terminal", "-x bash -x"},
+  {"mate-terminal", "-x bash -c"},
+  {"xfce4-terminal", "-x -bash -c"},
+  {"guake", "-e"},
+  {"konsole", "-e"},
+};
+
+const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
+bool
+CCommons::RecommendedTerminalArg(const QString &terminalCmd,
+                                 QString& recommendedArg) {
+  QString cmd = terminalCmd;
+  QFileInfo fi(terminalCmd);
+  if (fi.exists())
+    cmd = fi.fileName();
+
+  if (dct_term_arg.find(cmd) != dct_term_arg.end()) {
+    recommendedArg = dct_term_arg.at(cmd);
+    return true;
+  }
+  return false;
+}
+
+QStringList
+CCommons::DefaultTerminals() {
+  QStringList lst_res;
+  for (auto i : dct_term_arg)
+    lst_res << i.first;
+  return lst_res;
+}
+////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 #include "SystemCallWrapper.h"
 #include "updater/HubComponentsUpdater.h"
 #include "Logger.h"
+#include "Commons.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -250,17 +251,28 @@ CSettingsManager::CSettingsManager()
 
   // which using
   QString* cmd_which[] = {&m_vboxmanage_path, &m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path,        &m_terminal_cmd,   nullptr};
-
-  const QString default_values[] = {vboxmanage_command_str(),
-                                    ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                    default_p2p_path(), default_terminal()};
+                          &m_p2p_path, nullptr};
+  static const QString default_values[] = {vboxmanage_command_str(),
+                                           ssh_keygen_cmd_path(), ssh_cmd_path(),
+                                           default_p2p_path()};
 
   QString tmp;
   for (int i = 0; cmd_which[i]; ++i) {
     if (*cmd_which[i] != default_values[i]) continue;
     if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) continue;
     *cmd_which[i] = tmp;
+  }  
+
+  //terminal and it's arguments
+  if (m_terminal_cmd == default_terminal()) {
+    QStringList terms = CCommons::DefaultTerminals();
+    for (QString term : terms) {
+      if (CSystemCallWrapper::which(term, tmp) != SCWE_SUCCESS) continue;
+      if (!CCommons::IsApplicationLaunchable(tmp)) continue;
+      m_terminal_cmd = term;
+      CCommons::RecommendedTerminalArg(term, m_terminal_arg);
+      break;
+    }
   }
 
   CSystemCallWrapper::set_application_autostart(m_autostart);
