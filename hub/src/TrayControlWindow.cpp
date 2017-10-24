@@ -90,8 +90,9 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &CHubComponentsUpdater::update_available, this,
           &TrayControlWindow::update_available);
 
-  connect(m_sys_tray_icon, &QSystemTrayIcon::activated,
-          this, &TrayControlWindow::tray_icon_is_pressed);
+  if (is_windows())
+    connect(m_sys_tray_icon, &QSystemTrayIcon::activated,
+            this, &TrayControlWindow::tray_icon_is_pressed_windows);
 
   CHubController::Instance().force_refresh();
   login_success();
@@ -340,9 +341,9 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
   dst_y = src_y;
 }
 
-void TrayControlWindow::tray_icon_is_pressed(QSystemTrayIcon::ActivationReason reason) {
-  if (reason == QSystemTrayIcon::Trigger && m_sys_tray_icon->contextMenu()->isHidden()) {
-    m_sys_tray_icon->contextMenu()->show();
+void TrayControlWindow::tray_icon_is_pressed_windows(QSystemTrayIcon::ActivationReason reason) {
+  if (reason == QSystemTrayIcon::Trigger) {
+     m_sys_tray_icon->contextMenu()->show();
   }
 }
 

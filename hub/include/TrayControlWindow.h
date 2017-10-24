@@ -147,7 +147,7 @@ private:
                                      int &dst_x, int &dst_y, int dlg_w, int dlg_h,
                                      bool use_cursor_position);
   void fill_launch_menu();  
-  void tray_icon_is_pressed(QSystemTrayIcon::ActivationReason reason);
+  void tray_icon_is_pressed_windows(QSystemTrayIcon::ActivationReason reason);
   /*tray icon end*/
 
   void launch_ss();
