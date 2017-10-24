@@ -15,9 +15,7 @@
 #include <QUrlQuery>
 #include <QString>
 #include <vector>
-#include "ApplicationLog.h"
 #include "RestContainers.h"
-#include "EventLoop.h"
 
 typedef enum rest_error {
   RE_SUCCESS = 0,

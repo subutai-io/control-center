@@ -3,13 +3,14 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QUuid>
+#include  <QDebug>
 
-#include "ApplicationLog.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include "updater/HubComponentsUpdater.h"
+#include "Logger.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -21,8 +22,7 @@ const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 
-const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC(
-    "Notification_Delay_Sec");
+const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
@@ -40,27 +40,23 @@ const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 const QString CSettingsManager::SM_P2P_UPDATE_FREQ("P2p_update_freq");
 const QString CSettingsManager::SM_RH_UPDATE_FREQ("Rh_update_freq");
 const QString CSettingsManager::SM_TRAY_UPDATE_FREQ("Tray_update_freq");
-const QString CSettingsManager::SM_RHMANAGEMENT_FREQ(
-    "Rh_management_update_freq");
+const QString CSettingsManager::SM_RHMANAGEMENT_FREQ("Rh_management_update_freq");
 const QString CSettingsManager::SM_P2P_AUTOUPDATE("P2p_Autoupdate");
 const QString CSettingsManager::SM_RH_AUTOUPDATE("Rh_Autoupdate");
 const QString CSettingsManager::SM_TRAY_AUTOUPDATE("Tray_Autoupdate");
-const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE(
-    "Rh_Management_Autoupdate");
+const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoupdate");
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
 const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
-const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE(
-    "Dct_Notifications_Ignored");
+const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE("Dct_Notifications_Ignored");
 
 const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
-const QString CSettingsManager::SM_USE_ANIMATIONS(
-    "Use_Animations_On_Standard_Dialogs");
-const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE(
-    "Preffered_Notifications_Place");
+const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
+const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
+const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
@@ -95,16 +91,42 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static const int def_timeout = 20;
-static const QString settings_file = "subutai_tray.ini";
+static const int DEFAULT_REFRESH_TIMEOUT_SEC = 20;
+static QString settings_file_path() {
+  static const QString settings_file = "subutai_tray.ini";
+  QStringList lst_config=
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  do {
+    if (lst_config.empty())
+      break;
+
+    QString dir_path = lst_config[0] + QDir::separator() + "subutai";
+    QDir dir_config(dir_path);
+    if (!dir_config.exists()) {
+      if (!dir_config.mkdir(dir_path)) {
+        //todo log this
+        break;
+      }
+    }
+
+    QFileInfo fi(dir_path);
+    if (!fi.isWritable()) {
+      //todo log this
+      break;
+    }
+qDebug() << dir_path;
+    return dir_path + QDir::separator() + settings_file;
+  } while (false);
+
+  return QApplication::applicationDirPath() + QDir::separator() + settings_file;
+}
+////////////////////////////////////////////////////////////////////////////
 
 CSettingsManager::CSettingsManager()
-    : m_settings(QApplication::applicationDirPath() + QDir::separator() +
-                     settings_file,
-                 QSettings::IniFormat),
+    : m_settings(settings_file_path(), QSettings::IniFormat),
       m_password_str(""),
       m_remember_me(false),
-      m_refresh_time_sec(def_timeout),
+      m_refresh_time_sec(DEFAULT_REFRESH_TIMEOUT_SEC),
       m_p2p_path(default_p2p_path()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
@@ -131,6 +153,7 @@ CSettingsManager::CSettingsManager()
       m_terminal_arg(default_term_arg()),
       m_vboxmanage_path(vboxmanage_command_str()),
       m_notifications_level(CNotificationObserver::NL_INFO),
+      m_logs_level(Logger::LOG_DEBUG),
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
@@ -189,6 +212,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
       {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
+      {(void*)&m_logs_level, SM_LOGS_LEVEL, qvar_to_int},
       {(void*)&m_preferred_notifications_place,
        SM_PREFERRED_NOTIFICATIONS_PLACE, qvar_to_int},
 
@@ -211,7 +235,7 @@ CSettingsManager::CSettingsManager()
   bool ok = false;
   if (!m_settings.value(SM_REFRESH_TIME).isNull()) {
     uint32_t timeout = m_settings.value(SM_REFRESH_TIME).toUInt(&ok);
-    m_refresh_time_sec = ok ? timeout : def_timeout;
+    m_refresh_time_sec = ok ? timeout : DEFAULT_REFRESH_TIMEOUT_SEC;
   }
 
   if (!m_settings.value(SM_NOTIFICATION_DELAY_SEC).isNull()) {
@@ -271,7 +295,7 @@ static const uint32_t pass_magic2 = 0xedff019b;
 
 void CSettingsManager::init_password() {
   if (m_password.isEmpty()) {
-    CApplicationLog::Instance()->LogError("Password array is empty");
+    qCritical("Password array is empty");
     return;
   }
 
@@ -298,7 +322,7 @@ void CSettingsManager::init_password() {
     ba = ba.mid(1);  // remove random byte
 
     if (ba.length() < 20) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "Decryption error. ba.length() < 20");
       break;
     }
@@ -309,7 +333,7 @@ void CSettingsManager::init_password() {
     hash.addData(ba);
 
     if (hash.result() != st_h) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "Decryption error. hash.result() != stored_hash");
       break;
     }
@@ -354,7 +378,6 @@ void CSettingsManager::set_password(const QString& password) {
 void CSettingsManager::set_logs_storage(const QString& logs_storage) {
   m_logs_storage = logs_storage;
   m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
-  CApplicationLog::Instance()->SetDirectory(m_logs_storage.toStdString());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -465,6 +488,7 @@ SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
 SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
+SET_FIELD_DEF(logs_level, SM_LOGS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)

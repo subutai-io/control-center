@@ -1,6 +1,5 @@
 #include <QFile>
 #include "Commons.h"
-#include "ApplicationLog.h"
 #include "NotificationObserver.h"
 #include "updater/ExecutableUpdater.h"
 
@@ -36,22 +35,22 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
            QFile::ReadOther | QFile::ExeOther ; // 0x0755 :)
   }
 
-  CApplicationLog::Instance()->LogTrace("dst : %s", m_dst_file_str.toStdString().c_str());
-  CApplicationLog::Instance()->LogTrace("tmp : %s", tmp.toStdString().c_str());
-  CApplicationLog::Instance()->LogTrace("src : %s", m_src_file_str.toStdString().c_str());
+  qInfo("dst : %s", m_dst_file_str.toStdString().c_str());
+  qInfo("tmp : %s", tmp.toStdString().c_str());
+  qInfo("src : %s", m_src_file_str.toStdString().c_str());
 
   do {    
     if (dst.exists()) {
       QFile ftmp(tmp);
       if (ftmp.exists() && !ftmp.remove()) {
-        CApplicationLog::Instance()->LogError("remove tmp file %s failed. %s",
+        qCritical("remove tmp file %s failed. %s",
                                               tmp.toStdString().c_str(),
                                               ftmp.errorString().toStdString().c_str());
         break;
       }
 
       if (!(replaced &= dst.rename(tmp))) {
-        CApplicationLog::Instance()->LogError("rename %s to %s failed. %s",
+        qCritical("rename %s to %s failed. %s",
                                               m_dst_file_str.toStdString().c_str(),
                                               tmp.toStdString().c_str(),
                                               dst.errorString().toStdString().c_str());
@@ -60,7 +59,7 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
     }
 
     if (!(replaced &= src.copy(m_dst_file_str))) {
-      CApplicationLog::Instance()->LogError("copy %s to %s failed. %s",
+      qCritical("copy %s to %s failed. %s",
                                             m_src_file_str.toStdString().c_str(),
                                             m_dst_file_str.toStdString().c_str(),
                                             src.errorString().toStdString().c_str());
@@ -69,7 +68,7 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
 
 #ifndef RT_OS_WINDOWS
     if (!(replaced &= dst.setPermissions(m_dst_file_str, perm))) {
-      CApplicationLog::Instance()->LogError("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
+      qCritical("set permission to file %s failed", m_dst_file_str.toStdString().c_str());
       break;
     }
 #endif

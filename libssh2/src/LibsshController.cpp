@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <libssh2.h>
+#include <Commons.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -20,7 +21,6 @@
 #include <stdlib.h>
 
 #include "libssh2/include/LibsshController.h"
-#include "ApplicationLog.h"
 
 CLibsshController::CSshInitializer CLibsshController::m_initializer;
 
@@ -53,7 +53,7 @@ CLibsshController::CSshInitializer::CSshInitializer()
 #ifdef WIN32
     WSADATA wsadata;
     if (int err = WSAStartup(MAKEWORD(2, 0), &wsadata) != 0) {
-      CApplicationLog::Instance()->LogError("WSAStartup failed with error: %d", err);
+      qCritical ("WSAStartup failed with error: %d", err);
       result = RLE_WSA_STARTUP;
       break;
     }
