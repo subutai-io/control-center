@@ -340,9 +340,10 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
   dst_y = src_y;
 }
 
-void TrayControlWindow::tray_icon_is_pressed(QSystemTrayIcon::ActivationReason reason){
-  if (reason == QSystemTrayIcon::Trigger)
+void TrayControlWindow::tray_icon_is_pressed(QSystemTrayIcon::ActivationReason reason) {
+  if (reason == QSystemTrayIcon::Trigger && m_sys_tray_icon->contextMenu()->isHidden()) {
     m_sys_tray_icon->contextMenu()->show();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
