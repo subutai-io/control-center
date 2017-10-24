@@ -147,7 +147,7 @@ private:
                                      int &dst_x, int &dst_y, int dlg_w, int dlg_h,
                                      bool use_cursor_position);
   void fill_launch_menu();  
-  void tray_icon_is_pressed_windows(QSystemTrayIcon::ActivationReason reason);
+
   /*tray icon end*/
 
   void launch_ss();
@@ -193,6 +193,9 @@ private slots:
   /*updater*/
   void update_available(QString file_id);
   void update_finished(QString file_id, bool success);
+
+public slots:
+  void tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason);
 };
 ////////////////////////////////////////////////////////////////////////////
 #endif // TRAYCONTROLWINDOW_H

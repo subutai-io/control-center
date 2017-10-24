@@ -469,23 +469,5 @@ const QString &
 p2p_package_url() {
   return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
-////////////////////////////////////////////////////////////////////////////
 
-template<class OS> const bool is_windows_internal();
-
-#define is_windows_def(OS_TYPE , BOOLEAN) \
-  template<> \
-  const bool is_windows_internal<Os2Type<OS_TYPE>>() { \
-    static bool res(BOOLEAN); \
-    return res; \
-  }
-
-is_windows_def(OS_LINUX, false)
-is_windows_def(OS_MAC, false)
-is_windows_def(OS_WIN, true)
-
-const bool
-is_windows() {
-  return is_windows_internal<Os2Type<CURRENT_OS> >();
-}
 ////////////////////////////////////////////////////////////////////////////
