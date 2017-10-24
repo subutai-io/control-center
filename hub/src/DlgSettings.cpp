@@ -326,15 +326,18 @@ void DlgSettings::btn_ok_released() {
 
 
   QString recommendedArg;
-  if (!CCommons::RecommendedTerminalArg(ui->le_terminal_cmd->text(),
-                                       recommendedArg)) {
-    QMessageBox *msg_box =
-        new QMessageBox(QMessageBox::Question, tr("Attention! Wrong terminal argument"),
-                        QString("Recommended argument for %1 is %2. Would you like to change it?")
-                        .arg(ui->le_terminal_cmd->text()).arg(recommendedArg));
-    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-    if (msg_box->exec() == QMessageBox::Yes) {
-      ui->le_terminal_arg->setText(recommendedArg);
+  if (CCommons::HasRecommendedTerminalArg(ui->le_terminal_cmd->text(),
+                                          recommendedArg)) {
+    if (recommendedArg != ui->le_terminal_arg->text()) {
+      QMessageBox *msg_box =
+          new QMessageBox(QMessageBox::Question, tr("Attention! Wrong terminal argument"),
+                          QString("Recommended argument for %1 is %2. Would you like to change it?")
+                          .arg(ui->le_terminal_cmd->text()).arg(recommendedArg),
+                          QMessageBox::Yes | QMessageBox::No);
+      connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+      if (msg_box->exec() == QMessageBox::Yes) {
+        ui->le_terminal_arg->setText(recommendedArg);
+      }
     }
   }
 

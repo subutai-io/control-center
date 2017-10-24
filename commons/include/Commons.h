@@ -20,7 +20,7 @@ public:
   static bool IsApplicationLaunchable(const QString& file_path);
 
   static const QString TERMINAL_WRONG_ARG;
-  static bool RecommendedTerminalArg(const QString& terminalCmd,
+  static bool HasRecommendedTerminalArg(const QString& terminalCmd,
                                      QString &recommendedArg);
   static QStringList DefaultTerminals();
 };

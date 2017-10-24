@@ -270,7 +270,7 @@ CSettingsManager::CSettingsManager()
       if (CSystemCallWrapper::which(term, tmp) != SCWE_SUCCESS) continue;
       if (!CCommons::IsApplicationLaunchable(tmp)) continue;
       m_terminal_cmd = term;
-      CCommons::RecommendedTerminalArg(term, m_terminal_arg);
+      CCommons::HasRecommendedTerminalArg(term, m_terminal_arg);
       break;
     }
   }

@@ -109,7 +109,7 @@ static std::map<QString, QString> dct_term_arg = {
 
 const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
 bool
-CCommons::RecommendedTerminalArg(const QString &terminalCmd,
+CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
                                  QString& recommendedArg) {
   QString cmd = terminalCmd;
   QFileInfo fi(terminalCmd);
