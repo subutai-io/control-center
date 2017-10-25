@@ -27,6 +27,38 @@
 
 using namespace update_system;
 
+
+template<class OS> static inline void
+InitTrayIconTriggerHandler_internal(QSystemTrayIcon* icon,
+                                    TrayControlWindow* win);
+
+template<>
+static inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_WIN> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    QObject::connect(icon, &QSystemTrayIcon::activated,
+                     win, &TrayControlWindow::tray_icon_is_activated_sl);
+}
+
+template<>
+static inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_LINUX> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    UNUSED_ARG(icon);
+    UNUSED_ARG(win);
+}
+
+template<>
+static inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_MAC> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    UNUSED_ARG(icon);
+    UNUSED_ARG(win);
+}
+
+void InitTrayIconTriggerHandler(QSystemTrayIcon *icon,
+                                TrayControlWindow *win) {
+  InitTrayIconTriggerHandler_internal<Os2Type<CURRENT_OS> >(icon, win);
+}
+
+
 TrayControlWindow::TrayControlWindow(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::TrayControlWindow),
@@ -90,6 +122,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &CHubComponentsUpdater::update_available, this,
           &TrayControlWindow::update_available);
 
+  InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
 }
@@ -249,6 +282,7 @@ void TrayControlWindow::create_tray_actions() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+
 void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
@@ -336,6 +370,15 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
   src_y = icon_y < adh / 2 ? dy : adh - dy - dlg_h;
   dst_y = src_y;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason) {
+  if (reason == QSystemTrayIcon::Trigger) {
+    m_sys_tray_icon->contextMenu()->exec(QPoint(QCursor::pos().x() ,QCursor::pos().y()));
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(
