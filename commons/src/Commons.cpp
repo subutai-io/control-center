@@ -100,11 +100,17 @@ static std::map<QString, QString> dct_term_arg = {
   //linux
   {"xterm", "-e"},
   {"terminator", "-e"},
-  {"gnome-terminal", "-x bash -x"},
+  {"gnome-terminal", "-x bash -c"},
   {"mate-terminal", "-x bash -c"},
-  {"xfce4-terminal", "-x -bash -c"},
+  {"xfce4-terminal", "-x bash -c"},
   {"guake", "-e"},
-  {"konsole", "-e"},
+  {"kterm", "-e bash -c"},
+  {"konsole", "-e bash -c"},
+  {"termit", "-e bash -c"},
+  {"roxterm", "-e bash -c"},
+  {"rxvt", "-e bash -c"},
+  {"evilvte", "-e bash -c"},
+  {"aterm", "-e bash -c"},
 };
 
 const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
