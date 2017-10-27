@@ -8,8 +8,7 @@ mkdir -p debian/SubutaiTray/lib
 cp ~/SRC/tray/resources/Tray_icon_set-07.png debian/icons
 
 cp subutai_tray_bin/SubutaiTray debian/SubutaiTray/bin
-#todo get libs from ldd and copy to debian/SubutaiTray/lib
-cp ~/libicu52/* debian/SubutaiTray/lib/
+./dependencies.sh subutai_tray_bin/SubutaiTray debian/SubutaiTray/lib/
 
 cd debian
 tar zcvf SubutaiTray.tar.gz SubutaiTray
