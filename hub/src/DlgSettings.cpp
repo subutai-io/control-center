@@ -317,8 +317,8 @@ void DlgSettings::btn_ok_released() {
 
   if (!lst_failed_validators.empty()) {
     QMessageBox* msg_box =
-        new QMessageBox(QMessageBox::Question, "Attention! Wrong settings",
-                        QString("You have %1 wrong settings. "
+        new QMessageBox(QMessageBox::Question, tr("Attention! Wrong settings"),
+                        tr("You have %1 wrong settings. "
                                 "Would you like to correct it? "
                                 "Yes - try to correct, No - save anyway")
                             .arg(lst_failed_validators.size()),
@@ -432,14 +432,14 @@ void DlgSettings::btn_logs_storage_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ssh_keys_storage_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "SSH-keys storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("SSH-keys storage"));
   if (dir == "") return;
   ui->le_ssh_keys_storage->setText(dir);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_rtm_db_folder_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "DB storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("DB storage"));
   if (dir == "") return;
   ui->le_rtm_db_folder->setText(dir);
 }

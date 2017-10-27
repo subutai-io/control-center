@@ -219,7 +219,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
   // that means that about network error notified RestWorker.
   if (err_code && err_code != RE_NETWORK_ERROR) {
     QString err_msg =
-        QString("Refresh environments error : %1")
+        tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg);
     return;
@@ -355,7 +355,7 @@ void CHubController::launch_balance_page() {
     args << QString(hub_billing_url()).arg(m_user_id);
 
     if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = QString("Launch hub website with google chrome failed");
+      QString err_msg = tr("Launch hub website with google chrome failed");
       CNotificationObserver::Error(err_msg);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
@@ -364,7 +364,7 @@ void CHubController::launch_balance_page() {
     if (!QDesktopServices::openUrl(
             QUrl(QString(hub_billing_url()).arg(m_user_id)))) {
       QString err_msg =
-          QString("Launch hub website with default browser failed");
+          tr("Launch hub website with default browser failed");
       CNotificationObserver::Error(err_msg);
       qCritical("%s", err_msg.toStdString().c_str());
     }
@@ -430,7 +430,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
       return;
     }
 
-    CNotificationObserver::Info("Checking container. Please, wait");
+    CNotificationObserver::Info(tr("Checking container. Please, wait"));
     static const int MAX_ATTEMTS_COUNT = 25;
     for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
       err = CSystemCallWrapper::check_container_state(m_env_hash, cip.ip);
@@ -439,9 +439,9 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     }
 
     if (err != SCWE_SUCCESS) {
-      CNotificationObserver::Error(
+      CNotificationObserver::Error(tr(
           "Failed to run SSH because container isn't ready. Try little bit "
-          "later.");
+          "later."));
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -461,8 +461,8 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
           fi.baseName();
 
     if (key.isEmpty()) {
-      CNotificationObserver::Error(
-          "Failed to retrieve environment key. Try to restart application");
+      CNotificationObserver::Error(tr(
+          "Failed to retrieve environment key. Try to restart application"));
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -480,7 +480,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
       key.toStdString().c_str());
 
   if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Run SSH failed. Error code : %1")
+    QString err_msg = tr("Run SSH failed. Error code : %1")
                           .arg(CSystemCallWrapper::scwe_error_to_str(err));
     CNotificationObserver::Error(err_msg);
     qCritical("%s", err_msg.toStdString().c_str());

@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <exception>
 #include <QProcess>
+#include <QTranslator>
 #include <string>
 #include "TrayControlWindow.h"
 #include "DlgLogin.h"
@@ -64,9 +65,16 @@ main(int argc, char *argv[]) {
   Logger::Instance()->Init();
   qInstallMessageHandler(Logger::LoggerMessageOutput);
 
+  QTranslator translator;
+  //QString locale = QLocale::system().name();
+  //qInfo("Locale chose %s", locale.toStdString().c_str());
+  //translator.load("SubutaiTray_" + locale, app.applicationDirPath());
+  translator.load("SubutaiTray_ru_RU");
+  app.installTranslator(&translator);
+
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
-    QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, "Already running",
-                        "One instance of tray application is already running",
+    QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Already running"),
+                        QObject::tr("One instance of tray application is already running"),
                         QMessageBox::Ok);
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
@@ -74,7 +82,7 @@ main(int argc, char *argv[]) {
   }
 
   QCommandLineParser cmd_parser;
-  cmd_parser.setApplicationDescription("This tray application should help users to work with hub");
+  cmd_parser.setApplicationDescription(QObject::tr("This tray application should help users to work with hub"));
   QCommandLineOption log_level_opt("l",
                                    "Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO (4). Trace is most detailed logs.",
                                    "log_level",
@@ -128,7 +136,7 @@ main(int argc, char *argv[]) {
       TrayControlWindow tcw;
 
       if (!CSystemCallWrapper::p2p_daemon_check()) {
-        CNotificationObserver::Error(QString("Can't operate without the p2p daemon. "
+        CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
                                              "You can get the [production|dev|stage] daemon from <a href=\"%1\">here</a>.").
                                      arg(p2p_package_url()));

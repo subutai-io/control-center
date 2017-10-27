@@ -91,6 +91,9 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h
 
+TRANSLATIONS = SubutaiTray_en_US.ts \
+               SubutaiTray_ru_RU.ts
+
 FORMS    += \
     hub/forms/DlgLogin.ui \
     hub/forms/DlgSettings.ui \
