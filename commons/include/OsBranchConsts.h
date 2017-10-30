@@ -58,5 +58,4 @@ const QString& subutai_command();
 const QString& snap_p2p_path();
 
 const QString& p2p_package_url();
-
 #endif // OSBRANCHCONSTS_H

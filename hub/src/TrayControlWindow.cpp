@@ -27,6 +27,38 @@
 
 using namespace update_system;
 
+
+template<class OS> static inline void
+InitTrayIconTriggerHandler_internal(QSystemTrayIcon* icon,
+                                    TrayControlWindow* win);
+
+template<>
+inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_WIN> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    QObject::connect(icon, &QSystemTrayIcon::activated,
+                     win, &TrayControlWindow::tray_icon_is_activated_sl);
+}
+
+template<>
+inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_LINUX> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    UNUSED_ARG(icon);
+    UNUSED_ARG(win);
+}
+
+template<>
+inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_MAC> >(
+        QSystemTrayIcon *icon, TrayControlWindow *win) {
+    UNUSED_ARG(icon);
+    UNUSED_ARG(win);
+}
+
+void InitTrayIconTriggerHandler(QSystemTrayIcon *icon,
+                                TrayControlWindow *win) {
+  InitTrayIconTriggerHandler_internal<Os2Type<CURRENT_OS> >(icon, win);
+}
+
+
 TrayControlWindow::TrayControlWindow(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::TrayControlWindow),
@@ -90,6 +122,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &CHubComponentsUpdater::update_available, this,
           &TrayControlWindow::update_available);
 
+  InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
 }
@@ -249,6 +282,7 @@ void TrayControlWindow::create_tray_actions() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+
 void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
@@ -336,6 +370,15 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
   src_y = icon_y < adh / 2 ? dy : adh - dy - dlg_h;
   dst_y = src_y;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason) {
+  if (reason == QSystemTrayIcon::Trigger) {
+    m_sys_tray_icon->contextMenu()->exec(QPoint(QCursor::pos().x() ,QCursor::pos().y()));
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(
@@ -658,14 +701,11 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
     qCritical(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
+        "Can't get RH IP address. Err : %s",
+        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
         QString("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str(
-                (run_libssh2_error_t)scwe))
-            .arg(ec));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     return;
   }
 
@@ -760,19 +800,15 @@ void TrayControlWindow::launch_ss() {
     QString tmp =
         QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str());
     // after that got_ss_console_readiness_sl will be called
-    qInfo("launch_ss : %s",
-                                         tmp.toStdString().c_str());
+    qInfo("launch_ss : %s", tmp.toStdString().c_str());
     CRestWorker::Instance()->check_if_ss_console_is_ready(tmp);
   } else {
     qCritical(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
+        "Can't get RH IP address. Err : %s",
+        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
-        QString("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str(
-                (run_libssh2_error_t)scwe))
-            .arg(ec));
+        QString("Can't get RH IP address. Error : %1")
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     m_act_launch_SS->setEnabled(true);
   }
 }

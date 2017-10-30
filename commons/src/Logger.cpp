@@ -24,7 +24,7 @@ Logger::~Logger() {
 Logger::LOG_LEVEL Logger::typeToLevel(QtMsgType type) {
   static LOG_LEVEL converter[] = {LOG_DEBUG, LOG_WARNING,
                                  LOG_CRITICAL, LOG_FATAL, LOG_INFO};
-  return converter[(size_t)type];
+  return converter[type];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

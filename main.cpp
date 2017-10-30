@@ -95,7 +95,6 @@ main(int argc, char *argv[]) {
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();
   qInfo("Tray application %s launched", TRAY_VERSION);
-
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
 

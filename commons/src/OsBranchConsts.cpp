@@ -469,4 +469,5 @@ const QString &
 p2p_package_url() {
   return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
+
 ////////////////////////////////////////////////////////////////////////////
