@@ -700,14 +700,11 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
   } else {
     qCritical(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
+        "Can't get RH IP address. Err : %s",
+        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
         tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str(
-                (run_libssh2_error_t)scwe))
-            .arg(ec));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     return;
   }
 
@@ -802,19 +799,14 @@ void TrayControlWindow::launch_ss() {
     QString tmp =
         QString("https://%1:8443/rest/v1/peer/ready").arg(rh_ip.c_str());
     // after that got_ss_console_readiness_sl will be called
-    qInfo("launch_ss : %s",
-                                         tmp.toStdString().c_str());
+    qInfo("launch_ss : %s", tmp.toStdString().c_str());
     CRestWorker::Instance()->check_if_ss_console_is_ready(tmp);
   } else {
     qCritical(
-        "Can't get RH IP address. Err : %s, exit_code : %d",
-        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)scwe),
-        ec);
-    CNotificationObserver::Info(
-        tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str(
-                (run_libssh2_error_t)scwe))
-            .arg(ec));
+        "Can't get RH IP address. Err : %s",
+        CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
+    CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     m_act_launch_SS->setEnabled(true);
   }
 }

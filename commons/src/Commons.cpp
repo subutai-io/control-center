@@ -95,3 +95,45 @@ CCommons::IsApplicationLaunchable(const QString &file_path) {
   return fi2.exists() && fi2.isExecutable();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+static std::map<QString, QString> dct_term_arg = {
+  //linux
+  {"xterm", "-e"},
+  {"terminator", "-e"},
+  {"gnome-terminal", "-x bash -c"},
+  {"mate-terminal", "-x bash -c"},
+  {"xfce4-terminal", "-x bash -c"},
+  {"guake", "-e"},
+  {"kterm", "-e bash -c"},
+  {"konsole", "-e bash -c"},
+  {"termit", "-e bash -c"},
+  {"roxterm", "-e bash -c"},
+  {"rxvt", "-e bash -c"},
+  {"evilvte", "-e bash -c"},
+  {"aterm", "-e bash -c"},
+};
+
+const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
+bool
+CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
+                                 QString& recommendedArg) {
+  QString cmd = terminalCmd;
+  QFileInfo fi(terminalCmd);
+  if (fi.exists())
+    cmd = fi.fileName();
+
+  if (dct_term_arg.find(cmd) != dct_term_arg.end()) {
+    recommendedArg = dct_term_arg.at(cmd);
+    return true;
+  }
+  return false;
+}
+
+QStringList
+CCommons::DefaultTerminals() {
+  QStringList lst_res;
+  for (auto i : dct_term_arg)
+    lst_res << i.first;
+  return lst_res;
+}
+////////////////////////////////////////////////////////////////////////////
