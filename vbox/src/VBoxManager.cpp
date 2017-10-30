@@ -10,7 +10,7 @@ static const int VBOXMANAGE_TIMEOUT = 5000;
 
 CVboxManager::CVboxManager(QObject *parent) :
   QObject(parent),
-  m_version("Couldn't get VBox version, sorry"),
+  m_version(tr("Couldn't get VBox version, sorry")),
   m_refresh_timer(nullptr) {}
 
 CVboxManager::~CVboxManager() {

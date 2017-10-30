@@ -79,12 +79,12 @@ CUpdaterComponentTray::update_internal() {
 void
 CUpdaterComponentTray::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Error("Tray application has not been updated");
+    CNotificationObserver::Error(tr("Tray application has not been updated"));
     return;
   }
 
-  QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, "Attention! Tray update finished",
-                      "Tray application has been updated. Do you want to restart it now?",
+  QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, tr("Attention! Tray update finished"),
+                      tr("Tray application has been updated. Do you want to restart it now?"),
                       QMessageBox::Yes | QMessageBox::No);
   connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::No)

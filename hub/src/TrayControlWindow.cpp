@@ -276,7 +276,7 @@ void TrayControlWindow::create_tray_actions() {
   connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
 
   m_act_notifications_history = new QAction(
-      QIcon(":hub/notifications_history.png"), "Notifications history", this);
+      QIcon(":hub/notifications_history.png"), tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
 }
@@ -524,15 +524,14 @@ void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
 
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
-      QString("Update for %1 is available. Check \"About\" dialog")
-          .arg(file_id));
+      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_finished(QString file_id, bool success) {
   if (!success) {
     CNotificationObserver::Error(
-        QString("Failed to update %1. See details in error logs").arg(file_id));
+        tr("Failed to update %1. See details in error logs").arg(file_id));
     return;
   }
 }
@@ -546,7 +545,7 @@ void TrayControlWindow::launch_Hub() {
     args << hub_site();
 
     if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = QString("Launch hub website via google chrome failed");
+      QString err_msg = tr("Launch hub website via google chrome failed");
       CNotificationObserver::Error(err_msg);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
@@ -554,7 +553,7 @@ void TrayControlWindow::launch_Hub() {
   } else {
     if (!QDesktopServices::openUrl(QUrl(hub_site()))) {
       QString err_msg =
-          QString("Launch hub website via default browser failed");
+          tr("Launch hub website via default browser failed");
       CNotificationObserver::Error(err_msg);
       qCritical("%s", err_msg.toStdString().c_str());
     }
@@ -615,7 +614,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
         CNotificationObserver::Info(
-            QString("Environment %1 became healthy").arg(env->name()));
+            tr("Environment %1 became healthy").arg(env->name()));
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
@@ -663,7 +662,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   str_statuses += lst_unhealthy_env_statuses[lst_unhealthy_envs.size() - 1];
 
   QString str_notification =
-      QString("Environment%1 %2 %3 %4")
+      tr("Environment%1 %2 %3 %4")
           .arg(lst_unhealthy_envs.size() > 1 ? "s" : "")
           .arg(str_unhealthy_envs)
           .arg(lst_unhealthy_envs.size() > 1 ? "are" : "is")
@@ -682,7 +681,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
   m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
-    CNotificationObserver::Info(err);
+    CNotificationObserver::Info(tr(err.toStdString().c_str()));
     return;
   }
 
@@ -704,7 +703,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
         "Can't get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
-        QString("Can't get RH IP address. Error : %1, Exit_Code : %2")
+        tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
             .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     return;
   }
@@ -715,7 +714,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     args << "--new-window";
     args << hub_url;
     if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = QString(
+      QString err_msg = tr(
           "Run subutai console via chrome failed. Couldn't start process");
       CNotificationObserver::Error(err_msg);
       qCritical("%s", err_msg.toStdString().c_str());
@@ -723,7 +722,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     }
   } else {
     if (!QDesktopServices::openUrl(QUrl(hub_url))) {
-      QString err_msg = QString(
+      QString err_msg = tr(
           "Run subutai console via default browser failed. Couldn't start "
           "process");
       CNotificationObserver::Error(err_msg);
@@ -806,8 +805,7 @@ void TrayControlWindow::launch_ss() {
     qCritical(
         "Can't get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
-    CNotificationObserver::Info(
-        QString("Can't get RH IP address. Error : %1")
+    CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
             .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
     m_act_launch_SS->setEnabled(true);
   }
@@ -889,13 +887,13 @@ void TrayControlWindow::dialog_closed(int unused) {
 
 QDialog* create_settings_dialog(QWidget* p) { return new DlgSettings(p); }
 void TrayControlWindow::show_settings_dialog() {
-  show_dialog(create_settings_dialog, "Settings");
+  show_dialog(create_settings_dialog, tr("Settings"));
 }
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
-  show_dialog(create_about_dialog, "About Subutai Tray");
+  show_dialog(create_about_dialog, tr("About Subutai Tray"));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -903,14 +901,14 @@ QDialog* create_ssh_key_generate_dialog(QWidget* p) {
   return new DlgGenerateSshKey(p);
 }
 void TrayControlWindow::ssh_key_generate_triggered() {
-  show_dialog(create_ssh_key_generate_dialog, "SSH key generation");
+  show_dialog(create_ssh_key_generate_dialog, tr("SSH key generation"));
 }
 
 QDialog* create_notifications_dialog(QWidget* p) {
   return new DlgNotifications(p);
 }
 void TrayControlWindow::show_notifications_triggered() {
-  show_dialog(create_notifications_dialog, "Notifications history");
+  show_dialog(create_notifications_dialog, tr("Notifications history"));
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -927,7 +925,7 @@ void CHubEnvironmentMenuItem::internal_action_triggered() {
 CVBPlayer::CVBPlayer(QWidget* parent) : m_vm_count(0) {
   UNUSED_ARG(parent);
   m_lblHeader = new QLabel(this);
-  m_lblHeader->setText("No resource hosts registered");
+  m_lblHeader->setText(tr("No resource hosts registered"));
   m_lblHeader->setMinimumWidth(180);
   m_lblHeader->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
   m_vLayout = new QVBoxLayout(0);
@@ -942,7 +940,7 @@ CVBPlayer::~CVBPlayer() {}
 
 void CVBPlayer::add(CVBPlayerItem* pItem) {
   if (m_vm_count == 0) {
-    m_lblHeader->setText("Resource hosts registered:");
+    m_lblHeader->setText(tr("Resource hosts registered:"));
     m_lblHeader->setVisible(false);
   }
   m_vLayout->addWidget(pItem);
@@ -965,7 +963,7 @@ void CVBPlayer::remove(CVBPlayerItem* pItem) {
   this->setMaximumHeight(30 * (cnt + 1));
   m_vm_count--;
   if (m_vm_count == 0) {
-    m_lblHeader->setText("No resource hosts registered:");
+    m_lblHeader->setText(tr("No resource hosts registered:"));
     m_lblHeader->setVisible(true);
   }
   this->setLayout(m_vLayout);
@@ -992,8 +990,8 @@ CVBPlayerItem::CVBPlayerItem(const CVirtualMachine* vm, QWidget* parent)
   m_btn_play->setIcon(QIcon(":/hub/Launch-07.png"));
   m_btn_stop->setIcon(QIcon(":/hub/Stop-07.png"));
 
-  m_btn_play->setToolTip("Play/Pause/Resume");
-  m_btn_stop->setToolTip("Power off");
+  m_btn_play->setToolTip(tr("Play/Pause/Resume"));
+  m_btn_stop->setToolTip(tr("Power off"));
   connect(m_btn_play, &QPushButton::released, this,
           &CVBPlayerItem::vbox_menu_btn_play_released, Qt::QueuedConnection);
   connect(m_btn_stop, &QPushButton::released, this,
@@ -1073,7 +1071,7 @@ void TrayControlWindow::ssh_to_container_finished(int result,
                                                   void* additional_data) {
   if (result != SLE_SUCCESS) {
     CNotificationObserver::Error(
-        QString("Can't ssh to container. Err : %1")
+        tr("Can't ssh to container. Err : %1")
             .arg(CHubController::ssh_launch_err_to_str(result)));
   }
   QAction* act = static_cast<QAction*>(additional_data);

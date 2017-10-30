@@ -16,6 +16,7 @@
 #include "SystemCallWrapper.h"
 #include "ui_DlgSettings.h"
 #include "Logger.h"
+#include "LanguageController.h"
 
 class TabResizeFilter : public QObject {
 private:
@@ -44,6 +45,12 @@ public:
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
     cb->addItem(Logger::LogLevelToStr((Logger::LOG_LEVEL)i));
+}
+//////////////////////////////////////////////////////////////////////////
+
+static void fill_locale_combobox(QComboBox* cb) {
+  for (int i = 0; i <= LanguageController::LOCALE_RU; ++i)
+    cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -110,6 +117,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
+  fill_locale_combobox(ui->cb_locale);
 
   fill_preferred_notifications_location_combobox(
         ui->cb_preferred_notifications_place);
@@ -120,6 +128,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
+  ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
         CSettingsManager::Instance().preferred_notifications_place());
@@ -308,7 +317,7 @@ void DlgSettings::btn_ok_released() {
   if (!lst_failed_validators.empty()) {
     QMessageBox* msg_box =
         new QMessageBox(QMessageBox::Question, tr("Attention! Wrong settings"),
-                        QString("You have %1 wrong settings. "
+                        tr("You have %1 wrong settings. "
                                 "Would you like to correct it? "
                                 "Yes - try to correct, No - save anyway")
                         .arg(lst_failed_validators.size()),
@@ -383,8 +392,9 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_notifications_level(
         ui->cb_notification_level->currentIndex());
 
-  CSettingsManager::Instance().set_logs_level(
-        ui->cb_log_level->currentIndex());
+  CSettingsManager::Instance().set_logs_level(ui->cb_log_level->currentIndex());
+  CSettingsManager::Instance().set_locale(ui->cb_locale->currentIndex());
+
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
@@ -439,14 +449,14 @@ void DlgSettings::btn_logs_storage_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ssh_keys_storage_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "SSH-keys storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("SSH-keys storage"));
   if (dir == "") return;
   ui->le_ssh_keys_storage->setText(dir);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_rtm_db_folder_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, "DB storage");
+  QString dir = QFileDialog::getExistingDirectory(this, tr("DB storage"));
   if (dir == "") return;
   ui->le_rtm_db_folder->setText(dir);
 }
