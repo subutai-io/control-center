@@ -22,6 +22,7 @@ class CSettingsManager : public QObject {
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
+  static const QString SM_LOCALE;
 
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
@@ -105,6 +106,7 @@ class CSettingsManager : public QObject {
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
   uint32_t m_logs_level;
+  uint32_t m_locale;
 
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
@@ -162,6 +164,7 @@ class CSettingsManager : public QObject {
   bool remember_me() const { return m_remember_me; }
 
   uint32_t refresh_time_sec() const { return m_refresh_time_sec; }
+  uint32_t locale() const { return m_locale; }
   const QString& p2p_path() const { return m_p2p_path; }
   uint32_t notification_delay_sec() const { return m_notification_delay_sec; }
   uint16_t plugin_port() const { return m_plugin_port; }
@@ -230,6 +233,7 @@ class CSettingsManager : public QObject {
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
   void set_rh_management_freq(int fr);
+  void set_locale(int fr);
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;

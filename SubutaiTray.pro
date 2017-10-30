@@ -51,7 +51,8 @@ SOURCES += \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp \
-    commons/src/Logger.cpp
+    commons/src/Logger.cpp \
+    commons/src/LanguageController.cpp
 
 
 HEADERS  += \
@@ -89,7 +90,8 @@ HEADERS  += \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h \
-    commons/include/Logger.h
+    commons/include/Logger.h \
+    commons/include/LanguageController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts

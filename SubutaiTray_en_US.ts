@@ -94,6 +94,19 @@
     </message>
 </context>
 <context>
+    <name>CSettingsManager</name>
+    <message>
+        <location filename="hub/src/SettingsManager.cpp" line="478"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SettingsManager.cpp" line="479"/>
+        <source>You changed language. Would you like to restart tray?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CSshKeysController</name>
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="156"/>
@@ -478,259 +491,264 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="59"/>
+        <location filename="hub/forms/DlgSettings.ui" line="93"/>
         <source>Notification delay (sec.) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="66"/>
+        <location filename="hub/forms/DlgSettings.ui" line="165"/>
         <source>Notification level :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="73"/>
-        <location filename="hub/forms/DlgSettings.ui" line="116"/>
+        <location filename="hub/forms/DlgSettings.ui" line="80"/>
+        <location filename="hub/forms/DlgSettings.ui" line="158"/>
         <source>Works only if tray couldn&apos;t get sys. tray icon&apos;s coordinates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="76"/>
+        <location filename="hub/forms/DlgSettings.ui" line="83"/>
         <source>Area of notifications (only linux) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="102"/>
+        <location filename="hub/forms/DlgSettings.ui" line="172"/>
         <source>Use animations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="109"/>
+        <location filename="hub/forms/DlgSettings.ui" line="182"/>
         <source>Refresh time (sec.) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="125"/>
+        <location filename="hub/forms/DlgSettings.ui" line="68"/>
         <source>EZ-SSH User:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="137"/>
+        <location filename="hub/forms/DlgSettings.ui" line="221"/>
         <source>Start on login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="149"/>
+        <location filename="hub/forms/DlgSettings.ui" line="105"/>
         <source>Logs storage:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="159"/>
-        <location filename="hub/forms/DlgSettings.ui" line="176"/>
-        <location filename="hub/forms/DlgSettings.ui" line="193"/>
-        <location filename="hub/forms/DlgSettings.ui" line="299"/>
+        <location filename="hub/forms/DlgSettings.ui" line="115"/>
+        <location filename="hub/forms/DlgSettings.ui" line="132"/>
+        <location filename="hub/forms/DlgSettings.ui" line="149"/>
         <location filename="hub/forms/DlgSettings.ui" line="309"/>
-        <location filename="hub/forms/DlgSettings.ui" line="326"/>
-        <location filename="hub/forms/DlgSettings.ui" line="333"/>
+        <location filename="hub/forms/DlgSettings.ui" line="319"/>
+        <location filename="hub/forms/DlgSettings.ui" line="336"/>
+        <location filename="hub/forms/DlgSettings.ui" line="343"/>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="166"/>
+        <location filename="hub/forms/DlgSettings.ui" line="122"/>
         <source>SSH-keys storage:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="183"/>
+        <location filename="hub/forms/DlgSettings.ui" line="139"/>
         <source>DB folder:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="218"/>
+        <location filename="hub/forms/DlgSettings.ui" line="59"/>
         <source>Log level :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="231"/>
+        <location filename="hub/forms/DlgSettings.ui" line="228"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="241"/>
         <source>Commands</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="239"/>
+        <location filename="hub/forms/DlgSettings.ui" line="249"/>
         <source>SSH command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="246"/>
+        <location filename="hub/forms/DlgSettings.ui" line="256"/>
         <source>P2P command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="256"/>
+        <location filename="hub/forms/DlgSettings.ui" line="266"/>
         <source>Terminal settings:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="264"/>
+        <location filename="hub/forms/DlgSettings.ui" line="274"/>
         <source>Terminal:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="274"/>
+        <location filename="hub/forms/DlgSettings.ui" line="284"/>
         <source>Argument:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="289"/>
+        <location filename="hub/forms/DlgSettings.ui" line="299"/>
         <source>Vboxmanage:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="316"/>
+        <location filename="hub/forms/DlgSettings.ui" line="326"/>
         <source>Ssh-keygen:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="343"/>
+        <location filename="hub/forms/DlgSettings.ui" line="353"/>
         <source>RH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="351"/>
+        <location filename="hub/forms/DlgSettings.ui" line="361"/>
         <source>RH host:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="358"/>
+        <location filename="hub/forms/DlgSettings.ui" line="368"/>
         <source>Resource hosts:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="370"/>
+        <location filename="hub/forms/DlgSettings.ui" line="380"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="386"/>
+        <location filename="hub/forms/DlgSettings.ui" line="396"/>
         <source>RH port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="393"/>
+        <location filename="hub/forms/DlgSettings.ui" line="403"/>
         <source>RH user:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="400"/>
+        <location filename="hub/forms/DlgSettings.ui" line="410"/>
         <source>RH password:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="426"/>
+        <location filename="hub/forms/DlgSettings.ui" line="436"/>
         <source>Updating</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="434"/>
+        <location filename="hub/forms/DlgSettings.ui" line="444"/>
         <source>Resource Host check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="441"/>
+        <location filename="hub/forms/DlgSettings.ui" line="451"/>
         <source>SubutaiTray check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="454"/>
+        <location filename="hub/forms/DlgSettings.ui" line="464"/>
         <source>Automatic tray update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="461"/>
+        <location filename="hub/forms/DlgSettings.ui" line="471"/>
         <source>Automatic rh update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="468"/>
+        <location filename="hub/forms/DlgSettings.ui" line="478"/>
         <source>P2P check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="478"/>
+        <location filename="hub/forms/DlgSettings.ui" line="488"/>
         <source>Automatic p2p update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="485"/>
+        <location filename="hub/forms/DlgSettings.ui" line="495"/>
         <source>Management check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="495"/>
+        <location filename="hub/forms/DlgSettings.ui" line="505"/>
         <source>Automatic mh update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="240"/>
+        <location filename="hub/src/DlgSettings.cpp" line="249"/>
         <source>Field can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="242"/>
+        <location filename="hub/src/DlgSettings.cpp" line="251"/>
         <source>You don&apos;t have write permission to this folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="243"/>
+        <location filename="hub/src/DlgSettings.cpp" line="252"/>
         <source>Invalid path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="245"/>
+        <location filename="hub/src/DlgSettings.cpp" line="254"/>
         <source>Can&apos;t launch application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="320"/>
+        <location filename="hub/src/DlgSettings.cpp" line="329"/>
         <source>Attention! Wrong settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="321"/>
+        <location filename="hub/src/DlgSettings.cpp" line="330"/>
         <source>You have %1 wrong settings. Would you like to correct it? Yes - try to correct, No - save anyway</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="400"/>
+        <location filename="hub/src/DlgSettings.cpp" line="411"/>
         <source>P2P command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="407"/>
+        <location filename="hub/src/DlgSettings.cpp" line="418"/>
         <source>Ssh command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="414"/>
+        <location filename="hub/src/DlgSettings.cpp" line="425"/>
         <source>Ssh-keygen command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="421"/>
+        <location filename="hub/src/DlgSettings.cpp" line="432"/>
         <source>Vboxmanage command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="428"/>
+        <location filename="hub/src/DlgSettings.cpp" line="439"/>
         <source>Logs storage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="435"/>
+        <location filename="hub/src/DlgSettings.cpp" line="446"/>
         <source>SSH-keys storage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="442"/>
+        <location filename="hub/src/DlgSettings.cpp" line="453"/>
         <source>DB storage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -946,22 +964,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="76"/>
+        <location filename="main.cpp" line="75"/>
         <source>Already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="77"/>
+        <location filename="main.cpp" line="76"/>
         <source>One instance of tray application is already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="85"/>
+        <location filename="main.cpp" line="84"/>
         <source>This tray application should help users to work with hub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="139"/>
+        <location filename="main.cpp" line="138"/>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1091,7 +1109,7 @@
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="257"/>
         <source>Quit</source>
-        <translation>test quit</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="266"/>

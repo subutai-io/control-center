@@ -23,6 +23,7 @@
 #include "LibsshController.h"
 #include "SystemCallWrapper.h"
 #include "Logger.h"
+#include "LanguageController.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -66,10 +67,8 @@ main(int argc, char *argv[]) {
   qInstallMessageHandler(Logger::LoggerMessageOutput);
 
   QTranslator translator;
-  //QString locale = QLocale::system().name();
-  //qInfo("Locale chose %s", locale.toStdString().c_str());
-  //translator.load("SubutaiTray_" + locale, app.applicationDirPath());
-  translator.load("SubutaiTray_ru_RU");
+  QString locale = LanguageController::CurrentLocale();
+  translator.load("SubutaiTray_"+locale);
   app.installTranslator(&translator);
 
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {

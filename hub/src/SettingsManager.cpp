@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include <QUuid>
 #include  <QDebug>
+#include <QMessageBox>
 
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -11,6 +12,8 @@
 #include "SystemCallWrapper.h"
 #include "updater/HubComponentsUpdater.h"
 #include "Logger.h"
+#include "LanguageController.h"
+#include "Commons.h"
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -48,6 +51,7 @@ const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoup
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
+const QString CSettingsManager::SM_LOCALE("Locale");
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
 const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
@@ -154,6 +158,7 @@ CSettingsManager::CSettingsManager()
       m_vboxmanage_path(vboxmanage_command_str()),
       m_notifications_level(CNotificationObserver::NL_INFO),
       m_logs_level(Logger::LOG_DEBUG),
+      m_locale(LanguageController::LOCALE_EN),
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
@@ -215,7 +220,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_logs_level, SM_LOGS_LEVEL, qvar_to_int},
       {(void*)&m_preferred_notifications_place,
        SM_PREFERRED_NOTIFICATIONS_PLACE, qvar_to_int},
-
+      {(void*)&m_locale, SM_LOCALE, qvar_to_int},
       // bytearr
       {(void*)&m_password, SM_PASSWORD, qvar_to_byte_arr},
 
@@ -463,7 +468,25 @@ void CSettingsManager::set_autostart(const bool autostart) {
     m_settings.setValue(SM_AUTOSTART, m_autostart);
   }
 }
-  ////////////////////////////////////////////////////////////////////////////
+
+void CSettingsManager::set_locale(const int locale) {
+    if (m_locale != (uint32_t)locale) {
+        m_locale = locale;
+        m_settings.setValue(SM_LOCALE, m_locale);
+
+        QMessageBox* msg_box =
+           new QMessageBox(QMessageBox::Question, tr("Info"),
+                           tr("You changed language. Would you like to restart tray?"),
+                           QMessageBox::Yes | QMessageBox::No);
+        connect(msg_box, &QMessageBox::finished, msg_box,
+                &QMessageBox::deleteLater);
+        if (msg_box->exec() == QMessageBox::Yes) {
+            CCommons::RestartTray();
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 #define SET_FIELD_DEF(f, fn, t)               \
   void CSettingsManager::set_##f(const t f) { \

@@ -15,6 +15,7 @@
 #include "SystemCallWrapper.h"
 #include "ui_DlgSettings.h"
 #include "Logger.h"
+#include "LanguageController.h"
 
 class TabResizeFilter : public QObject {
  private:
@@ -43,6 +44,12 @@ class TabResizeFilter : public QObject {
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
     cb->addItem(Logger::LogLevelToStr((Logger::LOG_LEVEL)i));
+}
+//////////////////////////////////////////////////////////////////////////
+
+static void fill_locale_combobox(QComboBox* cb) {
+  for (int i = 0; i <= LanguageController::LOCALE_RU; ++i)
+    cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -109,6 +116,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
+  fill_locale_combobox(ui->cb_locale);
 
   fill_preferred_notifications_location_combobox(
       ui->cb_preferred_notifications_place);
@@ -124,6 +132,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_notification_level->setCurrentIndex(
       CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
+  ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
       CSettingsManager::Instance().preferred_notifications_place());
@@ -378,6 +387,8 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_logs_level(
       ui->cb_log_level->currentIndex());
+  CSettingsManager::Instance().set_locale(
+      ui->cb_locale->currentIndex());
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
