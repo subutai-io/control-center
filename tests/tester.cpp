@@ -1,10 +1,14 @@
-#include "tester.h"
-#include "commonstest.h"
+#include "Tester.h"
+#include "CCommonsTest.h"
+#include "LanguageControllerTest.h"
 #include <QTest>
+#include "LoggerTest.h"
 
 Tester::Tester () {
-  // adding all tests here
-  addTest(new CommonsTest);
+  // add all tests here
+  //addTest(new CommonsTest);
+  //addTest(new LanguageControllerTest);
+  addTest(new LoggerTest);
 }
 
 Tester* Tester::Instance() {

@@ -55,8 +55,11 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    tests/src/commonstest.cpp \
-    tests/src/tester.cpp
+    tests/CCommonsTest.cpp \
+    tests/Tester.cpp \
+    tests/LanguageControllerTest.cpp \
+    tests/LoggerTest.cpp \
+    tests/OsBranchConstsTest.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -95,8 +98,11 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    tests/include/tester.h \
-    tests/include/commonstest.h
+    tests/CCommonsTest.h \
+    tests/Tester.h \
+    tests/LanguageControllerTest.h \
+    tests/LoggerTest.h \
+    tests/OsBranchConstsTest.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts
