@@ -36,10 +36,18 @@
  * --v  - uses for getting version of tray application
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
+#ifdef TESTING_MODE
+#include "tester.h"
+int
+main(int argc, char *argv[]) {
+    Tester::Instance()->runAllTest();
+    return 0;
+}
+#else
+
 
 int
 main(int argc, char *argv[]) {
-
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
   QSystemSemaphore sema(sem_guid, 1);
@@ -149,4 +157,5 @@ main(int argc, char *argv[]) {
 
   return result;
 }
+#endif
 ////////////////////////////////////////////////////////////////////////////

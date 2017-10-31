@@ -16,7 +16,7 @@
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
 #include "VBoxManager.h"
-#include "libssh2/include/LibsshController.h"
+#include "LibsshController.h"
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>

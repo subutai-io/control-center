@@ -13,6 +13,8 @@ const char* CCommons::RESTARTED_ARG = "restarted";
 
 QString
 CCommons::FileMd5(const QString &file_path) {
+    qDebug() << "SDFSDF\n";
+
   QFile f(file_path);
   if (!f.exists()) return "";
   if (!f.open(QIODevice::ReadOnly)) return "";

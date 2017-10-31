@@ -3,13 +3,20 @@
 
 #include <QObject>
 #include <QtTest/QTest>
+#include "commonstest.h"
+#include <QDebug>
 
-
-class Tester
+class Tester : public QObject
 {
+    Q_OBJECT
     typedef QList<QObject*> TestList;
 
 public:
+    Tester () {
+      // adding all tests here
+      addTest(new CommonsTest);
+    }
+
     static Tester *Instance() {
         static Tester tester;
         return &tester;
@@ -22,13 +29,16 @@ public:
 
     void addTest(QObject* object) {
         TestList&  list = testList();
+        qDebug() << "adding test";
+
         list.append(object);
     }
 
-    int runAllTest(int argc, char *argv[]) {
+    int runAllTest() {
+        qDebug() << "run all tests\n";
         int ret = 0;
         foreach (QObject* test, testList())
-            ret += QTest::qExec(test, argc, argv);
+            ret += QTest::qExec(test);
         return ret;
     }
 };

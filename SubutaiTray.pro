@@ -4,18 +4,19 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets
+QT       += core gui network websockets testlib
 CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
 TARGET = SubutaiTray
-TEMPLATE = app
 
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
+INCLUDEPATH += tests/include
+
 
 SOURCES += \
     main.cpp \
@@ -53,6 +54,9 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
+    tests/src/commonstest.cpp \
+    tests/src/tester.cpp
+    tests/src/tester.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -91,6 +95,10 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
+    tests/include/tester.h \
+    tests/include/commonstest.h
+    tests/include/commonstest.h
+    tests/include/tester.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts
@@ -114,8 +122,8 @@ win32: {
   TRAY_VERSION = $$system(type version)
 }
 
+DEFINES += TESTING_MODE
 DEFINES += QT_MESSAGELOGCONTEXT
-
 DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
@@ -142,14 +150,14 @@ DEFINES += CURRENT_BRANCH=$$GBV
 unix:!macx {
   QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += RT_OS_LINUX
-  DEFINES += CURRENT_OS=OS_LINUX  
+  DEFINES += CURRENT_OS=OS_LINUX
   LIBS += -ldl -lpthread -lssh2
   QMAKE_RPATHDIR += ../lib
 }
 #////////////////////////////////////////////////////////////////////////////
 
 macx: {
-  DEFINES += RT_OS_DARWIN  
+  DEFINES += RT_OS_DARWIN
   DEFINES += CURRENT_OS=OS_MAC
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
@@ -173,3 +181,4 @@ win32: {
 #  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////
+
