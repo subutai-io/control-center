@@ -2,9 +2,6 @@
 #define TESTER_H
 
 #include <QObject>
-#include <QtTest/QTest>
-#include "commonstest.h"
-#include <QDebug>
 
 class Tester : public QObject
 {
@@ -12,35 +9,14 @@ class Tester : public QObject
     typedef QList<QObject*> TestList;
 
 public:
-    Tester () {
-      // adding all tests here
-      addTest(new CommonsTest);
-    }
+    Tester ();
+    static Tester *Instance();
+    int runAllTest();
 
-    static Tester *Instance() {
-        static Tester tester;
-        return &tester;
-    }
+private:
+    TestList& testList();
+    void addTest(QObject* object);
 
-    TestList& testList() {
-       static TestList list;
-       return list;
-    }
-
-    void addTest(QObject* object) {
-        TestList&  list = testList();
-        qDebug() << "adding test";
-
-        list.append(object);
-    }
-
-    int runAllTest() {
-        qDebug() << "run all tests\n";
-        int ret = 0;
-        foreach (QObject* test, testList())
-            ret += QTest::qExec(test);
-        return ret;
-    }
 };
 
 

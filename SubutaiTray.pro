@@ -10,6 +10,7 @@ CONFIG   += c++11
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
 TARGET = SubutaiTray
+TEMPLATE = app
 
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
@@ -56,7 +57,6 @@ SOURCES += \
     commons/src/LanguageController.cpp \
     tests/src/commonstest.cpp \
     tests/src/tester.cpp
-    tests/src/tester.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -97,8 +97,6 @@ HEADERS  += \
     commons/include/LanguageController.h \
     tests/include/tester.h \
     tests/include/commonstest.h
-    tests/include/commonstest.h
-    tests/include/tester.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts
