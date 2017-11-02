@@ -111,6 +111,7 @@ static std::map<QString, QString> dct_term_arg = {
   {"rxvt", "-e bash -c"},
   {"evilvte", "-e bash -c"},
   {"aterm", "-e bash -c"},
+  {"lxterminal", "-l -e"},
 };
 
 const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
