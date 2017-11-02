@@ -16,7 +16,9 @@ INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
-INCLUDEPATH += tests/include
+INCLUDEPATH += tests
+
+DEFINES += TESTING_MODE
 
 
 SOURCES += \
@@ -59,7 +61,13 @@ SOURCES += \
     tests/Tester.cpp \
     tests/LanguageControllerTest.cpp \
     tests/LoggerTest.cpp \
-    tests/OsBranchConstsTest.cpp
+    tests/OsBranchConstsTest.cpp \
+    tests/TrayWebSocketServerTest.cpp \
+    tests/SystemCallWrapperTest.cpp \
+    tests/DlgNotificationsModelTest.cpp \
+    tests/NotificationObserverTest.cpp \
+    tests/DlgSettingsTest.cpp \
+    tests/NotificationLoggerTest.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -102,7 +110,13 @@ HEADERS  += \
     tests/Tester.h \
     tests/LanguageControllerTest.h \
     tests/LoggerTest.h \
-    tests/OsBranchConstsTest.h
+    tests/OsBranchConstsTest.h \
+    tests/TrayWebSocketServerTest.h \
+    tests/SystemCallWrapperTest.h \
+    tests/DlgNotificationsModelTest.h \
+    tests/NotificationObserverTest.h \
+    tests/DlgSettingsTest.h \
+    tests/NotificationLoggerTest.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts
@@ -126,7 +140,9 @@ win32: {
   TRAY_VERSION = $$system(type version)
 }
 
-DEFINES += TESTING_MODE
+
+
+
 DEFINES += QT_MESSAGELOGCONTEXT
 DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)

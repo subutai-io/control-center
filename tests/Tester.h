@@ -16,7 +16,7 @@ public:
 private:
     TestList& testList();
     void addTest(QObject* object);
-
+    void runLast();
 };
 
 

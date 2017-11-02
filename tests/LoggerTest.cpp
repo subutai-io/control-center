@@ -10,6 +10,7 @@ void LoggerTest::testTypeToLevel_data() {
     QTest::newRow("Info Type") << (int)QtInfoMsg << (int) Logger::LOG_INFO;
     QTest::newRow("Warning Type") << (int)QtWarningMsg << (int) Logger::LOG_WARNING;
 }
+
 void LoggerTest::testTypeToLevel() {
     QFETCH(int, type);
     QFETCH(int, expected_level);
@@ -18,6 +19,7 @@ void LoggerTest::testTypeToLevel() {
 }
 
 ////////////////////////////////////////////////////////////////////
+
 
 
 ////////////////////////////////////////////////////////////////////

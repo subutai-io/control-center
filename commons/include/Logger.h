@@ -3,10 +3,11 @@
 
 #include <QObject>
 #include <QFile>
+#include "LoggerTest.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class Logger : QObject
+class Logger : public QObject
 {
   Q_OBJECT
 
@@ -17,13 +18,16 @@ public:
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
   static void LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
-  static LOG_LEVEL typeToLevel(QtMsgType type);
 
 private:
+  static LOG_LEVEL typeToLevel(QtMsgType type);
   virtual ~Logger();
 
 private slots:
   static void deleteOldFiles();
+
+  friend class LoggerTest;
+
 
 };
 
