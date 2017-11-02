@@ -632,7 +632,7 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   version = "undefined";
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
-  args << "version";
+  args << "-v";
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty())
