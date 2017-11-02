@@ -96,12 +96,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="478"/>
+        <location filename="hub/src/SettingsManager.cpp" line="489"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="479"/>
+        <location filename="hub/src/SettingsManager.cpp" line="490"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -109,7 +109,17 @@
 <context>
     <name>CSshKeysController</name>
     <message>
-        <location filename="hub/src/SshKeysController.cpp" line="156"/>
+        <location filename="hub/src/SshKeysController.cpp" line="138"/>
+        <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SshKeysController.cpp" line="140"/>
+        <source>Ssh keys (*.pub);; All files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SshKeysController.cpp" line="161"/>
         <source>Can&apos;t generate ssh-key. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -130,17 +140,17 @@
 <context>
     <name>CVBPlayer</name>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="936"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="928"/>
         <source>No resource hosts registered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="951"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="943"/>
         <source>Resource hosts registered:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="974"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="966"/>
         <source>No resource hosts registered:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -148,12 +158,12 @@
 <context>
     <name>CVBPlayerItem</name>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1001"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="993"/>
         <source>Play/Pause/Resume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1002"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="994"/>
         <source>Power off</source>
         <translation type="unfinished"></translation>
     </message>
@@ -282,7 +292,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
+        <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
         <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
         <translation type="unfinished"></translation>
     </message>
@@ -688,67 +698,72 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="249"/>
+        <location filename="hub/src/DlgSettings.cpp" line="241"/>
         <source>Field can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="251"/>
+        <location filename="hub/src/DlgSettings.cpp" line="243"/>
         <source>You don&apos;t have write permission to this folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="252"/>
+        <location filename="hub/src/DlgSettings.cpp" line="244"/>
         <source>Invalid path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="254"/>
+        <location filename="hub/src/DlgSettings.cpp" line="246"/>
         <source>Can&apos;t launch application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="329"/>
+        <location filename="hub/src/DlgSettings.cpp" line="319"/>
         <source>Attention! Wrong settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="330"/>
+        <location filename="hub/src/DlgSettings.cpp" line="320"/>
         <source>You have %1 wrong settings. Would you like to correct it? Yes - try to correct, No - save anyway</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="411"/>
+        <location filename="hub/src/DlgSettings.cpp" line="342"/>
+        <source>Attention! Wrong terminal argument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgSettings.cpp" line="417"/>
         <source>P2P command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="418"/>
+        <location filename="hub/src/DlgSettings.cpp" line="424"/>
         <source>Ssh command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="425"/>
+        <location filename="hub/src/DlgSettings.cpp" line="431"/>
         <source>Ssh-keygen command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="432"/>
+        <location filename="hub/src/DlgSettings.cpp" line="438"/>
         <source>Vboxmanage command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="439"/>
+        <location filename="hub/src/DlgSettings.cpp" line="445"/>
         <source>Logs storage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="446"/>
+        <location filename="hub/src/DlgSettings.cpp" line="452"/>
         <source>SSH-keys storage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="453"/>
+        <location filename="hub/src/DlgSettings.cpp" line="459"/>
         <source>DB storage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -979,8 +994,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="138"/>
-        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
+        <location filename="main.cpp" line="137"/>
+        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
+        <oldsource>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1064,6 +1080,21 @@
         <source>critical</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="483"/>
+        <source>stage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="484"/>
+        <source>development</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="485"/>
+        <source>production</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TrayControlWindow</name>
@@ -1090,7 +1121,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="246"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="898"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="890"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1128,7 +1159,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="279"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="919"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="911"/>
         <source>Notifications history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1163,33 +1194,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="707"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="814"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="706"/>
         <source>Can&apos;t get RH IP address. Error : %1, Exit_Code : %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="720"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="717"/>
         <source>Run subutai console via chrome failed. Couldn&apos;t start process</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="728"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="725"/>
         <source>Run subutai console via default browser failed. Couldn&apos;t start process</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="904"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="808"/>
+        <source>Can&apos;t get RH IP address. Error : %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="896"/>
         <source>About Subutai Tray</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="912"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="904"/>
         <source>SSH key generation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1082"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1074"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
