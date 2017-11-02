@@ -109,7 +109,17 @@
 <context>
     <name>CSshKeysController</name>
     <message>
-        <location filename="hub/src/SshKeysController.cpp" line="156"/>
+        <location filename="hub/src/SshKeysController.cpp" line="138"/>
+        <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SshKeysController.cpp" line="140"/>
+        <source>Ssh keys (*.pub);; All files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SshKeysController.cpp" line="161"/>
         <source>Can&apos;t generate ssh-key. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -282,7 +292,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
+        <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
         <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
         <translation type="unfinished"></translation>
     </message>
@@ -985,8 +995,9 @@
     </message>
     <message>
         <location filename="main.cpp" line="137"/>
-        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
-        <translation>Не может работать без демона P2P. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</translation>
+        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
+        <oldsource>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</oldsource>
+        <translation type="unfinished">Не может работать без демона P2P. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="413"/>
@@ -1067,6 +1078,21 @@
     <message>
         <location filename="hub/src/NotificationLogger.cpp" line="8"/>
         <source>critical</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="483"/>
+        <source>stage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="484"/>
+        <source>development</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="485"/>
+        <source>production</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
