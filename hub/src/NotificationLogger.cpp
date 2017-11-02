@@ -5,7 +5,7 @@
 #include "SettingsManager.h"
 
 static const QString notifications_file = "notifications.log";
-QString CNotification::LEVEL_STR[] = {"info", "warning", "error", "critical"};
+QString CNotification::LEVEL_STR[] = {QObject::tr("info"), QObject::tr("warning"), QObject::tr("error"), QObject::tr("critical")};
 
 CNotificationLogger::CNotificationLogger(QObject *parent) : QObject(parent) {
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,

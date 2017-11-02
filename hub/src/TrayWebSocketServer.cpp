@@ -10,7 +10,7 @@
 CTrayServer::CTrayServer(quint16 port,
                          QObject *parent) :
   QObject(parent),
-  m_web_socket_server(new QWebSocketServer("Tray websocket server",
+  m_web_socket_server(new QWebSocketServer(tr("Tray websocket server"),
                                            QWebSocketServer::NonSecureMode,
                                            this)),
   m_lst_clients()
@@ -22,7 +22,7 @@ CTrayServer::CTrayServer(quint16 port,
             this, &CTrayServer::ssh_to_container_finished);
   } else {
 
-    QString err_msg = QString("Can't listen websocket on port : %1 Reason : %2").
+    QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
                       arg(port).arg(m_web_socket_server->errorString());
     CNotificationObserver::Error(err_msg);
     qCritical("%s", err_msg.toStdString().c_str());

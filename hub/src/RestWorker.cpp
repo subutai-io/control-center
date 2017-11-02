@@ -413,7 +413,7 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
     qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
-    CNotificationObserver::Error(reply->errorString());
+    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()));
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -511,7 +511,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
-      CNotificationObserver::Error(reply->errorString());
+      CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()));
     err_code = RE_NETWORK_ERROR;
     bool parsed = false;
     http_status_code =

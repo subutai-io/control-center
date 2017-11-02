@@ -153,7 +153,7 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
       CHubController::Instance().current_user(), str_private);
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(
-        QString("Can't generate ssh-key. Err : %1")
+        tr("Can't generate ssh-key. Err : %1")
             .arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
