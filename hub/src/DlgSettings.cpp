@@ -49,7 +49,7 @@ static void fill_log_level_combobox(QComboBox* cb) {
 //////////////////////////////////////////////////////////////////////////
 
 static void fill_locale_combobox(QComboBox* cb) {
-  for (int i = 0; i <= LanguageController::LOCALE_RU; ++i)
+  for (int i = 0; i <= LanguageController::LOCALE_PT_BR; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////

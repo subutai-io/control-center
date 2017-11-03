@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ru_RU">
+<TS version="2.0" language="pt_BR">
 <context>
     <name>CDownloadFileManager</name>
     <message>
@@ -491,13 +491,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="93"/>
-        <source>Notification delay (sec.) :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="59"/>
+        <source>Log level :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="165"/>
-        <source>Notification level :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="68"/>
+        <source>EZ-SSH User:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -512,23 +512,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="172"/>
-        <source>Use animations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="182"/>
-        <source>Refresh time (sec.) :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="68"/>
-        <source>EZ-SSH User:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="221"/>
-        <source>Start on login</source>
+        <location filename="hub/forms/DlgSettings.ui" line="93"/>
+        <source>Notification delay (sec.) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -558,8 +543,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="59"/>
-        <source>Log level :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="165"/>
+        <source>Notification level :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="172"/>
+        <source>Use animations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="182"/>
+        <source>Refresh time (sec.) :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="221"/>
+        <source>Start on login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -987,24 +987,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="75"/>
-        <source>Already running</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="76"/>
-        <source>One instance of tray application is already running</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="84"/>
-        <source>This tray application should help users to work with hub</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="137"/>
-        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
-        <translation>Не может работать без демона P2P. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</translation>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>critical</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="413"/>
@@ -1068,23 +1068,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>info</source>
+        <location filename="main.cpp" line="75"/>
+        <source>Already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>warning</source>
+        <location filename="main.cpp" line="76"/>
+        <source>One instance of tray application is already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>error</source>
+        <location filename="main.cpp" line="84"/>
+        <source>This tray application should help users to work with hub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>critical</source>
+        <location filename="main.cpp" line="137"/>
+        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1132,7 +1132,7 @@
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="257"/>
         <source>Quit</source>
-        <translation>Закрыть</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="266"/>

@@ -94,7 +94,8 @@ HEADERS  += \
     commons/include/LanguageController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
-               SubutaiTray_ru_RU.ts
+               SubutaiTray_ru_RU.ts \
+               SubutaiTray_pt_BR.ts
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
