@@ -38,10 +38,8 @@ void Tester::runLast() {
 }
 
 int Tester::runAllTest() {
-    runLast();
-
-    //int ret = 0;
-    //foreach (QObject* test, testList())
-    //    ret += QTest::qExec(test);
+    int ret = 0;
+    foreach (QObject* test, testList())
+        ret += QTest::qExec(test);
     return 0;
 }

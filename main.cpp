@@ -40,7 +40,8 @@
 #include "Tester.h"
 int
 main(int argc, char *argv[]) {
-    Tester::Instance()->runAllTest();
+    //Tester::Instance()->runAllTest();
+    Tester::Instance()->runLast();
     return 0;
 }
 #else
