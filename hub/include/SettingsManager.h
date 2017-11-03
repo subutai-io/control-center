@@ -234,6 +234,7 @@ class CSettingsManager : public QObject {
   void set_tray_update_freq(int fr);
   void set_rh_management_freq(int fr);
   void set_locale(int fr);
+  void set_p2p_path(QString fr);
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;
@@ -249,7 +250,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(password, QString&)
   SET_FIELD_DECL(remember_me, bool)
   SET_FIELD_DECL(refresh_time_sec, uint32_t)
-  SET_FIELD_DECL(p2p_path, QString&)
   SET_FIELD_DECL(plugin_port, uint16_t)
   SET_FIELD_DECL(ssh_path, QString&)
   SET_FIELD_DECL(ssh_user, QString&)
