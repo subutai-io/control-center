@@ -27,5 +27,4 @@ darwin-packages/root/*
 Makefile
 .*.stash
 
-SubutaiTray_ru_RU.qm
-SubutaiTray_en_US.qm
+*.qm

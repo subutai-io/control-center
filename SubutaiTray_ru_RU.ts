@@ -769,6 +769,24 @@
     </message>
 </context>
 <context>
+    <name>LanguageController</name>
+    <message>
+        <location filename="commons/src/LanguageController.cpp" line="24"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/LanguageController.cpp" line="24"/>
+        <source>Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/LanguageController.cpp" line="24"/>
+        <source>Brazilian Portuguese</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Logger</name>
     <message>
         <location filename="commons/src/Logger.cpp" line="40"/>
@@ -996,7 +1014,6 @@
     <message>
         <location filename="main.cpp" line="137"/>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
-        <oldsource>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</oldsource>
         <translation type="unfinished">Не может работать без демона P2P. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</translation>
     </message>
     <message>
