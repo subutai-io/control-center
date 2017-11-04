@@ -1,3 +1,11 @@
+subutai-tray (6.2.0) trusty; urgency=medium
+  * Changed log subsystem
+  * UI improvements
+  * Optimizations and minor bug fixes
+
+ -- Oleg Katkov (comment) <okatkov@optimal-dynamics.com> Tue, 04 Nov 2017 11:09:24 +0600
+
+
 subutai-tray (6.1.0) trusty; urgency=medium
   * Fixed crash in ssh management dialog
   * Changed logger
