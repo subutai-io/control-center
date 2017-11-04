@@ -4,6 +4,7 @@
 #include <QString>
 #include <atomic>
 #include <QObject>
+#include <QDebug>
 
 namespace update_system {
   typedef enum hub_component_updater_error {

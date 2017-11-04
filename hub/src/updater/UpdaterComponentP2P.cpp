@@ -89,21 +89,38 @@ CUpdaterComponentP2P::update_internal() {
   }
 
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+
+  CExecutableUpdater *eu = new CExecutableUpdater(str_p2p_downloaded_path,
+                                                str_p2p_executable_path);
+
+  if (item->md5_sum() == CCommons::FileMd5(str_p2p_downloaded_path))
+  {
+    qInfo("Already have new version of p2p in %s",
+                str_p2p_downloaded_path.toStdString().c_str());
+
+    this->update_progress_sl(100, 100);
+    connect(eu, &CExecutableUpdater::finished,
+            this, &CUpdaterComponentP2P::update_finished_sl);
+    connect(eu, &CExecutableUpdater::finished,
+            eu, &CExecutableUpdater::deleteLater);
+    eu->replace_executables(true);
+    return CHUE_SUCCESS;
+  }
+
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       str_p2p_downloaded_path,
                                                       item->size());
-
-  CExecutableUpdater *eu = new CExecutableUpdater(str_p2p_downloaded_path,
-                                                  str_p2p_executable_path);
-
   connect(dm, &CDownloadFileManager::download_progress_sig,
           this, &CUpdaterComponentP2P::update_progress_sl);
-
-  connect(dm, &CDownloadFileManager::finished, eu, &CExecutableUpdater::replace_executables);
-  connect(eu, &CExecutableUpdater::finished, this, &CUpdaterComponentP2P::update_finished_sl);
-  connect(eu, &CExecutableUpdater::finished, dm, &CDownloadFileManager::deleteLater);
-  connect(eu, &CExecutableUpdater::finished, eu, &CExecutableUpdater::deleteLater);
-
+  connect(dm, &CDownloadFileManager::finished,
+          eu, &CExecutableUpdater::replace_executables);
+  connect(eu, &CExecutableUpdater::finished,
+          this, &CUpdaterComponentP2P::update_finished_sl);
+  connect(eu, &CExecutableUpdater::finished,
+          dm, &CDownloadFileManager::deleteLater);
+  connect(eu, &CExecutableUpdater::finished,
+          eu, &CExecutableUpdater::deleteLater);
   dm->start_download();
   return CHUE_SUCCESS;
 }
@@ -119,16 +136,6 @@ CUpdaterComponentP2P::update_post_action(bool success) {
   CNotificationObserver::Instance()->Info(tr("P2P has been updated"));
   int rse_err = 0;
 
-  QString download_path = download_p2p_path();
-  QFile df(download_path);
-
-  if (df.exists()) {
-    if (df.remove()) {
-      qCritical("p2p file from tray directory removed");
-    } else {
-      qCritical("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
-    }
-  }
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::restart_p2p_service(&rse_err);
 

@@ -49,7 +49,7 @@ static void fill_log_level_combobox(QComboBox* cb) {
 //////////////////////////////////////////////////////////////////////////
 
 static void fill_locale_combobox(QComboBox* cb) {
-  for (int i = 0; i <= LanguageController::LOCALE_RU; ++i)
+  for (int i = 0; i <= LanguageController::LOCALE_PT_BR; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
@@ -118,6 +118,9 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
   fill_locale_combobox(ui->cb_locale);
+
+  ui->cb_locale->setVisible(false);
+  ui->lbl_locale->setVisible(false);
 
   fill_preferred_notifications_location_combobox(
         ui->cb_preferred_notifications_place);

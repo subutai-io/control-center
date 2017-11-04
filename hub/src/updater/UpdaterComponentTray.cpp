@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QProcess>
+#include <QStandardPaths>
 #include "updater/UpdaterComponentTray.h"
 #include "updater/ExecutableUpdater.h"
 #include "RestWorker.h"
@@ -42,10 +43,7 @@ CUpdaterComponentTray::update_internal() {
   QString str_tray_path = tray_path();
   if (str_tray_path.isEmpty()) return CHUE_FAILED;
 
-  QString str_tray_download_path = QApplication::applicationDirPath() +
-                                   QDir::separator() +
-                                   QString(tray_kurjun_file_name() +
-                                   QString("_download"));
+  QString str_tray_download_path = download_tray_path();
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       tray_kurjun_file_name());
@@ -56,12 +54,24 @@ CUpdaterComponentTray::update_internal() {
   }
 
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+  CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
+                                                  str_tray_path);
+  if (item->md5_sum() == CCommons::FileMd5(str_tray_download_path)) {
+    qInfo("Already have new version of tray in %s",
+                  str_tray_download_path.toStdString().c_str());
+    this->update_progress_sl(100, 100);
+    connect(eu, &CExecutableUpdater::finished,
+            this, &CUpdaterComponentTray::update_finished_sl);
+    connect(eu, &CExecutableUpdater::finished,
+            eu, &CExecutableUpdater::deleteLater);
+    eu->replace_executables(true);
+    return CHUE_SUCCESS;
+  }
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       str_tray_download_path,
                                                       item->size());
 
-  CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
-                                                  str_tray_path);
+
 
   connect(dm, &CDownloadFileManager::download_progress_sig,
           this, &CUpdaterComponentTray::update_progress_sl);
@@ -98,4 +108,13 @@ QString
 CUpdaterComponentTray::tray_path() {
   return QApplication::applicationFilePath();
 }
+////////////////////////////////////////////////////////////////////////////
+
+QString
+CUpdaterComponentTray::download_tray_path() {
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]) +
+                                QDir::separator() + TRAY;
+}
+
 ////////////////////////////////////////////////////////////////////////////
