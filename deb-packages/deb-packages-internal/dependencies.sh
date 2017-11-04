@@ -10,7 +10,7 @@
 
 #Get the library dependencies
 echo "Collecting the shared library dependencies for $1..."
-deps=$(ldd $1 | awk 'BEGIN{ORS=" "}$1~/^\//{print $1}$3~/^\//{print $3}' | sed 's/,$/\n/')
+deps=$(ldd $1 | grep "libicu\|libinput" | awk 'BEGIN{ORS=" "}$1~/^\//{print $1}$3~/^\//{print $3}' | sed 's/,$/\n/')
 echo "Copying the dependencies to $2"
 #Copy the deps
 for dep in $deps; do

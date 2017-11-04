@@ -14,5 +14,5 @@ cd debian
 tar zcvf SubutaiTray.tar.gz SubutaiTray
 cd ..
 
-debuild -B -d
-
+#debuild -B -d
+debuild
