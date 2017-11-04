@@ -119,6 +119,9 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_log_level_combobox(ui->cb_log_level);
   fill_locale_combobox(ui->cb_locale);
 
+  ui->cb_locale->setVisible(false);
+  ui->lbl_locale->setVisible(false);
+
   fill_preferred_notifications_location_combobox(
         ui->cb_preferred_notifications_place);
 
