@@ -1,0 +1,3 @@
+#include "SettingsManagerTest.h"
+
+

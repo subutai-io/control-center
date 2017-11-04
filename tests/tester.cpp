@@ -7,15 +7,19 @@
 #include "DlgNotificationsModelTest.h"
 #include "NotificationObserverTest.h"
 #include "NotificationLoggerTest.h"
+#include "SettingsManagerTest.h"
+#include "RhControllerTest.h"
 
 Tester::Tester () {
   /* add all tests here */
   addTest(new CommonsTest);
   addTest(new LanguageControllerTest);
-  addTest(new SystemCallWrapperTest);
   addTest(new DlgNotificationsModelTest);
   addTest(new NotificationObserverTest);
   addTest(new NotificationLoggerTest);
+  addTest(new SystemCallWrapperTest);
+  addTest(new SettingsManagerTest);
+  addTest(new RhControllerTest);
 }
 
 Tester* Tester::Instance() {
@@ -37,9 +41,7 @@ void Tester::runLast() {
     QTest::qExec(list.last());
 }
 
-int Tester::runAllTest() {
-    int ret = 0;
+void Tester::runAllTest() {
     foreach (QObject* test, testList())
-        ret += QTest::qExec(test);
-    return 0;
+        QTest::qExec(test);
 }

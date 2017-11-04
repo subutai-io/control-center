@@ -11,12 +11,12 @@ class Tester : public QObject
 public:
     Tester ();
     static Tester *Instance();
-    int runAllTest();
+    void runAllTest();
+    void runLast();
 
 private:
     TestList& testList();
     void addTest(QObject* object);
-    void runLast();
 };
 
 

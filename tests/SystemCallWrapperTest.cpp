@@ -1,5 +1,6 @@
 #include "SystemCallWrapperTest.h"
 #include "SystemCallWrapper.h"
+#include "SettingsManager.h"
 #include <QTest>
 
 void SystemCallWrapperTest::testSsystem() {
@@ -7,7 +8,7 @@ void SystemCallWrapperTest::testSsystem() {
     QFETCH(QStringList , args);
     QFETCH(QStringList , expected_output);
     QStringList returned_value = CSystemCallWrapper::ssystem(cmd, args, true, true , 5000).out;
-    QCOMPARE(expected_output , returned_value);
+    QCOMPARE(returned_value, expected_output);
 }
 
 
@@ -18,9 +19,9 @@ void SystemCallWrapperTest::testSsystem_data() {
     QString cmd;
     QStringList args;
     QStringList expected_output;
-    cmd = "C:\\WINDOWS\\system32\\cmd.exe";
-    args << "ver";
-    expected_output << "Microsoft Windows [Version 10.0.15063]";
-    QTest::newRow("terminal test") << cmd << args << expected_output;
+    cmd = CSettingsManager::Instance().p2p_path();
+    args << "-v";
+    expected_output << "p2p version 6.1.9-dev";
+    QTest::newRow("p2p test") << cmd << args << expected_output;
 }
 

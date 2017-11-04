@@ -67,7 +67,10 @@ SOURCES += \
     tests/DlgNotificationsModelTest.cpp \
     tests/NotificationObserverTest.cpp \
     tests/DlgSettingsTest.cpp \
-    tests/NotificationLoggerTest.cpp
+    tests/NotificationLoggerTest.cpp \
+    tests/SettingsManagerTest.cpp \
+    tests/RhControllerTest.cpp \
+    tests/HubControlllerTest.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -116,7 +119,10 @@ HEADERS  += \
     tests/DlgNotificationsModelTest.h \
     tests/NotificationObserverTest.h \
     tests/DlgSettingsTest.h \
-    tests/NotificationLoggerTest.h
+    tests/NotificationLoggerTest.h \
+    tests/SettingsManagerTest.h \
+    tests/RhControllerTest.h \
+    tests/HubControlllerTest.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts

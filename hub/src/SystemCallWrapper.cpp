@@ -66,6 +66,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
     return res;
   }
 
+
   if (!proc.waitForFinished(timeout_msec)) {
     proc.terminate();
     res.res = SCWE_TIMEOUT;

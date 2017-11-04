@@ -40,8 +40,11 @@
 #include "Tester.h"
 int
 main(int argc, char *argv[]) {
-    //Tester::Instance()->runAllTest();
+    QApplication::setApplicationName("TestingTray");
+    QApplication::setOrganizationName("subut.ai");
+    QApplication app(argc, argv);
     Tester::Instance()->runLast();
+    app.exec();
     return 0;
 }
 #else
