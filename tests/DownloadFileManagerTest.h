@@ -6,10 +6,15 @@
 class DownloadFileManagerTest : public QObject
 {
     Q_OBJECT
+public:
+    void createTestData();
 private slots:
-    void testInstance();
-    void testInstance_data();
 
+    void testInstance_data();
+    void testInstance();
+
+    void testInteruptFunction();
+    void testInteruptFunction_data();
 };
 
 #endif // DOWNLOADFILEMANAGER_H

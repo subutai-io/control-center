@@ -5,6 +5,7 @@
 #include <QTest>
 #include <QTimer>
 #include <QStandardPaths>
+#include <QSignalSpy>
 
 void DownloadFileManagerTest::testInstance() {
     QFETCH(QString, kurjun_file_id);
@@ -15,6 +16,9 @@ void DownloadFileManagerTest::testInstance() {
     CDownloadFileManager *dfm = new CDownloadFileManager(kurjun_file_id, dst_file, expected_size);
     QTimer timer;
     QEventLoop loop;
+    QSignalSpy spyFinished(dfm, &CDownloadFileManager::finished);
+    QSignalSpy spyProgress(dfm, &CDownloadFileManager::download_progress_sig);
+
     timer.setSingleShot(true);
     connect(dfm, &CDownloadFileManager::finished,
             &loop, &QEventLoop::quit);
@@ -23,21 +27,62 @@ void DownloadFileManagerTest::testInstance() {
     timer.start(time_to_download);
     dfm->start_download();
     loop.exec();
-    QVERIFY(timer.isActive()); // timeout for provided time to download
+
+    QVERIFY(timer.isActive()); // timeout for provided time to download. Something wrong with internet or it is too slow
+
+    QCOMPARE(spyFinished.count() , 1); // check if signal 'finished' was emmited
+    QVERIFY(spyProgress.count() > 0); // check if download_progress_signal was ever emitted
 
     QFileInfo fileInfo(dst_file);
-    QVERIFY(fileInfo.exists());
-    QVERIFY(fileInfo.size() == expected_size);
+    QVERIFY(fileInfo.exists()); // check if file was saved
+    QVERIFY(fileInfo.size() == expected_size); // check if file was not corrupted
     loop.quit();
     timer.stop();
     dfm->deleteLater();
 }
 
-void DownloadFileManagerTest::testInstance_data() {
+
+void DownloadFileManagerTest::testInteruptFunction() {
+    QFETCH(QString, kurjun_file_id);
+    QFETCH(QString, dst_file);
+    QFETCH(int, expected_size);
+    QFETCH(int, time_to_download);
+
+    QFile old_file(dst_file);
+    if (old_file.exists() && !old_file.remove()) // if we can't delete, we can't test this case
+        return;
+
+    CDownloadFileManager *dfm = new CDownloadFileManager(kurjun_file_id, dst_file, expected_size);
+    QEventLoop loop;
+    connect(dfm, &CDownloadFileManager::finished,
+            &loop, &QEventLoop::quit);
+    dfm->start_download();
+    dfm->interrupt_download();
+
+    QFileInfo fileInfo(dst_file);
+    if (fileInfo.exists()){
+        QVERIFY(fileInfo.size() != expected_size); // interrupt sould corrupt file or it shouldn't even exist
+    }
+    loop.quit();
+    dfm->deleteLater();
+}
+
+
+void DownloadFileManagerTest::testInstance_data(){
+    createTestData();
+}
+
+void DownloadFileManagerTest::testInteruptFunction_data(){
+    createTestData();
+}
+
+
+void DownloadFileManagerTest::createTestData() {
     QTest::addColumn<QString>("kurjun_file_id");
     QTest::addColumn<QString>("dst_file");
     QTest::addColumn<int>("expected_size");
     QTest::addColumn<int>("time_to_download");
+
 
     /// Test #1
     std::vector<CGorjunFileInfo> fi =
