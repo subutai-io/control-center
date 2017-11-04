@@ -18,12 +18,12 @@ void DownloadFileManagerTest::testInstance() {
     timer.setSingleShot(true);
     connect(dfm, &CDownloadFileManager::finished,
             &loop, &QEventLoop::quit);
-    connect(dfm, &CDownloadFileManager::finished,
+    connect(&timer, &QTimer::timeout,
             &loop, &QEventLoop::quit);
     timer.start(time_to_download);
     dfm->start_download();
     loop.exec();
-    QVERIFY(timer.isActive());
+    QVERIFY(timer.isActive()); // timeout for provided time to download
 
     QFileInfo fileInfo(dst_file);
     QVERIFY(fileInfo.exists());
@@ -44,7 +44,7 @@ void DownloadFileManagerTest::testInstance_data() {
     CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_file_name());
     QString dst_file =
          QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] + QDir::separator() + p2p_kurjun_file_name();
-    int time_to_download = 5000; // 5 seconds
+    int time_to_download = 4000; // let's give 4 seconds to download p2p
     QTest::newRow("p2p kurjun file with location in temp directory")
         << fi.begin()->id()
         << dst_file
@@ -56,7 +56,7 @@ void DownloadFileManagerTest::testInstance_data() {
         CRestWorker::Instance()->get_gorjun_file_info(tray_kurjun_file_name());
     dst_file =
          QStandardPaths::standardLocations(QStandardPaths::TempLocation)[0] + QDir::separator() + tray_kurjun_file_name();
-    time_to_download = 2000; // 2 seconds
+    time_to_download = 2000; // 2 seconds to download tray
     QTest::newRow("tray kurjun file with location in temp directory")
         << fi.begin()->id()
         << dst_file
