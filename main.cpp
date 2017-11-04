@@ -36,7 +36,7 @@
  * --v  - uses for getting version of tray application
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
-#ifdef TESTING_MODE
+#ifndef TESTING_MODE
 #include "Tester.h"
 int
 main(int argc, char *argv[]) {
