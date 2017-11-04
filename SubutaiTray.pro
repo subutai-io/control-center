@@ -70,7 +70,8 @@ SOURCES += \
     tests/NotificationLoggerTest.cpp \
     tests/SettingsManagerTest.cpp \
     tests/RhControllerTest.cpp \
-    tests/HubControlllerTest.cpp
+    tests/HubControlllerTest.cpp \
+    tests/DownloadFileManagerTest.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -122,7 +123,8 @@ HEADERS  += \
     tests/NotificationLoggerTest.h \
     tests/SettingsManagerTest.h \
     tests/RhControllerTest.h \
-    tests/HubControlllerTest.h
+    tests/HubControlllerTest.h \
+    tests/DownloadFileManagerTest.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts

@@ -9,6 +9,7 @@
 #include "NotificationLoggerTest.h"
 #include "SettingsManagerTest.h"
 #include "RhControllerTest.h"
+#include "DownloadFileManagerTest.h"
 
 Tester::Tester () {
   /* add all tests here */
@@ -20,6 +21,7 @@ Tester::Tester () {
   addTest(new SystemCallWrapperTest);
   addTest(new SettingsManagerTest);
   addTest(new RhControllerTest);
+  addTest(new DownloadFileManagerTest);
 }
 
 Tester* Tester::Instance() {
