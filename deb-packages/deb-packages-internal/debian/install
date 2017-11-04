@@ -1,0 +1,2 @@
+debian/icons/*.png /usr/share/icons
+debian/SubutaiTray.tar.gz /tmp/subutai/

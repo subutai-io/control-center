@@ -5,7 +5,6 @@
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 
-#include "ApplicationLog.h"
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -56,7 +55,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                void *additional_data,
                                                finished_slot_t slot) {
   if (cont->rh_ip().isEmpty()) {
-    CApplicationLog::Instance()->LogError(
+    qCritical(
         "Resourse host IP is empty. Conteiner ID : %s",
         cont->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
@@ -167,7 +166,7 @@ void CHubController::on_balance_updated_sl(CHubBalance balance, int http_code,
         UPDATE_BALANCE_ATTEMPT_COUNT = 0;
       }
     } else {
-      CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d",
+      qInfo("Failed to re-login. %d - %d - %d",
                                            lhttp, lerr, lnet);
     }
   }
@@ -191,7 +190,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
   }
 
   if (err_code == RE_NOT_JSON_DOC) {
-    CApplicationLog::Instance()->LogInfo(
+    qInfo(
         "Failed to refresh environments. Received not json. Trying to "
         "re-login");
     int lhttp, lerr, lnet;
@@ -204,14 +203,14 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         UPDATE_ENVIRONMENTS_ATTEMTP_COUNT = 0;
       }
     } else {
-      CApplicationLog::Instance()->LogInfo("Failed to re-login. %d - %d - %d",
+      qInfo("Failed to re-login. %d - %d - %d",
                                            lhttp, lerr, lnet);
       return;
     }
   }
 
   if (err_code || network_error) {
-    CApplicationLog::Instance()->LogError(
+    qCritical(
         "Refresh environments failed. Err_code : %d, Net_err : %d", err_code,
         network_error);
     return;
@@ -220,7 +219,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
   // that means that about network error notified RestWorker.
   if (err_code && err_code != RE_NETWORK_ERROR) {
     QString err_msg =
-        QString("Refresh environments error : %1")
+        tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg);
     return;
@@ -356,18 +355,18 @@ void CHubController::launch_balance_page() {
     args << QString(hub_billing_url()).arg(m_user_id);
 
     if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = QString("Launch hub website with google chrome failed");
+      QString err_msg = tr("Launch hub website with google chrome failed");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
     if (!QDesktopServices::openUrl(
             QUrl(QString(hub_billing_url()).arg(m_user_id)))) {
       QString err_msg =
-          QString("Launch hub website with default browser failed");
+          tr("Launch hub website with default browser failed");
       CNotificationObserver::Error(err_msg);
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
     }
   }
 }
@@ -392,7 +391,7 @@ CHubControllerP2PWorker::~CHubControllerP2PWorker() {}
 
 void CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
   try {
-    CApplicationLog::Instance()->LogInfo(
+    qInfo(
         "join_to_p2p_swarm_begin : cont_ip : %s,"
         "cont_name : %s, "
         "cont_port : %s, "
@@ -405,12 +404,12 @@ void CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
     if (err != SCWE_SUCCESS) {
       QString err_msg = QString("Failed to join to p2p network. Error : %1")
                             .arg(CSystemCallWrapper::scwe_error_to_str(err));
-      CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+      qCritical("%s", err_msg.toStdString().c_str());
       emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
       return;
     }
   } catch (std::exception &exc) {
-    CApplicationLog::Instance()->LogError("Err in join_to_p2p_swarm_begin. %s",
+    qCritical("Err in join_to_p2p_swarm_begin. %s",
                                           exc.what());
   }
 
@@ -431,7 +430,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
       return;
     }
 
-    CNotificationObserver::Info("Checking container. Please, wait");
+    CNotificationObserver::Info(tr("Checking container. Please, wait"));
     static const int MAX_ATTEMTS_COUNT = 25;
     for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
       err = CSystemCallWrapper::check_container_state(m_env_hash, cip.ip);
@@ -440,9 +439,9 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     }
 
     if (err != SCWE_SUCCESS) {
-      CNotificationObserver::Error(
+      CNotificationObserver::Error(tr(
           "Failed to run SSH because container isn't ready. Try little bit "
-          "later.");
+          "later."));
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -462,8 +461,8 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
           fi.baseName();
 
     if (key.isEmpty()) {
-      CNotificationObserver::Error(
-          "Failed to retrieve environment key. Try to restart application");
+      CNotificationObserver::Error(tr(
+          "Failed to retrieve environment key. Try to restart application"));
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -473,7 +472,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   err = CSystemCallWrapper::run_ssh_in_terminal(
       CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
 
-  CApplicationLog::Instance()->LogInfo(
+  qInfo(
       "run_ssh_in_terminal : user : %s, "
       "ip : %s, port : %s, key : %s",
       CSettingsManager::Instance().ssh_user().toStdString().c_str(),
@@ -481,10 +480,10 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
       key.toStdString().c_str());
 
   if (err != SCWE_SUCCESS) {
-    QString err_msg = QString("Run SSH failed. Error code : %1")
+    QString err_msg = tr("Run SSH failed. Error code : %1")
                           .arg(CSystemCallWrapper::scwe_error_to_str(err));
     CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    qCritical("%s", err_msg.toStdString().c_str());
     emit ssh_to_container_finished((int)SLE_SYSTEM_CALL_FAILED,
                                    m_additional_data);
     return;

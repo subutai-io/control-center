@@ -1,6 +1,5 @@
 #include <QRegExp>
 
-#include "ApplicationLog.h"
 #include "Commons.h"
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
@@ -9,8 +8,10 @@
 
 static const int VBOXMANAGE_TIMEOUT = 5000;
 
-CVboxManager::CVboxManager(QObject *parent)
-    : QObject(parent), m_refresh_timer(nullptr) {}
+CVboxManager::CVboxManager(QObject *parent) :
+  QObject(parent),
+  m_version(tr("Couldn't get VBox version, sorry")),
+  m_refresh_timer(nullptr) {}
 
 CVboxManager::~CVboxManager() {
   for (auto item : m_dct_machines)
@@ -235,7 +236,7 @@ void CVboxManager::start_work() {
       m_version = st_res.out[0];
     }
   } catch (std::exception &exc) {
-    CApplicationLog::Instance()->LogError("CVboxManager::start_work() exc : %s",
+    qCritical("CVboxManager::start_work() exc : %s",
                                           exc.what());
   }
 

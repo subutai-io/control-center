@@ -5,13 +5,12 @@
 #include "TrayWebSocketServer.h"
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
-#include "ApplicationLog.h"
 #include "SystemCallWrapper.h"
 
 CTrayServer::CTrayServer(quint16 port,
                          QObject *parent) :
   QObject(parent),
-  m_web_socket_server(new QWebSocketServer("Tray websocket server",
+  m_web_socket_server(new QWebSocketServer(tr("Tray websocket server"),
                                            QWebSocketServer::NonSecureMode,
                                            this)),
   m_lst_clients()
@@ -23,10 +22,10 @@ CTrayServer::CTrayServer(quint16 port,
             this, &CTrayServer::ssh_to_container_finished);
   } else {
 
-    QString err_msg = QString("Can't listen websocket on port : %1 Reason : %2").
+    QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
                       arg(port).arg(m_web_socket_server->errorString());
     CNotificationObserver::Error(err_msg);
-    CApplicationLog::Instance()->LogError(err_msg.toStdString().c_str());
+    qCritical("%s", err_msg.toStdString().c_str());
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@ void
 CTrayServer::handle_current_user(const QString &msg,
                                  QWebSocket *pClient) {
   UNUSED_ARG(msg);
-  CApplicationLog::Instance()->LogTrace("*** handle_current_user ***");
+  qInfo("*** handle_current_user ***");
   pClient->sendTextMessage(CHubController::Instance().current_user());
 }
 ////////////////////////////////////////////////////////////////////////////

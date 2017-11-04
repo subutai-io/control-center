@@ -33,7 +33,7 @@ CUpdaterComponentP2P::p2p_path()
   } else {
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
-      CNotificationObserver::Instance()->Error(QString("Can't find p2p in PATH. Err : %1").arg(
+      CNotificationObserver::Instance()->Error(tr("Can't find p2p in PATH. Err : %1").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)));
     }
   }
@@ -68,7 +68,7 @@ CUpdaterComponentP2P::update_internal() {
   if (str_p2p_path.isNull() ||
       str_p2p_path.isEmpty() ||
       str_p2p_path == P2P) {
-    CApplicationLog::Instance()->LogError("Update p2p failed. Path = %s",
+    qCritical("Update p2p failed. Path = %s",
                                           (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
                                              "empty" : str_p2p_path.toStdString().c_str()));
     return CHUE_FAILED;
@@ -84,26 +84,43 @@ CUpdaterComponentP2P::update_internal() {
                                       p2p_kurjun_file_name());
 
   if (fi.empty()) {
-    CApplicationLog::Instance()->LogError("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
     return CHUE_NOT_ON_KURJUN;
   }
 
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+
+  CExecutableUpdater *eu = new CExecutableUpdater(str_p2p_downloaded_path,
+                                                str_p2p_executable_path);
+
+  if (item->md5_sum() == CCommons::FileMd5(str_p2p_downloaded_path))
+  {
+    qInfo("Already have new version of p2p in %s",
+                str_p2p_downloaded_path.toStdString().c_str());
+
+    this->update_progress_sl(100, 100);
+    connect(eu, &CExecutableUpdater::finished,
+            this, &CUpdaterComponentP2P::update_finished_sl);
+    connect(eu, &CExecutableUpdater::finished,
+            eu, &CExecutableUpdater::deleteLater);
+    eu->replace_executables(true);
+    return CHUE_SUCCESS;
+  }
+
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       str_p2p_downloaded_path,
                                                       item->size());
-
-  CExecutableUpdater *eu = new CExecutableUpdater(str_p2p_downloaded_path,
-                                                  str_p2p_executable_path);
-
   connect(dm, &CDownloadFileManager::download_progress_sig,
           this, &CUpdaterComponentP2P::update_progress_sl);
-
-  connect(dm, &CDownloadFileManager::finished, eu, &CExecutableUpdater::replace_executables);
-  connect(eu, &CExecutableUpdater::finished, this, &CUpdaterComponentP2P::update_finished_sl);
-  connect(eu, &CExecutableUpdater::finished, dm, &CDownloadFileManager::deleteLater);
-  connect(eu, &CExecutableUpdater::finished, eu, &CExecutableUpdater::deleteLater);
-
+  connect(dm, &CDownloadFileManager::finished,
+          eu, &CExecutableUpdater::replace_executables);
+  connect(eu, &CExecutableUpdater::finished,
+          this, &CUpdaterComponentP2P::update_finished_sl);
+  connect(eu, &CExecutableUpdater::finished,
+          dm, &CDownloadFileManager::deleteLater);
+  connect(eu, &CExecutableUpdater::finished,
+          eu, &CExecutableUpdater::deleteLater);
   dm->start_download();
   return CHUE_SUCCESS;
 }
@@ -112,35 +129,25 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Error("P2P has not been updated");
+    CNotificationObserver::Instance()->Error(tr("P2P has not been updated"));
     return;
   }
 
-  CNotificationObserver::Instance()->Info("P2P has been updated");
+  CNotificationObserver::Instance()->Info(tr("P2P has been updated"));
   int rse_err = 0;
 
-  QString download_path = download_p2p_path();
-  QFile df(download_path);
-
-  if (df.exists()) {
-    if (df.remove()) {
-      CApplicationLog::Instance()->LogInfo("p2p file from tray directory removed");
-    } else {
-      CApplicationLog::Instance()->LogInfo("Failed to remove p2p file. %s", df.errorString().toStdString().c_str());
-    }
-  }
   system_call_wrapper_error_t scwe =
       CSystemCallWrapper::restart_p2p_service(&rse_err);
 
   if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->Error(QString("p2p post update failed. err : ").
+    CNotificationObserver::Instance()->Error(tr("p2p post update failed. err : %1").
                                                         arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
 
   if (rse_err == RSE_MANUAL) {
-    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, "Attention! P2P update finished",
-                                           "P2P has been updated. Restart p2p daemon, please",
+    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, tr("Attention! P2P update finished"),
+                                           tr("P2P has been updated. Restart p2p daemon, please"),
                                            QMessageBox::Ok);
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();

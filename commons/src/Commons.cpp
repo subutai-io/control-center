@@ -9,40 +9,7 @@
 #include <QNetworkReply>
 
 
-bool CCommons::QuitAppFlag = false;
 const char* CCommons::RESTARTED_ARG = "restarted";
-
-static const char* date_format = "%d.%m.%Y.txt";
-static char date_str_buffer[15];
-char*
-CCommons::CurrentDateFileNameString() {
-  time_t ct = time(NULL); //system now
-  tm now;
-#ifndef RT_OS_WINDOWS
-  localtime_r(&ct, &now);
-#else
-  localtime_s(&now, &ct);
-#endif
-  strftime(date_str_buffer, 15, date_format, &now);
-  return date_str_buffer;
-}
-////////////////////////////////////////////////////////////////////////////
-
-static const char* date_time_format = "%d.%m.%Y %H:%M:%S";
-static char date_time_str_buffer[20];
-char*
-CCommons::CurrentDateTimeString() {
-  time_t ct = time(NULL); //system now
-  tm now;
-#ifndef RT_OS_WINDOWS
-  localtime_r(&ct, &now);
-#else
-  localtime_s(&now, &ct);
-#endif
-  strftime(date_time_str_buffer, 20, date_time_format, &now);
-  return date_time_str_buffer;
-}
-////////////////////////////////////////////////////////////////////////////
 
 QString
 CCommons::FileMd5(const QString &file_path) {
@@ -126,5 +93,48 @@ CCommons::IsApplicationLaunchable(const QString &file_path) {
   if (which_res != SCWE_SUCCESS) return false;
   QFileInfo fi2(cmd);
   return fi2.exists() && fi2.isExecutable();
+}
+////////////////////////////////////////////////////////////////////////////
+
+static std::map<QString, QString> dct_term_arg = {
+  //linux
+  {"xterm", "-e"},
+  {"terminator", "-e"},
+  {"gnome-terminal", "-x bash -c"},
+  {"mate-terminal", "-x bash -c"},
+  {"xfce4-terminal", "-x bash -c"},
+  {"guake", "-e"},
+  {"kterm", "-e bash -c"},
+  {"konsole", "-e bash -c"},
+  {"termit", "-e bash -c"},
+  {"roxterm", "-e bash -c"},
+  {"rxvt", "-e bash -c"},
+  {"evilvte", "-e bash -c"},
+  {"aterm", "-e bash -c"},
+  {"lxterminal", "-l -e"},
+};
+
+const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
+bool
+CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
+                                 QString& recommendedArg) {
+  QString cmd = terminalCmd;
+  QFileInfo fi(terminalCmd);
+  if (fi.exists())
+    cmd = fi.fileName();
+
+  if (dct_term_arg.find(cmd) != dct_term_arg.end()) {
+    recommendedArg = dct_term_arg.at(cmd);
+    return true;
+  }
+  return false;
+}
+
+QStringList
+CCommons::DefaultTerminals() {
+  QStringList lst_res;
+  for (auto i : dct_term_arg)
+    lst_res << i.first;
+  return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////

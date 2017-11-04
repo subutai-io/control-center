@@ -43,7 +43,7 @@ void CSshKeysController::refresh_key_files() {
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
-    CApplicationLog::Instance()->LogError(
+    qCritical(
         "Wrong ssh keys storage : %s",
         dir.absolutePath().toStdString().c_str());
     return;
@@ -57,7 +57,7 @@ void CSshKeysController::refresh_key_files() {
     QString file_path = dir.path() + QDir::separator() + *i;
     QFile key_file(file_path);
     if (!key_file.open(QFile::ReadOnly)) {
-      CApplicationLog::Instance()->LogError(
+      qCritical(
           "Can't open ssh-key file : %s, reason : %s",
           file_path.toStdString().c_str(),
           key_file.errorString().toStdString().c_str());
@@ -96,7 +96,7 @@ void CSshKeysController::rebuild_bit_matrix() {
 
   QStringList lst_key_content = m_lst_key_content;
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
-  rows = lst_he.size();
+  rows = (uint32_t)lst_he.size();
   cols = lst_key_content.size();
 
   tmpMatrix.reserve(rows);
@@ -119,7 +119,7 @@ void CSshKeysController::rebuild_bit_matrix() {
               std::back_inserter(m_original_ke_matrix));
     m_rows = rows;
     m_cols = cols;
-
+    m_lst_all_selected.clear();
     m_lst_all_selected.reserve(m_cols);
     m_lst_all_selected.resize(m_cols);
   }
@@ -128,11 +128,16 @@ void CSshKeysController::rebuild_bit_matrix() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void CSshKeysController::reset_matrix_current() {
+    rebuild_bit_matrix();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   QString str_file = QFileDialog::getSaveFileName(
-      parent, "Generate new ssh key pair. Don't change directory, please",
+      parent, tr("Generate new ssh key pair. Don't change directory, please"),
       CSettingsManager::Instance().ssh_keys_storage(),
-      "Ssh keys (*.pub);; All files (*.*)");
+      tr("Ssh keys (*.pub);; All files (*.*)"));
   if (str_file.isEmpty()) return;
   QFileInfo fi(str_file);
 
@@ -153,7 +158,7 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
       CHubController::Instance().current_user(), str_private);
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(
-        QString("Can't generate ssh-key. Err : %1")
+        tr("Can't generate ssh-key. Err : %1")
             .arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
     return;
   }
@@ -175,7 +180,7 @@ void CSshKeysController::send_data_to_hub() {
       QString key_name = m_lst_key_files[col];
 
       for (int32_t row = 0; row < m_rows; ++row) {
-        if (m_current_ke_matrix[row].size() <= col) {
+        if ((int32_t)m_current_ke_matrix[row].size() <= col) {
           continue;
         }
 
@@ -189,13 +194,13 @@ void CSshKeysController::send_data_to_hub() {
         }
 
         if (!m_current_ke_matrix[row][col]) {
-          CApplicationLog::Instance()->LogTrace("ssh-key %s remove from env %s",
+          qInfo("ssh-key %s remove from env %s",
                                                 key_name.toStdString().c_str(),
                                                 lst_he[row].name().toStdString().c_str());
           dct_to_remove[key].first = key_name;
           dct_to_remove[key].second.push_back(lst_he[row].id());
         } else {
-          CApplicationLog::Instance()->LogTrace("ssh-key %s add to env %s",
+          qInfo("ssh-key %s add to env %s",
                                                 key_name.toStdString().c_str(),
                                                 lst_he[row].name().toStdString().c_str());
           dct_to_send[key].first = key_name;
@@ -292,7 +297,7 @@ QStringList CSshKeysController::keys_in_environment(
   bool found = false;
 
   SynchroPrimitives::Locker lock(&csRbm);
-  for (row = 0; row < m_lst_healthy_environments.size(); ++row) {
+  for (row = 0; row < (int32_t)m_lst_healthy_environments.size(); ++row) {
     if (m_lst_healthy_environments[row].id() != env_id) continue;
     found = true;
     break;

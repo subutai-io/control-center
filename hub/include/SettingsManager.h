@@ -22,6 +22,7 @@ class CSettingsManager : public QObject {
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
   static const QString SM_SSH_USER;
+  static const QString SM_LOCALE;
 
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
@@ -49,6 +50,7 @@ class CSettingsManager : public QObject {
   static const QString SM_VBOXMANAGE_PATH;
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
+  static const QString SM_LOGS_LEVEL;
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
@@ -103,6 +105,8 @@ class CSettingsManager : public QObject {
   QString m_vboxmanage_path;
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
+  uint32_t m_logs_level;
+  uint32_t m_locale;
 
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
@@ -160,6 +164,7 @@ class CSettingsManager : public QObject {
   bool remember_me() const { return m_remember_me; }
 
   uint32_t refresh_time_sec() const { return m_refresh_time_sec; }
+  uint32_t locale() const { return m_locale; }
   const QString& p2p_path() const { return m_p2p_path; }
   uint32_t notification_delay_sec() const { return m_notification_delay_sec; }
   uint16_t plugin_port() const { return m_plugin_port; }
@@ -203,6 +208,7 @@ class CSettingsManager : public QObject {
   bool use_animations() const { return m_use_animations; }
 
   uint32_t notifications_level() const { return m_notifications_level; }
+  uint32_t logs_level() const { return m_logs_level; }
   uint32_t preferred_notifications_place() const {
     return m_preferred_notifications_place;
   }
@@ -227,6 +233,8 @@ class CSettingsManager : public QObject {
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
   void set_rh_management_freq(int fr);
+  void set_locale(int fr);
+  void set_p2p_path(QString fr);
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;
@@ -242,7 +250,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(password, QString&)
   SET_FIELD_DECL(remember_me, bool)
   SET_FIELD_DECL(refresh_time_sec, uint32_t)
-  SET_FIELD_DECL(p2p_path, QString&)
   SET_FIELD_DECL(plugin_port, uint16_t)
   SET_FIELD_DECL(ssh_path, QString&)
   SET_FIELD_DECL(ssh_user, QString&)
@@ -262,6 +269,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(vboxmanage_path, QString&)
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
+  SET_FIELD_DECL(logs_level, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
   SET_FIELD_DECL(autostart, bool)

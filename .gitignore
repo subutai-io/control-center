@@ -26,3 +26,5 @@ darwin-packages/root/*
 
 Makefile
 .*.stash
+
+*.qm

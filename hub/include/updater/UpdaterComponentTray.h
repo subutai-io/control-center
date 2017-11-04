@@ -8,6 +8,8 @@ namespace update_system {
   class CUpdaterComponentTray : public IUpdaterComponent {
   private:
     static QString tray_path();
+    static QString download_tray_path();
+
     // IUpdaterComponent interface
   protected:
     virtual bool update_available_internal();

@@ -470,3 +470,22 @@ p2p_package_url() {
   return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& current_branch_name_temp_internal();
+
+#define current_branch_name_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& current_branch_name_temp_internal<Branch2Type<BT_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+current_branch_name_def(BT_MASTER, QObject::tr("stage"))
+current_branch_name_def(BT_DEV, QObject::tr("development"))
+current_branch_name_def(BT_PROD, QObject::tr("production"))
+
+const QString&
+current_branch_name() {
+    return current_branch_name_temp_internal<Branch2Type<CURRENT_BRANCH>>();
+}
+////////////////////////////////////////////////////////////////////////////

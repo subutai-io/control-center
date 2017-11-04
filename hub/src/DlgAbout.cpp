@@ -8,7 +8,6 @@
 #include "SettingsManager.h"
 #include "updater/HubComponentsUpdater.h"
 #include "NotificationObserver.h"
-#include "ApplicationLog.h"
 #include "OsBranchConsts.h"
 
 using namespace update_system;
@@ -29,15 +28,20 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   this->setMinimumWidth(700);
 
+  ui->gridLayout->setSizeConstraint(QLayout::SetMinimumSize);
+  ui->gridLayout_2->setSizeConstraint(QLayout::SetMinimumSize);
+  ui->gridLayout_3->setSizeConstraint(QLayout::SetMinimumSize);
 
   QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_rhm_version_val,
                     this->ui->lbl_rh_version_val,
-                    this->ui->lbl_tray_version_val ,
-                    nullptr};
-  for (int i = 0; lbls[i]; ++i) {
-    lbls[i]->setWordWrap(true);
+                    this->ui->lbl_tray_version_val,
+                    nullptr };
+
+  for (QLabel **i = lbls; *i; ++i) {
+    (*i)->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    (*i)->setWordWrap(true);
   }
 
   bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
@@ -293,7 +297,7 @@ DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
   } catch (std::exception& ex) {
-    CApplicationLog::Instance()->LogError("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
+    qCritical("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
   }
 
   emit finished();

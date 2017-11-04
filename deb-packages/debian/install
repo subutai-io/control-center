@@ -1,2 +1,0 @@
-debian/SubutaiTray /opt/subutai/bin
-debian/icons/*.png /usr/share/icons

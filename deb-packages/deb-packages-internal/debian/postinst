@@ -1,13 +1,26 @@
 #!/bin/bash
 
 mkdir -p /opt/subutai/log
-chmod -R 0777 /opt/subutai/log
+mkdir -p /opt/subutai/bin
+mkdir -p /opt/subutai/lib
 
-if [ -L /usr/bin/SubutaiTray]; then
-rm -rf /usr/bin/SubutaiTray
+chmod -R 0777 /opt/subutai/log
+chmod -R 0777 /opt/subutai/bin
+
+if [ -L /usr/bin/SubutaiTray ]; then
+  rm -rf /usr/bin/SubutaiTray
 fi
+
+tar zxf /tmp/subutai/SubutaiTray.tar.gz -C /tmp/subutai/
+
+cp /tmp/subutai/SubutaiTray/lib/* /opt/subutai/lib/
+cp /tmp/subutai/SubutaiTray/bin/SubutaiTray /opt/subutai/bin/SubutaiTray
+
+echo "#!/bin/bash" > /usr/bin/SubutaiTray
+echo "LD_LIBRARY_PATH=/opt/subutai/lib/ /opt/subutai/bin/SubutaiTray" >> /usr/bin/SubutaiTray
 chmod +x /opt/subutai/bin/SubutaiTray
-ln -s /opt/subutai/bin/SubutaiTray /usr/bin/SubutaiTray
+chmod +x /usr/bin/SubutaiTray
+
 
 desktop_file=/tmp/SubutaiTray.desktop
 
@@ -29,18 +42,20 @@ ldconfig
 which_res=$(which p2p)
 which_res_code=$?
 settings_file=/opt/subutai/bin/subutai_tray.ini
-default_snap_files=(/snap/subutai-dev/current/bin/p2p /snap/subutai/current/bin/p2p /snap/subutai-master/current/bin/p2p)
-p2p_path="p2p"
+default_snap_files=(/snap/subutai-dev/current/bin/p2p /snap/subutai/current/bin/p2p /snap/subutai-master/current/bin/p2p /opt/subutai/bin/p2p)
+p2p_path="/opt/subutai/bin/p2p"
 
 if [ $which_res_code -eq 0 ]; then
 	p2p_path=$which_res
 else
 	for df in ${default_snap_files[@]}; do
-		$df debug
-		rc=$?
-		if [ $rc -eq 0 ]; then
-			p2p_path=$df
-			break
+		if [ -e $df ]; then
+		  $df debug
+		  rc=$?
+		  if [ $rc -eq 0 ]; then
+			  p2p_path=$df
+			  break
+		  fi
 		fi
 	done
 fi
