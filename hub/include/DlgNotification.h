@@ -30,8 +30,6 @@ private:
   Ui::DlgNotification *ui;
   QTimer m_close_timer;
 
-signals:
-  virtual void mousePressEvent(QMouseEvent *event) override;
 private slots:
   void btn_close_released();
 
