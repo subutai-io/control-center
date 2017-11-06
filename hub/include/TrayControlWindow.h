@@ -11,11 +11,13 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QWidgetAction>
+#include <QMouseEvent>
 
 #include "RestWorker.h"
 #include "NotificationObserver.h"
 #include "HubController.h"
 #include "VirtualMachine.h"
+#include "DlgNotification.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -102,7 +104,11 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   virtual ~TrayControlWindow();
-
+  static TrayControlWindow* Instance(){
+    static TrayControlWindow *tcw = new TrayControlWindow();
+    return tcw;
+  }
+  void Init (){;} /* do nothing */
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
@@ -160,7 +166,7 @@ private slots:
   void application_quit();
   void show_settings_dialog();  \
   void notification_received(CNotificationObserver::notification_level_t level,
-                             const QString& msg);
+                             const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
   void login_success();
   void launch_ss_console_finished_sl();

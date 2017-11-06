@@ -94,7 +94,7 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
                                        cmd.toStdString().c_str(),
                                        hash.toStdString().c_str());
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
-    CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()));
+    CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()), DlgNotification::N_NO_ACTION);
     qCritical("%s",
         error_strings[res.res].toStdString().c_str());
     return false;
@@ -410,7 +410,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
 
   if (!key.isEmpty()) {
     CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key));
+        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
     str_command += QString(" -i \"%1\" ").arg(key);
   }
 #else
@@ -788,7 +788,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -798,7 +798,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (!dir.mkpath(directory_path)) {
     qCritical(
         "Couldn't create autostart directory");
-    CNotificationObserver::Error(QObject::tr("Couldn't create autostart directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't create autostart directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -815,7 +815,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
         desktop_file.errorString().toStdString().c_str());
     CNotificationObserver::Error(QObject::tr("Couldn't delete %1. %2")
                                      .arg(desktop_file_path)
-                                     .arg(desktop_file.errorString()));
+                                     .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;  // removed or not . who cares?
   }
 
@@ -826,7 +826,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
         "Couldn't open desktop file for write");
     CNotificationObserver::Error(
         QObject::tr("Couldn't create autostart desktop file. Error : %1")
-            .arg(desktop_file.errorString()));
+            .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -838,7 +838,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
           "Couldn't write content to autostart desktop file : %s",
           desktop_file.errorString().toStdString().c_str());
       CNotificationObserver::Error(QObject::tr(
-          "Couldn't write content to autostart desktop file"));
+          "Couldn't write content to autostart desktop file"), DlgNotification::N_NO_ACTION);
       result = false;
     }
   } while (0);
@@ -858,7 +858,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -901,7 +901,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
       qCritical(
           "Couldn't create subutai-tray.plist file. Error : %s",
           item_file.errorString().toStdString().c_str());
-      CNotificationObserver::Error(QObject::tr(item_file.errorString().toStdString().c_str()));
+      CNotificationObserver::Error(QObject::tr(item_file.errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
       return false;
     }
 
@@ -909,7 +909,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
     if (item_file.write(content) != content.size()) {
       qCritical(
           "Didn't write whole content to plist file");
-      CNotificationObserver::Error(QObject::tr("Write plist file error"));
+      CNotificationObserver::Error(QObject::tr("Write plist file error"),  DlgNotification::N_NO_ACTION);
       item_file.close();
       return false;
     }
@@ -945,7 +945,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
     if (cr != ERROR_SUCCESS || !rkey_run) {
       qCritical(
           "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
-      CNotificationObserver::Error(QObject::tr("Couldn't create registry key, sorry"));
+      CNotificationObserver::Error(QObject::tr("Couldn't create registry key, sorry"),  DlgNotification::N_NO_ACTION);
       result = false;
       break;
     }
@@ -959,7 +959,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr == ERROR_ACCESS_DENIED) {
         CNotificationObserver::Error(QObject::tr(
             "Couldn't add program to autorun due to access denied. Try to run "
-            "this application as administrator"));
+            "this application as administrator"), DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
@@ -967,7 +967,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr != ERROR_SUCCESS) {
         qCritical("RegSetKeyValue err : %d, %d", cr,
                                               GetLastError());
-        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun, sorry"));
+        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun, sorry"),  DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
@@ -977,7 +977,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr == ERROR_ACCESS_DENIED) {
         CNotificationObserver::Error(QObject::tr(
             "Couldn't remove program from autorun due to access denied. Try to "
-            "run this application as administrator"));
+            "run this application as administrator"), DlgNotification::N_NO_ACTION);
         result = false;
       }
 
@@ -990,7 +990,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
         qCritical("RegDeleteKeyValueW err : %d, %d",
                                               cr, GetLastError());
         CNotificationObserver::Error(QObject::tr(
-            "Couldn't remove program from autorun, sorry"));
+            "Couldn't remove program from autorun, sorry"), DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
