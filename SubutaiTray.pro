@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets testlib
+QT       += core gui network websockets
 CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
@@ -17,9 +17,6 @@ INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
 INCLUDEPATH += tests
-
-DEFINES += TESTING_MODE
-
 
 SOURCES += \
     main.cpp \
@@ -57,21 +54,6 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    tests/CCommonsTest.cpp \
-    tests/Tester.cpp \
-    tests/LanguageControllerTest.cpp \
-    tests/LoggerTest.cpp \
-    tests/OsBranchConstsTest.cpp \
-    tests/TrayWebSocketServerTest.cpp \
-    tests/SystemCallWrapperTest.cpp \
-    tests/DlgNotificationsModelTest.cpp \
-    tests/NotificationObserverTest.cpp \
-    tests/DlgSettingsTest.cpp \
-    tests/NotificationLoggerTest.cpp \
-    tests/SettingsManagerTest.cpp \
-    tests/RhControllerTest.cpp \
-    tests/HubControlllerTest.cpp \
-    tests/DownloadFileManagerTest.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -109,22 +91,7 @@ HEADERS  += \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
-    commons/include/LanguageController.h \
-    tests/CCommonsTest.h \
-    tests/Tester.h \
-    tests/LanguageControllerTest.h \
-    tests/LoggerTest.h \
-    tests/OsBranchConstsTest.h \
-    tests/TrayWebSocketServerTest.h \
-    tests/SystemCallWrapperTest.h \
-    tests/DlgNotificationsModelTest.h \
-    tests/NotificationObserverTest.h \
-    tests/DlgSettingsTest.h \
-    tests/NotificationLoggerTest.h \
-    tests/SettingsManagerTest.h \
-    tests/RhControllerTest.h \
-    tests/HubControlllerTest.h \
-    tests/DownloadFileManagerTest.h
+    commons/include/LanguageController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts
@@ -210,3 +177,45 @@ win32: {
 }
 #////////////////////////////////////////////////////////////////////////////
 
+tests {
+    message(Test build)
+    QT += testlib
+    TARGET = SubutaiTray
+
+    SOURCES -= main.cpp
+
+    HEADERS += tests/CCommonsTest.h \
+        tests/Tester.h \
+        tests/LanguageControllerTest.h \
+        tests/LoggerTest.h \
+        tests/OsBranchConstsTest.h \
+        tests/TrayWebSocketServerTest.h \
+        tests/SystemCallWrapperTest.h \
+        tests/DlgNotificationsModelTest.h \
+        tests/NotificationObserverTest.h \
+        tests/DlgSettingsTest.h \
+        tests/NotificationLoggerTest.h \
+        tests/SettingsManagerTest.h \
+        tests/RhControllerTest.h \
+        tests/HubControlllerTest.h \
+        tests/DownloadFileManagerTest.h
+
+    SOURCES += tests/main.cpp \
+        tests/CCommonsTest.cpp \
+        tests/Tester.cpp \
+        tests/LanguageControllerTest.cpp \
+        tests/LoggerTest.cpp \
+        tests/OsBranchConstsTest.cpp \
+        tests/TrayWebSocketServerTest.cpp \
+        tests/SystemCallWrapperTest.cpp \
+        tests/DlgNotificationsModelTest.cpp \
+        tests/NotificationObserverTest.cpp \
+        tests/DlgSettingsTest.cpp \
+        tests/NotificationLoggerTest.cpp \
+        tests/SettingsManagerTest.cpp \
+        tests/RhControllerTest.cpp \
+        tests/HubControlllerTest.cpp \
+        tests/DownloadFileManagerTest.cpp
+} else {
+    message(Normal build)
+}
