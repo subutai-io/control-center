@@ -158,13 +158,21 @@ private:
 
   void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+public slots:
+  /*tray slots*/
+  void show_about();
+  void show_settings_dialog();
 
+  /*virtualbox slots*/
+  void show_vbox();
+  void launch_Hub();
+
+  /*hub slots*/
+  void show_notifications_triggered();
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
-  void show_about();
   void application_quit();
-  void show_settings_dialog();  \
   void notification_received(CNotificationObserver::notification_level_t level,
                              const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
@@ -173,7 +181,6 @@ private slots:
 
   /*virtualbox slots*/
   void fill_vm_menu();
-  void show_vbox();
   void vm_added(const QString& vm_id);
   void vm_removed(const QString& vm_id);
   void vm_state_changed(const QString& vm_id);
@@ -183,7 +190,6 @@ private slots:
   void vbox_menu_btn_stop_triggered(const QString& vm_id);
   void vbox_menu_btn_add_triggered(const QString& vm_id);
   void vbox_menu_btn_rem_triggered(const QString& vm_id);
-  void launch_Hub();
   void launch_ss_triggered();
 
   /*hub slots*/
@@ -193,7 +199,6 @@ private slots:
   void hub_container_mi_triggered(const CEnvironment *env,
                                const CHubContainer *cont, void *action);
   void ssh_key_generate_triggered();
-  void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/

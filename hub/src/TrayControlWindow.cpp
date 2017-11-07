@@ -525,7 +525,7 @@ void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
 
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
-      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_NO_ACTION);
+      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_ABOUT);
 }
 ////////////////////////////////////////////////////////////////////////////
 

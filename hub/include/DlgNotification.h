@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QTimer>
-//#include "NotificationObserver.h"
 
 
 namespace Ui {
@@ -18,9 +17,13 @@ class CNotificationObserver;
 class DlgNotification : public QDialog
 {
   Q_OBJECT
+
+friend class TrayControlWindow;
+
 public:
 
-  enum NOTIFICATION_ACTION_TYPE{N_UPDATE_P2P = 0, N_UPDATE_TRAY, N_UPDATE_RH, N_UPDATE_RHM, N_NO_ACTION};
+  enum NOTIFICATION_ACTION_TYPE{N_UPDATE_P2P = 0, N_UPDATE_TRAY, N_UPDATE_RH, N_UPDATE_RHM,
+                                N_SETTINGS, N_GO_TO_HUB, N_NOTF_HISTORY, N_RESTART_TRAY, N_ABOUT, N_NO_ACTION};
   explicit DlgNotification(size_t notification_level,
                            const QString& msg,
                            QWidget *parent = 0,

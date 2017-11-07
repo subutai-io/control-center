@@ -34,7 +34,7 @@ CUpdaterComponentP2P::p2p_path()
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
       CNotificationObserver::Instance()->Error(tr("Can't find p2p in PATH. Err : %1").arg(
-                                                            CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_NO_ACTION);
+                                                            CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_SETTINGS);
     }
   }
   return p2p_path;

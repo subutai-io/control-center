@@ -462,7 +462,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
 
     if (key.isEmpty()) {
       CNotificationObserver::Error(tr(
-          "Failed to retrieve environment key. Try to restart application"),DlgNotification::N_NO_ACTION);
+          "Failed to retrieve environment key. Try to restart application"), DlgNotification::N_RESTART_TRAY);
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;

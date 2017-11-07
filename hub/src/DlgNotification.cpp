@@ -6,7 +6,7 @@
 #include "ui_DlgNotification.h"
 #include "TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
-
+#include "Commons.h"
 
 
 DlgNotification::DlgNotification(
@@ -39,6 +39,27 @@ DlgNotification::DlgNotification(
       connect(ui->btn_action, &QPushButton::released,
               [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::RHMANAGEMENT);});
       break;
+    case N_SETTINGS:
+      ui->btn_action->setText("Settings");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){TrayControlWindow::Instance()->show_settings_dialog();});
+    case N_GO_TO_HUB:
+      ui->btn_action->setText("SubutaiHub");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){TrayControlWindow::Instance()->launch_Hub();});
+    case N_NOTF_HISTORY:
+      ui->btn_action->setText("Notification History");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){TrayControlWindow::Instance()->show_vbox();});
+      break;
+    case N_RESTART_TRAY:
+      ui->btn_action->setText("Restart Tray");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){CCommons::RestartTray();});
+    case N_ABOUT:
+      ui->btn_action->setText("Go to About");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){TrayControlWindow::Instance()->show_about();});
     default:
       ui->btn_action->setVisible(false);
       break;
