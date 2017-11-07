@@ -109,7 +109,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Go</string>
+    <string>Update Resource Host</string>
    </property>
   </widget>
  </widget>

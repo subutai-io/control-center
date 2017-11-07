@@ -13,28 +13,39 @@ DlgNotification::DlgNotification(
    size_t notification_level, const QString &msg,
     QWidget *parent, NOTIFICATION_ACTION_TYPE action_type)
     : QDialog(parent, Qt::SplashScreen), ui(new Ui::DlgNotification) {
+
   CNotificationObserver::notification_level_t level = (CNotificationObserver::notification_level_t) notification_level;
 
   ui->setupUi(this);
 
-
-  if (action_type == N_UPDATE_P2P || action_type == N_UPDATE_TRAY || action_type == N_UPDATE_RH || action_type == N_UPDATE_RHM) {
-      connect(ui->btn_action, &QPushButton::released,[action_type](){
-          using namespace update_system;
-          QString component_to_update = action_type == N_UPDATE_P2P? IUpdaterComponent::P2P : action_type == N_UPDATE_TRAY? IUpdaterComponent::TRAY :
-                                        action_type == N_UPDATE_RH? IUpdaterComponent::RH : IUpdaterComponent::RHMANAGEMENT;
-          CHubComponentsUpdater::Instance()->force_update(component_to_update);
-     });
-     QString button_message = QString("Update ") + QString(action_type == N_UPDATE_P2P? "P2P" : action_type == N_UPDATE_TRAY? "SubutaiTray" :
-                                             action_type == N_UPDATE_RH? "Resource Host" : "Resource Host Management");
-     ui->btn_action->setText(button_message);
+  switch (action_type) {
+    case N_UPDATE_P2P:
+      ui->btn_action->setText("Update P2P");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::P2P);});
+      break;
+    case N_UPDATE_TRAY:
+      ui->btn_action->setText("Update SubtaiTray");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::TRAY);});
+      break;
+    case N_UPDATE_RH:
+      ui->btn_action->setText("Update Resource Host");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::RH);});
+      break;
+    case N_UPDATE_RHM:
+      ui->btn_action->setText("Update RH Management");
+      connect(ui->btn_action, &QPushButton::released,
+              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::RHMANAGEMENT);});
+      break;
+    default:
+      ui->btn_action->setVisible(false);
+      break;
   }
 
-  if (action_type == N_NO_ACTION)
-    ui->btn_action->setVisible(false);
-  else
-    connect(ui->btn_action, &QPushButton::released,
-            this, &DlgNotification::btn_close_released);
+
+
 
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
   ui->lbl_icon->setBackgroundRole(QPalette::Base);
