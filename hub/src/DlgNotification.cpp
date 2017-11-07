@@ -38,10 +38,7 @@ DlgNotification::DlgNotification(
     ui->btn_action->setVisible(false);
   else{
    connect(ui->btn_action, &QPushButton::released,
-            [action_type](){
-       qDebug() << action_type << " \n" << action_handler[action_type].btn_message;
-       action_handler[action_type].call_func();
-   });
+            [action_type](){action_handler[action_type].call_func();});
    ui->btn_action->setText(action_handler[action_type].btn_message);
   }
 
