@@ -18,53 +18,32 @@ DlgNotification::DlgNotification(
 
   ui->setupUi(this);
 
-  switch (action_type) {
-    case N_UPDATE_P2P:
-      ui->btn_action->setText("Update P2P");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::P2P);});
-      break;
-    case N_UPDATE_TRAY:
-      ui->btn_action->setText("Update SubtaiTray");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::TRAY);});
-      break;
-    case N_UPDATE_RH:
-      ui->btn_action->setText("Update Resource Host");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::RH);});
-      break;
-    case N_UPDATE_RHM:
-      ui->btn_action->setText("Update RH Management");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){update_system::CHubComponentsUpdater::Instance()->force_update(update_system::IUpdaterComponent::RHMANAGEMENT);});
-      break;
-    case N_SETTINGS:
-      ui->btn_action->setText("Settings");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){TrayControlWindow::Instance()->show_settings_dialog();});
-    case N_GO_TO_HUB:
-      ui->btn_action->setText("SubutaiHub");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){TrayControlWindow::Instance()->launch_Hub();});
-    case N_NOTF_HISTORY:
-      ui->btn_action->setText("Notification History");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){TrayControlWindow::Instance()->show_vbox();});
-      break;
-    case N_RESTART_TRAY:
-      ui->btn_action->setText("Restart Tray");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){CCommons::RestartTray();});
-    case N_ABOUT:
-      ui->btn_action->setText("Go to About");
-      connect(ui->btn_action, &QPushButton::released,
-              [action_type](){TrayControlWindow::Instance()->show_about();});
-    default:
-      ui->btn_action->setVisible(false);
-      break;
-  }
+  static struct handler_t {
+    QString btn_message;
+    std::function<void()> call_func;
+  } action_handler[] = {
+    {"Update P2P", [](){update_system::CHubComponentsUpdater::Instance()->force_update_p2p();}},
+    {"Update Subutai Tray",[](){update_system::CHubComponentsUpdater::Instance()->force_update_tray();}},
+    {"Update Resource Host", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rh();}},
+    {"Update RH Management", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rhm();}},
+    {"Settings", [](){TrayControlWindow::Instance()->show_settings_dialog();}},
+    {"SubutaiHub", [](){TrayControlWindow::Instance()->launch_Hub();}},
+    {"Notification history", [](){TrayControlWindow::Instance()->show_notifications_triggered();}},
+    {"Restart Tray", [](){CCommons::RestartTray();}},
+    {"About", [](){TrayControlWindow::Instance()->show_about();}},
+    {"No Action", [](){}}
+  };
 
+  if (action_type == N_NO_ACTION)
+    ui->btn_action->setVisible(false);
+  else{
+   connect(ui->btn_action, &QPushButton::released,
+            [action_type](){
+       qDebug() << action_type << " \n" << action_handler[action_type].btn_message;
+       action_handler[action_type].call_func();
+   });
+   ui->btn_action->setText(action_handler[action_type].btn_message);
+  }
 
 
 

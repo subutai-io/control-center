@@ -86,6 +86,10 @@ namespace update_system {
     void set_rh_management_autoupdate();
     bool is_update_available(const QString& component_id);
     void force_update(const QString& component_id);
+    void force_update_p2p();
+    void force_update_tray();
+    void force_update_rh();
+    void force_update_rhm();
 
   private slots:
 
