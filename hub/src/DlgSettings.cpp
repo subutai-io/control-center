@@ -1,6 +1,5 @@
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <QToolTip>
 
 #include <QListView>
 #include <QMessageBox>
@@ -111,6 +110,21 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->btn_rtm_db_folder->setVisible(false);
   ui->lbl_rtm_db_folder->setVisible(false);
 
+  ui->lbl_err_logs_storage->hide();
+  ui->lbl_err_ssh_keys_storage->hide();
+  ui->lbl_err_ssh_user->hide();
+  ui->lbl_err_p2p_command->hide();
+  ui->lbl_err_ssh_command->hide();
+  ui->lbl_err_vboxmanage_command->hide();
+  ui->lbl_err_ssh_keygen_command->hide();
+  ui->lbl_err_terminal_arg->hide();
+  ui->lbl_err_terminal_cmd->hide();
+  ui->lbl_err_rhip_host->hide();
+  ui->lbl_err_resource_hosts->hide();
+  ui->lbl_err_rhip_port->hide();
+  ui->lbl_err_rhip_user->hide();
+  ui->lbl_err_rhip_password->hide();
+
   fill_freq_combobox(ui->cb_p2p_frequency);
   fill_freq_combobox(ui->cb_rh_frequency);
   fill_freq_combobox(ui->cb_tray_frequency);
@@ -216,6 +230,7 @@ void DlgSettings::rebuild_rh_list_model() {
 template <class TC>
 struct field_validator_t {
   TC* fc;  // field control
+  QLabel* lbl_err;
   bool (*f_validator)(const TC*);
   int8_t tab_index;
   QString validator_msg;
@@ -264,54 +279,55 @@ void DlgSettings::btn_ok_released() {
   }
 
   field_validator_t<QLineEdit> le_validators[] = {
-    {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_user, ui->lbl_err_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
 
-    {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_ssh_keys_storage, folder_has_write_permission, 0,
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_logs_storage, folder_has_write_permission, 0,
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_rtm_db_folder, folder_has_write_permission, 0,
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_p2p_command, can_launch_application, 1,
+    {ui->le_p2p_command, ui->lbl_err_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_p2p_command, ui->lbl_err_p2p_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_ssh_command, can_launch_application, 1,
+    {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_terminal_cmd, can_launch_application, 1,
+    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_application, 1,
      can_launch_application_msg},
-    {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, can_launch_application, 1,
-     can_launch_application_msg},
-
-    {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_ssh_keygen_command, can_launch_application, 1,
+    {ui->le_terminal_arg, ui->lbl_err_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-    {NULL, NULL, -1, ""}};
+    {ui->le_rhip_host, ui->lbl_err_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_password, ui->lbl_err_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_port, ui->lbl_err_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_user, ui->lbl_err_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+
+    {NULL, NULL, NULL, -1, ""}};
 
   std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
   field_validator_t<QLineEdit>* tmp = le_validators;
 
   do {
+    tmp->lbl_err->hide();
     if (!tmp->fc->isVisible()) continue;
     if (tmp->f_validator(tmp->fc)) continue;
     lst_failed_validators.push_back(*tmp);
@@ -328,10 +344,13 @@ void DlgSettings::btn_ok_released() {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
 
     if (msg_box->exec() == QMessageBox::Yes) {
-      ui->tabWidget->setCurrentIndex(lst_failed_validators[0].tab_index);
-      lst_failed_validators[0].fc->setFocus();
-      QToolTip::showText(lst_failed_validators[0].fc->mapToGlobal(QPoint()),
-          lst_failed_validators[0].validator_msg);
+      for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
+        ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
+        lst_failed_validators[i].fc->setFocus();
+        lst_failed_validators[i].lbl_err->show();
+        lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
+                                                  arg(lst_failed_validators[i].validator_msg));
+      }
       return;
     }
   }  // if !lst_failed_validators.empty()
