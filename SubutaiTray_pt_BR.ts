@@ -650,17 +650,17 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="444"/>
         <source>Resource Host check for updates frequency:</source>
-        <translation>Frequencia em que o Anfitrião vai buscar por atualizações:</translation>
+        <translation>Frequência em que o Anfitrião vai buscar por atualizações:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="451"/>
         <source>SubutaiTray check for updates frequency:</source>
-        <translation>Frequencia em que o SubutaiTray vai buscar por atualizações:</translation>
+        <translation>Frequência em que o SubutaiTray vai buscar por atualizações:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="464"/>
         <source>Automatic tray update</source>
-        <translation>Atualizações auitomáticas do tray</translation>
+        <translation>Atualizações automáticas do tray</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="471"/>
@@ -670,7 +670,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="478"/>
         <source>P2P check for updates frequency:</source>
-        <translation>Frequencia em que o P2P vai buscar por atualizações:</translation>
+        <translation>Frequência em que o P2P vai buscar por atualizações:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="488"/>
@@ -680,7 +680,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="495"/>
         <source>Management check for updates frequency:</source>
-        <translation>Frequencia em que o Gerenciador vai buscar por atualizações:</translation>
+        <translation>Frequência em que o Gerenciador vai buscar por atualizações:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="505"/>
@@ -715,7 +715,7 @@
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="320"/>
         <source>You have %1 wrong settings. Would you like to correct it? Yes - try to correct, No - save anyway</source>
-        <translation>Você tem %1 configurações incorretas. Você gostaria de corrigilas ? Sim - tente corrigir, Não - salve mesmo assim</translation>
+        <translation>Você tem %1 configurações incorretas. Você gostaria de corrigi-las ? Sim - tente corrigir, Não - salve mesmo assim</translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="342"/>
@@ -904,7 +904,7 @@
     <message>
         <location filename="commons/src/Commons.cpp" line="50"/>
         <source>Unknown Proxy Error</source>
-        <translation>Erro desoconhecido do proxy</translation>
+        <translation>Erro desconhecido do proxy</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="53"/>
@@ -1070,7 +1070,7 @@
     <message>
         <location filename="main.cpp" line="75"/>
         <source>Already running</source>
-        <translation>Já esta rodando</translation>
+        <translation>Já está rodando</translation>
     </message>
     <message>
         <location filename="main.cpp" line="76"/>
@@ -1153,7 +1153,7 @@
         <location filename="hub/src/TrayControlWindow.cpp" line="279"/>
         <location filename="hub/src/TrayControlWindow.cpp" line="911"/>
         <source>Notifications history</source>
-        <translation>Histótico de notificações</translation>
+        <translation>Histórico de notificações</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="527"/>
