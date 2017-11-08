@@ -163,6 +163,7 @@ signals:
   void ssh_to_container_str_finished(int result, void* additional_data);
 
   void environments_updated(int);
+  void my_peers_updated();
   void balance_updated();
 };
 

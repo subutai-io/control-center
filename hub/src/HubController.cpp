@@ -260,6 +260,7 @@ void CHubController::on_my_peers_updated_sl(std::vector<CMyPeerInfo> lst_peers,
   UNUSED_ARG(err_code);
   UNUSED_ARG(network_error);
   m_lst_my_peers = lst_peers;
+  emit my_peers_updated();
 }
 ////////////////////////////////////////////////////////////////////////////
 
