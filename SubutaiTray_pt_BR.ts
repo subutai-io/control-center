@@ -1298,7 +1298,7 @@
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="87"/>
         <source>Tray application has been updated. Do you want to restart it now?</source>
-        <translation>Atualização do Tray concluída. Deseja reinicia-lo agora?</translation>
+        <translation>Atualização do Tray concluída. Deseja reiniciá-lo agora?</translation>
     </message>
 </context>
 </TS>
