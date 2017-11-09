@@ -709,7 +709,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                                                                               my_current_envs_in_peers.end(),
                                                                               [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
         if (found_env == my_current_envs_in_peers.end()) {
-          QString msg = QString("Environment %1:%2 owned by %3 from your Peer %1:%2 was deleted.")
+          QString msg = QString("Environment %1:%2 owned by %3 from your Peer %4:%5 was deleted.")
                         .arg(env.envName).arg(env.envId).arg(env.ownerName).arg(peer.name()).arg(peer.id());
           CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
           disconnected_envs.push_back(env);
@@ -737,7 +737,7 @@ void TrayControlWindow::my_peers_updated_sl() {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
     if(found_peer == peers_connected.end()) {
-      QString msg = QString("Peer %1:%2 is connected.").arg(peer.name()).arg(peer.id());
+      QString msg = QString("Peer %1:%2 is connected. It's status: %3").arg(peer.name()).arg(peer.id()).arg(peer.status());
       CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
       new_connected_peers.push_back(peer);
     }
@@ -751,7 +751,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                                                                               [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
 
         if (found_env == envs_connected.end()) {
-          QString msg = QString("Environment %1:%2 owned by %3 from your Peer %1:%2 is connected. It's status :")
+          QString msg = QString("Environment %1:%2 owned by %3 from your Peer %4:%5 is connected. It's status : %6")
                         .arg(env.envName).arg(env.envId).arg(env.ownerName).arg(peer.name()).arg(peer.id()).arg(env.status);
           CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
           new_connected_envs.push_back(env);
@@ -821,7 +821,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
           "Run subutai console via default browser failed. Couldn't start "
           "process");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
     }
   }
 }

@@ -19,7 +19,7 @@ const QString IUpdaterComponent::TRAY = "SubutaiTray.exe";
 const QString IUpdaterComponent::RH = "resource_host";
 const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
 
-const QString &
+QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
     {P2P, "p2p"},
