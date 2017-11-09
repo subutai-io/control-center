@@ -19,7 +19,7 @@ const QString IUpdaterComponent::TRAY = "SubutaiTray.exe";
 const QString IUpdaterComponent::RH = "resource_host";
 const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
 
-QString &
+const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
     {P2P, "p2p"},
@@ -33,7 +33,7 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
   return dct.at(id);
 }
 
-const DlgNotification::NOTIFICATION_ACTION_TYPE
+DlgNotification::NOTIFICATION_ACTION_TYPE
 IUpdaterComponent::component_id_to_notification_action(const QString& id) {
   static std::map<QString, DlgNotification::NOTIFICATION_ACTION_TYPE> dct = {
     {P2P, DlgNotification::N_UPDATE_P2P},

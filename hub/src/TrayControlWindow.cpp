@@ -812,7 +812,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = tr(
           "Run subutai console via chrome failed. Couldn't start process");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
   } else {
