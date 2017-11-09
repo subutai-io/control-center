@@ -718,7 +718,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = tr(
           "Run subutai console via chrome failed. Couldn't start process");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
+      qCritical("%s %d", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
       return;
     }
   } else {
@@ -727,7 +727,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
           "Run subutai console via default browser failed. Couldn't start "
           "process");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
+      qCritical("%s %d", err_msg.toStdString().c_str(), DlgNotification::N_NO_ACTION);
     }
   }
 }

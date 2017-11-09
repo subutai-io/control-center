@@ -48,7 +48,7 @@ namespace update_system {
     virtual ~IUpdaterComponent(){}
 
     static const QString& component_id_to_user_view(const QString &id);
-    static const DlgNotification::NOTIFICATION_ACTION_TYPE component_id_to_notification_action(const QString& id);
+    static DlgNotification::NOTIFICATION_ACTION_TYPE component_id_to_notification_action(const QString& id);
 
 
     bool update_available() {

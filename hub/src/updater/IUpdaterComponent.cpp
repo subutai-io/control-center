@@ -33,7 +33,7 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
   return dct.at(id);
 }
 
-const DlgNotification::NOTIFICATION_ACTION_TYPE
+DlgNotification::NOTIFICATION_ACTION_TYPE
 IUpdaterComponent::component_id_to_notification_action(const QString& id) {
   static std::map<QString, DlgNotification::NOTIFICATION_ACTION_TYPE> dct = {
     {P2P, DlgNotification::N_UPDATE_P2P},
