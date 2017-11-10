@@ -341,7 +341,7 @@ void DlgSettings::btn_ok_released() {
                                 "Yes - try to correct, No - save anyway")
                         .arg(lst_failed_validators.size()),
                         QMessageBox::Yes | QMessageBox::No);
-    //connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
 
     if (msg_box->exec() == QMessageBox::Yes) {
       for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
