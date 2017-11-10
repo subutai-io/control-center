@@ -180,7 +180,7 @@ win32: {
 tests {
     message(Test build)
     QT += testlib
-    TARGET = SubutaiTray
+    TARGET = TestingTray
 
     SOURCES -= main.cpp
 

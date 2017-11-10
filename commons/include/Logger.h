@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QFile>
-#include "LoggerTest.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -12,8 +11,8 @@ class Logger : public QObject
   Q_OBJECT
 
 public:
+  friend class LoggerTest;
   enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
-
   void Init();
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
@@ -26,7 +25,6 @@ private:
 private slots:
   static void deleteOldFiles();
 
-  friend class LoggerTest;
 
 
 };

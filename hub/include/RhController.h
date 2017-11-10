@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QTimer>
 #include <map>
-#include "RhControllerTest.h"
 
 class CRhController : public QObject {
   Q_OBJECT

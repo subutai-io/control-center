@@ -46,7 +46,6 @@ void DownloadFileManagerTest::testInteruptFunction() {
     QFETCH(QString, kurjun_file_id);
     QFETCH(QString, dst_file);
     QFETCH(int, expected_size);
-    QFETCH(int, time_to_download);
 
     QFile old_file(dst_file);
     if (old_file.exists() && !old_file.remove()) // if we can't delete, we can't test this case
