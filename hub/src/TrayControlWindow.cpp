@@ -751,7 +751,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                   .arg(disconnected_peers.size() > 1 ? "s" : "")
                   .arg(lst_disconnected_peers)
                   .arg(disconnected_peers.size() > 1 ? "are" : "is");
-    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr(msg), DlgNotification::N_GO_TO_HUB);
   }
 
   // notify if Environments were disconnected from one of your Peers
@@ -764,7 +764,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                     .arg(disconnected_envs.size() > 1 ? "s" : "")
                     .arg(lst_disconnected_envs)
                     .arg(disconnected_envs.size() > 1 ? "are" : "is");
-    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr(msg), DlgNotification::N_GO_TO_HUB);
   }
 
   // notify if Peers were newly connected
@@ -777,7 +777,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                   .arg(new_connected_peers.size() > 1 ? "s" : "")
                   .arg(lst_connected_peers)
                   .arg(new_connected_peers.size() > 1 ? "are" : "is");
-    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr(msg), DlgNotification::N_GO_TO_HUB);
   }
 
   // notify if Environments were newly connected to some of you Peer
@@ -793,9 +793,6 @@ void TrayControlWindow::my_peers_updated_sl() {
                     .arg(new_connected_envs.size() > 1 ? "are" : "is");
     CNotificationObserver::Instance()->Info(tr(msg), DlgNotification::N_GO_TO_HUB);
   }
-
-
-
 
   /// NOTE: Environments should be removed first
   // Remove all disconnected Environments from your environment storage matrix
