@@ -791,7 +791,7 @@ void TrayControlWindow::my_peers_updated_sl() {
                     .arg(new_connected_envs.size() > 1 ? "s" : "")
                     .arg(lst_connected_envs)
                     .arg(new_connected_envs.size() > 1 ? "are" : "is");
-    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr(msg), DlgNotification::N_GO_TO_HUB);
   }
 
 
