@@ -6,8 +6,6 @@ CRhController::CRhController(QObject *parent) :
   QObject(parent),
   m_has_changes(false),
   m_refresh_in_progress(false) {
-    std::vector <int> some_thing;
-    int k = some_thing.size();
 
   m_refresh_timer.setInterval(60*1000);
   m_delay_timer.setInterval(REFRESH_DELAY_SEC*1000); //ssdp should use 5 seconds. BUT we will give 1 extra second :)

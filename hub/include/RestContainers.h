@@ -283,19 +283,19 @@ class CMyPeerInfo {
 public:
   struct env_info
   {
+    QString mypeerid;
     QString ownerName, envName, status;
     int ownerId, envId;
-    env_info(const QJsonObject& obj) {
+
+    env_info(const QJsonObject& obj, QString& peer_id) {
       ownerName = obj["envOwnerName"].toString();
       ownerId = obj["envOwnerId"].toInt();
       envName = obj["envName"].toString();
       envId = obj["envId"].toInt();
       status = obj["envStatus"].toString();
+      mypeerid = peer_id;
     }
   };
-  bool operator==(CMyPeerInfo& a)const {
-      return this->id() == a.id();
-  }
 
 private:
   QString m_country;
@@ -327,10 +327,8 @@ public:
     QJsonArray arr = obj["environments"].toArray();
     for (auto i = arr.begin(); i != arr.end(); ++i) {
       if (i->isNull() || !i->isObject()) continue;
-      env_info ei(i->toObject());
-
+      env_info ei(i->toObject(), m_id);
       m_lst_environments.push_back(ei);
-
     }
   }
   ~CMyPeerInfo(){}
