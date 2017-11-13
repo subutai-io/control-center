@@ -364,8 +364,8 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(
   qInfo("Launch command : %s",
                                        str_command.toStdString().c_str());
 
-  args << QString("Tell application \"Terminal\" to do script \"%1\"")
-              .arg(str_command);
+  args << QString("Tell application \"%1\" to do script \"%2\"")
+              .arg(cmd, str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
