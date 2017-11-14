@@ -380,6 +380,40 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
 }
 
 ////////////////////////////////////////////////////////////////////////////
+template<class OS>
+static inline void shift_notification_dialog_positions_internal(int &src_y , int &dst_y, int shift_value);
+
+template <>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_LINUX> >(int &src_y , int &dst_y, int shift_value){
+  const int &pref_place = CSettingsManager::Instance().preferred_notifications_place();
+  if (pref_place == 1 || pref_place == 2) { // if the notification dialogs on the top of the screen
+    src_y = DlgNotification::lastDialogPos.y() - shift_value;
+    dst_y = DlgNotification::lastDialogPos.y() - shift_value;
+  }
+  else { // on the bottom
+    src_y = DlgNotification::lastDialogPos.y() + shift_value;
+    dst_y = DlgNotification::lastDialogPos.y() + shift_value;
+  }
+}
+template<>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_WIN> >(int &src_y , int &dst_y, int shift_value){
+  src_y = DlgNotification::lastDialogPos.y() - shift_value;
+  dst_y = DlgNotification::lastDialogPos.y() - shift_value;
+}
+
+template<>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_MAC> >(int &src_y , int &dst_y, int shift_value){
+  src_y = DlgNotification::lastDialogPos.y() + shift_value;
+  dst_y = DlgNotification::lastDialogPos.y() + shift_value;
+}
+
+
+
+void shift_notification_dialog_positions(int &src_y, int &dst_y, int shift_value) {
+  shift_notification_dialog_positions_internal< Os2Type<CURRENT_OS> >(src_y, dst_y, shift_value);
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(
     CNotificationObserver::notification_level_t level, const QString& msg) {
@@ -392,18 +426,16 @@ void TrayControlWindow::notification_received(
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
-  int shiftYPos = 0;
-  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 6) {
-      src_y = DlgNotification::lastDialogPos.y() - (dlg->height() + 20);
-      dst_y = DlgNotification::lastDialogPos.y() - (dlg->height() + 20);
+  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 5) { // shift dialog if there is more than one dialogs
+      shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
   }
 
   if (CSettingsManager::Instance().use_animations()) {
     QPropertyAnimation* pos_anim = new QPropertyAnimation(dlg, "pos");
     QPropertyAnimation* opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
 
-    pos_anim->setStartValue(QPoint(src_x, src_y + shiftYPos));
-    pos_anim->setEndValue(QPoint(dst_x, dst_y + shiftYPos));
+    pos_anim->setStartValue(QPoint(src_x, src_y));
+    pos_anim->setEndValue(QPoint(dst_x, dst_y));
     pos_anim->setEasingCurve(QEasingCurve::OutBack);
     pos_anim->setDuration(800);
 

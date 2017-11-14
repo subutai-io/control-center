@@ -41,7 +41,7 @@ DlgNotification::DlgNotification(
   ui->lbl_message->setOpenExternalLinks(true);
 
   m_close_timer.setInterval(
-      CSettingsManager::Instance().notification_delay_sec() * 20000);
+      CSettingsManager::Instance().notification_delay_sec() * 1300);
   ui->chk_ignore->setChecked(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
