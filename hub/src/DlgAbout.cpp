@@ -187,7 +187,7 @@ DlgAbout::update_finished(const QString& file_id,
                           bool success) {
   if (!success) {
     QString template_str = tr("Couldn't update component %1");
-    CNotificationObserver::Error(template_str.arg(file_id));
+    CNotificationObserver::Error(template_str.arg(file_id), DlgNotification::N_NO_ACTION);
   }
 
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;

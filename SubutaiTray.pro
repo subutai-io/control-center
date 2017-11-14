@@ -7,6 +7,8 @@
 QT       += core gui network websockets
 CONFIG   += c++11
 
+
+
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
 TARGET = SubutaiTray
@@ -172,6 +174,6 @@ win32: {
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
   RC_FILE = tray.rc
 #  LIBS += -lpthread
-#  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
+# QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////

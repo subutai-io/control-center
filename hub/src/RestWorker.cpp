@@ -5,6 +5,7 @@
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
+#include "DlgNotification.h"
 
 CRestWorker::CRestWorker() { m_network_manager = create_network_manager(); }
 
@@ -413,7 +414,7 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
     qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
-    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()));
+    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -511,7 +512,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
-      CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()));
+      CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
     err_code = RE_NETWORK_ERROR;
     bool parsed = false;
     http_status_code =
