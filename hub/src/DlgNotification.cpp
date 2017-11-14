@@ -1,14 +1,22 @@
 #include <QCheckBox>
 #include <QLabel>
+#include <QMouseEvent>
+#include <QDebug>
 
 #include "DlgNotification.h"
 #include "SettingsManager.h"
 #include "ui_DlgNotification.h"
 
+int DlgNotification::dlg_counter = 0;
+QPoint DlgNotification::lastDialogPos = QPoint(0, 0);
+
 DlgNotification::DlgNotification(
     CNotificationObserver::notification_level_t level, const QString &msg,
     QWidget *parent)
     : QDialog(parent, Qt::SplashScreen), ui(new Ui::DlgNotification) {
+
+  this->setAcceptDrops(true);
+
   ui->setupUi(this);
 
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
@@ -33,7 +41,7 @@ DlgNotification::DlgNotification(
   ui->lbl_message->setOpenExternalLinks(true);
 
   m_close_timer.setInterval(
-      CSettingsManager::Instance().notification_delay_sec() * 1000);
+      CSettingsManager::Instance().notification_delay_sec() * 20000);
   ui->chk_ignore->setChecked(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
@@ -55,10 +63,20 @@ DlgNotification::DlgNotification(
   });
 
   ui->chk_autohide->setChecked(true);
+
+  dlg_counter ++;
 }
 
-DlgNotification::~DlgNotification() { delete ui; }
+DlgNotification::~DlgNotification() { dlg_counter --; delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgNotification::btn_close_released() { close(); }
 ////////////////////////////////////////////////////////////////////////////
+void DlgNotification::mousePressEvent(QMouseEvent *event){
+    lastPressPos = this->pos() - event->globalPos();
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgNotification::mouseMoveEvent(QMouseEvent *event){
+    this->move(event->globalPos() + lastPressPos);
+}
+

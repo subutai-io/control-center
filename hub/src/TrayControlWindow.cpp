@@ -392,13 +392,16 @@ void TrayControlWindow::notification_received(
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
+  int shiftYPos = 0;
+  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 6)
+    shiftYPos = dlg->height()- DlgNotification::lastDialogPos.y()  ;
 
   if (CSettingsManager::Instance().use_animations()) {
     QPropertyAnimation* pos_anim = new QPropertyAnimation(dlg, "pos");
     QPropertyAnimation* opa_anim = new QPropertyAnimation(dlg, "windowOpacity");
 
-    pos_anim->setStartValue(QPoint(src_x, src_y));
-    pos_anim->setEndValue(QPoint(dst_x, dst_y));
+    pos_anim->setStartValue(QPoint(src_x, src_y + shiftYPos));
+    pos_anim->setEndValue(QPoint(dst_x, dst_y + shiftYPos));
     pos_anim->setEasingCurve(QEasingCurve::OutBack);
     pos_anim->setDuration(800);
 
@@ -411,15 +414,18 @@ void TrayControlWindow::notification_received(
     gr->addAnimation(pos_anim);
     gr->addAnimation(opa_anim);
 
-    dlg->move(src_x, src_y);
+    dlg->move(src_x, src_y + shiftYPos);
+
     dlg->show();
     gr->start();
     connect(gr, &QParallelAnimationGroup::finished, gr,
             &QParallelAnimationGroup::deleteLater);
   } else {
-    dlg->move(dst_x, dst_y);
+    dlg->move(dst_x, dst_y + shiftYPos);
     dlg->show();
   }
+  DlgNotification::lastDialogPos = dlg->pos();
+
 }
 ////////////////////////////////////////////////////////////////////////////
 

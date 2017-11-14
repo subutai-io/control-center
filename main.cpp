@@ -133,6 +133,10 @@ main(int argc, char *argv[]) {
 
       CTrayServer::Instance()->Init();
       TrayControlWindow tcw;
+CNotificationObserver::Instance()->notify(CNotificationObserver::NL_INFO, "hello test1");
+CNotificationObserver::Instance()->notify(CNotificationObserver::NL_INFO, "hello test2");
+CNotificationObserver::Instance()->notify(CNotificationObserver::NL_INFO, "hello test3");
+CNotificationObserver::Instance()->notify(CNotificationObserver::NL_INFO, "hello test4");
 
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
