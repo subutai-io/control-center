@@ -186,6 +186,8 @@ private slots:
   void got_ss_console_readiness_sl(bool is_ready, QString err);
   void hub_container_mi_triggered(const CEnvironment *env,
                                const CHubContainer *cont, void *action);
+  void hub_container_all_mi_triggered(const CEnvironment *env,
+                                      const CHubContainer *cont, void *action);
   void ssh_key_generate_triggered();
   void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);

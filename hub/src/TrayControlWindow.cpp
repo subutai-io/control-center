@@ -522,6 +522,15 @@ void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void TrayControlWindow::hub_container_all_mi_triggered(const CEnvironment *env,
+                                                       const CHubContainer *contUnused,
+                                                       void* action) {
+  UNUSED_ARG(contUnused);
+  for (auto i = env->containers().begin(); i != env->containers().end(); ++i) {
+    CHubController::Instance().ssh_to_container(env, &(*i), action);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
       tr("Update for %1 is available. Check \"About\" dialog").arg(file_id));
@@ -622,6 +631,16 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     }
 
     if (!env->containers().empty()) {
+      QAction* act = new QAction(tr("SSH to All"), this);
+      act->setEnabled(env->healthy());
+      CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(&(*env), NULL, m_sys_tray_icon);
+      connect(act, &QAction::triggered, allItem,
+              &CHubEnvironmentMenuItem::internal_action_triggered);
+      connect(allItem, &CHubEnvironmentMenuItem::action_triggered, this,
+              &TrayControlWindow::hub_container_all_mi_triggered);
+      env_menu->addAction(act);
+      env_menu->addSeparator();
+
       for (auto cont = env->containers().cbegin();
            cont != env->containers().cend(); ++cont) {
         QString cont_name = cont->name();
