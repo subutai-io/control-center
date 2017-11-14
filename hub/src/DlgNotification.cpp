@@ -69,15 +69,28 @@ DlgNotification::DlgNotification(
   ui->lbl_message->setTextFormat(Qt::RichText);
   ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_message->setOpenExternalLinks(true);
-
   m_close_timer.setInterval(
-      CSettingsManager::Instance().notification_delay_sec() * 1300);
+      CSettingsManager::Instance().notification_delay_sec() * 500);
   ui->chk_ignore->setChecked(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
-  connect(ui->btn_close, &QPushButton::released, this,
-          &DlgNotification::btn_close_released);
-  connect(&m_close_timer, &QTimer::timeout, this, &DlgNotification::close);
+  bool already_caled = false;
+  connect(ui->btn_close, &QPushButton::released, [this, &already_caled](){
+    if (!already_caled) {
+      DlgNotification::dlg_counter --;
+      already_caled = true;
+      this->btn_close_released();
+    }
+  });
+
+  connect(&m_close_timer, &QTimer::timeout, [this, &already_caled](){
+      if (!already_caled) {
+        DlgNotification::dlg_counter --;
+        already_caled = true;
+        this->close();
+      }
+  });
+
   connect(ui->chk_autohide, &QCheckBox::stateChanged, [this](int state) {
     if (state == Qt::Checked)
       m_close_timer.start();
@@ -92,12 +105,14 @@ DlgNotification::DlgNotification(
       CSettingsManager::Instance().not_ignore_notification(msg);
   });
 
-  ui->chk_autohide->setChecked(true);
+  DlgNotification::dlg_counter ++;
+  qDebug() << dlg_counter;
 
-  dlg_counter ++;
+
+  ui->chk_autohide->setChecked(true);
 }
 
-DlgNotification::~DlgNotification() { dlg_counter --; delete ui; }
+DlgNotification::~DlgNotification() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgNotification::btn_close_released() { close(); }
