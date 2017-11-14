@@ -493,3 +493,146 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   emit ssh_to_container_finished((int)SLE_SUCCESS, m_additional_data);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void CHubController::my_peers_updated_sl() {
+  static std::vector<CMyPeerInfo> peers_connected; // within itself peers_connected has storage vector `envs_connected` for each Peer
+
+  std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
+
+  // check if some peers or environments in peers were disconnected or deleted and notify
+  std::vector<CMyPeerInfo> disconnected_peers;
+  std::vector<CMyPeerInfo::env_info> disconnected_envs;
+
+  for (CMyPeerInfo peer : peers_connected) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+    if(found_peer == my_current_peers.end()) {
+      disconnected_peers.push_back(peer);
+      std::vector<CMyPeerInfo::env_info> &envs_connected = peer.peer_environments();
+      for (CMyPeerInfo::env_info env : envs_connected)
+        disconnected_envs.push_back(env);
+    }
+    else {
+      std::vector<CMyPeerInfo::env_info> my_current_envs_in_peers = found_peer->peer_environments();
+      std::vector<CMyPeerInfo::env_info> &envs_connected = peer.peer_environments();
+      for (CMyPeerInfo::env_info env : envs_connected) {
+        std::vector<CMyPeerInfo::env_info>::iterator found_env = std::find_if(my_current_envs_in_peers.begin(),
+                                                                              my_current_envs_in_peers.end(),
+                                                                              [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
+        if (found_env == my_current_envs_in_peers.end())
+          disconnected_envs.push_back(env);
+      }
+    }
+  }
+
+  // check if some new peers or environments in peers were connected or added and notify
+  std::vector<CMyPeerInfo> new_connected_peers;
+  std::vector<CMyPeerInfo::env_info> new_connected_envs;
+
+  for (CMyPeerInfo peer : my_current_peers) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+
+    if(found_peer == peers_connected.end()) {
+      std::vector<CMyPeerInfo::env_info> &my_current_envs_in_peers = peer.peer_environments();
+      for (CMyPeerInfo::env_info env_to_add : my_current_envs_in_peers)
+        new_connected_envs.push_back(env_to_add);
+      my_current_envs_in_peers.clear(); // little hack to not add envs of peer twice
+      new_connected_peers.push_back(peer);
+    }
+    else {
+      std::vector<CMyPeerInfo::env_info> my_current_envs_in_peers = peer.peer_environments();
+      std::vector<CMyPeerInfo::env_info> &envs_connected = found_peer->peer_environments();
+      for (CMyPeerInfo::env_info env : my_current_envs_in_peers){
+        std::vector<CMyPeerInfo::env_info>::iterator found_env = std::find_if(envs_connected.begin(), envs_connected.end(),
+                                                                              [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
+        if (found_env == envs_connected.end())
+          new_connected_envs.push_back(env);
+      }
+    }
+  }
+
+  // notify if Peers were disconnected
+  if (!disconnected_peers.empty()) {
+    QString lst_disconnected_peers = "";
+    for (CMyPeerInfo peer_to_notify : disconnected_peers){
+      lst_disconnected_peers += QString("%1").arg(peer_to_notify.name()) + ", ";
+    }
+    QString msg = tr("Peer%1 %2 %3 disconnected")
+                  .arg(disconnected_peers.size() > 1 ? "s" : "")
+                  .arg(lst_disconnected_peers)
+                  .arg(disconnected_peers.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Environments were disconnected from one of your Peers
+  if (!disconnected_envs.empty()) {
+    QString lst_disconnected_envs = "";
+    for (CMyPeerInfo::env_info env_to_notify : disconnected_envs) {
+      lst_disconnected_envs += QString("%1 by %3").arg(env_to_notify.envName).arg(env_to_notify.ownerName) + ", ";
+    }
+    QString msg = tr("Environment%1 %2 %3 disconnected from your Peer")
+                    .arg(disconnected_envs.size() > 1 ? "s" : "")
+                    .arg(lst_disconnected_envs)
+                    .arg(disconnected_envs.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Peers were newly connected
+  if (!new_connected_peers.empty()){
+    QString lst_connected_peers = "";
+    for (CMyPeerInfo peer_to_notify : new_connected_peers){
+      lst_connected_peers += QString("%1").arg(peer_to_notify.name()) + ", ";
+    }
+    QString msg = tr("Peer%1 %2 %3 connected")
+                  .arg(new_connected_peers.size() > 1 ? "s" : "")
+                  .arg(lst_connected_peers)
+                  .arg(new_connected_peers.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Environments were newly connected to some of you Peer
+  if (!new_connected_envs.empty()) {
+    QString lst_connected_envs = "";
+    for (CMyPeerInfo::env_info env_to_notify : new_connected_envs) {
+      lst_connected_envs += QString("%1 by %3").arg(env_to_notify.envName).arg(env_to_notify.ownerName) + ", ";
+    }
+
+    QString msg = tr("Environment%1 %2 %3 connected to your Peer")
+                    .arg(new_connected_envs.size() > 1 ? "s" : "")
+                    .arg(lst_connected_envs)
+                    .arg(new_connected_envs.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info((msg), DlgNotification::N_GO_TO_HUB);
+  }
+
+  /// NOTE: Environments should be removed first
+  // Remove all disconnected Environments from your environment storage matrix
+  for (CMyPeerInfo::env_info env_to_del : disconnected_envs) {
+    std::vector<CMyPeerInfo::env_info> &envs_connected =
+              std::find_if(peers_connected.begin(), peers_connected.end(),
+              [env_to_del](const CMyPeerInfo &p){return env_to_del.mypeerid == p.id();})->peer_environments();
+    envs_connected.erase(std::remove_if(envs_connected.begin(), envs_connected.end(),
+          [env_to_del](const CMyPeerInfo::env_info &e){return env_to_del.envId == e.envId;}), envs_connected.end());
+  }
+
+  // Remove all disconnected Peers from current peer storage matrix
+  for (CMyPeerInfo peer_to_del : disconnected_peers) {
+    peers_connected.erase(std::remove_if(peers_connected.begin(), peers_connected.end(),
+          [peer_to_del](const CMyPeerInfo &p){return peer_to_del.id() == p.id();}), peers_connected.end());
+  }
+
+  /// NOTE: Peer's should be added first
+  // Add all new connected Peer to current peer storage matrix
+  for (CMyPeerInfo peer_to_add : new_connected_peers){
+    peers_connected.push_back(peer_to_add);
+  }
+
+  // Add all connected Environments to your environment storage matrix
+  for (CMyPeerInfo::env_info env_to_add : new_connected_envs){
+    std::vector<CMyPeerInfo::env_info> &envs_connected =
+              std::find_if(peers_connected.begin(), peers_connected.end(),
+              [env_to_add](const CMyPeerInfo &p){return env_to_add.mypeerid == p.id();})->peer_environments();
+    envs_connected.push_back(env_to_add);
+  }
+}
+

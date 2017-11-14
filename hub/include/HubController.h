@@ -119,8 +119,10 @@ private slots:
                               int http_code,
                               int err_code,
                               int network_error);
-
+public slots:
+   void my_peers_updated_sl();
 public:
+
 
   void logout();
   void start();

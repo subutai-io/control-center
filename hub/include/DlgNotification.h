@@ -19,8 +19,6 @@ class DlgNotification : public QDialog
 {
   Q_OBJECT
 
-friend class TrayControlWindow;
-
 public:
 
   enum NOTIFICATION_ACTION_TYPE{N_UPDATE_P2P = 0, N_UPDATE_TRAY, N_UPDATE_RH, N_UPDATE_RHM,
