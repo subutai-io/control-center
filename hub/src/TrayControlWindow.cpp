@@ -112,9 +112,6 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &TrayControlWindow::environments_updated_sl);
 
-  connect(&CHubController::Instance(), &CHubController::my_peers_updated,
-          &CHubController::Instance(), &CHubController::my_peers_updated_sl);
-
   connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
           this, &TrayControlWindow::got_ss_console_readiness_sl);
 

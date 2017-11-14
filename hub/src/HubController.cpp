@@ -71,6 +71,8 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
           &CHubControllerP2PWorker::join_to_p2p_swarm_begin);
   connect(th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_finished,
           th_worker, &CHubControllerP2PWorker::ssh_to_container_begin);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   /*hack, but I haven't enough time*/
   if (slot == ssh_to_cont) {
