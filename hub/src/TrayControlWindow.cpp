@@ -393,8 +393,10 @@ void TrayControlWindow::notification_received(
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
   int shiftYPos = 0;
-  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 6)
-    shiftYPos = dlg->height()- DlgNotification::lastDialogPos.y()  ;
+  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 6) {
+      src_y = DlgNotification::lastDialogPos.y() - (dlg->height() + 20);
+      dst_y = DlgNotification::lastDialogPos.y() - (dlg->height() + 20);
+  }
 
   if (CSettingsManager::Instance().use_animations()) {
     QPropertyAnimation* pos_anim = new QPropertyAnimation(dlg, "pos");
@@ -414,14 +416,14 @@ void TrayControlWindow::notification_received(
     gr->addAnimation(pos_anim);
     gr->addAnimation(opa_anim);
 
-    dlg->move(src_x, src_y + shiftYPos);
+    dlg->move(src_x, src_y);
 
     dlg->show();
     gr->start();
     connect(gr, &QParallelAnimationGroup::finished, gr,
             &QParallelAnimationGroup::deleteLater);
   } else {
-    dlg->move(dst_x, dst_y + shiftYPos);
+    dlg->move(dst_x, dst_y);
     dlg->show();
   }
   DlgNotification::lastDialogPos = dlg->pos();
