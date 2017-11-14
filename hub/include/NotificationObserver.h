@@ -2,6 +2,8 @@
 #define NOTIFIACTIONOBSERVER_H
 
 #include <QObject>
+#include "DlgNotification.h"
+
 
 class QWidget;
 
@@ -31,10 +33,10 @@ public:
 
   static const QString& notification_level_to_str(notification_level_t nt);
   static const QString& notifications_preffered_place_to_str(notification_preffered_place_t pl);
-  static void Error(const QString& msg);
-  static void Info(const QString& msg);
-  static void Warning(const QString& msg);
-  static void Critical(const QString& msg);
+  static void Error(const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
+  static void Info(const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
+  static void Warning(const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
+  static void Critical(const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
 
 private:
   CNotificationObserver(){}
@@ -43,9 +45,9 @@ private:
   CNotificationObserver& operator=(const CNotificationObserver&);
 
   void notify_all_internal(notification_level_t level,
-                      const QString& msg);
+                      const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
 signals:
-  void notify(CNotificationObserver::notification_level_t, const QString&);
+  void notify(CNotificationObserver::notification_level_t, const QString&, DlgNotification::NOTIFICATION_ACTION_TYPE);
 };
 
 #endif // NOTIFIACTIONOBSERVER_H

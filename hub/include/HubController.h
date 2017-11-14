@@ -97,6 +97,8 @@ private:
   void refresh_balance_internal();
 
 private slots:
+  void my_peers_updated_sl();
+
   void ssh_to_container_finished_slot(int result, void* additional_data);
   void ssh_to_container_finished_str_slot(int result, void* additional_data);
 
@@ -119,8 +121,8 @@ private slots:
                               int http_code,
                               int err_code,
                               int network_error);
-
 public:
+
 
   void logout();
   void start();
@@ -163,6 +165,7 @@ signals:
   void ssh_to_container_str_finished(int result, void* additional_data);
 
   void environments_updated(int);
+  void my_peers_updated();
   void balance_updated();
 };
 

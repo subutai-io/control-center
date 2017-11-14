@@ -37,7 +37,7 @@ CUpdaterComponentRH::update_internal() {
 
   if (res == SCWE_SUCCESS && exit_code == 0) {
     static const char* msg = "Resource host update succesfully finished";
-    CNotificationObserver::Info(tr(msg));
+    CNotificationObserver::Info(tr(msg), DlgNotification::N_NO_ACTION);
     qCritical("%s", msg);
     update_finished_sl(true);
     return CHUE_SUCCESS;
@@ -45,7 +45,7 @@ CUpdaterComponentRH::update_internal() {
 
   QString err_msg = tr("Resource host update failed with exit code : %1, call result : %2").
                     arg(exit_code).arg(CSystemCallWrapper::scwe_error_to_str(res));
-  CNotificationObserver::Error(err_msg);
+  CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
   qCritical("%s", err_msg.toStdString().c_str());
   update_finished_sl(false);
   return CHUE_FAILED;

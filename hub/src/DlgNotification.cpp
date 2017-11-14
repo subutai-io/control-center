@@ -4,12 +4,45 @@
 #include "DlgNotification.h"
 #include "SettingsManager.h"
 #include "ui_DlgNotification.h"
+#include "TrayControlWindow.h"
+#include "updater/HubComponentsUpdater.h"
+#include "Commons.h"
+
 
 DlgNotification::DlgNotification(
-    CNotificationObserver::notification_level_t level, const QString &msg,
-    QWidget *parent)
+   size_t notification_level, const QString &msg,
+    QWidget *parent, NOTIFICATION_ACTION_TYPE action_type)
     : QDialog(parent, Qt::SplashScreen), ui(new Ui::DlgNotification) {
+
+  CNotificationObserver::notification_level_t level = (CNotificationObserver::notification_level_t) notification_level;
+
   ui->setupUi(this);
+
+  static struct handler_t {
+    QString btn_message;
+    std::function<void()> call_func;
+  } action_handler[] = {
+    {"Update P2P", [](){update_system::CHubComponentsUpdater::Instance()->force_update_p2p();}},
+    {"Update Subutai Tray",[](){update_system::CHubComponentsUpdater::Instance()->force_update_tray();}},
+    {"Update Resource Host", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rh();}},
+    {"Update RH Management", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rhm();}},
+    {"Settings", [](){TrayControlWindow::Instance()->show_settings_dialog();}},
+    {"SubutaiHub", [](){TrayControlWindow::Instance()->launch_Hub();}},
+    {"Notification history", [](){TrayControlWindow::Instance()->show_notifications_triggered();}},
+    {"Restart Tray", [](){CCommons::RestartTray();}},
+    {"About", [](){TrayControlWindow::Instance()->show_about();}},
+    {"No Action", [](){}}
+  };
+
+  if (action_type == N_NO_ACTION)
+    ui->btn_action->setVisible(false);
+  else {
+   connect(ui->btn_action, &QPushButton::released,
+            [action_type](){action_handler[action_type].call_func();});
+   ui->btn_action->setText(action_handler[action_type].btn_message);
+  }
+
+
 
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
   ui->lbl_icon->setBackgroundRole(QPalette::Base);
