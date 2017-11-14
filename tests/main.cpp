@@ -7,5 +7,6 @@ main(int argc, char *argv[]) {
     QApplication::setOrganizationName("subut.ai");
     QApplication app(argc, argv);
     Tester::Instance()->runAllTest();   
-    return app.exec();;
+    app.exec();
+    return 0;
 }

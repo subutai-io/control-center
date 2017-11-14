@@ -46,4 +46,7 @@ void Tester::runLast() {
 void Tester::runAllTest() {
     foreach (QObject* test, testList())
         QTest::qExec(test);
+    //QCoreApplication::quit();
+    QApplication::exit();
+
 }

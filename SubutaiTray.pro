@@ -182,6 +182,11 @@ tests {
     QT += testlib
     TARGET = TestingTray
 
+    LIBS += -lgcov
+
+    QMAKE_CXXFLAGS += --coverage
+    QMAKE_LFLAGS += --coverage
+
     SOURCES -= main.cpp
 
     HEADERS += tests/CCommonsTest.h \
