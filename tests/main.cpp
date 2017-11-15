@@ -3,10 +3,10 @@
 
 int
 main(int argc, char *argv[]) {
-    QApplication::setApplicationName("TestingTray");
-    QApplication::setOrganizationName("subut.ai");
+    //QApplication::setApplicationName("TestingTray");
+    //QApplication::setOrganizationName("subut.ai");
     QApplication app(argc, argv);
     Tester::Instance()->runAllTest();   
-    app.exec();
+    //app.exec();
     return 0;
 }

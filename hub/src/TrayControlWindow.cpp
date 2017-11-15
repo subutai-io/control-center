@@ -251,6 +251,7 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
   connect(m_act_vbox, &QAction::triggered, this, &TrayControlWindow::show_vbox);
 
+
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 

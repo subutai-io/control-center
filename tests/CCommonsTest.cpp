@@ -1,5 +1,7 @@
 #include "CCommonsTest.h"
 #include "Commons.h"
+#include "Commons.h"
+
 #include <QTest>
 
 //////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@
 #include "SettingsManagerTest.h"
 #include "RhControllerTest.h"
 #include "DownloadFileManagerTest.h"
+#include "RestWorkerTest.h"
 
 Tester::Tester () {
   /* add all tests here */
@@ -22,6 +23,7 @@ Tester::Tester () {
   addTest(new SettingsManagerTest);
   addTest(new RhControllerTest);
   addTest(new DownloadFileManagerTest);
+  addTest(new RestWorkerTest);
 }
 
 Tester* Tester::Instance() {
