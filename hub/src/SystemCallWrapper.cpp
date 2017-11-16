@@ -364,8 +364,8 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(
   qInfo("Launch command : %s",
                                        str_command.toStdString().c_str());
 
-  args << QString("Tell application \"%1\" to do script \"%2\"")
-              .arg(cmd, str_command);
+  args << QString("Tell application \"%1\" to %2 \"%3\"")
+              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
@@ -678,6 +678,23 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
     path = res.out[0];
     path.replace("\n", "\0");
     path.replace("\r", "\0");
+    return SCWE_SUCCESS;
+  }
+
+  return SCWE_WHICH_CALL_FAILED;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
+  static int success_ec = 0;
+  QString cmd("open");
+  QStringList args;
+  args << "-Ra";
+  args << prog;
+  system_call_res_t res = ssystem_th(cmd, args, false, false, 5000);
+  if (res.res != SCWE_SUCCESS) return res.res;
+
+  if (res.exit_code == success_ec) {
     return SCWE_SUCCESS;
   }
 

@@ -96,6 +96,16 @@ CCommons::IsApplicationLaunchable(const QString &file_path) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool
+CCommons::IsTerminalLaunchable(const QString &terminal) {
+  system_call_wrapper_error_t open_res =
+      CSystemCallWrapper::open(terminal);
+  if (open_res == SCWE_SUCCESS) return true;
+
+  return false;
+}
+////////////////////////////////////////////////////////////////////////////
+
 static std::map<QString, QString> dct_term_arg = {
   //linux
   {"xterm", "-e"},
@@ -112,7 +122,8 @@ static std::map<QString, QString> dct_term_arg = {
   {"evilvte", "-e bash -c"},
   {"aterm", "-e bash -c"},
   {"lxterminal", "-l -e"},
-  {"Terminal", "-e"}, // macos terminal
+  {"Terminal", "do script"}, // macos terminal
+  {"iTerm", "create window with default profile command"}, // macos terminal
 };
 
 const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");

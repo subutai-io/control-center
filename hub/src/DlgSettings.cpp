@@ -257,6 +257,13 @@ bool is_path_valid(const QLineEdit* le) {
 bool can_launch_application(const QLineEdit* le) {
   return CCommons::IsApplicationLaunchable(le->text());
 }
+
+bool can_launch_terminal(const QLineEdit* le) {
+#ifndef RT_OS_DARWIN
+  return CCommons::IsApplicationLaunchable(le->text());
+#endif
+  return CCommons::IsTerminalLaunchable(le->text());
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ok_released() {
@@ -309,7 +316,7 @@ void DlgSettings::btn_ok_released() {
      can_launch_application_msg},
 
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_application, 1,
+    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_terminal, 1,
      can_launch_application_msg},
     {ui->le_terminal_arg, ui->lbl_err_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
@@ -366,7 +373,7 @@ void DlgSettings::btn_ok_released() {
     if (recommendedArg != ui->le_terminal_arg->text()) {
       QMessageBox *msg_box =
           new QMessageBox(QMessageBox::Question, tr("Attention! Wrong terminal argument"),
-                          QString("Recommended argument for %1 is %2. Would you like to change it?")
+                          QString("Recommended argument for \"%1\" is \"%2\". Would you like to change it?")
                           .arg(ui->le_terminal_cmd->text()).arg(recommendedArg),
                           QMessageBox::Yes | QMessageBox::No);
       connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
