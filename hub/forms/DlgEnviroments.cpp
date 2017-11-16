@@ -6,6 +6,7 @@ DlgEnviroments::DlgEnviroments(QWidget *parent) :
     ui(new Ui::DlgEnviroments)
 {
     ui->setupUi(this);
+
 }
 
 DlgEnviroments::~DlgEnviroments()
