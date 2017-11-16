@@ -47,7 +47,7 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
   if (typeToLevel(type) < (Logger::LOG_LEVEL)CSettingsManager::Instance().logs_level()) // comparing level of msg with currentLogLevel
     return;
 
-  QString output_message = QString("[%1] [%2:%3] %4: %5 (in function %6)\n")
+  QString output_message = QString("[%1] [%2(%3)] %4: %5 (in function %6)\n")
                               .arg(QTime::currentTime().toString("HH:mm:ss"))
                               .arg(context.file)
                               .arg(context.line)

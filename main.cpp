@@ -133,17 +133,6 @@ main(int argc, char *argv[]) {
 
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
-      CNotificationObserver::Info("Hello1", DlgNotification::N_ABOUT);
-
-
-      QTimer temp_timer;
-      QObject::connect(&temp_timer, &QTimer::timeout,
-                       [](){
-         // qDebug() << DlgNotification::dlg_counter;
-          CNotificationObserver::Info("Hello4", DlgNotification::N_ABOUT);
-
-                                });
-      temp_timer.start(10000);
 
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
