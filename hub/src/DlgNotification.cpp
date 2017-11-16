@@ -1,7 +1,6 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QMouseEvent>
-#include <QDebug>
 
 #include "DlgNotification.h"
 #include "SettingsManager.h"
