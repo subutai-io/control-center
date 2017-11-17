@@ -6,6 +6,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QDebug>
+#include <QCompleter>
 
 #include "Commons.h"
 #include "DlgSettings.h"
@@ -164,6 +165,10 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
 #ifndef RT_OS_WINDOWS
+  QStringList terminalLists = CCommons::SupportTerminals();
+  QCompleter *completer = new QCompleter(terminalLists, this);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
+  ui->le_terminal_cmd->setCompleter(completer);
   ui->gb_terminal_settings->setVisible(true);
 #endif
 
