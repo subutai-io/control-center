@@ -163,7 +163,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
-#ifdef RT_OS_WINDOWS
+#ifndef RT_OS_WINDOWS
   ui->gb_terminal_settings->setVisible(true);
 #endif
 
