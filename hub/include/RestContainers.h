@@ -280,6 +280,23 @@ public:
 ////////////////////////////////////////////////////////////////////////////
 
 class CMyPeerInfo {
+public:
+  struct env_info
+  {
+    QString mypeerid;
+    QString ownerName, envName, status;
+    int ownerId, envId;
+
+    env_info(const QJsonObject& obj, QString& peer_id) {
+      ownerName = obj["envOwnerName"].toString();
+      ownerId = obj["envOwnerId"].toInt();
+      envName = obj["envName"].toString();
+      envId = obj["envId"].toInt();
+      status = obj["envStatus"].toString();
+      mypeerid = peer_id;
+    }
+  };
+
 private:
   QString m_country;
   QString m_countryCode;
@@ -291,8 +308,10 @@ private:
   int m_rh_count;
   QString m_scope;
   QString m_status;
+  std::vector <env_info> m_lst_environments;
 
 public:
+
   explicit CMyPeerInfo(const QJsonObject& obj) {
     m_country = obj["country"].toString();
     m_countryCode = obj["countryCode"].toString();
@@ -304,9 +323,17 @@ public:
     m_rh_count = obj["rhCount"].toInt();
     m_scope = obj["scope"].toString();
     m_status = obj["status"].toString();
+
+    QJsonArray arr = obj["environments"].toArray();
+    for (auto i = arr.begin(); i != arr.end(); ++i) {
+      if (i->isNull() || !i->isObject()) continue;
+      env_info ei(i->toObject(), m_id);
+      m_lst_environments.push_back(ei);
+    }
   }
   ~CMyPeerInfo(){}
 
+  std::vector<env_info> &peer_environments()  { return m_lst_environments; }
   const QString &country() const { return m_country; }
   const QString &countryCode() const { return m_countryCode; }
   const QString &fingerprint() const { return m_fingerprint; }

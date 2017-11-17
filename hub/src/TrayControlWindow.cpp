@@ -382,13 +382,14 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::notification_received(
-    CNotificationObserver::notification_level_t level, const QString& msg) {
+    CNotificationObserver::notification_level_t level, const QString& msg,
+    DlgNotification::NOTIFICATION_ACTION_TYPE action_type) {
   if (CSettingsManager::Instance().is_notification_ignored(msg) ||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
     return;
   }
 
-  QDialog* dlg = new DlgNotification(level, msg, this);
+  QDialog* dlg = new DlgNotification(level, msg, this, action_type);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
@@ -522,16 +523,25 @@ void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void TrayControlWindow::hub_container_all_mi_triggered(const CEnvironment *env,
+                                                       const CHubContainer *contUnused,
+                                                       void* action) {
+  UNUSED_ARG(contUnused);
+  for (auto i = env->containers().begin(); i != env->containers().end(); ++i) {
+    CHubController::Instance().ssh_to_container(env, &(*i), action);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
-      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id));
+      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_ABOUT);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_finished(QString file_id, bool success) {
   if (!success) {
     CNotificationObserver::Error(
-        tr("Failed to update %1. See details in error logs").arg(file_id));
+        tr("Failed to update %1. See details in error logs").arg(file_id), DlgNotification::N_NO_ACTION);
     return;
   }
 }
@@ -546,7 +556,7 @@ void TrayControlWindow::launch_Hub() {
 
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = tr("Launch hub website via google chrome failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
@@ -554,7 +564,7 @@ void TrayControlWindow::launch_Hub() {
     if (!QDesktopServices::openUrl(QUrl(hub_site()))) {
       QString err_msg =
           tr("Launch hub website via default browser failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
   }
@@ -614,7 +624,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
         CNotificationObserver::Info(
-            tr("Environment %1 became healthy").arg(env->name()));
+            tr("Environment %1 became healthy").arg(env->name()), DlgNotification::N_NO_ACTION);
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
@@ -622,6 +632,16 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     }
 
     if (!env->containers().empty()) {
+      QAction* act = new QAction(tr("SSH to All"), this);
+      act->setEnabled(env->healthy());
+      CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(&(*env), NULL, m_sys_tray_icon);
+      connect(act, &QAction::triggered, allItem,
+              &CHubEnvironmentMenuItem::internal_action_triggered);
+      connect(allItem, &CHubEnvironmentMenuItem::action_triggered, this,
+              &TrayControlWindow::hub_container_all_mi_triggered);
+      env_menu->addAction(act);
+      env_menu->addSeparator();
+
       for (auto cont = env->containers().cbegin();
            cont != env->containers().cend(); ++cont) {
         QString cont_name = cont->name();
@@ -668,20 +688,21 @@ void TrayControlWindow::environments_updated_sl(int rr) {
           .arg(lst_unhealthy_envs.size() > 1 ? "are" : "is")
           .arg(str_statuses);
 
-  CNotificationObserver::Instance()->Info(str_notification);
+  CNotificationObserver::Instance()->Info(str_notification, DlgNotification::N_NO_ACTION);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::balance_updated_sl() {
   m_act_balance->setText(CHubController::Instance().balance());
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
   m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
-    CNotificationObserver::Info(tr(err.toStdString().c_str()));
+    CNotificationObserver::Info(tr(err.toStdString().c_str()), DlgNotification::N_NO_ACTION);
     return;
   }
 
@@ -704,7 +725,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
         tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
     return;
   }
 
@@ -716,7 +737,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = tr(
           "Run subutai console via chrome failed. Couldn't start process");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
@@ -725,7 +746,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = tr(
           "Run subutai console via default browser failed. Couldn't start "
           "process");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
   }
@@ -806,7 +827,7 @@ void TrayControlWindow::launch_ss() {
         "Can't get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
-            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
     m_act_launch_SS->setEnabled(true);
   }
 }
@@ -1072,7 +1093,7 @@ void TrayControlWindow::ssh_to_container_finished(int result,
   if (result != SLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't ssh to container. Err : %1")
-            .arg(CHubController::ssh_launch_err_to_str(result)));
+            .arg(CHubController::ssh_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
   QAction* act = static_cast<QAction*>(additional_data);
   if (act == NULL) return;
