@@ -14,6 +14,7 @@
 #include "DlgNotification.h"
 #include "DlgNotifications.h"
 #include "DlgSettings.h"
+#include "DlgEnvironment.h"
 #include "HubController.h"
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
@@ -605,7 +606,9 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     env_name.replace(
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-    QMenu* env_menu = m_hub_menu->addMenu(env_name);
+    QAction* env_start = m_hub_menu->addAction(env_name);
+
+
 
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
@@ -632,40 +635,13 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     }
 
     if (!env->containers().empty()) {
-      QAction* act = new QAction(tr("SSH to All"), this);
-      act->setEnabled(env->healthy());
-      CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(&(*env), NULL, m_sys_tray_icon);
-      connect(act, &QAction::triggered, allItem,
-              &CHubEnvironmentMenuItem::internal_action_triggered);
-      connect(allItem, &CHubEnvironmentMenuItem::action_triggered, this,
-              &TrayControlWindow::hub_container_all_mi_triggered);
-      env_menu->addAction(act);
-      env_menu->addSeparator();
+      connect(env_start, &QAction::triggered, [env, this](){
+        this->show_env_dlg(&(*env));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_env_dlg, QString("Environment \"%1\" (%2)").arg(env->status()).arg(env->name()));
 
-      for (auto cont = env->containers().cbegin();
-           cont != env->containers().cend(); ++cont) {
-        QString cont_name = cont->name();
-#ifdef RT_OS_LINUX
-        cont_name.replace(
-            "_", "__");  // megahack :) Don't know how to handle underscores.
-#endif
-        QAction* act = new QAction(cont_name, this);
-        act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
-                        !cont->rh_ip().isEmpty());
-
-        CHubEnvironmentMenuItem* item =
-            new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-        connect(act, &QAction::triggered, item,
-                &CHubEnvironmentMenuItem::internal_action_triggered);
-        connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
-                &TrayControlWindow::hub_container_mi_triggered);
-        env_menu->addAction(act);
-        m_lst_hub_menu_items.push_back(item);
-      }
+      });
     } else {
-      QAction* empty_action = new QAction("Empty", this);
-      empty_action->setEnabled(false);
-      env_menu->addAction(empty_action);
+        env_start->setEnabled(false);
     }
   }  // for auto env in environments list
 
@@ -916,6 +892,7 @@ QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
   show_dialog(create_about_dialog, tr("About Subutai Tray"));
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* create_ssh_key_generate_dialog(QWidget* p) {
@@ -930,6 +907,51 @@ QDialog* create_notifications_dialog(QWidget* p) {
 }
 void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
+}
+
+#include "DlgEnvironment.h"
+
+QDialog* TrayControlWindow::m_last_env_dlg = NULL;
+QDialog* TrayControlWindow::last_env_dlg(QWidget *p) {
+    UNUSED_ARG(p);
+    return m_last_env_dlg;
+}
+void TrayControlWindow::show_env_dlg(const CEnvironment *env){
+    DlgEnvironment *dlg_env = new DlgEnvironment();
+    dlg_env->addEnvironment(env);
+
+    QAction* act = new QAction(tr("SSH to All"), this);
+
+    act->setEnabled(env->healthy());
+    CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(env, NULL, m_sys_tray_icon);
+
+    connect(dlg_env, &DlgEnvironment::btn_ssh_all_clicked,
+            allItem, &CHubEnvironmentMenuItem::internal_action_triggered);
+    connect(allItem, &CHubEnvironmentMenuItem::action_triggered,
+            this, &TrayControlWindow::hub_container_all_mi_triggered);
+
+    for (auto cont = env->containers().cbegin();
+         cont != env->containers().cend(); ++cont) {
+      QString cont_name = cont->name();
+#ifdef RT_OS_LINUX
+      cont_name.replace(
+          "_", "__");  // megahack :) Don't know how to handle underscores.
+#endif
+      QPushButton* act = new QPushButton("SSH", this);
+      act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
+                      !cont->rh_ip().isEmpty());
+
+      CHubEnvironmentMenuItem* item =
+          new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
+      connect(act, &QPushButton::clicked, item,
+              &CHubEnvironmentMenuItem::internal_action_triggered);
+      connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
+              &TrayControlWindow::hub_container_mi_triggered);
+
+      dlg_env->set_button_ssh(act);
+      m_lst_hub_menu_items.push_back(item);
+    }
+    m_last_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
