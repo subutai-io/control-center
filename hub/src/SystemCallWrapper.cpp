@@ -472,46 +472,7 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const
 system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
-<<<<<<< HEAD
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
-=======
-#ifdef RT_OS_WINDOWS
-  QString str_command = QString("\"%1\" %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
-    str_command += QString(" -i \"%1\" ").arg(key);
-  }
-#else
-  QString str_command = QString("%1 %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
-  }
-#endif
-
-  QString cmd;
-  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
-  if (!cmd_file.exists()) {
-    system_call_wrapper_error_t tmp_res;
-    if ((tmp_res = which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
-        SCWE_SUCCESS) {
-      return tmp_res;
-    }
-  }
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(cmd, str_command);
->>>>>>> ca95b7e5fa329e052bc7b54d09b97ad30c8f4235
 }
 ////////////////////////////////////////////////////////////////////////////
 
