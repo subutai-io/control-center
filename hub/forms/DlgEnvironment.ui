@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
+    <width>600</width>
     <height>107</height>
    </rect>
   </property>
@@ -98,6 +98,12 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="btn_ssh_all">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>10777215</height>
+        </size>
+       </property>
        <property name="text">
         <string>EZ-SSH All</string>
        </property>

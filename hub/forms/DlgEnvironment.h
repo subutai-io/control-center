@@ -22,7 +22,10 @@ public:
 
 private:
     Ui::DlgEnvironment *ui;
-
+private slots:
+    void btn_ssh_all_clicked_sl(){
+      emit btn_ssh_all_clicked();
+    }
 signals:
     void btn_ssh_all_clicked();
 };

@@ -16,8 +16,8 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
     addContainer(&(*cont));
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
-  connect(ui->btn_ssh_all, &QPushButton::clicked, this, &DlgEnvironment::btn_ssh_all_clicked);
-
+  connect(ui->btn_ssh_all, &QPushButton::clicked,
+          this, &DlgEnvironment::btn_ssh_all_clicked_sl);
 }
 
 void DlgEnvironment::addContainer(const CHubContainer *cont){
@@ -36,14 +36,12 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 }
 
 void DlgEnvironment::set_button_ssh(QPushButton *btn) {
-  btn->setParent(this);
-  btn->setMaximumHeight(14);
   QFont font = btn->font();
   font.setPointSize(5);
-//  font.setBold(true);
+  btn->setParent(this);
+  btn->setMaximumHeight(14);
   btn->setFont(font);
-
-
+  // temporary
   QPushButton *tt = new QPushButton("DESKTOP",this);
   tt->setMaximumHeight(15);
   tt->setFont(font);
