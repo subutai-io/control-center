@@ -937,7 +937,7 @@ void TrayControlWindow::show_env_dlg(const CEnvironment *env){
       cont_name.replace(
           "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-      QPushButton* act = new QPushButton("SSH", this);
+      QPushButton* act = new QPushButton("EZ-SSH", this);
       act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
                       !cont->rh_ip().isEmpty());
 

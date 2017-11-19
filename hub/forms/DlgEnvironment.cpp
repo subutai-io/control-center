@@ -39,7 +39,9 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 void DlgEnvironment::set_button_ssh(QPushButton *btn) {
   btn->setParent(this);
   btn->setMaximumHeight(17);
-  ui->cont_ssh->addWidget(btn);
+  QPushButton *tt = new QPushButton("EZ-DESKTOP",this);
+  tt->setMaximumHeight(17);
+  ui->cont_ssh->addRow(btn, tt);
 }
 
 DlgEnvironment::~DlgEnvironment() {
