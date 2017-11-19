@@ -637,11 +637,11 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     if (!env->containers().empty()) {
       connect(env_start, &QAction::triggered, [env, this](){
         this->show_env_dlg(&(*env));
+        qDebug()<<"First height "<< TrayControlWindow::m_last_env_dlg->height();
         TrayControlWindow::show_dialog(TrayControlWindow::last_env_dlg, QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
-
       });
     } else {
-        env_start->setEnabled(false);
+      env_start->setEnabled(false);
     }
   }  // for auto env in environments list
 
@@ -816,6 +816,8 @@ void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
+    qDebug () << dlg->height();
+
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
     int src_x, src_y, dst_x, dst_y;
@@ -918,11 +920,10 @@ QDialog* TrayControlWindow::last_env_dlg(QWidget *p) {
 }
 void TrayControlWindow::show_env_dlg(const CEnvironment *env){
     DlgEnvironment *dlg_env = new DlgEnvironment();
+    //qDebug() <<"The first one :"<< dlg_env->set();
     dlg_env->addEnvironment(env);
 
-    QAction* act = new QAction(tr("SSH to All"), this);
 
-    act->setEnabled(env->healthy());
     CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(env, NULL, m_sys_tray_icon);
 
     connect(dlg_env, &DlgEnvironment::btn_ssh_all_clicked,
@@ -937,7 +938,7 @@ void TrayControlWindow::show_env_dlg(const CEnvironment *env){
       cont_name.replace(
           "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-      QPushButton* act = new QPushButton("EZ-SSH", this);
+      QPushButton* act = new QPushButton("SSH", this);
       act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
                       !cont->rh_ip().isEmpty());
 

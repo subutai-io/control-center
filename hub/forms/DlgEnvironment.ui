@@ -6,25 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>814</width>
-    <height>59</height>
+    <width>667</width>
+    <height>107</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>IP Address</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
       <string>Container</string>
@@ -34,8 +24,18 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
-    <widget class="QLabel" name="label_6">
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>IP Address &amp; Port</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_10">
      <property name="text">
       <string>Resource Host IP</string>
      </property>
@@ -44,75 +44,66 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="label_7">
+   <item row="0" column="3">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Port</string>
+      <string>Remote Access</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="4">
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="Line" name="line_3">
+   <item row="1" column="1">
+    <widget class="Line" name="line_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="1" column="4">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>EZ SSH &amp; Desktop</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+   <item row="1" column="2">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="1" column="3">
+    <widget class="Line" name="line_9">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <layout class="QVBoxLayout" name="cont_name"/>
    </item>
+   <item row="2" column="1">
+    <layout class="QVBoxLayout" name="cont_ip_port"/>
+   </item>
+   <item row="2" column="2">
+    <layout class="QFormLayout" name="cont_rhip"/>
+   </item>
+   <item row="2" column="3">
+    <layout class="QFormLayout" name="cont_remote"/>
+   </item>
    <item row="3" column="3">
-    <layout class="QVBoxLayout" name="cont_rhip"/>
-   </item>
-   <item row="3" column="1">
-    <layout class="QVBoxLayout" name="cont_ip"/>
-   </item>
-   <item row="3" column="2">
-    <layout class="QVBoxLayout" name="cont_port"/>
-   </item>
-   <item row="3" column="4">
-    <layout class="QFormLayout" name="cont_ssh"/>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_ssh_all">
+       <property name="text">
+        <string>EZ-SSH All</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
