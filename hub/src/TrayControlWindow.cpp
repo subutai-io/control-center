@@ -637,7 +637,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     if (!env->containers().empty()) {
       connect(env_start, &QAction::triggered, [env, this](){
         this->show_env_dlg(&(*env));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_env_dlg, QString("Environment \"%1\" (%2)").arg(env->status()).arg(env->name()));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_env_dlg, QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
 
       });
     } else {
