@@ -264,7 +264,7 @@ template<class OS> const QString& default_terminal_temp_internal();
   }
 
 default_terminal_internal_def(OS_LINUX, "xterm")
-default_terminal_internal_def(OS_MAC, "osascript")
+default_terminal_internal_def(OS_MAC, "Terminal")
 default_terminal_internal_def(OS_WIN, "cmd")
 
 const QString &
@@ -283,7 +283,7 @@ template<class OS> const QString& default_term_arg_temp_internal();
   }
 
 default_term_arg_internal_def(OS_LINUX, "-e")
-default_term_arg_internal_def(OS_MAC, "-e")
+default_term_arg_internal_def(OS_MAC, "do script")
 default_term_arg_internal_def(OS_WIN, "/k")
 
 const QString &
