@@ -103,10 +103,10 @@ void DlgNotification::btn_close_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgNotification::mousePressEvent(QMouseEvent *event){
-    lastPressPos = this->pos() - event->globalPos();
+    m_lastPressPos = this->pos() - event->globalPos();
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgNotification::mouseMoveEvent(QMouseEvent *event){
-    this->move(event->globalPos() + lastPressPos);
+    this->move(event->globalPos() + m_lastPressPos);
 }
 

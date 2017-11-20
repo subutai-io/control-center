@@ -40,7 +40,7 @@ private:
 private slots:
   void btn_close_released();
 protected:
-  QPoint lastPressPos;
+  QPoint m_lastPressPos;
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
 };
