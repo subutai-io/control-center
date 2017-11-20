@@ -855,9 +855,8 @@ void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
 
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
-    dlg->setWindowTitle(title);
-    qDebug () << dlg->height();
 
+    dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
     int src_x, src_y, dst_x, dst_y;
