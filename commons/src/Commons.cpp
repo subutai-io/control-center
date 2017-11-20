@@ -152,7 +152,7 @@ CCommons::SupportTerminals() {
 #endif
 #ifdef RT_OS_LINUX
     if (CCommons::IsApplicationLaunchable(i.first))
-      lst_res << i.first
+      lst_res << i.first;
 #endif
   }
   return lst_res;
