@@ -29,9 +29,9 @@ public:
                            const QString& msg,
                            QWidget *parent = 0,
                            NOTIFICATION_ACTION_TYPE action_type = N_NO_ACTION);
-  ~DlgNotification();
-  static QPoint lastDialogPos;
-  static int dlg_counter;
+  virtual ~DlgNotification();
+
+  static int NOTIFICATIONS_COUNT;
 
 private:
   Ui::DlgNotification *ui;

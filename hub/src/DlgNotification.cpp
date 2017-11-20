@@ -11,8 +11,7 @@
 #include "Commons.h"
 
 
-int DlgNotification::dlg_counter = 0;
-QPoint DlgNotification::lastDialogPos = QPoint(0, 0);
+int DlgNotification::NOTIFICATIONS_COUNT = 0;
 
 DlgNotification::DlgNotification(
    size_t notification_level, const QString &msg,
@@ -46,8 +45,6 @@ DlgNotification::DlgNotification(
             [action_type](){action_handler[action_type].call_func();});
    ui->btn_action->setText(action_handler[action_type].btn_message);
   }
-
-
 
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
   ui->lbl_icon->setBackgroundRole(QPalette::Base);
@@ -92,21 +89,19 @@ DlgNotification::DlgNotification(
       CSettingsManager::Instance().not_ignore_notification(msg);
   });
 
-
-  DlgNotification::dlg_counter ++;
-  QTimer * dec_counter = new QTimer(this);
-  dec_counter->setSingleShot(true);
-  connect(dec_counter, &QTimer::timeout, [](){
-      dlg_counter --;
-  });
-  dec_counter->start(500);
+  ++NOTIFICATIONS_COUNT;
   ui->chk_autohide->setChecked(true);
 }
 
-DlgNotification::~DlgNotification() { delete ui; }
+DlgNotification::~DlgNotification() {
+  --NOTIFICATIONS_COUNT;
+  delete ui;
+}
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgNotification::btn_close_released() { close(); }
+void DlgNotification::btn_close_released() {
+  close();
+}
 ////////////////////////////////////////////////////////////////////////////
 void DlgNotification::mousePressEvent(QMouseEvent *event){
     lastPressPos = this->pos() - event->globalPos();
