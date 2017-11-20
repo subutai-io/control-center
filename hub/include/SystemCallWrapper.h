@@ -144,6 +144,7 @@ class CSystemCallWrapper {
   static bool p2p_daemon_check();
 
   static system_call_wrapper_error_t which(const QString &prog, QString &path);
+  static system_call_wrapper_error_t open(const QString &prog);
 
   static system_call_wrapper_error_t chrome_version(QString &version);
   static const QString &virtual_box_version();
