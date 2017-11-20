@@ -380,6 +380,8 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
+static QPoint lastNotificationPos(0, 0);
 template<class OS>
 static inline void shift_notification_dialog_positions_internal(int &src_y , int &dst_y, int shift_value);
 
@@ -387,27 +389,25 @@ template <>
 inline void shift_notification_dialog_positions_internal< Os2Type<OS_LINUX> >(int &src_y , int &dst_y, int shift_value){
   const int &pref_place = CSettingsManager::Instance().preferred_notifications_place();
   if (pref_place == 1 || pref_place == 2) { // if the notification dialogs on the top of the screen
-    src_y = DlgNotification::lastDialogPos.y() - shift_value;
-    dst_y = DlgNotification::lastDialogPos.y() - shift_value;
+    src_y = lastNotificationPos.y() - shift_value;
+    dst_y = lastNotificationPos.y() - shift_value;
   }
   else { // on the bottom
-    src_y = DlgNotification::lastDialogPos.y() + shift_value;
-    dst_y = DlgNotification::lastDialogPos.y() + shift_value;
+    src_y = lastNotificationPos.y() + shift_value;
+    dst_y = lastNotificationPos.y() + shift_value;
   }
 }
 template<>
 inline void shift_notification_dialog_positions_internal< Os2Type<OS_WIN> >(int &src_y , int &dst_y, int shift_value){
-  src_y = DlgNotification::lastDialogPos.y() - shift_value;
-  dst_y = DlgNotification::lastDialogPos.y() - shift_value;
+  src_y = lastNotificationPos.y() - shift_value;
+  dst_y = lastNotificationPos.y() - shift_value;
 }
 
 template<>
 inline void shift_notification_dialog_positions_internal< Os2Type<OS_MAC> >(int &src_y , int &dst_y, int shift_value){
-  src_y = DlgNotification::lastDialogPos.y() + shift_value;
-  dst_y = DlgNotification::lastDialogPos.y() + shift_value;
+  src_y = lastNotificationPos.y() + shift_value;
+  dst_y = lastNotificationPos.y() + shift_value;
 }
-
-
 
 void shift_notification_dialog_positions(int &src_y, int &dst_y, int shift_value) {
   shift_notification_dialog_positions_internal< Os2Type<CURRENT_OS> >(src_y, dst_y, shift_value);
@@ -424,10 +424,11 @@ void TrayControlWindow::notification_received(
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
+  connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
-  if (DlgNotification::dlg_counter > 1 && DlgNotification::dlg_counter < 5) { // shift dialog if there is more than one dialogs
+  if (DlgNotification::NOTIFICATIONS_COUNT > 1 && DlgNotification::NOTIFICATIONS_COUNT < 5) { // shift dialog if there is more than one dialogs
       shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
   }
 
@@ -459,8 +460,7 @@ void TrayControlWindow::notification_received(
     dlg->move(dst_x, dst_y);
     dlg->show();
   }
-  DlgNotification::lastDialogPos = dlg->pos();
-
+  lastNotificationPos = dlg->pos();
 }
 ////////////////////////////////////////////////////////////////////////////
 
