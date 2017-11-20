@@ -438,7 +438,7 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
   if (!cmd_file.exists()) {
     system_call_wrapper_error_t tmp_res;
-    if ((tmp_res = which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
         SCWE_SUCCESS) {
       return tmp_res;
     }
