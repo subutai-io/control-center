@@ -24,6 +24,7 @@ public:
   static bool HasRecommendedTerminalArg(const QString& terminalCmd,
                                      QString &recommendedArg);
   static QStringList DefaultTerminals();
+  static QStringList SupportTerminals();
 };
 
 #endif // COMMONS_H

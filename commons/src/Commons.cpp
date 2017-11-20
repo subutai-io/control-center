@@ -143,10 +143,28 @@ CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
 }
 
 QStringList
+CCommons::SupportTerminals() {
+  QStringList lst_res;
+  for (auto i : dct_term_arg) {
+#ifdef RT_OS_DARWIN
+    if (CCommons::IsTerminalLaunchable(i.first))
+      lst_res << i.first;
+#endif
+#ifdef RT_OS_LINUX
+    if (CCommons::IsApplicationLaunchable(i.first))
+      lst_res << i.first;
+#endif
+  }
+  return lst_res;
+}
+
+QStringList
 CCommons::DefaultTerminals() {
   QStringList lst_res;
   for (auto i : dct_term_arg)
     lst_res << i.first;
   return lst_res;
 }
+
+
 ////////////////////////////////////////////////////////////////////////////
