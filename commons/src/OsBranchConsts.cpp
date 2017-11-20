@@ -303,7 +303,7 @@ template<class OS> const QString& vboxmanage_command_internal();
   }
 
 vboxmanage_command_internal_def(OS_LINUX, "vboxmanage")
-vboxmanage_command_internal_def(OS_MAC, "vboxmanage")
+vboxmanage_command_internal_def(OS_MAC, "VBoxManage")
 vboxmanage_command_internal_def(OS_WIN, "vboxmanage.exe")
 
 const QString &

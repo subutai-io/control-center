@@ -1,5 +1,6 @@
 #include <QCheckBox>
 #include <QLabel>
+#include <QMouseEvent>
 
 #include "DlgNotification.h"
 #include "SettingsManager.h"
@@ -8,6 +9,8 @@
 #include "updater/HubComponentsUpdater.h"
 #include "Commons.h"
 
+
+int DlgNotification::NOTIFICATIONS_COUNT = 0;
 
 DlgNotification::DlgNotification(
    size_t notification_level, const QString &msg,
@@ -42,8 +45,6 @@ DlgNotification::DlgNotification(
    ui->btn_action->setText(action_handler[action_type].btn_message);
   }
 
-
-
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
   ui->lbl_icon->setBackgroundRole(QPalette::Base);
   ui->lbl_icon->setAutoFillBackground(true);
@@ -64,15 +65,15 @@ DlgNotification::DlgNotification(
   ui->lbl_message->setTextFormat(Qt::RichText);
   ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_message->setOpenExternalLinks(true);
-
   m_close_timer.setInterval(
       CSettingsManager::Instance().notification_delay_sec() * 1000);
   ui->chk_ignore->setChecked(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
-  connect(ui->btn_close, &QPushButton::released, this,
-          &DlgNotification::btn_close_released);
+  connect(ui->btn_close, &QPushButton::released, this, &DlgNotification::btn_close_released);
+
   connect(&m_close_timer, &QTimer::timeout, this, &DlgNotification::close);
+
   connect(ui->chk_autohide, &QCheckBox::stateChanged, [this](int state) {
     if (state == Qt::Checked)
       m_close_timer.start();
@@ -87,11 +88,25 @@ DlgNotification::DlgNotification(
       CSettingsManager::Instance().not_ignore_notification(msg);
   });
 
+  ++NOTIFICATIONS_COUNT;
   ui->chk_autohide->setChecked(true);
 }
 
-DlgNotification::~DlgNotification() { delete ui; }
+DlgNotification::~DlgNotification() {
+  --NOTIFICATIONS_COUNT;
+  delete ui;
+}
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgNotification::btn_close_released() { close(); }
+void DlgNotification::btn_close_released() {
+  close();
+}
 ////////////////////////////////////////////////////////////////////////////
+void DlgNotification::mousePressEvent(QMouseEvent *event){
+    m_lastPressPos = this->pos() - event->globalPos();
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgNotification::mouseMoveEvent(QMouseEvent *event){
+    this->move(event->globalPos() + m_lastPressPos);
+}
+

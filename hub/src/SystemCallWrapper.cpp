@@ -375,7 +375,7 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(
   }
   cmd = CSettingsManager::Instance().terminal_cmd();
   QStringList args = CSettingsManager::Instance().terminal_arg().split(
-      QRegularExpression("\\s"));
+                       QRegularExpression("\\s"));
   args << QString("%1;bash").arg(str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
@@ -432,7 +432,7 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const
 
   if (!key.isEmpty()) {
     CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key));
+        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
     str_command += QString(" -i \"%1\" ").arg(key);
   }
 

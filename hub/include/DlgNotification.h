@@ -29,15 +29,20 @@ public:
                            const QString& msg,
                            QWidget *parent = 0,
                            NOTIFICATION_ACTION_TYPE action_type = N_NO_ACTION);
-  ~DlgNotification();
+  virtual ~DlgNotification();
+
+  static int NOTIFICATIONS_COUNT;
+
 private:
   Ui::DlgNotification *ui;
   QTimer m_close_timer;
 
 private slots:
   void btn_close_released();
-
-
+protected:
+  QPoint m_lastPressPos;
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
 };
 
 #endif // DLGNOTIFICATION_H
