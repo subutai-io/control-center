@@ -342,14 +342,40 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
-system_call_wrapper_error_t run_ssh_in_terminal_internal(
-    const QString &cmd, const QString &str_command);
+system_call_wrapper_error_t run_ssh_in_terminal_internal(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port,
+                                                         const QString &key);
 
 template <>
 system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(
-    const QString &cmd, const QString &str_command) {
+        const QString &user,
+        const QString &ip,
+        const QString &port,
+        const QString &key) {
+  QString str_command = QString("%1 %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    qInfo() << QString("Using %1 ssh key").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
+  }
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
   QStringList args = CSettingsManager::Instance().terminal_arg().split(
-      QRegularExpression("\\s"));
+                       QRegularExpression("\\s"));
   args << QString("%1;bash").arg(str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
@@ -358,25 +384,70 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(
 
 template <>
 system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(
-    const QString &cmd, const QString &str_command) {
-  QStringList args = CSettingsManager::Instance().terminal_arg().split(
-      QRegularExpression("\\s"));
+        const QString &user,
+        const QString &ip,
+        const QString &port,
+        const QString &key) {
+  QString str_command = QString("%1 %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    qInfo() << QString("Using %1 ssh key").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
+  }
+
+  QString cmd;
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args;
+  args << QString("-e");
   qInfo("Launch command : %s",
                                        str_command.toStdString().c_str());
 
-  args << QString("Tell application \"Terminal\" to do script \"%1\"")
-              .arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
+  args << QString("Tell application \"%1\" to %2 \"%3\"")
+              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
 /*********************/
 
 template <>
-system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
-    const QString &cmd, const QString &str_command) {
-  (void)cmd;
-  (void)str_command;  // make compiler happy.  %)
+system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const QString &user,
+                                                                           const QString &ip,
+                                                                           const QString &port,
+                                                                           const QString &key) {
+  //these args are used. we just make compiller happy.
+  UNUSED_ARG(user);
+  UNUSED_ARG(ip);
+  UNUSED_ARG(port);
+  UNUSED_ARG(key);
 #ifdef RT_OS_WINDOWS
+  QString str_command = QString("\"%1\" %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    CNotificationObserver::Instance()->Info(
+        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
+    str_command += QString(" -i \"%1\" ").arg(key);
+  }
+
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
   QString known_hosts = CSettingsManager::Instance().ssh_keys_storage() +
                         QDir::separator() + "known_hosts";
   STARTUPINFO si = {0};
@@ -401,42 +472,7 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
 system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
-#ifdef RT_OS_WINDOWS
-  QString str_command = QString("\"%1\" %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
-    str_command += QString(" -i \"%1\" ").arg(key);
-  }
-#else
-  QString str_command = QString("%1 %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
-  }
-#endif
-
-  QString cmd;
-  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
-  if (!cmd_file.exists()) {
-    system_call_wrapper_error_t tmp_res;
-    if ((tmp_res = which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
-        SCWE_SUCCESS) {
-      return tmp_res;
-    }
-  }
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(cmd, str_command);
+  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -678,6 +714,23 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
     path = res.out[0];
     path.replace("\n", "\0");
     path.replace("\r", "\0");
+    return SCWE_SUCCESS;
+  }
+
+  return SCWE_WHICH_CALL_FAILED;
+}
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
+  static int success_ec = 0;
+  QString cmd("open");
+  QStringList args;
+  args << QString("-Ra");
+  args << prog;
+  system_call_res_t res = ssystem_th(cmd, args, false, false, 5000);
+  if (res.res != SCWE_SUCCESS) return res.res;
+
+  if (res.exit_code == success_ec) {
     return SCWE_SUCCESS;
   }
 
