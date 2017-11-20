@@ -144,8 +144,7 @@ main(int argc, char *argv[]) {
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
-    qCritical("Global Exception : %s",
-                                          ge.what());
+    qCritical("Global Exception : %s", ge.what());
   }
 
   return result;

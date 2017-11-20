@@ -1,12 +1,12 @@
 #!/bin/bash
-subutai_tray_bin="subutai_tray_bin"
+build="subutai_tray_bin"
 
-if [ -d "$subutai_tray_bin" ]; then 
-	echo "Try to remove subutai_tray_bin"
-  rm -rf subutai_tray_bin
+if [ -d "$build" ]; then 
+	echo "Try to remove build"
+  rm -rf $build
 fi 
-mkdir subutai_tray_bin
-cd subutai_tray_bin
+mkdir -p $build
+cd $build
 qmake ../SubutaiTray.pro -r -spec macx-clang CONFIG+=x86_64
 make 
 cd ../
