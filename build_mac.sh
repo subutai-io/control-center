@@ -7,8 +7,10 @@ if [ -d "$subutai_tray_bin" ]; then
 fi 
 mkdir subutai_tray_bin
 cd subutai_tray_bin
+lrelease ../SubutaiTray.pro 
 qmake ../SubutaiTray.pro -r -spec macx-clang CONFIG+=x86_64
 make 
+mv ../*.qm .
 cd ../
 macdeployqt subutai_tray_bin/SubutaiTray.app
 cd subutai_tray_bin/SubutaiTray.app/Contents/MacOS/

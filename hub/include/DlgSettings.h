@@ -35,6 +35,7 @@ private:
   void rebuild_rh_list_model();
 
 private slots:
+  void le_terminal_cmd_changed();
   void btn_ok_released();
   void btn_cancel_released();
   void btn_p2p_file_dialog_released();
