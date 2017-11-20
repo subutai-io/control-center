@@ -41,11 +41,13 @@ void DlgEnvironment::set_button_ssh(QPushButton *btn) {
   btn->setParent(this);
   btn->setMaximumHeight(14);
   btn->setFont(font);
-  // temporary
-  QPushButton *tt = new QPushButton("DESKTOP",this);
-  tt->setMaximumHeight(15);
-  tt->setFont(font);
-  ui->cont_remote->addRow(btn, tt);
+  // temporary start
+  QPushButton *desktop_btn = new QPushButton("DESKTOP",this);
+  desktop_btn->setMaximumHeight(15);
+  desktop_btn->setFont(font);
+  // temporary end
+
+  ui->cont_remote->addRow(btn, desktop_btn);
 }
 
 DlgEnvironment::~DlgEnvironment() {
