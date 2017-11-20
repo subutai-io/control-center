@@ -115,9 +115,9 @@ private:
   /*hub*/
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
 
-  static QDialog *last_env_dlg(QWidget *p);
-  void show_env_dlg(const CEnvironment *env);
-  static QDialog *m_last_env_dlg;
+  static QDialog *last_generated_env_dlg(QWidget *p);
+  void generate_env_dlg(const CEnvironment *env);
+  static QDialog *m_last_generated_env_dlg;
 
   /*hub end*/
 

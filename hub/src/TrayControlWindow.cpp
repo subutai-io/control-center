@@ -25,6 +25,7 @@
 #include "libssh2/include/LibsshController.h"
 #include "ui_TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
+#include "DlgEnvironment.h"
 
 using namespace update_system;
 
@@ -636,9 +637,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 
     if (!env->containers().empty()) {
       connect(env_start, &QAction::triggered, [env, this](){
-        this->show_env_dlg(&(*env));
-        qDebug()<<"First height "<< TrayControlWindow::m_last_env_dlg->height();
-        TrayControlWindow::show_dialog(TrayControlWindow::last_env_dlg, QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
+        this->generate_env_dlg(&(*env));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg, QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
       });
     } else {
       env_start->setEnabled(false);
@@ -911,48 +911,45 @@ void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
 }
 
-#include "DlgEnvironment.h"
 
-QDialog* TrayControlWindow::m_last_env_dlg = NULL;
-QDialog* TrayControlWindow::last_env_dlg(QWidget *p) {
+QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
+QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
     UNUSED_ARG(p);
-    return m_last_env_dlg;
+    return m_last_generated_env_dlg;
 }
-void TrayControlWindow::show_env_dlg(const CEnvironment *env){
-    DlgEnvironment *dlg_env = new DlgEnvironment();
-    //qDebug() <<"The first one :"<< dlg_env->set();
-    dlg_env->addEnvironment(env);
+void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
+  DlgEnvironment *dlg_env = new DlgEnvironment();
+  dlg_env->addEnvironment(env);
 
+  CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(env, NULL, m_sys_tray_icon);
 
-    CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(env, NULL, m_sys_tray_icon);
+  connect(dlg_env, &DlgEnvironment::btn_ssh_all_clicked,
+          allItem, &CHubEnvironmentMenuItem::internal_action_triggered);
+  connect(allItem, &CHubEnvironmentMenuItem::action_triggered,
+          this, &TrayControlWindow::hub_container_all_mi_triggered);
 
-    connect(dlg_env, &DlgEnvironment::btn_ssh_all_clicked,
-            allItem, &CHubEnvironmentMenuItem::internal_action_triggered);
-    connect(allItem, &CHubEnvironmentMenuItem::action_triggered,
-            this, &TrayControlWindow::hub_container_all_mi_triggered);
-
-    for (auto cont = env->containers().cbegin();
-         cont != env->containers().cend(); ++cont) {
-      QString cont_name = cont->name();
+  for (auto cont = env->containers().cbegin();
+       cont != env->containers().cend(); ++cont) {
+    QString cont_name = cont->name();
 #ifdef RT_OS_LINUX
-      cont_name.replace(
-          "_", "__");  // megahack :) Don't know how to handle underscores.
+    cont_name.replace(
+        "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-      QPushButton* act = new QPushButton("SSH", this);
-      act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
-                      !cont->rh_ip().isEmpty());
+    QPushButton* act = new QPushButton("SSH", this);
+    act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
+                    !cont->rh_ip().isEmpty());
 
-      CHubEnvironmentMenuItem* item =
-          new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-      connect(act, &QPushButton::clicked, item,
-              &CHubEnvironmentMenuItem::internal_action_triggered);
-      connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
-              &TrayControlWindow::hub_container_mi_triggered);
+    CHubEnvironmentMenuItem* item =
+        new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
+    connect(act, &QPushButton::clicked, item,
+            &CHubEnvironmentMenuItem::internal_action_triggered);
+    connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
+            &TrayControlWindow::hub_container_mi_triggered);
 
-      dlg_env->set_button_ssh(act);
-      m_lst_hub_menu_items.push_back(item);
-    }
-    m_last_env_dlg = dlg_env;
+    dlg_env->set_button_ssh(act);
+    m_lst_hub_menu_items.push_back(item);
+  }
+  m_last_generated_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////

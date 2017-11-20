@@ -8,18 +8,10 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui->setupUi(this);
 }
 
-
-#include <QString>
-
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
   for (auto cont = env->containers().cbegin() ; cont != env->containers().cend() ; cont ++){
     addContainer(&(*cont));
   }
-  QFont font = ui->btn_ssh_all->font();
-  font.setPointSize(5);
-  ui->btn_ssh_all->setParent(this);
-  ui->btn_ssh_all->setMaximumHeight(14);
-  ui->btn_ssh_all->setFont(font);
   ui->btn_ssh_all->setEnabled(env->healthy());
   connect(ui->btn_ssh_all, &QPushButton::clicked,
           this, &DlgEnvironment::btn_ssh_all_clicked_sl);
@@ -52,6 +44,7 @@ void DlgEnvironment::set_button_ssh(QPushButton *btn) {
 DlgEnvironment::~DlgEnvironment() {
   delete ui;
 }
+
 void DlgEnvironment::btn_ssh_all_clicked_sl(){
   emit btn_ssh_all_clicked();
 }
