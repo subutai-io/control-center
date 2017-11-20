@@ -114,7 +114,6 @@ static std::map<QString, QString> dct_term_arg = {
   {"lxterminal", "-l -e"},
 };
 
-const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
 bool
 CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
                                  QString& recommendedArg) {
