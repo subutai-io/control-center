@@ -155,8 +155,10 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
   ui->chk_rhm_autoupdate->setChecked(CSettingsManager::Instance().rh_management_autoupdate());
 
+#ifndef RT_OS_DARWIN
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
+#endif
 
   ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
