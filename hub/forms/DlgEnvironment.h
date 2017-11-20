@@ -14,18 +14,15 @@ class DlgEnvironment : public QDialog
     Q_OBJECT
 
 public:
-    explicit DlgEnvironment(QWidget *parent = 0);
-    ~DlgEnvironment();
-     void addContainer(const CHubContainer *cont);
-     void addEnvironment(const CEnvironment *env);
-     void set_button_ssh(QPushButton *btn);
-
+  explicit DlgEnvironment(QWidget *parent = 0);
+  ~DlgEnvironment();
+  void addContainer(const CHubContainer *cont);
+  void addEnvironment(const CEnvironment *env);
+  void set_button_ssh(QPushButton *btn);
 private:
     Ui::DlgEnvironment *ui;
 private slots:
-    void btn_ssh_all_clicked_sl(){
-      emit btn_ssh_all_clicked();
-    }
+    void btn_ssh_all_clicked_sl();
 signals:
     void btn_ssh_all_clicked();
 };
