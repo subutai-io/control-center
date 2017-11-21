@@ -126,7 +126,6 @@ static std::map<QString, QString> dct_term_arg = {
   {"iTerm", "create window with default profile command"}, // macos terminal
 };
 
-const QString CCommons::TERMINAL_WRONG_ARG("term_wrong_arg");
 bool
 CCommons::HasRecommendedTerminalArg(const QString &terminalCmd,
                                  QString& recommendedArg) {

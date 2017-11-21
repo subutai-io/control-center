@@ -6,6 +6,9 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The Logger class wrapps qDebug() , qWarning() etc. functions and write it to log files.
+ */
 class Logger : QObject
 {
   Q_OBJECT

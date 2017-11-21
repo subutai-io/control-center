@@ -5,6 +5,10 @@
 
 namespace SynchroPrimitives {
 
+  /**
+   * @brief The Locker guaranteed releases it's critical section
+   * Should be used as stack object, not heap!!!
+   */
   class Locker {
   private:
     Locker(const Locker&);
