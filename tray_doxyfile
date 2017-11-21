@@ -829,9 +829,8 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ./vbox/mscom \
-                         ./vbox/sdk_includes \
-                         ./libssh2/include/libssh2.h \
+EXCLUDE                = ./hub/include/Dlg*.h
+												 ./libssh2/include/libssh2.h \
                          ./libssh2/include/libssh2_publickey.h \
                          ./libssh2/include/libssh2_sftp.h \
                          ./rtm
