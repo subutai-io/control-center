@@ -19,6 +19,7 @@ debian/files
 debian/subutai-tray
 
 # doxygen
+docs/
 html/
 
 # darwin
