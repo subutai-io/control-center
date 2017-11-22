@@ -1,7 +1,7 @@
 Source: subutai-tray
 Section: net
 Priority: optional
-Maintainer: Oleg Katkov (okatkov@optimal-dynamics.com)
+Maintainer: Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
 Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: https://subut.ai

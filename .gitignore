@@ -17,6 +17,7 @@ build
 debian/debhelper-build-stamp
 debian/files
 debian/subutai-tray
+deb-packages/deb-packages-internal/debian/changelog
 
 # doxygen
 html/

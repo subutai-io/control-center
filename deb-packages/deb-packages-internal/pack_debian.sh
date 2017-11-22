@@ -16,4 +16,4 @@ tar zcvf SubutaiTray.tar.gz SubutaiTray
 cd ..
 
 #debuild -B -d
-debuild 
+debuild
