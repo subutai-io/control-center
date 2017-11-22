@@ -9,9 +9,9 @@
 namespace SynchroPrimitives
 {
   /**
-    Wrapper for critical section abstraction.
-    It could be windows critical section, mutex or anything else.
-    For example it's possible to use asm("bts") instruction.
+   * @brief Wrapper for critical section abstraction.
+   * It could be windows critical section, mutex or anything else.
+   * For example it's possible to use asm("bts") instruction.
   */
   typedef struct CriticalSection
   {

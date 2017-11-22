@@ -16,14 +16,23 @@ enum os_t {
   OS_MAC_LIN = 3
 };
 
+/**
+ * @brief branch_t enum to type struct for template specification
+ */
 template<branch_t v> struct Branch2Type {
   enum {val = v};
 };
 
+/**
+ * @brief os_t enum to type struct for template specification
+ */
 template<os_t v> struct Os2Type {
   enum {val = v};
 };
 
+/**
+ * @brief int to type struct for template specification
+ */
 template<int v> struct Int2Type {
   enum {val = v};
 };

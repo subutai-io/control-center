@@ -7,6 +7,10 @@
 
 class QWidget;
 
+/**
+ * @brief The CNotificationObserver class get's notification from anywhere and
+ * signals about it to all listeners
+ */
 class CNotificationObserver : public QObject {
   Q_OBJECT
 

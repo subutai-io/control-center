@@ -10,6 +10,9 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The CCommons contains common methods and constants
+ */
 class CCommons {
 public:
   static const char* RESTARTED_ARG;

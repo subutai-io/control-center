@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include "VirtualMachine.h"
 
+/**
+ * @brief The CVboxManager class is wrapper on "vboxmanage" command
+ * Later "vboxmanage" will be replaced with "vagrant", but it's not necessary
+ * to change this interface. Just rename it.
+ */
 class CVboxManager : public QObject {
   Q_OBJECT
 private:

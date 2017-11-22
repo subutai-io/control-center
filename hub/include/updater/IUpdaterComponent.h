@@ -16,6 +16,10 @@ namespace update_system {
   } hub_component_updater_error_t, chue_t;
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief The atomic_locker struct uses as wrapper on std::atomic<bool>* ab
+   * It sets ab in constructor and clears ab in destructor
+   */
   struct atomic_locker {
     std::atomic<bool>* m_ab;
     atomic_locker(std::atomic<bool>* ab) :
@@ -26,6 +30,9 @@ namespace update_system {
   };
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief The IUpdaterComponent interface for all ipdatable components
+   */
   class IUpdaterComponent : public QObject {
     Q_OBJECT
   private:
