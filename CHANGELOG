@@ -1,0 +1,35 @@
+# Change Log
+
+## [6.2.0] 11/04/2017
+
+* Changed log subsystem
+* UI improvements
+* Optimizations and minor bug fixes
+
+## [6.1.0] 10/17/2017
+
+* Fixed crash in ssh management dialog
+* Changed logger
+* Optimizations and improvements
+
+## [6.0.1] 09/19/2017
+
+* Fixed d-bus related bug with empty menu
+
+## [6.0.0-SNAPSHOT] 09/16/2017
+
+* Fixed ssh-keys synchronization
+* Fixed tray crash 
+
+## [5.0.2-SNAPSHOT] 08/31/2017
+
+* Changed SSDP handling (optimized with Aho-Korasic algo)
+* Changed SSH-keys management (optimized by using bit matrix)
+
+## [5.0.0] 09/21/2017
+
+* First Release
+
+## [4.0.15] 04/06/2017
+
+* First build
