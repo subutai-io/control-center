@@ -20,6 +20,7 @@ debian/subutai-tray
 deb-packages/deb-packages-internal/debian/changelog
 
 # doxygen
+docs/
 html/
 
 # darwin
