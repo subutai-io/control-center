@@ -51,14 +51,6 @@ public:
         m_id == arg.m_id &&
         m_port == arg.m_port &&
         m_rh_ip == arg.m_rh_ip;
-
-//    if (!res) {
-//      qDebug() << "cont name : " << (m_name == arg.m_name);
-//      qDebug() << "cont ip : " << (m_ip == arg.m_ip);
-//      qDebug() << "cont id : " << (m_id == arg.m_id);
-//      qDebug() << "cont port : " << (m_port == arg.m_port);
-//      qDebug() << "cont rh_ip : " << (m_rh_ip == arg.m_rh_ip);
-//    }
     return res;
   }
   bool operator!=(const CHubContainer& arg) const {
@@ -119,7 +111,6 @@ public:
 
   ~CEnvironment(){}
 
-  //todo use id
   bool operator==(const CEnvironment& arg) const {
     bool res =
         m_id == arg.m_id &&
@@ -130,16 +121,6 @@ public:
         m_status == arg.m_status &&
         m_status_descr == arg.m_status_descr &&
         VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
-//    if (!res) {
-//      qDebug() << "id " << (m_id == arg.m_id);
-//      qDebug() << "name " << (m_name == arg.m_name);
-//      qDebug() << "hash " << (m_hash == arg.m_hash);
-//      qDebug() << "aes key " << (m_aes_key == arg.m_aes_key);
-//      qDebug() << "ttl " << (m_ttl == arg.m_ttl);
-//      qDebug() << "status " << (m_status == arg.m_status);
-//      qDebug() << "status descr " << (m_status_descr == arg.m_status_descr);
-//      qDebug() << "lst containers " << VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
-//    }
     return res;
   }
 

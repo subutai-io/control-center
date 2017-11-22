@@ -8,6 +8,17 @@ namespace SynchroPrimitives {
   /**
    * @brief The Locker guaranteed releases it's critical section
    * Should be used as stack object, not heap!!!
+   * @code {.cpp}
+   * static SynchroPrimitives::CriticalSection cs;
+   * void foo() {
+   *   int a, b, c;
+   *   b = c = ++a + a++;
+   *   {
+   *     Locker lock(&cs);
+   *     //do some actions
+   *   } //leave critical section (because of destruction of lock object)
+   * }
+   * @endcode
    */
   class Locker {
   private:

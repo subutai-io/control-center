@@ -18,6 +18,7 @@ debian/debhelper-build-stamp
 debian/files
 debian/subutai-tray
 
+# doxygen
 html/
 
 # darwin

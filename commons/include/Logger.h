@@ -19,6 +19,13 @@ public:
   void Init() {;} //need for call constructor
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
+
+  /**
+   * @brief Write message to file.
+   * @param type - qDebug(), qWarning() etc.
+   * @param context - file, line, date etc.
+   * @param msg - message text
+   */
   static void LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
