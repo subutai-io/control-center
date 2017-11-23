@@ -974,18 +974,23 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
     cont_name.replace(
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-    QPushButton* act = new QPushButton("SSH", this);
-    act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
+    QAction* act_ssh = new QAction("SSH", this);
+    QPushButton* act_desktop = new QPushButton("Desktop");
+
+    act_ssh->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
+                    !cont->rh_ip().isEmpty());
+    act_desktop->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
                     !cont->rh_ip().isEmpty());
 
     CHubEnvironmentMenuItem* item =
         new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-    connect(act, &QPushButton::clicked, item,
-            &CHubEnvironmentMenuItem::internal_action_triggered);
+
+    connect(act_ssh, &QAction::triggered,
+            item, &CHubEnvironmentMenuItem::internal_action_triggered);
     connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
             &TrayControlWindow::hub_container_mi_triggered);
 
-    dlg_env->set_button_ssh(act);
+    dlg_env->set_button_ssh(act_ssh);
     m_lst_hub_menu_items.push_back(item);
   }
   m_last_generated_env_dlg = dlg_env;

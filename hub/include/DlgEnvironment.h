@@ -18,7 +18,7 @@ public:
   ~DlgEnvironment();
   void addContainer(const CHubContainer *cont);
   void addEnvironment(const CEnvironment *env);
-  void set_button_ssh(QPushButton *btn);
+  void set_button_ssh(QAction *act);
 private:
     Ui::DlgEnvironment *ui;
 private slots:

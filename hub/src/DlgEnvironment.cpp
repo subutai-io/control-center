@@ -32,7 +32,11 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip);
 }
 
-void DlgEnvironment::set_button_ssh(QPushButton *btn) {
+void DlgEnvironment::set_button_ssh(QAction *act) {
+  QPushButton *btn = new QPushButton("SSH" , this);
+  connect(btn, &QPushButton::clicked,
+          act, &QAction::trigger);
+
   QFont font = btn->font();
   font.setPointSize(5);
   btn->setParent(this);
@@ -40,6 +44,9 @@ void DlgEnvironment::set_button_ssh(QPushButton *btn) {
   btn->setFont(font);
   ui->cont_remote->addWidget(btn);
 }
+
+
+
 
 DlgEnvironment::~DlgEnvironment() {
   delete ui;
