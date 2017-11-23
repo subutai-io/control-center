@@ -100,6 +100,8 @@ private:
                                  void *additional_data,
                                  finished_slot_t slot);
 
+  void desktop_to_container_internal(const CEnvironment *env,
+                                     const CHubContainer *cont);
   void refresh_my_peers_internal();
   void refresh_environments_internal();
   void refresh_balance_internal();
@@ -147,12 +149,19 @@ public:
                         const CHubContainer *cont,
                         void *additional_data);
 
+
   /**
    * @brief ssh_to_container from web site (using websocket)
    */
   void ssh_to_container_str(const QString& env_id,
                             const QString& cont_id,
                             void *additional_data);
+
+  /**
+   * @brief remote desktop connection
+   */
+  void desktop_to_container(const CEnvironment *env,
+                            const CHubContainer *cont);
 
   static const QString& ssh_launch_err_to_str(int err);
 

@@ -130,11 +130,6 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end();
-       ++i) {
-    delete *i;
-  }
-
   QMenu* menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
   QAction* acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
@@ -554,7 +549,7 @@ void TrayControlWindow::vmc_player_act_released(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
+void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
   QAction* act = static_cast<QAction*>(action);
@@ -563,15 +558,11 @@ void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
 }
-////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_container_all_mi_triggered(const CEnvironment *env,
-                                                       const CHubContainer *contUnused,
-                                                       void* action) {
-  UNUSED_ARG(contUnused);
-  for (auto i = env->containers().begin(); i != env->containers().end(); ++i) {
-    CHubController::Instance().ssh_to_container(env, &(*i), action);
-  }
+////////////////////////////////////////////////////////////////////////////
+void TrayControlWindow::hub_container_mi_triggered_desktop(const CEnvironment* env,
+                                                   const CHubContainer* cont) {
+  CHubController::Instance().desktop_to_container(env, cont);
 }
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::update_available(QString file_id) {
@@ -623,13 +614,7 @@ void TrayControlWindow::launch_ss_triggered() {
 void TrayControlWindow::environments_updated_sl(int rr) {
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
-  m_hub_menu->clear();
-  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end();
-       ++i) {
-    delete *i;
-  }
 
-  m_lst_hub_menu_items.clear();
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
 
@@ -678,7 +663,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     if (!env->containers().empty()) {
       connect(env_start, &QAction::triggered, [env, this](){
         this->generate_env_dlg(&(*env));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg, QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
+                                       QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
       });
     } else {
       env_start->setEnabled(false);
@@ -952,6 +938,7 @@ void TrayControlWindow::show_notifications_triggered() {
 
 
 QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
+
 QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
     UNUSED_ARG(p);
     return m_last_generated_env_dlg;
@@ -959,50 +946,13 @@ QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
 void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
-
-  CHubEnvironmentMenuItem *allItem = new CHubEnvironmentMenuItem(env, NULL, m_sys_tray_icon);
-
-  connect(dlg_env, &DlgEnvironment::btn_ssh_all_clicked,
-          allItem, &CHubEnvironmentMenuItem::internal_action_triggered);
-  connect(allItem, &CHubEnvironmentMenuItem::action_triggered,
-          this, &TrayControlWindow::hub_container_all_mi_triggered);
-
-  for (auto cont = env->containers().cbegin();
-       cont != env->containers().cend(); ++cont) {
-    QString cont_name = cont->name();
-#ifdef RT_OS_LINUX
-    cont_name.replace(
-        "_", "__");  // megahack :) Don't know how to handle underscores.
-#endif
-    QAction* act_ssh = new QAction("SSH", this);
-    QPushButton* act_desktop = new QPushButton("Desktop");
-
-    act_ssh->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
-                    !cont->rh_ip().isEmpty());
-    act_desktop->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
-                    !cont->rh_ip().isEmpty());
-
-    CHubEnvironmentMenuItem* item =
-        new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-
-    connect(act_ssh, &QAction::triggered,
-            item, &CHubEnvironmentMenuItem::internal_action_triggered);
-    connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
-            &TrayControlWindow::hub_container_mi_triggered);
-
-    dlg_env->set_button_ssh(act_ssh);
-    m_lst_hub_menu_items.push_back(item);
-  }
+  connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_ssh);
+  connect(dlg_env, &DlgEnvironment::desktop_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_desktop);
   m_last_generated_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-/*hub menu*/
-void CHubEnvironmentMenuItem::internal_action_triggered() {
-  QAction* act = static_cast<QAction*>(sender());
-  emit action_triggered(m_hub_environment, m_hub_container, (void*)act);
-}
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////

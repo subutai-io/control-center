@@ -475,7 +475,26 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 ////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::run_x2go(
+        QString remote_ip, QString remote_port, QString remote_username) {
+    //QString cmd = CSettingsManager::Instance().pyhoca_cli();
+    QString cmd = "pyhoca-cli";
+    QStringList lst_args;
+    lst_args << "--new"
+             << "--server" << remote_ip
+             << "--port" << remote_port
+             << "--username" << remote_username;
+    system_call_res_t res = ssystem_th(cmd, lst_args, true, true);
 
+    if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+      res.res = SCWE_CANT_GENERATE_SSH_KEY;
+      qCritical("Can't run x2go : %d",
+           res.exit_code);
+    }
+    return res.res;
+}
+
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
     const QString &comment, const QString &file_path) {
   QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();

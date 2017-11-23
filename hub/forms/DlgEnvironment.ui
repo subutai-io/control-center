@@ -94,7 +94,7 @@
    <item row="2" column="2">
     <layout class="QFormLayout" name="cont_rhip"/>
    </item>
-   <item row="3" column="1" colspan="2">
+   <item row="3" column="1">
     <widget class="QPushButton" name="btn_ssh_all">
      <property name="maximumSize">
       <size>
@@ -103,7 +103,14 @@
       </size>
      </property>
      <property name="text">
-      <string>EZ-SSH All</string>
+      <string>EZ-SSH ALL</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="btn_desktop_all">
+     <property name="text">
+      <string>EZ-Desktop ALL</string>
      </property>
     </widget>
    </item>

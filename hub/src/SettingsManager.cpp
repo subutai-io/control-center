@@ -62,6 +62,7 @@ const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
+const QString CSettingsManager::SM_PYHOCA_CLI("Pyhoca_CLI");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
@@ -162,6 +163,7 @@ CSettingsManager::CSettingsManager()
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
+//      m_pyhoca_cli(pyhoca_cli()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
       m_subutai_cmd(subutai_command()) {
@@ -200,6 +202,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
+      {(void*)&m_pyhoca_cli, SM_PYHOCA_CLI, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
 
@@ -255,10 +258,10 @@ CSettingsManager::CSettingsManager()
 
   // which using
   QString* cmd_which[] = {&m_vboxmanage_path, &m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, nullptr};
+                          &m_p2p_path, &m_pyhoca_cli, nullptr};
   static const QString default_values[] = {vboxmanage_command_str(),
                                            ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path()};
+                                           default_p2p_path(), pyhoca_cli()};
 
   QString tmp, symlink;
   for (int i = 0; cmd_which[i]; ++i) {
@@ -533,5 +536,6 @@ SET_FIELD_DEF(logs_level, SM_LOGS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
+SET_FIELD_DEF(pyhoca_cli, SM_PYHOCA_CLI, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
 #undef SET_FIELD_DEF

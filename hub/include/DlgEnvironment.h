@@ -18,13 +18,13 @@ public:
   ~DlgEnvironment();
   void addContainer(const CHubContainer *cont);
   void addEnvironment(const CEnvironment *env);
-  void set_button_ssh(QAction *act);
+  void addRemoteAccess(const CEnvironment *env, const CHubContainer *cont);
+
 private:
     Ui::DlgEnvironment *ui;
-private slots:
-    void btn_ssh_all_clicked_sl();
 signals:
-    void btn_ssh_all_clicked();
+    void ssh_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
+    void desktop_to_container_sig(const CEnvironment*, const CHubContainer*);
 };
 
 #endif // DLGENVIRONMENT_H

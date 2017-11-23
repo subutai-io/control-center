@@ -68,31 +68,6 @@ public:
     void remove(CVBPlayerItem* pItem);
     int vm_count(void) const {return m_vm_count;}
 };
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-
-class CHubEnvironmentMenuItem : public QObject {
- Q_OBJECT
-private:
-  const CEnvironment* m_hub_environment;
-  QSystemTrayIcon* m_tray_icon;
-  const CHubContainer* m_hub_container;
-
-public:
-  CHubEnvironmentMenuItem(const CEnvironment* env,
-                          const CHubContainer* cont,
-                          QSystemTrayIcon* tray_icon) :
-    m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
-
-  virtual ~CHubEnvironmentMenuItem(){}
-
-signals:
-  void action_triggered(const CEnvironment*, const CHubContainer*, void* action);
-
-public slots:
-  void internal_action_triggered();
-
-};
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -112,9 +87,6 @@ public:
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
-
-  /*hub*/
-  std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
 
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
@@ -204,10 +176,12 @@ private slots:
   void balance_updated_sl();
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
-  void hub_container_mi_triggered(const CEnvironment *env,
-                               const CHubContainer *cont, void *action);
-  void hub_container_all_mi_triggered(const CEnvironment *env,
+  void hub_container_mi_triggered_ssh(const CEnvironment *env,
                                       const CHubContainer *cont, void *action);
+
+  void hub_container_mi_triggered_desktop(const CEnvironment* env,
+                                          const CHubContainer* cont);
+
   void ssh_key_generate_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 

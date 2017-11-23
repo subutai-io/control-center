@@ -55,6 +55,7 @@ class CSettingsManager : public QObject {
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
   static const QString SM_SSH_KEYGEN_CMD;
+  static const QString SM_PYHOCA_CLI;
 
   static const QString SM_AUTOSTART;
   static const QString SM_CHROME_PATH;
@@ -111,6 +112,8 @@ class CSettingsManager : public QObject {
   bool m_use_animations;
   uint32_t m_preferred_notifications_place;
   QString m_ssh_keygen_cmd;
+
+  QString m_pyhoca_cli;
 
   bool m_autostart;
   QString m_chrome_path;
@@ -214,6 +217,8 @@ class CSettingsManager : public QObject {
   }
 
   const QString& ssh_keygen_cmd() const { return m_ssh_keygen_cmd; }
+  const QString& pyhoca_cli() const { return m_pyhoca_cli; }
+
   bool autostart() const { return m_autostart; }
   const QString& chrome_path() const { return m_chrome_path; }
   const QString& subutai_cmd() const { return m_subutai_cmd; }
@@ -272,6 +277,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(logs_level, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
+  SET_FIELD_DECL(pyhoca_cli, QString&)
   SET_FIELD_DECL(autostart, bool)
   SET_FIELD_DECL(chrome_path, QString&)
   SET_FIELD_DECL(subutai_cmd, QString&)

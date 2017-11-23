@@ -9,12 +9,12 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
 }
 
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
-  for (auto cont = env->containers().cbegin() ; cont != env->containers().cend() ; cont ++){
+  for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++){
     addContainer(&(*cont));
+    addRemoteAccess(env, &(*cont));
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
-  connect(ui->btn_ssh_all, &QPushButton::clicked,
-          this, &DlgEnvironment::btn_ssh_all_clicked_sl);
+  ui->btn_desktop_all->setEnabled(env->healthy());
 }
 
 void DlgEnvironment::addContainer(const CHubContainer *cont){
@@ -32,32 +32,44 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip);
 }
 
-void DlgEnvironment::set_button_ssh(QAction *act) {
-  QPushButton *btn = new QPushButton("SSH" , this);
-  connect(btn, &QPushButton::clicked, [act, btn](){
-    act->trigger();
-    btn->setEnabled(false);
+/////////////////////////////////////////////////////////////////////////
+
+void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
+{
+  QFont *font = new QFont();
+  font->setPointSize(5);
+  QPushButton *btn_ssh = new QPushButton("SSH", this), *btn_desktop = new QPushButton("DESKTOP" , this);
+
+  btn_ssh->setMaximumHeight(14);
+  btn_desktop->setMaximumHeight(14);
+
+  btn_ssh->setFont(*font);
+  btn_desktop->setFont(*font);
+
+  connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
+  connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
+
+  connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
+    QAction *act = new QAction();
+    emit this->ssh_to_container_sig(env, cont, (void *)act);
+    btn_ssh->setEnabled(false);
+    this->ui->btn_ssh_all->setEnabled(false);
   });
 
-  connect(act, &QAction::changed, [btn](){
-      btn->setEnabled(true);
+  connect(btn_desktop, &QPushButton::clicked, [this, env, cont, btn_desktop](){
+    emit this->desktop_to_container_sig(env, cont);
+    btn_desktop->setEnabled(false);
+    this->ui->btn_desktop_all->setEnabled(false);
   });
 
-  QFont font = btn->font();
-  font.setPointSize(5);
-  btn->setParent(this);
-  btn->setMaximumHeight(14);
-  btn->setFont(font);
-  ui->cont_remote->addWidget(btn);
+
+  ui->cont_remote->addRow(btn_ssh, btn_desktop);
 }
 
-
-
+/////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {
   delete ui;
 }
 
-void DlgEnvironment::btn_ssh_all_clicked_sl(){
-  emit btn_ssh_all_clicked();
-}
+/////////////////////////////////////////////////////////////////////////

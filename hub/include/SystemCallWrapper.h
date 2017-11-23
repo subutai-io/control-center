@@ -112,6 +112,9 @@ class CSystemCallWrapper {
                                                          const QString &ip,
                                                          const QString &port,
                                                          const QString &key);
+  static system_call_wrapper_error_t run_x2go(QString remote_ip,
+                                              QString remote_port,
+                                              QString remote_username);
 
   static system_call_wrapper_error_t generate_ssh_key(const QString &comment,
                                                       const QString &file_path);
@@ -145,6 +148,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t which(const QString &prog, QString &path);
   static system_call_wrapper_error_t open(const QString &prog);
+
+
 
   static system_call_wrapper_error_t chrome_version(QString &version);
   static const QString &virtual_box_version();
