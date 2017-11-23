@@ -5,6 +5,9 @@
 
 namespace update_system {
 
+  /**
+   * @brief The CUpdaterComponentRH class implements IUpdaterComponent. Works with RH (resource host)
+   */
   class CUpdaterComponentRH : public IUpdaterComponent {
     // IUpdaterComponent interface
   public:

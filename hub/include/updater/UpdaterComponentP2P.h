@@ -5,6 +5,9 @@
 
 namespace update_system {
 
+  /**
+   * @brief The CUpdaterComponentP2P class implements IUpdaterComponent. Works with p2p
+   */
   class CUpdaterComponentP2P : public IUpdaterComponent {
   private:
     static QString p2p_path();

@@ -13,6 +13,10 @@ typedef enum download_file_manager_errors {
 } download_file_manager_errors_t;
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The CDownloadFileManager class downloads file asynchronously and emits signal on finish.
+ * Also download process can be interrupted.
+ */
 class CDownloadFileManager : public QObject {
   Q_OBJECT
 private:

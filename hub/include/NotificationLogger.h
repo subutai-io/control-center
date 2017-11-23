@@ -9,6 +9,9 @@
 #include "NotificationObserver.h"
 #include "SettingsManager.h"
 
+/**
+ * @brief The CNotification class is Notification abstraction.
+ */
 class CNotification {
 private:
   static QString LEVEL_STR[];
@@ -42,6 +45,9 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The CNotificationUnion is union of several notifications with same message
+ */
 class CNotificationUnion {
 private:
   CNotificationObserver::notification_level_t m_level;
@@ -66,6 +72,9 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The DatePredicate class should be replaced with lambda. It's 2k17!!!
+ */
 class DatePredicate {
 private:
   QDateTime dt;
@@ -75,6 +84,10 @@ public:
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The CNotificationLogger class serializes notifications to file and
+ * deserializes from file.
+ */
 class CNotificationLogger : public QObject {
   Q_OBJECT
 

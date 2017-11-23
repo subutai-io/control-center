@@ -4,11 +4,13 @@ build="subutai_tray_bin"
 if [ -d "$build" ]; then 
 	echo "Try to remove build"
   rm -rf $build
-fi 
+fi
 mkdir -p $build
 cd $build
+lrelease ../SubutaiTray.pro
 qmake ../SubutaiTray.pro -r -spec macx-clang CONFIG+=x86_64
 make 
+mv ../*.qm .
 cd ../
 macdeployqt subutai_tray_bin/SubutaiTray.app
 cd subutai_tray_bin/SubutaiTray.app/Contents/MacOS/

@@ -21,6 +21,9 @@ typedef enum run_libssh2_error {
   RLE_LIBSSH2_EXIT_CODE_NOT_NULL
 } run_libssh2_error_t;
 
+/**
+ * @brief The CLibsshController class is wrapper for libssh2 functionality
+ */
 class CLibsshController {
 
 private:
@@ -35,6 +38,17 @@ private:
 public:
   static const char *run_libssh2_error_to_str(run_libssh2_error_t err);
 
+  /**
+   * @brief Run ssh command with password authorization
+   * @param host
+   * @param port
+   * @param user
+   * @param pass
+   * @param cmd
+   * @param conn_timeout
+   * @param lst_out - command output
+   * @return run_libssh2_error_t
+   */
   static int run_ssh_command_pass_auth(const char *host,
                                        uint16_t port,
                                        const char *user,
@@ -43,6 +57,18 @@ public:
                                        int conn_timeout,
                                        std::vector<std::string>& lst_out);
 
+  /**
+   * @brief Run ssh command with key authorization
+   * @param host
+   * @param port
+   * @param pub_file - public key path
+   * @param pr_file - private key path
+   * @param passphrase
+   * @param cmd
+   * @param conn_timeout
+   * @param lst_out - command output
+   * @return run_libssh2_error_t
+   */
   static int run_ssh_command_key_auth(const char *host,
                                       uint16_t port,
                                       const char* pub_file,

@@ -6,6 +6,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QDebug>
+#include <QCompleter>
 
 #include "Commons.h"
 #include "DlgSettings.h"
@@ -16,30 +17,6 @@
 #include "ui_DlgSettings.h"
 #include "Logger.h"
 #include "LanguageController.h"
-
-class TabResizeFilter : public QObject {
-private:
-  QTabWidget* m_target;
-
-  static void expandingTypeStyleSheet(QTabWidget* tw) {
-    int w = tw->width() - tw->count();  // don't know why. but looks OK only
-    // with this -tw->count(). MAGIC!!!
-    int wb = floor(w / (tw->count() * 1.0));
-    int ws = w - wb * (tw->count() - 1);
-    tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
-                              "QTabBar::tab:selected {width : %2px;}")
-                      .arg(wb)
-                      .arg(ws));
-  }
-
-public:
-  TabResizeFilter(QTabWidget* target) : QObject(target), m_target(target) {}
-  bool eventFilter(QObject*, QEvent* ev) {
-    if (ev->type() == QEvent::Resize) expandingTypeStyleSheet(m_target);
-    return false;
-  }
-};
-////////////////////////////////////////////////////////////////////////////
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
@@ -164,6 +141,10 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
 #ifndef RT_OS_WINDOWS
+  QStringList terminalLists = CCommons::SupportTerminals();
+  QCompleter *completer = new QCompleter(terminalLists, this);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
+  ui->le_terminal_cmd->setCompleter(completer);
   ui->gb_terminal_settings->setVisible(true);
 #endif
 
@@ -205,6 +186,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->btn_vboxmanage_command, &QPushButton::released, this,
           &DlgSettings::btn_vboxmanage_command_released);
+  connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
+          &DlgSettings::le_terminal_cmd_changed);
 }
 
 DlgSettings::~DlgSettings() {
@@ -519,3 +502,10 @@ void DlgSettings::resource_host_list_updated_sl(bool has_changes) {
   ui->btn_refresh_rh_list->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::le_terminal_cmd_changed() {
+  QString recommendedArg;
+  if (CCommons::HasRecommendedTerminalArg(ui->le_terminal_cmd->text(), recommendedArg))
+    ui->le_terminal_arg->setText(recommendedArg);
+}
+///////////////////////////////////////////∫/////////////////////////////////
