@@ -34,8 +34,14 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 
 void DlgEnvironment::set_button_ssh(QAction *act) {
   QPushButton *btn = new QPushButton("SSH" , this);
-  connect(btn, &QPushButton::clicked,
-          act, &QAction::trigger);
+  connect(btn, &QPushButton::clicked, [act, btn](){
+    act->trigger();
+    btn->setEnabled(false);
+  });
+
+  connect(act, &QAction::changed, [btn](){
+      btn->setEnabled(true);
+  });
 
   QFont font = btn->font();
   font.setPointSize(5);
