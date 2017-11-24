@@ -39,12 +39,20 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   QFont *font = new QFont();
   font->setPointSize(5);
   QPushButton *btn_ssh = new QPushButton("SSH", this), *btn_desktop = new QPushButton("DESKTOP" , this);
+  ui->cont_remote->addRow(btn_ssh, btn_desktop);
+
 
   btn_ssh->setMaximumHeight(14);
   btn_desktop->setMaximumHeight(14);
 
   btn_ssh->setFont(*font);
   btn_desktop->setFont(*font);
+
+  if (!env->healthy()){ // if UNHEALTHY
+    btn_desktop->setEnabled(false);
+    btn_ssh->setEnabled(false);
+    return;
+  }
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
@@ -61,9 +69,6 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
     btn_desktop->setEnabled(false);
     this->ui->btn_desktop_all->setEnabled(false);
   });
-
-
-  ui->cont_remote->addRow(btn_ssh, btn_desktop);
 }
 
 /////////////////////////////////////////////////////////////////////////
