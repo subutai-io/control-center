@@ -614,6 +614,7 @@ void TrayControlWindow::launch_ss_triggered() {
 void TrayControlWindow::environments_updated_sl(int rr) {
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
+  m_hub_menu->clear();
 
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
@@ -633,8 +634,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
     QAction* env_start = m_hub_menu->addAction(env_name);
-
-
 
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
