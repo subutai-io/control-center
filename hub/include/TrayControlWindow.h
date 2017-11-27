@@ -115,6 +115,11 @@ private:
 
   /*hub*/
   std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
+
+  static QDialog *last_generated_env_dlg(QWidget *p);
+  void generate_env_dlg(const CEnvironment *env);
+  static QDialog *m_last_generated_env_dlg;
+
   /*hub end*/
 
   /*vbox*/
@@ -170,6 +175,7 @@ public slots:
 
   /*hub slots*/
   void show_notifications_triggered();
+
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);

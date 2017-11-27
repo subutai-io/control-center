@@ -54,7 +54,8 @@ SOURCES += \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
-    commons/src/LanguageController.cpp
+    commons/src/LanguageController.cpp \
+    hub/src/DlgEnvironment.cpp
 
 
 HEADERS  += \
@@ -93,7 +94,8 @@ HEADERS  += \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
-    commons/include/LanguageController.h
+    commons/include/LanguageController.h \
+    hub/include/DlgEnvironment.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -106,7 +108,8 @@ FORMS    += \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
     hub/forms/DlgNotifications.ui \
-    hub/forms/DlgNotification.ui
+    hub/forms/DlgNotification.ui \
+    hub/forms/DlgEnvironment.ui \
 
 RESOURCES += \
     resources/resources.qrc
