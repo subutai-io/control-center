@@ -552,7 +552,7 @@ void TrayControlWindow::vmc_player_act_released(
 void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
-  QAction* act = static_cast<QAction*>(action);
+  QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
     CHubController::Instance().ssh_to_container(env, cont, action);
@@ -1104,7 +1104,7 @@ void TrayControlWindow::ssh_to_container_finished(int result,
         tr("Can't ssh to container. Err : %1")
             .arg(CHubController::ssh_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
-  QAction* act = static_cast<QAction*>(additional_data);
+  QPushButton* act = static_cast<QPushButton*>(additional_data);
   if (act == NULL) return;
   act->setEnabled(true);
 }

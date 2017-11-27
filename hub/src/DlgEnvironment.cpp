@@ -60,8 +60,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 
   connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
-    QAction *act = new QAction();
-    emit this->ssh_to_container_sig(env, cont, (void *)act);
+    emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
     btn_ssh->setEnabled(false);
     this->ui->btn_ssh_all->setEnabled(false);
   });
