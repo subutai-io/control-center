@@ -17,7 +17,6 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
     addRemoteAccess(env, &(*cont));
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
-  ui->btn_desktop_all->setEnabled(env->healthy());
 }
 
 /////////////////////////////////////////////////////////////////////////
