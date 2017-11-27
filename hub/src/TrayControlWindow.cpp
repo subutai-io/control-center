@@ -560,15 +560,12 @@ void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void TrayControlWindow::hub_container_mi_triggered_desktop(const CEnvironment* env,
-                                                   const CHubContainer* cont) {
-  CHubController::Instance().desktop_to_container(env, cont);
-}
-////////////////////////////////////////////////////////////////////////////
+
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
       tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_ABOUT);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_finished(QString file_id, bool success) {
@@ -946,7 +943,6 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
   connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_ssh);
-  connect(dlg_env, &DlgEnvironment::desktop_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_desktop);
   m_last_generated_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////

@@ -179,9 +179,6 @@ private slots:
   void hub_container_mi_triggered_ssh(const CEnvironment *env,
                                       const CHubContainer *cont, void *action);
 
-  void hub_container_mi_triggered_desktop(const CEnvironment* env,
-                                          const CHubContainer* cont);
-
   void ssh_key_generate_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 

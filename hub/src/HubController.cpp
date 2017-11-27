@@ -92,17 +92,13 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   th_worker->moveToThread(th);
   th->start();
 }
-////////////////////////////////////////////////////////////////////////////
-void CHubController::desktop_to_container_internal(const CEnvironment *env,
-                                                   const CHubContainer *cont){
-   CSystemCallWrapper::run_x2go(cont->ip(), cont->port(), cont->name());
 
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_my_peers_internal() {
   CRestWorker::Instance()->update_my_peers();
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_environments_internal() {
@@ -302,11 +298,6 @@ void CHubController::ssh_to_container(const CEnvironment *env,
                                       const CHubContainer *cont,
                                       void *additional_data) {
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont);
-}
-void CHubController::desktop_to_container(const CEnvironment *env,
-                                          const CHubContainer *cont){
-
-  desktop_to_container_internal(env, cont);
 }
 
 ////////////////////////////////////////////////////////////////////////////

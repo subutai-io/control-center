@@ -202,7 +202,6 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
-      {(void*)&m_pyhoca_cli, SM_PYHOCA_CLI, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
 
@@ -258,10 +257,10 @@ CSettingsManager::CSettingsManager()
 
   // which using
   QString* cmd_which[] = {&m_vboxmanage_path, &m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, &m_pyhoca_cli, nullptr};
+                          &m_p2p_path, nullptr};
   static const QString default_values[] = {vboxmanage_command_str(),
                                            ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path(), pyhoca_cli()};
+                                           default_p2p_path()};
 
   QString tmp, symlink;
   for (int i = 0; cmd_which[i]; ++i) {
@@ -536,6 +535,5 @@ SET_FIELD_DEF(logs_level, SM_LOGS_LEVEL, uint32_t)
 SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
-SET_FIELD_DEF(pyhoca_cli, SM_PYHOCA_CLI, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
 #undef SET_FIELD_DEF

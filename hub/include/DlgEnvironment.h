@@ -15,16 +15,16 @@ class DlgEnvironment : public QDialog
 
 public:
   explicit DlgEnvironment(QWidget *parent = 0);
-  ~DlgEnvironment();
   void addContainer(const CHubContainer *cont);
   void addEnvironment(const CEnvironment *env);
   void addRemoteAccess(const CEnvironment *env, const CHubContainer *cont);
+  ~DlgEnvironment();
 
 private:
     Ui::DlgEnvironment *ui;
+
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
-    void desktop_to_container_sig(const CEnvironment*, const CHubContainer*);
 };
 
 #endif // DLGENVIRONMENT_H

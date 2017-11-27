@@ -8,6 +8,9 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/////////////////////////////////////////////////////////////////////////
+
+
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
   for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++){
     addContainer(&(*cont));
@@ -16,6 +19,9 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
   ui->btn_ssh_all->setEnabled(env->healthy());
   ui->btn_desktop_all->setEnabled(env->healthy());
 }
+
+/////////////////////////////////////////////////////////////////////////
+
 
 void DlgEnvironment::addContainer(const CHubContainer *cont){
   QLabel *cont_name = new QLabel(cont->name(), this);
@@ -38,23 +44,20 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 {
   QFont *font = new QFont();
   font->setPointSize(5);
-  QPushButton *btn_ssh = new QPushButton("SSH", this), *btn_desktop = new QPushButton("DESKTOP" , this);
-  ui->cont_remote->addRow(btn_ssh, btn_desktop);
 
+  QPushButton *btn_ssh = new QPushButton("SSH", this);
+
+  ui->cont_remote->addWidget(btn_ssh);
 
   btn_ssh->setMaximumHeight(14);
-  btn_desktop->setMaximumHeight(14);
 
   btn_ssh->setFont(*font);
-  btn_desktop->setFont(*font);
 
-  if (!env->healthy()){ // if UNHEALTHY
-    btn_desktop->setEnabled(false);
+  if (!env->healthy()) { // if UNHEALTHY
     btn_ssh->setEnabled(false);
     return;
   }
 
-  connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 
   connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
@@ -62,12 +65,6 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
     emit this->ssh_to_container_sig(env, cont, (void *)act);
     btn_ssh->setEnabled(false);
     this->ui->btn_ssh_all->setEnabled(false);
-  });
-
-  connect(btn_desktop, &QPushButton::clicked, [this, env, cont, btn_desktop](){
-    emit this->desktop_to_container_sig(env, cont);
-    btn_desktop->setEnabled(false);
-    this->ui->btn_desktop_all->setEnabled(false);
   });
 }
 
