@@ -55,6 +55,7 @@ class CSettingsManager : public QObject {
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
   static const QString SM_SSH_KEYGEN_CMD;
+  static const QString SM_PYHOCA_CLI;
 
   static const QString SM_AUTOSTART;
   static const QString SM_CHROME_PATH;
@@ -214,6 +215,7 @@ class CSettingsManager : public QObject {
   }
 
   const QString& ssh_keygen_cmd() const { return m_ssh_keygen_cmd; }
+
   bool autostart() const { return m_autostart; }
   const QString& chrome_path() const { return m_chrome_path; }
   const QString& subutai_cmd() const { return m_subutai_cmd; }

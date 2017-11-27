@@ -474,8 +474,8 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &key) {
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
     const QString &comment, const QString &file_path) {
   QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();

@@ -62,6 +62,7 @@ const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
+const QString CSettingsManager::SM_PYHOCA_CLI("Pyhoca_CLI");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
@@ -162,6 +163,7 @@ CSettingsManager::CSettingsManager()
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
+//      m_pyhoca_cli(pyhoca_cli()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
       m_subutai_cmd(subutai_command()) {

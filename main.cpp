@@ -64,6 +64,7 @@ main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
+
   Logger::Instance()->Init();
   qInstallMessageHandler(Logger::LoggerMessageOutput);
 

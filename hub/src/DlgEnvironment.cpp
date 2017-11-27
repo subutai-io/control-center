@@ -8,14 +8,19 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui->setupUi(this);
 }
 
+/////////////////////////////////////////////////////////////////////////
+
+
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
-  for (auto cont = env->containers().cbegin() ; cont != env->containers().cend() ; cont ++){
+  for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++){
     addContainer(&(*cont));
+    addRemoteAccess(env, &(*cont));
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
-  connect(ui->btn_ssh_all, &QPushButton::clicked,
-          this, &DlgEnvironment::btn_ssh_all_clicked_sl);
 }
+
+/////////////////////////////////////////////////////////////////////////
+
 
 void DlgEnvironment::addContainer(const CHubContainer *cont){
   QLabel *cont_name = new QLabel(cont->name(), this);
@@ -32,32 +37,40 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip);
 }
 
-void DlgEnvironment::set_button_ssh(QAction *act) {
-  QPushButton *btn = new QPushButton("SSH" , this);
-  connect(btn, &QPushButton::clicked, [act, btn](){
-    act->trigger();
-    btn->setEnabled(false);
-  });
+/////////////////////////////////////////////////////////////////////////
 
-  connect(act, &QAction::changed, [btn](){
-      btn->setEnabled(true);
-  });
+void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
+{
+  QFont *font = new QFont();
+  font->setPointSize(5);
 
-  QFont font = btn->font();
-  font.setPointSize(5);
-  btn->setParent(this);
-  btn->setMaximumHeight(14);
-  btn->setFont(font);
-  ui->cont_remote->addWidget(btn);
+  QPushButton *btn_ssh = new QPushButton("SSH", this);
+
+  ui->cont_remote->addWidget(btn_ssh);
+
+  btn_ssh->setMaximumHeight(14);
+
+  btn_ssh->setFont(*font);
+
+  if (!env->healthy()) { // if UNHEALTHY
+    btn_ssh->setEnabled(false);
+    return;
+  }
+
+  connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
+
+  connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
+    QAction *act = new QAction();
+    emit this->ssh_to_container_sig(env, cont, (void *)act);
+    btn_ssh->setEnabled(false);
+    this->ui->btn_ssh_all->setEnabled(false);
+  });
 }
 
-
-
+/////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {
   delete ui;
 }
 
-void DlgEnvironment::btn_ssh_all_clicked_sl(){
-  emit btn_ssh_all_clicked();
-}
+/////////////////////////////////////////////////////////////////////////
