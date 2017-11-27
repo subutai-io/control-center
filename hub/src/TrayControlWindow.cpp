@@ -555,6 +555,7 @@ void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
   QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
+    act->setText("PROCESSSING...");
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
 }
@@ -1108,5 +1109,6 @@ void TrayControlWindow::ssh_to_container_finished(int result,
   QPushButton* act = static_cast<QPushButton*>(additional_data);
   if (act == NULL) return;
   act->setEnabled(true);
+  act->setText("SSH");
 }
 ////////////////////////////////////////////////////////////////////////////
