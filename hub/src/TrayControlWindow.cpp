@@ -936,9 +936,10 @@ void TrayControlWindow::show_notifications_triggered() {
 QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
 
 QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
-    UNUSED_ARG(p);
-    return m_last_generated_env_dlg;
+  UNUSED_ARG(p);
+  return m_last_generated_env_dlg;
 }
+
 void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
