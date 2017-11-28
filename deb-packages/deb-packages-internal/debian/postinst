@@ -19,7 +19,7 @@ fi
 tar zxf /tmp/subutai/SubutaiTray.tar.gz -C /tmp/subutai/
 
 cp /tmp/subutai/SubutaiTray/Libs/* /opt/subutai/Libs/
-cp /tmp/subutai/SubutaiTray/bin/SubutaiTray $tray_binary
+cp /tmp/subutai/SubutaiTray/bin/subutai-tray $tray_binary
 
 echo "#!/bin/bash" > $tray_script
 echo "LD_LIBRARY_PATH=/opt/subutai/Libs/ $tray_binary" >> $tray_script
