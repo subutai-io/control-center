@@ -552,9 +552,10 @@ void TrayControlWindow::vmc_player_act_released(
 void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
-  QAction* act = static_cast<QAction*>(action);
+  QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
+    act->setText("PROCESSSING...");
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
 }
@@ -936,9 +937,10 @@ void TrayControlWindow::show_notifications_triggered() {
 QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
 
 QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
-    UNUSED_ARG(p);
-    return m_last_generated_env_dlg;
+  UNUSED_ARG(p);
+  return m_last_generated_env_dlg;
 }
+
 void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
@@ -1104,8 +1106,9 @@ void TrayControlWindow::ssh_to_container_finished(int result,
         tr("Can't ssh to container. Err : %1")
             .arg(CHubController::ssh_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
-  QAction* act = static_cast<QAction*>(additional_data);
+  QPushButton* act = static_cast<QPushButton*>(additional_data);
   if (act == NULL) return;
   act->setEnabled(true);
+  act->setText("SSH");
 }
 ////////////////////////////////////////////////////////////////////////////
