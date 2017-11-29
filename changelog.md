@@ -1,3 +1,11 @@
+## Version 6.2.0
+
+1. Rewritten ssh-keys management
+2. Rewritten logger subsystem
+3. Rewritten a lot of things related to UI
+4. Fixed all memory leaks, related to notifications.
+5. Changelog was not updated for a lot of time. Automatization of this process in progress.
+
 ## Version 4.0.12
 
 1. Added recheck button to about dialog.

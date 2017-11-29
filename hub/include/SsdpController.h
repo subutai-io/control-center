@@ -24,6 +24,10 @@ enum interested_fields_en {
 };
 ////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief The CSsdpController class sends ssdp search request and handles answers
+ * with Aho-Korasic algorithm (https://en.wikipedia.org/wiki/Aho–Corasick_algorithm)
+ */
 class CSsdpController : public QObject {
   Q_OBJECT
 public:

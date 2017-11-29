@@ -17,4 +17,8 @@ for dep in $deps; do
 	 echo "Copying $dep to $2"
 	 cp "$dep" "$2"
 done
+libinput=$(find /usr/lib . -name 'libinput.so.5')
+if [ -e "$libinput" ]; then
+  cp "$libinput" "$2"
+fi
 echo "Done!"

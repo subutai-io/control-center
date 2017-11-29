@@ -21,6 +21,10 @@ typedef enum ssh_launch_error {
   SLE_LAST_ERR
 } ssh_launch_error_t;
 
+/**
+ * @brief The CHubControllerP2PWorker auxiliary class for work with P2P.
+ * Controls swarm join process and ssh->container
+ */
 class CHubControllerP2PWorker : public QObject {
   Q_OBJECT
 private:
@@ -52,7 +56,11 @@ signals:
 };
 ////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * @brief The CHubController class - one of main classes in SubutaiTray application
+ * Controls current state of system : list of environments and containers, available updates,
+ * balance, ssh->container process etc.
+ */
 class CHubController : public QObject {
   Q_OBJECT
 public:
@@ -92,11 +100,15 @@ private:
                                  void *additional_data,
                                  finished_slot_t slot);
 
+  void desktop_to_container_internal(const CEnvironment *env,
+                                     const CHubContainer *cont);
   void refresh_my_peers_internal();
   void refresh_environments_internal();
   void refresh_balance_internal();
 
 private slots:
+  void my_peers_updated_sl();
+
   void ssh_to_container_finished_slot(int result, void* additional_data);
   void ssh_to_container_finished_str_slot(int result, void* additional_data);
 
@@ -119,25 +131,41 @@ private slots:
                               int http_code,
                               int err_code,
                               int network_error);
-
 public:
 
   void logout();
-  void start();
+
+  /**
+   * @brief start refresh timer. Refresh = update balance, list of environments and containers
+   * by calling HUB REST-point
+   */
+  void start();  
   void force_refresh();
 
+  /**
+   * @brief ssh_to_container from application
+   */
   void ssh_to_container(const CEnvironment *env,
                         const CHubContainer *cont,
                         void *additional_data);
 
+
+  /**
+   * @brief ssh_to_container from web site (using websocket)
+   */
   void ssh_to_container_str(const QString& env_id,
                             const QString& cont_id,
                             void *additional_data);
 
+  /**
+   * @brief remote desktop connection
+   */
+  void desktop_to_container(const CEnvironment *env,
+                            const CHubContainer *cont);
+
   static const QString& ssh_launch_err_to_str(int err);
 
   void set_current_user(const QString& cu) {m_current_user = cu;}
-
   void set_current_pass(const QString& cp) {m_current_pass = cp;}
   void set_current_user_id(const QString& user_id){ m_user_id = user_id; }
 
@@ -163,6 +191,7 @@ signals:
   void ssh_to_container_str_finished(int result, void* additional_data);
 
   void environments_updated(int);
+  void my_peers_updated();
   void balance_updated();
 };
 

@@ -8,6 +8,11 @@
 
 namespace SynchroPrimitives
 {
+  /**
+   * @brief Wrapper for critical section abstraction.
+   * It could be windows critical section, mutex or anything else.
+   * For example it's possible to use asm("bts") instruction.
+  */
   typedef struct CriticalSection
   {
     /*we use QMutex, but it could be anything else.
@@ -16,8 +21,16 @@ namespace SynchroPrimitives
     CriticalSection();
   } CriticalSection, *LPMCriticalSection;
 
+  /**
+   * @brief Enter critical section
+   * @param lpMcs - pointer to CriticalSection
+   */
   void EnterInternalCriticalSection(LPMCriticalSection lpMcs);
 
+  /**
+   * @brief Leave critical section
+   * @param lpMcs - pointer to CriticalSection
+   */
   void LeaveInternalCriticalSection(LPMCriticalSection lpMcs);
 }
 

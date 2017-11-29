@@ -14,6 +14,7 @@
 #include "DlgNotification.h"
 #include "DlgNotifications.h"
 #include "DlgSettings.h"
+#include "DlgEnvironment.h"
 #include "HubController.h"
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
@@ -24,6 +25,7 @@
 #include "libssh2/include/LibsshController.h"
 #include "ui_TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
+#include "DlgEnvironment.h"
 
 using namespace update_system;
 
@@ -128,11 +130,6 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end();
-       ++i) {
-    delete *i;
-  }
-
   QMenu* menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
   QAction* acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
@@ -381,17 +378,56 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
 
 ////////////////////////////////////////////////////////////////////////////
 
+static QPoint lastNotificationPos(0, 0);
+template<class OS>
+static inline void shift_notification_dialog_positions_internal(int &src_y , int &dst_y, int shift_value);
+
+template <>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_LINUX> >(int &src_y , int &dst_y, int shift_value){
+  const int &pref_place = CSettingsManager::Instance().preferred_notifications_place();
+  if (pref_place == 1 || pref_place == 2) { // if the notification dialogs on the top of the screen
+    src_y = lastNotificationPos.y() - shift_value;
+    dst_y = lastNotificationPos.y() - shift_value;
+  }
+  else { // on the bottom
+    src_y = lastNotificationPos.y() + shift_value;
+    dst_y = lastNotificationPos.y() + shift_value;
+  }
+}
+template<>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_WIN> >(int &src_y , int &dst_y, int shift_value){
+  src_y = lastNotificationPos.y() - shift_value;
+  dst_y = lastNotificationPos.y() - shift_value;
+}
+
+template<>
+inline void shift_notification_dialog_positions_internal< Os2Type<OS_MAC> >(int &src_y , int &dst_y, int shift_value){
+  src_y = lastNotificationPos.y() + shift_value;
+  dst_y = lastNotificationPos.y() + shift_value;
+}
+
+void shift_notification_dialog_positions(int &src_y, int &dst_y, int shift_value) {
+  shift_notification_dialog_positions_internal< Os2Type<CURRENT_OS> >(src_y, dst_y, shift_value);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void TrayControlWindow::notification_received(
-    CNotificationObserver::notification_level_t level, const QString& msg) {
+    CNotificationObserver::notification_level_t level, const QString& msg,
+    DlgNotification::NOTIFICATION_ACTION_TYPE action_type) {
   if (CSettingsManager::Instance().is_notification_ignored(msg) ||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
     return;
   }
 
-  QDialog* dlg = new DlgNotification(level, msg, this);
+  QDialog* dlg = new DlgNotification(level, msg, this, action_type);
+  connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
+  if (DlgNotification::NOTIFICATIONS_COUNT > 1 && DlgNotification::NOTIFICATIONS_COUNT < 5) { // shift dialog if there is more than one dialogs
+      shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
+  }
 
   if (CSettingsManager::Instance().use_animations()) {
     QPropertyAnimation* pos_anim = new QPropertyAnimation(dlg, "pos");
@@ -412,6 +448,7 @@ void TrayControlWindow::notification_received(
     gr->addAnimation(opa_anim);
 
     dlg->move(src_x, src_y);
+
     dlg->show();
     gr->start();
     connect(gr, &QParallelAnimationGroup::finished, gr,
@@ -420,6 +457,7 @@ void TrayControlWindow::notification_received(
     dlg->move(dst_x, dst_y);
     dlg->show();
   }
+  lastNotificationPos = dlg->pos();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -511,27 +549,30 @@ void TrayControlWindow::vmc_player_act_released(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_container_mi_triggered(const CEnvironment* env,
+void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
-  QAction* act = static_cast<QAction*>(action);
+  QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
+    act->setText("PROCESSSING...");
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_available(QString file_id) {
   CNotificationObserver::Info(
-      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id));
+      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_ABOUT);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_finished(QString file_id, bool success) {
   if (!success) {
     CNotificationObserver::Error(
-        tr("Failed to update %1. See details in error logs").arg(file_id));
+        tr("Failed to update %1. See details in error logs").arg(file_id), DlgNotification::N_NO_ACTION);
     return;
   }
 }
@@ -546,7 +587,7 @@ void TrayControlWindow::launch_Hub() {
 
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = tr("Launch hub website via google chrome failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
@@ -554,7 +595,7 @@ void TrayControlWindow::launch_Hub() {
     if (!QDesktopServices::openUrl(QUrl(hub_site()))) {
       QString err_msg =
           tr("Launch hub website via default browser failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
   }
@@ -572,12 +613,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
   m_hub_menu->clear();
-  for (auto i = m_lst_hub_menu_items.begin(); i != m_lst_hub_menu_items.end();
-       ++i) {
-    delete *i;
-  }
 
-  m_lst_hub_menu_items.clear();
   std::vector<QString> lst_unhealthy_envs;
   std::vector<QString> lst_unhealthy_env_statuses;
 
@@ -595,7 +631,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     env_name.replace(
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-    QMenu* env_menu = m_hub_menu->addMenu(env_name);
+    QAction* env_start = m_hub_menu->addAction(env_name);
 
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
@@ -614,7 +650,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
         CNotificationObserver::Info(
-            tr("Environment %1 became healthy").arg(env->name()));
+            tr("Environment %1 became healthy").arg(env->name()), DlgNotification::N_NO_ACTION);
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
@@ -622,30 +658,13 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     }
 
     if (!env->containers().empty()) {
-      for (auto cont = env->containers().cbegin();
-           cont != env->containers().cend(); ++cont) {
-        QString cont_name = cont->name();
-#ifdef RT_OS_LINUX
-        cont_name.replace(
-            "_", "__");  // megahack :) Don't know how to handle underscores.
-#endif
-        QAction* act = new QAction(cont_name, this);
-        act->setEnabled(env->healthy() && !cont->rh_ip().isNull() &&
-                        !cont->rh_ip().isEmpty());
-
-        CHubEnvironmentMenuItem* item =
-            new CHubEnvironmentMenuItem(&(*env), &(*cont), m_sys_tray_icon);
-        connect(act, &QAction::triggered, item,
-                &CHubEnvironmentMenuItem::internal_action_triggered);
-        connect(item, &CHubEnvironmentMenuItem::action_triggered, this,
-                &TrayControlWindow::hub_container_mi_triggered);
-        env_menu->addAction(act);
-        m_lst_hub_menu_items.push_back(item);
-      }
+      connect(env_start, &QAction::triggered, [env, this](){
+        this->generate_env_dlg(&(*env));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
+                                       QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
+      });
     } else {
-      QAction* empty_action = new QAction("Empty", this);
-      empty_action->setEnabled(false);
-      env_menu->addAction(empty_action);
+      env_start->setEnabled(false);
     }
   }  // for auto env in environments list
 
@@ -668,20 +687,21 @@ void TrayControlWindow::environments_updated_sl(int rr) {
           .arg(lst_unhealthy_envs.size() > 1 ? "are" : "is")
           .arg(str_statuses);
 
-  CNotificationObserver::Instance()->Info(str_notification);
+  CNotificationObserver::Instance()->Info(str_notification, DlgNotification::N_NO_ACTION);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::balance_updated_sl() {
   m_act_balance->setText(CHubController::Instance().balance());
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
   m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
-    CNotificationObserver::Info(tr(err.toStdString().c_str()));
+    CNotificationObserver::Info(tr(err.toStdString().c_str()), DlgNotification::N_NO_ACTION);
     return;
   }
 
@@ -704,7 +724,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
         tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
-            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
     return;
   }
 
@@ -716,7 +736,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = tr(
           "Run subutai console via chrome failed. Couldn't start process");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
@@ -725,7 +745,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
       QString err_msg = tr(
           "Run subutai console via default browser failed. Couldn't start "
           "process");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
   }
@@ -806,7 +826,7 @@ void TrayControlWindow::launch_ss() {
         "Can't get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
-            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)));
+            .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
     m_act_launch_SS->setEnabled(true);
   }
 }
@@ -818,6 +838,7 @@ void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
 
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
+
     dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
@@ -895,6 +916,7 @@ QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
   show_dialog(create_about_dialog, tr("About Subutai Tray"));
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* create_ssh_key_generate_dialog(QWidget* p) {
@@ -910,14 +932,24 @@ QDialog* create_notifications_dialog(QWidget* p) {
 void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
 }
+
+
+QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
+
+QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
+  UNUSED_ARG(p);
+  return m_last_generated_env_dlg;
+}
+
+void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
+  DlgEnvironment *dlg_env = new DlgEnvironment();
+  dlg_env->addEnvironment(env);
+  connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_ssh);
+  m_last_generated_env_dlg = dlg_env;
+}
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-/*hub menu*/
-void CHubEnvironmentMenuItem::internal_action_triggered() {
-  QAction* act = static_cast<QAction*>(sender());
-  emit action_triggered(m_hub_environment, m_hub_container, (void*)act);
-}
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -1072,10 +1104,11 @@ void TrayControlWindow::ssh_to_container_finished(int result,
   if (result != SLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't ssh to container. Err : %1")
-            .arg(CHubController::ssh_launch_err_to_str(result)));
+            .arg(CHubController::ssh_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
-  QAction* act = static_cast<QAction*>(additional_data);
+  QPushButton* act = static_cast<QPushButton*>(additional_data);
   if (act == NULL) return;
   act->setEnabled(true);
+  act->setText("SSH");
 }
 ////////////////////////////////////////////////////////////////////////////

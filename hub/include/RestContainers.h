@@ -51,14 +51,6 @@ public:
         m_id == arg.m_id &&
         m_port == arg.m_port &&
         m_rh_ip == arg.m_rh_ip;
-
-//    if (!res) {
-//      qDebug() << "cont name : " << (m_name == arg.m_name);
-//      qDebug() << "cont ip : " << (m_ip == arg.m_ip);
-//      qDebug() << "cont id : " << (m_id == arg.m_id);
-//      qDebug() << "cont port : " << (m_port == arg.m_port);
-//      qDebug() << "cont rh_ip : " << (m_rh_ip == arg.m_rh_ip);
-//    }
     return res;
   }
   bool operator!=(const CHubContainer& arg) const {
@@ -119,7 +111,6 @@ public:
 
   ~CEnvironment(){}
 
-  //todo use id
   bool operator==(const CEnvironment& arg) const {
     bool res =
         m_id == arg.m_id &&
@@ -130,16 +121,6 @@ public:
         m_status == arg.m_status &&
         m_status_descr == arg.m_status_descr &&
         VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
-//    if (!res) {
-//      qDebug() << "id " << (m_id == arg.m_id);
-//      qDebug() << "name " << (m_name == arg.m_name);
-//      qDebug() << "hash " << (m_hash == arg.m_hash);
-//      qDebug() << "aes key " << (m_aes_key == arg.m_aes_key);
-//      qDebug() << "ttl " << (m_ttl == arg.m_ttl);
-//      qDebug() << "status " << (m_status == arg.m_status);
-//      qDebug() << "status descr " << (m_status_descr == arg.m_status_descr);
-//      qDebug() << "lst containers " << VectorEq<CHubContainer>(m_lst_containers, arg.m_lst_containers);
-//    }
     return res;
   }
 
@@ -280,6 +261,23 @@ public:
 ////////////////////////////////////////////////////////////////////////////
 
 class CMyPeerInfo {
+public:
+  struct env_info
+  {
+    QString mypeerid;
+    QString ownerName, envName, status;
+    int ownerId, envId;
+
+    env_info(const QJsonObject& obj, QString& peer_id) {
+      ownerName = obj["envOwnerName"].toString();
+      ownerId = obj["envOwnerId"].toInt();
+      envName = obj["envName"].toString();
+      envId = obj["envId"].toInt();
+      status = obj["envStatus"].toString();
+      mypeerid = peer_id;
+    }
+  };
+
 private:
   QString m_country;
   QString m_countryCode;
@@ -291,8 +289,10 @@ private:
   int m_rh_count;
   QString m_scope;
   QString m_status;
+  std::vector <env_info> m_lst_environments;
 
 public:
+
   explicit CMyPeerInfo(const QJsonObject& obj) {
     m_country = obj["country"].toString();
     m_countryCode = obj["countryCode"].toString();
@@ -304,9 +304,17 @@ public:
     m_rh_count = obj["rhCount"].toInt();
     m_scope = obj["scope"].toString();
     m_status = obj["status"].toString();
+
+    QJsonArray arr = obj["environments"].toArray();
+    for (auto i = arr.begin(); i != arr.end(); ++i) {
+      if (i->isNull() || !i->isObject()) continue;
+      env_info ei(i->toObject(), m_id);
+      m_lst_environments.push_back(ei);
+    }
   }
   ~CMyPeerInfo(){}
 
+  std::vector<env_info> &peer_environments()  { return m_lst_environments; }
   const QString &country() const { return m_country; }
   const QString &countryCode() const { return m_countryCode; }
   const QString &fingerprint() const { return m_fingerprint; }

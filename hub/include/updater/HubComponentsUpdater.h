@@ -10,6 +10,9 @@
 
 namespace update_system {
 
+  /**
+   * @brief Wraps common characteristics for Subutai components like autoupdate, update frequency etc.
+   */
   class CUpdaterComponentItem : public QObject {
     Q_OBJECT
   private:
@@ -57,6 +60,9 @@ namespace update_system {
   };
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief Main update system class. Controls p2p, RH, tray and RH Management components.
+   */
   class CHubComponentsUpdater : public QObject {
     Q_OBJECT
   private:
@@ -84,8 +90,22 @@ namespace update_system {
     void set_rh_autoupdate();
     void set_tray_autoupdate();
     void set_rh_management_autoupdate();
+
+    /**
+     * @brief Checks if update for "component_id" is available
+     * @return true if available, false otherwise
+     */
     bool is_update_available(const QString& component_id);
+
+    /**
+     * @brief Update component "component_id" immediately
+     */
     void force_update(const QString& component_id);
+
+    void force_update_p2p();
+    void force_update_tray();
+    void force_update_rh();
+    void force_update_rhm();
 
   private slots:
 

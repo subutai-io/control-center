@@ -71,6 +71,8 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
           &CHubControllerP2PWorker::join_to_p2p_swarm_begin);
   connect(th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_finished,
           th_worker, &CHubControllerP2PWorker::ssh_to_container_begin);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   /*hack, but I haven't enough time*/
   if (slot == ssh_to_cont) {
@@ -90,11 +92,13 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   th_worker->moveToThread(th);
   th->start();
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_my_peers_internal() {
   CRestWorker::Instance()->update_my_peers();
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::refresh_environments_internal() {
@@ -221,7 +225,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
     QString err_msg =
         tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
-    CNotificationObserver::Error(err_msg);
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
     return;
   }
 
@@ -260,6 +264,7 @@ void CHubController::on_my_peers_updated_sl(std::vector<CMyPeerInfo> lst_peers,
   UNUSED_ARG(err_code);
   UNUSED_ARG(network_error);
   m_lst_my_peers = lst_peers;
+  emit my_peers_updated();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -294,6 +299,7 @@ void CHubController::ssh_to_container(const CEnvironment *env,
                                       void *additional_data) {
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::ssh_to_container_str(const QString &env_id,
@@ -356,7 +362,7 @@ void CHubController::launch_balance_page() {
 
     if (!QProcess::startDetached(chrome_path, args)) {
       QString err_msg = tr("Launch hub website with google chrome failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
     }
@@ -365,7 +371,7 @@ void CHubController::launch_balance_page() {
             QUrl(QString(hub_billing_url()).arg(m_user_id)))) {
       QString err_msg =
           tr("Launch hub website with default browser failed");
-      CNotificationObserver::Error(err_msg);
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
   }
@@ -430,7 +436,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
       return;
     }
 
-    CNotificationObserver::Info(tr("Checking container. Please, wait"));
+    CNotificationObserver::Info(tr("Checking container. Please, wait"), DlgNotification::N_NO_ACTION);
     static const int MAX_ATTEMTS_COUNT = 25;
     for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
       err = CSystemCallWrapper::check_container_state(m_env_hash, cip.ip);
@@ -441,7 +447,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
     if (err != SCWE_SUCCESS) {
       CNotificationObserver::Error(tr(
           "Failed to run SSH because container isn't ready. Try little bit "
-          "later."));
+          "later."), DlgNotification::N_NO_ACTION);
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -462,7 +468,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
 
     if (key.isEmpty()) {
       CNotificationObserver::Error(tr(
-          "Failed to retrieve environment key. Try to restart application"));
+          "Failed to retrieve environment key. Try to restart application"), DlgNotification::N_RESTART_TRAY);
       emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
                                      m_additional_data);
       return;
@@ -482,7 +488,7 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   if (err != SCWE_SUCCESS) {
     QString err_msg = tr("Run SSH failed. Error code : %1")
                           .arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotificationObserver::Error(err_msg);
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
     qCritical("%s", err_msg.toStdString().c_str());
     emit ssh_to_container_finished((int)SLE_SYSTEM_CALL_FAILED,
                                    m_additional_data);
@@ -492,3 +498,146 @@ void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
   emit ssh_to_container_finished((int)SLE_SUCCESS, m_additional_data);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void CHubController::my_peers_updated_sl() {
+  static std::vector<CMyPeerInfo> peers_connected; // within itself peers_connected has storage vector `envs_connected` for each Peer
+
+  std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
+
+  // check if some peers or environments in peers were disconnected or deleted and notify
+  std::vector<CMyPeerInfo> disconnected_peers;
+  std::vector<CMyPeerInfo::env_info> disconnected_envs;
+
+  for (CMyPeerInfo peer : peers_connected) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+    if(found_peer == my_current_peers.end()) {
+      disconnected_peers.push_back(peer);
+      std::vector<CMyPeerInfo::env_info> &envs_connected = peer.peer_environments();
+      for (CMyPeerInfo::env_info env : envs_connected)
+        disconnected_envs.push_back(env);
+    }
+    else {
+      std::vector<CMyPeerInfo::env_info> my_current_envs_in_peers = found_peer->peer_environments();
+      std::vector<CMyPeerInfo::env_info> &envs_connected = peer.peer_environments();
+      for (CMyPeerInfo::env_info env : envs_connected) {
+        std::vector<CMyPeerInfo::env_info>::iterator found_env = std::find_if(my_current_envs_in_peers.begin(),
+                                                                              my_current_envs_in_peers.end(),
+                                                                              [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
+        if (found_env == my_current_envs_in_peers.end())
+          disconnected_envs.push_back(env);
+      }
+    }
+  }
+
+  // check if some new peers or environments in peers were connected or added and notify
+  std::vector<CMyPeerInfo> new_connected_peers;
+  std::vector<CMyPeerInfo::env_info> new_connected_envs;
+
+  for (CMyPeerInfo peer : my_current_peers) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+
+    if(found_peer == peers_connected.end()) {
+      std::vector<CMyPeerInfo::env_info> &my_current_envs_in_peers = peer.peer_environments();
+      for (CMyPeerInfo::env_info env_to_add : my_current_envs_in_peers)
+        new_connected_envs.push_back(env_to_add);
+      my_current_envs_in_peers.clear(); // little hack to not add envs of peer twice
+      new_connected_peers.push_back(peer);
+    }
+    else {
+      std::vector<CMyPeerInfo::env_info> my_current_envs_in_peers = peer.peer_environments();
+      std::vector<CMyPeerInfo::env_info> &envs_connected = found_peer->peer_environments();
+      for (CMyPeerInfo::env_info env : my_current_envs_in_peers){
+        std::vector<CMyPeerInfo::env_info>::iterator found_env = std::find_if(envs_connected.begin(), envs_connected.end(),
+                                                                              [env](const CMyPeerInfo::env_info &e){return env.envId == e.envId;});
+        if (found_env == envs_connected.end())
+          new_connected_envs.push_back(env);
+      }
+    }
+  }
+
+  // notify if Peers were disconnected
+  if (!disconnected_peers.empty()) {
+    QString lst_disconnected_peers = "";
+    for (CMyPeerInfo peer_to_notify : disconnected_peers){
+      lst_disconnected_peers += QString("%1").arg(peer_to_notify.name()) + ", ";
+    }
+    QString msg = tr("Peer%1 %2 %3 disconnected")
+                  .arg(disconnected_peers.size() > 1 ? "s" : "")
+                  .arg(lst_disconnected_peers)
+                  .arg(disconnected_peers.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Environments were disconnected from one of your Peers
+  if (!disconnected_envs.empty()) {
+    QString lst_disconnected_envs = "";
+    for (CMyPeerInfo::env_info env_to_notify : disconnected_envs) {
+      lst_disconnected_envs += QString("%1 by %3").arg(env_to_notify.envName).arg(env_to_notify.ownerName) + ", ";
+    }
+    QString msg = tr("Environment%1 %2 %3 disconnected from your Peer")
+                    .arg(disconnected_envs.size() > 1 ? "s" : "")
+                    .arg(lst_disconnected_envs)
+                    .arg(disconnected_envs.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Peers were newly connected
+  if (!new_connected_peers.empty()){
+    QString lst_connected_peers = "";
+    for (CMyPeerInfo peer_to_notify : new_connected_peers){
+      lst_connected_peers += QString("%1").arg(peer_to_notify.name()) + ", ";
+    }
+    QString msg = tr("Peer%1 %2 %3 connected")
+                  .arg(new_connected_peers.size() > 1 ? "s" : "")
+                  .arg(lst_connected_peers)
+                  .arg(new_connected_peers.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+  }
+
+  // notify if Environments were newly connected to some of you Peer
+  if (!new_connected_envs.empty()) {
+    QString lst_connected_envs = "";
+    for (CMyPeerInfo::env_info env_to_notify : new_connected_envs) {
+      lst_connected_envs += QString("%1 by %3").arg(env_to_notify.envName).arg(env_to_notify.ownerName) + ", ";
+    }
+
+    QString msg = tr("Environment%1 %2 %3 connected to your Peer")
+                    .arg(new_connected_envs.size() > 1 ? "s" : "")
+                    .arg(lst_connected_envs)
+                    .arg(new_connected_envs.size() > 1 ? "are" : "is");
+    CNotificationObserver::Instance()->Info((msg), DlgNotification::N_GO_TO_HUB);
+  }
+
+  /// NOTE: Environments should be removed first
+  // Remove all disconnected Environments from your environment storage matrix
+  for (CMyPeerInfo::env_info env_to_del : disconnected_envs) {
+    std::vector<CMyPeerInfo::env_info> &envs_connected =
+              std::find_if(peers_connected.begin(), peers_connected.end(),
+              [env_to_del](const CMyPeerInfo &p){return env_to_del.mypeerid == p.id();})->peer_environments();
+    envs_connected.erase(std::remove_if(envs_connected.begin(), envs_connected.end(),
+          [env_to_del](const CMyPeerInfo::env_info &e){return env_to_del.envId == e.envId;}), envs_connected.end());
+  }
+
+  // Remove all disconnected Peers from current peer storage matrix
+  for (CMyPeerInfo peer_to_del : disconnected_peers) {
+    peers_connected.erase(std::remove_if(peers_connected.begin(), peers_connected.end(),
+          [peer_to_del](const CMyPeerInfo &p){return peer_to_del.id() == p.id();}), peers_connected.end());
+  }
+
+  /// NOTE: Peer's should be added first
+  // Add all new connected Peer to current peer storage matrix
+  for (CMyPeerInfo peer_to_add : new_connected_peers){
+    peers_connected.push_back(peer_to_add);
+  }
+
+  // Add all connected Environments to your environment storage matrix
+  for (CMyPeerInfo::env_info env_to_add : new_connected_envs){
+    std::vector<CMyPeerInfo::env_info> &envs_connected =
+              std::find_if(peers_connected.begin(), peers_connected.end(),
+              [env_to_add](const CMyPeerInfo &p){return env_to_add.mypeerid == p.id();})->peer_environments();
+    envs_connected.push_back(env_to_add);
+  }
+}
+

@@ -64,6 +64,7 @@ main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
+
   Logger::Instance()->Init();
   qInstallMessageHandler(Logger::LoggerMessageOutput);
 
@@ -105,6 +106,7 @@ main(int argc, char *argv[]) {
   qInfo("Tray application %s launched", TRAY_VERSION);
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
+  qRegisterMetaType<DlgNotification::NOTIFICATION_ACTION_TYPE>("DlgNotification::NOTIFICATION_ACTION_TYPE");
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {
@@ -132,20 +134,19 @@ main(int argc, char *argv[]) {
         break;
 
       CTrayServer::Instance()->Init();
-      TrayControlWindow tcw;
+      TrayControlWindow::Instance()->Init();
 
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
                                              "You can get the %1 daemon from <a href=\"%2\">here</a>.").
-                                    arg(current_branch_name()).arg(p2p_package_url()));
+                                    arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
       }
 
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
-    qCritical("Global Exception : %s",
-                                          ge.what());
+    qCritical("Global Exception : %s", ge.what());
   }
 
   return result;

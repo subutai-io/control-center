@@ -5,6 +5,9 @@
 
 namespace update_system {
 
+  /**
+   * @brief The CUpdaterComponentTray class implements IUpdaterComponent. Works with SubutaiTray
+   */
   class CUpdaterComponentTray : public IUpdaterComponent {
   private:
     static QString tray_path();

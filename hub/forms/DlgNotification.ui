@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>132</height>
+    <height>137</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -45,9 +45,9 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>10</y>
-     <width>491</width>
-     <height>64</height>
+     <y>13</y>
+     <width>481</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
@@ -63,7 +63,7 @@
   <widget class="QCheckBox" name="chk_autohide">
    <property name="geometry">
     <rect>
-     <x>240</x>
+     <x>170</x>
      <y>90</y>
      <width>161</width>
      <height>23</height>
@@ -97,6 +97,19 @@
    </property>
    <property name="text">
     <string>Close</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_action">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>90</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Update Resource Host</string>
    </property>
   </widget>
  </widget>

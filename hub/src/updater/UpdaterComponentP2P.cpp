@@ -34,7 +34,7 @@ CUpdaterComponentP2P::p2p_path()
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
       CNotificationObserver::Instance()->Error(tr("Can't find p2p in PATH. Err : %1").arg(
-                                                            CSystemCallWrapper::scwe_error_to_str(cr)));
+                                                            CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_SETTINGS);
     }
   }
   return p2p_path;
@@ -129,11 +129,11 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Error(tr("P2P has not been updated"));
+    CNotificationObserver::Instance()->Error(tr("P2P has not been updated"), DlgNotification::N_NO_ACTION);
     return;
   }
 
-  CNotificationObserver::Instance()->Info(tr("P2P has been updated"));
+  CNotificationObserver::Instance()->Info(tr("P2P has been updated"), DlgNotification::N_NO_ACTION);
   int rse_err = 0;
 
   system_call_wrapper_error_t scwe =
@@ -141,7 +141,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(tr("p2p post update failed. err : %1").
-                                                        arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
+                                                        arg(CSystemCallWrapper::scwe_error_to_str(scwe)), DlgNotification::N_NO_ACTION);
     return;
   }
 

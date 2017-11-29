@@ -8,19 +8,25 @@ mkdir -p /opt/subutai/Libs
 chmod -R 0777 /opt/subutai/log
 chmod -R 0777 /opt/subutai/bin
 
-if [ -L /usr/bin/SubutaiTray ]; then
-  rm -rf /usr/bin/SubutaiTray
+tray_script=/opt/subutai/bin/SubutaiTray
+tray_link=/usr/bin/SubutaiTray
+tray_binary=/opt/subutai/bin/subutai-tray
+
+if [ -L $tray_link ]; then
+  rm -rf $tray_link
 fi
 
 tar zxf /tmp/subutai/SubutaiTray.tar.gz -C /tmp/subutai/
 
 cp /tmp/subutai/SubutaiTray/Libs/* /opt/subutai/Libs/
-cp /tmp/subutai/SubutaiTray/bin/SubutaiTray /opt/subutai/bin/SubutaiTray
+cp /tmp/subutai/SubutaiTray/bin/subutai-tray $tray_binary
 
-echo "#!/bin/bash" > /usr/bin/SubutaiTray
-echo "LD_LIBRARY_PATH=/opt/subutai/Libs/ /opt/subutai/bin/SubutaiTray" >> /usr/bin/SubutaiTray
-chmod +x /opt/subutai/bin/SubutaiTray
-chmod +x /usr/bin/SubutaiTray
+echo "#!/bin/bash" > $tray_script
+echo "LD_LIBRARY_PATH=/opt/subutai/Libs/ $tray_binary" >> $tray_script
+ln -s $tray_script $tray_link
+chmod +x $tray_link
+chmod +x $tray_script
+chmod +x $tray_binary
 
 
 desktop_file=/tmp/SubutaiTray.desktop

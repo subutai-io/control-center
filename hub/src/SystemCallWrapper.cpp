@@ -94,7 +94,7 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
                                        cmd.toStdString().c_str(),
                                        hash.toStdString().c_str());
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
-    CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()));
+    CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()), DlgNotification::N_NO_ACTION);
     qCritical("%s",
         error_strings[res.res].toStdString().c_str());
     return false;
@@ -342,14 +342,40 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
-system_call_wrapper_error_t run_ssh_in_terminal_internal(
-    const QString &cmd, const QString &str_command);
+system_call_wrapper_error_t run_ssh_in_terminal_internal(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port,
+                                                         const QString &key);
 
 template <>
 system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(
-    const QString &cmd, const QString &str_command) {
+        const QString &user,
+        const QString &ip,
+        const QString &port,
+        const QString &key) {
+  QString str_command = QString("%1 %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    qInfo() << QString("Using %1 ssh key").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
+  }
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
   QStringList args = CSettingsManager::Instance().terminal_arg().split(
-      QRegularExpression("\\s"));
+                       QRegularExpression("\\s"));
   args << QString("%1;bash").arg(str_command);
   return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
@@ -358,25 +384,70 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_LINUX> >(
 
 template <>
 system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_MAC> >(
-    const QString &cmd, const QString &str_command) {
-  QStringList args = CSettingsManager::Instance().terminal_arg().split(
-      QRegularExpression("\\s"));
+        const QString &user,
+        const QString &ip,
+        const QString &port,
+        const QString &key) {
+  QString str_command = QString("%1 %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    qInfo() << QString("Using %1 ssh key").arg(key);
+    str_command += QString(" -i %1 ").arg(key);
+  }
+
+  QString cmd;
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args;
+  args << QString("-e");
   qInfo("Launch command : %s",
                                        str_command.toStdString().c_str());
 
-  args << QString("Tell application \"Terminal\" to do script \"%1\"")
-              .arg(str_command);
-  return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
+  args << QString("Tell application \"%1\" to %2 \"%3\"")
+              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
 /*********************/
 
 template <>
-system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
-    const QString &cmd, const QString &str_command) {
-  (void)cmd;
-  (void)str_command;  // make compiler happy.  %)
+system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const QString &user,
+                                                                           const QString &ip,
+                                                                           const QString &port,
+                                                                           const QString &key) {
+  //these args are used. we just make compiller happy.
+  UNUSED_ARG(user);
+  UNUSED_ARG(ip);
+  UNUSED_ARG(port);
+  UNUSED_ARG(key);
 #ifdef RT_OS_WINDOWS
+  QString str_command = QString("\"%1\" %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+
+  if (!key.isEmpty()) {
+    CNotificationObserver::Instance()->Info(
+        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
+    str_command += QString(" -i \"%1\" ").arg(key);
+  }
+
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
   QString known_hosts = CSettingsManager::Instance().ssh_keys_storage() +
                         QDir::separator() + "known_hosts";
   STARTUPINFO si = {0};
@@ -401,45 +472,10 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(
 system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
-#ifdef RT_OS_WINDOWS
-  QString str_command = QString("\"%1\" %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key));
-    str_command += QString(" -i \"%1\" ").arg(key);
-  }
-#else
-  QString str_command = QString("%1 %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
-
-  if (!key.isEmpty()) {
-    qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
-  }
-#endif
-
-  QString cmd;
-  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
-  if (!cmd_file.exists()) {
-    system_call_wrapper_error_t tmp_res;
-    if ((tmp_res = which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
-        SCWE_SUCCESS) {
-      return tmp_res;
-    }
-  }
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(cmd, str_command);
+  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
     const QString &comment, const QString &file_path) {
   QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();
@@ -685,6 +721,23 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
 }
 ////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
+  static int success_ec = 0;
+  QString cmd("open");
+  QStringList args;
+  args << QString("-Ra");
+  args << prog;
+  system_call_res_t res = ssystem_th(cmd, args, false, false, 5000);
+  if (res.res != SCWE_SUCCESS) return res.res;
+
+  if (res.exit_code == success_ec) {
+    return SCWE_SUCCESS;
+  }
+
+  return SCWE_WHICH_CALL_FAILED;
+}
+////////////////////////////////////////////////////////////////////////////
+
 template <class OS>
 system_call_wrapper_error_t chrome_version_internal(QString &version);
 
@@ -788,7 +841,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -798,7 +851,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (!dir.mkpath(directory_path)) {
     qCritical(
         "Couldn't create autostart directory");
-    CNotificationObserver::Error(QObject::tr("Couldn't create autostart directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't create autostart directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -815,7 +868,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
         desktop_file.errorString().toStdString().c_str());
     CNotificationObserver::Error(QObject::tr("Couldn't delete %1. %2")
                                      .arg(desktop_file_path)
-                                     .arg(desktop_file.errorString()));
+                                     .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;  // removed or not . who cares?
   }
 
@@ -826,7 +879,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
         "Couldn't open desktop file for write");
     CNotificationObserver::Error(
         QObject::tr("Couldn't create autostart desktop file. Error : %1")
-            .arg(desktop_file.errorString()));
+            .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -838,7 +891,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
           "Couldn't write content to autostart desktop file : %s",
           desktop_file.errorString().toStdString().c_str());
       CNotificationObserver::Error(QObject::tr(
-          "Couldn't write content to autostart desktop file"));
+          "Couldn't write content to autostart desktop file"), DlgNotification::N_NO_ACTION);
       result = false;
     }
   } while (0);
@@ -858,7 +911,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"));
+    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -901,7 +954,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
       qCritical(
           "Couldn't create subutai-tray.plist file. Error : %s",
           item_file.errorString().toStdString().c_str());
-      CNotificationObserver::Error(QObject::tr(item_file.errorString().toStdString().c_str()));
+      CNotificationObserver::Error(QObject::tr(item_file.errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
       return false;
     }
 
@@ -909,7 +962,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
     if (item_file.write(content) != content.size()) {
       qCritical(
           "Didn't write whole content to plist file");
-      CNotificationObserver::Error(QObject::tr("Write plist file error"));
+      CNotificationObserver::Error(QObject::tr("Write plist file error"),  DlgNotification::N_NO_ACTION);
       item_file.close();
       return false;
     }
@@ -945,7 +998,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
     if (cr != ERROR_SUCCESS || !rkey_run) {
       qCritical(
           "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
-      CNotificationObserver::Error(QObject::tr("Couldn't create registry key, sorry"));
+      CNotificationObserver::Error(QObject::tr("Couldn't create registry key, sorry"),  DlgNotification::N_NO_ACTION);
       result = false;
       break;
     }
@@ -959,7 +1012,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr == ERROR_ACCESS_DENIED) {
         CNotificationObserver::Error(QObject::tr(
             "Couldn't add program to autorun due to access denied. Try to run "
-            "this application as administrator"));
+            "this application as administrator"), DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
@@ -967,7 +1020,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr != ERROR_SUCCESS) {
         qCritical("RegSetKeyValue err : %d, %d", cr,
                                               GetLastError());
-        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun, sorry"));
+        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun, sorry"),  DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
@@ -977,7 +1030,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr == ERROR_ACCESS_DENIED) {
         CNotificationObserver::Error(QObject::tr(
             "Couldn't remove program from autorun due to access denied. Try to "
-            "run this application as administrator"));
+            "run this application as administrator"), DlgNotification::N_NO_ACTION);
         result = false;
       }
 
@@ -990,7 +1043,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
         qCritical("RegDeleteKeyValueW err : %d, %d",
                                               cr, GetLastError());
         CNotificationObserver::Error(QObject::tr(
-            "Couldn't remove program from autorun, sorry"));
+            "Couldn't remove program from autorun, sorry"), DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
