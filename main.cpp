@@ -106,6 +106,7 @@ main(int argc, char *argv[]) {
   qInfo("Tray application %s launched", TRAY_VERSION);
   app.setQuitOnLastWindowClosed(false);
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
+  qRegisterMetaType<DlgNotification::NOTIFICATION_ACTION_TYPE>("DlgNotification::NOTIFICATION_ACTION_TYPE");
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {
