@@ -190,8 +190,10 @@ tests {
 
     LIBS += -lgcov
 
-    QMAKE_CXXFLAGS += --coverage
-    QMAKE_LFLAGS += --coverage
+    #QMAKE_CXXFLAGS += --coverage
+    #QMAKE_LFLAGS += --coverage
+    QMAKE_CXXFLAGS += -g -fprofile-arcs -ftest-coverage -O0
+    QMAKE_LFLAGS += -g -fprofile-arcs -ftest-coverage  -O0
 
     SOURCES -= main.cpp
 
