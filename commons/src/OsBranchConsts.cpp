@@ -362,7 +362,7 @@ template<class BR> const QString& hub_site_temp_internal();
 
 hub_site_temp_internal_def(BT_PROD,   "https://hub.subut.ai")
 hub_site_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai")
-hub_site_temp_internal_def(BT_DEV,    "https://.subut.ai")
+hub_site_temp_internal_def(BT_DEV,    "https://devhub.subut.ai")
 
 const QString &
 hub_site() {
