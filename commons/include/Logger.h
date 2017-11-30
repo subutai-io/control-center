@@ -6,7 +6,10 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-class Logger : public QObject
+/**
+ * @brief The Logger class wrapps qDebug() , qWarning() etc. functions and write it to log files.
+ */
+class Logger : QObject
 {
   Q_OBJECT
 
@@ -16,6 +19,13 @@ public:
   void Init();
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
+
+  /**
+   * @brief Write message to file.
+   * @param type - qDebug(), qWarning() etc.
+   * @param context - file, line, date etc.
+   * @param msg - message text
+   */
   static void LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:

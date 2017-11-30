@@ -5,6 +5,11 @@
 #include <QString>
 
 namespace update_system {
+  /**
+   * @brief The CExecutableUpdater class replaces existing executable file with new one.
+   * 1st phase - rename existing executable
+   * 2nd phase - replace existing executable with downloaded one.
+   */
   class CExecutableUpdater : public QObject {
     Q_OBJECT
   private:

@@ -1,12 +1,12 @@
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <QToolTip>
 
 #include <QListView>
 #include <QMessageBox>
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QDebug>
+#include <QCompleter>
 
 #include "Commons.h"
 #include "DlgSettings.h"
@@ -18,30 +18,6 @@
 #include "Logger.h"
 #include "LanguageController.h"
 
-class TabResizeFilter : public QObject {
-private:
-  QTabWidget* m_target;
-
-  static void expandingTypeStyleSheet(QTabWidget* tw) {
-    int w = tw->width() - tw->count();  // don't know why. but looks OK only
-    // with this -tw->count(). MAGIC!!!
-    int wb = floor(w / (tw->count() * 1.0));
-    int ws = w - wb * (tw->count() - 1);
-    tw->setStyleSheet(QString("QTabBar::tab:!selected {width : %1px;}"
-                              "QTabBar::tab:selected {width : %2px;}")
-                      .arg(wb)
-                      .arg(ws));
-  }
-
-public:
-  TabResizeFilter(QTabWidget* target) : QObject(target), m_target(target) {}
-  bool eventFilter(QObject*, QEvent* ev) {
-    if (ev->type() == QEvent::Resize) expandingTypeStyleSheet(m_target);
-    return false;
-  }
-};
-////////////////////////////////////////////////////////////////////////////
-
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
     cb->addItem(Logger::LogLevelToStr((Logger::LOG_LEVEL)i));
@@ -49,7 +25,7 @@ static void fill_log_level_combobox(QComboBox* cb) {
 //////////////////////////////////////////////////////////////////////////
 
 static void fill_locale_combobox(QComboBox* cb) {
-  for (int i = 0; i <= LanguageController::LOCALE_RU; ++i)
+  for (int i = 0; i <= LanguageController::LOCALE_PT_BR; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
@@ -111,6 +87,21 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->btn_rtm_db_folder->setVisible(false);
   ui->lbl_rtm_db_folder->setVisible(false);
 
+  ui->lbl_err_logs_storage->hide();
+  ui->lbl_err_ssh_keys_storage->hide();
+  ui->lbl_err_ssh_user->hide();
+  ui->lbl_err_p2p_command->hide();
+  ui->lbl_err_ssh_command->hide();
+  ui->lbl_err_vboxmanage_command->hide();
+  ui->lbl_err_ssh_keygen_command->hide();
+  ui->lbl_err_terminal_arg->hide();
+  ui->lbl_err_terminal_cmd->hide();
+  ui->lbl_err_rhip_host->hide();
+  ui->lbl_err_resource_hosts->hide();
+  ui->lbl_err_rhip_port->hide();
+  ui->lbl_err_rhip_user->hide();
+  ui->lbl_err_rhip_password->hide();
+
   fill_freq_combobox(ui->cb_p2p_frequency);
   fill_freq_combobox(ui->cb_rh_frequency);
   fill_freq_combobox(ui->cb_tray_frequency);
@@ -118,6 +109,9 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
   fill_locale_combobox(ui->cb_locale);
+
+  ui->cb_locale->setVisible(false);
+  ui->lbl_locale->setVisible(false);
 
   fill_preferred_notifications_location_combobox(
         ui->cb_preferred_notifications_place);
@@ -138,14 +132,20 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
   ui->chk_rhm_autoupdate->setChecked(CSettingsManager::Instance().rh_management_autoupdate());
 
+#ifndef RT_OS_DARWIN
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
   ui->tabWidget->installEventFilter(m_tab_resize_filter);
+#endif
 
   ui->le_terminal_cmd->setText(CSettingsManager::Instance().terminal_cmd());
   ui->le_terminal_arg->setText(CSettingsManager::Instance().terminal_arg());
 
-#ifndef RT_OS_LINUX
-  ui->gb_terminal_settings->setVisible(false);
+#ifndef RT_OS_WINDOWS
+  QStringList terminalLists = CCommons::SupportTerminals();
+  QCompleter *completer = new QCompleter(terminalLists, this);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
+  ui->le_terminal_cmd->setCompleter(completer);
+  ui->gb_terminal_settings->setVisible(true);
 #endif
 
   m_model_resource_hosts = new QStandardItemModel(this);
@@ -186,6 +186,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->btn_vboxmanage_command, &QPushButton::released, this,
           &DlgSettings::btn_vboxmanage_command_released);
+  connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
+          &DlgSettings::le_terminal_cmd_changed);
 }
 
 DlgSettings::~DlgSettings() {
@@ -213,6 +215,7 @@ void DlgSettings::rebuild_rh_list_model() {
 template <class TC>
 struct field_validator_t {
   TC* fc;  // field control
+  QLabel* lbl_err;
   bool (*f_validator)(const TC*);
   int8_t tab_index;
   QString validator_msg;
@@ -234,6 +237,13 @@ bool is_path_valid(const QLineEdit* le) {
 
 bool can_launch_application(const QLineEdit* le) {
   return CCommons::IsApplicationLaunchable(le->text());
+}
+
+bool can_launch_terminal(const QLineEdit* le) {
+#ifndef RT_OS_DARWIN
+  return CCommons::IsApplicationLaunchable(le->text());
+#endif
+  return CCommons::IsTerminalLaunchable(le->text());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -261,54 +271,55 @@ void DlgSettings::btn_ok_released() {
   }
 
   field_validator_t<QLineEdit> le_validators[] = {
-    {ui->le_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_user, ui->lbl_err_ssh_user, is_le_empty_validate, 0, empty_validator_msg},
 
-    {ui->le_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_ssh_keys_storage, folder_has_write_permission, 0,
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_logs_storage, folder_has_write_permission, 0,
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_logs_storage, ui->lbl_err_logs_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_rtm_db_folder, folder_has_write_permission, 0,
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
-    {ui->le_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_p2p_command, can_launch_application, 1,
+    {ui->le_p2p_command, ui->lbl_err_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_p2p_command, ui->lbl_err_p2p_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_ssh_command, can_launch_application, 1,
+    {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_terminal_cmd, can_launch_application, 1,
+    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_terminal, 1,
      can_launch_application_msg},
-    {ui->le_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, can_launch_application, 1,
-     can_launch_application_msg},
-
-    {ui->le_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_ssh_keygen_command, can_launch_application, 1,
+    {ui->le_terminal_arg, ui->lbl_err_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
-    {ui->le_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, can_launch_application, 1,
+     can_launch_application_msg},
 
-    {NULL, NULL, -1, ""}};
+    {ui->le_rhip_host, ui->lbl_err_rhip_host, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_password, ui->lbl_err_rhip_password, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_port, ui->lbl_err_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
+    {ui->le_rhip_user, ui->lbl_err_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
+
+    {NULL, NULL, NULL, -1, ""}};
 
   std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
   field_validator_t<QLineEdit>* tmp = le_validators;
 
   do {
+    tmp->lbl_err->hide();
     if (!tmp->fc->isVisible()) continue;
     if (tmp->f_validator(tmp->fc)) continue;
     lst_failed_validators.push_back(*tmp);
@@ -325,10 +336,13 @@ void DlgSettings::btn_ok_released() {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
 
     if (msg_box->exec() == QMessageBox::Yes) {
-      ui->tabWidget->setCurrentIndex(lst_failed_validators[0].tab_index);
-      lst_failed_validators[0].fc->setFocus();
-      QToolTip::showText(lst_failed_validators[0].fc->mapToGlobal(QPoint()),
-          lst_failed_validators[0].validator_msg);
+      for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
+        ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
+        lst_failed_validators[i].fc->setFocus();
+        lst_failed_validators[i].lbl_err->show();
+        lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
+                                                  arg(lst_failed_validators[i].validator_msg));
+      }
       return;
     }
   }  // if !lst_failed_validators.empty()
@@ -340,7 +354,7 @@ void DlgSettings::btn_ok_released() {
     if (recommendedArg != ui->le_terminal_arg->text()) {
       QMessageBox *msg_box =
           new QMessageBox(QMessageBox::Question, tr("Attention! Wrong terminal argument"),
-                          QString("Recommended argument for %1 is %2. Would you like to change it?")
+                          QString("Recommended argument for \"%1\" is \"%2\". Would you like to change it?")
                           .arg(ui->le_terminal_cmd->text()).arg(recommendedArg),
                           QMessageBox::Yes | QMessageBox::No);
       connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
@@ -488,3 +502,10 @@ void DlgSettings::resource_host_list_updated_sl(bool has_changes) {
   ui->btn_refresh_rh_list->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::le_terminal_cmd_changed() {
+  QString recommendedArg;
+  if (CCommons::HasRecommendedTerminalArg(ui->le_terminal_cmd->text(), recommendedArg))
+    ui->le_terminal_arg->setText(recommendedArg);
+}
+///////////////////////////////////////////∫/////////////////////////////////

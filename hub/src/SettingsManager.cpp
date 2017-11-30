@@ -62,6 +62,7 @@ const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
+const QString CSettingsManager::SM_PYHOCA_CLI("Pyhoca_CLI");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
@@ -162,6 +163,7 @@ CSettingsManager::CSettingsManager()
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
+//      m_pyhoca_cli(pyhoca_cli()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
       m_subutai_cmd(subutai_command()) {
@@ -260,11 +262,13 @@ CSettingsManager::CSettingsManager()
                                            ssh_keygen_cmd_path(), ssh_cmd_path(),
                                            default_p2p_path()};
 
-  QString tmp;
+  QString tmp, symlink;
   for (int i = 0; cmd_which[i]; ++i) {
     if (*cmd_which[i] != default_values[i]) continue;
     if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) continue;
-    *cmd_which[i] = tmp;
+    if ((symlink = QFile::symLinkTarget(tmp)) != "") {
+      *cmd_which[i] = symlink;
+    }
   }  
 
   //terminal and it's arguments
@@ -480,6 +484,12 @@ void CSettingsManager::set_autostart(const bool autostart) {
   }
 }
 
+void CSettingsManager::set_p2p_path(QString p2p_path) {
+  QString sl = QFile::symLinkTarget(p2p_path);
+  m_p2p_path = sl == "" ? p2p_path : sl;
+  m_settings.setValue(SM_P2P_PATH, m_p2p_path);
+}
+
 void CSettingsManager::set_locale(const int locale) {
     if (m_locale != (uint32_t)locale) {
         m_locale = locale;
@@ -507,7 +517,6 @@ void CSettingsManager::set_locale(const int locale) {
 SET_FIELD_DEF(login, SM_LOGIN, QString&)
 SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
 SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
-SET_FIELD_DEF(p2p_path, SM_P2P_PATH, QString&)
 SET_FIELD_DEF(plugin_port, SM_PLUGIN_PORT, uint16_t)
 SET_FIELD_DEF(ssh_path, SM_SSH_PATH, QString&)
 SET_FIELD_DEF(ssh_user, SM_SSH_USER, QString&)

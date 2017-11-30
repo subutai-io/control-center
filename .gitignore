@@ -17,7 +17,10 @@ build
 debian/debhelper-build-stamp
 debian/files
 debian/subutai-tray
+deb-packages/deb-packages-internal/debian/changelog
 
+# doxygen
+docs/
 html/
 
 # darwin
@@ -27,7 +30,11 @@ darwin-packages/root/*
 Makefile
 .*.stash
 
+<<<<<<< HEAD
 SubutaiTray_ru_RU.qm
 SubutaiTray_en_US.qm
 
 build-tests-Desktop_Qt_5_9_2_MSVC2017_64bit-Debug
+=======
+*.qm
+>>>>>>> 1e74728fa70763961d0255feb4b66eb643af54ab

@@ -1,12 +1,12 @@
 Source: subutai-tray
 Section: net
 Priority: optional
-Maintainer: Oleg Katkov (okatkov@optimal-dynamics.com)
+Maintainer: Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
 Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: https://subut.ai
 
 Package: subutai-tray
-Architecture: any
-Depends: gksu, libssh2-1, ${shlibs:Depends}, ${misc:Depends}
+Architecture: all 
+Depends: gksu, libssh2-1, libxcb-xkb1, libxcb-render-util0, libxcb-xinerama0, libxcb-image0, libxcb-icccm4, libxcb-randr0, libxcb-keysyms1
 Description: Subutai Tray Application 

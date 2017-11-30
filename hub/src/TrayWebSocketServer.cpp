@@ -21,10 +21,9 @@ CTrayServer::CTrayServer(quint16 port,
     connect(&CHubController::Instance(), &CHubController::ssh_to_container_str_finished,
             this, &CTrayServer::ssh_to_container_finished);
   } else {
-
     QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
                       arg(port).arg(m_web_socket_server->errorString());
-    CNotificationObserver::Error(err_msg);
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
     qCritical("%s", err_msg.toStdString().c_str());
   }
 }

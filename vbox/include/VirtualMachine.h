@@ -28,6 +28,9 @@ enum MachineState_T {
   MachineState_SettingUp
 };
 
+/**
+ * @brief The CVirtualMachine represents Virtual Box VM
+ */
 class CVirtualMachine : public QObject {
   Q_OBJECT
 private:

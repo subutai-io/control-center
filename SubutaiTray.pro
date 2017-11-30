@@ -7,6 +7,8 @@
 QT       += core gui network websockets
 CONFIG   += c++11
 
+
+
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
 TARGET = SubutaiTray
@@ -54,7 +56,7 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    tests/RestWorkerTest.cpp
+    hub/src/DlgEnvironment.cpp
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -93,10 +95,11 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    tests/RestWorkerTest.h
+    hub/include/DlgEnvironment.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
-               SubutaiTray_ru_RU.ts
+               SubutaiTray_ru_RU.ts \
+               SubutaiTray_pt_BR.ts
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -105,7 +108,8 @@ FORMS    += \
     hub/forms/DlgAbout.ui \
     hub/forms/DlgGenerateSshKey.ui \
     hub/forms/DlgNotifications.ui \
-    hub/forms/DlgNotification.ui
+    hub/forms/DlgNotification.ui \
+    hub/forms/DlgEnvironment.ui \
 
 RESOURCES += \
     resources/resources.qrc
@@ -175,7 +179,7 @@ win32: {
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
   RC_FILE = tray.rc
 #  LIBS += -lpthread
-#  QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
+# QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////
 
@@ -205,7 +209,8 @@ tests {
         tests/SettingsManagerTest.h \
         tests/RhControllerTest.h \
         tests/HubControlllerTest.h \
-        tests/DownloadFileManagerTest.h
+        tests/DownloadFileManagerTest.h \
+        tests/RestWorkerTest.h
 
     SOURCES += tests/main.cpp \
         tests/CCommonsTest.cpp \
@@ -222,7 +227,8 @@ tests {
         tests/SettingsManagerTest.cpp \
         tests/RhControllerTest.cpp \
         tests/HubControlllerTest.cpp \
-        tests/DownloadFileManagerTest.cpp
+        tests/DownloadFileManagerTest.cpp \
+        tests/RestWorkerTest.cpp
 } else {
     message(Normal build)
 }

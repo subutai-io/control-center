@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.0" language="pt_BR">
 <context>
     <name>CDownloadFileManager</name>
     <message>
@@ -109,17 +109,7 @@
 <context>
     <name>CSshKeysController</name>
     <message>
-        <location filename="hub/src/SshKeysController.cpp" line="138"/>
-        <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/SshKeysController.cpp" line="140"/>
-        <source>Ssh keys (*.pub);; All files (*.*)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/SshKeysController.cpp" line="161"/>
+        <location filename="hub/src/SshKeysController.cpp" line="156"/>
         <source>Can&apos;t generate ssh-key. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -292,7 +282,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
+        <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
         <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
         <translation type="unfinished"></translation>
     </message>
@@ -501,13 +491,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="93"/>
-        <source>Notification delay (sec.) :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="59"/>
+        <source>Log level :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="165"/>
-        <source>Notification level :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="68"/>
+        <source>EZ-SSH User:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -522,23 +512,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="172"/>
-        <source>Use animations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="182"/>
-        <source>Refresh time (sec.) :</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="68"/>
-        <source>EZ-SSH User:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgSettings.ui" line="221"/>
-        <source>Start on login</source>
+        <location filename="hub/forms/DlgSettings.ui" line="93"/>
+        <source>Notification delay (sec.) :</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -568,8 +543,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="59"/>
-        <source>Log level :</source>
+        <location filename="hub/forms/DlgSettings.ui" line="165"/>
+        <source>Notification level :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="172"/>
+        <source>Use animations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="182"/>
+        <source>Refresh time (sec.) :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="221"/>
+        <source>Start on login</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -997,23 +987,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="75"/>
-        <source>Already running</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="76"/>
-        <source>One instance of tray application is already running</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="84"/>
-        <source>This tray application should help users to work with hub</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main.cpp" line="137"/>
-        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
+        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <source>critical</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1078,38 +1068,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>info</source>
+        <location filename="main.cpp" line="75"/>
+        <source>Already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>warning</source>
+        <location filename="main.cpp" line="76"/>
+        <source>One instance of tray application is already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>error</source>
+        <location filename="main.cpp" line="84"/>
+        <source>This tray application should help users to work with hub</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
-        <source>critical</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="483"/>
-        <source>stage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="484"/>
-        <source>development</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="485"/>
-        <source>production</source>
+        <location filename="main.cpp" line="137"/>
+        <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

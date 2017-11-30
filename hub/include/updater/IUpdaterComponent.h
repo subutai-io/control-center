@@ -4,6 +4,8 @@
 #include <QString>
 #include <atomic>
 #include <QObject>
+#include <QDebug>
+#include "DlgNotification.h"
 
 namespace update_system {
   typedef enum hub_component_updater_error {
@@ -14,6 +16,10 @@ namespace update_system {
   } hub_component_updater_error_t, chue_t;
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief The atomic_locker struct uses as wrapper on std::atomic<bool>* ab
+   * It sets ab in constructor and clears ab in destructor
+   */
   struct atomic_locker {
     std::atomic<bool>* m_ab;
     atomic_locker(std::atomic<bool>* ab) :
@@ -24,6 +30,9 @@ namespace update_system {
   };
   ////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @brief The IUpdaterComponent interface for all ipdatable components
+   */
   class IUpdaterComponent : public QObject {
     Q_OBJECT
   private:
@@ -46,6 +55,9 @@ namespace update_system {
     virtual ~IUpdaterComponent(){}
 
     static const QString& component_id_to_user_view(const QString &id);
+    static DlgNotification::NOTIFICATION_ACTION_TYPE component_id_to_notification_action(const QString& id);
+
+
     bool update_available() {
       bool res = update_available_internal();
       if (res) {

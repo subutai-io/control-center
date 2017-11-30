@@ -4,6 +4,9 @@
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
+  /**
+   * @brief The CUpdaterComponentRHM class implements IUpdaterComponent. Works with RH management
+   */
   class CUpdaterComponentRHM : public IUpdaterComponent {
   public:
     CUpdaterComponentRHM();

@@ -119,7 +119,7 @@ void CSshKeysController::rebuild_bit_matrix() {
               std::back_inserter(m_original_ke_matrix));
     m_rows = rows;
     m_cols = cols;
-
+    m_lst_all_selected.clear();
     m_lst_all_selected.reserve(m_cols);
     m_lst_all_selected.resize(m_cols);
   }
@@ -128,11 +128,16 @@ void CSshKeysController::rebuild_bit_matrix() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void CSshKeysController::reset_matrix_current() {
+    rebuild_bit_matrix();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   QString str_file = QFileDialog::getSaveFileName(
-      parent, "Generate new ssh key pair. Don't change directory, please",
+      parent, tr("Generate new ssh key pair. Don't change directory, please"),
       CSettingsManager::Instance().ssh_keys_storage(),
-      "Ssh keys (*.pub);; All files (*.*)");
+      tr("Ssh keys (*.pub);; All files (*.*)"));
   if (str_file.isEmpty()) return;
   QFileInfo fi(str_file);
 
@@ -154,7 +159,7 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(
         tr("Can't generate ssh-key. Err : %1")
-            .arg(CSystemCallWrapper::scwe_error_to_str(scwe)));
+            .arg(CSystemCallWrapper::scwe_error_to_str(scwe)), DlgNotification::N_NO_ACTION);
     return;
   }
 }

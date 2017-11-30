@@ -11,11 +11,13 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QWidgetAction>
+#include <QMouseEvent>
 
 #include "RestWorker.h"
 #include "NotificationObserver.h"
 #include "HubController.h"
 #include "VirtualMachine.h"
+#include "DlgNotification.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -66,31 +68,6 @@ public:
     void remove(CVBPlayerItem* pItem);
     int vm_count(void) const {return m_vm_count;}
 };
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-
-class CHubEnvironmentMenuItem : public QObject {
- Q_OBJECT
-private:
-  const CEnvironment* m_hub_environment;
-  QSystemTrayIcon* m_tray_icon;
-  const CHubContainer* m_hub_container;
-
-public:
-  CHubEnvironmentMenuItem(const CEnvironment* env,
-                          const CHubContainer* cont,
-                          QSystemTrayIcon* tray_icon) :
-    m_hub_environment(env), m_tray_icon(tray_icon), m_hub_container(cont) {}
-
-  virtual ~CHubEnvironmentMenuItem(){}
-
-signals:
-  void action_triggered(const CEnvironment*, const CHubContainer*, void* action);
-
-public slots:
-  void internal_action_triggered();
-
-};
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
@@ -102,12 +79,19 @@ class TrayControlWindow : public QMainWindow
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
   virtual ~TrayControlWindow();
-
+  static TrayControlWindow* Instance(){
+    static TrayControlWindow *tcw = new TrayControlWindow();
+    return tcw;
+  }
+  void Init (){;} /* do nothing */
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
-  /*hub*/
-  std::vector<CHubEnvironmentMenuItem*> m_lst_hub_menu_items;
+
+  static QDialog *last_generated_env_dlg(QWidget *p);
+  void generate_env_dlg(const CEnvironment *env);
+  static QDialog *m_last_generated_env_dlg;
+
   /*hub end*/
 
   /*vbox*/
@@ -152,22 +136,30 @@ private:
 
   void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+public slots:
+  /*tray slots*/
+  void show_about();
+  void show_settings_dialog();
+
+  /*virtualbox slots*/
+  void show_vbox();
+  void launch_Hub();
+
+  /*hub slots*/
+  void show_notifications_triggered();
 
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
-  void show_about();
   void application_quit();
-  void show_settings_dialog();  \
   void notification_received(CNotificationObserver::notification_level_t level,
-                             const QString& msg);
+                             const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
   void login_success();
   void launch_ss_console_finished_sl();
 
   /*virtualbox slots*/
   void fill_vm_menu();
-  void show_vbox();
   void vm_added(const QString& vm_id);
   void vm_removed(const QString& vm_id);
   void vm_state_changed(const QString& vm_id);
@@ -177,17 +169,17 @@ private slots:
   void vbox_menu_btn_stop_triggered(const QString& vm_id);
   void vbox_menu_btn_add_triggered(const QString& vm_id);
   void vbox_menu_btn_rem_triggered(const QString& vm_id);
-  void launch_Hub();
   void launch_ss_triggered();
 
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+
   void got_ss_console_readiness_sl(bool is_ready, QString err);
-  void hub_container_mi_triggered(const CEnvironment *env,
-                               const CHubContainer *cont, void *action);
+  void hub_container_mi_triggered_ssh(const CEnvironment *env,
+                                      const CHubContainer *cont, void *action);
+
   void ssh_key_generate_triggered();
-  void show_notifications_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
 
   /*updater*/
