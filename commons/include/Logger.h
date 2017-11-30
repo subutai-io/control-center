@@ -14,7 +14,6 @@ class Logger : QObject
   Q_OBJECT
 
 public:
-  friend class LoggerTest;
   enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
   void Init();
   static Logger* Instance();
