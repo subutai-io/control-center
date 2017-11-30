@@ -1,5 +1,13 @@
 # Change Log
 
+## [6.3.0] 11/30/2017
+
+* Allow selection of preferred terminal on OS X
+* Localization - Portuguese
+* Notification that allows users to see who is using their peers
+* Added SSH-ALL button for an environments
+* Popup dialog for each environment
+
 ## [6.2.0] 11/04/2017
 
 * Changed log subsystem
