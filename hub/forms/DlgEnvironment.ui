@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
+    <width>646</width>
     <height>107</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
    <item row="0" column="2">
     <widget class="QLabel" name="label_10">
      <property name="text">
-      <string>Resource Host IP</string>
+      <string>Resource Host IP &amp; Port</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -37,7 +37,7 @@
    <item row="0" column="1">
     <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>IP Address &amp; Port</string>
+      <string>IP Address</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
