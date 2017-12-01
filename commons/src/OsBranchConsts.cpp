@@ -243,9 +243,7 @@ template<class OS> const QString& default_p2p_path_temp_internal();
   }
 
 default_p2p_path_internal_def(OS_LINUX, "/opt/subutai/bin/p2p")
-//should be C:\\Program Files(x86)\\Subutai\\p2p.exe
-//but I'm not sure that c: is system disk. so let's use 'where' call.
-default_p2p_path_internal_def(OS_WIN, "p2p.exe")
+default_p2p_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
 default_p2p_path_internal_def(OS_MAC, "/usr/local/share/subutai/bin/p2p")
 
 const QString &
