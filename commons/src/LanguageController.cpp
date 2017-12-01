@@ -21,14 +21,14 @@ LanguageController* LanguageController::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& LanguageController::LocaleTypeToStr(LOCALE_TYPE lt) {
-  static QString lt_str[] = {tr("English"), tr("Russian"), tr("Brazilian Portuguese")};
+  static QString lt_str[] = {tr("English"), tr("Brazilian Portuguese")};
   return lt_str[lt];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& LanguageController::LocaleTypeToVal(LOCALE_TYPE lt) {
-  static QString lt_val[] = {"en_US", "ru_RU", "pt_BR"};
+  static QString lt_val[] = {"en_US", "pt_BR"};
   return lt_val[lt];
 }
 

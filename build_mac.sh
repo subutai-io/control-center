@@ -14,5 +14,6 @@ mv ../*.qm .
 cd ../
 macdeployqt subutai_tray_bin/SubutaiTray.app
 cd subutai_tray_bin/SubutaiTray.app/Contents/MacOS/
+cp ../../../../*.qm .
 #source ../../../../after_build_step_mac_os 
 cp SubutaiTray SubutaiTray_osx

@@ -13,7 +13,7 @@
 #include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 
-static const QString undefined_balance("Undefined balance");
+static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
 
 static const int UPDATE_ATTEMPT_MAX = 5;
@@ -176,7 +176,7 @@ void CHubController::on_balance_updated_sl(CHubBalance balance, int http_code,
   }
   m_balance = err_code != RE_SUCCESS
                   ? undefined_balance
-                  : QString("Balance: %1").arg(balance.value());
+                  : tr("Balance: %1").arg(balance.value());
   emit balance_updated();
 }
 ////////////////////////////////////////////////////////////////////////////

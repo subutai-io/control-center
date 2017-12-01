@@ -70,7 +70,7 @@ main(int argc, char *argv[]) {
 
   QTranslator translator;
   QString locale = LanguageController::CurrentLocale();
-  translator.load("SubutaiTray_"+locale);
+  translator.load(QString("SubutaiTray_%1.qm").arg(locale), QApplication::applicationDirPath());
   app.installTranslator(&translator);
 
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
