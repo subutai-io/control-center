@@ -63,8 +63,8 @@ template<class BR> const QString& hub_post_url_temp_internal();
   }
 
 hub_post_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/%1")
-hub_post_url_temp_internal_def(BT_MASTER, "https://stage.subut.ai/rest/v1/tray/%1")
-hub_post_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/rest/v1/tray/%1")
 
 const QString &
 hub_post_url() {
@@ -82,8 +82,8 @@ template<class BR> const QString& hub_register_url_temp_internal();
   }
 
 hub_register_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/register")
-hub_register_url_temp_internal_def(BT_MASTER, "https://stage.subut.ai/register")
-hub_register_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/register")
+hub_register_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/register")
+hub_register_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/register")
 
 const QString &
 hub_register_url() {
@@ -101,8 +101,8 @@ template<class BR> const QString& hub_get_url_temp_internal();
   }
 
 hub_get_url_temp_internal_def(BT_PROD,    "https://hub.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_MASTER,  "https://stage.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_DEV,     "https://dev.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_MASTER,  "https://masterhub.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_DEV,     "https://devhub.subut.ai/rest/v1/tray/%1")
 
 const QString &
 hub_get_url() {
@@ -120,8 +120,8 @@ template<class BR> const QString& hub_healt_url_temp_internal();
   }
 
 hub_health_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/tray-data")
-hub_health_url_temp_internal_def(BT_MASTER, "https://stage.subut.ai/rest/v1/tray/tray-data")
-hub_health_url_temp_internal_def(BT_DEV,    "https://dev.subut.ai/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/rest/v1/tray/tray-data")
 
 const QString &
 hub_health_url() {
@@ -139,7 +139,7 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
   }
 
 hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://stagecdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subut.ai:8338/kurjun/rest/%1")
 hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subut.ai:8338/kurjun/rest/%1")
 
 const QString &
@@ -158,8 +158,8 @@ template<class BR> const QString& hub_billing_temp_internal();
   }
 
 hub_billing_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/%1")
-hub_billing_temp_internal_def(BT_MASTER, "https://stage.subut.ai/users/%1")
-hub_billing_temp_internal_def(BT_DEV,    "https://dev.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/users/%1")
 
 const QString &
 hub_billing_url() {
@@ -361,8 +361,8 @@ template<class BR> const QString& hub_site_temp_internal();
   }
 
 hub_site_temp_internal_def(BT_PROD,   "https://hub.subut.ai")
-hub_site_temp_internal_def(BT_MASTER, "https://stage.subut.ai")
-hub_site_temp_internal_def(BT_DEV,    "https://dev.subut.ai")
+hub_site_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai")
+hub_site_temp_internal_def(BT_DEV,    "https://devhub.subut.ai")
 
 const QString &
 hub_site() {
