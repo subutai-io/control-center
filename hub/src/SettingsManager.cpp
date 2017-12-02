@@ -265,9 +265,16 @@ CSettingsManager::CSettingsManager()
   QString tmp, symlink;
   for (int i = 0; cmd_which[i]; ++i) {
     if (*cmd_which[i] != default_values[i]) continue;
-    if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) continue;
-    if ((symlink = QFile::symLinkTarget(tmp)) != "") {
-      *cmd_which[i] = symlink;
+    if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) {
+
+    else{}
+    QFileInfo checkFile(tmp);
+    if (checkFile.isSymLink()) {
+      if ((symlink = QFile::symLinkTarget(tmp)) != "")
+        *cmd_which[i] = symlink;
+    }
+    else {
+      *cmd_which[i] = tmp;
     }
   }  
 
