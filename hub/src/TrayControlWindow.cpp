@@ -923,7 +923,7 @@ QDialog* create_ssh_key_generate_dialog(QWidget* p) {
   return new DlgGenerateSshKey(p);
 }
 void TrayControlWindow::ssh_key_generate_triggered() {
-  show_dialog(create_ssh_key_generate_dialog, tr("SSH key generation"));
+  show_dialog(create_ssh_key_generate_dialog, tr("SSH Key Manager"));
 }
 
 QDialog* create_notifications_dialog(QWidget* p) {
