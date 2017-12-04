@@ -273,6 +273,7 @@ CSettingsManager::CSettingsManager()
     if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) { // check if program in saved path is launchable
       if(CSystemCallWrapper::which(commands_name[i], tmp) != SCWE_SUCCESS) { // check if there is a `command`, which is launchable
         if(CSystemCallWrapper::which(default_values[i], tmp) != SCWE_SUCCESS) { // check if there is a program in default path
+          *cmd_which[i] = default_values[i];
           qCritical("Can not find any program to run for %s", commands_name[i].toStdString().c_str());
           continue;
         }

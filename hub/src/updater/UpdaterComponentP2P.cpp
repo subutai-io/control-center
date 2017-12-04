@@ -37,6 +37,10 @@ CUpdaterComponentP2P::p2p_path()
                                                             CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_SETTINGS);
     }
   }
+  QFileInfo checkFile(p2p_path);
+  if (checkFile.isSymLink()) {
+    p2p_path = QFile::symLinkTarget(p2p_path);
+  }
   return p2p_path;
 }
 ////////////////////////////////////////////////////////////////////////////
