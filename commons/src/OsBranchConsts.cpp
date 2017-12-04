@@ -322,7 +322,7 @@ template<class OS> const QString& ssh_keygen_cmd_path_internal();
 
 ssh_keygen_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh-keygen")
 ssh_keygen_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh-keygen")
-ssh_keygen_cmd_path_internal_def(OS_WIN, QApplication::applicationDirPath() + QDir::separator() + "ssh-keygen.exe")
+ssh_keygen_cmd_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\ssh\\ssh-keygen.exe")
 
 const QString &
 ssh_keygen_cmd_path() {  
@@ -341,7 +341,7 @@ template<class OS> const QString& ssh_cmd_path_internal();
 
 ssh_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh")
 ssh_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh")
-ssh_cmd_path_internal_def(OS_WIN, QApplication::applicationDirPath() + QDir::separator() + "ssh.exe")
+ssh_cmd_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\ssh\\ssh.exe")
 
 const QString &
 ssh_cmd_path() {

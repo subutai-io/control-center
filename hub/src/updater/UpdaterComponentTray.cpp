@@ -89,7 +89,7 @@ CUpdaterComponentTray::update_internal() {
 void
 CUpdaterComponentTray::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Error(tr("Tray application has not been updated"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Error(tr("Tray application has not been updated. Most probably the permission is denied."), DlgNotification::N_SETTINGS);
     return;
   }
 

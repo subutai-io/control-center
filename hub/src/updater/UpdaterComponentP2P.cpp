@@ -129,7 +129,7 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Error(tr("P2P has not been updated"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Instance()->Error(tr("P2P has not been updated. Most probably the permission is denied."), DlgNotification::N_SETTINGS);
     return;
   }
 

@@ -261,22 +261,33 @@ CSettingsManager::CSettingsManager()
   static const QString default_values[] = {vboxmanage_command_str(),
                                            ssh_keygen_cmd_path(), ssh_cmd_path(),
                                            default_p2p_path()};
+  static const QString commands_name[] =
+                                    {"vboxmanage",
+                                     "ssh-keygen",
+                                     "ssh",
+                                     "p2p"};
 
-  QString tmp, symlink;
+
+  QString tmp;
   for (int i = 0; cmd_which[i]; ++i) {
-    if (*cmd_which[i] != default_values[i]) continue;
-    if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) {
+    if (CSystemCallWrapper::which(*cmd_which[i], tmp) != SCWE_SUCCESS) { // check if program in saved path is launchable
+      if(CSystemCallWrapper::which(commands_name[i], tmp) != SCWE_SUCCESS) { // check if there is a `command`, which is launchable
+        if(CSystemCallWrapper::which(default_values[i], tmp) != SCWE_SUCCESS) { // check if there is a program in default path
+          qCritical("Can not find any program to run for %s", commands_name[i].toStdString().c_str());
+          continue;
+        }
+      }
+    }
 
-    else{}
     QFileInfo checkFile(tmp);
     if (checkFile.isSymLink()) {
-      if ((symlink = QFile::symLinkTarget(tmp)) != "")
-        *cmd_which[i] = symlink;
+      *cmd_which[i] = QFile::symLinkTarget(tmp);
     }
-    else {
+    else if (*cmd_which[i] != tmp) {
       *cmd_which[i] = tmp;
     }
-  }  
+  }
+
 
   //terminal and it's arguments
   if (m_terminal_cmd == default_terminal()) {
