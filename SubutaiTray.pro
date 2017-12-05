@@ -55,7 +55,9 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    hub/src/DlgEnvironment.cpp
+    hub/src/DlgEnvironment.cpp \
+    hub/src/EnvironmentState.cpp \
+    hub/src/P2PController.cpp
 
 
 HEADERS  += \
@@ -95,7 +97,9 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    hub/include/DlgEnvironment.h
+    hub/include/DlgEnvironment.h \
+    hub/src/EnvironmentState.h \
+    hub/src/P2PController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
