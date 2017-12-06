@@ -1,5 +1,7 @@
 #!/bin/bash
 
+chmod +x /Applications/SubutaiTray.app/Contents/MacOS/SubutaiTray
+chmod +x /Applications/SubutaiTray.app/Contents/MacOS/SubutaiTray_osx
 mkdir -p /Applications/Subutai
 chown -R $USER /Applications/Subutai*
 
