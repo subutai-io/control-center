@@ -421,7 +421,9 @@ void TrayControlWindow::notification_received(
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
+
   dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+
   connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
