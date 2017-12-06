@@ -8,8 +8,6 @@
 class CRhController : public QObject {
   Q_OBJECT
 
-friend class RhControllerTest;
-
 private:
   CRhController(QObject* parent = nullptr);
   virtual ~CRhController();
