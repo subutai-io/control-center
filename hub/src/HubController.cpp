@@ -58,7 +58,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                finished_slot_t slot) {
   if (cont->rh_ip().isEmpty()) {
     qCritical(
-        "Resourse host IP is empty. Conteiner ID : %s",
+        "Resourse host IP is empty. Container ID : %s",
         cont->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
     return;

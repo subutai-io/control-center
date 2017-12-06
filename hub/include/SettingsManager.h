@@ -278,6 +278,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(chrome_path, QString&)
   SET_FIELD_DECL(subutai_cmd, QString&)
 #undef SET_FIELD_DECL
+
 };
 
 #endif  // CSETTINGSMANAGER_H

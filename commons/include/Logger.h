@@ -15,8 +15,7 @@ class Logger : QObject
 
 public:
   enum LOG_LEVEL {LOG_DEBUG = 0, LOG_INFO, LOG_WARNING, LOG_CRITICAL, LOG_FATAL , LOG_DISABLED};
-
-  void Init() {;} //need for call constructor
+  void Init();
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
 
@@ -29,12 +28,13 @@ public:
   static void LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
-  Logger();
-  virtual ~Logger();
   static LOG_LEVEL typeToLevel(QtMsgType type);
+  virtual ~Logger();
 
 private slots:
   static void deleteOldFiles();
+
+
 
 };
 
