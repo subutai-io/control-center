@@ -1,5 +1,8 @@
 #include "P2PController.h"
 #include <QThread>
+#include "Locker.h"
+
+static SynchroPrimitives::CriticalSection handshake_cs;
 
 
 
@@ -40,11 +43,14 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
 }
 
 void HandshakeSender::send_handshakes(){
+  SynchroPrimitives::Locker lock(&handshake_cs); // locker for threads
+
   for (CEnvironment &env : m_envs) {
     for (CHubContainer cont : env.containers()) {
       try_to_handshake(env, cont);
     }
   }
+  emit sent_handshakes_succsessfully();
 }
 
 
@@ -73,8 +79,10 @@ void P2PController::join_swarm(const CEnvironment &env) {
   SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
   QThread *th = new QThread(this);
   connect(th, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
-  connect(connector, &SwarmConnector::join_to_swarm_finished, th, &QThread::quit);
   connect(connector, &SwarmConnector::successfully_joined_swarm, this, &P2PController::joined_swarm);
+  connect(connector, &SwarmConnector::join_to_swarm_finished, th, &QThread::quit);
+  connect(th, &QThread::finished, connector, &SwarmConnector::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
   connector->moveToThread(th);
   th->start();
 }
@@ -92,8 +100,10 @@ void P2PController::leave_swarm(const CEnvironment &env) {
   SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
   QThread *th = new QThread(this);
   connect(th, &QThread::started, connector, &SwarmConnector::leave_swarm_begin);
-  connect(connector, &SwarmConnector::leave_swarm_finished, th, &QThread::quit);
   connect(connector, &SwarmConnector::successfully_left_swarm, this, &P2PController::left_swarm);
+  connect(connector, &SwarmConnector::leave_swarm_finished, th, &QThread::quit);
+  connect(th, &QThread::finished, connector, &SwarmConnector::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
   connector->moveToThread(th);
   th->start();
 }
@@ -131,6 +141,7 @@ void P2PController::update_join_swarm_status(){
   std::vector<CEnvironment> current_envs = EnvironmentState::Instance().last_updated_envs();
   for (CEnvironment &env : disconnected_envs)
     leave_swarm(env);
+
   for (CEnvironment &env : current_envs) {
     if (!join_swarm_success(env.hash()))
       join_swarm(env);
@@ -156,9 +167,11 @@ void P2PController::update_handshake_status() {
   HandshakeSender *handshake_sender = new HandshakeSender(need_handshakes);
   QThread *th = new QThread(this);
   connect(th, &QThread::started, handshake_sender, &HandshakeSender::send_handshakes);
-  connect(handshake_sender, &HandshakeSender::sent_handshakes_succsessfully, th, &QThread::quit);
   connect(handshake_sender, &HandshakeSender::handshake_success, this, &P2PController::handshaked);
   connect(handshake_sender, &HandshakeSender::handshake_failure, this, &P2PController::handshake_failed);
+  connect(handshake_sender, &HandshakeSender::sent_handshakes_succsessfully, th, &QThread::quit);
+  connect(th, &QThread::finished, handshake_sender, &HandshakeSender::deleteLater);
+  connect(th, &QThread::finished, th, &QThread::deleteLater);
   handshake_sender->moveToThread(th);
   th->start();
 }

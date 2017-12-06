@@ -46,19 +46,29 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   font->setPointSize(5);
 
   QPushButton *btn_ssh = new QPushButton("SSH", this);
+
   ui->cont_remote->addWidget(btn_ssh);
   btn_ssh->setMaximumHeight(14);
   btn_ssh->setFont(*font);
 
-
   if (!env->healthy()) { // if UNHEALTHY
     btn_ssh->setEnabled(false);
+    ui->status->setText("Environment is unhealthy.");
     return;
   }
+
+  if (!P2PController::Instance().join_swarm_success(env->hash())) {
+    btn_ssh->setEnabled(false);
+    ui->status->setText("Haven't joined to swarm yet.");
+    return;
+  }
+
   if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
     btn_ssh->setEnabled(false);
+    ui->status->setText("Trying to handshake with containers.");
     return;
   }
+  ui->status->setText("Successfylly joined to swarm and handshaked with containers.");
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 

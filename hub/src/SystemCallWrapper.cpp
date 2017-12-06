@@ -488,7 +488,7 @@ system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
   system_call_res_t res = ssystem(cmd, lst_args, true, true);
   if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
     res.res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical("Command \"%s %s@%s -p $s\" failed. Cannot send handshake.",
+    qCritical("Command \"%s %s@%s -p %s\" failed. Cannot send handshake.",
               cmd.toStdString().c_str(),
               user.toStdString().c_str(),
               ip.toStdString().c_str(),
