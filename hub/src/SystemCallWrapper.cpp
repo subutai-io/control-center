@@ -91,12 +91,11 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
   qInfo("is_in_swarm %s show %s",
-                                       cmd.toStdString().c_str(),
-                                       hash.toStdString().c_str());
+        cmd.toStdString().c_str(), hash.toStdString().c_str());
+
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
     CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()), DlgNotification::N_NO_ACTION);
-    qCritical("%s",
-        error_strings[res.res].toStdString().c_str());
+    qCritical("%s", error_strings[res.res].toStdString().c_str());
     return false;
   }
 
@@ -117,14 +116,11 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
           CSettingsManager::Instance().p2p_path()))
     return SCWE_P2P_IS_NOT_RUNNABLE;
 
-  qInfo("join to p2p swarm called. hash : %s",
-                                        hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "start"
        << "-ip" << ip << "-key" << key << "-hash" << hash << "-dht"
        << p2p_dht_arg();
-
   system_call_res_t res;
 
   qInfo(
@@ -139,13 +135,14 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
     if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
       QString err_msg = res.out.at(0);
-      qCritical("%s", err_msg.toStdString().c_str());
+
+      qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
       res.res = SCWE_CANT_JOIN_SWARM;
     }
 
     if (res.exit_code != 0) {
       qCritical(
-          "Join to p2p swarm failed. Code : %d", res.exit_code);
+          "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
       res.res = SCWE_CREATE_PROCESS;
     }
 
@@ -339,6 +336,7 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   system_call_res_t res = ssystem_th(cmd, args, false, true);
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
@@ -469,11 +467,37 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const
 }
 /*********************/
 
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
+        const QString &user,
+        const QString &ip,
+        const QString &port) {
+  QString cmd = CSettingsManager::Instance().ssh_path();
+  QStringList lst_args;
+  lst_args << QString("%1@%2").arg(user).arg(ip)
+           << QString("-p %1").arg(port);
+
+  system_call_res_t res = ssystem(cmd, lst_args, true, true);
+  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+    res.res = SCWE_CANT_SEND_HANDSHAKE;
+    qCritical("Command \"%s %s@%s -p $s\" failed. Cannot send handshake.",
+              cmd.toStdString().c_str(),
+              user.toStdString().c_str(),
+              ip.toStdString().c_str(),
+              port.toStdString().c_str());
+    qCritical() << "Couldn't successfully handshake. Err : " << res.out;
+  }
+  return res.res;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(

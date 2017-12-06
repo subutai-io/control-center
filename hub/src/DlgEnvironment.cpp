@@ -1,5 +1,6 @@
 #include "DlgEnvironment.h"
 #include "ui_DlgEnvironment.h"
+#include "P2PController.h"
 
 DlgEnvironment::DlgEnvironment(QWidget *parent) :
     QDialog(parent),
@@ -51,6 +52,10 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
 
   if (!env->healthy()) { // if UNHEALTHY
+    btn_ssh->setEnabled(false);
+    return;
+  }
+  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
     btn_ssh->setEnabled(false);
     return;
   }

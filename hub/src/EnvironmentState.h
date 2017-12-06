@@ -13,7 +13,6 @@ private:
   std::vector<CEnvironment> m_connected_envs;
   std::vector<CEnvironment> m_disconnected_envs;
 
-
 public:
 
   std::vector<CEnvironment>& last_updated_envs() {return m_last_updated_envs;}

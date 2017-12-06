@@ -64,11 +64,8 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                const CHubContainer *cont,
                                                void *additional_data,
                                                finished_slot_t slot) {
-  CEnvironment tmp_env = *env;
-  CHubContainer tmp_cont = *cont;
-  SSHtoContainer *ssh_to_container =  P2PController::Instance().get_instance_ssh_container(tmp_env, tmp_cont);
 
-  if (ssh_to_container == NULL) {
+  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
     CNotificationObserver::Error(tr(
         "Failed to run SSH because container isn't ready. Try little bit later."), DlgNotification::N_NO_ACTION);
      ssh_to_container_internal_helper((int)SLE_CONT_NOT_READY, additional_data, slot);
@@ -77,7 +74,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
 
   QString key;
   QStringList keys_in_env =
-      CSshKeysController::Instance().keys_in_environment(ssh_to_container->env_id);
+      CSshKeysController::Instance().keys_in_environment(env->id());
 
   if (!keys_in_env.empty()) {
     QString str_file = CSettingsManager::Instance().ssh_keys_storage() +
@@ -97,7 +94,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   }
 
   CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(ssh_to_container->port, ssh_to_container->ip, ssh_to_container->rh_ip);
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
 
   system_call_wrapper_error_t err = CSystemCallWrapper::run_ssh_in_terminal(

@@ -21,6 +21,7 @@ enum system_call_wrapper_error_t {
   SCWE_P2P_IS_NOT_RUNNABLE,
   SCWE_CANT_JOIN_SWARM,
   SCWE_CONTAINER_IS_NOT_READY,
+  SCWE_CANT_SEND_HANDSHAKE,
 
   /*ssh errors*/
   SCWE_SSH_LAUNCH_FAILED,
@@ -31,7 +32,6 @@ enum system_call_wrapper_error_t {
   SCWE_TIMEOUT,
   SCWE_WHICH_CALL_FAILED,
   SCWE_PROCESS_CRASHED,
-
   SCWE_LAST
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,11 @@ class CSystemCallWrapper {
                                                          const QString &ip,
                                                          const QString &port,
                                                          const QString &key);
+
+  static system_call_wrapper_error_t send_handshake(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port);
+
   static system_call_wrapper_error_t run_x2go(QString remote_ip,
                                               QString remote_port,
                                               QString remote_username);

@@ -37,6 +37,9 @@
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
 
+#include "P2PController.h"
+#include "EnvironmentState.h"
+
 
 int
 main(int argc, char *argv[]) {
@@ -100,6 +103,9 @@ main(int argc, char *argv[]) {
     std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
+
+  EnvironmentState::Instance();
+  P2PController::Instance();
 
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();

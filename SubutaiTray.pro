@@ -16,8 +16,10 @@ TEMPLATE = app
 
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
+INCLUDEPATH += hub/src
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
+
 
 SOURCES += \
     main.cpp \

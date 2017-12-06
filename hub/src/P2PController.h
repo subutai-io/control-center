@@ -1,9 +1,11 @@
 #ifndef P2PCONTROLLER_H
 #define P2PCONTROLLER_H
+#include <set>
 
 #include <QObject>
 #include "EnvironmentState.h"
 #include "SystemCallWrapper.h"
+
 class SwarmConnector : public QObject{
 Q_OBJECT
 private:
@@ -20,25 +22,26 @@ public slots:
 signals:
   void join_to_swarm_finished();
   void leave_swarm_finished();
+  void successfully_joined_swarm(QString);
+  void successfully_left_swarm(QString);
 };
 
-class SSHtoContainer : public QObject
-{
+class HandshakeSender : public QObject {
 Q_OBJECT
+private:
+  std::vector<CEnvironment> m_envs;
 public:
-  QString port, ip, rh_ip, hash, cont_id, env_id;
-  bool m_can_be_used;
+  HandshakeSender(const std::vector <CEnvironment> envs) : m_envs(envs) {}
+  void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
+  void send_handshakes();
 
-public:
-  SSHtoContainer(QString port, QString ip, QString rh_ip, QString hash, QString cont_id, QString env_id) :
-    port(port), ip(ip), rh_ip(rh_ip), hash(hash), cont_id(cont_id), env_id(env_id) {}
-  bool can_be_used() {return m_can_be_used;}
 
-public slots:
-   void handshake_begin();
 signals:
-   void handshake_finished();
+  void sent_handshakes_succsessfully();
+  void handshake_success(QString, QString);
+  void handshake_failure(QString, QString);
 };
+
 
 
 
@@ -46,25 +49,40 @@ signals:
 class P2PController : public QObject
 {
   Q_OBJECT
+private:
+  QTimer m_handshake_timer;
+
 public:
  P2PController();
+
+ bool join_swarm_success(QString swarm_hash);
+ bool handshake_success(QString env_id, QString cont_id);
+
  void join_swarm(const CEnvironment &env);
  void leave_swarm(const CEnvironment &env);
- bool is_in_swarm(const CEnvironment &env);
  void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
- std::vector <SSHtoContainer*> containers_ssh_state;
- SSHtoContainer* get_instance_ssh_container(const CEnvironment &env, const CHubContainer &cont);
+ void send_handshake(const CEnvironment &env, const CHubContainer &cont);
+ void check_handshakes(const std::vector<CEnvironment>& envs);
+
+ std::set<QString> envs_joined_swarm_hash;
+ std::set<std::pair<QString, QString>> successfull_handshakes; // stores env_id and cont_id
 
  static P2PController& Instance() {
    static P2PController instance;
    return instance;
  }
 
+public slots:
+ void joined_swarm(QString hash);
+ void left_swarm(QString hash);
+ void handshaked(QString env_id, QString cont_id);
+ void handshake_failed(QString env_id, QString cont_id);
+
 signals:
 
 public slots:
-  void check_environments();
-
+  void update_handshake_status();
+  void update_join_swarm_status();
 };
 
 #endif // P2PCONTROLLER_H

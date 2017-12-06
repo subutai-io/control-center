@@ -1,6 +1,7 @@
 #include "EnvironmentState.h"
 
 EnvironmentState::EnvironmentState(){
+
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &EnvironmentState::on_environments_update);
 }
@@ -21,7 +22,7 @@ void EnvironmentState::on_environments_update(int res) {
           return cur_env.id() ==  last_env.id();
         });
     if (found_cur_env == current_envs.end()) {  // then the new environmenet is added
-      m_connected_envs.push_back(*found_cur_env);
+      m_disconnected_envs.push_back(last_env);
 
     }
   }
@@ -34,7 +35,7 @@ void EnvironmentState::on_environments_update(int res) {
           return cur_env.id() ==  last_env.id();
         });
     if (found_last_env == m_last_updated_envs.end()) {  // then environment was destroyed or deleted
-      m_connected_envs.push_back(*found_last_env);
+      m_connected_envs.push_back(cur_env);
     }
   }
 
