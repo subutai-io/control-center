@@ -135,7 +135,6 @@ main(int argc, char *argv[]) {
 
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
-
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
