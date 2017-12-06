@@ -62,8 +62,8 @@ P2PController::P2PController() {
   connect(&EnvironmentState::Instance(), &EnvironmentState::environemts_state_updated,
           this, &P2PController::update_handshake_status);
   connect(join_to_swarm_timer, &QTimer::timeout,
-          this, &P2PController::update_join_swarm_status);
-  join_to_swarm_timer->start(1000 * 60 * 5); // 1 minute
+          this, &P2PController::update_swarm_status);
+  join_to_swarm_timer->start(1000 * 60 * 2); // 2 minutes
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -136,11 +136,13 @@ bool P2PController::handshake_success(QString env_id, QString cont_id) {
 
 /////////////////////////////////////////////////////////////////////////
 
-void P2PController::update_join_swarm_status(){
+void P2PController::update_swarm_status(){
   std::vector<CEnvironment> disconnected_envs = EnvironmentState::Instance().disconnected_envs();
   std::vector<CEnvironment> current_envs = EnvironmentState::Instance().last_updated_envs();
-  for (CEnvironment &env : disconnected_envs)
-    leave_swarm(env);
+  for (CEnvironment &env : disconnected_envs) {
+    if (join_swarm_success(env.hash()))
+      leave_swarm(env);
+  }
 
   for (CEnvironment &env : current_envs) {
     if (!join_swarm_success(env.hash()))
@@ -151,7 +153,7 @@ void P2PController::update_join_swarm_status(){
 void P2PController::update_handshake_status() {
   if (!EnvironmentState::Instance().connected_envs().empty()
           || !EnvironmentState::Instance().disconnected_envs().empty()) { // if there any new connected envs the try to join to swarm
-    update_join_swarm_status();
+    update_swarm_status();
   }
 
   std::vector<CEnvironment> current_envs = EnvironmentState::Instance().last_updated_envs();

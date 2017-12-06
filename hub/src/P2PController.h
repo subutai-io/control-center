@@ -82,7 +82,7 @@ signals:
 
 public slots:
   void update_handshake_status();
-  void update_join_swarm_status();
+  void update_swarm_status();
 };
 
 #endif // P2PCONTROLLER_H
