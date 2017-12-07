@@ -24,17 +24,17 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
 
 void DlgEnvironment::addContainer(const CHubContainer *cont){
   QLabel *cont_name = new QLabel(cont->name(), this);
-  QLabel *cont_ip_port = new QLabel(cont->ip() + ":" + cont->port(), this);
-  QLabel *cont_rhip = new QLabel(cont->rh_ip(), this);
+  QLabel *cont_ip = new QLabel(cont->ip(), this);
+  QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
   cont_name->setAlignment(Qt::AlignHCenter);
-  cont_ip_port->setAlignment(Qt::AlignHCenter);
-  cont_rhip->setAlignment(Qt::AlignHCenter);
+  cont_ip->setAlignment(Qt::AlignHCenter);
+  cont_rhip_port->setAlignment(Qt::AlignHCenter);
   cont_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  cont_ip_port->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  cont_rhip->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  cont_ip->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  cont_rhip_port->setTextInteractionFlags(Qt::TextSelectableByMouse);
   ui->cont_name->addWidget(cont_name);
-  ui->cont_ip_port->addWidget(cont_ip_port);
-  ui->cont_rhip->addWidget(cont_rhip);
+  ui->cont_ip_port->addWidget(cont_ip);
+  ui->cont_rhip->addWidget(cont_rhip_port);
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
   QPushButton *btn_ssh = new QPushButton("SSH", this);
   ui->cont_remote->addWidget(btn_ssh);
-  btn_ssh->setMaximumHeight(14);
+  btn_ssh->setMaximumHeight(18);
   btn_ssh->setFont(*font);
 
 

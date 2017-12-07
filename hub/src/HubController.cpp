@@ -30,6 +30,8 @@ CHubController::CHubController()
           this, &CHubController::on_environments_updated_sl);
   connect(CRestWorker::Instance(), &CRestWorker::on_get_my_peers_finished, this,
           &CHubController::on_my_peers_updated_sl);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   connect(&m_report_timer, &QTimer::timeout, this,
           &CHubController::report_timer_timeout);
@@ -56,7 +58,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                finished_slot_t slot) {
   if (cont->rh_ip().isEmpty()) {
     qCritical(
-        "Resourse host IP is empty. Conteiner ID : %s",
+        "Resourse host IP is empty. Container ID : %s",
         cont->id().toStdString().c_str());
     emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
     return;
@@ -71,8 +73,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
           &CHubControllerP2PWorker::join_to_p2p_swarm_begin);
   connect(th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_finished,
           th_worker, &CHubControllerP2PWorker::ssh_to_container_begin);
-  connect(this, &CHubController::my_peers_updated,
-          this, &CHubController::my_peers_updated_sl);
+
 
   /*hack, but I haven't enough time*/
   if (slot == ssh_to_cont) {

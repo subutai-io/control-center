@@ -248,6 +248,7 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/VM-07.png"), tr("Virtual machines"), this);
   connect(m_act_vbox, &QAction::triggered, this, &TrayControlWindow::show_vbox);
 
+
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
@@ -421,6 +422,9 @@ void TrayControlWindow::notification_received(
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
+
+  dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+
   connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
@@ -838,7 +842,6 @@ void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
 
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
-
     dlg->setWindowTitle(title);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
@@ -923,7 +926,7 @@ QDialog* create_ssh_key_generate_dialog(QWidget* p) {
   return new DlgGenerateSshKey(p);
 }
 void TrayControlWindow::ssh_key_generate_triggered() {
-  show_dialog(create_ssh_key_generate_dialog, tr("SSH key generation"));
+  show_dialog(create_ssh_key_generate_dialog, tr("SSH Key Manager"));
 }
 
 QDialog* create_notifications_dialog(QWidget* p) {
