@@ -93,6 +93,24 @@ CTrayServer::handle_ssh(const QString &msg,
 ////////////////////////////////////////////////////////////////////////////
 
 void
+CTrayServer::handle_desktop(const QString &msg,
+                                  QWebSocket *pClient) {
+  int index_of = msg.indexOf("cmd:desktop");
+  QStringList args = msg.mid(index_of - 1 + 11, -1).split("%%%");
+  if (args.count() != 3) {
+    QString response = QString("code:%1%%%error==%2%%%success==%3")
+                       .arg(SLE_LAST_ERR+1)
+                       .arg(QString("Wrong command \"%1\"").arg(msg))
+                       .arg("");
+    pClient->sendTextMessage(response);
+    return;
+  }
+  // TODO open x2goclient
+  qDebug() << "TODO open X2GO client.";
+}
+////////////////////////////////////////////////////////////////////////////
+
+void
 CTrayServer::handle_wrong_command(const QString &msg,
                                        QWebSocket *pClient) {
   QString response = QString("code:%1%%%error==%2%%%success==%3")
@@ -123,6 +141,7 @@ CTrayServer::process_text_msg(QString msg) {
     {"cmd:current_user", handle_current_user},
     {"cmd:ss_ip", handle_ss_ip},
     {"cmd:ssh", handle_ssh},
+    {"cmd:desktop", handle_desktop},
     {NULL, handle_wrong_command}
   };
 
