@@ -131,6 +131,7 @@ main(int argc, char *argv[]) {
       if (dlg.result() == QDialog::Rejected)
         break;
 
+
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
       if (!CSystemCallWrapper::p2p_daemon_check()) {
