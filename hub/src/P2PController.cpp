@@ -23,21 +23,34 @@ void SwarmConnector::leave_swarm_begin() {
 }
 
 /////////////////////////////////////////////////////////////////////////
+
 void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContainer &cont) {
+  qDebug() << "Trying to handshake with " << env.name() << " " << cont.name();
+
   static const int MAX_HANDSHAKE_ATTEMPTS = 10;
   system_call_wrapper_error_t err = SCWE_CONTAINER_IS_NOT_READY;
 
   for (int ac = 0; ac < MAX_HANDSHAKE_ATTEMPTS && err != SCWE_SUCCESS ; ++ac) {
+   qDebug() << "check container state";
+
+
    err = CSystemCallWrapper::check_container_state(env.hash(), cont.rh_ip());
+
    if (err == SCWE_SUCCESS) {
+       qDebug() << "sending handshakes";
      err = CSystemCallWrapper::send_handshake
              (CSettingsManager::Instance().ssh_user(), cont.rh_ip(), cont.port());
    }
+   qDebug() << CSystemCallWrapper::scwe_error_to_str(err);
+
    if (err == SCWE_SUCCESS) {
      break;
    }
+
+   break;
    QThread::currentThread()->sleep(1);
   }
+  qDebug() << "finishing handshakes";
 
   if (err == SCWE_SUCCESS)
     emit handshake_success(env.id(), cont.id());
@@ -46,21 +59,27 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
 }
 
 void HandshakeSender::send_handshakes(){
-  SynchroPrimitives::Locker lock(&handshake_cs); // locker for threads
+  //SynchroPrimitives::Locker lock(&handshake_cs); // locker for threads
+  qDebug() << "Starting the handshaking";
 
   for (CEnvironment &env : m_envs) {
     for (CHubContainer cont : env.containers()) {
+      qDebug() << env.name() << " " << cont.name();
       try_to_handshake(env, cont);
     }
   }
+
   emit sent_handshakes_succsessfully();
 }
 
 void HandshakeSender::start_handshake(){
+  qDebug() << "Start the thread";
   m_th->start();
 }
 
 HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(envs) {
+  qDebug() << "Handshake sender instance is created";
+
   m_th = new QThread;
   connect(m_th, &QThread::started, this, &HandshakeSender::send_handshakes);
   connect(this, &HandshakeSender::handshake_success, &P2PController::Instance(), &P2PController::handshaked);
@@ -181,9 +200,12 @@ void P2PController::update_join_swarm_status(){
       join_swarm(env);
   }
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 void P2PController::update_handshake_status() {
+  qDebug() << "updating hAHAH";
+
   if (!EnvironmentState::Instance().connected_envs().empty()) {
     update_join_swarm_status();
   }

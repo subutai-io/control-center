@@ -53,6 +53,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
                                               unsigned long timeout_msec) {
   QProcess proc;
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
+  qDebug() << cmd << args;
 
   proc.start(cmd, args);
   if (!proc.waitForStarted(timeout_msec)) {
@@ -480,21 +481,24 @@ system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
         const QString &user,
         const QString &ip,
         const QString &port) {
+  qDebug() << "Starting to send_handshake";
+
   QString cmd = CSettingsManager::Instance().ssh_path();
   QStringList lst_args;
   lst_args << QString("%1@%2").arg(user).arg(ip)
-           << QString("-p %1").arg(port);
+           << "-p" << port;
 
-  system_call_res_t res = ssystem(cmd, lst_args, true, true);
+  qCritical("Command \"%s %s@%s -p %s\" failed.",
+            cmd.toStdString().c_str(),
+            user.toStdString().c_str(),
+            ip.toStdString().c_str(),
+            port.toStdString().c_str());
+  system_call_res_t res = ssystem(cmd, lst_args, true, true, 30000);
   if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
     res.res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical("Command \"%s %s@%s -p %s\" failed. Cannot send handshake.",
-              cmd.toStdString().c_str(),
-              user.toStdString().c_str(),
-              ip.toStdString().c_str(),
-              port.toStdString().c_str());
     qCritical() << "Couldn't successfully handshake. Err : " << res.out;
   }
+  qDebug() << "Error " << res.res;
   return res.res;
 }
 
@@ -832,6 +836,7 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
                                 "p2p is not installed or hasn't execute rights",
                                 "can't join to swarm",
                                 "container isn't ready",
+                                "cannot handshake",
                                 "ssh launch failed",
                                 "can't get rh ip address",
                                 "can't generate ssh-key",

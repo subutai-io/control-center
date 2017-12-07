@@ -141,7 +141,7 @@ wait_socket_connected(int socket_fd, int timeout_sec) {
 
 struct libssh2_session_auto_t {
   LIBSSH2_SESSION* session;
-  libssh2_session_auto_t() : session(nullptr) {session = libssh2_session_init();}
+  libssh2_session_auto_t() : session(nullptr) {session = libssh2_session_init(); }
   ~libssh2_session_auto_t() {
     if (session) {
       libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
