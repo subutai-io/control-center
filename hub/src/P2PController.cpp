@@ -33,6 +33,9 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
      err = CSystemCallWrapper::send_handshake
              (CSettingsManager::Instance().ssh_user(), cont.rh_ip(), cont.port());
    }
+   if (err == SCWE_SUCCESS) {
+     break;
+   }
    QThread::currentThread()->sleep(1);
   }
 
