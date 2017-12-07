@@ -10,23 +10,37 @@ class SwarmConnector : public QObject{
 Q_OBJECT
 private:
   QString swarm_hash, swarm_key;
+  QThread *m_th;
 
 public:
-  SwarmConnector(QString swarm_hash, QString swarm_key)
-    : swarm_hash(swarm_hash) , swarm_key(swarm_key){}
-  ~SwarmConnector(){
-    emit join_to_swarm_finished();
-  }
+  SwarmConnector(QString swarm_hash, QString swarm_key);
+  ~SwarmConnector();
+
 public slots:
   void join_to_swarm_begin();
+signals:
+  void join_to_swarm_finished();
+  void successfully_joined_swarm(QString);
+};
+
+class SwarmLeaver : public QObject{
+Q_OBJECT
+private:
+  QString swarm_hash, swarm_key;
+  QThread *m_th;
+
+public:
+  SwarmLeaver(QString swarm_hash, QString swarm_key);
+  ~SwarmLeaver();
+
+public slots:
   void leave_swarm_begin();
 
 signals:
-  void join_to_swarm_finished();
   void leave_swarm_finished();
-  void successfully_joined_swarm(QString);
   void successfully_left_swarm(QString);
 };
+
 
 
 
@@ -42,8 +56,6 @@ public:
 
   void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
   void send_handshakes();
-  void start_handshake();
-
 
 signals:
   void sent_handshakes_succsessfully();
