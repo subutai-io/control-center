@@ -18,8 +18,7 @@ SwarmLeaver::~SwarmLeaver() {
 
 /////////////////////////////////////////////////////////////////////////
 
-SwarmConnector::SwarmConnector(QString swarm_hash, QString swarm_key)
-  : swarm_hash(swarm_hash) , swarm_key(swarm_key) {
+SwarmConnector::SwarmConnector(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash) , swarm_key(swarm_key) {
   m_th = new QThread;
   connect(m_th, &QThread::started, this, &SwarmConnector::join_to_swarm_begin);
   connect(this, &SwarmConnector::join_to_swarm_finished, m_th, &QThread::quit);
@@ -64,7 +63,7 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
   if (err == SCWE_SUCCESS)
     err = CSystemCallWrapper::send_handshake(cont.rh_ip(), cont.port());
 
-  if (err != SCWE_SUCCESS) {
+  if (err != SCWE_SUCCESS){
     qCritical("Cannot handshake with cont %s in environment %s. Err: %s",
               cont.name().toStdString().c_str(),
               env.name().toStdString().c_str(),
@@ -97,10 +96,10 @@ HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(
   moveToThread(m_th);
   m_th->start();
 }
-
 HandshakeSender::~HandshakeSender(){
  m_th->quit();
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 
@@ -139,10 +138,6 @@ void P2PController::leave_swarm(const CEnvironment &env) {
 
 /////////////////////////////////////////////////////////////////////////
 
-
-
-/////////////////////////////////////////////////////////////////////////
-
 void P2PController::handshaked(QString env_id, QString cont_id) {
   successfull_handshakes.insert(std::make_pair(env_id, cont_id));
 }
@@ -159,6 +154,11 @@ bool P2PController::join_swarm_success(QString swarm_hash) {
 
 bool P2PController::handshake_success(QString env_id, QString cont_id) {
   return successfull_handshakes.find(std::make_pair(env_id, cont_id)) != successfull_handshakes.end();
+}
+
+void P2PController::p2p_restart() {
+  envs_joined_swarm_hash.clear();
+  successfull_handshakes.clear();
 }
 
 /////////////////////////////////////////////////////////////////////////

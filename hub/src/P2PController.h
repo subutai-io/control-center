@@ -107,6 +107,7 @@ public slots:
   void update_handshake_status();
   void update_join_swarm_status();
   void update_leave_swarm_status();
+  void p2p_restart();
 };
 
 #endif // P2PCONTROLLER_H

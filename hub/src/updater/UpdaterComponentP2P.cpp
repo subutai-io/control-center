@@ -11,6 +11,7 @@
 #include "DownloadFileManager.h"
 #include "Commons.h"
 #include "OsBranchConsts.h"
+#include "P2PController.h"
 
 using namespace update_system;
 
@@ -132,6 +133,8 @@ CUpdaterComponentP2P::update_post_action(bool success) {
     CNotificationObserver::Instance()->Error(tr("P2P has not been updated"), DlgNotification::N_NO_ACTION);
     return;
   }
+
+  P2PController::Instance().p2p_restart();
 
   CNotificationObserver::Instance()->Info(tr("P2P has been updated"), DlgNotification::N_NO_ACTION);
   int rse_err = 0;

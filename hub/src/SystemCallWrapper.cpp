@@ -332,6 +332,8 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   QStringList args;
   args << "show"
        << "-hash" << hash << "-check" << ip;
+  qDebug () << hash <<" "<< ip;
+
   system_call_res_t res = ssystem_th(cmd, args, false, true);
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
