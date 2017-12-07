@@ -149,7 +149,6 @@ struct libssh2_session_auto_t {
     }
   }
 };
-#include <QDebug>
 
 run_libssh2_error
 send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {

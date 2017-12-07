@@ -64,7 +64,7 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
   if (err == SCWE_SUCCESS)
     err = CSystemCallWrapper::send_handshake(cont.rh_ip(), cont.port());
 
-  if (err != SCWE_SUCCESS){
+  if (err != SCWE_SUCCESS) {
     qCritical("Cannot handshake with cont %s in environment %s. Err: %s",
               cont.name().toStdString().c_str(),
               env.name().toStdString().c_str(),
@@ -97,6 +97,7 @@ HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(
   moveToThread(m_th);
   m_th->start();
 }
+
 HandshakeSender::~HandshakeSender(){
  m_th->quit();
 }
@@ -116,13 +117,9 @@ P2PController::P2PController() {
 
 void P2PController::joined_swarm(QString hash) {
   envs_joined_swarm_hash.insert(hash);
-  // qInfo() << "Successfully joined the swarm : " << hash;
 }
-#include <QCoreApplication>
 
 void P2PController::join_swarm(const CEnvironment &env) {
-  //qInfo() << "Trying to  join the swarm for environment " << env.name()
-          // << " with hash: " << env.hash() << " and key: " << env.key();
   SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
   connect(connector, &SwarmConnector::successfully_joined_swarm,
           this, &P2PController::joined_swarm);

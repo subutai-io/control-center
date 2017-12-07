@@ -90,8 +90,7 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   args << "show";
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
-  qInfo("is_in_swarm %s show %s",
-        cmd.toStdString().c_str(), hash.toStdString().c_str());
+  // qInfo("is_in_swarm %s show %s", cmd.toStdString().c_str(), hash.toStdString().c_str());
 
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
     CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()), DlgNotification::N_NO_ACTION);
