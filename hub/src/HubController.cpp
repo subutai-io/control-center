@@ -12,6 +12,7 @@
 #include "SettingsManager.h"
 #include "SshKeysController.h"
 #include "SystemCallWrapper.h"
+#include "TrayWebSocketServer.h"
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -323,7 +324,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (env == NULL) {
-      emit ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
       return;
     }
 
@@ -334,7 +335,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (cont == NULL) {
-      emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
       return;
     }
   }
