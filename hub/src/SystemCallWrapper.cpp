@@ -53,7 +53,6 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
                                               unsigned long timeout_msec) {
   QProcess proc;
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
-  qDebug() << cmd << args;
 
   proc.start(cmd, args);
   if (!proc.waitForStarted(timeout_msec)) {
@@ -480,18 +479,15 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
 system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
         const QString &ip,
         const QString &port) {
-  int exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
+  run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
                                                     (uint16_t)port.toInt(), 3000);
+
   system_call_wrapper_error_t res = SCWE_SUCCESS;
 
-  if (exit_code != 0) {
+  if (exit_code != RLE_SUCCESS) {
     res = SCWE_CANT_SEND_HANDSHAKE;
     qCritical() << "Couldn't successfully handshake. Err : " << scwe_error_to_str(res);
   }
-  else {
-    qDebug("Yooha handshaked");
-  }
-  qDebug() << "Error " << res;
   return res;
 }
 

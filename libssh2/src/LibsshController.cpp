@@ -149,8 +149,9 @@ struct libssh2_session_auto_t {
     }
   }
 };
+#include <QDebug>
 
-int
+run_libssh2_error
 send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {
   int rc = 0;
   struct sockaddr_in sin;
@@ -184,6 +185,13 @@ send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {
   else if (rc == SOCKET_ERROR) {
     return RLE_CONNECTION_ERROR;
   }
+  #ifdef _WIN32
+    closesocket(sock);
+  #else
+    close(sock);
+  #endif
+
+  return RLE_SUCCESS;
 }
 
 int
@@ -356,7 +364,7 @@ CLibsshController::run_ssh_command_key_auth(const char *host,
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, key_pub_authentication, &arg);
 }
-int CLibsshController::send_handshake(const char *str_host, uint16_t port, int conn_timeout) {
+run_libssh2_error CLibsshController::send_handshake(const char *str_host, uint16_t port, int conn_timeout) {
   return send_handshake_internal(str_host, port, conn_timeout);
 }
 ////////////////////////////////////////////////////////////////////////////

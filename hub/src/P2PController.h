@@ -14,7 +14,9 @@ private:
 public:
   SwarmConnector(QString swarm_hash, QString swarm_key)
     : swarm_hash(swarm_hash) , swarm_key(swarm_key){}
-
+  ~SwarmConnector(){
+    emit join_to_swarm_finished();
+  }
 public slots:
   void join_to_swarm_begin();
   void leave_swarm_begin();
@@ -36,6 +38,8 @@ private:
 
 public:
   HandshakeSender(const std::vector <CEnvironment> envs);
+  ~HandshakeSender();
+
   void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
   void send_handshakes();
   void start_handshake();
