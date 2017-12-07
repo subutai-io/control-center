@@ -25,7 +25,7 @@ public:
     static EnvironmentState instance;
     return instance;
   }
-
+  void init(){/*need to call constructor */}
 
 signals:
   void environemts_state_updated();

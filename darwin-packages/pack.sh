@@ -5,7 +5,7 @@ sstray=$1
 rm -rf flat
 rm -rf root
 rm -f *.pkg
-version=`cat ../VERSION`
+version=`cat ../version`
 # Copy files
 mkdir -p flat/Resources/en.lproj
 mkdir -p flat/base.pkg

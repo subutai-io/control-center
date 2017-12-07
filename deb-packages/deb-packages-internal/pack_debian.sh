@@ -9,6 +9,7 @@ mkdir -p debian/SubutaiTray/Libs
 cp $PWD/../../resources/Tray_icon_set-07.png debian/icons
 
 cp ../../subutai_tray_bin/SubutaiTray debian/SubutaiTray/bin/subutai-tray
+cp ../../subutai_tray_bin/*.qm debian/SubutaiTray/bin/
 ./dependencies.sh ../../subutai_tray_bin/SubutaiTray debian/SubutaiTray/Libs/
 
 cd debian

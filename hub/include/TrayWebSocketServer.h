@@ -25,6 +25,7 @@ private:
   static void handle_current_user(const QString& msg, QWebSocket* pClient);
   static void handle_ss_ip(const QString& msg, QWebSocket* pClient);  
   static void handle_ssh(const QString& msg, QWebSocket* pClient);
+  static void handle_desktop(const QString& msg, QWebSocket* pClient);
   static void handle_wrong_command(const QString& msg, QWebSocket* pClient);
 
 private slots:
@@ -32,6 +33,7 @@ private slots:
   void process_text_msg(QString msg);
   void process_bin_msg(QByteArray msg);
   void socket_disconnected();
+public slots:
   void ssh_to_container_finished(int result, void* additional_data);
 
 public slots:

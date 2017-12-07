@@ -24,6 +24,9 @@
 #include "SystemCallWrapper.h"
 #include "Logger.h"
 #include "LanguageController.h"
+#include "P2PController.h"
+#include "EnvironmentState.h"
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -37,13 +40,8 @@
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
 
-#include "P2PController.h"
-#include "EnvironmentState.h"
-
-
 int
 main(int argc, char *argv[]) {
-
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
   QSystemSemaphore sema(sem_guid, 1);
@@ -104,8 +102,8 @@ main(int argc, char *argv[]) {
     return 0;
   }
 
-  EnvironmentState::Instance();
-  P2PController::Instance();
+  EnvironmentState::Instance().init();
+  P2PController::Instance().init();
 
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();
@@ -139,9 +137,9 @@ main(int argc, char *argv[]) {
       if (dlg.result() == QDialog::Rejected)
         break;
 
+
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
-
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "

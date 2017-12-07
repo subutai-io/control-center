@@ -12,6 +12,7 @@
 #include "SettingsManager.h"
 #include "SshKeysController.h"
 #include "SystemCallWrapper.h"
+#include "TrayWebSocketServer.h"
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -30,6 +31,8 @@ CHubController::CHubController()
           this, &CHubController::on_environments_updated_sl);
   connect(CRestWorker::Instance(), &CRestWorker::on_get_my_peers_finished, this,
           &CHubController::on_my_peers_updated_sl);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   connect(&m_report_timer, &QTimer::timeout, this,
           &CHubController::report_timer_timeout);
@@ -64,7 +67,6 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                const CHubContainer *cont,
                                                void *additional_data,
                                                finished_slot_t slot) {
-
   if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
     CNotificationObserver::Error(tr(
         "Failed to run SSH because container isn't ready. Try little bit later."), DlgNotification::N_NO_ACTION);
@@ -346,7 +348,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (env == NULL) {
-      emit ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
       return;
     }
 
@@ -357,7 +359,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (cont == NULL) {
-      emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
       return;
     }
   }

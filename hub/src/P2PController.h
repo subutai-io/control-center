@@ -94,6 +94,7 @@ public:
    static P2PController instance;
    return instance;
  }
+ void init(){/* need to call constructor */}
 
 public slots:
  void joined_swarm(QString hash);

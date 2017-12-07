@@ -48,7 +48,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   QPushButton *btn_ssh = new QPushButton("SSH", this);
 
   ui->cont_remote->addWidget(btn_ssh);
-  btn_ssh->setMaximumHeight(14);
+  btn_ssh->setMaximumHeight(18);
   btn_ssh->setFont(*font);
 
   if (!env->healthy()) { // if UNHEALTHY

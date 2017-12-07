@@ -16,7 +16,7 @@
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
 #include "VBoxManager.h"
-#include "libssh2/include/LibsshController.h"
+#include "LibsshController.h"
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -65,6 +65,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
     res.res = SCWE_CREATE_PROCESS;
     return res;
   }
+
 
   if (!proc.waitForFinished(timeout_msec)) {
     proc.terminate();
