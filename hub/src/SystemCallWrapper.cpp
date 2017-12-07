@@ -478,28 +478,21 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
-        const QString &user,
         const QString &ip,
         const QString &port) {
-  qDebug() << "Starting to send_handshake";
+  int exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
+                                                    (uint16_t)port.toInt(), 3000);
+  system_call_wrapper_error_t res = SCWE_SUCCESS;
 
-  QString cmd = CSettingsManager::Instance().ssh_path();
-  QStringList lst_args;
-  lst_args << QString("%1@%2").arg(user).arg(ip)
-           << "-p" << port;
-
-  qCritical("Command \"%s %s@%s -p %s\" failed.",
-            cmd.toStdString().c_str(),
-            user.toStdString().c_str(),
-            ip.toStdString().c_str(),
-            port.toStdString().c_str());
-  system_call_res_t res = ssystem(cmd, lst_args, true, true, 30000);
-  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
-    res.res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical() << "Couldn't successfully handshake. Err : " << res.out;
+  if (exit_code != 0) {
+    res = SCWE_CANT_SEND_HANDSHAKE;
+    qCritical() << "Couldn't successfully handshake. Err : " << scwe_error_to_str(res);
   }
-  qDebug() << "Error " << res.res;
-  return res.res;
+  else {
+    qDebug("Yooha handshaked");
+  }
+  qDebug() << "Error " << res;
+  return res;
 }
 
 
@@ -535,6 +528,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(
 
   return SCWE_SUCCESS;
 }
+
 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
