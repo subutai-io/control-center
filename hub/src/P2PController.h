@@ -26,14 +26,19 @@ signals:
   void successfully_left_swarm(QString);
 };
 
+
+
 class HandshakeSender : public QObject {
 Q_OBJECT
 private:
   std::vector<CEnvironment> m_envs;
+  QThread *m_th;
+
 public:
-  HandshakeSender(const std::vector <CEnvironment> envs) : m_envs(envs) {}
+  HandshakeSender(const std::vector <CEnvironment> envs);
   void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
   void send_handshakes();
+  void start_handshake();
 
 
 signals:
@@ -64,6 +69,8 @@ public:
  void send_handshake(const CEnvironment &env, const CHubContainer &cont);
  void check_handshakes(const std::vector<CEnvironment>& envs);
 
+ std::vector<CEnvironment> get_joined_envs();
+
  std::set<QString> envs_joined_swarm_hash;
  std::set<std::pair<QString, QString>> successfull_handshakes; // stores env_id and cont_id
 
@@ -82,7 +89,8 @@ signals:
 
 public slots:
   void update_handshake_status();
-  void update_swarm_status();
+  void update_join_swarm_status();
+  void update_leave_swarm_status();
 };
 
 #endif // P2PCONTROLLER_H
