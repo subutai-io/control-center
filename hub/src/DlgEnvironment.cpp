@@ -45,12 +45,12 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   QFont *font = new QFont();
   font->setPointSize(5);
 
-  QPushButton *btn_ssh = new QPushButton("SSH", this);
+  QPushButton* btn_ssh = new QPushButton("SSH", this);
 
   ui->cont_remote->addWidget(btn_ssh);
   btn_ssh->setMaximumHeight(18);
   btn_ssh->setFont(*font);
-  btn_ssh->setEnabled(true);
+  btn_ssh->setEnabled(false);
 
   QTimer *timer = new QTimer(this);
   connect(timer, &QTimer::timeout, [btn_ssh, env, cont](){
