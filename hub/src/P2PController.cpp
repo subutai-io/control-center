@@ -136,7 +136,7 @@ P2PController::P2PController() {
           this, &P2PController::update_handshake_status);
   connect(join_to_swarm_timer, &QTimer::timeout,
           this, &P2PController::update_join_swarm_status);
-  join_to_swarm_timer->start(1000 * 60 * 4); // 4 minutes
+  join_to_swarm_timer->start(1000 * 60 * 2); // 4 minutes
 }
 
 /////////////////////////////////////////////////////////////////////////

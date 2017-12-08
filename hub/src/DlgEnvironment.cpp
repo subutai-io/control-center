@@ -39,7 +39,8 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 }
 
 
-
+#include <QToolTip>
+void DlgEnvironment::change_ssh_status(const CEnvironment *env, )
 void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
 {
   QFont *font = new QFont();
@@ -53,13 +54,27 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   btn_ssh->setEnabled(false);
 
   QTimer *timer = new QTimer(this);
-  connect(timer, &QTimer::timeout, [btn_ssh, env, cont](){
-    if (env->healthy() && P2PController::Instance().join_swarm_success(env->hash())
-        && P2PController::Instance().handshake_success(env->id(), cont->id())){
-      btn_ssh->setEnabled(true);
+
+
+  connect(timer, &QTimer::timeout, [btn_ssh, env, cont, this](){
+
+    if (!env->healthy()) {
+      btn_ssh->setToolTip("Environment is unhealthy.");
+      btn_ssh->setEnabled(false);
+    }
+    else
+    if(!P2PController::Instance().join_swarm_success(env->hash())) {
+      btn_ssh->setToolTip("Cannot connect to container using p2p.");
+      btn_ssh->setEnabled(false);
+    }
+    else
+    if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
+      btn_ssh->setToolTip("Trying to connect.");
+      btn_ssh->setEnabled(false);
     }
     else {
-      btn_ssh->setEnabled(false);
+      btn_ssh->setToolTip("Press this button to ez-ssh to container.");
+      btn_ssh->setEnabled(true);
     }
   });
 
