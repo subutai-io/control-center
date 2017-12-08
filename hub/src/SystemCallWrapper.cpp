@@ -123,31 +123,23 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
        << p2p_dht_arg();
   system_call_res_t res;
 
-  qInfo(
-      "%s start -ip %s -hash %s -dht %s", cmd.toStdString().c_str(),
-      ip.toStdString().c_str(), hash.toStdString().c_str(),
-      p2p_dht_arg().toStdString().c_str());
+  res = ssystem_th(cmd, args, true, true);
+  if (res.res != SCWE_SUCCESS)
+    return res.res;
 
-  int attempts_count = 5;
-  do {
-    res = ssystem_th(cmd, args, true, true);
-    if (res.res != SCWE_SUCCESS) continue;
+  if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
+    QString err_msg = res.out.at(0);
 
-    if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
-      QString err_msg = res.out.at(0);
+    qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
+    res.res = SCWE_CANT_JOIN_SWARM;
+  }
 
-      qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
-      res.res = SCWE_CANT_JOIN_SWARM;
-    }
+  if (res.exit_code != 0) {
+    qCritical(
+        "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
+    res.res = SCWE_CREATE_PROCESS;
+  }
 
-    if (res.exit_code != 0) {
-      qCritical(
-          "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
-      res.res = SCWE_CREATE_PROCESS;
-    }
-
-    QThread::currentThread()->msleep(500);
-  } while (res.exit_code && --attempts_count);
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -333,8 +325,6 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   QStringList args;
   args << "show"
        << "-hash" << hash << "-check" << ip;
-  qDebug () << hash <<" "<< ip;
-
   system_call_res_t res = ssystem_th(cmd, args, false, true);
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }

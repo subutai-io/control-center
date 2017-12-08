@@ -55,10 +55,21 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   QTimer *timer = new QTimer(this);
   connect(timer, &QTimer::timeout, [btn_ssh, env, cont](){
     if (env->healthy() && P2PController::Instance().join_swarm_success(env->hash())
-                       && P2PController::Instance().handshake_success(env->id(), cont->id()))
+        && P2PController::Instance().handshake_success(env->id(), cont->id())){
       btn_ssh->setEnabled(true);
+    }
+    else {
+      btn_ssh->setEnabled(false);
+    }
   });
+
   timer->start(4000);
+
+  connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
+
+  connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
+      emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
+  });
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -42,15 +42,32 @@ SwarmLeaver::SwarmLeaver(QString swarm_hash, QString swarm_key) : swarm_hash(swa
 
 void SwarmConnector::join_to_swarm_begin() {
   system_call_wrapper_error_t res = CSystemCallWrapper::join_to_p2p_swarm(swarm_hash, swarm_key, "dhcp");
-  if (res == SCWE_SUCCESS)
+  if (res == SCWE_SUCCESS) {
     emit successfully_joined_swarm(swarm_hash);
+    qInfo("Joined to swarm %s.",
+              swarm_hash.toStdString().c_str());
+  }
+  else {
+    qCritical("Can't join to swarm %s. Err %s",
+              swarm_hash.toStdString().c_str(),
+              CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+  }
   emit join_to_swarm_finished();
 }
 
 void SwarmLeaver::leave_swarm_begin() {
   system_call_wrapper_error_t res = CSystemCallWrapper::leave_p2p_swarm(swarm_hash);
-  if (res == SCWE_SUCCESS)
+  if (res == SCWE_SUCCESS) {
+    qInfo("Left the swarm %s.",
+              swarm_hash.toStdString().c_str());
     emit successfully_left_swarm(swarm_hash);
+  }
+  else {
+    qCritical("Can't leave the swarm %s. Err %s",
+              swarm_hash.toStdString().c_str(),
+              CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+  }
+
   emit leave_swarm_finished();
 }
 
@@ -70,10 +87,20 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
               CSystemCallWrapper::scwe_error_to_str(err).toStdString().c_str());
   }
 
-  if (err == SCWE_SUCCESS)
+  if (err == SCWE_SUCCESS) {
+    qInfo("Successfully handshaked with container %s from environment %s",
+          cont.name().toStdString().c_str(),
+          env.name().toStdString().c_str());
     emit handshake_success(env.id(), cont.id());
-  else
+
+  }
+  else {
+    qInfo("Can't handshake with container %s from environment %s. Err: %s",
+          cont.name().toStdString().c_str(),
+          env.name().toStdString().c_str(),
+          CSystemCallWrapper::scwe_error_to_str(err).toStdString().c_str());
     emit handshake_failure(env.id(), cont.id());
+  }
 }
 
 void HandshakeSender::send_handshakes(){
