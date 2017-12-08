@@ -38,7 +38,7 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip_port);
 }
 
-/////////////////////////////////////////////////////////////////////////
+
 
 void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
 {
@@ -50,31 +50,15 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   ui->cont_remote->addWidget(btn_ssh);
   btn_ssh->setMaximumHeight(18);
   btn_ssh->setFont(*font);
+  btn_ssh->setEnabled(true);
 
-  if (!env->healthy()) { // if UNHEALTHY
-    btn_ssh->setEnabled(false);
-    ui->status->setText("Environment is unhealthy.");
-    return;
-  }
-
-  if (!P2PController::Instance().join_swarm_success(env->hash())) {
-    btn_ssh->setEnabled(false);
-    ui->status->setText("Haven't joined to swarm yet.");
-    return;
-  }
-
-  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
-    btn_ssh->setEnabled(false);
-    ui->status->setText("Trying to handshake with containers.");
-    return;
-  }
-  ui->status->setText("Successfylly joined to swarm and handshaked with containers.");
-
-  connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
-
-  connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
-      emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
+  QTimer *timer = new QTimer(this);
+  connect(timer, &QTimer::timeout, [btn_ssh, env, cont](){
+    if (env->healthy() && P2PController::Instance().join_swarm_success(env->hash())
+                       && P2PController::Instance().handshake_success(env->id(), cont->id()))
+      btn_ssh->setEnabled(true);
   });
+  timer->start(4000);
 }
 
 ////////////////////////////////////////////////////////////////////////////
