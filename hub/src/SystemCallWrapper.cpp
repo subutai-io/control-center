@@ -91,13 +91,11 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   args << "show";
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
-  qInfo("is_in_swarm %s show %s",
-                                       cmd.toStdString().c_str(),
-                                       hash.toStdString().c_str());
+  // qInfo("is_in_swarm %s show %s", cmd.toStdString().c_str(), hash.toStdString().c_str());
+
   if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
     CNotificationObserver::Error(QObject::tr((error_strings[res.res]).toStdString().c_str()), DlgNotification::N_NO_ACTION);
-    qCritical("%s",
-        error_strings[res.res].toStdString().c_str());
+    qCritical("%s", error_strings[res.res].toStdString().c_str());
     return false;
   }
 
@@ -118,40 +116,30 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
           CSettingsManager::Instance().p2p_path()))
     return SCWE_P2P_IS_NOT_RUNNABLE;
 
-  qInfo("join to p2p swarm called. hash : %s",
-                                        hash.toStdString().c_str());
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "start"
        << "-ip" << ip << "-key" << key << "-hash" << hash << "-dht"
        << p2p_dht_arg();
-
   system_call_res_t res;
 
-  qInfo(
-      "%s start -ip %s -hash %s -dht %s", cmd.toStdString().c_str(),
-      ip.toStdString().c_str(), hash.toStdString().c_str(),
-      p2p_dht_arg().toStdString().c_str());
+  res = ssystem_th(cmd, args, true, true);
+  if (res.res != SCWE_SUCCESS)
+    return res.res;
 
-  int attempts_count = 5;
-  do {
-    res = ssystem_th(cmd, args, true, true);
-    if (res.res != SCWE_SUCCESS) continue;
+  if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
+    QString err_msg = res.out.at(0);
 
-    if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
-      QString err_msg = res.out.at(0);
-      qCritical("%s", err_msg.toStdString().c_str());
-      res.res = SCWE_CANT_JOIN_SWARM;
-    }
+    qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
+    res.res = SCWE_CANT_JOIN_SWARM;
+  }
 
-    if (res.exit_code != 0) {
-      qCritical(
-          "Join to p2p swarm failed. Code : %d", res.exit_code);
-      res.res = SCWE_CREATE_PROCESS;
-    }
+  if (res.exit_code != 0) {
+    qCritical(
+        "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
+    res.res = SCWE_CREATE_PROCESS;
+  }
 
-    QThread::currentThread()->msleep(500);
-  } while (res.exit_code && --attempts_count);
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -340,6 +328,7 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   system_call_res_t res = ssystem_th(cmd, args, false, true);
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
@@ -470,11 +459,30 @@ system_call_wrapper_error_t run_ssh_in_terminal_internal<Os2Type<OS_WIN> >(const
 }
 /*********************/
 
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
+        const QString &ip,
+        const QString &port) {
+  run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
+                                                    (uint16_t)port.toInt(), 3000);
+
+  system_call_wrapper_error_t res = SCWE_SUCCESS;
+
+  if (exit_code != RLE_SUCCESS) {
+    res = SCWE_CANT_SEND_HANDSHAKE;
+    qCritical() << "Couldn't successfully handshake. Err : " << scwe_error_to_str(res);
+  }
+  return res;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
@@ -508,6 +516,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(
 
   return SCWE_SUCCESS;
 }
+
 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
@@ -809,6 +818,7 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
                                 "p2p is not installed or hasn't execute rights",
                                 "can't join to swarm",
                                 "container isn't ready",
+                                "cannot handshake",
                                 "ssh launch failed",
                                 "can't get rh ip address",
                                 "can't generate ssh-key",

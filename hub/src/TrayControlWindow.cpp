@@ -191,6 +191,7 @@ void TrayControlWindow::fill_launch_menu() {
   m_launch_menu->addAction(m_act_launch_Hub);
 }
 ////////////////////////////////////////////////////////////////////////////
+#include "P2PController.h"
 
 void TrayControlWindow::application_quit() {
   QApplication::quit();

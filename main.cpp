@@ -24,6 +24,9 @@
 #include "SystemCallWrapper.h"
 #include "Logger.h"
 #include "LanguageController.h"
+#include "P2PController.h"
+#include "EnvironmentState.h"
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -98,6 +101,9 @@ main(int argc, char *argv[]) {
     std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
+
+  EnvironmentState::Instance().init();
+  P2PController::Instance().init();
 
   CRhController::Instance()->init();
   CNotificationLogger::Instance()->init();

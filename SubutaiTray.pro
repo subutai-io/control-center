@@ -18,7 +18,6 @@ INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
-INCLUDEPATH += tests
 
 SOURCES += \
     main.cpp \
@@ -56,7 +55,12 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    hub/src/DlgEnvironment.cpp
+    hub/src/DlgEnvironment.cpp \
+    hub/src/EnvironmentState.cpp \
+    hub/src/P2PController.cpp
+
+
+
 
 HEADERS  += \
     hub/include/RestWorker.h \
@@ -95,7 +99,9 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    hub/include/DlgEnvironment.h
+    hub/include/DlgEnvironment.h \
+    hub/include/EnvironmentState.h \
+    hub/include/P2PController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -121,10 +127,8 @@ win32: {
   TRAY_VERSION = $$system(type version)
 }
 
-
-
-
 DEFINES += QT_MESSAGELOGCONTEXT
+
 DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
@@ -143,7 +147,7 @@ equals(GIT_BRANCH_STR, "head") {
 }
 
 equals(GIT_BRANCH_STR, "dev") {
-  GBV=BT_DEV
+  GBV=BT_PROD
 }
 DEFINES += CURRENT_BRANCH=$$GBV
 #////////////////////////////////////////////////////////////////////////////
