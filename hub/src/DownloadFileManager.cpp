@@ -43,7 +43,6 @@ CDownloadFileManager::network_reply_ready_read() {
 
 void
 CDownloadFileManager::reply_finished() {
-  qInfo("Download file %s finished", m_dst_file_path.toStdString().c_str());
   //DON'T REMOVE THIS !!!!
   if (m_dst_file != NULL) {
     m_dst_file->flush();
@@ -55,6 +54,8 @@ CDownloadFileManager::reply_finished() {
           tr("Download file error. %1").arg(m_network_reply->errorString()), DlgNotification::N_NO_ACTION);
     qCritical("Download file error : %s",
                                           m_network_reply->errorString().toStdString().c_str());
+  } else {
+      qInfo("Download file %s finished", m_dst_file_path.toStdString().c_str());
   }
 
   emit finished(m_network_reply->error() == QNetworkReply::NoError);

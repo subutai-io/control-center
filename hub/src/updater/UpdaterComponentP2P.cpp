@@ -11,6 +11,7 @@
 #include "DownloadFileManager.h"
 #include "Commons.h"
 #include "OsBranchConsts.h"
+#include "P2PController.h"
 
 using namespace update_system;
 
@@ -36,6 +37,10 @@ CUpdaterComponentP2P::p2p_path()
       CNotificationObserver::Instance()->Error(tr("Can't find p2p in PATH. Err : %1").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_SETTINGS);
     }
+  }
+  QFileInfo checkFile(p2p_path);
+  if (checkFile.exists() && checkFile.isSymLink()) {
+    p2p_path = QFile::symLinkTarget(p2p_path);
   }
   return p2p_path;
 }
@@ -129,9 +134,11 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Error(tr("P2P has not been updated"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Instance()->Error(tr("P2P has not been updated. Most probably the permission is denied."), DlgNotification::N_SETTINGS);
     return;
   }
+
+  P2PController::Instance().p2p_restart();
 
   CNotificationObserver::Instance()->Info(tr("P2P has been updated"), DlgNotification::N_NO_ACTION);
   int rse_err = 0;

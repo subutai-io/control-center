@@ -12,6 +12,7 @@
 #include "SettingsManager.h"
 #include "SshKeysController.h"
 #include "SystemCallWrapper.h"
+#include "TrayWebSocketServer.h"
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -30,9 +31,13 @@ CHubController::CHubController()
           this, &CHubController::on_environments_updated_sl);
   connect(CRestWorker::Instance(), &CRestWorker::on_get_my_peers_finished, this,
           &CHubController::on_my_peers_updated_sl);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   connect(&m_report_timer, &QTimer::timeout, this,
           &CHubController::report_timer_timeout);
+  connect(this, &CHubController::my_peers_updated,
+          this, &CHubController::my_peers_updated_sl);
 
   m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec() *
                               1000);
@@ -49,48 +54,69 @@ CHubController::~CHubController() {
   //    CSystemCallWrapper::leave_p2p_swarm(i->hash());
   //  }
 }
+#include "P2PController.h"
+
+void CHubController::ssh_to_container_internal_helper(int result, void *additional_data, finished_slot_t slot) {
+  if (slot == ssh_to_cont)
+    ssh_to_container_finished_slot(result, additional_data);
+  else
+    ssh_to_container_finished_str_slot(result, additional_data);
+}
 
 void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                const CHubContainer *cont,
                                                void *additional_data,
                                                finished_slot_t slot) {
-  if (cont->rh_ip().isEmpty()) {
-    qCritical(
-        "Resourse host IP is empty. Conteiner ID : %s",
-        cont->id().toStdString().c_str());
-    emit ssh_to_container_finished(SLE_CONT_NOT_READY, additional_data);
+  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
+    CNotificationObserver::Error(tr(
+        "Failed to run SSH because container isn't ready. Try little bit later."), DlgNotification::N_NO_ACTION);
+     ssh_to_container_internal_helper((int)SLE_CONT_NOT_READY, additional_data, slot);
+     return;
+  }
+
+  QString key;
+  QStringList keys_in_env =
+      CSshKeysController::Instance().keys_in_environment(env->id());
+
+  if (!keys_in_env.empty()) {
+    QString str_file = CSettingsManager::Instance().ssh_keys_storage() +
+                       QDir::separator() + keys_in_env[0];
+    QFileInfo fi(str_file);
+
+    key = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
+          fi.baseName();
+
+    if (key.isEmpty()) {
+      CNotificationObserver::Error(tr(
+          "Failed to retrieve environment key. Try to restart application"), DlgNotification::N_RESTART_TRAY);
+      ssh_to_container_internal_helper((int)SLE_CONT_NOT_READY,
+                                     additional_data, slot);
+      return;
+    }
+  }
+
+  CSystemCallWrapper::container_ip_and_port cip =
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+
+
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_ssh_in_terminal(
+      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
+
+  qInfo(
+      "run_ssh_in_terminal : user : %s, "
+      "ip : %s, port : %s, key : %s",
+      CSettingsManager::Instance().ssh_user().toStdString().c_str(),
+      cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(),
+      key.toStdString().c_str());
+
+  if (err != SCWE_SUCCESS) {
+    QString err_msg = tr("Run SSH failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    qCritical("%s", err_msg.toStdString().c_str());
+    ssh_to_container_internal_helper((int)SLE_SYSTEM_CALL_FAILED, additional_data, slot);
     return;
   }
-
-  CHubControllerP2PWorker *th_worker = new CHubControllerP2PWorker(
-      env->id(), env->hash(), env->key(), cont->ip(), cont->port(),
-      cont->name(), cont->rh_ip(), additional_data);
-
-  QThread *th = new QThread;
-  connect(th, &QThread::started, th_worker,
-          &CHubControllerP2PWorker::join_to_p2p_swarm_begin);
-  connect(th_worker, &CHubControllerP2PWorker::join_to_p2p_swarm_finished,
-          th_worker, &CHubControllerP2PWorker::ssh_to_container_begin);
-  connect(this, &CHubController::my_peers_updated,
-          this, &CHubController::my_peers_updated_sl);
-
-  /*hack, but I haven't enough time*/
-  if (slot == ssh_to_cont) {
-    connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished,
-            this, &CHubController::ssh_to_container_finished_slot);
-  } else if (slot == ssh_to_cont_str) {
-    connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished,
-            this, &CHubController::ssh_to_container_finished_str_slot);
-  }
-
-  connect(th_worker, &CHubControllerP2PWorker::ssh_to_container_finished, th,
-          &QThread::quit);
-  connect(th, &QThread::finished, th_worker,
-          &CHubControllerP2PWorker::deleteLater);
-  connect(th, &QThread::finished, th, &QThread::deleteLater);
-
-  th_worker->moveToThread(th);
-  th->start();
+  ssh_to_container_internal_helper((int)SLE_SUCCESS, additional_data, slot);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -322,7 +348,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (env == NULL) {
-      emit ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_ENV_NOT_FOUND, additional_data);
       return;
     }
 
@@ -333,7 +359,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
       break;
     }
     if (cont == NULL) {
-      emit ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
+      emit CTrayServer::Instance()->ssh_to_container_finished(SLE_CONT_NOT_FOUND, additional_data);
       return;
     }
   }
@@ -376,127 +402,7 @@ void CHubController::launch_balance_page() {
     }
   }
 }
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
 
-CHubControllerP2PWorker::CHubControllerP2PWorker(
-    const QString &env_id, const QString &env_hash, const QString &env_key,
-    const QString &cont_ip, const QString &cont_port, const QString &cont_name,
-    const QString &rh_ip, void *additional_data)
-    : m_env_id(env_id),
-      m_env_hash(env_hash),
-      m_env_key(env_key),
-      m_cont_ip(cont_ip),
-      m_cont_port(cont_port),
-      m_cont_name(cont_name),
-      m_rh_ip(rh_ip),
-      m_additional_data(additional_data) {}
-
-CHubControllerP2PWorker::~CHubControllerP2PWorker() {}
-////////////////////////////////////////////////////////////////////////////
-
-void CHubControllerP2PWorker::join_to_p2p_swarm_begin() {
-  try {
-    qInfo(
-        "join_to_p2p_swarm_begin : cont_ip : %s,"
-        "cont_name : %s, "
-        "cont_port : %s, "
-        "env_id : %s",
-        m_cont_ip.toStdString().c_str(), m_cont_name.toStdString().c_str(),
-        m_cont_port.toStdString().c_str(), m_env_id.toStdString().c_str());
-
-    system_call_wrapper_error_t err =
-        CSystemCallWrapper::join_to_p2p_swarm(m_env_hash, m_env_key, "dhcp");
-    if (err != SCWE_SUCCESS) {
-      QString err_msg = QString("Failed to join to p2p network. Error : %1")
-                            .arg(CSystemCallWrapper::scwe_error_to_str(err));
-      qCritical("%s", err_msg.toStdString().c_str());
-      emit join_to_p2p_swarm_finished((int)SLE_JOIN_TO_SWARM_FAILED);
-      return;
-    }
-  } catch (std::exception &exc) {
-    qCritical("Err in join_to_p2p_swarm_begin. %s",
-                                          exc.what());
-  }
-
-  emit join_to_p2p_swarm_finished((int)SLE_SUCCESS);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void CHubControllerP2PWorker::ssh_to_container_begin(int join_result) {
-  system_call_wrapper_error_t err;
-
-  CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(m_cont_port,
-                                                            m_cont_ip, m_rh_ip);
-  //
-  if (cip.use_p2p) {
-    if (join_result != SLE_SUCCESS) {
-      emit ssh_to_container_finished(join_result, m_additional_data);
-      return;
-    }
-
-    CNotificationObserver::Info(tr("Checking container. Please, wait"), DlgNotification::N_NO_ACTION);
-    static const int MAX_ATTEMTS_COUNT = 25;
-    for (int ac = 0; ac < MAX_ATTEMTS_COUNT; ++ac) {
-      err = CSystemCallWrapper::check_container_state(m_env_hash, cip.ip);
-      if (err == SCWE_SUCCESS) break;
-      QThread::currentThread()->sleep(1);
-    }
-
-    if (err != SCWE_SUCCESS) {
-      CNotificationObserver::Error(tr(
-          "Failed to run SSH because container isn't ready. Try little bit "
-          "later."), DlgNotification::N_NO_ACTION);
-      emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
-                                     m_additional_data);
-      return;
-    }
-  }
-
-  QString key;
-  QStringList keys_in_env =
-      CSshKeysController::Instance().keys_in_environment(m_env_id);
-
-  if (!keys_in_env.empty()) {
-    QString str_file = CSettingsManager::Instance().ssh_keys_storage() +
-                       QDir::separator() + keys_in_env[0];
-    QFileInfo fi(str_file);
-
-    key = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() +
-          fi.baseName();
-
-    if (key.isEmpty()) {
-      CNotificationObserver::Error(tr(
-          "Failed to retrieve environment key. Try to restart application"), DlgNotification::N_RESTART_TRAY);
-      emit ssh_to_container_finished((int)SLE_CONT_NOT_READY,
-                                     m_additional_data);
-      return;
-    }
-  }
-
-  err = CSystemCallWrapper::run_ssh_in_terminal(
-      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
-
-  qInfo(
-      "run_ssh_in_terminal : user : %s, "
-      "ip : %s, port : %s, key : %s",
-      CSettingsManager::Instance().ssh_user().toStdString().c_str(),
-      cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(),
-      key.toStdString().c_str());
-
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = tr("Run SSH failed. Error code : %1")
-                          .arg(CSystemCallWrapper::scwe_error_to_str(err));
-    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-    qCritical("%s", err_msg.toStdString().c_str());
-    emit ssh_to_container_finished((int)SLE_SYSTEM_CALL_FAILED,
-                                   m_additional_data);
-    return;
-  }
-
-  emit ssh_to_container_finished((int)SLE_SUCCESS, m_additional_data);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::my_peers_updated_sl() {

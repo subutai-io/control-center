@@ -141,7 +141,7 @@ wait_socket_connected(int socket_fd, int timeout_sec) {
 
 struct libssh2_session_auto_t {
   LIBSSH2_SESSION* session;
-  libssh2_session_auto_t() : session(nullptr) {session = libssh2_session_init();}
+  libssh2_session_auto_t() : session(nullptr) {session = libssh2_session_init(); }
   ~libssh2_session_auto_t() {
     if (session) {
       libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
@@ -149,6 +149,49 @@ struct libssh2_session_auto_t {
     }
   }
 };
+
+run_libssh2_error
+send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {
+  int rc = 0;
+  struct sockaddr_in sin;
+  unsigned long ul_host_addr = 0;
+
+
+#ifndef _WIN32
+  int sock;
+  ul_host_addr = inet_addr(str_host);
+#else
+  SOCKET sock;
+  ul_host_addr = inet_addr(str_host);
+#endif
+  sin.sin_family = AF_INET;
+  sin.sin_port = htons(port);
+  sin.sin_addr.s_addr = ul_host_addr;
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef _WIN32
+  u_long mode = 1;
+  ioctlsocket(sock, FIONBIO, &mode);
+#else
+  int flags = fcntl(sock, F_GETFL, 0);
+  flags |= O_NONBLOCK;
+#endif
+  connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
+  rc = wait_socket_connected(sock, conn_timeout);
+
+  if (rc == 0) {
+    return RLE_CONNECTION_TIMEOUT;
+  }
+  else if (rc == SOCKET_ERROR) {
+    return RLE_CONNECTION_ERROR;
+  }
+  #ifdef _WIN32
+    closesocket(sock);
+  #else
+    close(sock);
+  #endif
+
+  return RLE_SUCCESS;
+}
 
 int
 run_ssh_command_internal(const char *str_host,
@@ -319,5 +362,8 @@ CLibsshController::run_ssh_command_key_auth(const char *host,
   arg.pub_file = pub_file;
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, key_pub_authentication, &arg);
+}
+run_libssh2_error CLibsshController::send_handshake(const char *str_host, uint16_t port, int conn_timeout) {
+  return send_handshake_internal(str_host, port, conn_timeout);
 }
 ////////////////////////////////////////////////////////////////////////////

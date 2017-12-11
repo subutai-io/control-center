@@ -22,41 +22,6 @@ typedef enum ssh_launch_error {
 } ssh_launch_error_t;
 
 /**
- * @brief The CHubControllerP2PWorker auxiliary class for work with P2P.
- * Controls swarm join process and ssh->container
- */
-class CHubControllerP2PWorker : public QObject {
-  Q_OBJECT
-private:
-  QString m_env_id;
-  QString m_env_hash;
-  QString m_env_key;
-  QString m_cont_ip;
-  QString m_cont_port;
-  QString m_cont_name;
-  QString m_rh_ip;
-  void *m_additional_data;
-public:
-  CHubControllerP2PWorker(const QString& env_id,
-                          const QString& env_hash,
-                          const QString& env_key,
-                          const QString& ip,
-                          const QString& cont_port,
-                          const QString& cont_name,
-                          const QString& rh_ip,
-                          void* additional_data);
-  ~CHubControllerP2PWorker();
-private slots:
-public slots:
-  void join_to_p2p_swarm_begin();
-  void ssh_to_container_begin(int join_result);
-signals:
-  void join_to_p2p_swarm_finished(int result);
-  void ssh_to_container_finished(int result, void *additional_data);
-};
-////////////////////////////////////////////////////////////////////////////
-
-/**
  * @brief The CHubController class - one of main classes in SubutaiTray application
  * Controls current state of system : list of environments and containers, available updates,
  * balance, ssh->container process etc.
@@ -97,6 +62,9 @@ private:
 
   void ssh_to_container_internal(const CEnvironment *env,
                                  const CHubContainer *cont,
+                                 void *additional_data,
+                                 finished_slot_t slot);
+  void ssh_to_container_internal_helper(int result,
                                  void *additional_data,
                                  finished_slot_t slot);
 

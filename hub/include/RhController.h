@@ -7,6 +7,7 @@
 
 class CRhController : public QObject {
   Q_OBJECT
+
 private:
   CRhController(QObject* parent = nullptr);
   virtual ~CRhController();

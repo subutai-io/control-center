@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>668</width>
-    <height>303</height>
+    <height>328</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,7 +35,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Ssh-keys :</string>
+        <string>Existing Keys:</string>
        </property>
       </widget>
      </item>
@@ -48,7 +48,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Healthy environments :</string>
+        <string>Healthy Environments:</string>
        </property>
       </widget>
      </item>
@@ -89,7 +89,7 @@
        <item row="0" column="0">
         <widget class="QCheckBox" name="chk_select_all">
          <property name="text">
-          <string>Select all</string>
+          <string>Select All To Deploy</string>
          </property>
         </widget>
        </item>
@@ -130,14 +130,14 @@
      <item row="4" column="0">
       <widget class="QPushButton" name="btn_generate_new_key">
        <property name="text">
-        <string>Generate new key pair</string>
+        <string>Generate New Key Pair</string>
        </property>
       </widget>
      </item>
      <item row="4" column="2">
       <widget class="QPushButton" name="btn_send_to_hub">
        <property name="text">
-        <string>Save changes</string>
+        <string>Deploy Key[s]</string>
        </property>
       </widget>
      </item>
@@ -153,6 +153,8 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>

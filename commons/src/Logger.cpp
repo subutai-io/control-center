@@ -9,7 +9,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Logger::Logger() {
+void Logger::Init() {
   QTimer *timer = new QTimer(this);
   connect(timer , &QTimer::timeout, this, &Logger::deleteOldFiles);
   timer->start(60 * 60 * 1000);

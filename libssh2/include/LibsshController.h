@@ -76,6 +76,9 @@ public:
                                       const char* cmd,
                                       int conn_timeout,
                                       std::vector<std::string>& lst_out);
+
+  static run_libssh2_error send_handshake(const char *str_host, uint16_t port, int conn_timeout);
+
 };
 
 #endif // LIBSSHCONTROLLER_H
