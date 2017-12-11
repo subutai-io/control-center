@@ -1,6 +1,7 @@
 #include "DlgEnvironment.h"
 #include "ui_DlgEnvironment.h"
 #include "P2PController.h"
+#include <QToolTip>
 
 DlgEnvironment::DlgEnvironment(QWidget *parent) :
     QDialog(parent),
@@ -38,9 +39,27 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip_port);
 }
 
+void DlgEnvironment::check_status(QPushButton *btn_ssh, const CEnvironment *env, const CHubContainer *cont) {
+  if (!env->healthy()) {
+    btn_ssh->setToolTip("Environment is unhealthy.");
+    btn_ssh->setEnabled(false);
+  }
+  else
+  if(!P2PController::Instance().join_swarm_success(env->hash())) {
+    btn_ssh->setToolTip("Cannot connect to container using p2p.");
+    btn_ssh->setEnabled(false);
+  }
+  else
+  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
+    btn_ssh->setToolTip("Trying to connect.");
+    btn_ssh->setEnabled(false);
+  }
+  else {
+    btn_ssh->setToolTip("Press this button to ez-ssh to container.");
+    btn_ssh->setEnabled(true);
+  }
+}
 
-#include <QToolTip>
-void DlgEnvironment::change_ssh_status(const CEnvironment *env, )
 void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
 {
   QFont *font = new QFont();
@@ -57,33 +76,15 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
 
   connect(timer, &QTimer::timeout, [btn_ssh, env, cont, this](){
-
-    if (!env->healthy()) {
-      btn_ssh->setToolTip("Environment is unhealthy.");
-      btn_ssh->setEnabled(false);
-    }
-    else
-    if(!P2PController::Instance().join_swarm_success(env->hash())) {
-      btn_ssh->setToolTip("Cannot connect to container using p2p.");
-      btn_ssh->setEnabled(false);
-    }
-    else
-    if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
-      btn_ssh->setToolTip("Trying to connect.");
-      btn_ssh->setEnabled(false);
-    }
-    else {
-      btn_ssh->setToolTip("Press this button to ez-ssh to container.");
-      btn_ssh->setEnabled(true);
-    }
+    this->check_status(btn_ssh, env, cont);
   });
-
-  timer->start(4000);
+  check_status(btn_ssh, env, cont);
+  timer->start(5000);
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 
   connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
-      emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
+    emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
   });
 }
 

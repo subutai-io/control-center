@@ -18,6 +18,7 @@ INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
+INCLUDEPATH += hub/src
 
 SOURCES += \
     main.cpp \
@@ -55,8 +56,11 @@ SOURCES += \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    hub/src/DlgPeer.cpp \
-    hub/src/DlgEnvironment.cpp
+    hub/src/DlgEnvironment.cpp \
+    hub/src/EnvironmentState.cpp \
+    hub/src/P2PController.cpp
+
+
 
 
 HEADERS  += \
@@ -96,8 +100,9 @@ HEADERS  += \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    hub/include/DlgPeer.h \
-    hub/include/DlgEnvironment.h
+    hub/include/DlgEnvironment.h \
+    hub/src/EnvironmentState.h \
+    hub/src/P2PController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -111,7 +116,6 @@ FORMS    += \
     hub/forms/DlgGenerateSshKey.ui \
     hub/forms/DlgNotifications.ui \
     hub/forms/DlgNotification.ui \
-    hub/forms/DlgPeer.ui \
     hub/forms/DlgEnvironment.ui \
 
 RESOURCES += \
