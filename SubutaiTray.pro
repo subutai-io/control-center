@@ -187,3 +187,54 @@ win32: {
 }
 #////////////////////////////////////////////////////////////////////////////
 
+tests {
+    message(Test build)
+    QT += testlib
+    TARGET = TestingTray
+
+    LIBS += -lgcov
+
+    #QMAKE_CXXFLAGS += --coverage
+    #QMAKE_LFLAGS += --coverage
+    QMAKE_CXXFLAGS += -g -fprofile-arcs -ftest-coverage -O0
+    QMAKE_LFLAGS += -g -fprofile-arcs -ftest-coverage  -O0
+
+    SOURCES -= main.cpp
+
+    HEADERS += tests/CCommonsTest.h \
+        tests/Tester.h \
+        tests/LanguageControllerTest.h \
+        tests/LoggerTest.h \
+        tests/OsBranchConstsTest.h \
+        tests/TrayWebSocketServerTest.h \
+        tests/SystemCallWrapperTest.h \
+        tests/DlgNotificationsModelTest.h \
+        tests/NotificationObserverTest.h \
+        tests/DlgSettingsTest.h \
+        tests/NotificationLoggerTest.h \
+        tests/SettingsManagerTest.h \
+        tests/RhControllerTest.h \
+        tests/HubControlllerTest.h \
+        tests/DownloadFileManagerTest.h \
+        tests/RestWorkerTest.h
+
+    SOURCES += tests/main.cpp \
+        tests/CCommonsTest.cpp \
+        tests/Tester.cpp \
+        tests/LanguageControllerTest.cpp \
+        tests/LoggerTest.cpp \
+        tests/OsBranchConstsTest.cpp \
+        tests/TrayWebSocketServerTest.cpp \
+        tests/SystemCallWrapperTest.cpp \
+        tests/DlgNotificationsModelTest.cpp \
+        tests/NotificationObserverTest.cpp \
+        tests/DlgSettingsTest.cpp \
+        tests/NotificationLoggerTest.cpp \
+        tests/SettingsManagerTest.cpp \
+        tests/RhControllerTest.cpp \
+        tests/HubControlllerTest.cpp \
+        tests/DownloadFileManagerTest.cpp \
+        tests/RestWorkerTest.cpp
+} else {
+    message(Normal build)
+}
