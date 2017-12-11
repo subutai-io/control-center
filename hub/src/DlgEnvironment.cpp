@@ -46,12 +46,12 @@ void DlgEnvironment::check_status(QPushButton *btn_ssh, const CEnvironment *env,
   }
   else
   if(!P2PController::Instance().join_swarm_success(env->hash())) {
-    btn_ssh->setToolTip("Cannot connect to container using p2p.");
+    btn_ssh->setToolTip("The connection with environment is not established.");
     btn_ssh->setEnabled(false);
   }
   else
   if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
-    btn_ssh->setToolTip("Trying to connect.");
+    btn_ssh->setToolTip("Container is not ready.");
     btn_ssh->setEnabled(false);
   }
   else {
