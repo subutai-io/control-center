@@ -140,6 +140,8 @@ HandshakeSender::~HandshakeSender(){
 
 
 P2PController::P2PController() {
+  qDebug("P2PController is initialized");
+
   QTimer *join_to_swarm_timer = new QTimer(this);
   connect(&EnvironmentState::Instance(), &EnvironmentState::environemts_state_updated,
           this, &P2PController::update_handshake_status);

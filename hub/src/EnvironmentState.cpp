@@ -8,6 +8,7 @@ EnvironmentState::EnvironmentState(){
 
 void EnvironmentState::on_environments_update(int res) {
   UNUSED_ARG(res);
+  qDebug() << "updating environments";
 
   m_connected_envs.clear();
   m_disconnected_envs.clear();
