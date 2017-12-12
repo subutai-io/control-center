@@ -466,6 +466,14 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(
+    const QString &user, const QString &ip, const QString &port,
+    const QString &key) {
+
+  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
@@ -478,7 +486,7 @@ system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
 
   if (exit_code != RLE_SUCCESS) {
     res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical() << "Couldn't successfully handshake. Err : " << scwe_error_to_str(res);
+    qCritical() << "Couldn't successfully handshake. Err : " << CLibsshController::run_libssh2_error_to_str(exit_code);
   }
   return res;
 }

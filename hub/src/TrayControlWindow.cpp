@@ -109,6 +109,10 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(&CHubController::Instance(),
           &CHubController::ssh_to_container_finished, this,
           &TrayControlWindow::ssh_to_container_finished);
+  connect(&CHubController::Instance(),
+          &CHubController::desktop_to_container_finished, this,
+          &TrayControlWindow::desktop_to_container_finished);
+
   connect(&CHubController::Instance(), &CHubController::balance_updated, this,
           &TrayControlWindow::balance_updated_sl);
   connect(&CHubController::Instance(), &CHubController::environments_updated,
@@ -554,7 +558,7 @@ void TrayControlWindow::vmc_player_act_released(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
+void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
   QPushButton* act = static_cast<QPushButton*>(action);
@@ -564,6 +568,20 @@ void TrayControlWindow::hub_container_mi_triggered_ssh(const CEnvironment* env,
     CHubController::Instance().ssh_to_container(env, cont, action);
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
+                                                   const CHubContainer* cont,
+                                                   void* action) {
+  QPushButton* act = static_cast<QPushButton*>(action);
+  if (act != NULL) {
+    act->setEnabled(false);
+    act->setText("PROCESSSING...");
+    CHubController::Instance().desktop_to_container(env, cont, action);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -948,7 +966,8 @@ QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
 void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
-  connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::hub_container_mi_triggered_ssh);
+  connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::ssh_to_container_triggered);
+  connect(dlg_env, &DlgEnvironment::desktop_to_container_sig, this, &TrayControlWindow::desktop_to_container_triggered);
   m_last_generated_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1105,14 +1124,31 @@ void CVBPlayerItem::vbox_menu_btn_stop_released() {
 
 void TrayControlWindow::ssh_to_container_finished(int result,
                                                   void* additional_data) {
-  if (result != SLE_SUCCESS) {
+  if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't ssh to container. Err : %1")
-            .arg(CHubController::ssh_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
+            .arg(CHubController::ssh_desktop_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
+
   QPushButton* act = static_cast<QPushButton*>(additional_data);
   if (act == NULL) return;
   act->setEnabled(true);
   act->setText("SSH");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::desktop_to_container_finished(int result,
+                                                  void* additional_data) {
+  if (result != SDLE_SUCCESS) {
+    CNotificationObserver::Error(
+        tr("Can't desktop to container. Err : %1")
+            .arg(CHubController::ssh_desktop_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
+  }
+
+  QPushButton* act = static_cast<QPushButton*>(additional_data);
+  if (act == NULL) return;
+  act->setEnabled(true);
+  act->setText("DESKTOP");
 }
 ////////////////////////////////////////////////////////////////////////////

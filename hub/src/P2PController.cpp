@@ -239,3 +239,21 @@ void P2PController::update_handshake_status() {
 }
 
 /////////////////////////////////////////////////////////////////////////
+
+int P2PController::get_container_status(const CEnvironment *env,
+                                               const CHubContainer *cont){
+
+  if (env == NULL)
+    return (int) SDLE_ENV_NOT_FOUND;
+
+  if (cont == NULL)
+    return (int) SDLE_CONT_NOT_FOUND;
+
+  if (!P2PController::Instance().join_swarm_success(env->hash()))
+    return (int) SDLE_JOIN_TO_SWARM_FAILED;
+
+  if (!P2PController::Instance().handshake_success(env->id(), cont->id()))
+    return (int) SDLE_CONT_NOT_READY;
+
+  return (int) SDLE_SUCCESS;
+}

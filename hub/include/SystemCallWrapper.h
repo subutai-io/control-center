@@ -113,6 +113,11 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
+  static system_call_wrapper_error_t run_x2goclient_session(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port,
+                                                         const QString &key);
+
   static system_call_wrapper_error_t send_handshake(const QString &ip,
                                                          const QString &port);
 

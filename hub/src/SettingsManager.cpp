@@ -119,7 +119,6 @@ static QString settings_file_path() {
       //todo log this
       break;
     }
-qDebug() << dir_path;
     return dir_path + QDir::separator() + settings_file;
   } while (false);
 
@@ -452,6 +451,7 @@ bool CSettingsManager::is_notification_ignored(const QString& msg) const {
           m_dct_notification_ignore.end()) &&
          m_dct_notification_ignore[msg].toBool();
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CSettingsManager::ignore_notification(const QString& msg) {
