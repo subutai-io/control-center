@@ -119,11 +119,38 @@ static QString settings_file_path() {
       //todo log this
       break;
     }
-qDebug() << dir_path;
+
     return dir_path + QDir::separator() + settings_file;
   } while (false);
 
   return QApplication::applicationDirPath() + QDir::separator() + settings_file;
+}
+////////////////////////////////////////////////////////////////////////////
+
+static QString subutai_path() {
+    QStringList lst_home =
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (!lst_home.empty()) {
+      QString home_folder = lst_home[0];
+
+      QString dir_path = home_folder + QDir::separator() + QString(".subutai");
+      QDir dir_subutai(dir_path); // create .subutai directory
+      if (!dir_subutai.exists()) {
+        if (!dir_subutai.mkdir(dir_path)) {
+          qCritical("Can't create home .subutai directory.");
+        }
+      }
+
+      dir_path = dir_path + QDir::separator() + QString("tray");
+      QDir dir_tray(dir_path);
+      if (!dir_tray.exists()) {
+        if (!dir_tray.mkdir(dir_path)) {
+          qCritical("Can't create home tray directory.");
+        }
+      }
+    }
+
+  return QDir::homePath() +QDir::separator() + QString(".subutai") + QDir::separator() + QString("tray");
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +170,7 @@ CSettingsManager::CSettingsManager()
       m_rh_pass("ubuntai"),
       m_rh_port(4567),
 
-      m_logs_storage(QApplication::applicationDirPath()),
+      m_logs_storage(subutai_path()),
       m_ssh_keys_storage(QApplication::applicationDirPath()),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
