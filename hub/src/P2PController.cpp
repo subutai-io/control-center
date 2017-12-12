@@ -126,6 +126,7 @@ HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(
   m_th = new QThread;
   connect(m_th, &QThread::started, this, &HandshakeSender::send_handshakes);
   connect(this, &HandshakeSender::sent_handshakes_succsessfully, m_th, &QThread::quit);
+  connect(this, &HandshakeSender::handshake_failure, m_th, &QThread::quit);
   connect(m_th, &QThread::finished, this, &HandshakeSender::deleteLater);
   connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
   moveToThread(m_th);
