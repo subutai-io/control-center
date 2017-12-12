@@ -53,6 +53,7 @@ const char ** ssdp_rh_search_target_arr();
 
 const QString& default_p2p_path();
 const QString& default_terminal();
+const QString& default_x2goclient_path();
 const QString& default_term_arg();
 
 const QString& vboxmanage_command_str();

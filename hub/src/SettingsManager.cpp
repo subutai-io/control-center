@@ -24,6 +24,7 @@ const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
 
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
+const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -124,6 +125,35 @@ static QString settings_file_path() {
 
   return QApplication::applicationDirPath() + QDir::separator() + settings_file;
 }
+
+
+static QString x2goclient_config_file() {
+  static const QString settings_file = "subutai_tray.ini";
+  QStringList lst_config=
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  do {
+    if (lst_config.empty())
+      break;
+
+    QString dir_path = lst_config[0] + QDir::separator() + "subutai";
+    QDir dir_config(dir_path);
+    if (!dir_config.exists()) {
+      if (!dir_config.mkdir(dir_path)) {
+        //todo log this
+        break;
+      }
+    }
+
+    QFileInfo fi(dir_path);
+    if (!fi.isWritable()) {
+      //todo log this
+      break;
+    }
+    return dir_path + QDir::separator() + settings_file;
+  } while (false);
+
+  return QApplication::applicationDirPath() + QDir::separator() + settings_file;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 CSettingsManager::CSettingsManager()
@@ -154,6 +184,7 @@ CSettingsManager::CSettingsManager()
       m_tray_autoupdate(true),
       m_rh_management_autoupdate(true),
       m_terminal_cmd(default_terminal()),
+      m_x2goclient(default_x2goclient_path()),
       m_terminal_arg(default_term_arg()),
       m_vboxmanage_path(vboxmanage_command_str()),
       m_notifications_level(CNotificationObserver::NL_INFO),
@@ -162,7 +193,6 @@ CSettingsManager::CSettingsManager()
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
-//      m_pyhoca_cli(pyhoca_cli()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
       m_subutai_cmd(subutai_command()) {
@@ -188,6 +218,7 @@ CSettingsManager::CSettingsManager()
       // str
       {(void*)&m_login, SM_LOGIN, qvar_to_str},
       {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
+      {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
       {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
       {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
@@ -256,15 +287,16 @@ CSettingsManager::CSettingsManager()
 
   // which using
   QString* cmd_which[] = {&m_vboxmanage_path, &m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, nullptr};
+                          &m_p2p_path, &m_x2goclient, nullptr};
   static const QString default_values[] = {vboxmanage_command_str(),
                                            ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path()};
+                                           default_p2p_path(), default_x2goclient_path()};
   static const QString commands_name[] =
                                     {"vboxmanage",
                                      "ssh-keygen",
                                      "ssh",
-                                     "p2p"};
+                                     "p2p",
+                                     "x2goclient"};
 
 
   QString tmp;

@@ -61,10 +61,11 @@ void CHubController::desktop_to_container_internal_helper(int result, void *addi
 void CHubController::desktop_to_container_internal(const CEnvironment *env,
                                    const CHubContainer *cont,
                                    void *additional_data, finished_slot_t slot) {
+
   int container_status = P2PController::Instance().get_container_status(env, cont);
   if (container_status != (int) SDLE_SUCCESS) {
-    desktop_to_container_internal_helper(container_status, additional_data, slot);
-    return;
+    // desktop_to_container_internal_helper(container_status, additional_data, slot);
+    // return;
   }
 
   QString key = get_env_key(env->id());
@@ -75,10 +76,11 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
     // for some cases we don't need to have a key
   }
 
+
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id(),
       CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
 
 
@@ -90,7 +92,7 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
       cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(), key.toStdString().c_str(),
       env->name().toStdString().c_str(), cont->name().toStdString().c_str());
 
-  if (err != SCWE_SUCCESS) {
+  if (err != SCWE_SUCCESS && err != SCWE_TIMEOUT) {
     QString err_msg = tr("Run x2goclient session failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
     qCritical("%s", err_msg.toStdString().c_str());
     desktop_to_container_internal_helper((int)SDLE_SYSTEM_CALL_FAILED, additional_data, slot);
@@ -369,7 +371,7 @@ void CHubController::ssh_to_container_str(const QString &env_id,
                                           void *additional_data) {
   CEnvironment *env = NULL;
   CHubContainer *cont = NULL;
-  find_container_by_id(env_id, cont_id, env, cont);
+  //find_container_by_id(env_id, cont_id, env, cont);
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
 }
 
@@ -386,7 +388,7 @@ void CHubController::desktop_to_container_str(const QString &env_id,
                                           void *additional_data) {
   CEnvironment *env = NULL;
   CHubContainer *cont = NULL;
-  find_container_by_id(env_id, cont_id, env, cont);
+  //find_container_by_id(env_id, cont_id, *env, *cont);
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
 }
 
@@ -400,8 +402,6 @@ void CHubController::find_container_by_id(const QString &env_id,
   connect(this, &CHubController::environments_updated, &el, &QEventLoop::quit);
   refresh_environments_internal();
   el.exec();
-  env = NULL;
-  cont = NULL;
 
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);

@@ -269,6 +269,27 @@ const QString &
 default_terminal() {
   return default_terminal_temp_internal<Os2Type<CURRENT_OS> >();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_x2goclient_path_internal();
+
+#define default_x2goclient_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_x2goclient_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_x2goclient_path_internal_def(OS_LINUX, "x2goclient")
+default_x2goclient_path_internal_def(OS_MAC, "x2goclient")
+default_x2goclient_path_internal_def(OS_WIN, "x2goclient")
+
+const QString &
+default_x2goclient_path() {
+  return default_x2goclient_path_internal<Os2Type<CURRENT_OS> >();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS> const QString& default_term_arg_temp_internal();

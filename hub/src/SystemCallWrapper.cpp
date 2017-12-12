@@ -88,7 +88,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
-  args << "show";
+  args << "show"; // need to change
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
   // qInfo("is_in_swarm %s show %s", cmd.toStdString().c_str(), hash.toStdString().c_str());
@@ -465,12 +465,34 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
     const QString &key) {
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
+#include "X2GoClient.h"
 
 system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(
+    const QString &session_id,
     const QString &user, const QString &ip, const QString &port,
     const QString &key) {
 
-  return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
+  X2GoClient::Instance().add_session(session_id, ip, port, user);
+  QString session_file_path = x2goclient_config_path();
+ \
+  QString cmd = CSettingsManager::Instance().x2goclient();
+  QStringList lst_args;
+
+  lst_args
+      << QString("--session-conf=%1").arg(session_file_path)
+      << QString("--sessionid=%1").arg(session_id);
+  qDebug() << session_file_path;
+  qDebug() << session_id;
+
+  QStringList lst_out;
+  system_call_res_t res = ssystem(cmd, lst_args, true, true, 3000);
+
+  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+    // res.res = SCWE_CANT_RUN_X2GOCLIENT;
+    //qCritical("Can't run x2goclient ");
+  }
+
+  return res.res;
 }
 
 

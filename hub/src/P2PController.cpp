@@ -123,6 +123,7 @@ HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(
   moveToThread(m_th);
   m_th->start();
 }
+
 HandshakeSender::~HandshakeSender(){
  m_th->quit();
 }
