@@ -1,6 +1,6 @@
 #include "EnvironmentState.h"
 
-EnvironmentState::EnvironmentState(){
+EnvironmentState::EnvironmentState() {
 
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &EnvironmentState::on_environments_update);
