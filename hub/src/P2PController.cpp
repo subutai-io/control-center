@@ -9,36 +9,20 @@
 
 SwarmConnector::~SwarmConnector() {
   qDebug() << QString("SwarmConnector desctructor");
-  m_th->quit();
 }
 
 SwarmLeaver::~SwarmLeaver() {
   qDebug() << QString("SwarmLeaver desctructor");
-  m_th->quit();
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 SwarmConnector::SwarmConnector(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash) , swarm_key(swarm_key) {
   qDebug() << QString("SwarmConnector with hash: %1 and key: %2").arg(swarm_hash).arg(swarm_key);
-  m_th = new QThread;
-  connect(m_th, &QThread::started, this, &SwarmConnector::join_to_swarm_begin);
-  connect(this, &SwarmConnector::join_to_swarm_finished, m_th, &QThread::quit);
-  connect(m_th, &QThread::finished, this, &SwarmConnector::deleteLater);
-  connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
-  moveToThread(m_th);
-  m_th->start();
 }
 
 SwarmLeaver::SwarmLeaver(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash), swarm_key(swarm_key) {
   qDebug() << QString("SwarmLeaver with hash: %1 and key: %2").arg(swarm_hash).arg(swarm_key);
-  m_th = new QThread;
-  connect(m_th, &QThread::started, this, &SwarmLeaver::leave_swarm_begin);
-  connect(this, &SwarmLeaver::leave_swarm_finished, m_th, &QThread::quit);
-  connect(m_th, &QThread::finished, this, &SwarmConnector::deleteLater);
-  connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
-  moveToThread(m_th);
-  m_th->start();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -150,8 +134,16 @@ void P2PController::joined_swarm(QString hash) {
 
 void P2PController::join_swarm(const CEnvironment &env) {
   SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
+  QThread* thread = new QThread();
+
+  connect(thread, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
   connect(connector, &SwarmConnector::successfully_joined_swarm,
           this, &P2PController::joined_swarm);
+  connect(connector, &SwarmConnector::join_to_swarm_finished, thread, &QThread::quit);
+  connect(thread, &QThread::finished, connector, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  connector->moveToThread(thread);
+  thread->start();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -162,8 +154,16 @@ void P2PController::left_swarm(QString hash) {
 
 void P2PController::leave_swarm(const CEnvironment &env) {
   SwarmLeaver *leaver = new SwarmLeaver(env.hash(), env.key());
+  QThread* thread = new QThread();
+
+  connect(thread, &QThread::started, leaver, &SwarmLeaver::leave_swarm_begin);
   connect(leaver, &SwarmLeaver::successfully_left_swarm,
           this, &P2PController::left_swarm);
+  connect(leaver, &SwarmLeaver::leave_swarm_finished, thread, &QThread::quit);
+  connect(thread, &QThread::finished, leaver, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  leaver->moveToThread(thread);
+  thread->start();
 }
 
 /////////////////////////////////////////////////////////////////////////

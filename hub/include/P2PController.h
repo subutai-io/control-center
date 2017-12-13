@@ -10,7 +10,6 @@ class SwarmConnector : public QObject{
 Q_OBJECT
 private:
   QString swarm_hash, swarm_key;
-  QThread *m_th;
 
 public:
   SwarmConnector(QString swarm_hash, QString swarm_key);
@@ -27,7 +26,6 @@ class SwarmLeaver : public QObject{
 Q_OBJECT
 private:
   QString swarm_hash, swarm_key;
-  QThread *m_th;
 
 public:
   SwarmLeaver(QString swarm_hash, QString swarm_key);
