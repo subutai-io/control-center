@@ -48,7 +48,6 @@ class HandshakeSender : public QObject {
 Q_OBJECT
 private:
   std::vector<CEnvironment> m_envs;
-  QThread *m_th;
 
 public:
   HandshakeSender(const std::vector <CEnvironment> envs);

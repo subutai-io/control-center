@@ -13,6 +13,7 @@
 #include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayWebSocketServer.h"
+#include "P2PController.h"
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -54,7 +55,6 @@ CHubController::~CHubController() {
   //    CSystemCallWrapper::leave_p2p_swarm(i->hash());
   //  }
 }
-#include "P2PController.h"
 
 void CHubController::ssh_to_container_internal_helper(int result, void *additional_data, finished_slot_t slot) {
   if (slot == ssh_to_cont)
