@@ -114,16 +114,16 @@ HandshakeSender::~HandshakeSender() {}
 P2PController::P2PController() {
   qDebug("P2PController is initialized");
 
-  QTimer *join_to_swarm_timer = new QTimer(this);
-  QTimer *handshake_timer = new QTimer(this);
+  m_join_to_swarm_timer = new QTimer(this);
+  m_handshake_timer = new QTimer(this);
 
-  connect(handshake_timer, &QTimer::timeout,
-          this, &P2PController::update_handshake_status);
-  connect(join_to_swarm_timer, &QTimer::timeout,
+  connect(m_join_to_swarm_timer, &QTimer::timeout,
           this, &P2PController::update_join_swarm_status);
+  connect(m_handshake_timer, &QTimer::timeout,
+          this, &P2PController::update_handshake_status);
 
-  join_to_swarm_timer->start(1000 * 60 * 3); // 3 minutes
-  handshake_timer->start(1000 * 60 * 1); // 1 minute
+  m_join_to_swarm_timer->start(1000 * 60 * 3); // 3 minutes
+  m_handshake_timer->start(1000 * 60 * 1); // 1 minute
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -133,8 +133,9 @@ void P2PController::joined_swarm(QString hash) {
 }
 
 void P2PController::join_swarm(const CEnvironment &env) {
-  SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
+  SwarmConnector* connector = new SwarmConnector(env.hash(), env.key());
   QThread* thread = new QThread();
+  connector->moveToThread(thread);
 
   connect(thread, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
   connect(connector, &SwarmConnector::successfully_joined_swarm,
@@ -142,7 +143,7 @@ void P2PController::join_swarm(const CEnvironment &env) {
   connect(connector, &SwarmConnector::join_to_swarm_finished, thread, &QThread::quit);
   connect(thread, &QThread::finished, connector, &SwarmConnector::deleteLater);
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-  connector->moveToThread(thread);
+
   thread->start();
 }
 
@@ -155,6 +156,7 @@ void P2PController::left_swarm(QString hash) {
 void P2PController::leave_swarm(const CEnvironment &env) {
   SwarmLeaver *leaver = new SwarmLeaver(env.hash(), env.key());
   QThread* thread = new QThread();
+  leaver->moveToThread(thread);
 
   connect(thread, &QThread::started, leaver, &SwarmLeaver::leave_swarm_begin);
   connect(leaver, &SwarmLeaver::successfully_left_swarm,
@@ -162,7 +164,7 @@ void P2PController::leave_swarm(const CEnvironment &env) {
   connect(leaver, &SwarmLeaver::leave_swarm_finished, thread, &QThread::quit);
   connect(thread, &QThread::finished, leaver, &SwarmConnector::deleteLater);
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-  leaver->moveToThread(thread);
+
   thread->start();
 }
 

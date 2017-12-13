@@ -68,7 +68,8 @@ class P2PController : public QObject
 {
   Q_OBJECT
 private:
-  QTimer m_handshake_timer;
+  QTimer* m_handshake_timer;
+  QTimer* m_join_to_swarm_timer;
 
 public:
  P2PController();
