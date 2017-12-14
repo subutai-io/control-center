@@ -79,7 +79,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
     this->check_status(btn_ssh, env, cont);
   });
   check_status(btn_ssh, env, cont);
-  timer->start(5000);
+  timer->start(10000);
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 

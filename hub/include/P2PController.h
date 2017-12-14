@@ -3,8 +3,8 @@
 #include <set>
 
 #include <QObject>
-#include "EnvironmentState.h"
 #include "SystemCallWrapper.h"
+#include "HubController.h"
 
 class SwarmConnector : public QObject{
 Q_OBJECT
@@ -21,26 +21,6 @@ signals:
   void join_to_swarm_finished();
   void successfully_joined_swarm(QString);
 };
-
-class SwarmLeaver : public QObject{
-Q_OBJECT
-private:
-  QString swarm_hash, swarm_key;
-
-public:
-  SwarmLeaver(QString swarm_hash, QString swarm_key);
-  ~SwarmLeaver();
-
-public slots:
-  void leave_swarm_begin();
-
-signals:
-  void leave_swarm_finished();
-  void successfully_left_swarm(QString);
-};
-
-
-
 
 class HandshakeSender : public QObject {
 Q_OBJECT
@@ -59,10 +39,6 @@ signals:
   void handshake_success(QString, QString);
   void handshake_failure(QString, QString);
 };
-
-
-
-
 
 class P2PController : public QObject
 {
@@ -97,7 +73,6 @@ public:
 
 public slots:
  void joined_swarm(QString hash);
- void left_swarm(QString hash);
  void handshaked(QString env_id, QString cont_id);
  void handshake_failed(QString env_id, QString cont_id);
 
@@ -106,7 +81,6 @@ signals:
 public slots:
   void update_handshake_status();
   void update_join_swarm_status();
-  void update_leave_swarm_status();
   void p2p_restart();
 };
 
