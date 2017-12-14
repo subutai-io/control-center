@@ -101,6 +101,7 @@ P2PController::~P2PController() {
       }
     }
   }
+  envs_joined_swarm_hash.clear();
 }
 
 P2PController::P2PController() {
@@ -116,7 +117,7 @@ P2PController::P2PController() {
 
   m_join_to_swarm_timer->start(1000 * 60 * 3); // 3 minutes
   m_handshake_timer->start(1000 * 60 * 1); // 1 minute
-  update_join_swarm_status();
+  QTimer::singleShot(10000, this, SLOT(update_join_swarm_status())); // this functions call after 10 sec. single time
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -127,6 +128,7 @@ void P2PController::joined_swarm(QString hash) {
 
 void P2PController::join_swarm(const CEnvironment &env) {
   if (CSystemCallWrapper::p2p_daemon_check()) {
+    qDebug() << "Swarm started";
     SwarmConnector* connector = new SwarmConnector(env.hash(), env.key());
     QThread* thread = new QThread();
     connector->moveToThread(thread);
@@ -183,8 +185,9 @@ std::vector<CEnvironment> P2PController::get_joined_envs(){
 
 void P2PController::update_join_swarm_status(){
   std::vector<CEnvironment> current_envs = CHubController::Instance().lst_healthy_environments();
-  qDebug() << "Current envs";
-  for (CEnvironment &env : current_envs) {
+  qDebug() << "Current envs: " << current_envs.size();
+  qDebug() << (CHubController::Instance().lst_environments()).size();
+  for (CEnvironment env : current_envs) {
     if (!join_swarm_success(env.hash()))
       join_swarm(env);
   }
@@ -193,10 +196,9 @@ void P2PController::update_join_swarm_status(){
 /////////////////////////////////////////////////////////////////////////
 
 void P2PController::update_handshake_status() {
-  qDebug() << "Trying to handshake";
-
   std::vector<CEnvironment> envs = get_joined_envs();
   if (!envs.empty() && CSystemCallWrapper::p2p_daemon_check()) {
+      qDebug() << "Started handshaking";
       QThread* thread = new QThread();
       HandshakeSender* handshake_sender = new HandshakeSender(get_joined_envs());
       handshake_sender->moveToThread(thread);
