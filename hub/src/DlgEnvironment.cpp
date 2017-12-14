@@ -65,7 +65,7 @@ void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop
   }
 
   if (!cont->is_desktop()) {
-    btn_desktop->setToolTip("Container doesn't have container.");
+    btn_desktop->setToolTip("Container doesn't have desktop.");
     btn_desktop->setEnabled(false);
   }
 }
