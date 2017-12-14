@@ -130,10 +130,8 @@ public:
   void ssh_to_container_str(const QString& env_id,
                             const QString& cont_id,
                             void *additional_data);
-  void find_container_by_id(const QString& env_id,
-                            const QString& cont_id,
-                            const CEnvironment *env,
-                            const CHubContainer *cont);
+  std::pair<CEnvironment*, const CHubContainer*> find_container_by_id(const QString& env_id,
+                            const QString& cont_id);
   /**
    * @brief remote desktop connection
    */

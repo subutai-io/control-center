@@ -371,8 +371,10 @@ void CHubController::ssh_to_container_str(const QString &env_id,
                                           const QString &cont_id,
                                           void *additional_data) {
   CEnvironment *env = NULL;
-  CHubContainer *cont = NULL;
-  //find_container_by_id(env_id, cont_id, env, cont);
+  const CHubContainer *cont = NULL;
+  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
+  env = res.first;
+  cont = res.second;
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
 }
 
@@ -388,22 +390,25 @@ void CHubController::desktop_to_container_str(const QString &env_id,
                                           const QString &cont_id,
                                           void *additional_data) {
   CEnvironment *env = NULL;
-  CHubContainer *cont = NULL;
-  //find_container_by_id(env_id, cont_id, *env, *cont);
+  const CHubContainer *cont = NULL;
+
+  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
+  env = res.first;
+  cont = res.second;
+
   ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CHubController::find_container_by_id(const QString &env_id,
-                                          const QString &cont_id,
-                                          const CEnvironment *env,
-                                          const CHubContainer *cont) {
+std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_id(const QString &env_id,
+                                          const QString &cont_id) {
+  CEnvironment *env = NULL;
+  const CHubContainer *cont = NULL;
   QEventLoop el;
   connect(this, &CHubController::environments_updated, &el, &QEventLoop::quit);
   refresh_environments_internal();
   el.exec();
-
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
     for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
@@ -412,7 +417,7 @@ void CHubController::find_container_by_id(const QString &env_id,
       break;
     }
     if (env == NULL) {
-      return;
+      return std::make_pair(nullptr, nullptr);
     }
 
     for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
@@ -422,9 +427,10 @@ void CHubController::find_container_by_id(const QString &env_id,
     }
 
     if (cont == NULL) {
-      return;
+      return std::make_pair(nullptr, nullptr);
     }
   }
+  return std::make_pair(env, cont);
 }
 ////////////////////////////////////////////////////////////////////////////
 
