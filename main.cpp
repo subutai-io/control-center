@@ -25,7 +25,6 @@
 #include "Logger.h"
 #include "LanguageController.h"
 #include "P2PController.h"
-#include "EnvironmentState.h"
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -138,8 +137,8 @@ main(int argc, char *argv[]) {
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
 
-      EnvironmentState::Instance().init();
       P2PController::Instance().init();
+
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
