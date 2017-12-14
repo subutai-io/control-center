@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QApplication>
+#include "HubController.h"
 
 
 static QString x2goclient_config_path() {
@@ -42,7 +43,7 @@ class X2GoClient : public QObject
 public:
   explicit X2GoClient(QObject *parent = nullptr);
   QSettings m_settings;
-  void add_session(QString cont_id, QString ip, QString port, QString username);
+  void add_session(const CHubContainer *cont, QString username, QString key);
 
   static X2GoClient& Instance() {
     static X2GoClient x2goclient;

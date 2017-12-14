@@ -14,6 +14,8 @@
 #include "SystemCallWrapper.h"
 #include "TrayWebSocketServer.h"
 #include "P2PController.h"
+#include "X2GoClient.h"
+
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -80,9 +82,9 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id(),
-      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
+  X2GoClient::Instance().add_session(cont, CSettingsManager::Instance().ssh_user(), key);
 
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id());
 
   qInfo(
       "run_x2goclient_session : user : %s, "
@@ -92,7 +94,7 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
       cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(), key.toStdString().c_str(),
       env->name().toStdString().c_str(), cont->name().toStdString().c_str());
 
-  if (err != SCWE_SUCCESS && err != SCWE_TIMEOUT) {
+  if (err != SCWE_SUCCESS) {
     QString err_msg = tr("Run x2goclient session failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
     qCritical("%s", err_msg.toStdString().c_str());
     desktop_to_container_internal_helper((int)SDLE_SYSTEM_CALL_FAILED, additional_data, slot);

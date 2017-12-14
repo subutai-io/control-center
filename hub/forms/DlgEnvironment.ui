@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>649</width>
+    <width>622</width>
     <height>107</height>
    </rect>
   </property>
@@ -94,7 +94,7 @@
    <item row="2" column="3">
     <layout class="QFormLayout" name="cont_remote"/>
    </item>
-   <item row="3" column="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QPushButton" name="btn_ssh_all">
      <property name="maximumSize">
       <size>
@@ -107,7 +107,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
+   <item row="3" column="2" colspan="2">
     <widget class="QPushButton" name="btn_desktop_all">
      <property name="maximumSize">
       <size>
