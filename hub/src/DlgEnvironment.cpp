@@ -41,25 +41,35 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 
 void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont) {
   btn_ssh->setEnabled(false);
-  btn_desktop->setEnabled(true);
+  btn_desktop->setEnabled(false);
 
   if (!env->healthy()) {
     btn_ssh->setToolTip("Environment is unhealthy.");
+    btn_desktop->setToolTip("Environment is unhealhty.");
   }
   else
   if(!P2PController::Instance().join_swarm_success(env->hash())) {
     btn_ssh->setToolTip("The connection with environment is not established.");
+    btn_desktop->setToolTip("The connection with environment is not established.");
   }
   else
   if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
-    btn_ssh->setToolTip("Container is not ready.");
+    btn_ssh->setToolTip("Container is not ready.");  
+    btn_desktop->setToolTip("Container is not ready.");
   }
   else {
     btn_ssh->setToolTip("Press this button to ez-ssh to container.");
+    btn_desktop->setToolTip("Press this button to ez-desktop to container.");
     btn_ssh->setEnabled(true);
+    btn_desktop->setEnabled(true);
   }
 
+  if (!cont->is_desktop()) {
+    btn_desktop->setToolTip("Container doesn't have container.");
+    btn_desktop->setEnabled(false);
+  }
 }
+
 void DlgEnvironment::button_enhancement(QPushButton *btn) {
   QFont *font = new QFont();
   font->setPointSize(5);
@@ -87,7 +97,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   });
 
   check_status(btn_ssh, btn_desktop, env, cont);
-  timer->start(5000);
+  timer->start(10000);
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 

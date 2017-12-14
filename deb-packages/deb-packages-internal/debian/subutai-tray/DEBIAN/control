@@ -1,0 +1,10 @@
+Package: subutai-tray
+Version: 6.3.0-0ubuntu1~trusty
+Architecture: all
+Maintainer: Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+Installed-Size: 12393
+Depends: gksu, libssh2-1, libxcb-xkb1, libxcb-render-util0, libxcb-xinerama0, libxcb-image0, libxcb-icccm4, libxcb-randr0, libxcb-keysyms1
+Section: net
+Priority: optional
+Homepage: https://subut.ai
+Description: Subutai Tray Application

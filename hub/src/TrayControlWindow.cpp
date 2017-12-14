@@ -574,6 +574,13 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
 void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
+  if (!CSystemCallWrapper::x2goclient_check()) {
+    CNotificationObserver::Error(QObject::tr("Can't run x2goclient instance. Make sure you have specified correct path to x2goclient."
+                                         "Or you can get the lasest x2goclient from <a href=\"%2\">here</a>.")
+                                 .arg(x2goclient_url()), DlgNotification::N_SETTINGS);
+    return;
+  }
+
   QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);

@@ -468,7 +468,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QString &session_id) {
-  QString session_file_path = x2goclient_config_path();
+  QString session_file_path = X2GoClient::x2goclient_config_path();
   QString cmd = CSettingsManager::Instance().x2goclient();
   QStringList lst_args;
   lst_args
@@ -727,6 +727,20 @@ bool CSystemCallWrapper::p2p_daemon_check() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool CSystemCallWrapper::x2goclient_check() {
+  QString cmd = CSettingsManager::Instance().x2goclient();
+  QStringList args;
+  args << "--version";
+  system_call_res_t cr = ssystem_th(cmd, args, true, true, 5000);
+  return !(cr.exit_code || cr.res);
+}
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief CSystemCallWrapper::which
+/// \param prog
+/// \param path
+/// \return
+///
 system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
                                                       QString &path) {
   static int success_ec = 0;

@@ -151,6 +151,8 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t p2p_version(QString &version);
   static system_call_wrapper_error_t p2p_status(QString &status);
   static bool p2p_daemon_check();
+  static bool x2goclient_check();
+
 
   static system_call_wrapper_error_t which(const QString &prog, QString &path);
   static system_call_wrapper_error_t open(const QString &prog);

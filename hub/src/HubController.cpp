@@ -440,8 +440,7 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
                                               "Container not found",
                                               "Container isn't ready",
                                               "Join to p2p swarm failed",
-                                              "System call failed",
-                                              "Environment ssh-key is not found"};
+                                              "System call failed"};
   return lst_err_str[err % SDLE_LAST_ERR];
 }
 ////////////////////////////////////////////////////////////////////////////

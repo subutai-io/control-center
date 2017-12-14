@@ -14,6 +14,7 @@ private:
   QString m_name;
   QString m_ip;
   QString m_id;
+  bool m_is_desktop;
   QString m_port;
   QString m_rh_ip;
 
@@ -22,6 +23,7 @@ public:
     m_name(obj["container_name"].toString()),
     m_ip(obj["container_ip"].toString()),
     m_id(obj["container_id"].toString()),
+    m_is_desktop(obj["container_is_desktop"].toBool()),
     m_rh_ip(obj["rh_ip"].toString())
   {
     QHostAddress cont_ip_addr(m_ip.split("/")[0]);
@@ -44,13 +46,16 @@ public:
 
   const QString& rh_ip() const {return m_rh_ip;}
 
+  const bool& is_desktop() const {return m_is_desktop;}
+
   bool operator==(const CHubContainer& arg) const {
     bool res =
         m_name == arg.m_name &&
         m_ip == arg.m_ip &&
         m_id == arg.m_id &&
         m_port == arg.m_port &&
-        m_rh_ip == arg.m_rh_ip;
+        m_rh_ip == arg.m_rh_ip &&
+        m_is_desktop == arg.m_is_desktop;
     return res;
   }
   bool operator!=(const CHubContainer& arg) const {

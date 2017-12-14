@@ -1,0 +1,80 @@
+ dpkg-buildpackage -rfakeroot -D -us -uc
+dpkg-buildpackage: source package subutai-tray
+dpkg-buildpackage: source version 6.3.0-0ubuntu1~trusty
+dpkg-buildpackage: source distribution trusty
+dpkg-buildpackage: source changed by Oleg Katkov (comment) <okatkov@optimal-dynamics.com>
+ dpkg-source --before-build deb-packages-internal
+dpkg-buildpackage: host architecture amd64
+ fakeroot debian/rules clean
+dh clean 
+   dh_testdir
+   dh_auto_clean
+   dh_clean
+ dpkg-source -b deb-packages-internal
+dpkg-source: warning: no source format specified in debian/source/format, see dpkg-source(1)
+dpkg-source: warning: Version number suggests Ubuntu changes, but Maintainer: does not have Ubuntu address
+dpkg-source: warning: Version number suggests Ubuntu changes, but there is no XSBC-Original-Maintainer field
+dpkg-source: warning: source directory 'deb-packages-internal' is not <sourcepackage>-<upstreamversion> 'subutai-tray-6.3.0'
+dpkg-source: info: using source format '1.0'
+dpkg-source: info: building subutai-tray in subutai-tray_6.3.0-0ubuntu1~trusty.tar.gz
+dpkg-source: info: building subutai-tray in subutai-tray_6.3.0-0ubuntu1~trusty.dsc
+ debian/rules build
+dh build 
+   dh_testdir
+   dh_update_autotools_config
+   dh_auto_configure
+   dh_auto_build
+   dh_auto_test
+ fakeroot debian/rules binary
+dh binary 
+   dh_testroot
+   dh_prep
+   dh_auto_install
+   dh_install
+   dh_installdocs
+   dh_installchangelogs
+   dh_icons
+   dh_perl
+   dh_link
+   dh_strip_nondeterminism
+   dh_compress
+   dh_fixperms
+   dh_installdeb
+   dh_gencontrol
+   dh_md5sums
+   dh_builddeb
+dpkg-deb: building package 'subutai-tray' in '../subutai-tray_6.3.0-0ubuntu1~trusty_all.deb'.
+ dpkg-genchanges  >../subutai-tray_6.3.0-0ubuntu1~trusty_amd64.changes
+dpkg-genchanges: including full source code in upload
+ dpkg-source --after-build deb-packages-internal
+dpkg-buildpackage: full upload; Debian-native package (full source is included)
+Now running lintian...
+W: subutai-tray source: native-package-with-dash-version
+E: subutai-tray source: source-is-missing debian/SubutaiTray/Libs/libicudata.so.56
+E: subutai-tray source: source-is-missing debian/SubutaiTray/Libs/libicui18n.so.56
+E: subutai-tray source: source-is-missing debian/SubutaiTray/Libs/libicuuc.so.56
+E: subutai-tray source: source-is-missing debian/SubutaiTray/Libs/libinput.so.5
+E: subutai-tray source: source-is-missing debian/SubutaiTray/bin/subutai-tray
+W: subutai-tray source: debhelper-but-no-misc-depends subutai-tray
+W: subutai-tray source: maintainer-script-lacks-debhelper-token debian/postinst
+E: subutai-tray source: maintainer-name-missing Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+E: subutai-tray source: maintainer-address-malformed Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+W: subutai-tray source: syntax-error-in-dep5-copyright line 13: Continuation line outside a paragraph (maybe line 12 should be " .").
+W: subutai-tray source: out-of-date-standards-version 3.9.6 (current is 3.9.7)
+E: subutai-tray: copyright-contains-dh_make-todo-boilerplate
+E: subutai-tray: extended-description-is-empty
+E: subutai-tray: maintainer-name-missing Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+E: subutai-tray: maintainer-address-malformed Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+E: subutai-tray: dir-or-file-in-tmp tmp/subutai/
+E: subutai-tray: dir-or-file-in-tmp tmp/subutai/SubutaiTray.tar.gz
+W: subutai-tray: package-contains-timestamped-gzip tmp/subutai/SubutaiTray.tar.gz
+W: subutai-tray: possibly-insecure-handling-of-tmp-files-in-maintainer-script postinst:19
+W: subutai-tray: maintainer-script-ignores-errors postinst
+W: subutai-tray: postinst-has-useless-call-to-ldconfig
+Finished running lintian.
+Now signing changes and any dsc files...
+ signfile subutai-tray_6.3.0-0ubuntu1~trusty.dsc Oleg Katkov (comment) <okatkov@optimal-dynamics.com>
+
+ signfile subutai-tray_6.3.0-0ubuntu1~trusty_amd64.changes Oleg Katkov (comment) <okatkov@optimal-dynamics.com>
+
+Successfully signed dsc and changes files

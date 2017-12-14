@@ -1,5 +1,32 @@
 #include "X2GoClient.h"
 
+QString X2GoClient::x2goclient_config_path() {
+  static const QString config_file = "x2goclient_session.ini";
+  QStringList lst_config=
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  do {
+    if (lst_config.empty())
+      break;
+
+    QString dir_path = lst_config[0] + QDir::separator() + "subutai";
+    QDir dir_config(dir_path);
+    if (!dir_config.exists()) {
+      if (!dir_config.mkdir(dir_path)) {
+        //todo log this
+        break;
+      }
+    }
+
+    QFileInfo fi(dir_path);
+    if (!fi.isWritable()) {
+      //todo log this
+      break;
+    }
+    return dir_path + QDir::separator() + config_file;
+  } while (false);
+
+  return QApplication::applicationDirPath() + QDir::separator() + config_file;
+}
 
 X2GoClient::X2GoClient(QObject *parent) :
   QObject(parent), m_settings(x2goclient_config_path(), QSettings::IniFormat)

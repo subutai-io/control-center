@@ -488,6 +488,11 @@ const QString &
 p2p_package_url() {
   return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
+
+const QString &
+x2goclient_url() {
+  return "https://wiki.x2go.org/doku.php/doc:installation:x2goclient";
+}
 ////////////////////////////////////////////////////////////////////////////
 
 template<class BR> const QString& current_branch_name_temp_internal();
