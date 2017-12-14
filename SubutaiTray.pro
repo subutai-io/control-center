@@ -56,9 +56,8 @@ SOURCES += \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
     hub/src/DlgEnvironment.cpp \
-    hub/src/EnvironmentState.cpp \
     hub/src/P2PController.cpp \
-    hub/src/X2GoClient.cpp
+    hub/src/X2GoClient.cpp \
 
 
 
@@ -101,7 +100,6 @@ HEADERS  += \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
     hub/include/DlgEnvironment.h \
-    hub/include/EnvironmentState.h \
     hub/include/P2PController.h \
     hub/src/X2GoClient.h
 

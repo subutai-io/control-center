@@ -81,7 +81,7 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
-  X2GoClient::Instance().add_session(cont, CSettingsManager::Instance().ssh_user(), key);
+  X2GoClient::Instance().add_session(cont, "x2go", key);
 
   system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id());
 
