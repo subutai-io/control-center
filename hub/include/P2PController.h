@@ -10,7 +10,6 @@ class SwarmConnector : public QObject{
 Q_OBJECT
 private:
   QString swarm_hash, swarm_key;
-  QThread *m_th;
 
 public:
   SwarmConnector(QString swarm_hash, QString swarm_key);
@@ -27,7 +26,6 @@ class SwarmLeaver : public QObject{
 Q_OBJECT
 private:
   QString swarm_hash, swarm_key;
-  QThread *m_th;
 
 public:
   SwarmLeaver(QString swarm_hash, QString swarm_key);
@@ -48,7 +46,6 @@ class HandshakeSender : public QObject {
 Q_OBJECT
 private:
   std::vector<CEnvironment> m_envs;
-  QThread *m_th;
 
 public:
   HandshakeSender(const std::vector <CEnvironment> envs);
@@ -71,7 +68,8 @@ class P2PController : public QObject
 {
   Q_OBJECT
 private:
-  QTimer m_handshake_timer;
+  QTimer* m_handshake_timer;
+  QTimer* m_join_to_swarm_timer;
 
 public:
  P2PController();

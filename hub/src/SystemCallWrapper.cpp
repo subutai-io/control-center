@@ -490,7 +490,6 @@ system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
         const QString &port) {
   run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
                                                     (uint16_t)port.toInt(), 3000);
-
   system_call_wrapper_error_t res = SCWE_SUCCESS;
 
   if (exit_code != RLE_SUCCESS) {

@@ -16,7 +16,6 @@
 #include "P2PController.h"
 #include "X2GoClient.h"
 
-
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
 

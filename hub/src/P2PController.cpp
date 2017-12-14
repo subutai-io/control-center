@@ -1,41 +1,28 @@
 #include "P2PController.h"
 #include <QThread>
 #include "Locker.h"
-
-static SynchroPrimitives::CriticalSection handshake_cs;
+#include <QDebug>
 
 
 
 /////////////////////////////////////////////////////////////////////////
 
 SwarmConnector::~SwarmConnector() {
-  m_th->quit();
+  qDebug() << QString("SwarmConnector desctructor");
 }
 
 SwarmLeaver::~SwarmLeaver() {
-  m_th->quit();
+  qDebug() << QString("SwarmLeaver desctructor");
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 SwarmConnector::SwarmConnector(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash) , swarm_key(swarm_key) {
-  m_th = new QThread;
-  connect(m_th, &QThread::started, this, &SwarmConnector::join_to_swarm_begin);
-  connect(this, &SwarmConnector::join_to_swarm_finished, m_th, &QThread::quit);
-  connect(m_th, &QThread::finished, this, &SwarmConnector::deleteLater);
-  connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
-  moveToThread(m_th);
-  m_th->start();
+  qDebug() << QString("SwarmConnector with hash: %1 and key: %2").arg(swarm_hash).arg(swarm_key);
 }
 
 SwarmLeaver::SwarmLeaver(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash), swarm_key(swarm_key) {
-  m_th = new QThread;
-  connect(m_th, &QThread::started, this, &SwarmLeaver::leave_swarm_begin);
-  connect(this, &SwarmLeaver::leave_swarm_finished, m_th, &QThread::quit);
-  connect(m_th, &QThread::finished, this, &SwarmConnector::deleteLater);
-  connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
-  moveToThread(m_th);
-  m_th->start();
+  qDebug() << QString("SwarmLeaver with hash: %1 and key: %2").arg(swarm_hash).arg(swarm_key);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -74,6 +61,8 @@ void SwarmLeaver::leave_swarm_begin() {
 /////////////////////////////////////////////////////////////////////////
 
 void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContainer &cont) {
+  qDebug() << QString("Trying to handshake with cont: %1 and env: %2").arg(cont.name()).arg(env.name());
+
   system_call_wrapper_error_t err =
       CSystemCallWrapper::check_container_state(env.hash(), cont.rh_ip());
 
@@ -104,7 +93,6 @@ void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContai
 }
 
 void HandshakeSender::send_handshakes(){
-  SynchroPrimitives::Locker lock(&handshake_cs); // locker for threads
   for (CEnvironment &env : m_envs) {
     for (CHubContainer cont : env.containers()) {
       try_to_handshake(env, cont);
@@ -115,29 +103,27 @@ void HandshakeSender::send_handshakes(){
 
 
 HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(envs) {
-  m_th = new QThread;
-  connect(m_th, &QThread::started, this, &HandshakeSender::send_handshakes);
-  connect(this, &HandshakeSender::sent_handshakes_succsessfully, m_th, &QThread::quit);
-  connect(m_th, &QThread::finished, this, &HandshakeSender::deleteLater);
-  connect(m_th, &QThread::finished, m_th, &QThread::deleteLater);
-  moveToThread(m_th);
-  m_th->start();
+  qDebug() << "Handshake Sender with envs";
+  send_handshakes();
 }
 
-HandshakeSender::~HandshakeSender(){
- m_th->quit();
-}
-
+HandshakeSender::~HandshakeSender() {}
 /////////////////////////////////////////////////////////////////////////
 
 
 P2PController::P2PController() {
-  QTimer *join_to_swarm_timer = new QTimer(this);
-  connect(&EnvironmentState::Instance(), &EnvironmentState::environemts_state_updated,
-          this, &P2PController::update_handshake_status);
-  connect(join_to_swarm_timer, &QTimer::timeout,
+  qDebug("P2PController is initialized");
+
+  m_join_to_swarm_timer = new QTimer(this);
+  m_handshake_timer = new QTimer(this);
+
+  connect(m_join_to_swarm_timer, &QTimer::timeout,
           this, &P2PController::update_join_swarm_status);
-  join_to_swarm_timer->start(1000 * 60 * 2); // 4 minutes
+  connect(m_handshake_timer, &QTimer::timeout,
+          this, &P2PController::update_handshake_status);
+
+  m_join_to_swarm_timer->start(1000 * 60 * 3); // 3 minutes
+  m_handshake_timer->start(1000 * 60 * 1); // 1 minute
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -147,9 +133,18 @@ void P2PController::joined_swarm(QString hash) {
 }
 
 void P2PController::join_swarm(const CEnvironment &env) {
-  SwarmConnector *connector = new SwarmConnector(env.hash(), env.key());
+  SwarmConnector* connector = new SwarmConnector(env.hash(), env.key());
+  QThread* thread = new QThread();
+  connector->moveToThread(thread);
+
+  connect(thread, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
   connect(connector, &SwarmConnector::successfully_joined_swarm,
           this, &P2PController::joined_swarm);
+  connect(connector, &SwarmConnector::join_to_swarm_finished, thread, &QThread::quit);
+  connect(thread, &QThread::finished, connector, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+  thread->start();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -160,8 +155,17 @@ void P2PController::left_swarm(QString hash) {
 
 void P2PController::leave_swarm(const CEnvironment &env) {
   SwarmLeaver *leaver = new SwarmLeaver(env.hash(), env.key());
+  QThread* thread = new QThread();
+  leaver->moveToThread(thread);
+
+  connect(thread, &QThread::started, leaver, &SwarmLeaver::leave_swarm_begin);
   connect(leaver, &SwarmLeaver::successfully_left_swarm,
           this, &P2PController::left_swarm);
+  connect(leaver, &SwarmLeaver::leave_swarm_finished, thread, &QThread::quit);
+  connect(thread, &QThread::finished, leaver, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+  thread->start();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -206,6 +210,7 @@ std::vector<CEnvironment> P2PController::get_joined_envs(){
 
 void P2PController::update_leave_swarm_status(){
   std::vector<CEnvironment> disconnected_envs = EnvironmentState::Instance().disconnected_envs();
+  qDebug() << "disconnected envs: ";
   for (CEnvironment &env : disconnected_envs) {
     if (join_swarm_success(env.hash()))
       leave_swarm(env);
@@ -214,6 +219,7 @@ void P2PController::update_leave_swarm_status(){
 
 void P2PController::update_join_swarm_status(){
   std::vector<CEnvironment> current_envs = EnvironmentState::Instance().last_updated_envs(); // last_updated_envs stores both envs that are freshly builded and not old not deleted envs
+  qDebug() << "Current envs";
   for (CEnvironment &env : current_envs) {
     if (!join_swarm_success(env.hash()))
       join_swarm(env);
@@ -223,6 +229,8 @@ void P2PController::update_join_swarm_status(){
 /////////////////////////////////////////////////////////////////////////
 
 void P2PController::update_handshake_status() {
+  qDebug() << "Trying to handshake";
+
   if (!EnvironmentState::Instance().connected_envs().empty()) {
     update_join_swarm_status();
   }
@@ -231,12 +239,24 @@ void P2PController::update_handshake_status() {
     update_leave_swarm_status();
   }
 
-  HandshakeSender *handshake_sender = new HandshakeSender(get_joined_envs());
-  connect(handshake_sender, &HandshakeSender::handshake_success,
-          this, &P2PController::handshaked);
-  connect(handshake_sender, &HandshakeSender::handshake_failure,
-          this, &P2PController::handshake_failed);
+  std::vector<CEnvironment> envs = get_joined_envs();
+  if (!envs.empty()) {
+      QThread* thread = new QThread();
+      HandshakeSender* handshake_sender = new HandshakeSender(get_joined_envs());
+      handshake_sender->moveToThread(thread);
 
+      connect(thread, &QThread::started, handshake_sender, &HandshakeSender::send_handshakes);
+      connect(handshake_sender, &HandshakeSender::handshake_success,
+              this, &P2PController::handshaked);
+      connect(handshake_sender, &HandshakeSender::handshake_failure,
+              this, &P2PController::handshake_failed);
+      connect(handshake_sender, &HandshakeSender::sent_handshakes_succsessfully, thread, &QThread::quit);
+      connect(handshake_sender, &HandshakeSender::handshake_failure, thread, &QThread::quit);
+      connect(thread, &QThread::finished, handshake_sender, &HandshakeSender::deleteLater);
+      connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
+      thread->start();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////

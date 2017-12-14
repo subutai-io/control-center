@@ -125,34 +125,32 @@ static QString settings_file_path() {
 
   return QApplication::applicationDirPath() + QDir::separator() + settings_file;
 }
+////////////////////////////////////////////////////////////////////////////
 
+static QString subutai_path() {
+    QStringList lst_home =
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (!lst_home.empty()) {
+      QString home_folder = lst_home[0];
 
-static QString x2goclient_config_file() {
-  static const QString settings_file = "subutai_tray.ini";
-  QStringList lst_config=
-      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
-  do {
-    if (lst_config.empty())
-      break;
+      QString dir_path = home_folder + QDir::separator() + QString(".subutai");
+      QDir dir_subutai(dir_path); // create .subutai directory
+      if (!dir_subutai.exists()) {
+        if (!dir_subutai.mkdir(dir_path)) {
+          qCritical("Can't create home .subutai directory.");
+        }
+      }
 
-    QString dir_path = lst_config[0] + QDir::separator() + "subutai";
-    QDir dir_config(dir_path);
-    if (!dir_config.exists()) {
-      if (!dir_config.mkdir(dir_path)) {
-        //todo log this
-        break;
+      dir_path = dir_path + QDir::separator() + QString("tray");
+      QDir dir_tray(dir_path);
+      if (!dir_tray.exists()) {
+        if (!dir_tray.mkdir(dir_path)) {
+          qCritical("Can't create home tray directory.");
+        }
       }
     }
 
-    QFileInfo fi(dir_path);
-    if (!fi.isWritable()) {
-      //todo log this
-      break;
-    }
-    return dir_path + QDir::separator() + settings_file;
-  } while (false);
-
-  return QApplication::applicationDirPath() + QDir::separator() + settings_file;
+  return QDir::homePath() +QDir::separator() + QString(".subutai") + QDir::separator() + QString("tray");
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -172,7 +170,7 @@ CSettingsManager::CSettingsManager()
       m_rh_pass("ubuntai"),
       m_rh_port(4567),
 
-      m_logs_storage(QApplication::applicationDirPath()),
+      m_logs_storage(subutai_path()),
       m_ssh_keys_storage(QApplication::applicationDirPath()),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
