@@ -139,13 +139,6 @@ main(int argc, char *argv[]) {
 
       P2PController::Instance().init();
 
-      if (!CSystemCallWrapper::x2goclient_check()) {
-        CNotificationObserver::Error("hello maaan", DlgNotification::N_SETTINGS);
-      }
-      else {
-          CNotificationObserver::Error("great maaan", DlgNotification::N_SETTINGS);
-
-      }
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
