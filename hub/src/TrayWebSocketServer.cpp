@@ -108,14 +108,7 @@ CTrayServer::handle_desktop(const QString &msg,
     pClient->sendTextMessage(response);
     return;
   }
-
-  QString response = QString("code:%1%%%error==%2%%%success==%3")
-                     .arg(SDLE_SUCCESS)
-                     .arg(QString("TODO X2GO"))
-                     .arg("");
-  pClient->sendTextMessage(response);
-  // TODO open x2goclient
-  qDebug() << "TODO open X2GO client.";
+  CHubController::Instance().desktop_to_container_str(args[1], args[2], (void*)pClient);
 }
 ////////////////////////////////////////////////////////////////////////////
 
