@@ -241,6 +241,7 @@ class CSettingsManager : public QObject {
   void set_rh_management_freq(int fr);
   void set_locale(int fr);
   void set_p2p_path(QString fr);
+  void set_x2goclient_path(QString fr);
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;

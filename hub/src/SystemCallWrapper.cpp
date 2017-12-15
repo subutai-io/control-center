@@ -728,11 +728,7 @@ bool CSystemCallWrapper::p2p_daemon_check() {
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::x2goclient_check() {
-  QString cmd = CSettingsManager::Instance().x2goclient();
-  QStringList args;
-  args << "--version";
-  system_call_res_t cr = ssystem_th(cmd, args, true, true, 5000);
-  return !(cr.exit_code || cr.res);
+  return CCommons::IsApplicationLaunchable(CSettingsManager::Instance().x2goclient());
 }
 
 ////////////////////////////////////////////////////////////////////////////
