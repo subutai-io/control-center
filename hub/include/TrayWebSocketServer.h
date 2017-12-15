@@ -35,6 +35,7 @@ private slots:
   void socket_disconnected();
 public slots:
   void ssh_to_container_finished(int result, void* additional_data);
+  void desktop_to_container_finished(int result, void* additional_data);
 
 public slots:
 public:

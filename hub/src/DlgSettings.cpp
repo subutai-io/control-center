@@ -68,6 +68,8 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_notification_delay->setValue(
         CSettingsManager::Instance().notification_delay_sec());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
+  ui->le_x2goclient_command->setText(CSettingsManager::Instance().x2goclient());
+
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
   ui->le_rhip_password->setText(CSettingsManager::Instance().rh_pass());
@@ -170,6 +172,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
+  connect(ui->btn_x2goclient_command, &QPushButton::released, this,
+          &DlgSettings::btn_x2goclient_command_released);
   connect(ui->btn_ssh_keygen_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_keygen_command_released);
   connect(ui->btn_logs_storage, &QPushButton::released, this,
@@ -257,7 +261,7 @@ void DlgSettings::btn_ok_released() {
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
                      ui->le_p2p_command,   ui->le_ssh_command,
-                     ui->le_rtm_db_folder, ui->le_vboxmanage_command};
+                     ui->le_rtm_db_folder, ui->le_vboxmanage_command, ui->le_x2goclient_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
@@ -295,6 +299,10 @@ void DlgSettings::btn_ok_released() {
     {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
      can_launch_application_msg},
+
+    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, can_launch_application, 1, can_launch_application_msg},
+
 
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_terminal, 1,
@@ -439,6 +447,12 @@ void DlgSettings::btn_ssh_command_released() {
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
 }
+void DlgSettings::btn_x2goclient_command_released() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("x2goclient command"));
+  if (fn == "") return;
+  ui->le_x2goclient_command->setText(fn);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ssh_keygen_command_released() {
