@@ -74,17 +74,4 @@ if [ ! -e $settings_file ]; then
 fi
 
 echo "P2P_Path=$p2p_path" >> $settings_file
-
-
-
-
-
-sudo apt-get update
-sudo apt-get install python-software-properties
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:x2go/stable
-sudo apt-get update
-sudo apt-get install x2goclient
-sudo aptitude install x2goclient
-
 	

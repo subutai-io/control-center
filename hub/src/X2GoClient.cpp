@@ -1,4 +1,5 @@
 #include "X2GoClient.h"
+#include "HubController.h"
 
 QString X2GoClient::x2goclient_config_path() {
   static const QString config_file = "x2goclient_session.ini";
@@ -33,7 +34,7 @@ X2GoClient::X2GoClient(QObject *parent) :
 {
 
 }
-#include "HubController.h"
+
 void X2GoClient::add_session(const CHubContainer *cont, QString username, QString key) {
   m_settings.beginGroup(cont->id());
 
