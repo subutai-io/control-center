@@ -140,8 +140,8 @@ public:
 
 
   void desktop_to_container_str(const QString &env_id,
-                                            const QString &cont_id,
-                                            void *additional_data);
+                                const QString &cont_id,
+                                void *additional_data);
 
   QString get_env_key(QString env_id);
 
