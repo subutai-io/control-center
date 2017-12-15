@@ -269,6 +269,27 @@ const QString &
 default_terminal() {
   return default_terminal_temp_internal<Os2Type<CURRENT_OS> >();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_x2goclient_path_internal();
+
+#define default_x2goclient_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_x2goclient_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_x2goclient_path_internal_def(OS_LINUX, "x2goclient")
+default_x2goclient_path_internal_def(OS_MAC, "x2goclient")
+default_x2goclient_path_internal_def(OS_WIN, "x2goclient")
+
+const QString &
+default_x2goclient_path() {
+  return default_x2goclient_path_internal<Os2Type<CURRENT_OS> >();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS> const QString& default_term_arg_temp_internal();
@@ -466,6 +487,12 @@ p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subut.ai:8338/kurjun
 const QString &
 p2p_package_url() {
   return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+
+const QString &
+x2goclient_url() {
+  static QString url = "https://wiki.x2go.org/doku.php/doc:installation:x2goclient";
+  return url;
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -146,6 +146,7 @@ main(int argc, char *argv[]) {
                                     arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
       }
 
+
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {

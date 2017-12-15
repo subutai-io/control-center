@@ -20,6 +20,9 @@ CTrayServer::CTrayServer(quint16 port,
             this, &CTrayServer::on_new_connection);
     connect(&CHubController::Instance(), &CHubController::ssh_to_container_str_finished,
             this, &CTrayServer::ssh_to_container_finished);
+    connect(&CHubController::Instance(), &CHubController::desktop_to_container_str_finished,
+            this, &CTrayServer::desktop_to_container_finished);
+
   } else {
     QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
                       arg(port).arg(m_web_socket_server->errorString());
@@ -82,7 +85,7 @@ CTrayServer::handle_ssh(const QString &msg,
   QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
   if (args.count() != 3) {
     QString response = QString("code:%1%%%error==%2%%%success==%3")
-                       .arg(SLE_LAST_ERR+1)
+                       .arg(SDLE_LAST_ERR+1)
                        .arg(QString("Wrong command \"%1\"").arg(msg))
                        .arg("");
     pClient->sendTextMessage(response);
@@ -99,19 +102,13 @@ CTrayServer::handle_desktop(const QString &msg,
   QStringList args = msg.mid(index_of - 1 + 11, -1).split("%%%");
   if (args.count() != 3) {
     QString response = QString("code:%1%%%error==%2%%%success==%3")
-                       .arg(SLE_LAST_ERR+1)
+                       .arg(SDLE_LAST_ERR+1)
                        .arg(QString("Wrong command \"%1\"").arg(msg))
                        .arg("");
     pClient->sendTextMessage(response);
     return;
   }
-  QString response = QString("code:%1%%%error==%2%%%success==%3")
-                     .arg(SLE_SUCCESS)
-                     .arg(QString("TODO X2GO"))
-                     .arg("");
-  pClient->sendTextMessage(response);
-  // TODO open x2goclient
-  qDebug() << "TODO open X2GO client.";
+  CHubController::Instance().desktop_to_container_str(args[1], args[2], (void*)pClient);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -119,7 +116,7 @@ void
 CTrayServer::handle_wrong_command(const QString &msg,
                                        QWebSocket *pClient) {
   QString response = QString("code:%1%%%error==%2%%%success==%3")
-                     .arg(SLE_LAST_ERR+1)
+                     .arg(SDLE_LAST_ERR+1)
                      .arg(QString("Unknown command \"%1\"").arg(msg))
                      .arg("");
   pClient->sendTextMessage(response);
@@ -183,12 +180,27 @@ CTrayServer::ssh_to_container_finished(int result,
                                        void *additional_data) {
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
-                     .arg(result==SLE_SUCCESS ? "" : CHubController::ssh_launch_err_to_str(result))
-                     .arg(result==SLE_SUCCESS ? CHubController::ssh_launch_err_to_str(result) : "");
+                     .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))
+                     .arg(result==SDLE_SUCCESS ? CHubController::ssh_desktop_launch_err_to_str(result) : "");
   QWebSocket *pClient = static_cast<QWebSocket*>(additional_data);
   if (!pClient) return;
   pClient->sendTextMessage(responce);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void
+CTrayServer::desktop_to_container_finished(int result,
+                                       void *additional_data) {
+  QString responce = QString("code:%1%%%error==%2%%%success==%3")
+                     .arg(result)
+                     .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))
+                     .arg(result==SDLE_SUCCESS ? CHubController::ssh_desktop_launch_err_to_str(result) : "");
+  QWebSocket *pClient = static_cast<QWebSocket*>(additional_data);
+  if (!pClient) return;
+  pClient->sendTextMessage(responce);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 CTrayServer*
