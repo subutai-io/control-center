@@ -491,7 +491,8 @@ p2p_package_url() {
 
 const QString &
 x2goclient_url() {
-  return "https://wiki.x2go.org/doku.php/doc:installation:x2goclient";
+  static QString url = "https://wiki.x2go.org/doku.php/doc:installation:x2goclient";
+  return url;
 }
 ////////////////////////////////////////////////////////////////////////////
 

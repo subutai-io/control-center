@@ -377,6 +377,8 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(
         ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
+  CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
+
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_vboxmanage_path(
         ui->le_vboxmanage_command->text());
