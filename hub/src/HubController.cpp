@@ -265,9 +265,11 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
 
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
+
     m_lst_environments_internal = std::move(lst_environments);
     m_lst_environments.erase(m_lst_environments.begin(),
                              m_lst_environments.end());
+
     for (auto env = m_lst_environments_internal.cbegin();
          env != m_lst_environments_internal.cend(); ++env) {
       m_lst_environments.push_back(

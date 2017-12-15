@@ -187,7 +187,7 @@ void P2PController::update_join_swarm_status(){
   qDebug() << "Healthy envs not joined to swarm: " << current_envs.size();
   qDebug() << "All envs count: "<< (CHubController::Instance().lst_environments()).size();
 
-  if (current_envs.empty()){
+  if (!current_envs.empty()){
     for (CEnvironment env : current_envs) {
       join_swarm(env);
     }
