@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <libssh2.h>
 #include <Commons.h>
+#include <QDebug>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -178,18 +179,18 @@ send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {
   connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
   rc = wait_socket_connected(sock, conn_timeout);
 
-  if (rc == 0) {
-    return RLE_CONNECTION_TIMEOUT;
-  }
-  else if (rc == SOCKET_ERROR) {
-    return RLE_CONNECTION_ERROR;
-  }
   #ifdef _WIN32
     closesocket(sock);
   #else
     close(sock);
   #endif
 
+  if (rc == 0) {
+    return RLE_CONNECTION_TIMEOUT;
+  }
+  else if (rc == SOCKET_ERROR) {
+    return RLE_CONNECTION_ERROR;
+  }
   return RLE_SUCCESS;
 }
 
@@ -363,7 +364,9 @@ CLibsshController::run_ssh_command_key_auth(const char *host,
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, key_pub_authentication, &arg);
 }
+
 run_libssh2_error CLibsshController::send_handshake(const char *str_host, uint16_t port, int conn_timeout) {
-  return send_handshake_internal(str_host, port, conn_timeout);
+    return send_handshake_internal(str_host, port, conn_timeout);
 }
+
 ////////////////////////////////////////////////////////////////////////////
