@@ -396,7 +396,7 @@ void CHubController::desktop_to_container_str(const QString &env_id,
   env = res.first;
   cont = res.second;
 
-  desktop_to_container_internal(env, cont, additional_data, desktop_to_cont);
+  desktop_to_container_internal(env, cont, additional_data, desktop_to_cont_str);
 }
 
 ////////////////////////////////////////////////////////////////////////////
