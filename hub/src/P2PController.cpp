@@ -79,6 +79,7 @@ HandshakeSender::~HandshakeSender() {}
 /////////////////////////////////////////////////////////////////////////
 
 P2PController::~P2PController() {
+  qDebug("P2PController desctructor");
   if (!envs_joined_swarm_hash.empty() && CSystemCallWrapper::p2p_daemon_check()) {
     for (auto env_hash : envs_joined_swarm_hash) {
       system_call_wrapper_error_t res = CSystemCallWrapper::leave_p2p_swarm(env_hash);
@@ -236,6 +237,7 @@ int P2PController::get_container_status(const CEnvironment *env,
 
   if (!P2PController::Instance().handshake_success(env->id(), cont->id()))
     return (int) SDLE_CONT_NOT_READY;
+
 
   return (int) SDLE_SUCCESS;
 }

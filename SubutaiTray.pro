@@ -101,7 +101,7 @@ HEADERS  += \
     commons/include/LanguageController.h \
     hub/include/DlgEnvironment.h \
     hub/include/P2PController.h \
-    hub/src/X2GoClient.h
+    hub/include/X2GoClient.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \

@@ -145,7 +145,7 @@ public:
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
   const QString& status() const {return m_status;}
   const QString& status_description() const {return m_status_descr;}
-  bool healthy() const {return m_status == "HEALTHY";}
+  bool healthy() const {return m_status == QString("HEALTHY");}
 };
 ////////////////////////////////////////////////////////////////////////////
 
