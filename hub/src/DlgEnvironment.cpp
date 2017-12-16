@@ -42,10 +42,6 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
 void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont) {
   btn_ssh->setEnabled(false);
   btn_desktop->setEnabled(false);
-  if (env == NULL) {
-      CNotificationObserver::Error("Wowo env is error", DlgNotification::N_ABOUT);
-      return;
-  }
 
   if (!env->healthy()) {
     btn_ssh->setToolTip("Environment is unhealthy.");
