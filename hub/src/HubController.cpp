@@ -320,6 +320,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
 
     m_lst_healthy_environments.erase(m_lst_healthy_environments.begin(),
                                      m_lst_healthy_environments.end());
+
     std::copy_if(m_lst_environments.begin(), m_lst_environments.end(),
                  std::back_inserter(m_lst_healthy_environments),
                  [](const CEnvironment &env) { return env.healthy(); });
