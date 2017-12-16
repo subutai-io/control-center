@@ -48,12 +48,12 @@ void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop
     btn_desktop->setToolTip("Environment is unhealhty.");
   }
   else
-  if(!P2PController::Instance().join_swarm_success(env->hash())) {
+  if(!env || !P2PController::Instance().join_swarm_success(env->hash())) {
     btn_ssh->setToolTip("The connection with environment is not established.");
     btn_desktop->setToolTip("The connection with environment is not established.");
   }
   else
-  if (!P2PController::Instance().handshake_success(env->id(), cont->id())) {
+  if (!cont || !P2PController::Instance().handshake_success(env->id(), cont->id())) {
     btn_ssh->setToolTip("Container is not ready.");  
     btn_desktop->setToolTip("Container is not ready.");
   }
@@ -91,9 +91,11 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
   QTimer *timer = new QTimer(this);
 
+  CEnvironment copy_env = *env;
+  CHubContainer copy_cont = *cont;
 
-  connect(timer, &QTimer::timeout, [btn_ssh, btn_desktop, env, cont, this](){
-    this->check_status(btn_ssh, btn_desktop, env, cont);
+  connect(timer, &QTimer::timeout, [btn_ssh, btn_desktop, copy_env, copy_cont, this](){
+    this->check_status(btn_ssh, btn_desktop, &copy_env, &copy_cont);
   });
 
   check_status(btn_ssh, btn_desktop, env, cont);
@@ -101,14 +103,14 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 
-  connect(btn_ssh, &QPushButton::clicked, [this, env, cont, btn_ssh](){
-    emit this->ssh_to_container_sig(env, cont, (void *)btn_ssh);
+  connect(btn_ssh, &QPushButton::clicked, [this, copy_env, copy_cont, btn_ssh](){
+    emit this->ssh_to_container_sig(&copy_env, &copy_cont, (void *)btn_ssh);
   });
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
 
-  connect(btn_desktop, &QPushButton::clicked, [this, env, cont, btn_desktop](){
-    emit this->desktop_to_container_sig(env, cont, (void *)btn_desktop);
+  connect(btn_desktop, &QPushButton::clicked, [this, copy_env, copy_cont, btn_desktop](){
+    emit this->desktop_to_container_sig(&copy_env, &copy_cont, (void *)btn_desktop);
   });
 }
 
