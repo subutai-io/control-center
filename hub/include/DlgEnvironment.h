@@ -18,7 +18,7 @@ public:
   void addContainer(const CHubContainer *cont);
   void addEnvironment(const CEnvironment *env);
   void addRemoteAccess(const CEnvironment *env, const CHubContainer *cont);
-  void check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont);
+  void check_status(QPushButton *btn_ssh, const CEnvironment *env, const CHubContainer *cont);
   void button_enhancement(QPushButton *btn);
 
   ~DlgEnvironment();

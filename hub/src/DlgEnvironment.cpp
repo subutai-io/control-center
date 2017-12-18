@@ -8,13 +8,14 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui(new Ui::DlgEnvironment)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
-  for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++){
+  for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++) {
     addContainer(&(*cont));
     addRemoteAccess(env, &(*cont));
   }
@@ -24,7 +25,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
 /////////////////////////////////////////////////////////////////////////
 
 
-void DlgEnvironment::addContainer(const CHubContainer *cont){
+void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_name = new QLabel(cont->name(), this);
   QLabel *cont_ip = new QLabel(cont->ip(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
@@ -39,41 +40,39 @@ void DlgEnvironment::addContainer(const CHubContainer *cont){
   ui->cont_rhip->addWidget(cont_rhip_port);
 }
 
-void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont) {
+void DlgEnvironment::check_status(QPushButton *btn_ssh, const CEnvironment *env, const CHubContainer *cont) {
   btn_ssh->setEnabled(false);
-  btn_desktop->setEnabled(false);
+  //btn_desktop->setEnabled(false);
 
   if (!env->healthy()) {
     btn_ssh->setToolTip("Environment is unhealthy.");
-    btn_desktop->setToolTip("Environment is unhealhty.");
+    //btn_desktop->setToolTip("Environment is unhealhty.");
   }
   else
   if(!env || !P2PController::Instance().join_swarm_success(env->hash())) {
     btn_ssh->setToolTip("The connection with environment is not established.");
-    btn_desktop->setToolTip("The connection with environment is not established.");
+    //btn_desktop->setToolTip("The connection with environment is not established.");
   }
   else
   if (!cont || !P2PController::Instance().handshake_success(env->id(), cont->id())) {
     btn_ssh->setToolTip("Container is not ready.");  
-    btn_desktop->setToolTip("Container is not ready.");
+    //btn_desktop->setToolTip("Container is not ready.");
   }
   else {
     btn_ssh->setToolTip("Press this button to ez-ssh to container.");
-    btn_desktop->setToolTip("Press this button to ez-desktop to container.");
+    //btn_desktop->setToolTip("Press this button to ez-desktop to container.");
     btn_ssh->setEnabled(true);
-    btn_desktop->setEnabled(true);
+    //btn_desktop->setEnabled(true);
   }
 
-  if (!cont->is_desktop()) {
+  /*if (!cont->is_desktop()) {
     btn_desktop->setToolTip("Container doesn't have desktop.");
     btn_desktop->setEnabled(false);
-  }
+  }*/
 }
 
 void DlgEnvironment::button_enhancement(QPushButton *btn) {
-  QFont *font = new QFont();
-  font->setPointSize(5);
-  btn->setMaximumHeight(18);
+  QFont *font = new QFont("Arial", 10, QFont::AllUppercase);
   btn->setFont(*font);
 }
 
@@ -81,12 +80,12 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 {
 
   QPushButton* btn_ssh = new QPushButton("SSH", this);
-  QPushButton* btn_desktop = new QPushButton("DESKTOP", this);
+  //QPushButton* btn_desktop = new QPushButton("DESKTOP", this);
 
   button_enhancement(btn_ssh);
-  button_enhancement(btn_desktop);
+  //button_enhancement(btn_desktop);
 
-  ui->cont_remote->addRow(btn_ssh, btn_desktop);
+  ui->cont_remote->addRow(btn_ssh);
 
 
   QTimer *timer = new QTimer(this);
@@ -94,11 +93,11 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   CEnvironment copy_env = *env;
   CHubContainer copy_cont = *cont;
 
-  connect(timer, &QTimer::timeout, [btn_ssh, btn_desktop, copy_env, copy_cont, this](){
-    this->check_status(btn_ssh, btn_desktop, &copy_env, &copy_cont);
+  connect(timer, &QTimer::timeout, [btn_ssh, copy_env, copy_cont, this](){
+    this->check_status(btn_ssh, &copy_env, &copy_cont);
   });
 
-  check_status(btn_ssh, btn_desktop, env, cont);
+  check_status(btn_ssh, env, cont);
   timer->start(10000);
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
@@ -107,11 +106,11 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
     emit this->ssh_to_container_sig(&copy_env, &copy_cont, (void *)btn_ssh);
   });
 
-  connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
+  /*connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
 
   connect(btn_desktop, &QPushButton::clicked, [this, copy_env, copy_cont, btn_desktop](){
     emit this->desktop_to_container_sig(&copy_env, &copy_cont, (void *)btn_desktop);
-  });
+  });*/
 }
 
 ////////////////////////////////////////////////////////////////////////////
