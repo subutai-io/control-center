@@ -94,7 +94,7 @@
    <item row="2" column="3">
     <layout class="QFormLayout" name="cont_remote"/>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="3" column="3">
     <widget class="QPushButton" name="btn_ssh_all">
      <property name="maximumSize">
       <size>
@@ -102,21 +102,14 @@
        <height>10777215</height>
       </size>
      </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
      <property name="text">
       <string>EZ-SSH All</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2" colspan="2">
-    <widget class="QPushButton" name="btn_desktop_all">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>10777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>EZ-DESKTOP All</string>
      </property>
     </widget>
    </item>
