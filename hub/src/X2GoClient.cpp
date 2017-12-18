@@ -44,6 +44,7 @@ void X2GoClient::add_session(const CHubContainer *cont, QString username, QStrin
   m_settings.setValue("sshport", cont->port());
   m_settings.setValue("user", username);
   m_settings.setValue("key", key);
+  m_settings.setValue("command", cont->desk_env());
 
   m_settings.setValue("usesshproxy", false);
   m_settings.setValue("sshproxytype", "SSH");
@@ -55,7 +56,6 @@ void X2GoClient::add_session(const CHubContainer *cont, QString username, QStrin
 
   // static parameters
   m_settings.setValue("autologin", true);
-  m_settings.setValue("command", "MATE");
   m_settings.setValue("speed", 2);
   m_settings.setValue("quality", 9);
   m_settings.setValue("fstunnel", true);
