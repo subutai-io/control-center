@@ -17,6 +17,7 @@
 #include "SettingsManager.h"
 #include "VBoxManager.h"
 #include "LibsshController.h"
+#include "X2GoClient.h"
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -88,7 +89,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
-  args << "show";
+  args << "show"; // need to change
   system_call_res_t res = ssystem_th(cmd, args, true, true);
 
   // qInfo("is_in_swarm %s show %s", cmd.toStdString().c_str(), hash.toStdString().c_str());
@@ -466,18 +467,34 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QString &session_id) {
+  QString session_file_path = X2GoClient::x2goclient_config_path();
+  QString cmd = CSettingsManager::Instance().x2goclient();
+  QStringList lst_args;
+  lst_args
+      << QString("--session-conf=%1").arg(session_file_path)
+      << QString("--sessionid=%1").arg(session_id)
+      << "--hide"
+      << "--no-menu"
+      << "--thinclient";
+
+  return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
+                                            : SCWE_SSH_LAUNCH_FAILED;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
         const QString &ip,
         const QString &port) {
   run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
-                                                    (uint16_t)port.toInt(), 3000);
+                                                    (uint16_t)port.toInt(), 30); // last parameter is timeout in sec
   system_call_wrapper_error_t res = SCWE_SUCCESS;
 
   if (exit_code != RLE_SUCCESS) {
     res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical() << "Couldn't successfully handshake. Err : " << scwe_error_to_str(res);
+    qCritical() << "Couldn't successfully handshake. Err : " << CLibsshController::run_libssh2_error_to_str(exit_code);
   }
   return res;
 }
@@ -710,6 +727,16 @@ bool CSystemCallWrapper::p2p_daemon_check() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+bool CSystemCallWrapper::x2goclient_check() {
+  return CCommons::IsApplicationLaunchable(CSettingsManager::Instance().x2goclient());
+}
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief CSystemCallWrapper::which
+/// \param prog
+/// \param path
+/// \return
+///
 system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
                                                       QString &path) {
   static int success_ec = 0;

@@ -176,11 +176,15 @@ private slots:
   void balance_updated_sl();
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
-  void hub_container_mi_triggered_ssh(const CEnvironment *env,
+
+  void ssh_to_container_triggered(const CEnvironment *env,
+                                      const CHubContainer *cont, void *action);
+  void desktop_to_container_triggered(const CEnvironment *env,
                                       const CHubContainer *cont, void *action);
 
   void ssh_key_generate_triggered();
   void ssh_to_container_finished(int result, void* additional_data);
+  void desktop_to_container_finished(int result, void* additional_data);
 
   /*updater*/
   void update_available(QString file_id);

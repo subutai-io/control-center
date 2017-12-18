@@ -19,6 +19,8 @@ public:
   void addEnvironment(const CEnvironment *env);
   void addRemoteAccess(const CEnvironment *env, const CHubContainer *cont);
   void check_status(QPushButton *btn_ssh, const CEnvironment *env, const CHubContainer *cont);
+  void button_enhancement(QPushButton *btn);
+
   ~DlgEnvironment();
 
 private:
@@ -26,6 +28,7 @@ private:
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
+    void desktop_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
 };
 
 #endif // DLGENVIRONMENT_H

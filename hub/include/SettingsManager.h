@@ -18,6 +18,7 @@ class CSettingsManager : public QObject {
   static const QString SM_REMEMBER_ME;
   static const QString SM_REFRESH_TIME;
   static const QString SM_P2P_PATH;
+  static const QString SM_X2GOCLIENT_PATH;
   static const QString SM_NOTIFICATION_DELAY_SEC;
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
@@ -101,7 +102,9 @@ class CSettingsManager : public QObject {
   QString m_rtm_db_dir;
 
   QString m_terminal_cmd;
+  QString m_x2goclient;
   QString m_terminal_arg;
+
 
   QString m_vboxmanage_path;
   QMap<QString, QVariant> m_dct_notification_ignore;
@@ -203,6 +206,7 @@ class CSettingsManager : public QObject {
 
   // osascript for macOS . don't ask. don't change :(
   const QString& terminal_cmd() const { return m_terminal_cmd; }
+  const QString& x2goclient() const { return m_x2goclient; }
   const QString& terminal_arg() const { return m_terminal_arg; }
 
   const QString& vboxmanage_path() const { return m_vboxmanage_path; }
@@ -237,6 +241,7 @@ class CSettingsManager : public QObject {
   void set_rh_management_freq(int fr);
   void set_locale(int fr);
   void set_p2p_path(QString fr);
+  void set_x2goclient_path(QString fr);
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;
