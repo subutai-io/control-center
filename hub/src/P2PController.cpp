@@ -2,6 +2,7 @@
 #include <QThread>
 #include "Locker.h"
 #include <QDebug>
+#include <QtConcurrent/QtConcurrent>
 
 
 
@@ -22,8 +23,11 @@ SwarmConnector::SwarmConnector(const CEnvironment &_env) : env(_env) {
 }
 
 void SwarmConnector::join_to_swarm_begin() {
-  system_call_wrapper_error_t res = CSystemCallWrapper::join_to_p2p_swarm(env.hash(), env.key(), "dhcp");
-  if (res == SCWE_SUCCESS) {
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"));
+  res.waitForFinished();
+
+  if (res.result() == SCWE_SUCCESS) {
     emit successfully_joined_swarm(env);
     qInfo() << QString("Joined to swarm [env_name: %1, env_id: %2, swarm_hash: %3]")
                .arg(env.name())
@@ -35,7 +39,7 @@ void SwarmConnector::join_to_swarm_begin() {
                   .arg(env.name())
                   .arg(env.id())
                   .arg(env.hash())
-                  .arg(CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()).toStdString().c_str());
   }
 }
 
@@ -43,7 +47,7 @@ void SwarmConnector::join_to_swarm_begin() {
 
 HandshakeSender::HandshakeSender(const CEnvironment &_env) : env(_env) {
   QTimer *timer = new QTimer;
-  timer->setInterval(15 * 1000); // 15 sec
+  timer->setInterval(1000 * 15); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
 }
@@ -56,13 +60,17 @@ void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
               .arg(env.id())
               .arg(env.hash());
 
-  system_call_wrapper_error_t err =
-      CSystemCallWrapper::check_container_state(env.hash(), cont.rh_ip());
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
+  res.waitForFinished();
 
-  if (err == SCWE_SUCCESS)
-    err = CSystemCallWrapper::send_handshake(cont.rh_ip(), cont.port());
+  if (res.result() == SCWE_SUCCESS)
+  {
+      res = QtConcurrent::run(CSystemCallWrapper::send_handshake, cont.rh_ip(), cont.port());
+      res.waitForFinished();
+  }
 
-  if (err == SCWE_SUCCESS) {
+  if (res.result() == SCWE_SUCCESS) {
     qInfo() << QString("Successfully handshaked with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]")
                .arg(cont.name())
                .arg(cont.id())
@@ -78,7 +86,7 @@ void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
                .arg(env.name())
                .arg(env.id())
                .arg(env.hash())
-               .arg(CSystemCallWrapper::scwe_error_to_str(err));
+               .arg(CSystemCallWrapper::scwe_error_to_str(res.result()));
     emit handshake_failure(env.id(), cont.id());
   }
 }
