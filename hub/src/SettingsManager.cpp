@@ -542,7 +542,7 @@ void CSettingsManager::set_p2p_path(QString p2p_path) {
 void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
   QString sl = QFile::symLinkTarget(x2goclient_path);
   m_x2goclient = sl == "" ? x2goclient_path : sl;
-  m_settings.setValue(SM_P2P_PATH, m_x2goclient);
+  m_settings.setValue(SM_X2GOCLIENT_PATH, m_x2goclient);
 }
 
 void CSettingsManager::set_locale(const int locale) {

@@ -11,6 +11,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 }
 
+
 /////////////////////////////////////////////////////////////////////////
 
 
@@ -20,6 +21,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
     addRemoteAccess(env, &(*cont));
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
+  ui->btn_desktop_all->setEnabled(env->healthy());
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -86,7 +88,6 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   //button_enhancement(btn_desktop);
 
   ui->cont_remote->addRow(btn_ssh);
-
 
   QTimer *timer = new QTimer(this);
 
