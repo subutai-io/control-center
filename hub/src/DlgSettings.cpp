@@ -68,7 +68,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_notification_delay->setValue(
         CSettingsManager::Instance().notification_delay_sec());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
-  //ui->le_x2goclient_command->setText(CSettingsManager::Instance().x2goclient());
+  ui->le_x2goclient_command->setText(CSettingsManager::Instance().x2goclient());
 
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
   ui->le_rhip_host->setText(CSettingsManager::Instance().rh_host());
@@ -172,8 +172,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
-  //connect(ui->btn_x2goclient_command, &QPushButton::released, this,
-  //        &DlgSettings::btn_x2goclient_command_released);
+  connect(ui->btn_x2goclient_command, &QPushButton::released, this,
+          &DlgSettings::btn_x2goclient_command_released);
   connect(ui->btn_ssh_keygen_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_keygen_command_released);
   connect(ui->btn_logs_storage, &QPushButton::released, this,
@@ -300,8 +300,8 @@ void DlgSettings::btn_ok_released() {
     {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    //{ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, is_le_empty_validate, 1, empty_validator_msg},
-    //{ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, can_launch_application, 1, can_launch_application_msg},
 
 
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
@@ -377,7 +377,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(
         ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
-  //CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
+  CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
 
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_vboxmanage_path(
@@ -452,7 +452,7 @@ void DlgSettings::btn_ssh_command_released() {
 void DlgSettings::btn_x2goclient_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("x2goclient command"));
   if (fn == "") return;
-  //ui->le_x2goclient_command->setText(fn);
+  ui->le_x2goclient_command->setText(fn);
 }
 
 ////////////////////////////////////////////////////////////////////////////
