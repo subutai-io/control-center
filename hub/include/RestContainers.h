@@ -17,6 +17,7 @@ private:
   bool m_is_desktop;
   QString m_port;
   QString m_rh_ip;
+  QString m_desk_env;
 
 public:
   explicit CHubContainer(QJsonObject obj) :
@@ -24,7 +25,8 @@ public:
     m_ip(obj["container_ip"].toString()),
     m_id(obj["container_id"].toString()),
     m_is_desktop(str_to_bool(obj["container_is_desktop"].toString())),
-    m_rh_ip(obj["rh_ip"].toString())
+    m_rh_ip(obj["rh_ip"].toString()),
+    m_desk_env(obj["container_desk_env"].isObject() ? obj["container_desk_env"].toString() : "MATE")
   {
     QHostAddress cont_ip_addr(m_ip.split("/")[0]);
     if (!cont_ip_addr.isNull()) {
@@ -47,6 +49,8 @@ public:
   const QString& rh_ip() const {return m_rh_ip;}
 
   const bool& is_desktop() const {return m_is_desktop;}
+
+  const QString& desk_env() const {return m_desk_env;}
 
   bool str_to_bool(QString bol) {
     return bol == QString("true") ? true:false;

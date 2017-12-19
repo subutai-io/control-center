@@ -2,230 +2,260 @@
 #include <QThread>
 #include "Locker.h"
 #include <QDebug>
+#include <QtConcurrent/QtConcurrent>
 
 
 
-/////////////////////////////////////////////////////////////////////////
-
-SwarmConnector::~SwarmConnector() {
-  qDebug() << QString("SwarmConnector desctructor");
-}
 
 /////////////////////////////////////////////////////////////////////////
 
-SwarmConnector::SwarmConnector(QString swarm_hash, QString swarm_key) : swarm_hash(swarm_hash) , swarm_key(swarm_key) {
-  qDebug() << QString("SwarmConnector with hash: %1 and key: %2").arg(swarm_hash).arg(swarm_key);
-}
+SwarmConnector::SwarmConnector(const CEnvironment &_env) : env(_env) {
+  qDebug() << QString("SwarmConnector with [env_name: %1, env_id: %2, swarm_hash: %3] and key: %4")
+                .arg(env.name())
+                .arg(env.id())
+                .arg(env.hash())
+                .arg(env.key());
 
-///////////////////////////////////////////////////////////////
+  attemptCounter = 0;
+}
 
 void SwarmConnector::join_to_swarm_begin() {
-  system_call_wrapper_error_t res = CSystemCallWrapper::join_to_p2p_swarm(swarm_hash, swarm_key, "dhcp");
-  if (res == SCWE_SUCCESS) {
-    emit successfully_joined_swarm(swarm_hash);
-    qInfo("Joined to swarm %s.",
-              swarm_hash.toStdString().c_str());
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"));
+  res.waitForFinished();
+
+  if (res.result() == SCWE_SUCCESS) {
+    emit successfully_joined_swarm(env);
+    qInfo() << QString("Joined to swarm [env_name: %1, env_id: %2, swarm_hash: %3]")
+               .arg(env.name())
+               .arg(env.id())
+               .arg(env.hash());
   }
   else {
-    qCritical("Can't join to swarm %s. Err %s",
-              swarm_hash.toStdString().c_str(),
-              CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+    qCritical()<< QString("Can't join to swarm [env_name: %1, env_id: %2, swarm_hash: %3] Error message: %4")
+                  .arg(env.name())
+                  .arg(env.id())
+                  .arg(env.hash())
+                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()).toStdString().c_str());
+    attemptCounter ++;
+    if(attemptCounter < 10) {
+      QTimer::singleShot((int) std::pow(2, attemptCounter) * 1000, this, &SwarmConnector::join_to_swarm_begin); // after each attempt, it will increate its interval
+    }
+    else {
+      emit join_swarm_timeout(env);
+    }
   }
-  emit join_to_swarm_finished();
 }
 
 /////////////////////////////////////////////////////////////////////////
 
-void HandshakeSender::try_to_handshake(const CEnvironment &env, const CHubContainer &cont) {
-  qDebug() << QString("Trying to handshake with cont: %1 and env: %2").arg(cont.name()).arg(env.name());
+HandshakeSender::HandshakeSender(const CEnvironment &_env) : env(_env) {
+  QTimer *timer = new QTimer;
+  timer->setInterval(1000 * 15); // 15 sec
+  connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
+  timer->start();
+}
 
-  system_call_wrapper_error_t err =
-      CSystemCallWrapper::check_container_state(env.hash(), cont.rh_ip());
+void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
+  qDebug() << QString("Trying to handshake with container: [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]")
+              .arg(cont.name())
+              .arg(cont.id())
+              .arg(env.name())
+              .arg(env.id())
+              .arg(env.hash());
 
-  if (err == SCWE_SUCCESS)
-    err = CSystemCallWrapper::send_handshake(cont.rh_ip(), cont.port());
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
+  res.waitForFinished();
 
-  if (err == SCWE_SUCCESS) {
-    qInfo("Successfully handshaked with container %s from environment %s",
-          cont.name().toStdString().c_str(),
-          env.name().toStdString().c_str());
+  if (res.result() == SCWE_SUCCESS)
+  {
+      res = QtConcurrent::run(CSystemCallWrapper::send_handshake, cont.rh_ip(), cont.port());
+      res.waitForFinished();
+  }
+
+  if (res.result() == SCWE_SUCCESS) {
+    qInfo() << QString("Successfully handshaked with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]")
+               .arg(cont.name())
+               .arg(cont.id())
+               .arg(env.name())
+               .arg(env.id())
+               .arg(env.hash());
     emit handshake_success(env.id(), cont.id());
-
   }
   else {
-    qInfo("Can't handshake with container %s from environment %s. Err: %s",
-          cont.name().toStdString().c_str(),
-          env.name().toStdString().c_str(),
-          CSystemCallWrapper::scwe_error_to_str(err).toStdString().c_str());
+    qInfo() << QString("Can't handshake with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]. Error message: %6")
+               .arg(cont.name())
+               .arg(cont.id())
+               .arg(env.name())
+               .arg(env.id())
+               .arg(env.hash())
+               .arg(CSystemCallWrapper::scwe_error_to_str(res.result()));
     emit handshake_failure(env.id(), cont.id());
   }
 }
 
-void HandshakeSender::send_handshakes(){
-  for (CEnvironment &env : m_envs) {
-    for (CHubContainer cont : env.containers()) {
-      try_to_handshake(env, cont);
-    }
+void HandshakeSender::handshake_begin(){
+  for (CHubContainer cont : env.containers()) {
+    try_to_handshake(cont);
   }
-  emit sent_handshakes_succsessfully();
 }
 
 
-HandshakeSender::HandshakeSender(const std::vector<CEnvironment> envs) : m_envs(envs) {
-  qDebug() << "Handshake Sender with envs";
-}
 
-HandshakeSender::~HandshakeSender() {}
 /////////////////////////////////////////////////////////////////////////
 
+
+P2PController::P2PController() {
+  qDebug() << "P2PController is initialized";
+  m_join_to_swarm_timer = new QTimer(this);
+  connect(m_join_to_swarm_timer, &QTimer::timeout, this, &P2PController::update_join_swarm_status);
+  m_join_to_swarm_timer->start(1000 * 60 * 3); // 3 minutes
+  QTimer::singleShot(10000, this, &P2PController::update_join_swarm_status); // 10 sec
+}
+
 P2PController::~P2PController() {
-  qDebug("P2PController desctructor");
+  qDebug() << "P2PController destructor";
   if (!envs_joined_swarm_hash.empty() && CSystemCallWrapper::p2p_daemon_check()) {
     for (auto env_hash : envs_joined_swarm_hash) {
       system_call_wrapper_error_t res = CSystemCallWrapper::leave_p2p_swarm(env_hash);
       if (res == SCWE_SUCCESS) {
-        qInfo("Left the swarm %s.",
-                  env_hash.toStdString().c_str());
+        qInfo() << QString("Left the swarm [swarm_hash: %1]")
+                    .arg(env_hash);
       }
       else {
-        qCritical("Can't leave the swarm %s. Err %s",
-                  env_hash.toStdString().c_str(),
-                  CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+        qCritical() << QString("Can't leave the swarm [swarm_hash: %1]. Error message %2")
+                       .arg(env_hash)
+                       .arg(CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
       }
     }
   }
   envs_joined_swarm_hash.clear();
 }
 
-P2PController::P2PController() {
-  qDebug("P2PController is initialized");
-
-  m_join_to_swarm_timer = new QTimer(this);
-  m_handshake_timer = new QTimer(this);
-
-  connect(m_join_to_swarm_timer, &QTimer::timeout,
-          this, &P2PController::update_join_swarm_status);
-  connect(m_handshake_timer, &QTimer::timeout,
-          this, &P2PController::update_handshake_status);
-
-  m_join_to_swarm_timer->start(1000 * 50); // 50 sec
-  m_handshake_timer->start(1000 * 30); // 30 sec
-  QTimer::singleShot(10000, this, SLOT(update_join_swarm_status())); // this functions call after 10 sec. single time
-}
-
 /////////////////////////////////////////////////////////////////////////
-
-void P2PController::joined_swarm(QString hash) {
-  envs_joined_swarm_hash.insert(hash);
-}
-
-void P2PController::join_swarm(const CEnvironment &env) {
-  qDebug() << "Create instance for joining to swarm for env name:" << env.name() << "with hash: " << env.hash();
-
-  SwarmConnector* connector = new SwarmConnector(env.hash(), env.key());
-  QThread* thread = new QThread();
-  connector->moveToThread(thread);
-
-  connect(thread, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
-  connect(connector, &SwarmConnector::successfully_joined_swarm,
-          this, &P2PController::joined_swarm);
-  connect(connector, &SwarmConnector::join_to_swarm_finished, thread, &QThread::quit);
-  connect(thread, &QThread::finished, connector, &SwarmConnector::deleteLater);
-  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-  thread->start();
-}
-
-/////////////////////////////////////////////////////////////////////////
+/* Handshake Senders */
 
 void P2PController::handshaked(QString env_id, QString cont_id) {
   successfull_handshakes.insert(std::make_pair(env_id, cont_id));
-}
-
-void P2PController::handshake_failed(QString env_id, QString cont_id) {
-  successfull_handshakes.erase(std::make_pair(env_id, cont_id));
-}
-
-/////////////////////////////////////////////////////////////////////////
-
-bool P2PController::join_swarm_success(QString swarm_hash) {
-  return envs_joined_swarm_hash.find(swarm_hash) != envs_joined_swarm_hash.end();
 }
 
 bool P2PController::handshake_success(QString env_id, QString cont_id) {
   return successfull_handshakes.find(std::make_pair(env_id, cont_id)) != successfull_handshakes.end();
 }
 
-void P2PController::p2p_restart() {
-  envs_joined_swarm_hash.clear();
-  successfull_handshakes.clear();
+
+void P2PController::handshake_failed(QString env_id, QString cont_id) {
+  successfull_handshakes.erase(std::make_pair(env_id, cont_id));
+}
+
+void P2PController::handshake_with_env(const CEnvironment &env) {
+  qDebug() << QString("Create instance for handshaking for [env_name: %1, env_id: %2, swarm_hash: %3]")
+           .arg(env.name())
+           .arg(env.id())
+           .arg(env.hash());
+
+  HandshakeSender* handshaker = new HandshakeSender(env);
+  QThread* thread = new QThread();
+  handshaker->moveToThread(thread);
+  connect(thread, &QThread::started, handshaker, &HandshakeSender::handshake_begin);
+  connect(handshaker, &HandshakeSender::handshake_success, this, &P2PController::handshaked);
+  connect(handshaker, &HandshakeSender::handshake_failure, this, &P2PController::handshake_failed);
+  connect(thread, &QThread::finished, handshaker, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  thread->start();
 }
 
 /////////////////////////////////////////////////////////////////////////
+void P2PController::remove_connector(const CEnvironment &env) {
+ qCritical() << QString("Cannot connect to swarm for [env_name: %1, env_id: %2, swarm_hash: %3]")
+                .arg(env.name())
+                .arg(env.id())
+                .arg(env.hash());
+ envs_with_connectors.erase(env.id());
+}
 
-std::vector<CEnvironment> P2PController::get_envs(bool joined_swarm){
+bool P2PController::has_connector(QString env_id) {
+  return envs_with_connectors.find(env_id) != envs_with_connectors.end();
+}
+
+std::vector<CEnvironment> P2PController::get_envs_without_connectors(){
   std::vector<CEnvironment> current_envs = CHubController::Instance().lst_healthy_environments();
   std::vector<CEnvironment> ret_envs;
   for (CEnvironment &env : current_envs) {
-    if (join_swarm_success(env.hash())) {
-      if(joined_swarm)
-        ret_envs.push_back(env);
-    }
-    else { // not joined
-      if(!joined_swarm)
-        ret_envs.push_back(env);
+    if (!has_connector(env.id())) {
+      ret_envs.push_back(env);
     }
   }
   return ret_envs;
 }
 
-/////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/* Swarm Joiner triggers */
+
+bool P2PController::join_swarm_success(QString swarm_hash) {
+  return envs_joined_swarm_hash.find(swarm_hash) != envs_joined_swarm_hash.end();
+}
+
+void P2PController::joined_swarm(const CEnvironment &env) {
+  envs_joined_swarm_hash.insert(env.hash());
+}
+
+void P2PController::join_swarm(const CEnvironment &env) {
+  qDebug() << QString("Create instance for joining to swarm [env_name: %1, env_id: %2, swarm_hash: %3]")
+              .arg(env.name())
+              .arg(env.id())
+              .arg(env.hash());
+
+  SwarmConnector* connector = new SwarmConnector(env);
+  QThread* thread = new QThread();
+  connector->moveToThread(thread);
+  connect(thread, &QThread::started, connector, &SwarmConnector::join_to_swarm_begin);
+  connect(connector, &SwarmConnector::successfully_joined_swarm, this, &P2PController::joined_swarm);
+  connect(connector, &SwarmConnector::successfully_joined_swarm, this, &P2PController::handshake_with_env);
+
+  connect(connector, &SwarmConnector::successfully_joined_swarm, thread, &QThread::quit);
+
+  connect(connector, &SwarmConnector::join_swarm_timeout, this, &P2PController::remove_connector);
+  connect(connector, &SwarmConnector::join_swarm_timeout, thread, &QThread::quit);
+
+  connect(thread, &QThread::finished, connector, &SwarmConnector::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  thread->start();
+
+  envs_with_connectors.insert(env.id());
+}
 
 void P2PController::update_join_swarm_status(){
   if (!CSystemCallWrapper::p2p_daemon_check()) {
     return;
   }
-  std::vector<CEnvironment> current_envs = get_envs(false);
+
+  std::vector<CEnvironment> current_envs = get_envs_without_connectors();
+
   qDebug() << "Healthy envs not joined to swarm: " << current_envs.size();
+  qDebug() << "All healthy envs count: "<< (CHubController::Instance().lst_healthy_environments()).size();
   qDebug() << "All envs count: "<< (CHubController::Instance().lst_environments()).size();
 
-  if (!current_envs.empty()){
-    for (CEnvironment env : current_envs) {
-      join_swarm(env);
-    }
+  for (CEnvironment env : current_envs) {
+    join_swarm(env);
   }
+
 }
 
 /////////////////////////////////////////////////////////////////////////
+/* P2PContrller HELPERS */
 
-void P2PController::update_handshake_status() {
-  if (!CSystemCallWrapper::p2p_daemon_check()) {
-    return;
-  }
-
-  std::vector<CEnvironment> current_envs = get_envs(true);
-  if (!current_envs.empty()) {
-    qDebug() << "Create Handshaker instance and move it to thread";
-    QThread* thread = new QThread();
-    HandshakeSender* handshake_sender = new HandshakeSender(current_envs);
-    handshake_sender->moveToThread(thread);
-    connect(thread, &QThread::started, handshake_sender, &HandshakeSender::send_handshakes);
-    connect(handshake_sender, &HandshakeSender::handshake_success,
-            this, &P2PController::handshaked);
-    connect(handshake_sender, &HandshakeSender::handshake_failure,
-            this, &P2PController::handshake_failed);
-    connect(handshake_sender, &HandshakeSender::sent_handshakes_succsessfully, thread, &QThread::quit);
-    connect(thread, &QThread::finished, handshake_sender, &HandshakeSender::deleteLater);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-
-    thread->start();
-  }
+void P2PController::p2p_restart() {
+  envs_joined_swarm_hash.clear();
+  successfull_handshakes.clear();
+  envs_with_connectors.clear();
 }
 
-/////////////////////////////////////////////////////////////////////////
 
-int P2PController::get_container_status(const CEnvironment *env,
-                                               const CHubContainer *cont){
-
+int P2PController::get_container_status(const CEnvironment *env, const CHubContainer *cont) {
   if (env == NULL)
     return (int) SDLE_ENV_NOT_FOUND;
 
@@ -237,7 +267,6 @@ int P2PController::get_container_status(const CEnvironment *env,
 
   if (!P2PController::Instance().handshake_success(env->id(), cont->id()))
     return (int) SDLE_CONT_NOT_READY;
-
 
   return (int) SDLE_SUCCESS;
 }
