@@ -43,7 +43,7 @@ void SwarmConnector::join_to_swarm_begin() {
 
 HandshakeSender::HandshakeSender(const CEnvironment &_env) : env(_env) {
   QTimer *timer = new QTimer;
-  timer->setInterval(30 * 1000); // 30 sec
+  timer->setInterval(15 * 1000); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
 }
@@ -72,7 +72,7 @@ void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
     emit handshake_success(env.id(), cont.id());
   }
   else {
-    qInfo() << QString("Can't handshake with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]. Error message: %3")
+    qInfo() << QString("Can't handshake with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]. Error message: %6")
                .arg(cont.name())
                .arg(cont.id())
                .arg(env.name())

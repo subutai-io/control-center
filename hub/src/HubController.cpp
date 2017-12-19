@@ -80,8 +80,8 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
 
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-  static const QString x2go_user = "x2go";
 
+  static const QString x2go_user = "x2go";
   X2GoClient::Instance().add_session(cont, x2go_user, key);
 
   system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id());
@@ -130,9 +130,9 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   QString key = get_env_key(env->id());
 
   if (key.isEmpty()) {
-    //ssh_to_container_internal_helper((int)SDLE_ENV_KEY_FAIL, additional_data, slot);
-    //return;
-    // for some cases we don't need to have a key
+    // ssh_to_container_internal_helper((int)SDLE_CONT_NOT_READY, additional_data, slot);
+    // return;
+     // for some cases we don't need to have a key
   }
 
 
