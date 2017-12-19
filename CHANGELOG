@@ -1,5 +1,10 @@
 # Change Log
 
+## [6.4.0] 12/19/2017
+
+* Automatic p2p swarm connection and handshaking with resource host
+* Fixed update p2p issues 
+
 ## [6.3.0] 11/30/2017
 
 * Allow selection of preferred terminal on OS X
