@@ -10,12 +10,14 @@ class SwarmConnector : public QObject{
 Q_OBJECT
 private:
   CEnvironment env;
+  int attemptCounter;
 public:
   SwarmConnector(const CEnvironment &_env);
 public slots:
   void join_to_swarm_begin();
 signals:
   void successfully_joined_swarm(const CEnvironment&);
+  void join_swarm_timeout(const CEnvironment&);
 };
 
 class HandshakeSender : public QObject {
@@ -73,6 +75,7 @@ public:
 
 public slots:
  void handshake_with_env(const CEnvironment &env);
+ void remove_connector(const CEnvironment &env);
  void joined_swarm(const CEnvironment &env);
  void handshaked(QString env_id, QString cont_id);
  void handshake_failed(QString env_id, QString cont_id);
