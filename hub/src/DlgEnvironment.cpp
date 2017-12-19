@@ -88,7 +88,6 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
   ui->cont_remote->addRow(btn_ssh, btn_desktop);
 
-
   QTimer *timer = new QTimer(this);
 
   CEnvironment copy_env = *env;
