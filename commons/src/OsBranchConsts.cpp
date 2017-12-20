@@ -281,9 +281,9 @@ template<class OS> const QString& default_x2goclient_path_internal();
     return res; \
   }
 
-default_x2goclient_path_internal_def(OS_LINUX, "x2goclient")
+default_x2goclient_path_internal_def(OS_LINUX, "/usr/bin/x2goclient")
 default_x2goclient_path_internal_def(OS_MAC, "x2goclient")
-default_x2goclient_path_internal_def(OS_WIN, "x2goclient")
+default_x2goclient_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\x2goclient\\x2goclient.exe")
 
 const QString &
 default_x2goclient_path() {

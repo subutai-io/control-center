@@ -301,7 +301,7 @@ void DlgSettings::btn_ok_released() {
      can_launch_application_msg},
 
     {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_x2goclient_command, ui->lbl_err_x2goclient_command, can_launch_terminal, 1, can_launch_application_msg},
 
 
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, is_le_empty_validate, 1, empty_validator_msg},
