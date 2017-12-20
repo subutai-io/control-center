@@ -467,24 +467,72 @@ system_call_wrapper_error_t CSystemCallWrapper::run_ssh_in_terminal(
   return run_ssh_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QString &session_id) {
-  QString session_file_path = X2GoClient::x2goclient_config_path();
-  QString cmd = CSettingsManager::Instance().x2goclient();
-  QStringList lst_args;
-  lst_args
-      << QString("--session-conf=%1").arg(session_file_path)
-      << QString("--sessionid=%1").arg(session_id)
-      << "--hide"
-      << "--no-menu"
-      << "--thinclient";
+////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t run_x2goclient_session_internal(const QString &session_id);
 
-  return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
-                                            : SCWE_SSH_LAUNCH_FAILED;
+template <>
+system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_MAC> >(
+        const QString &session_id) {
+    QString session_file_path = X2GoClient::x2goclient_config_path();
+    QString cmd = "open";
+    QStringList lst_args;
+    lst_args
+        << "-a"
+        << CSettingsManager::Instance().x2goclient()
+        << "--args"
+        << QString("--session-conf=%1").arg(session_file_path)
+        << QString("--sessionid=%1").arg(session_id)
+        << "--hide"
+        << "--no-menu"
+        << "--debug"
+        << "--thinclient";
+
+    return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
+                                              : SCWE_SSH_LAUNCH_FAILED;
 }
 
+template <>
+system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_WIN> >(
+        const QString &session_id) {
+    QString session_file_path = X2GoClient::x2goclient_config_path();
+    QString cmd = CSettingsManager::Instance().x2goclient();
+    QStringList lst_args;
+    lst_args
+        << QString("--session-conf=%1").arg(session_file_path)
+        << QString("--sessionid=%1").arg(session_id)
+        << "--hide"
+        << "--no-menu"
+        << "--debug"
+        << "--thinclient";
+
+    return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
+                                              : SCWE_SSH_LAUNCH_FAILED;
+}
+
+template <>
+system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_LINUX> >(
+        const QString &session_id) {
+    QString session_file_path = X2GoClient::x2goclient_config_path();
+    QString cmd = CSettingsManager::Instance().x2goclient();
+    QStringList lst_args;
+    lst_args
+        << QString("--session-conf=%1").arg(session_file_path)
+        << QString("--sessionid=%1").arg(session_id)
+        << "--hide"
+        << "--no-menu"
+        << "--debug"
+        << "--thinclient";
+
+    return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
+                                              : SCWE_SSH_LAUNCH_FAILED;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QString &session_id) {
+  return run_x2goclient_session_internal<Os2Type<CURRENT_OS> >(session_id);
+}
 
 ////////////////////////////////////////////////////////////////////////////
-
 system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
         const QString &ip,
         const QString &port) {
@@ -728,7 +776,10 @@ bool CSystemCallWrapper::p2p_daemon_check() {
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::x2goclient_check() {
+#ifndef RT_OS_DARWIN
   return CCommons::IsApplicationLaunchable(CSettingsManager::Instance().x2goclient());
+#endif
+  return CCommons::IsTerminalLaunchable(CSettingsManager::Instance().x2goclient());
 }
 
 ////////////////////////////////////////////////////////////////////////////
