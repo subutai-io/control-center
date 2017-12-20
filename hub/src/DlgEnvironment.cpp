@@ -65,15 +65,13 @@ void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop
   }
 
   if (!cont->is_desktop()) {
-    btn_desktop->setToolTip("Container doesn't have desktop.");
-    btn_desktop->setEnabled(false);
+    //btn_desktop->setToolTip("Container doesn't have desktop.");
+    //btn_desktop->setEnabled(false);
   }
 }
 
 void DlgEnvironment::button_enhancement(QPushButton *btn) {
-  QFont *font = new QFont();
-  font->setPointSize(5);
-  btn->setMaximumHeight(18);
+  QFont *font = new QFont("Arial", 10, QFont::AllUppercase);
   btn->setFont(*font);
 }
 
