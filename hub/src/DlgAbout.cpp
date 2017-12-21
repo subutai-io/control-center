@@ -29,7 +29,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
-  ui->lbl_tray_version_val->setText(TRAY_VERSION + QString("-") + branch_name_str());
+  ui->lbl_tray_version_val->setText(TRAY_VERSION + branch_name_str());
 
   this->setMinimumWidth(700);
 

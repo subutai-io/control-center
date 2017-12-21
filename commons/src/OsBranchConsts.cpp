@@ -524,8 +524,8 @@ template<class BR> const QString& branch_name_str_temp_internal();
     return res; \
   }
 
-branch_name_str_def(BT_MASTER, QObject::tr("master"))
-branch_name_str_def(BT_DEV, QObject::tr("dev"))
+branch_name_str_def(BT_MASTER, QObject::tr("-master"))
+branch_name_str_def(BT_DEV, QObject::tr("-dev"))
 branch_name_str_def(BT_PROD, QObject::tr(""))
 
 const QString&
