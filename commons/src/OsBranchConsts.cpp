@@ -514,3 +514,22 @@ current_branch_name() {
     return current_branch_name_temp_internal<Branch2Type<CURRENT_BRANCH>>();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& branch_name_str_temp_internal();
+
+#define branch_name_str_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& branch_name_str_temp_internal<Branch2Type<BT_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+branch_name_str_def(BT_MASTER, QObject::tr("master"))
+branch_name_str_def(BT_DEV, QObject::tr("dev"))
+branch_name_str_def(BT_PROD, QObject::tr(""))
+
+const QString&
+branch_name_str() {
+    return branch_name_str_temp_internal<Branch2Type<CURRENT_BRANCH>>();
+}
+////////////////////////////////////////////////////////////////////////////
