@@ -47,8 +47,8 @@ void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop
   btn_desktop->setEnabled(false);
 
   if (!env->healthy()) {
-    btn_ssh->setToolTip("Environment is unhealthy.");
-    btn_desktop->setToolTip("Environment is unhealhty.");
+    btn_ssh->setToolTip(env->status_description());
+    btn_desktop->setToolTip(env->status_description());
   }
   else
   if(!env || !P2PController::Instance().join_swarm_success(env->hash())) {
