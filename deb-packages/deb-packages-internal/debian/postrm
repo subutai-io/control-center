@@ -24,3 +24,6 @@ rm /opt/subutai/bin/*.qm
 rm /opt/subutai/bin/SubutaiTray
 rm /opt/subutai/bin/subutai-tray
 
+if [ -f /usr/share/applications/SubutaiTray.desktop ]; then
+  rm /usr/share/applications/SubutaiTray.desktop
+fi
