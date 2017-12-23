@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+if which update-icon-caches >/dev/null 2>&1 ; then
+    update-icon-caches /usr/share/icons/Tray_icon_set-07.png
+fi
+
+if [ -d /opt/subutai/lib ]; then
+  rm -rf /opt/subutai/lib
+fi
+
+if [ -d /opt/subutai/Libs ]; then
+  rm -rf /opt/subutai/Libs
+fi
+
+if [ -d /opt/subutai/log ]; then
+  rm -rf /opt/subutai/log
+fi
+
+if [ -L /usr/bin/SubutaiTray ]; then
+  rm /usr/bin/SubutaiTray
+fi
+
+rm /opt/subutai/bin/*.qm
+rm /opt/subutai/bin/SubutaiTray
+rm /opt/subutai/bin/subutai-tray
+
