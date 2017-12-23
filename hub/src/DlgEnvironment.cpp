@@ -22,6 +22,10 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
   }
   ui->btn_ssh_all->setEnabled(env->healthy());
   ui->btn_desktop_all->setEnabled(env->healthy());
+
+  connect(ui->btn_open_hub, &QPushButton::clicked, [env](){
+    CHubController::Instance().launch_environment_page(env->hub_id());
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////

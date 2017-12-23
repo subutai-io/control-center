@@ -47,7 +47,7 @@ DlgNotifications::rebuild_model() {
     if (m_notifications_model->rowCount(QModelIndex()) > 0) {
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
-      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
       ui->tv_notifications->resizeRowsToContents();
       ui->tv_notifications->sortByColumn(0);
     }

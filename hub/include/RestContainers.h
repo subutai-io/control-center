@@ -99,6 +99,7 @@ private:
   QString m_aes_key;
   QString m_ttl;
   QString m_id;
+  int m_hub_id;
   QString m_status;
   QString m_status_descr;
   std::vector<CHubContainer> m_lst_containers;
@@ -110,6 +111,7 @@ public:
     m_aes_key = obj["environment_key"].toString();
     m_ttl = obj["environment_ttl"].toString();
     m_id = obj["environment_id"].toString();
+    m_hub_id = obj["environment_hub_id"].toInt();
     m_status = obj["environment_status"].toString();
     m_status_descr = obj["environment_status_desc"].toString();
 
@@ -145,6 +147,7 @@ public:
   const QString& hash() const {return m_hash;}
   const QString& key() const {return m_aes_key;}
   const QString& id() const {return m_id;}
+  const int& hub_id() const {return m_hub_id;}
   const QString& ttl() const {return m_ttl;}
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
   const QString& status() const {return m_status;}

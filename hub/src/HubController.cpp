@@ -473,6 +473,29 @@ void CHubController::launch_balance_page() {
   }
 }
 
+void CHubController::launch_environment_page(int hub_id) {
+  QString chrome_path = CSettingsManager::Instance().chrome_path();
+  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
+    QStringList args;
+    args << "--new-window";
+    args << QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id); // https://masterhub.subut.ai/users/%1, https://devhub.subut.ai/users/244/environments/2828
+
+    if (!QProcess::startDetached(chrome_path, args)) {
+      QString err_msg = tr("Launch hub website with google chrome failed");
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
+      return;
+    }
+  } else {
+    if (!QDesktopServices::openUrl(
+            QUrl(QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id)))) {
+      QString err_msg =
+          tr("Launch hub website with default browser failed");
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
+    }
+  }
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void CHubController::my_peers_updated_sl() {
