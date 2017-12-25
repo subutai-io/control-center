@@ -44,7 +44,11 @@ void X2GoClient::add_session(const CHubContainer *cont, QString username, QStrin
   m_settings.setValue("sshport", cont->port());
   m_settings.setValue("user", username);
   m_settings.setValue("key", key);
-  m_settings.setValue("command", cont->desk_env());
+
+  if(cont->desk_env().isNull() || cont->desk_env().isEmpty() || cont->desk_env() == "\n")
+    m_settings.setValue("command", "MATE");
+  else
+    m_settings.setValue("command", cont->desk_env());
 
   m_settings.setValue("usesshproxy", false);
   m_settings.setValue("sshproxytype", "SSH");
