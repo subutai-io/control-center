@@ -103,7 +103,7 @@
       </font>
      </property>
      <property name="text">
-      <string>EZ-SSH All</string>
+      <string>EZ-SSH ALL</string>
      </property>
     </widget>
    </item>
@@ -111,6 +111,13 @@
     <widget class="QPushButton" name="btn_desktop_all">
      <property name="text">
       <string>EZ-DESKTOP ALL</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="btn_open_hub">
+     <property name="text">
+      <string>Open Hub</string>
      </property>
     </widget>
    </item>
