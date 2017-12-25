@@ -88,7 +88,27 @@
    <item row="2" column="1">
     <layout class="QVBoxLayout" name="cont_ip_port"/>
    </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="btn_open_hub">
+     <property name="text">
+      <string>Open Hub</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <layout class="QVBoxLayout" name="cont_rhip"/>
+   </item>
+   <item row="2" column="3">
+    <layout class="QFormLayout" name="cont_remote"/>
+   </item>
    <item row="3" column="3">
+    <widget class="QPushButton" name="btn_desktop_all">
+     <property name="text">
+      <string>EZ-DESKTOP ALL</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
     <widget class="QPushButton" name="btn_ssh_all">
      <property name="maximumSize">
       <size>
@@ -106,26 +126,6 @@
       <string>EZ-SSH ALL</string>
      </property>
     </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="btn_desktop_all">
-     <property name="text">
-      <string>EZ-DESKTOP ALL</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QPushButton" name="btn_open_hub">
-     <property name="text">
-      <string>Open Hub</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <layout class="QVBoxLayout" name="cont_rhip"/>
-   </item>
-   <item row="2" column="3">
-    <layout class="QFormLayout" name="cont_remote"/>
    </item>
   </layout>
  </widget>
