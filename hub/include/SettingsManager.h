@@ -62,6 +62,8 @@ class CSettingsManager : public QObject {
   static const QString SM_CHROME_PATH;
   static const QString SM_SUBUTAI_CMD;
 
+  static const QString EMPTY_STRING;
+
   CSettingsManager();
 
   QSettings m_settings;
@@ -104,6 +106,13 @@ class CSettingsManager : public QObject {
   QString m_terminal_cmd;
   QString m_x2goclient;
   QString m_terminal_arg;
+
+  std::map <QString, QString> m_rh_hosts;
+  std::map <QString, quint16> m_rh_ports;
+  std::map <QString, QString> m_rh_users;
+  std::map <QString, QString> m_rh_passes;
+
+
 
 
   QString m_vboxmanage_path;
@@ -175,6 +184,11 @@ class CSettingsManager : public QObject {
   const QString& ssh_path() const { return m_ssh_path; }
   const QString& ssh_user() const { return m_ssh_user; }
 
+  const QString& rh_user(const QString &id);
+  const QString& rh_pass(const QString &id);
+  const QString& rh_host(const QString &id);
+  quint16 rh_port(const QString &id);
+
   const QString& rh_user() const { return m_rh_user; }
   const QString& rh_pass() const { return m_rh_pass; }
   const QString& rh_host() const { return m_rh_host; }
@@ -242,6 +256,13 @@ class CSettingsManager : public QObject {
   void set_locale(int fr);
   void set_p2p_path(QString fr);
   void set_x2goclient_path(QString fr);
+  void set_rh_pass(const QString &id, const QString &pass);
+  void set_rh_user(const QString &id, const QString &user);
+  void set_rh_host(const QString &id, const QString &host);
+  void set_rh_port(const QString &id, const qint16 &port);
+
+
+
 
   /**********************/
   bool is_notification_ignored(const QString& msg) const;

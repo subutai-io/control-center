@@ -92,6 +92,9 @@ private:
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
 
+  static QDialog *last_generated_peer_dlg(QWidget *p);
+  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>);
+  static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
   /*vbox*/
@@ -103,8 +106,8 @@ private:
 
   /*tray icon*/
   QMenu *m_hub_menu;
+  QMenu *m_peer_menu;
   QMenu *m_vbox_menu;
-  QMenu *m_launch_menu;
 
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
@@ -113,7 +116,6 @@ private:
   QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;
-  QAction *m_act_launch_SS;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
   QAction *m_act_logout;
@@ -134,7 +136,6 @@ private:
 
   /*tray icon end*/
 
-  void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 public slots:
   /*tray slots*/
@@ -144,6 +145,7 @@ public slots:
   /*virtualbox slots*/
   void show_vbox();
   void launch_Hub();
+  void launch_ss();
 
   /*hub slots*/
   void show_notifications_triggered();
@@ -169,11 +171,11 @@ private slots:
   void vbox_menu_btn_stop_triggered(const QString& vm_id);
   void vbox_menu_btn_add_triggered(const QString& vm_id);
   void vbox_menu_btn_rem_triggered(const QString& vm_id);
-  void launch_ss_triggered();
 
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+  void my_peers_updated_sl();
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
 

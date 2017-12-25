@@ -31,10 +31,10 @@ const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 
-const QString CSettingsManager::SM_RH_USER("Rh_User");
-const QString CSettingsManager::SM_RH_PASS("Rh_Pass");
-const QString CSettingsManager::SM_RH_HOST("Rh_Host");
-const QString CSettingsManager::SM_RH_PORT("Rh_Port");
+const QString CSettingsManager::SM_RH_USER("Rh_User_%1");
+const QString CSettingsManager::SM_RH_PASS("Rh_Pass_%1");
+const QString CSettingsManager::SM_RH_HOST("Rh_Host_%1");
+const QString CSettingsManager::SM_RH_PORT("Rh_Port_%1");
 
 const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
@@ -68,6 +68,9 @@ const QString CSettingsManager::SM_PYHOCA_CLI("Pyhoca_CLI");
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
 const QString CSettingsManager::SM_SUBUTAI_CMD("SubutaiCmd");
+
+const QString CSettingsManager::EMPTY_STRING("");
+
 
 struct setting_val_t {
   void* field;
@@ -560,6 +563,64 @@ void CSettingsManager::set_locale(const int locale) {
             CCommons::RestartTray();
         }
     }
+}
+
+void CSettingsManager::set_rh_pass(const QString &id, const QString &pass) {
+  m_rh_passes[id] = pass;
+  m_settings.setValue(SM_RH_PASS.arg(id), pass);
+
+}
+void CSettingsManager::set_rh_user(const QString &id, const QString &user) {
+  m_rh_users[id] = user;
+  m_settings.setValue(SM_RH_USER.arg(id), user);
+
+}
+void CSettingsManager::set_rh_host(const QString &id, const QString &host) {
+  m_rh_hosts[id] = host;
+  m_settings.setValue(SM_RH_HOST.arg(id), host);
+}
+
+void CSettingsManager::set_rh_port(const QString &id, const qint16 &port) {
+  m_rh_ports[id] = port;
+  m_settings.setValue(SM_RH_PORT.arg(id), port);
+}
+
+
+const QString& CSettingsManager::rh_user(const QString &id)  {
+  if (m_rh_users.find(id) == m_rh_users.end()) {
+    if (m_settings.value(SM_RH_USER.arg(id)).isNull())
+      return EMPTY_STRING;
+    m_rh_users[id] = m_settings.value(SM_RH_USER.arg(id)).toString();
+  }
+  return m_rh_users[id];
+}
+
+
+const QString& CSettingsManager::rh_pass(const QString &id)  {
+  if (m_rh_passes.find(id) == m_rh_passes.end()) {
+    if (m_settings.value(SM_RH_PASS.arg(id)).isNull())
+      return EMPTY_STRING;
+    m_rh_passes[id] = m_settings.value(SM_RH_PASS.arg(id)).toString();
+  }
+  return m_rh_passes[id];
+}
+
+const QString& CSettingsManager::rh_host(const QString &id)  {
+  if (m_rh_hosts.find(id) == m_rh_hosts.end()) {
+    if (m_settings.value(SM_RH_HOST.arg(id)).isNull())
+      return EMPTY_STRING;
+    m_rh_hosts[id] = m_settings.value(SM_RH_HOST.arg(id)).toString();
+  }
+  return m_rh_hosts[id];
+}
+
+quint16 CSettingsManager::rh_port(const QString &id)  {
+  if (m_rh_ports.find(id) == m_rh_ports.end()) {
+    if (m_settings.value(SM_RH_PORT.arg(id)).isNull())
+      return 0;
+    m_rh_ports[id] = m_settings.value(SM_RH_PORT.arg(id)).toInt();
+  }
+  return m_rh_ports[id];
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -40,6 +40,7 @@ private:
   std::vector<CEnvironment> m_lst_environments_internal;
   std::vector<CEnvironment> m_lst_environments;
   std::vector<CEnvironment> m_lst_healthy_environments;
+
   std::vector<CMyPeerInfo> m_lst_my_peers;
 
   QString m_balance;
@@ -83,7 +84,6 @@ private:
   void refresh_balance_internal();
 
 private slots:
-  void my_peers_updated_sl();
 
   void settings_changed();
 

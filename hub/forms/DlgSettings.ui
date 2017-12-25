@@ -23,10 +23,28 @@
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <layout class="QGridLayout" name="gridLayout_5">
+     <item row="1" column="0">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QPushButton" name="btn_cancel">
+         <property name="text">
+          <string>Cancel</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btn_ok">
+         <property name="text">
+          <string>OK</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tab_common">
         <attribute name="title">
@@ -558,14 +576,14 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_rhip_host">
              <property name="text">
-              <string>RH host:</string>
+              <string>Default Peer</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lbl_rh_list">
              <property name="text">
-              <string>Resource hosts:</string>
+              <string>Available Peers</string>
              </property>
             </widget>
            </item>
@@ -577,7 +595,7 @@
              <item row="0" column="0">
               <widget class="QPushButton" name="btn_refresh_rh_list">
                <property name="text">
-                <string>Refresh</string>
+                <string>Search Peers</string>
                </property>
               </widget>
              </item>
@@ -794,24 +812,6 @@
         </layout>
        </widget>
       </widget>
-     </item>
-     <item row="1" column="0">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="btn_ok">
-         <property name="text">
-          <string>OK</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="btn_cancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
     </layout>
    </item>

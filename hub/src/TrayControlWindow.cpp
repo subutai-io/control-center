@@ -71,8 +71,6 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_balance(NULL),
       m_act_vbox(NULL),
       m_act_hub(NULL),
-      m_act_launch(NULL),
-      m_act_launch_SS(NULL),
       m_act_launch_Hub(NULL),
       m_act_about(NULL),
       m_act_logout(NULL),
@@ -118,6 +116,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &TrayControlWindow::balance_updated_sl);
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &TrayControlWindow::environments_updated_sl);
+  connect(&CHubController::Instance(), &CHubController::my_peers_updated,
+          this, &TrayControlWindow::my_peers_updated_sl);
 
   connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
           this, &TrayControlWindow::got_ss_console_readiness_sl);
@@ -135,15 +135,13 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  QMenu* menus[] = {m_hub_menu, m_vbox_menu, m_launch_menu, m_tray_menu};
+  QMenu* menus[] = {m_hub_menu, m_peer_menu, m_vbox_menu, m_tray_menu};
   QAction* acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
                      m_act_settings,
                      m_act_balance,
                      m_act_vbox,
                      m_act_hub,
-                     m_act_launch,
-                     m_act_launch_SS,
                      m_act_launch_Hub,
                      m_act_about,
                      m_act_logout,
@@ -182,18 +180,6 @@ void TrayControlWindow::fill_vm_menu() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::fill_launch_menu() {
-  m_act_launch_SS =
-      new QAction(QIcon(":/hub/SS-07.png"), tr("Subutai console"), this);
-  connect(m_act_launch_SS, &QAction::triggered, this,
-          &TrayControlWindow::launch_ss_triggered);
-
-  m_act_launch_Hub =
-      new QAction(QIcon(":/hub/Hub-07.png"), tr("Hub website"), this);
-  connect(m_act_launch_Hub, &QAction::triggered, this,
-          &TrayControlWindow::launch_Hub);
-
-  m_launch_menu->addAction(m_act_launch_SS);
-  m_launch_menu->addAction(m_act_launch_Hub);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -242,7 +228,6 @@ void TrayControlWindow::show_vbox() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::create_tray_actions() {
-  m_act_launch = new QAction(QIcon(":/hub/Launch-07.png"), tr("Launch"), this);
 
   m_act_settings =
       new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
@@ -260,6 +245,11 @@ void TrayControlWindow::create_tray_actions() {
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this,
           &TrayControlWindow::application_quit);
+
+  m_act_launch_Hub =
+      new QAction(QIcon(":/hub/Hub-07.png"), tr("Hub website"), this);
+  connect(m_act_launch_Hub, &QAction::triggered, this,
+          &TrayControlWindow::launch_Hub);
 
   m_act_balance = new QAction(QIcon(":/hub/Balance-07.png"),
                               CHubController::Instance().balance(), this);
@@ -291,14 +281,15 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
 
+  m_tray_menu->addAction(m_act_launch_Hub);
   m_tray_menu->addAction(m_act_balance);
-  m_tray_menu->addAction(m_act_ssh_keys_management);
+
   m_tray_menu->addSeparator();
 
-  m_launch_menu =
-      m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"), tr("Launch"));
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
                                     tr("Environments"));
+  m_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
+                                     tr("My Peers"));
 
 #ifdef RT_OS_WINDOWS
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
@@ -310,7 +301,6 @@ void TrayControlWindow::create_tray_icon() {
   m_vbox_menu->setIcon(QIcon(":/hub/VM-07.png"));
 
   fill_vm_menu();
-  fill_launch_menu();
 
   m_vboxAction = new QWidgetAction(m_vbox_menu);
   m_vboxAction->setDefaultWidget(m_w_Player);
@@ -318,6 +308,7 @@ void TrayControlWindow::create_tray_icon() {
 
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
+  m_tray_menu->addAction(m_act_ssh_keys_management);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_notifications_history);
@@ -501,7 +492,7 @@ void TrayControlWindow::login_success() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::launch_ss_console_finished_sl() {
-  m_act_launch_SS->setEnabled(true);
+  //m_act_launch_SS->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -632,13 +623,6 @@ void TrayControlWindow::launch_Hub() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss_triggered() {
-  QAction* act = qobject_cast<QAction*>(sender());
-  act->setEnabled(false);
-  QtConcurrent::run(this, &TrayControlWindow::launch_ss);
-}
-////////////////////////////////////////////////////////////////////////////
-
 void TrayControlWindow::environments_updated_sl(int rr) {
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
@@ -719,6 +703,101 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 
   CNotificationObserver::Instance()->Info(str_notification, DlgNotification::N_NO_ACTION);
 }
+
+////////////////////////////////////////////////////////////////////////////
+#include "RhController.h"
+
+void TrayControlWindow::my_peers_updated_sl() {
+  static std::vector<CMyPeerInfo> peers_connected; // within itself peers_connected has storage vector `envs_connected` for each Peer
+
+  std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
+
+  /// check if some peers were disconnected or deleted
+  std::vector<CMyPeerInfo> disconnected_peers;
+
+  for (CMyPeerInfo peer : peers_connected) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+    if(found_peer == my_current_peers.end())
+      disconnected_peers.push_back(peer);
+  }
+
+  /// check if some new peers were connected or changed status
+  std::vector<CMyPeerInfo> new_connected_peers;
+  for (CMyPeerInfo peer : my_current_peers) {
+    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
+                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
+
+    if(found_peer == peers_connected.end() || found_peer->status() != peer.status()) { // disconnected or changed status
+      new_connected_peers.push_back(peer);
+    }
+  }
+
+  /// notify if Peers were connected or changed status
+  if (!disconnected_peers.empty()) {
+    for (CMyPeerInfo peer_to_notify : new_connected_peers) {
+      QString msg = tr("Your peer \"%1\" is %2")
+                    .arg(peer_to_notify.name())
+                    .arg(peer_to_notify.status());
+      CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    }
+  }
+
+  /// notify if Peers were disconnected
+  if (!new_connected_peers.empty()){
+    for (CMyPeerInfo peer_to_notify : disconnected_peers) {
+      QString msg = tr("Your peer \"%1\" is %2")
+                    .arg(peer_to_notify.name())
+                    .arg("disconnected");
+      CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
+    }
+  }
+
+  // Remove all disconnected Peers from current peer storage matrix
+  for (CMyPeerInfo peer_to_del : disconnected_peers) {
+    peers_connected.erase(std::remove_if(peers_connected.begin(), peers_connected.end(),
+          [peer_to_del](const CMyPeerInfo &p){return peer_to_del.id() == p.id();}), peers_connected.end());
+  }
+
+  // Add all new connected Peer to current peer storage matrix
+  for (CMyPeerInfo peer_to_add : new_connected_peers) {
+    peers_connected.push_back(peer_to_add);
+  }
+
+  /// Show peers
+  m_peer_menu->clear();
+
+
+  for (auto i = CRhController::Instance()->dct_resource_hosts().begin() ;
+       i != CRhController::Instance()->dct_resource_hosts().end(); ++i) {
+    QAction *peer_start = m_peer_menu->addAction(i->first);
+    QRegExp rx("\\uuid:(.*)\\::urn"); // get fingerprint via regex
+    int pos = rx.indexIn(i->first);
+    QStringList lsts = rx.capturedTexts();
+    std::pair<QString, QString> local_peer_info(lsts.empty() ? , "");
+
+    connect(peer_start, &QAction::triggered, [i, local_peer_info, this](){
+      this->generate_peer_dlg(NULL, std::make_pair(i->first,i->second));
+      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                     QString("Peer \"%1\"").arg(i->second));
+    });
+  }
+
+
+  for (auto peer = peers_connected.begin() ; peer != peers_connected.end() ; peer ++) {
+    QAction *peer_start = m_peer_menu->addAction(peer->name());
+
+    connect(peer_start, &QAction::triggered, [peer, local_peer_info, this](){
+      this->generate_peer_dlg(&(*peer), std::make_pair("",""));
+      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                     QString("Peer \"%1\"").arg(peer->name()));
+    });
+  }
+
+
+
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::balance_updated_sl() {
@@ -729,7 +808,7 @@ void TrayControlWindow::balance_updated_sl() {
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
-  m_act_launch_SS->setEnabled(true);
+  //m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
     CNotificationObserver::Info(tr(err.toStdString().c_str()), DlgNotification::N_NO_ACTION);
     return;
@@ -753,7 +832,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
         "Can't get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
-        tr("Can't get RH IP address. Error : %1, Exit_Code : %2")
+        tr("Can't get RH IP address. Error : %1")
             .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
     return;
   }
@@ -857,7 +936,7 @@ void TrayControlWindow::launch_ss() {
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
             .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
-    m_act_launch_SS->setEnabled(true);
+    //m_act_launch_SS->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -978,6 +1057,33 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
   m_last_generated_env_dlg = dlg_env;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+QDialog* TrayControlWindow::m_last_generated_peer_dlg = NULL;
+
+QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
+  UNUSED_ARG(p);
+  return m_last_generated_peer_dlg;
+}
+
+#include "DlgPeer.h"
+
+void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){
+  DlgPeer *dlg_peer = new DlgPeer();
+  if (local_peer.first.isEmpty() || local_peer.first.isNull())
+    dlg_peer->noLocalPeer();
+  else
+    dlg_peer->addLocalPeer(local_peer.first, local_peer.second);
+
+  if (peer == NULL)
+    dlg_peer->noPeer();
+  else
+    dlg_peer->addPeer(*peer);
+
+  connect(dlg_peer, &DlgPeer::launch_ss_console,
+          this, &TrayControlWindow::launch_ss);
+  m_last_generated_peer_dlg = dlg_peer;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 
