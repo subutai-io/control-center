@@ -163,6 +163,7 @@ public:
   const QString& current_pass() const {return m_current_pass;}
 
   void launch_balance_page();
+  void launch_environment_page(const int hub_id);
   static CHubController& Instance() {
     static CHubController instance;
     return instance;
