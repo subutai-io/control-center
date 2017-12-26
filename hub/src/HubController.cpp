@@ -442,54 +442,42 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
                                               "System call failed"};
   return lst_err_str[err % SDLE_LAST_ERR];
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
+void CHubController::launch_browser(const QString &url) {
+  QString chrome_path = CSettingsManager::Instance().chrome_path();
+  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
+    QStringList args;
+    args << "--new-window";
+    args << url;
+    if (!QProcess::startDetached(chrome_path, args)) {
+      QString err_msg = tr("Launch hub website with google chrome failed");
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
+      return;
+    }
+  } else {
+    if (!QDesktopServices::openUrl(QUrl(url))) {
+      QString err_msg =
+          tr("Launch hub website with default browser failed");
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      qCritical("%s", err_msg.toStdString().c_str());
+    }
+  }
+}
+
 void CHubController::launch_balance_page() {
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << QString(hub_billing_url()).arg(m_user_id);
-
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch hub website with google chrome failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(
-            QUrl(QString(hub_billing_url()).arg(m_user_id)))) {
-      QString err_msg =
-          tr("Launch hub website with default browser failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+  launch_browser(QString(hub_billing_url()).arg(m_user_id));
 }
 
-void CHubController::launch_environment_page(int hub_id) {
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id); // https://masterhub.subut.ai/users/%1, https://devhub.subut.ai/users/244/environments/2828
-
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch hub website with google chrome failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(
-            QUrl(QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id)))) {
-      QString err_msg =
-          tr("Launch hub website with default browser failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+void CHubController::launch_environment_page(const int hub_id) {
+  launch_browser(QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id));
 }
+
+void CHubController::launch_peer_page(const int peer_id) {
+  launch_browser(QString(hub_site() + "/peers/%1").arg(peer_id));
+}
+
 ////////////////////////////////////////////////////////////////////////////
 

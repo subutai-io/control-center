@@ -84,13 +84,22 @@ public:
     return tcw;
   }
   void Init (){;} /* do nothing */
+
+  void set_default_peer_id(const QString &id) {
+    m_default_peer_id = id;
+  }
+  QString default_peer_id() const {
+    return m_default_peer_id;
+  }
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
 
+  std::vector<CMyPeerInfo> peers_connected;
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
+  QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
   void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>);
@@ -106,7 +115,9 @@ private:
 
   /*tray icon*/
   QMenu *m_hub_menu;
-  QMenu *m_peer_menu;
+  QMenu *m_hub_peer_menu;
+  QMenu *m_local_peer_menu;
+
   QMenu *m_vbox_menu;
 
   QAction *m_act_ssh_keys_management;
@@ -158,7 +169,6 @@ private slots:
                              const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
   void login_success();
-  void launch_ss_console_finished_sl();
 
   /*virtualbox slots*/
   void fill_vm_menu();
@@ -176,6 +186,8 @@ private slots:
   void environments_updated_sl(int rr);
   void balance_updated_sl();
   void my_peers_updated_sl();
+  void update_peer_menu();
+
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
 

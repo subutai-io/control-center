@@ -11,19 +11,14 @@ namespace Ui {
 class DlgPeer : public QDialog
 {
   Q_OBJECT
-
 public:
   explicit DlgPeer(QWidget *parent = 0);
   ~DlgPeer();
   void addPeer(CMyPeerInfo &peer);
-  void addLocalPeer(const QString id, const QString local_ip);
-  void noPeer();
-  void noLocalPeer();
+  void addLocalPeer(const QString local_ip);
 
 private:
   Ui::DlgPeer *ui;
-signals:
-  void launch_ss_console(const QString&);
 };
 
 #endif // DLGPEER_H

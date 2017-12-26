@@ -166,4 +166,17 @@ CCommons::DefaultTerminals() {
 }
 
 
+QString CCommons::GetFingerprintFromUid(const QString &uid) {
+  QString res = "";
+  if (uid.indexOf("uid") == -1)
+    return res;
+  quint16 indexUid = uid.indexOf("uid:") + QString("uid:").size();
+  while (indexUid < uid.length() && uid[indexUid] != ":") {
+    res.append(uid[indexUid]);
+    indexUid ++;
+  }
+  return res;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////

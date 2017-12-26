@@ -135,7 +135,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  QMenu* menus[] = {m_hub_menu, m_peer_menu, m_vbox_menu, m_tray_menu};
+  QMenu* menus[] = {m_hub_menu, m_hub_peer_menu, m_local_peer_menu, m_vbox_menu, m_tray_menu};
   QAction* acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
                      m_act_settings,
@@ -288,8 +288,11 @@ void TrayControlWindow::create_tray_icon() {
 
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
                                     tr("Environments"));
-  m_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
+  m_hub_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/tray.png"),
                                      tr("My Peers"));
+  m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
+                                     tr("Local Peers"));
+
 
 #ifdef RT_OS_WINDOWS
   m_vbox_menu = m_tray_menu->addMenu(tr("Virtual machines"));
@@ -491,9 +494,7 @@ void TrayControlWindow::login_success() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::launch_ss_console_finished_sl() {
-  //m_act_launch_SS->setEnabled(true);
-}
+
 ////////////////////////////////////////////////////////////////////////////
 
 /*** Vbox slots  ***/
@@ -600,26 +601,7 @@ void TrayControlWindow::update_finished(QString file_id, bool success) {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::launch_Hub() {
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << hub_site();
-
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch hub website via google chrome failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(QUrl(hub_site()))) {
-      QString err_msg =
-          tr("Launch hub website via default browser failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+  CHubController::Instance().launch_browser(hub_site());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -708,7 +690,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 #include "RhController.h"
 
 void TrayControlWindow::my_peers_updated_sl() {
-  static std::vector<CMyPeerInfo> peers_connected; // within itself peers_connected has storage vector `envs_connected` for each Peer
 
   std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
 
@@ -734,7 +715,7 @@ void TrayControlWindow::my_peers_updated_sl() {
   }
 
   /// notify if Peers were connected or changed status
-  if (!disconnected_peers.empty()) {
+  if (!new_connected_peers.empty()) {
     for (CMyPeerInfo peer_to_notify : new_connected_peers) {
       QString msg = tr("Your peer \"%1\" is %2")
                     .arg(peer_to_notify.name())
@@ -744,7 +725,7 @@ void TrayControlWindow::my_peers_updated_sl() {
   }
 
   /// notify if Peers were disconnected
-  if (!new_connected_peers.empty()){
+  if (!disconnected_peers.empty()){
     for (CMyPeerInfo peer_to_notify : disconnected_peers) {
       QString msg = tr("Your peer \"%1\" is %2")
                     .arg(peer_to_notify.name())
@@ -764,38 +745,76 @@ void TrayControlWindow::my_peers_updated_sl() {
     peers_connected.push_back(peer_to_add);
   }
 
-  /// Show peers
-  m_peer_menu->clear();
+  update_peer_menu();
+}
+
+void TrayControlWindow::update_peer_menu() {
+  m_hub_peer_menu->clear();
+  m_local_peer_menu->clear();
 
 
-  for (auto i = CRhController::Instance()->dct_resource_hosts().begin() ;
-       i != CRhController::Instance()->dct_resource_hosts().end(); ++i) {
-    QAction *peer_start = m_peer_menu->addAction(i->first);
-    QRegExp rx("\\uuid:(.*)\\::urn"); // get fingerprint via regex
-    int pos = rx.indexIn(i->first);
-    QStringList lsts = rx.capturedTexts();
-    std::pair<QString, QString> local_peer_info(lsts.empty() ? , "");
-
-    connect(peer_start, &QAction::triggered, [i, local_peer_info, this](){
-      this->generate_peer_dlg(NULL, std::make_pair(i->first,i->second));
-      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                     QString("Peer \"%1\"").arg(i->second));
-    });
+  // migrate from dct_resource_hosts to found_local_peers by modifying uid to fingerprint
+  std::vector <std::pair<QString, QString>> found_local_peers;
+  for (std::pair<QString, QString> local_peer : CRhController::Instance()->dct_resource_hosts()) {
+    found_local_peers.push_back(std::make_pair(CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
   }
 
-
-  for (auto peer = peers_connected.begin() ; peer != peers_connected.end() ; peer ++) {
-    QAction *peer_start = m_peer_menu->addAction(peer->name());
-
-    connect(peer_start, &QAction::triggered, [peer, local_peer_info, this](){
-      this->generate_peer_dlg(&(*peer), std::make_pair("",""));
-      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                     QString("Peer \"%1\"").arg(peer->name()));
-    });
+  // Find local&hub peers
+  for (std::pair<QString, QString> local_peer : found_local_peers) {
+    for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
+        int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
+        if (eq == 0) // found peer both local and registered on hub
+        {
+          QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + "-" + local_peer.second);
+          connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
+            this->generate_peer_dlg(&(*hub_peer), local_peer);
+            TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                           QString("Peer \"%1\" - %2").arg(hub_peer->name()).arg(local_peer.second));
+          });
+          break;
+        }
+    }
   }
 
+  // Find local peers
+  for (std::pair<QString, QString> local_peer : found_local_peers) {
+    bool found_on_hub = false;
+    for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
+      int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
+      if (eq == 0) // found peer on hub
+      {
+        found_on_hub = true;
+        break;
+      }
+    }
 
+    if (found_on_hub == false && local_peer.first != QString("current_setting")) {
+      QAction *peer_start = m_local_peer_menu->addAction(local_peer.second);
+      connect(peer_start, &QAction::triggered, [local_peer]() {
+        CHubController::Instance().launch_browser(QString("https://%1:8443").arg(local_peer.second));
+      });
+    }
+  }
 
+  // Find hub peers
+  for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
+    bool found_on_local = false;
+    for (std::pair<QString, QString> local_peer : found_local_peers) {
+      int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
+      if (eq == 0) // found peer on local
+      {
+        found_on_local = true;
+        break;
+      }
+    }
+    if (found_on_local == false) {
+      QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
+      connect(peer_start, &QAction::triggered, [hub_peer, this](){
+        this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg, QString("Peer \"%1\"").arg(hub_peer->name()));
+      });
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -808,7 +827,6 @@ void TrayControlWindow::balance_updated_sl() {
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
-  //m_act_launch_SS->setEnabled(true);
   if (!is_ready) {
     CNotificationObserver::Info(tr(err.toStdString().c_str()), DlgNotification::N_NO_ACTION);
     return;
@@ -820,10 +838,10 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
   int ec = 0;
 
   system_call_wrapper_error_t scwe = CSystemCallWrapper::get_rh_ip_via_libssh2(
-      CSettingsManager::Instance().rh_host().toStdString().c_str(),
-      CSettingsManager::Instance().rh_port(),
-      CSettingsManager::Instance().rh_user().toStdString().c_str(),
-      CSettingsManager::Instance().rh_pass().toStdString().c_str(), ec, rh_ip);
+      CSettingsManager::Instance().rh_host(m_default_peer_id).toStdString().c_str(),
+      CSettingsManager::Instance().rh_port(m_default_peer_id),
+      CSettingsManager::Instance().rh_user(m_default_peer_id).toStdString().c_str(),
+      CSettingsManager::Instance().rh_pass(m_default_peer_id).toStdString().c_str(), ec, rh_ip);
 
   if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
     hub_url = QString("https://%1:8443").arg(rh_ip.c_str());
@@ -837,27 +855,7 @@ void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
     return;
   }
 
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << hub_url;
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr(
-          "Run subutai console via chrome failed. Couldn't start process");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(QUrl(hub_url))) {
-      QString err_msg = tr(
-          "Run subutai console via default browser failed. Couldn't start "
-          "process");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+  CHubController::Instance().launch_browser(hub_url);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -919,10 +917,10 @@ void TrayControlWindow::launch_ss() {
   std::string rh_ip;
   int ec = 0;
   system_call_wrapper_error_t scwe = CSystemCallWrapper::get_rh_ip_via_libssh2(
-      CSettingsManager::Instance().rh_host().toStdString().c_str(),
-      CSettingsManager::Instance().rh_port(),
-      CSettingsManager::Instance().rh_user().toStdString().c_str(),
-      CSettingsManager::Instance().rh_pass().toStdString().c_str(), ec, rh_ip);
+      CSettingsManager::Instance().rh_host(m_default_peer_id).toStdString().c_str(),
+      CSettingsManager::Instance().rh_port(m_default_peer_id),
+      CSettingsManager::Instance().rh_user(m_default_peer_id).toStdString().c_str(),
+      CSettingsManager::Instance().rh_pass(m_default_peer_id).toStdString().c_str(), ec, rh_ip);
 
   if (scwe == SCWE_SUCCESS && (ec == RLE_SUCCESS || ec == 0)) {
     QString tmp =
@@ -936,7 +934,6 @@ void TrayControlWindow::launch_ss() {
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(tr("Can't get RH IP address. Error : %1")
             .arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec)), DlgNotification::N_NO_ACTION);
-    //m_act_launch_SS->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1067,20 +1064,13 @@ QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
 
 #include "DlgPeer.h"
 
-void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){
+void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){ // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer();
-  if (local_peer.first.isEmpty() || local_peer.first.isNull())
-    dlg_peer->noLocalPeer();
-  else
-    dlg_peer->addLocalPeer(local_peer.first, local_peer.second);
+  if (!local_peer.first.isEmpty() && !local_peer.first.isNull())
+    dlg_peer->addLocalPeer(local_peer.second);
 
-  if (peer == NULL)
-    dlg_peer->noPeer();
-  else
+  if (peer != NULL)
     dlg_peer->addPeer(*peer);
-
-  connect(dlg_peer, &DlgPeer::launch_ss_console,
-          this, &TrayControlWindow::launch_ss);
   m_last_generated_peer_dlg = dlg_peer;
 }
 

@@ -7,7 +7,7 @@ CRhController::CRhController(QObject *parent) :
   m_has_changes(false),
   m_refresh_in_progress(false) {
 
-  m_refresh_timer.setInterval(60*1000);
+  m_refresh_timer.setInterval(30*1000);
   m_delay_timer.setInterval(REFRESH_DELAY_SEC*1000); //ssdp should use 5 seconds. BUT we will give 1 extra second :)
 
   connect(CSsdpController::Instance(), &CSsdpController::found_device,
@@ -28,16 +28,20 @@ CRhController::init() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static const QString current_setting = "current_setting";
-static const QString default_setting = "default_setting";
+static const QString current_setting = "uid:current_setting:";
+static const QString default_setting = "uid:default_setting:";
 static const QString localhost = "127.0.0.1";
+#include "NotificationObserver.h"
 
 void
 CRhController::refresh() {
+  // CNotificationObserver::Info("HEllo I am hgere" , DlgNotification::N_NO_ACTION);
+
   m_dct_resource_hosts.clear();
 
   if (CSettingsManager::Instance().rh_host() != localhost)
     m_dct_resource_hosts[default_setting] = localhost;
+
   m_dct_resource_hosts[current_setting] = CSettingsManager::Instance().rh_host();
 
   CSsdpController::Instance()->search();
