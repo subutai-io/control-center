@@ -227,6 +227,16 @@ void P2PController::join_swarm(const CEnvironment &env) {
 
 void P2PController::update_join_swarm_status(){
   if (!CSystemCallWrapper::p2p_daemon_check()) {
+    qDebug() << "Trying to start p2p daemon.";
+    int rse_err = 0;
+    system_call_wrapper_error_t scwe =
+        CSystemCallWrapper::restart_p2p_service(&rse_err);
+
+    if (scwe != SCWE_SUCCESS) {
+      qCritical() << "Can't restart p2p daemon.";
+    } else if (scwe == SCWE_SUCCESS) {
+      qInfo() << "P2p daemon successfully restarted.";
+    }
     return;
   }
 
