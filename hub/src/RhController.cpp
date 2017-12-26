@@ -31,12 +31,9 @@ CRhController::init() {
 static const QString current_setting = "uid:current_setting:";
 static const QString default_setting = "uid:default_setting:";
 static const QString localhost = "127.0.0.1";
-#include "NotificationObserver.h"
 
 void
 CRhController::refresh() {
-  // CNotificationObserver::Info("HEllo I am hgere" , DlgNotification::N_NO_ACTION);
-
   m_dct_resource_hosts.clear();
 
   if (CSettingsManager::Instance().rh_host() != localhost)

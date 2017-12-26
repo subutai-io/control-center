@@ -192,6 +192,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_vboxmanage_command_released);
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
+
+  this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 DlgSettings::~DlgSettings() {
