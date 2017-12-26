@@ -227,6 +227,7 @@ void P2PController::join_swarm(const CEnvironment &env) {
 
 void P2PController::update_join_swarm_status(){
   if (!CSystemCallWrapper::p2p_daemon_check()) {
+    envs_joined_swarm_hash.clear();
     qDebug() << "Trying to start p2p daemon.";
     int rse_err = 0;
     system_call_wrapper_error_t scwe =
