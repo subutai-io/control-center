@@ -10,10 +10,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui->setupUi(this);
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
-
-
 /////////////////////////////////////////////////////////////////////////
-
 
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
   for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++) {
@@ -27,9 +24,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *env){
     CHubController::Instance().launch_environment_page(env->hub_id());
   });
 }
-
 /////////////////////////////////////////////////////////////////////////
-
 
 void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_name = new QLabel(cont->name(), this);
@@ -45,47 +40,32 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   ui->cont_ip_port->addWidget(cont_ip);
   ui->cont_rhip->addWidget(cont_rhip_port);
 }
+/////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont) {
-  btn_ssh->setEnabled(false);
-  btn_desktop->setEnabled(false);
+  p2p_message_res_t res = P2PController::Instance().status(env, cont);
 
-  if (!env->healthy()) {
-    btn_ssh->setToolTip(env->status_description());
-    btn_desktop->setToolTip(env->status_description());
-  }
-  else
-  if(!env || !P2PController::Instance().join_swarm_success(env->hash())) {
-    btn_ssh->setToolTip("The connection with environment is not established.");
-    btn_desktop->setToolTip("The connection with environment is not established.");
-  }
-  else
-  if (!cont || !P2PController::Instance().handshake_success(env->id(), cont->id())) {
-    btn_ssh->setToolTip("Can't to connect container.");
-    btn_desktop->setToolTip("Can't to connect container.");
-  }
-  else {
-    btn_ssh->setToolTip("Press this button to ez-ssh to container.");
-    btn_desktop->setToolTip("Press this button to ez-desktop to container.");
-    btn_ssh->setEnabled(true);
-    btn_desktop->setEnabled(true);
-  }
+  btn_ssh->setToolTip(res.btn_ssh_message);
+  btn_desktop->setToolTip(res.btn_desktop_message);
+  btn_ssh->setEnabled(res.btn_ssh_enabled);
+  btn_desktop->setEnabled(res.btn_desktop_enabled);
 
   if (!cont->is_desktop()) {
-    btn_desktop->setToolTip("Container doesn't have desktop.");
+    btn_desktop->setToolTip(p2p_messages[NO_DESKTOP]);
     btn_desktop->setEnabled(false);
   }
 }
+/////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::button_enhancement(QPushButton *btn) {
   QFont *font = new QFont("Arial", 10, QFont::AllUppercase);
   btn->setFont(*font);
 }
+/////////////////////////////////////////////////////////////////////////
 
-void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont)
-{
-  QPushButton* btn_ssh = new QPushButton("SSH", this);
-  QPushButton* btn_desktop = new QPushButton("DESKTOP", this);
+void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContainer *cont) {
+  QPushButton* btn_ssh = new QPushButton(tr("SSH"), this);
+  QPushButton* btn_desktop = new QPushButton(tr("DESKTOP"), this);
 
   button_enhancement(btn_ssh);
   button_enhancement(btn_desktop);
@@ -97,7 +77,7 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
   CEnvironment copy_env = *env;
   CHubContainer copy_cont = *cont;
 
-  connect(timer, &QTimer::timeout, [btn_ssh, btn_desktop, copy_env, copy_cont, this](){
+  connect(timer, &QTimer::timeout, [btn_ssh, btn_desktop, copy_env, copy_cont, this]() {
     this->check_status(btn_ssh, btn_desktop, &copy_env, &copy_cont);
   });
 
@@ -106,21 +86,18 @@ void DlgEnvironment::addRemoteAccess(const CEnvironment *env, const CHubContaine
 
   connect(ui->btn_ssh_all, &QPushButton::clicked, btn_ssh, &QPushButton::click);
 
-  connect(btn_ssh, &QPushButton::clicked, [this, copy_env, copy_cont, btn_ssh](){
+  connect(btn_ssh, &QPushButton::clicked, [this, copy_env, copy_cont, btn_ssh]() {
     emit this->ssh_to_container_sig(&copy_env, &copy_cont, (void *)btn_ssh);
   });
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btn_desktop, &QPushButton::click);
 
-  connect(btn_desktop, &QPushButton::clicked, [this, copy_env, copy_cont, btn_desktop](){
+  connect(btn_desktop, &QPushButton::clicked, [this, copy_env, copy_cont, btn_desktop]() {
     emit this->desktop_to_container_sig(&copy_env, &copy_cont, (void *)btn_desktop);
   });
 }
-
 ////////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {
   delete ui;
 }
-
-///////////////////////////////////////////////////////////////////////////
