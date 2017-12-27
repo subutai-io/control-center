@@ -33,7 +33,6 @@ void DlgPeer::addPeer(CMyPeerInfo &peer) {
   ui->lbl_peer_status->setText(peer.status());
 
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
-  CNotificationObserver::Info(QString("Env size is: %1").arg(envs.size()), DlgNotification::N_NOTF_HISTORY);
   ui->tbl_envs->setRowCount(envs.size());
   int row = 0;
   for (CMyPeerInfo::env_info env : envs) {
