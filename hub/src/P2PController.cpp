@@ -293,37 +293,26 @@ p2p_message_res_t P2PController::status(const CEnvironment *env, const CHubConta
   p2p_message_res_t res;
 
   if (!env->healthy()) {
-    res.btn_desktop_message = env->status_description();
-    res.btn_ssh_message = env->status_description();
-    res.btn_ssh_enabled = false;
-    res.btn_desktop_enabled = false;
-
+    res.btn_ssh_message = res.btn_desktop_message = QString("%1. Environment status: %2").arg(env->status_description()).arg(env->status());
+    res.btn_ssh_enabled = res.btn_desktop_enabled = false;
     return res;
   }
   else
   if(!env || !P2PController::Instance().join_swarm_success(env->hash())) {
-    res.btn_desktop_message = p2p_messages[CANT_JOIN_SWARM];
-    res.btn_ssh_message = p2p_messages[CANT_JOIN_SWARM];
-    res.btn_ssh_enabled = false;
-    res.btn_desktop_enabled = false;
-
+    res.btn_desktop_message = res.btn_ssh_message = p2p_messages[CANT_JOIN_SWARM];
+    res.btn_ssh_enabled = res.btn_desktop_enabled = false;
     return res;
   }
   else
   if (!cont || !P2PController::Instance().handshake_success(env->id(), cont->id())) {
-    res.btn_desktop_message = p2p_messages[CANT_CONNECT_CONTAINER];
-    res.btn_ssh_message = p2p_messages[CANT_CONNECT_CONTAINER];
-    res.btn_ssh_enabled = false;
-    res.btn_desktop_enabled = false;
-
+    res.btn_desktop_message = res.btn_ssh_message = p2p_messages[CANT_CONNECT_CONTAINER];
+    res.btn_ssh_enabled = res.btn_desktop_enabled = false;
     return res;
   }
   else {
     res.btn_desktop_message = p2p_messages[CLICK_EZ_DESKTOP];
     res.btn_ssh_message = p2p_messages[CLICK_EZ_SSH];
-    res.btn_ssh_enabled = true;
-    res.btn_desktop_enabled = true;
-
+    res.btn_ssh_enabled = res.btn_desktop_enabled = true;
     return res;
   }
 }
