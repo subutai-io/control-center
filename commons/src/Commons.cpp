@@ -80,6 +80,7 @@ void CCommons::RestartTray() {
   QProcess::startDetached(QApplication::applicationFilePath(), args);
   QApplication::exit(0);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 bool

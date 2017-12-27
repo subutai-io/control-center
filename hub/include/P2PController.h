@@ -6,6 +6,29 @@
 #include "SystemCallWrapper.h"
 #include "HubController.h"
 
+static QString p2p_messages[] = {
+  QObject::tr("The connection with environment is not established."),
+  QObject::tr("Can't to connect container."),
+  QObject::tr("Container doesn't have desktop."),
+  QObject::tr("Press this button to ez-ssh to container."),
+  QObject::tr("Press this button to ez-desktop to container.")
+};
+
+enum p2p_message_code_t {
+  CANT_JOIN_SWARM = 0,
+  CANT_CONNECT_CONTAINER,
+  NO_DESKTOP,
+  CLICK_EZ_SSH,
+  CLICK_EZ_DESKTOP
+};
+
+struct p2p_message_res_t {
+  bool btn_ssh_enabled;
+  bool btn_desktop_enabled;
+  QString btn_ssh_message;
+  QString btn_desktop_message;
+};
+
 class SwarmConnector : public QObject{
 Q_OBJECT
 private:
@@ -27,7 +50,6 @@ private:
 
 public:
   HandshakeSender(const CEnvironment &_env, QObject *parent = nullptr);
-  virtual ~HandshakeSender();
   void try_to_handshake(const CHubContainer &cont);
 
   void handshake_begin();
@@ -46,6 +68,7 @@ private:
 
 public:
  P2PController();
+ ~P2PController();
 
  bool join_swarm_success(QString swarm_hash);
  bool handshake_success(QString env_id, QString cont_id);
@@ -71,6 +94,7 @@ public:
  }
 
  void init(){/* need to call constructor */}
+ p2p_message_res_t status(const CEnvironment *env, const CHubContainer *cont);
 
 public slots:
  void handshake_with_env(const CEnvironment &env);
