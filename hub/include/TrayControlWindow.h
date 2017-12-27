@@ -84,14 +84,26 @@ public:
     return tcw;
   }
   void Init (){;} /* do nothing */
+
+  void set_default_peer_id(const QString &id) {
+    m_default_peer_id = id;
+  }
+  QString default_peer_id() const {
+    return m_default_peer_id;
+  }
 private:
   CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
 
+  std::vector<CMyPeerInfo> peers_connected;
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
+  QString m_default_peer_id;
 
+  static QDialog *last_generated_peer_dlg(QWidget *p);
+  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>);
+  static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
   /*vbox*/
@@ -103,8 +115,10 @@ private:
 
   /*tray icon*/
   QMenu *m_hub_menu;
+  QMenu *m_hub_peer_menu;
+  QMenu *m_local_peer_menu;
+
   QMenu *m_vbox_menu;
-  QMenu *m_launch_menu;
 
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
@@ -113,7 +127,6 @@ private:
   QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;
-  QAction *m_act_launch_SS;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
   QAction *m_act_logout;
@@ -134,7 +147,6 @@ private:
 
   /*tray icon end*/
 
-  void launch_ss();
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 public slots:
   /*tray slots*/
@@ -144,6 +156,7 @@ public slots:
   /*virtualbox slots*/
   void show_vbox();
   void launch_Hub();
+  void launch_ss();
 
   /*hub slots*/
   void show_notifications_triggered();
@@ -156,7 +169,6 @@ private slots:
                              const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
   void login_success();
-  void launch_ss_console_finished_sl();
 
   /*virtualbox slots*/
   void fill_vm_menu();
@@ -169,11 +181,13 @@ private slots:
   void vbox_menu_btn_stop_triggered(const QString& vm_id);
   void vbox_menu_btn_add_triggered(const QString& vm_id);
   void vbox_menu_btn_rem_triggered(const QString& vm_id);
-  void launch_ss_triggered();
 
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+  void my_peers_updated_sl();
+  void update_peer_menu();
+
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
+    <width>548</width>
     <height>107</height>
    </rect>
   </property>
@@ -14,6 +14,31 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="0">
+    <widget class="QPushButton" name="btn_open_hub">
+     <property name="text">
+      <string>Open Hub</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btn_ssh_all">
+       <property name="text">
+        <string>SSH ALL</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_desktop_all">
+       <property name="text">
+        <string>DESKTOP ALL</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
@@ -88,44 +113,11 @@
    <item row="2" column="1">
     <layout class="QVBoxLayout" name="cont_ip_port"/>
    </item>
-   <item row="3" column="0">
-    <widget class="QPushButton" name="btn_open_hub">
-     <property name="text">
-      <string>Open Hub</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="2">
     <layout class="QVBoxLayout" name="cont_rhip"/>
    </item>
    <item row="2" column="3">
     <layout class="QFormLayout" name="cont_remote"/>
-   </item>
-   <item row="3" column="3">
-    <widget class="QPushButton" name="btn_desktop_all">
-     <property name="text">
-      <string>EZ-DESKTOP ALL</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="btn_ssh_all">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>10777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>EZ-SSH ALL</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

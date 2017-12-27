@@ -4,7 +4,12 @@
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 
-SwarmConnector::SwarmConnector(const CEnvironment &_env) : env(_env) {
+
+
+/////////////////////////////////////////////////////////////////////////
+
+SwarmConnector::SwarmConnector(const CEnvironment &_env, QObject* parent)
+  : QObject(parent), env(_env) {
   qDebug() << QString("SwarmConnector with [env_name: %1, env_id: %2, swarm_hash: %3] and key: %4")
                 .arg(env.name())
                 .arg(env.id())
@@ -32,7 +37,7 @@ void SwarmConnector::join_to_swarm_begin() {
                   .arg(env.name())
                   .arg(env.id())
                   .arg(env.hash())
-                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()).toStdString().c_str());
+                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()));
     attemptCounter ++;
     if(attemptCounter < 10) {
       QTimer::singleShot((int) std::pow(2, attemptCounter) * 1000, this, &SwarmConnector::join_to_swarm_begin); // after each attempt, it will increate its interval
@@ -44,11 +49,15 @@ void SwarmConnector::join_to_swarm_begin() {
 }
 /////////////////////////////////////////////////////////////////////////
 
-HandshakeSender::HandshakeSender(const CEnvironment &_env) : env(_env) {
+HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
+  : env(_env), QObject(parent) {
   QTimer *timer = new QTimer;
   timer->setInterval(1000 * 15); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
+  //this->setAttribute(Qt::WA_DeleteOnClose);
+  //this->setParent(this);
+
 }
 /////////////////////////////////////////////////////////////////////////
 
@@ -126,6 +135,7 @@ P2PController::~P2PController() {
   }
   envs_joined_swarm_hash.clear();
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 /* Handshake Senders */

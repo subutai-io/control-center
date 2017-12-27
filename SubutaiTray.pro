@@ -19,6 +19,8 @@ INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
 
+
+
 SOURCES += \
     main.cpp \
     commons/src/InternalCriticalSection.cpp \
@@ -58,6 +60,7 @@ SOURCES += \
     hub/src/DlgEnvironment.cpp \
     hub/src/P2PController.cpp \
     hub/src/X2GoClient.cpp \
+    hub/src/DlgPeer.cpp
 
 
 
@@ -101,7 +104,8 @@ HEADERS  += \
     commons/include/LanguageController.h \
     hub/include/DlgEnvironment.h \
     hub/include/P2PController.h \
-    hub/include/X2GoClient.h
+    hub/include/X2GoClient.h \
+    hub/include/DlgPeer.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -116,6 +120,7 @@ FORMS    += \
     hub/forms/DlgNotifications.ui \
     hub/forms/DlgNotification.ui \
     hub/forms/DlgEnvironment.ui \
+    hub/forms/DlgPeer.ui
 
 RESOURCES += \
     resources/resources.qrc

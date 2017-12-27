@@ -8,7 +8,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui(new Ui::DlgEnvironment)
 {
     ui->setupUi(this);
-    this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+    this->layout()->setSizeConstraint(QLayout::SetDefaultConstraint);
 }
 /////////////////////////////////////////////////////////////////////////
 

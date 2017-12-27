@@ -28,18 +28,10 @@ CRhController::init() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static const QString current_setting = "current_setting";
-static const QString default_setting = "default_setting";
-static const QString localhost = "127.0.0.1";
 
 void
 CRhController::refresh() {
   m_dct_resource_hosts.clear();
-
-  if (CSettingsManager::Instance().rh_host() != localhost)
-    m_dct_resource_hosts[default_setting] = localhost;
-  m_dct_resource_hosts[current_setting] = CSettingsManager::Instance().rh_host();
-
   CSsdpController::Instance()->search();
   m_refresh_in_progress = true;
   m_delay_timer.start();
@@ -49,7 +41,6 @@ CRhController::refresh() {
 void
 CRhController::found_device_slot(QString uid, QString location) {
   if (!m_refresh_in_progress) return;
-  if (m_dct_resource_hosts[current_setting] == location) return;
   m_has_changes |= (m_dct_resource_hosts.find(uid) == m_dct_resource_hosts.end());
   m_dct_resource_hosts[uid] = location;
 }
