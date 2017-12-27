@@ -9,7 +9,8 @@
 
 /////////////////////////////////////////////////////////////////////////
 
-SwarmConnector::SwarmConnector(const CEnvironment &_env) : env(_env) {
+SwarmConnector::SwarmConnector(const CEnvironment &_env, QObject* parent)
+  : QObject(parent), env(_env) {
   qDebug() << QString("SwarmConnector with [env_name: %1, env_id: %2, swarm_hash: %3] and key: %4")
                 .arg(env.name())
                 .arg(env.id())
@@ -49,11 +50,15 @@ void SwarmConnector::join_to_swarm_begin() {
 
 /////////////////////////////////////////////////////////////////////////
 
-HandshakeSender::HandshakeSender(const CEnvironment &_env) : env(_env) {
+HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
+  : env(_env), QObject(parent) {
   QTimer *timer = new QTimer;
   timer->setInterval(1000 * 15); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
+  //this->setAttribute(Qt::WA_DeleteOnClose);
+  //this->setParent(this);
+
 }
 
 void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
@@ -103,9 +108,9 @@ void HandshakeSender::handshake_begin(){
 #include "NotificationObserver.h"
 
 HandshakeSender::~HandshakeSender() {
-  CNotificationObserver::Info("Im here maan", DlgNotification::N_ABOUT);
-
   qDebug() << "HandshakeSender destructor";
+  CNotificationObserver::Info("helllo", DlgNotification::N_NOTF_HISTORY);
+
   QFuture<system_call_wrapper_error_t> res =
       QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, env.hash());
   res.waitForFinished();

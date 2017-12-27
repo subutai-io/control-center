@@ -18,7 +18,6 @@ INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
 INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
-INCLUDEPATH += hub/forms
 
 
 

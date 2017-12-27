@@ -12,7 +12,7 @@ private:
   CEnvironment env;
   int attemptCounter;
 public:
-  SwarmConnector(const CEnvironment &_env);
+  SwarmConnector(const CEnvironment &_env, QObject *parent = nullptr);
 public slots:
   void join_to_swarm_begin();
 signals:
@@ -26,8 +26,8 @@ private:
   CEnvironment env;
 
 public:
-  HandshakeSender(const CEnvironment &_env);
-  ~HandshakeSender();
+  HandshakeSender(const CEnvironment &_env, QObject *parent = nullptr);
+  virtual ~HandshakeSender();
   void try_to_handshake(const CHubContainer &cont);
 
   void handshake_begin();
