@@ -27,7 +27,7 @@ private:
 
 public:
   HandshakeSender(const CEnvironment &_env);
-
+  ~HandshakeSender();
   void try_to_handshake(const CHubContainer &cont);
 
   void handshake_begin();
@@ -46,7 +46,6 @@ private:
 
 public:
  P2PController();
- ~P2PController();
 
  bool join_swarm_success(QString swarm_hash);
  bool handshake_success(QString env_id, QString cont_id);

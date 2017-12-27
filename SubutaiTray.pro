@@ -61,7 +61,7 @@ SOURCES += \
     hub/src/DlgEnvironment.cpp \
     hub/src/P2PController.cpp \
     hub/src/X2GoClient.cpp \
-    hub/forms/DlgPeer.cpp
+    hub/src/DlgPeer.cpp
 
 
 
@@ -106,7 +106,7 @@ HEADERS  += \
     hub/include/DlgEnvironment.h \
     hub/include/P2PController.h \
     hub/include/X2GoClient.h \
-    hub/forms/DlgPeer.h
+    hub/include/DlgPeer.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -139,7 +139,7 @@ DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_PROD
+GBV=BT_DEV
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }

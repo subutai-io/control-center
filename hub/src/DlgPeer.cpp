@@ -14,7 +14,6 @@ DlgPeer::DlgPeer(QWidget *parent) :
   ui->tbl_envs->setColumnCount(3);
   ui->tbl_envs->setHorizontalHeaderLabels(headers);
   ui->tbl_envs->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  ui->tbl_envs->setSelectionBehavior(QAbstractItemView::SelectRows);
   ui->tbl_envs->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
   this->layout()->setSizeConstraint(QLayout::SetMinimumSize);
   ui->btn_launch_console->setEnabled(false);
@@ -34,6 +33,8 @@ void DlgPeer::addPeer(CMyPeerInfo &peer) {
   ui->lbl_peer_status->setText(peer.status());
 
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
+  CNotificationObserver::Info(QString("Env size is: %1").arg(envs.size()), DlgNotification::N_NOTF_HISTORY);
+  ui->tbl_envs->setRowCount(envs.size());
   int row = 0;
   for (CMyPeerInfo::env_info env : envs) {
     ui->tbl_envs->setItem(row, 0, new QTableWidgetItem(env.envName));

@@ -36,7 +36,7 @@ void SwarmConnector::join_to_swarm_begin() {
                   .arg(env.name())
                   .arg(env.id())
                   .arg(env.hash())
-                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()).toStdString().c_str());
+                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()));
     attemptCounter ++;
     if(attemptCounter < 10) {
       QTimer::singleShot((int) std::pow(2, attemptCounter) * 1000, this, &SwarmConnector::join_to_swarm_begin); // after each attempt, it will increate its interval
@@ -101,6 +101,27 @@ void HandshakeSender::handshake_begin(){
   }
 }
 
+HandshakeSender::~HandshakeSender() {
+  qDebug() << "HandshakeSender destructor";
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, env.hash());
+  res.waitForFinished();
+  if (res == SCWE_SUCCESS) {
+    qInfo() << QString("Left the swarm [env_name: %1, env_id: %2, swarm_hash: %3]")
+               .arg(env.name())
+               .arg(env.id())
+               .arg(env.hash());
+  }
+  else {
+    qCritical() << QString("Can't leave the swarm  [env_name: %1, env_id: %2, swarm_hash: %3]. Error message %4")
+                   .arg(env.name())
+                   .arg(env.id())
+                   .arg(env.hash())
+                   .arg(CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
+  }
+
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -114,24 +135,7 @@ P2PController::P2PController() {
   QTimer::singleShot(10000, this, &P2PController::update_join_swarm_status); // 10 sec
 }
 
-P2PController::~P2PController() {
-  qDebug() << "P2PController destructor";
-  if (!envs_joined_swarm_hash.empty() && CSystemCallWrapper::p2p_daemon_check()) {
-    for (auto env_hash : envs_joined_swarm_hash) {
-      system_call_wrapper_error_t res = CSystemCallWrapper::leave_p2p_swarm(env_hash);
-      if (res == SCWE_SUCCESS) {
-        qInfo() << QString("Left the swarm [swarm_hash: %1]")
-                    .arg(env_hash);
-      }
-      else {
-        qCritical() << QString("Can't leave the swarm [swarm_hash: %1]. Error message %2")
-                       .arg(env_hash)
-                       .arg(CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
-      }
-    }
-  }
-  envs_joined_swarm_hash.clear();
-}
+
 
 /////////////////////////////////////////////////////////////////////////
 /* Handshake Senders */

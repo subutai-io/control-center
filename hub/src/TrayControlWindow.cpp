@@ -709,8 +709,15 @@ void TrayControlWindow::my_peers_updated_sl() {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
 
-    if(found_peer == peers_connected.end() || found_peer->status() != peer.status()) { // disconnected or changed status
+    if(found_peer == peers_connected.end()) { // disconnected or changed status
       new_connected_peers.push_back(peer);
+      CNotificationObserver::Instance()->Info(peer.name(), DlgNotification::N_GO_TO_HUB);
+    }
+    else
+    if(found_peer->status() != peer.status()) { // disconnected or changed status
+      new_connected_peers.push_back(peer);
+      CNotificationObserver::Instance()->Info(peer.name() + " -- " + peer.status()
+                                              + " " + found_peer->status(), DlgNotification::N_GO_TO_HUB);
     }
   }
 

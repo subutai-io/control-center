@@ -204,6 +204,11 @@ DlgSettings::~DlgSettings() {
 
 void DlgSettings::rebuild_rh_list_model() {
   m_model_resource_hosts->clear();
+
+  QStandardItem* item = new QStandardItem("127.0.0.1"); // default ip address
+  item->setEditable(false);
+  m_model_resource_hosts->appendRow(item);
+
   for (auto i = CRhController::Instance()->dct_resource_hosts().begin();
        i != CRhController::Instance()->dct_resource_hosts().end(); ++i) {
     QStandardItem* item = new QStandardItem(i->second);
