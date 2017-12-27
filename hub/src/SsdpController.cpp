@@ -222,18 +222,6 @@ CSsdpController::hanvle_ssdp_ok(const QByteArray &dtgr) {
   if (dct_packet.find(ife_location) == dct_packet.end()) return;
   if (dct_packet.find(ife_usn) == dct_packet.end()) return;
 
-  /*std::vector<CMyPeerInfo> lst_peers(CHubController::Instance().lst_my_peers());
-  if (lst_peers.empty()) return;
-  QString usn = QString::fromStdString(dct_packet[ife_usn]).toLower();
-  bool found = false;
-  for (auto i : lst_peers) {
-    if (usn.indexOf(i.fingerprint().toLower()) == -1) continue;
-    found = true;
-    break;
-  }
-
-  if (!found) return;
-*/
   emit found_device(
         QString::fromStdString(dct_packet[ife_usn]),
         QString::fromStdString(dct_packet[ife_location]));

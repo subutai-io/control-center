@@ -100,8 +100,11 @@ void HandshakeSender::handshake_begin(){
     try_to_handshake(cont);
   }
 }
+#include "NotificationObserver.h"
 
 HandshakeSender::~HandshakeSender() {
+  CNotificationObserver::Info("Im here maan", DlgNotification::N_ABOUT);
+
   qDebug() << "HandshakeSender destructor";
   QFuture<system_call_wrapper_error_t> res =
       QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, env.hash());

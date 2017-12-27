@@ -15,6 +15,7 @@
 #include "DlgNotifications.h"
 #include "DlgSettings.h"
 #include "DlgEnvironment.h"
+#include "DlgPeer.h"
 #include "HubController.h"
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
@@ -772,7 +773,7 @@ void TrayControlWindow::update_peer_menu() {
         int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
         if (eq == 0) // found peer both local and registered on hub
         {
-          QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + "-" + local_peer.second);
+          QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + " - " + local_peer.second);
           connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
             this->generate_peer_dlg(&(*hub_peer), local_peer);
             TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
@@ -821,6 +822,13 @@ void TrayControlWindow::update_peer_menu() {
         TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg, QString("Peer \"%1\"").arg(hub_peer->name()));
       });
     }
+  }
+
+  if (m_hub_peer_menu->isEmpty()) {
+    m_hub_peer_menu->addAction("Empty")->setEnabled(false);
+  }
+  if (m_local_peer_menu->isEmpty()) {
+    m_local_peer_menu->addAction("Empty")->setEnabled(false);
   }
 }
 
@@ -1068,8 +1076,6 @@ QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
   UNUSED_ARG(p);
   return m_last_generated_peer_dlg;
 }
-
-#include "DlgPeer.h"
 
 void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){ // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer();
