@@ -16,8 +16,7 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		bat '''
-        C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\build_dev.bat
-        
+        'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\build_dev.bat'
         '''
 		stage("Upload")
 
