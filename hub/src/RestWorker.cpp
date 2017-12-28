@@ -56,6 +56,7 @@ void CRestWorker::get_environments_finished_sl() {
   emit on_get_environments_finished(lst_res, http_code, err_code,
                                     network_error);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::get_balance_finished_sl() {

@@ -47,6 +47,7 @@ void SwarmConnector::join_to_swarm_begin() {
     }
   }
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
@@ -55,10 +56,8 @@ HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
   timer->setInterval(1000 * 15); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
-  //this->setAttribute(Qt::WA_DeleteOnClose);
-  //this->setParent(this);
-
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
