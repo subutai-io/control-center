@@ -1,6 +1,8 @@
 #!/bin/bash
 
 sstray=$1
+BRANCH=$2
+
 # clean
 rm -rf flat
 rm -rf root
@@ -30,8 +32,19 @@ cp ./Distribution.tmpl ./flat/Distribution
 sed -i -e "s/{VERSION_PLACEHOLDER}/$version/g" ./flat/Distribution
 sed -i -e "s/{SIZE_PLACEHOLDER}/$mbsize/g" ./flat/Distribution
 
+PKGNAME="subutai-tray.pkg"
+
+case $BRANCH in
+        dev)
+                PKGNAME="subutai-tray-dev.pkg"
+                ;;
+        master)
+                PKGNAME="subutai-tray-master.pkg"
+                ;;
+esac
+
 # Pack and bom
 ( cd root && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > flat/base.pkg/Payload
 ( cd scripts && find . | cpio -o --format odc --owner 0:80 | gzip -c ) > flat/base.pkg/Scripts
 mkbom -u 0 -g 80 root flat/base.pkg/Bom
-( cd flat && xar --compression none -cf "../subutai-tray.pkg" * )
+( cd flat && xar --compression none -cf "../$PKGNAME" * )
