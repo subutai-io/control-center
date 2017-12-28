@@ -8,20 +8,32 @@ try {
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
+
+    node("windows") {
+
+		stage("Start build Windows")
+		
+		notifyBuildDetails = "\nFailed on Stage - Start build"
+
+		bat 'start cmd.exe /c C:\\Jenkins\\build\\Build_dev.lnk'
+
+		stage("Upload")
+
+		notifyBuildDetails = "\nFailed on Stage - Upload"
+
+		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\SubutaiTray.exe'
+        bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\subutai-tray-dev.msi'
+        
+	}
+
 	node("debian") {
 
-		stage("Checkout source")
-		/* checkout agent repo */
-		notifyBuildDetails = "\nFailed on Stage - Checkout source"
-
-		checkout scm
-
-		stage("Start build")
+		stage("Start build Debian")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-			/home/builder/./build_master.sh
+			/home/builder/./build_dev.sh
 		"""
 
 		stage("Upload")
@@ -29,9 +41,10 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-            /home/builder/upload_script/./upload_master.sh /home/builder/build_master/subutai-tray-master.deb
-            /home/builder/upload_script/./upload_master.sh /home/builder/build_master/SubutaiTray
+            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/subutai-tray-dev.deb
+            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/SubutaiTray
         """
+
 	}
 
 } catch (e) { 
@@ -42,7 +55,6 @@ try {
 	notifyBuild(currentBuild.result, notifyBuildDetails)
 }
 
-// https://jenkins.io/blog/2016/07/18/pipline-notifications/
 def notifyBuild(String buildStatus = 'STARTED', String details = '') {
   // build status of null means successful
   buildStatus = buildStatus ?: 'SUCCESSFUL'

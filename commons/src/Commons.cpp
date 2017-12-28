@@ -80,6 +80,7 @@ void CCommons::RestartTray() {
   QProcess::startDetached(QApplication::applicationFilePath(), args);
   QApplication::exit(0);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 bool
@@ -163,6 +164,19 @@ CCommons::DefaultTerminals() {
   for (auto i : dct_term_arg)
     lst_res << i.first;
   return lst_res;
+}
+
+
+QString CCommons::GetFingerprintFromUid(const QString &uid) {
+  QString res = "";
+  if (uid.indexOf("uid") == -1)
+    return res;
+  quint16 indexUid = uid.indexOf("uid:") + QString("uid:").size();
+  while (indexUid < uid.length() && uid[indexUid] != ":") {
+    res.append(uid[indexUid]);
+    indexUid ++;
+  }
+  return res;
 }
 
 

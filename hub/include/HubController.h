@@ -40,6 +40,7 @@ private:
   std::vector<CEnvironment> m_lst_environments_internal;
   std::vector<CEnvironment> m_lst_environments;
   std::vector<CEnvironment> m_lst_healthy_environments;
+
   std::vector<CMyPeerInfo> m_lst_my_peers;
 
   QString m_balance;
@@ -83,7 +84,6 @@ private:
   void refresh_balance_internal();
 
 private slots:
-  void my_peers_updated_sl();
 
   void settings_changed();
 
@@ -163,6 +163,13 @@ public:
   const QString& current_pass() const {return m_current_pass;}
 
   void launch_balance_page();
+
+  void launch_browser(const QString &url);
+
+  void launch_environment_page(const int hub_id);
+
+  void launch_peer_page(const int peer_id);
+
   static CHubController& Instance() {
     static CHubController instance;
     return instance;

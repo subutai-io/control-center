@@ -15,6 +15,11 @@ using namespace update_system;
 QString get_p2p_version() {
   QString p2p_version = "";
   CSystemCallWrapper::p2p_version(p2p_version);
+
+  p2p_version = p2p_version.remove("p2p");
+  p2p_version = p2p_version.remove("version");
+  p2p_version = p2p_version.remove("  ");
+
   return p2p_version;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -24,7 +29,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
-  ui->lbl_tray_version_val->setText(TRAY_VERSION);
+  ui->lbl_tray_version_val->setText(TRAY_VERSION + branch_name_str());
 
   this->setMinimumWidth(700);
 

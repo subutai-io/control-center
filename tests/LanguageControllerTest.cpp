@@ -12,6 +12,6 @@ void LanguageControllerTest::testLocaleTypeToVal() {
 void LanguageControllerTest::testLocaleTypeToVal_data() {
     QTest::addColumn<int> ("locale_type");
     QTest::addColumn<QString> ("expected_lang");
-    QTest::newRow("Russian") << (int) LanguageController::LOCALE_RU << "Русский";
+    // QTest::newRow("Russian") << (int) LanguageController::LOCALE_RU << "Русский";
     QTest::newRow("English") << (int) LanguageController::LOCALE_EN << "English";
 }
