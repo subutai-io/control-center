@@ -15,7 +15,7 @@ try {
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
-		bat 'start cmd.exe /c C:\\Jenkins\\build\\Build_dev.lnk'
+		bat 'start cmd.exe /c C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\build_dev.bat'
 
 		stage("Upload")
 
@@ -23,7 +23,7 @@ try {
 
 		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\SubutaiTray.exe'
         bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\subutai-tray-dev.msi'
-        
+
 	}
 
 	node("debian") {
