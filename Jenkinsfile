@@ -108,3 +108,4 @@ def getSlackToken(String slackCredentialsId){
 	}
 	return found_slack_token
 }
+
