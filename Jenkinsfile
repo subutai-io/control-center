@@ -9,21 +9,21 @@ try {
 	Node block used to separate agent and subos code.
 	*/
 
-    node("windows") {
+	node("windows") {
 
 		stage("Start build Windows")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		bat '''
-        'C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\build_dev.bat'
-        '''
+		'C:\\Jenkins\\build\\build_dev.lnk'
+		'''
 		stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev_exe.do'
-        bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev_msi.do'
+		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev_msi.do'
 
 	}
 
@@ -42,9 +42,9 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/subutai-tray-dev.deb
-            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/SubutaiTray
-        """
+		/home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/subutai-tray-dev.deb
+		/home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/SubutaiTray
+		"""
 
 	}
 
