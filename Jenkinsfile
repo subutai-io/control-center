@@ -16,7 +16,8 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		bat '''
-		'C:\\Jenkins\\build\\build_dev.lnk'
+		cd C:\\Jenkins\\build\\
+        build_dev.lnk
 		'''
 		stage("Upload")
 
