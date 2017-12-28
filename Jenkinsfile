@@ -8,14 +8,25 @@ try {
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
+
+    node("windows") {
+
+		stage("Start build Windows")
+		
+		notifyBuildDetails = "\nFailed on Stage - Start build"
+
+		bat 'start cmd.exe /c C:\\Jenkins\\build\\Build_dev.lnk'
+
+		stage("Upload")
+
+		notifyBuildDetails = "\nFailed on Stage - Upload"
+
+		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\SubutaiTray.exe'
+        bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev.do C:\\tray_builds\\dev\\subutai-tray-dev.msi'
+        
+	}
+
 	node("debian") {
-
-		stage("Checkout source")
-		/* checkout agent repo */
-		notifyBuildDetails = "\nFailed on Stage - Checkout source"
-
-
-		checkout scm
 
 		stage("Start build Debian")
 		
@@ -24,27 +35,6 @@ try {
 		sh """
 			/home/builder/./build_dev.sh
 		"""
-
-		stage("Upload")
-
-		notifyBuildDetails = "\nFailed on Stage - Upload"
-
-		sh """
-            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/subutai-tray-dev.deb
-            /home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/SubutaiTray
-        """
-
-	}
-
-    node("windows") {
-
-		stage("Start build Windows")
-		
-		notifyBuildDetails = "\nFailed on Stage - Start build"
-
-		sh """
-            mkdir Test123
-        """
 
 		stage("Upload")
 
@@ -108,4 +98,3 @@ def getSlackToken(String slackCredentialsId){
 	}
 	return found_slack_token
 }
-
