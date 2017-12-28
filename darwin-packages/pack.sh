@@ -1,6 +1,8 @@
 #!/bin/bash
 
 sstray=$1
+BRANCH=$2
+
 # clean
 rm -rf flat
 rm -rf root
