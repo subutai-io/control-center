@@ -14,6 +14,7 @@ try {
 		/* checkout agent repo */
 		notifyBuildDetails = "\nFailed on Stage - Checkout source"
 
+
 		checkout scm
 
 		stage("Start build Debian")
