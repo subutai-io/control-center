@@ -4,7 +4,29 @@ notifyBuildDetails = ""
 
 try {
 	notifyBuild('STARTED')
+    switch (env.BRANCH_NAME) {
+            case ~/master/: 
+            upload_path = "C:\\Jenkins\\upload\\master\\"
+            build_path_linux = "home/builder/build_master"
+            windows_tray_build = "build_master.lnk"
+            linux_tray_build = "build_master.sh"
+            upload_msi = "upload_master_msi.do"
+            upload_exe = "upload_master_exe.do"
+            upload_deb = "subutai-tray-dev.deb"
+            upload_sh = "SubutaiTray"
+            upload_script = "upload_master.sh"
 
+            break;
+	        default: 
+            upload_path = "C:\\Jenkins\\upload\\dev\\"
+            build_path_linux = "home/builder/build_dev"
+            windows_tray_build = "build_dev.lnk"
+            linux_tray_build = "./build_dev.sh"
+            upload_msi = "upload_dev_msi.do"
+            upload_exe = "upload_dev_exe.do"
+            upload_deb = "subutai-tray-dev.deb"
+            upload_sh = "SubutaiTray"
+            upload_script = "upload_dev.sh"
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
@@ -17,15 +39,20 @@ try {
 
 		bat '''
 		cd C:\\Jenkins\\build\\
-        build_dev.lnk
+		${windows_tray_build}
 		'''
 		stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
-		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev_exe.do'
-		bat 'start cmd.exe /c C:\\Jenkins\\upload\\dev\\upload_dev_msi.do'
-
+		bat '''
+		cd ${upload_path}
+        ${upload_msi}
+		'''
+		bat '''
+		cd ${upload_path}
+        ${upload_exe}
+		'''
 	}
 
 	node("debian") {
@@ -35,7 +62,7 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-			/home/builder/./build_dev.sh
+			/home/builder/./${linux_tray_build}
 		"""
 
 		stage("Upload")
@@ -43,8 +70,8 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/subutai-tray-dev.deb
-		/home/builder/upload_script/./upload_dev.sh /home/builder/build_dev/SubutaiTray
+		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_deb}
+		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_sh}
 		"""
 
 	}
@@ -64,7 +91,7 @@ def notifyBuild(String buildStatus = 'STARTED', String details = '') {
   // Default values
   def colorName = 'RED'
   def colorCode = '#FF0000'
-  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"  	
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
   def summary = "${subject} (${env.BUILD_URL})"
 
   // Override default values based on build status
