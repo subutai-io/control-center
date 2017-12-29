@@ -48,7 +48,6 @@ class CSettingsManager : public QObject {
 
   static const QString SM_TERMINAL_CMD;
   static const QString SM_TERMINAL_ARG;
-  static const QString SM_VBOXMANAGE_PATH;
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
   static const QString SM_LOGS_LEVEL;
@@ -115,7 +114,6 @@ class CSettingsManager : public QObject {
 
 
 
-  QString m_vboxmanage_path;
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
   uint32_t m_logs_level;
@@ -223,7 +221,6 @@ class CSettingsManager : public QObject {
   const QString& x2goclient() const { return m_x2goclient; }
   const QString& terminal_arg() const { return m_terminal_arg; }
 
-  const QString& vboxmanage_path() const { return m_vboxmanage_path; }
   bool use_animations() const { return m_use_animations; }
 
   uint32_t notifications_level() const { return m_notifications_level; }
@@ -294,7 +291,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(rtm_db_dir, QString&)
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
-  SET_FIELD_DECL(vboxmanage_path, QString&)
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(logs_level, uint32_t)
