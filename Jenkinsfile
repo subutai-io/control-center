@@ -4,6 +4,12 @@ notifyBuildDetails = ""
 
 try {
 	notifyBuild('STARTED')
+
+    stage("Checkout source")
+
+		notifyBuildDetails = "\nFailed on Stage - Checkout source" 
+        checkout scm
+        
     switch (env.BRANCH_NAME) {
             case ~/master/: 
             upload_path = "C:\\Jenkins\\upload\\master\\"
@@ -31,11 +37,6 @@ try {
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
-    stage("Checkout source")
-
-		notifyBuildDetails = "\nFailed on Stage - Checkout source" 
-        checkout scm
-
 	node("windows") {
 
 		stage("Start build Windows")
