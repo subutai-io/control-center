@@ -15,7 +15,6 @@
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
-#include "VBoxManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
 
@@ -877,11 +876,7 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
     QString &version) {
   return chrome_version_internal<Os2Type<CURRENT_OS> >(version);
 }
-////////////////////////////////////////////////////////////////////////////
 
-const QString &CSystemCallWrapper::virtual_box_version() {
-  return CVboxManager::Instance()->version();
-}
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(

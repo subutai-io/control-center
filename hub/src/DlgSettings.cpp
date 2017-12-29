@@ -79,8 +79,6 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
         CSettingsManager::Instance().ssh_keys_storage());
-  ui->le_vboxmanage_command->setText(
-        CSettingsManager::Instance().vboxmanage_path());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
 
@@ -94,7 +92,6 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->lbl_err_ssh_user->hide();
   ui->lbl_err_p2p_command->hide();
   ui->lbl_err_ssh_command->hide();
-  ui->lbl_err_vboxmanage_command->hide();
   ui->lbl_err_ssh_keygen_command->hide();
   ui->lbl_err_terminal_arg->hide();
   ui->lbl_err_terminal_cmd->hide();
@@ -188,8 +185,6 @@ DlgSettings::DlgSettings(QWidget* parent)
           this, &DlgSettings::resource_host_list_updated_sl);
   connect(&m_refresh_rh_list_timer, &QTimer::timeout, this,
           &DlgSettings::refresh_rh_list_timer_timeout);
-  connect(ui->btn_vboxmanage_command, &QPushButton::released, this,
-          &DlgSettings::btn_vboxmanage_command_released);
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
 
@@ -268,7 +263,7 @@ void DlgSettings::btn_ok_released() {
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
                      ui->le_p2p_command,   ui->le_ssh_command,
-                     ui->le_rtm_db_folder, ui->le_vboxmanage_command};
+                     ui->le_rtm_db_folder};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
@@ -315,9 +310,6 @@ void DlgSettings::btn_ok_released() {
     {ui->le_terminal_cmd, ui->lbl_err_terminal_cmd, can_launch_terminal, 1,
      can_launch_application_msg},
     {ui->le_terminal_arg, ui->lbl_err_terminal_arg, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_vboxmanage_command, ui->lbl_err_vboxmanage_command, can_launch_application, 1,
-     can_launch_application_msg},
 
     {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_keygen_command, ui->lbl_err_ssh_keygen_command, can_launch_application, 1,
@@ -387,8 +379,6 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
 
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
-  CSettingsManager::Instance().set_vboxmanage_path(
-        ui->le_vboxmanage_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
@@ -469,13 +459,7 @@ void DlgSettings::btn_ssh_keygen_command_released() {
   if (fn == "") return;
   ui->le_ssh_keygen_command->setText(fn);
 }
-////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_vboxmanage_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("Vboxmanage command"));
-  if (fn == "") return;
-  ui->le_vboxmanage_command->setText(fn);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_logs_storage_released() {

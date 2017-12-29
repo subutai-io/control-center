@@ -44,7 +44,7 @@
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab_common">
         <attribute name="title">
@@ -332,14 +332,10 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="4" column="2">
-            <widget class="QPushButton" name="btn_vboxmanage_command">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="le_x2goclient_command"/>
            </item>
-           <item row="8" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>x2goclient</string>
@@ -370,10 +366,10 @@
            <item row="0" column="1">
             <widget class="QLineEdit" name="le_p2p_command"/>
            </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="le_vboxmanage_command"/>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="le_ssh_command"/>
            </item>
-           <item row="10" column="0" colspan="3">
+           <item row="8" column="0" colspan="3">
             <widget class="QGroupBox" name="gb_terminal_settings">
              <property name="title">
               <string>Terminal settings:</string>
@@ -438,15 +434,8 @@
              </layout>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="le_ssh_command"/>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="lbl_vboxmanage_command">
-             <property name="text">
-              <string>Vboxmanage:</string>
-             </property>
-            </widget>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="le_ssh_keygen_command"/>
            </item>
            <item row="2" column="2">
             <widget class="QPushButton" name="btn_ssh_command">
@@ -471,56 +460,21 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="le_ssh_keygen_command"/>
-           </item>
-           <item row="6" column="2">
+           <item row="4" column="2">
             <widget class="QPushButton" name="btn_ssh_keygen_command">
              <property name="text">
               <string>...</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
               <string>Ssh-keygen:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QLabel" name="lbl_err_ssh_command">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="1">
-            <widget class="QLabel" name="lbl_err_vboxmanage_command">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
             <widget class="QLabel" name="lbl_err_ssh_keygen_command">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -536,18 +490,31 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
-            <widget class="QLineEdit" name="le_x2goclient_command"/>
-           </item>
-           <item row="8" column="2">
+           <item row="6" column="2">
             <widget class="QPushButton" name="btn_x2goclient_command">
              <property name="text">
               <string>...</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="7" column="1">
             <widget class="QLabel" name="lbl_err_x2goclient_command">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="lbl_err_ssh_command">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
