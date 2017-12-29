@@ -27,6 +27,7 @@ try {
             upload_deb = "subutai-tray-dev.deb"
             upload_sh = "SubutaiTray"
             upload_script = "upload_dev.sh"
+    }
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
