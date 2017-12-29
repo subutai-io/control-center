@@ -38,14 +38,14 @@ try {
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
-		bat "cd C:\\Jenkins\\build\\${windows_tray_build}"
+		bat "C:\\Jenkins\\build\\${windows_tray_build}"
 		
         stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
-		bat "cd ${upload_path}${upload_msi}"
-		bat "cd ${upload_path}${upload_exe}"
+		bat "${upload_path}${upload_msi}"
+		bat "${upload_path}${upload_exe}"
 	}
 
 	node("debian") {
