@@ -55,7 +55,6 @@ const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 const QString CSettingsManager::SM_LOCALE("Locale");
 const QString CSettingsManager::SM_TERMINAL_CMD("Terminal_Cmd");
 const QString CSettingsManager::SM_TERMINAL_ARG("Terminal_Arg");
-const QString CSettingsManager::SM_VBOXMANAGE_PATH("VBoxManage_Path");
 const QString CSettingsManager::SM_DCT_NOTIFICATIONS_IGNORE("Dct_Notifications_Ignored");
 
 const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
@@ -187,7 +186,6 @@ CSettingsManager::CSettingsManager()
       m_terminal_cmd(default_terminal()),
       m_x2goclient(default_x2goclient_path()),
       m_terminal_arg(default_term_arg()),
-      m_vboxmanage_path(vboxmanage_command_str()),
       m_notifications_level(CNotificationObserver::NL_INFO),
       m_logs_level(Logger::LOG_DEBUG),
       m_locale(LanguageController::LOCALE_EN),
@@ -231,7 +229,6 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_rtm_db_dir, SM_RTM_DB_DIR, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
-      {(void*)&m_vboxmanage_path, SM_VBOXMANAGE_PATH, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
@@ -287,14 +284,12 @@ CSettingsManager::CSettingsManager()
   }
 
   // which using
-  QString* cmd_which[] = {&m_vboxmanage_path, &m_ssh_keygen_cmd, &m_ssh_path,
+  QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
                           &m_p2p_path, &m_x2goclient, nullptr};
-  static const QString default_values[] = {vboxmanage_command_str(),
-                                           ssh_keygen_cmd_path(), ssh_cmd_path(),
+  static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
                                            default_p2p_path(), default_x2goclient_path()};
   static const QString commands_name[] =
-                                    {"vboxmanage",
-                                     "ssh-keygen",
+                                    {"ssh-keygen",
                                      "ssh",
                                      "p2p",
                                      "x2goclient"};
@@ -644,7 +639,6 @@ SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
 SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
 SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
-SET_FIELD_DEF(vboxmanage_path, SM_VBOXMANAGE_PATH, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)
 SET_FIELD_DEF(notifications_level, SM_NOTIFICATIONS_LEVEL, uint32_t)
 SET_FIELD_DEF(logs_level, SM_LOGS_LEVEL, uint32_t)
