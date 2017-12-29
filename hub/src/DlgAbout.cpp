@@ -280,9 +280,6 @@ DlgAboutInitializer::do_initialization() {
     emit got_chrome_version(chrome_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vbox_version = CSystemCallWrapper::virtual_box_version();
-    emit got_vbox_version(vbox_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString rh_version = CSystemCallWrapper::rh_version();
     emit got_rh_version(rh_version);
