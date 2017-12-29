@@ -4,12 +4,6 @@ notifyBuildDetails = ""
 
 try {
 	notifyBuild('STARTED')
-
-    stage("Checkout source")
-
-		notifyBuildDetails = "\nFailed on Stage - Checkout source" 
-        checkout scm
-        
     switch (env.BRANCH_NAME) {
             case ~/master/: 
             upload_path = "C:\\Jenkins\\upload\\master\\"
