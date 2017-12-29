@@ -12,7 +12,7 @@ try {
             linux_tray_build = "build_master.sh"
             upload_msi = "upload_master_msi.do"
             upload_exe = "upload_master_exe.do"
-            upload_deb = "subutai-tray-dev.deb"
+            upload_deb = "subutai-tray-master.deb"
             upload_sh = "SubutaiTray"
             upload_script = "upload_master.sh"
 
@@ -31,6 +31,10 @@ try {
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
+    stage("Checkout source")
+
+		notifyBuildDetails = "\nFailed on Stage - Checkout source" 
+        checkout scm
 
 	node("windows") {
 
