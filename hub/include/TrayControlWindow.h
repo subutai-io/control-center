@@ -16,61 +16,12 @@
 #include "RestWorker.h"
 #include "NotificationObserver.h"
 #include "HubController.h"
-#include "VirtualMachine.h"
 #include "DlgNotification.h"
 
 namespace Ui {
   class TrayControlWindow;
 }
 
-class CVBPlayerItem : public QWidget {
-    Q_OBJECT
-private:
-    QString m_vm_player_item_id;
-    QAction* m_player_item_act;
-
-    QHBoxLayout *p_h_Layout;
-    QLabel *m_lbl_name;
-    QLabel *m_lbl_state;
-
-    QPushButton *m_btn_play;
-    QPushButton *m_btn_stop;
-    QPushButton *m_btn_add;
-
-public:
-    CVBPlayerItem(const CVirtualMachine* vm, QWidget* parent);
-    virtual ~CVBPlayerItem();
-    void set_buttons(MachineState_T state);
-
-private slots:
-    void vbox_menu_btn_play_released();
-    void vbox_menu_btn_stop_released();
-
-signals:
-    void vbox_menu_btn_play_released_signal(const QString& vm_id);
-    void vbox_menu_btn_stop_released_signal(const QString& vm_id);
-};
-////////////////////////////////////////////////////////////////////////////
-
-class CVBPlayer : public QWidget{
-    Q_OBJECT
-private:
-    QVBoxLayout *m_vLayout;
-    QAction* m_player_act;
-    QLabel *m_lblHeader;
-    QHBoxLayout *m_horHeaderLayout;
-    int m_vm_count;
-
-public:
-    CVBPlayer(QWidget *parent);
-    virtual ~CVBPlayer();
-    void add(CVBPlayerItem* pItem);
-    void remove(CVBPlayerItem* pItem);
-    int vm_count(void) const {return m_vm_count;}
-};
-
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
 
 class TrayControlWindow : public QMainWindow
 {
@@ -92,7 +43,6 @@ public:
     return m_default_peer_id;
   }
 private:
-  CVBPlayer *m_w_Player;
   Ui::TrayControlWindow *ui;
 
   std::vector<CMyPeerInfo> peers_connected;
@@ -106,12 +56,6 @@ private:
   static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
-  /*vbox*/
-  QWidgetAction *m_vboxAction;
-  std::map<QString, CVBPlayerItem*>  m_dct_player_menus;
-  void add_vm_menu(const QString &vm_id);
-  void remove_vm_menu(const QString &vm_id);
-  /*vbox end*/
 
   /*tray icon*/
   QMenu *m_hub_menu;
@@ -152,9 +96,6 @@ public slots:
   /*tray slots*/
   void show_about();
   void show_settings_dialog();
-
-  /*virtualbox slots*/
-  void show_vbox();
   void launch_Hub();
   void launch_ss();
 
@@ -169,18 +110,6 @@ private slots:
                              const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
   void login_success();
-
-  /*virtualbox slots*/
-  void fill_vm_menu();
-  void vm_added(const QString& vm_id);
-  void vm_removed(const QString& vm_id);
-  void vm_state_changed(const QString& vm_id);
-  void vm_session_state_changed(const QString& vm_id);
-  void vmc_player_act_released(const QString& vm_id);
-  void vbox_menu_btn_play_triggered(const QString& vm_id);
-  void vbox_menu_btn_stop_triggered(const QString& vm_id);
-  void vbox_menu_btn_add_triggered(const QString& vm_id);
-  void vbox_menu_btn_rem_triggered(const QString& vm_id);
 
   /*hub slots*/
   void environments_updated_sl(int rr);

@@ -16,7 +16,6 @@ TEMPLATE = app
 
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
-INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
 
 
@@ -50,8 +49,6 @@ SOURCES += \
     hub/src/RhController.cpp \
     hub/src/NotificationLogger.cpp \
     hub/src/DlgNotifications.cpp \
-    vbox/src/VBoxManager.cpp \
-    vbox/src/VirtualMachine.cpp \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp \
@@ -95,8 +92,6 @@ HEADERS  += \
     hub/include/RhController.h \
     hub/include/NotificationLogger.h \
     hub/include/DlgNotifications.h \
-    vbox/include/VBoxManager.h \
-    vbox/include/VirtualMachine.h \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h \
