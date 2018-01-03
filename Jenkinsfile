@@ -7,30 +7,61 @@ try {
     switch (env.BRANCH_NAME) {
             case ~/master/: 
             upload_path = "C:\\Jenkins\\upload\\master\\"
-            build_path_linux = "home/builder/build_master"
             windows_tray_build = "build_master.lnk"
-            linux_tray_build = "build_master.sh"
             upload_msi = "upload_master_msi.do"
             upload_exe = "upload_master_exe.do"
+
+            build_path_linux = "home/builder/build_master"
+            linux_tray_build = "build_master.sh"
             upload_deb = "subutai-tray-master.deb"
             upload_sh = "SubutaiTray"
             upload_script = "upload_master.sh"
 
+            build_mac = "master"
+            upload_pkg = "subutai-tray-master.pkg"
+            upload_osx = "SubutaiTray_osx"
+
             break;
-	        default: 
+	          default: 
             upload_path = "C:\\Jenkins\\upload\\dev\\"
-            build_path_linux = "home/builder/build_dev"
             windows_tray_build = "build_dev.lnk"
-            linux_tray_build = "./build_dev.sh"
             upload_msi = "upload_dev_msi.do"
             upload_exe = "upload_dev_exe.do"
+
+            build_path_linux = "home/builder/build_dev"
+            linux_tray_build = "./build_dev.sh"
             upload_deb = "subutai-tray-dev.deb"
             upload_sh = "SubutaiTray"
             upload_script = "upload_dev.sh"
+
+            build_mac = "dev"
+            upload_pkg = "subutai-tray-dev.pkg"
+            upload_osx = "SubutaiTray_osx"
     }
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
+  node("mac") {
+
+		stage("Start build macOS")
+		
+		notifyBuildDetails = "\nFailed on Stage - Start build"
+
+		sh """
+			/User/dev/SRC/tray/./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
+		"""
+
+		stage("Upload")
+
+		notifyBuildDetails = "\nFailed on Stage - Upload"
+
+		sh """
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
+		"""
+
+	}
+
 	node("windows") {
 
 		stage("Start build Windows")
@@ -39,7 +70,7 @@ try {
 
 		bat "C:\\Jenkins\\build\\${windows_tray_build}"
 		
-        stage("Upload")
+    stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
