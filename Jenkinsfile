@@ -56,8 +56,8 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/home/builder/upload_script/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
-		/home/builder/upload_script/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
 		"""
 
 	}
@@ -70,7 +70,7 @@ try {
 
 		bat "C:\\Jenkins\\build\\${windows_tray_build}"
 		
-        stage("Upload")
+    stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
@@ -93,7 +93,7 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/Users/dev/upload/./${upload_script} /${build_path_linux}/${upload_deb}
+		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_deb}
 		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_sh}
 		"""
 
