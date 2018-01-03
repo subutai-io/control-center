@@ -48,7 +48,7 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-			./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
+			/User/dev/SRC/tray/./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
 		"""
 
 		stage("Upload")
