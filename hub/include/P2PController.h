@@ -70,7 +70,6 @@ private:
 
 public:
  P2PController();
- ~P2PController();
 
  bool join_swarm_success(QString swarm_hash);
  bool handshake_success(QString env_id, QString cont_id);
