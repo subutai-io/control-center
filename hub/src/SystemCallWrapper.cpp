@@ -128,8 +128,9 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
   }
 
   for (auto i = res.out.begin(); i != res.out.end(); ++i) {
-    QString swarm = *i;
-    swarm_lsts.push_back(swarm.mid(i->indexOf("swarm"), swarm.length()));
+    if (i->indexOf("swarm") != -1) {
+      swarm_lsts.push_back(i->mid(i->indexOf("swarm"), i->length()));
+    }
   }
 
   return swarm_lsts;

@@ -51,7 +51,7 @@ void SwarmConnector::join_to_swarm_begin() {
 
 SwarmLeaver::SwarmLeaver() {
   QTimer *timer = new QTimer;
-  timer->setInterval(10000 * 60 * 4); // 4 min
+  timer->setInterval(1000 * 60 * 4); // 4 min
   connect(timer, &QTimer::timeout, this, &SwarmLeaver::leave_to_swarm_begin);
   timer->start();
 }
@@ -135,6 +135,14 @@ void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
 /////////////////////////////////////////////////////////////////////////
 
 void HandshakeSender::handshake_begin(){
+  std::vector<CEnvironment> env_lsts = CHubController::Instance().lst_environments();
+
+  if (std::find(env_lsts.begin(), env_lsts.end(), env) == env_lsts.end()) {
+    qDebug() << "Stopped handshake to container. Not found env: " << env.name();
+    QThread::currentThread()->quit();
+    return;
+  }
+
   for (CHubContainer cont : env.containers()) {
     try_to_handshake(cont);
   }
