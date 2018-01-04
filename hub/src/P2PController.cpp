@@ -158,11 +158,6 @@ P2PController::P2PController() {
 }
 /////////////////////////////////////////////////////////////////////////
 
-P2PController::~P2PController() {
-}
-
-/////////////////////////////////////////////////////////////////////////
-
 /* Handshake Senders */
 void P2PController::handshaked(QString env_id, QString cont_id) {
   successfull_handshakes.insert(std::make_pair(env_id, cont_id));

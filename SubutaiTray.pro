@@ -19,7 +19,6 @@ INCLUDEPATH += hub/include
 INCLUDEPATH += libssh2/include
 
 
-
 SOURCES += \
     main.cpp \
     commons/src/InternalCriticalSection.cpp \
@@ -179,6 +178,8 @@ macx: {
 #////////////////////////////////////////////////////////////////////////////
 
 win32: {
+  CONFIG -= embed_manifest_exe
+
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
