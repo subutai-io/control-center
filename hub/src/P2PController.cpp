@@ -47,7 +47,42 @@ void SwarmConnector::join_to_swarm_begin() {
     }
   }
 }
+/////////////////////////////////////////////////////////////////////////
 
+SwarmLeaver::SwarmLeaver() {
+  QTimer *timer = new QTimer;
+  timer->setInterval(10000 * 60 * 4); // 4 min
+  connect(timer, &QTimer::timeout, this, &SwarmLeaver::leave_to_swarm_begin);
+  timer->start();
+}
+
+void SwarmLeaver::leave_to_swarm_begin() {
+  QFuture<std::vector<QString> > res =
+      QtConcurrent::run(CSystemCallWrapper::p2p_show);
+  res.waitForFinished();
+
+  std::vector<QString> swarmed_lsts = res.result();
+  std::vector<CEnvironment> environment_lsts = CHubController::Instance().lst_environments();
+
+  if (!swarmed_lsts.empty()) {
+    for (auto hash : swarmed_lsts) {
+      auto found = std::find_if(environment_lsts.begin(), environment_lsts.end(), [&hash](const CEnvironment& env) {
+        return env.hash() == hash;
+      });
+
+      if (found == environment_lsts.end()) {  // not found hash to leave swarm
+        qDebug() << "Not found" << hash;
+        QFuture<system_call_wrapper_error_t> res =
+           QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
+        res.waitForFinished();
+
+        if (res.result() == SCWE_SUCCESS) {
+          qDebug() << "Successufully leaved swarm hash: " << hash;
+        }
+      }
+    }
+  }
+}
 /////////////////////////////////////////////////////////////////////////
 
 HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
@@ -57,7 +92,6 @@ HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
 }
-
 /////////////////////////////////////////////////////////////////////////
 
 void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
@@ -117,22 +151,6 @@ P2PController::P2PController() {
 /////////////////////////////////////////////////////////////////////////
 
 P2PController::~P2PController() {
-  qDebug() << "P2PController destructor";
-  if (!envs_joined_swarm_hash.empty() && CSystemCallWrapper::p2p_daemon_check()) {
-    for (auto env_hash : envs_joined_swarm_hash) {
-      system_call_wrapper_error_t res = CSystemCallWrapper::leave_p2p_swarm(env_hash);
-      if (res == SCWE_SUCCESS) {
-        qInfo() << QString("Left the swarm [swarm_hash: %1]")
-                    .arg(env_hash);
-      }
-      else {
-        qCritical() << QString("Can't leave the swarm [swarm_hash: %1]. Error message %2")
-                       .arg(env_hash)
-                       .arg(CSystemCallWrapper::scwe_error_to_str(res).toStdString().c_str());
-      }
-    }
-  }
-  envs_joined_swarm_hash.clear();
 }
 
 /////////////////////////////////////////////////////////////////////////

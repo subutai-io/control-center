@@ -97,6 +97,7 @@ class CSystemCallWrapper {
                                    unsigned long timeout_msec = 30000);
 
   static bool is_in_swarm(const QString &hash);
+  static std::vector<QString> p2p_show();
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
                                                        const QString &key,
