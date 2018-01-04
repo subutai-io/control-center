@@ -4,7 +4,7 @@ notifyBuildDetails = ""
 
 try {
 	notifyBuild('STARTED')
-    switch (env.BRANCH_NAME) {
+	switch (env.BRANCH_NAME) {
             case ~/master/: 
             upload_path = "C:\\Jenkins\\upload\\master\\"
             windows_tray_build = "build_master.lnk"
@@ -22,7 +22,7 @@ try {
             upload_osx = "SubutaiTray_osx"
 
             break;
-	          default: 
+	    default: 
             upload_path = "C:\\Jenkins\\upload\\dev\\"
             windows_tray_build = "build_dev.lnk"
             upload_msi = "upload_dev_msi.do"
@@ -41,14 +41,14 @@ try {
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
 	*/
-  node("mac") {
+        node("mac") {
 
 		stage("Start build macOS")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-			/User/dev/SRC/tray/./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
+		/Users/dev/SRC/TrayDevops/tray/osx/./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
 		"""
 
 		stage("Upload")
@@ -70,7 +70,7 @@ try {
 
 		bat "C:\\Jenkins\\build\\${windows_tray_build}"
 		
-    stage("Upload")
+		stage("Upload")
 
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
@@ -85,7 +85,7 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-			/home/builder/./${linux_tray_build}
+		/home/builder/./${linux_tray_build}
 		"""
 
 		stage("Upload")
@@ -96,7 +96,6 @@ try {
 		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_deb}
 		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_sh}
 		"""
-
 	}
 
 } catch (e) { 
