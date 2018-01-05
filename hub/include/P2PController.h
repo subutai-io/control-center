@@ -95,6 +95,7 @@ public:
  void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
  void send_handshake(const CEnvironment &env, const CHubContainer &cont);
  void check_handshakes(const std::vector<CEnvironment>& envs);
+ void check_join_swarm_status();
 
  int get_container_status(const CEnvironment *env, const CHubContainer *cont);
 
