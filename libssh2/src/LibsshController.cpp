@@ -345,6 +345,8 @@ CLibsshController::run_ssh_command_pass_auth(const char* host,
                                   lst_out, user_pass_authentication, &arg);
 }
 ////////////////////////////////////////////////////////////////////////////
+SynchroPrimitives::CriticalSection CLibsshController::m_libssh_cs;
+
 
 int
 CLibsshController::run_ssh_command_key_auth(const char *host,
@@ -361,11 +363,13 @@ CLibsshController::run_ssh_command_key_auth(const char *host,
   arg.passphrase = passphrase;
   arg.privae_file = pr_file;
   arg.pub_file = pub_file;
+  SynchroPrimitives::Locker lock(&m_libssh_cs);
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, key_pub_authentication, &arg);
 }
 
 run_libssh2_error CLibsshController::send_handshake(const char *str_host, uint16_t port, int conn_timeout) {
+    SynchroPrimitives::Locker lock(&m_libssh_cs);
     return send_handshake_internal(str_host, port, conn_timeout);
 }
 

@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "Locker.h"
+
 typedef enum run_libssh2_error {
   RLE_SUCCESS = 1000,
   RLE_WRONG_ARGUMENTS_COUNT,
@@ -78,6 +80,7 @@ public:
                                       std::vector<std::string>& lst_out);
 
   static run_libssh2_error send_handshake(const char *str_host, uint16_t port, int conn_timeout);
+  static SynchroPrimitives::CriticalSection m_libssh_cs;
 
 };
 

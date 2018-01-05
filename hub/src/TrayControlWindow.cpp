@@ -69,7 +69,6 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_quit(NULL),
       m_act_settings(NULL),
       m_act_balance(NULL),
-      m_act_vbox(NULL),
       m_act_hub(NULL),
       m_act_launch_Hub(NULL),
       m_act_about(NULL),
@@ -117,12 +116,11 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
 }
 
 TrayControlWindow::~TrayControlWindow() {
-  QMenu* menus[] = {m_hub_menu, m_hub_peer_menu, m_local_peer_menu, m_vbox_menu, m_tray_menu};
+  QMenu* menus[] = {m_hub_menu, m_hub_peer_menu, m_local_peer_menu, m_tray_menu};
   QAction* acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
                      m_act_settings,
                      m_act_balance,
-                     m_act_vbox,
                      m_act_hub,
                      m_act_launch_Hub,
                      m_act_about,

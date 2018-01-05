@@ -56,7 +56,6 @@ const QString& default_terminal();
 const QString& default_x2goclient_path();
 const QString& default_term_arg();
 
-const QString& vboxmanage_command_str();
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();
 const QString& ssh_cmd_path();

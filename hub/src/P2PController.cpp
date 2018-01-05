@@ -138,7 +138,8 @@ void HandshakeSender::handshake_begin(){
   std::vector<CEnvironment> env_lsts = CHubController::Instance().lst_environments();
 
   if (std::find(env_lsts.begin(), env_lsts.end(), env) == env_lsts.end()) {
-    qDebug() << "Stopped handshake to container. Not found env: " << env.name();
+    qDebug()
+        << "Stopped handshake to container. Not found env: " << env.name();
     QThread::currentThread()->quit();
     return;
   }
@@ -253,6 +254,7 @@ void P2PController::join_swarm(const CEnvironment &env) {
 
   envs_with_connectors.insert(env.hash());
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 void P2PController::check_join_swarm_status() {
@@ -298,6 +300,7 @@ void P2PController::update_join_swarm_status() {
   }
 
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 /* P2PContrller HELPERS */
@@ -323,6 +326,7 @@ int P2PController::get_container_status(const CEnvironment *env, const CHubConta
 
   return (int) SDLE_SUCCESS;
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 p2p_message_res_t P2PController::status(const CEnvironment *env, const CHubContainer *cont) {
