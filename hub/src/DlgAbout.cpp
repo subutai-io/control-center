@@ -110,9 +110,6 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::got_rh_version_sl);
   connect(di, &DlgAboutInitializer::got_rh_management_version,
           this, &DlgAbout::got_rh_management_version_sl);
-  connect(di, &DlgAboutInitializer::got_vbox_version,
-          this, &DlgAbout::got_vbox_version_sl);
-
   connect(di, &DlgAboutInitializer::update_available,
           this, &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress,
@@ -233,12 +230,7 @@ void
 DlgAbout::got_chrome_version_sl(QString version) {
   ui->lbl_chrome_version_val->setText(version);
 }
-////////////////////////////////////////////////////////////////////////////
 
-void
-DlgAbout::got_vbox_version_sl(QString version) {
-  ui->lbl_vbox_version_val->setText(version);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void

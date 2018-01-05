@@ -49,49 +49,9 @@
       </layout>
      </item>
      <item row="0" column="0">
-      <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,2,2,2,0,0,0" columnstretch="1,4,2,1">
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,0,0,0,0,0" columnstretch="1,0,0,0">
        <item row="2" column="1">
         <widget class="QLabel" name="lbl_rh_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QPushButton" name="btn_tray_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Update tray</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lbl_p2p_version">
-         <property name="text">
-          <string>P2P version:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_tray_version">
-         <property name="text">
-          <string>Tray application version:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="lbl_tray_version_val">
          <property name="text">
           <string>undefined</string>
          </property>
@@ -113,6 +73,13 @@
          </property>
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="lbl_rh_version">
+         <property name="text">
+          <string>RH version:</string>
          </property>
         </widget>
        </item>
@@ -139,8 +106,8 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QProgressBar" name="pb_rh">
+       <item row="0" column="2">
+        <widget class="QProgressBar" name="pb_tray">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -152,6 +119,33 @@
          </property>
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_tray_version">
+         <property name="text">
+          <string>Tray application version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="lbl_chrome_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="lbl_rhm_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -184,25 +178,15 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="lbl_vbox_version_val">
+       <item row="1" column="0">
+        <widget class="QLabel" name="lbl_p2p_version">
          <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          <string>P2P version:</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="lbl_rh_version">
-         <property name="text">
-          <string>RH version:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="lbl_p2p_version_val">
+       <item row="0" column="1">
+        <widget class="QLabel" name="lbl_tray_version_val">
          <property name="text">
           <string>undefined</string>
          </property>
@@ -227,29 +211,6 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="lbl_chrome_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="lbl_vbox_version">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>VBox version:</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="3">
         <widget class="QPushButton" name="btn_rh_update">
          <property name="enabled">
@@ -266,8 +227,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QProgressBar" name="pb_tray">
+       <item row="2" column="2">
+        <widget class="QProgressBar" name="pb_rh">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -282,8 +243,24 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="lbl_rhm_version_val">
+       <item row="0" column="3">
+        <widget class="QPushButton" name="btn_tray_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Update tray</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="lbl_p2p_version_val">
          <property name="text">
           <string>undefined</string>
          </property>
