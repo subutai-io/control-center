@@ -16,7 +16,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 private:
 public:
-  static const int COMPONENTS_COUNT = 9;
+  static const int COMPONENTS_COUNT = 8;
 public slots:
   void do_initialization();
   void abort();
@@ -25,7 +25,6 @@ signals:
   void finished();
   void got_p2p_version(QString version);
   void got_chrome_version(QString version);
-  void got_vbox_version(QString version);
   void got_rh_version(QString version);
   void got_rh_management_version(QString version);
   void update_available(QString component_id, bool available);
@@ -75,7 +74,6 @@ private slots:
   void init_progress_sl(int part, int total);
   void got_p2p_version_sl(QString version);
   void got_chrome_version_sl(QString version);
-  void got_vbox_version_sl(QString version);
   void got_rh_version_sl(QString version);
   void got_rh_management_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
