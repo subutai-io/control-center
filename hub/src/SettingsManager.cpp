@@ -195,8 +195,8 @@ CSettingsManager::CSettingsManager()
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
       m_subutai_cmd(subutai_command()) {
-  static const char* FOLDERS_TO_CREATE[] = {".ssh", ".rtm_tray", nullptr};
-  QString* fields[] = {&m_ssh_keys_storage, &m_rtm_db_dir, nullptr};
+  static const char* FOLDERS_TO_CREATE[] = {".ssh", nullptr};
+  QString* fields[] = {&m_ssh_keys_storage, nullptr};
 
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -226,7 +226,6 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_logs_storage, SM_LOGS_STORAGE, qvar_to_str},
       {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
-      {(void*)&m_rtm_db_dir, SM_RTM_DB_DIR, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
@@ -636,7 +635,6 @@ SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
 SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
 SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
 SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
-SET_FIELD_DEF(rtm_db_dir, SM_RTM_DB_DIR, QString&)
 SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)
 SET_FIELD_DEF(use_animations, SM_USE_ANIMATIONS, bool)

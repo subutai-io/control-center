@@ -100,8 +100,6 @@ class CSettingsManager : public QObject {
   bool m_tray_autoupdate;
   bool m_rh_management_autoupdate;
 
-  QString m_rtm_db_dir;
-
   QString m_terminal_cmd;
   QString m_x2goclient;
   QString m_terminal_arg;
@@ -213,7 +211,6 @@ class CSettingsManager : public QObject {
   bool tray_autoupdate() const { return m_tray_autoupdate; }
   bool rh_management_autoupdate() const { return m_rh_management_autoupdate; }
 
-  const QString& rtm_db_dir() const { return m_rtm_db_dir; }
   bool is_writable() const { return m_settings.isWritable(); }
 
   // osascript for macOS . don't ask. don't change :(
@@ -288,7 +285,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
   SET_FIELD_DECL(rh_management_autoupdate, bool)
-  SET_FIELD_DECL(rtm_db_dir, QString&)
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
   SET_FIELD_DECL(use_animations, bool)
