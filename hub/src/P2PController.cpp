@@ -205,12 +205,12 @@ void P2PController::remove_connector(const CEnvironment &env) {
                 .arg(env.name())
                 .arg(env.id())
                 .arg(env.hash());
- envs_with_connectors.erase(env.id());
+ envs_with_connectors.erase(env.hash());
 }
 /////////////////////////////////////////////////////////////////////////
 
-bool P2PController::has_connector(QString env_id) {
-  return envs_with_connectors.find(env_id) != envs_with_connectors.end();
+bool P2PController::has_connector(QString env_hash) {
+  return envs_with_connectors.find(env_hash) != envs_with_connectors.end();
 }
 /////////////////////////////////////////////////////////////////////////
 
@@ -218,7 +218,7 @@ std::vector<CEnvironment> P2PController::get_envs_without_connectors(){
   std::vector<CEnvironment> current_envs = CHubController::Instance().lst_healthy_environments();
   std::vector<CEnvironment> ret_envs;
   for (CEnvironment &env : current_envs) {
-    if (!has_connector(env.id())) {
+    if (!has_connector(env.hash())) {
       ret_envs.push_back(env);
     }
   }
