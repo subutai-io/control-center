@@ -62,13 +62,10 @@ private:
   QMenu *m_hub_peer_menu;
   QMenu *m_local_peer_menu;
 
-  QMenu *m_vbox_menu;
-
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
   QAction *m_act_settings;
   QAction *m_act_balance;
-  QAction *m_act_vbox;
   QAction *m_act_hub;
   QAction *m_act_launch;
   QAction *m_act_launch_Hub;
