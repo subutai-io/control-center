@@ -252,12 +252,28 @@ void P2PController::join_swarm(const CEnvironment &env) {
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
   thread->start();
 
-  envs_with_connectors.insert(env.id());
+  envs_with_connectors.insert(env.hash());
 }
 
 /////////////////////////////////////////////////////////////////////////
 
-void P2PController::update_join_swarm_status(){
+void P2PController::check_join_swarm_status() {
+  QFuture<std::vector<QString> > res =
+      QtConcurrent::run(CSystemCallWrapper::p2p_show);
+  res.waitForFinished();
+
+  std::vector<QString> swarmed_lsts = res.result();
+
+  for (auto hash : swarmed_lsts) {
+    if (std::find(envs_joined_swarm_hash.begin(), envs_joined_swarm_hash.end(), hash) == envs_joined_swarm_hash.end()) { // not found swarm hash
+      envs_joined_swarm_hash.erase(hash);
+    }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+void P2PController::update_join_swarm_status() {
   if (!CSystemCallWrapper::p2p_daemon_check()) {
     envs_joined_swarm_hash.clear();
     qDebug() << "Trying to start p2p daemon.";
@@ -273,6 +289,7 @@ void P2PController::update_join_swarm_status(){
     return;
   }
 
+  check_join_swarm_status();
   std::vector<CEnvironment> current_envs = get_envs_without_connectors();
 
   qDebug() << "Healthy envs not joined to swarm: " << current_envs.size();
