@@ -88,7 +88,7 @@ void SwarmLeaver::leave_to_swarm_begin() {
 HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
   : env(_env), QObject(parent) {
   QTimer *timer = new QTimer;
-  timer->setInterval(1000 * 15); // 15 sec
+  timer->setInterval(1); // 15 sec
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
 }

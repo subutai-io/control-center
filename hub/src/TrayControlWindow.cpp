@@ -555,63 +555,38 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 void TrayControlWindow::my_peers_updated_sl() {
 
   std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
+  QString msg = "";
 
   /// check if some peers were disconnected or deleted
-  std::vector<CMyPeerInfo> disconnected_peers;
-
   for (CMyPeerInfo peer : peers_connected) {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
-    if(found_peer == my_current_peers.end())
-      disconnected_peers.push_back(peer);
+    if(found_peer == my_current_peers.end()) // it was disconnected or deleted
+      msg +=
+          tr("\"%1\" is %2 ")
+            .arg(peer.name())
+            .arg("disconnected");
   }
 
+  if (!msg.isEmpty() && !msg.isNull())
+    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
+
+
   /// check if some new peers were connected or changed status
-  std::vector<CMyPeerInfo> new_connected_peers;
   for (CMyPeerInfo peer : my_current_peers) {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
-
-    if(found_peer == peers_connected.end()) { // disconnected
-      new_connected_peers.push_back(peer);
-    }
-    else
-    if(found_peer->status() != peer.status()) { // changed status
-      new_connected_peers.push_back(peer);
+    if(found_peer == peers_connected.end() || found_peer->status() != peer.status()) { // new connected or changed status
+      msg +=
+          tr("\"%1\" is %2 ")
+             .arg(peer.name())
+             .arg(peer.status());
     }
   }
 
-  /// notify if Peers were connected or changed status
-  if (!new_connected_peers.empty()) {
-    for (CMyPeerInfo peer_to_notify : new_connected_peers) {
-      QString msg = tr("Your peer \"%1\" is %2")
-                    .arg(peer_to_notify.name())
-                    .arg(peer_to_notify.status());
-      CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
-    }
-  }
-
-  /// notify if Peers were disconnected
-  if (!disconnected_peers.empty()){
-    for (CMyPeerInfo peer_to_notify : disconnected_peers) {
-      QString msg = tr("Your peer \"%1\" is %2")
-                    .arg(peer_to_notify.name())
-                    .arg("disconnected");
-      CNotificationObserver::Instance()->Info(msg, DlgNotification::N_GO_TO_HUB);
-    }
-  }
-
-  // Remove all disconnected Peers from current peer storage matrix
-  for (CMyPeerInfo peer_to_del : disconnected_peers) {
-    peers_connected.erase(std::remove_if(peers_connected.begin(), peers_connected.end(),
-          [peer_to_del](const CMyPeerInfo &p){return peer_to_del.id() == p.id();}), peers_connected.end());
-  }
-
-  // Add all new connected Peer to current peer storage matrix
-  for (CMyPeerInfo peer_to_add : new_connected_peers) {
-    peers_connected.push_back(peer_to_add);
-  }
-
+  if (!msg.isEmpty() && !msg.isNull())
+    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
+  peers_connected = my_current_peers;
   update_peer_menu();
 }
 
