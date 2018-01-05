@@ -137,7 +137,14 @@ void HandshakeSender::try_to_handshake(const CHubContainer &cont) {
 void HandshakeSender::handshake_begin(){
   std::vector<CEnvironment> env_lsts = CHubController::Instance().lst_environments();
 
-  if (std::find(env_lsts.begin(), env_lsts.end(), env) == env_lsts.end()) {
+  QFuture<std::vector<QString> > res =
+      QtConcurrent::run(CSystemCallWrapper::p2p_show);
+  res.waitForFinished();
+
+  std::vector<QString> swarmed_lsts = res.result();
+
+  if ((std::find(env_lsts.begin(), env_lsts.end(), env) == env_lsts.end()) ||
+      (std::find(swarmed_lsts.begin(), swarmed_lsts.end(), env.hash()) == swarmed_lsts.end())) {
     qDebug()
         << "Stopped handshake to container. Not found env: " << env.name();
     QThread::currentThread()->quit();
@@ -270,6 +277,7 @@ void P2PController::check_join_swarm_status() {
     }
   }
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 void P2PController::update_join_swarm_status() {
