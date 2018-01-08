@@ -11,7 +11,6 @@ try {
             upload_msi = "upload_master_msi.do"
             upload_exe = "upload_master_exe.do"
 			upload_prod_msi = "upload_prod_msi.do"
-			upload_prod_exe = "upload_prod_exe.do"
 
             build_path_linux = "home/builder/build_master"
             linux_tray_build = "build_master.sh"
@@ -31,7 +30,6 @@ try {
             upload_msi = "upload_dev_msi.do"
             upload_exe = "upload_dev_exe.do"
 			upload_prod_msi = "upload_prod_msi.do"
-			upload_prod_exe = "upload_prod_exe.do"
 
             build_path_linux = "home/builder/build_dev"
             linux_tray_build = "./build_dev.sh"
@@ -65,7 +63,6 @@ try {
 		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
 		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
 		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
-		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
 		"""
 
 	}
@@ -85,7 +82,6 @@ try {
 		bat "${upload_path}${upload_msi}"
 		bat "${upload_path}${upload_exe}"
 		bat "${upload_path}${upload_prod_msi}"
-		bat "${upload_path}${upload_prod_exe}"
 	}
 
 	node("debian") {
@@ -106,7 +102,6 @@ try {
 		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_deb}
 		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_sh}
 		/home/builder/upload_script/./${upload_script_prod} /${build_path_linux}/${upload_deb}
-		/home/builder/upload_script/./${upload_script_prod} /${build_path_linux}/${upload_sh}
 		"""
 	}
 
