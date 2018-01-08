@@ -139,6 +139,7 @@ main(int argc, char *argv[]) {
       TrayControlWindow::Instance()->Init();
 
       P2PController::Instance().init();
+      SwarmLeaver::Instance().Init();
 
       if (!CSystemCallWrapper::p2p_daemon_check()) {
         CNotificationObserver::Error(QObject::tr("Can't operate without the p2p daemon. "

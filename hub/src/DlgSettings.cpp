@@ -82,11 +82,6 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
 
-  ui->le_rtm_db_folder->setText(CSettingsManager::Instance().rtm_db_dir());
-  ui->le_rtm_db_folder->setVisible(false);
-  ui->btn_rtm_db_folder->setVisible(false);
-  ui->lbl_rtm_db_folder->setVisible(false);
-
   ui->lbl_err_logs_storage->hide();
   ui->lbl_err_ssh_keys_storage->hide();
   ui->lbl_err_ssh_user->hide();
@@ -262,8 +257,7 @@ void DlgSettings::btn_ok_released() {
       tr("Can't launch application");
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
-                     ui->le_p2p_command,   ui->le_ssh_command,
-                     ui->le_rtm_db_folder};
+                     ui->le_p2p_command,   ui->le_ssh_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
@@ -287,11 +281,6 @@ void DlgSettings::btn_ok_released() {
     {ui->le_logs_storage, ui->lbl_err_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_logs_storage, ui->lbl_err_logs_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_logs_storage, ui->lbl_err_logs_storage, folder_has_write_permission, 0,
-     folder_permission_validator_msg},
-
-    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_le_empty_validate, 0, empty_validator_msg},
-    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, is_path_valid, 0, path_invalid_validator_msg},
-    {ui->le_rtm_db_folder, ui->lbl_err_rtm_db_folder, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
     {ui->le_p2p_command, ui->lbl_err_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
@@ -419,7 +408,6 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
 
-  CSettingsManager::Instance().set_rtm_db_dir(ui->le_rtm_db_folder->text());
   CSettingsManager::Instance().set_use_animations(
         ui->chk_use_animations->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_ssh_keygen_cmd(
@@ -474,13 +462,7 @@ void DlgSettings::btn_ssh_keys_storage_released() {
   if (dir == "") return;
   ui->le_ssh_keys_storage->setText(dir);
 }
-////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_rtm_db_folder_released() {
-  QString dir = QFileDialog::getExistingDirectory(this, tr("DB storage"));
-  if (dir == "") return;
-  ui->le_rtm_db_folder->setText(dir);
-}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::lstv_resource_hosts_double_clicked(QModelIndex ix0) {

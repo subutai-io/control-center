@@ -31,7 +31,7 @@ struct p2p_message_res_t {
   QString btn_desktop_message;
 };
 
-class SwarmConnector : public QObject{
+class SwarmConnector : public QObject {
 Q_OBJECT
 private:
   CEnvironment env;
@@ -43,6 +43,21 @@ public slots:
 signals:
   void successfully_joined_swarm(const CEnvironment&);
   void join_swarm_timeout(const CEnvironment&);
+};
+
+class SwarmLeaver : public QObject {
+Q_OBJECT
+public:
+  SwarmLeaver();
+
+  static SwarmLeaver& Instance() {
+    static SwarmLeaver swarm_leaver;
+    return swarm_leaver;
+  }
+
+  void Init() {/* need to call constructor */}
+public slots:
+  void leave_to_swarm_begin();
 };
 
 class HandshakeSender : public QObject {
@@ -80,6 +95,7 @@ public:
  void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
  void send_handshake(const CEnvironment &env, const CHubContainer &cont);
  void check_handshakes(const std::vector<CEnvironment>& envs);
+ void check_join_swarm_status();
 
  int get_container_status(const CEnvironment *env, const CHubContainer *cont);
 

@@ -311,27 +311,6 @@ default_term_arg() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-
-template<class OS> const QString& vboxmanage_command_internal();
-
-#define vboxmanage_command_internal_def(OS_TYPE, STRING) \
-  template<> \
-  const QString& vboxmanage_command_internal<Os2Type<OS_TYPE> >() { \
-    static QString res(STRING); \
-    return res; \
-  }
-
-vboxmanage_command_internal_def(OS_LINUX, "vboxmanage")
-vboxmanage_command_internal_def(OS_MAC, "VBoxManage")
-vboxmanage_command_internal_def(OS_WIN, "vboxmanage.exe")
-
-const QString &
-vboxmanage_command_str() {
-  return vboxmanage_command_internal<Os2Type<CURRENT_OS> >();
-}
-////////////////////////////////////////////////////////////////////////////
-
-
 template<class OS> const QString& ssh_keygen_cmd_path_internal();
 
 #define ssh_keygen_cmd_path_internal_def(OS_TYPE, STRING) \
