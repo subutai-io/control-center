@@ -24,6 +24,7 @@
 #include "libssh2/include/LibsshController.h"
 
 CLibsshController::CSshInitializer CLibsshController::m_initializer;
+SynchroPrimitives::CriticalSection CLibsshController::m_libssh_cs;
 
 struct rsc_user_pass_arg_t {
   const char* user;
@@ -341,11 +342,12 @@ CLibsshController::run_ssh_command_pass_auth(const char* host,
   memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
   arg.user = user;
   arg.pass = pass;
+  SynchroPrimitives::Locker lock(&m_libssh_cs);
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, user_pass_authentication, &arg);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-SynchroPrimitives::CriticalSection CLibsshController::m_libssh_cs;
 
 
 int
