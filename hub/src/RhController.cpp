@@ -63,12 +63,13 @@ CRhController::delay_timer_timeout() {
 #include "SystemCallWrapper.h"
 
 void ssh_to_rh(const QString &peer_fingerprint) {
-  QString ip;
-  QString port;
-  QString user;
-  QString pass;
+  QString ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
+  QString port = CSettingsManager::Instance().rh_port(peer_fingerprint);
+  QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
+  QString pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_ssh_in_terminal(ip, port, user, pass);
+  system_call_wrapper_error_t err
+      = CSystemCallWrapper::run_ssh_in_terminal(ip, port, user, pass);
 
 }
 ////////////////////////////////////////////////////////////////////////////
