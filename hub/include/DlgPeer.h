@@ -14,11 +14,13 @@ class DlgPeer : public QDialog
 public:
   explicit DlgPeer(QWidget *parent = 0);
   ~DlgPeer();
-  void addPeer(CMyPeerInfo &peer);
+  void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer);
   void addLocalPeer(const QString local_ip);
-
+  void addHubPeer(CMyPeerInfo peer);
 private:
   Ui::DlgPeer *ui;
+signals:
+  void ssh_to_rh(const QString&);
 };
 
 #endif // DLGPEER_H

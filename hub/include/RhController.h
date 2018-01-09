@@ -26,12 +26,16 @@ public:
     static CRhController inst;
     return &inst;
   }
+
   void init();
   void refresh();
 
   const std::map<QString, QString>& dct_resource_hosts() const {
     return m_dct_resource_hosts;
   }
+
+
+  void ssh_to_rh(const QString &peer_fingerprint);
 
 private slots:
   void found_device_slot(QString uid, QString location);

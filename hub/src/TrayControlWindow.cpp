@@ -424,6 +424,17 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
   }
 }
 
+
+//void TrayControlWindow::ssh_to_rh(const QString &peer_fingerprint) {
+//  QPushButton* act = static_cast<QPushButton*>(action);
+//  if (act != NULL) {
+//    act->setEnabled(false);
+//    act->setText("PROCESSSING...");
+//    CRhController::Instance()->ssh_to_rh(peer_fingerprint);
+//    //CHubController::Instance().ssh_to_container(env, cont, action);
+//  }
+//}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
@@ -490,7 +501,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     env_name.replace(
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
-    QAction* env_start = m_hub_menu->addAction(env_name);
+    QAction* env_start = m_hub_menu->addAction(env->name());
 
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
@@ -520,7 +531,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       connect(env_start, &QAction::triggered, [env, this](){
         this->generate_env_dlg(&(*env));
         TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
-                                       QString("Environment \"%1\"").arg(env->name()));
+                                       QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
       });
     } else {
       env_start->setEnabled(false);
@@ -611,7 +622,7 @@ void TrayControlWindow::update_peer_menu() {
           connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
             this->generate_peer_dlg(&(*hub_peer), local_peer);
             TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                           QString("Peer \"%1\" - %2").arg(hub_peer->name()).arg(local_peer.second));
+                                           QString("Peer \"%1\" - %2(%3)").arg(hub_peer->name()).arg(local_peer.second).arg(hub_peer->status()));
           });
           break;
         }
@@ -653,7 +664,7 @@ void TrayControlWindow::update_peer_menu() {
       QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
       connect(peer_start, &QAction::triggered, [hub_peer, this](){
         this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg, QString("Peer \"%1\"").arg(hub_peer->name()));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg, QString("Peer \"%1\"(%2)").arg(hub_peer->name()).arg(hub_peer->status()));
       });
     }
   }
@@ -805,6 +816,7 @@ void TrayControlWindow::dialog_closed(int unused) {
   if (iter == m_dct_active_dialogs.end()) return;
   m_dct_active_dialogs.erase(iter);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* create_settings_dialog(QWidget* p) { return new DlgSettings(p); }
@@ -860,11 +872,7 @@ QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
 
 void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){ // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer();
-  if (!local_peer.first.isEmpty() && !local_peer.first.isNull())
-    dlg_peer->addLocalPeer(local_peer.second);
-
-  if (peer != NULL)
-    dlg_peer->addPeer(*peer);
+  dlg_peer->addPeer(peer , local_peer);
   m_last_generated_peer_dlg = dlg_peer;
 }
 
