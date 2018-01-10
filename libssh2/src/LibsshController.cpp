@@ -119,6 +119,7 @@ user_pass_authentication(LIBSSH2_SESSION *session, const void *rsc_user_pass_arg
   rsc_user_pass_arg_t* arg = (rsc_user_pass_arg_t*)rsc_user_pass_arg;
   return libssh2_userauth_password(session, arg->user, arg->pass);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 int
@@ -193,6 +194,74 @@ send_handshake_internal(const char *str_host, uint16_t port, int conn_timeout) {
     return RLE_CONNECTION_ERROR;
   }
   return RLE_SUCCESS;
+}
+
+int
+check_auth_pass_internal(const char *str_host,
+                         uint16_t port,
+                         int conn_timeout,
+                         int (*pf_auth)(LIBSSH2_SESSION*, const void *),
+                         void *pf_auth_arg) {
+  int rc = 0;
+  struct sockaddr_in sin;
+  unsigned long ul_host_addr = 0;
+  int exitcode = 0;
+
+
+#ifndef _WIN32
+  int sock;
+  ul_host_addr = inet_addr(str_host);
+#else
+  SOCKET sock;
+  ul_host_addr = inet_addr(str_host);
+#endif
+  sin.sin_family = AF_INET;
+  sin.sin_port = htons(port);
+  sin.sin_addr.s_addr = ul_host_addr;
+  sock = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef _WIN32
+  u_long mode = 1;
+  ioctlsocket(sock, FIONBIO, &mode);
+#else
+  int flags = fcntl(sock, F_GETFL, 0);
+  flags |= O_NONBLOCK;
+#endif
+  connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
+  rc = wait_socket_connected(sock, conn_timeout);
+
+  if (rc == 0) {
+    return RLE_CONNECTION_TIMEOUT;
+  }
+  else if (rc == SOCKET_ERROR) {
+    return RLE_CONNECTION_ERROR;
+  }
+
+  libssh2_session_auto_t sa;
+  if (!sa.session) {
+    return RLE_LIBSSH2_SESSION_INIT;
+  }
+
+  while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
+    ; //wait
+
+  if (rc) {
+    return RLE_SESSION_HANDSHAKE;
+  }
+
+  while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN);
+
+  if (rc) {
+    return RLE_SSH_AUTHENTICATION;
+  }
+
+
+  #ifdef _WIN32
+    closesocket(sock);
+  #else
+    close(sock);
+  #endif
+
+  return exitcode;
 }
 
 int
@@ -346,6 +415,23 @@ CLibsshController::run_ssh_command_pass_auth(const char* host,
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, user_pass_authentication, &arg);
 }
+
+int
+CLibsshController::check_auth_pass(const char* host,
+                                   uint16_t port,
+                                   const char* user,
+                                   const char* pass,
+                                   int conn_timeout) {
+  if (m_initializer.result != 0) return RLE_LIBSSH2_INIT;
+  rsc_user_pass_arg_t arg;
+  memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
+  arg.user = user;
+  arg.pass = pass;
+  SynchroPrimitives::Locker lock(&m_libssh_cs);
+  return check_auth_pass_internal(host, port, conn_timeout,
+                                  user_pass_authentication, &arg);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -516,8 +516,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_LINUX> >
                                                                            const QString &port,
                                                                            const QString &pass) {
 
-  QString str_command = QString("sshpass -p %1 %2 %3@%4 -p %5")
-                            .arg(pass)
+  QString str_command = QString("%1 %2@%3 -p %4")
                             .arg(CSettingsManager::Instance().ssh_path())
                             .arg(user)
                             .arg(ip)
@@ -551,8 +550,8 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_MAC> >(c
 
 system_call_wrapper_error_t CSystemCallWrapper::run_sshpass_in_terminal(
     const QString &user, const QString &ip, const QString &port,
-    const QString &key) {
-  return run_sshpass_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
+    const QString &pass) {
+  return run_sshpass_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, pass);
 }
 
 
@@ -671,6 +670,24 @@ system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(
   return SCWE_SUCCESS;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString &peer_fingerprint, bool &available) {
+  available = false;
+  int exit_code = 0;
+  std::vector<std::string> lst_out;
+  system_call_wrapper_error_t res = run_libssh2_command(
+      CSettingsManager::Instance().rh_host().toStdString().c_str(),
+      CSettingsManager::Instance().rh_port(),
+      CSettingsManager::Instance().rh_user().toStdString().c_str(),
+      CSettingsManager::Instance().rh_pass().toStdString().c_str(),
+      QString("sudo %1 update rh -c")
+          .arg(CSettingsManager::Instance().subutai_cmd())
+          .toStdString()
+          .c_str(),
+      exit_code, lst_out);
+  if (res != SCWE_SUCCESS) return res;
+  available = exit_code == 0;
+  return SCWE_SUCCESS;  // doesn't matter I guess.
+}
 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
