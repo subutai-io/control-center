@@ -424,16 +424,16 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
   }
 }
 
+#include "RhController.h"
 
-//void TrayControlWindow::ssh_to_rh(const QString &peer_fingerprint) {
-//  QPushButton* act = static_cast<QPushButton*>(action);
-//  if (act != NULL) {
-//    act->setEnabled(false);
-//    act->setText("PROCESSSING...");
-//    CRhController::Instance()->ssh_to_rh(peer_fingerprint);
-//    //CHubController::Instance().ssh_to_container(env, cont, action);
-//  }
-//}
+void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, void* action) {
+  QPushButton* act = static_cast<QPushButton*>(action);
+  if (act != NULL) {
+    act->setEnabled(false);
+    act->setText("PROCESSSING...");
+    CRhController::Instance()->ssh_to_rh(peer_fingerprint, action);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -873,6 +873,7 @@ QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
 void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){ // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer();
   dlg_peer->addPeer(peer , local_peer);
+  connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this, &TrayControlWindow::ssh_to_rh_triggered);
   m_last_generated_peer_dlg = dlg_peer;
 }
 

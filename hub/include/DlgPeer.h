@@ -20,7 +20,7 @@ public:
 private:
   Ui::DlgPeer *ui;
 signals:
-  void ssh_to_rh(const QString&);
+  void ssh_to_rh_sig(const QString&, void*);
 };
 
 #endif // DLGPEER_H

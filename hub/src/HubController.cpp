@@ -134,7 +134,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_ssh_in_terminal(
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
       CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
 
   qInfo(

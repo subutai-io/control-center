@@ -35,7 +35,7 @@ public:
   }
 
 
-  void ssh_to_rh(const QString &peer_fingerprint);
+  void ssh_to_rh(const QString &peer_fingerprint, void* action);
 
 private slots:
   void found_device_slot(QString uid, QString location);

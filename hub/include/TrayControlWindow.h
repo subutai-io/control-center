@@ -117,6 +117,9 @@ private slots:
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
 
+
+  void ssh_to_rh_triggered(const QString &peer_fingerprint, void *action);
+
   void ssh_to_container_triggered(const CEnvironment *env,
                                       const CHubContainer *cont, void *action);
   void desktop_to_container_triggered(const CEnvironment *env,

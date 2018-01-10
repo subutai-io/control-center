@@ -109,10 +109,15 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t check_container_state(const QString &hash,
                                                            const QString &ip);
 
-  static system_call_wrapper_error_t run_ssh_in_terminal(const QString &user,
+  static system_call_wrapper_error_t run_sshkey_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,
                                                          const QString &key);
+
+  static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
+                                                         const QString &ip,
+                                                         const QString &port,
+                                                         const QString &pass);
 
   static system_call_wrapper_error_t run_x2goclient_session(const QString &session_id);
 

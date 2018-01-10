@@ -116,7 +116,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->le_port->text().toInt());
     CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());
     CSettingsManager::Instance().set_rh_pass(peer_fingerprint, this->ui->le_pass->text());
-    emit this->ssh_to_rh(peer_fingerprint);
+    emit this->ssh_to_rh_sig(peer_fingerprint, (void *)this->ui->btn_ssh_peer);
   });
 
 

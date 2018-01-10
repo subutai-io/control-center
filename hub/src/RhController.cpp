@@ -61,15 +61,18 @@ CRhController::delay_timer_timeout() {
 }
 ////////////////////////////////////////////////////////////////////////////
 #include "SystemCallWrapper.h"
+#include <QPushButton>
 
-void ssh_to_rh(const QString &peer_fingerprint) {
+void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
   QString ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
-  QString port = CSettingsManager::Instance().rh_port(peer_fingerprint);
+  QString port = QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
   QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
   QString pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
 
   system_call_wrapper_error_t err
-      = CSystemCallWrapper::run_ssh_in_terminal(ip, port, user, pass);
-
+      = CSystemCallWrapper::run_sshpass_in_terminal(user, ip, port, pass);
+  QPushButton* act = static_cast<QPushButton*>(action);
+  act->setText("Save && SSH into Peer");
+  act->setEnabled(true);
 }
 ////////////////////////////////////////////////////////////////////////////
