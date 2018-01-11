@@ -643,8 +643,10 @@ void TrayControlWindow::update_peer_menu() {
 
     if (found_on_hub == false && local_peer.first != QString("current_setting")) {
       QAction *peer_start = m_local_peer_menu->addAction(local_peer.second);
-      connect(peer_start, &QAction::triggered, [local_peer]() {
-        CHubController::Instance().launch_browser(QString("https://%1:8443").arg(local_peer.second));
+      connect(peer_start, &QAction::triggered, [this, local_peer]() {
+        this->generate_peer_dlg(NULL, local_peer);
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                       QString("Peer \"%1\"(%2)").arg(local_peer.second).arg(local_peer.first));
       });
     }
   }
@@ -664,7 +666,8 @@ void TrayControlWindow::update_peer_menu() {
       QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
       connect(peer_start, &QAction::triggered, [hub_peer, this](){
         this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg, QString("Peer \"%1\"(%2)").arg(hub_peer->name()).arg(hub_peer->status()));
+        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                       QString("Peer \"%1\"(%2)").arg(hub_peer->name()).arg(hub_peer->status()));
       });
     }
   }

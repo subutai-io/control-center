@@ -670,23 +670,20 @@ system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString &peer_fingerprint, bool &available) {
-  available = false;
-  int exit_code = 0;
-  std::vector<std::string> lst_out;
-  system_call_wrapper_error_t res = run_libssh2_command(
-      CSettingsManager::Instance().rh_host().toStdString().c_str(),
-      CSettingsManager::Instance().rh_port(),
-      CSettingsManager::Instance().rh_user().toStdString().c_str(),
-      CSettingsManager::Instance().rh_pass().toStdString().c_str(),
-      QString("sudo %1 update rh -c")
-          .arg(CSettingsManager::Instance().subutai_cmd())
-          .toStdString()
-          .c_str(),
-      exit_code, lst_out);
-  if (res != SCWE_SUCCESS) return res;
-  available = exit_code == 0;
-  return SCWE_SUCCESS;  // doesn't matter I guess.
+system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString &peer_fingerprint) {
+  static const int default_timeout = 10;
+  int exit_code
+      = CLibsshController::check_auth_pass(
+          CSettingsManager::Instance().rh_host(peer_fingerprint).toStdString().c_str(),
+          CSettingsManager::Instance().rh_port(peer_fingerprint),
+          CSettingsManager::Instance().rh_user(peer_fingerprint).toStdString().c_str(),
+          CSettingsManager::Instance().rh_pass(peer_fingerprint).toStdString().c_str(),
+          default_timeout);
+  if (exit_code != 0)
+    CNotificationObserver::Info(
+          QString("Cant connect to Peer. Error: %1.").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)exit_code)),
+          DlgNotification::N_NO_ACTION);
+  return exit_code == 0 ? SCWE_SUCCESS : SCWE_CANT_GET_RH_IP;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(

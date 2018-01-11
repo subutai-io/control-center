@@ -62,6 +62,7 @@ CRhController::delay_timer_timeout() {
 ////////////////////////////////////////////////////////////////////////////
 #include "SystemCallWrapper.h"
 #include <QPushButton>
+#include "NotificationObserver.h"
 
 void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
   QString ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
@@ -69,11 +70,18 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
   QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
   QString pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
 
-  bool is_peer_accessible = false;
   system_call_wrapper_error_t err
-      = CSystemCallWrapper::is_peer_available(peer_fingerprint, is_peer_accessible);
+      = CSystemCallWrapper::is_peer_available(peer_fingerprint);
+  if (err != SCWE_SUCCESS) {
+    CNotificationObserver::Info("This Peer is not accessible with provided credentials. Please check and verify", DlgNotification::N_NO_ACTION);
+    QPushButton* act = static_cast<QPushButton*>(action);
+    act->setText("Save && SSH into Peer");
+    act->setEnabled(true);
 
-  system_call_wrapper_error_t err
+    return;
+  }
+
+  err
       = CSystemCallWrapper::run_sshpass_in_terminal(user, ip, port, pass);
   QPushButton* act = static_cast<QPushButton*>(action);
   act->setText("Save && SSH into Peer");

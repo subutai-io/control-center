@@ -15,15 +15,11 @@ DlgPeer::DlgPeer(QWidget *parent) :
 {
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
-
-  ui->le_ip->setText("127.0.0.1"); // default ip
-  ui->le_port->setText("22");
-  ui->le_pass->setText("ubuntai");
-  ui->le_user->setText("subutai");
-
 }
+
+
+
 void DlgPeer::addLocalPeer(const QString local_ip) {
-  ui->btn_launch_console->setEnabled(true);
   connect(ui->btn_launch_console, &QPushButton::clicked, [local_ip](){
     CHubController::Instance().launch_browser(QString("https://%1:8443").arg(local_ip));
   });
@@ -37,18 +33,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
 
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
 
-  if (envs.empty()) {
-    ui->lbl_env->hide();
-    ui->lbl_env_owner->hide();
-    ui->lbl_env_status->hide();
-    ui->line_1->hide();
-    ui->line_2->hide();
-    ui->line_3->hide();
-    ui->show_ssh->setChecked(true);
-    ui->show_ssh->toggled(true);
-    ui->gr_ssh->setTitle("This peer doesn't have any \"Environments\" yet.");
-  }
-  else {
+  if (!envs.empty()) {
     for (CMyPeerInfo::env_info env : envs) {
       QLabel *env_name = new QLabel(env.envName);
       QLabel *env_owner = new QLabel(QString("<a href=\"%1\">%2</a>")
@@ -70,8 +55,17 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
       ui->env_owner->addWidget(env_owner);
       ui->env_status->addWidget(env_status);
     }
-    ui->show_ssh->setChecked(false);
-    ui->show_ssh->toggled(false);
+  }
+  else {
+    ui->gr_ssh->setTitle("This peer doesn't have any \"Environments\" yet.");
+    ui->show_ssh->setChecked(true);
+    ui->show_ssh->toggled(true);
+    ui->lbl_env->hide();
+    ui->lbl_env_owner->hide();
+    ui->lbl_env_status->hide();
+    ui->line_1->hide();
+    ui->line_2->hide();
+    ui->line_3->hide();
   }
 }
 
@@ -87,15 +81,24 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
   if (!default_ip.isEmpty())
     ui->le_ip->setText(default_ip);
+  else
+    ui->le_ip->setText("127.0.0.1");
+
 
   if (!default_port.isEmpty() && default_port != "0")
     ui->le_port->setText(default_port);
+  else
+    ui->le_port->setText("22");
 
   if (!default_user.isEmpty())
     ui->le_user->setText(default_user);
+  else
+    ui->le_user->setText("ubuntu");
 
   if (!default_pass.isEmpty())
     ui->le_pass->setText(default_pass);
+  else
+    ui->le_pass->setText("ubuntu");
 
 
   connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
@@ -123,9 +126,26 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
   if (!local_ip_addr.isEmpty()) {
     addLocalPeer(local_ip_addr);
   }
+  else {
+    ui->btn_launch_console->setEnabled(false);
+  }
 
   if (hub_peer != NULL) {
     addHubPeer(*hub_peer);
+    ui->show_ssh->setChecked(false);
+    ui->show_ssh->toggled(false);
+  }
+  else {
+    ui->btn_peer_on_hub->setEnabled(false);
+    ui->gr_ssh->setTitle("This Peer is in your local network.");
+    ui->show_ssh->setChecked(true);
+    ui->show_ssh->toggled(true);
+    ui->lbl_env->hide();
+    ui->lbl_env_owner->hide();
+    ui->lbl_env_status->hide();
+    ui->line_1->hide();
+    ui->line_2->hide();
+    ui->line_3->hide();
   }
 }
 
