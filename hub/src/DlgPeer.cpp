@@ -16,7 +16,6 @@ DlgPeer::DlgPeer(QWidget *parent) :
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
-  this->adjustSize();
   qDebug() << "Peer dialog is initialized";
 }
 
@@ -66,6 +65,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
     }
     ui->show_ssh->setChecked(false);
     ui->show_ssh->toggled(false);
+    this->adjustSize();
   }
   else {
     ui->gr_ssh->setTitle("This peer doesn't have any \"Environments\" yet.");
@@ -78,6 +78,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
 
     ui->show_ssh->setChecked(true);
     ui->show_ssh->toggled(true);
+    this->adjustSize();
   }
 }
 
@@ -149,6 +150,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     ui->line_1->hide();
     ui->line_2->hide();
     ui->line_3->hide();
+    this->adjustSize();
   }
 
 }

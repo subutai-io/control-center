@@ -240,7 +240,6 @@ check_auth_pass_internal(const char *str_host,
   if (!sa.session) {
     return RLE_LIBSSH2_SESSION_INIT;
   }
-
   while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
     ; //wait
 
