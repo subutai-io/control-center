@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <map>
+#include "SystemCallWrapper.h"
 
 class CRhController : public QObject {
   Q_OBJECT
@@ -26,12 +27,16 @@ public:
     static CRhController inst;
     return &inst;
   }
+
   void init();
   void refresh();
 
   const std::map<QString, QString>& dct_resource_hosts() const {
     return m_dct_resource_hosts;
   }
+
+
+  void ssh_to_rh(const QString &peer_fingerprint, void* action);
 
 private slots:
   void found_device_slot(QString uid, QString location);
@@ -40,6 +45,7 @@ private slots:
 
 signals:
   void resource_host_list_updated(bool);
+  void ssh_to_rh_finished(const QString &peer_fingerprint, void* action, system_call_wrapper_error_t res, int exit_code);
 };
 
 #endif // RHCONTROLLER_H

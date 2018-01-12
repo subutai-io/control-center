@@ -17,6 +17,7 @@
 #include "NotificationObserver.h"
 #include "HubController.h"
 #include "DlgNotification.h"
+#include "SystemCallWrapper.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -116,6 +117,10 @@ private slots:
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
+
+
+  void ssh_to_rh_triggered(const QString &peer_fingerprint, void *action);
+  void ssh_to_rh_finished_sl(const QString &peer_fingerprint, void* action, system_call_wrapper_error_t res, int libssh_exit_code);
 
   void ssh_to_container_triggered(const CEnvironment *env,
                                       const CHubContainer *cont, void *action);

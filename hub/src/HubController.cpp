@@ -134,7 +134,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_ssh_in_terminal(
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
       CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
 
   qInfo(
@@ -447,7 +447,7 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
 
 void CHubController::launch_browser(const QString &url) {
   QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
+  if (CCommons::IsApplicationLaunchable(chrome_path)) {
     QStringList args;
     args << "--new-window";
     args << url;

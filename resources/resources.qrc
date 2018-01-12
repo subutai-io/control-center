@@ -37,6 +37,11 @@
         <file>error_notification.png</file>
         <file>info_notification.png</file>
         <file>warning_notification.png</file>
+        <file>BAD.png</file>
+        <file>GOOD.png</file>
+        <file>OK.png</file>
+        <file>local-network.png</file>
+        <file>local_hub.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

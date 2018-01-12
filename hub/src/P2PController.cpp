@@ -92,6 +92,7 @@ HandshakeSender::HandshakeSender(const CEnvironment &_env, QObject *parent)
   connect(timer, &QTimer::timeout, this, &HandshakeSender::handshake_begin);
   timer->start();
 }
+
 /////////////////////////////////////////////////////////////////////////
 
 void HandshakeSender::try_to_handshake(const CHubContainer &cont) {

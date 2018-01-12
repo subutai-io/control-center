@@ -91,6 +91,27 @@ hub_register_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
+
+template<class BR> const QString& hub_user_profile_temp_internal();
+
+#define hub_user_profile_temp_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& hub_user_profile_temp_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+hub_user_profile_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/")
+hub_user_profile_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/users/")
+hub_user_profile_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/users/")
+
+const QString &
+hub_user_profile_url() {
+  return hub_user_profile_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR> const QString& hub_get_url_temp_internal();
 
 #define hub_get_url_temp_internal_def(BT_TYPE, STRING) \

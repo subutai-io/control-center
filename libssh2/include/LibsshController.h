@@ -59,6 +59,12 @@ public:
                                        int conn_timeout,
                                        std::vector<std::string>& lst_out);
 
+
+  static int check_auth_pass(const char* host,
+                             uint16_t port,
+                             const char* user,
+                             const char* pass,
+                             int conn_timeout);
   /**
    * @brief Run ssh command with key authorization
    * @param host
