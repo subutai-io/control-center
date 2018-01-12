@@ -16,6 +16,7 @@ DlgPeer::DlgPeer(QWidget *parent) :
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+  this->adjustSize();
   qDebug() << "Peer dialog is initialized";
 }
 

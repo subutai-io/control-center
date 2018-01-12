@@ -72,6 +72,7 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
   QString port = QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
   QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
   QString pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
+
   int *exit_code = new int;
   *exit_code = 0;
 
@@ -79,7 +80,6 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
       QtConcurrent::run(CSystemCallWrapper::is_peer_available, peer_fingerprint, exit_code);
   res.waitForFinished();
 
-  qDebug() << "Exit code: " << *exit_code;
 
   if (res.result() == SCWE_SUCCESS) {
     res = QtConcurrent::run(CSystemCallWrapper::run_sshpass_in_terminal, user, ip, port, pass);

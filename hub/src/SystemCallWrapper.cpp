@@ -508,8 +508,48 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
                                                                            const QString &ip,
                                                                            const QString &port,
                                                                            const QString &pass) {
+  //these args are used. we just make compiller happy.
+  UNUSED_ARG(user);
+  UNUSED_ARG(ip);
+  UNUSED_ARG(port);
+#ifdef RT_OS_WINDOWS
+  QString str_command = QString("\"%1\" %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
 
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
+  QString known_hosts = CSettingsManager::Instance().ssh_keys_storage() +
+                        QDir::separator() + "known_hosts";
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString cmd_args =
+      QString("\"%1\" /k \"%2 -o UserKnownHostsFile=%3\"").arg(cmd).arg(str_command).arg(known_hosts);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
+                          NULL, &si, &pi);
+  if (!cp) {
+    qCritical(
+        "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+        GetLastError());
+    return SCWE_SSH_LAUNCH_FAILED;
+  }
+#endif
+  return SCWE_SUCCESS;
 }
+
 template <>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &user,
                                                                            const QString &ip,
@@ -546,6 +586,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_MAC> >(c
                                                                            const QString &port,
                                                                            const QString &pass) {
 
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::run_sshpass_in_terminal(
@@ -679,7 +720,6 @@ system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString 
           CSettingsManager::Instance().rh_user(peer_fingerprint).toStdString().c_str(),
           CSettingsManager::Instance().rh_pass(peer_fingerprint).toStdString().c_str(),
           default_timeout);
-  qDebug() << *exit_code;
   return *exit_code == 0 ? SCWE_SUCCESS : SCWE_CANT_GET_RH_IP;
 }
 

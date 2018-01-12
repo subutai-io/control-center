@@ -447,7 +447,7 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
 
 void CHubController::launch_browser(const QString &url) {
   QString chrome_path = CSettingsManager::Instance().chrome_path();
-  if (!CCommons::IsApplicationLaunchable(chrome_path)) {
+  if (CCommons::IsApplicationLaunchable(chrome_path)) {
     QStringList args;
     args << "--new-window";
     args << url;
