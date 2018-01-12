@@ -44,6 +44,7 @@ const QString& p2p_dht_arg();
 
 const QString& hub_post_url();
 const QString& hub_register_url();
+const QString& hub_user_profile_url();
 const QString& hub_get_url();
 const QString& hub_health_url();
 const QString& hub_gorjun_url();
