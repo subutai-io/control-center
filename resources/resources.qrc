@@ -41,7 +41,6 @@
         <file>GOOD.png</file>
         <file>OK.png</file>
         <file>local-network.png</file>
-        <file>local_hub.jpg</file>
         <file>local_hub.png</file>
     </qresource>
     <qresource prefix="/"/>

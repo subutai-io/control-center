@@ -427,7 +427,7 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
   }
 }
 
-#include "RhController.h"
+////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, void* action) {
   QPushButton* act = static_cast<QPushButton*>(action);

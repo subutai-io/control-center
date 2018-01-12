@@ -508,10 +508,12 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
                                                                            const QString &ip,
                                                                            const QString &port,
                                                                            const QString &pass) {
-  //these args are used. we just make compiller happy.
+
   UNUSED_ARG(user);
   UNUSED_ARG(ip);
   UNUSED_ARG(port);
+  UNUSED_ARG(pass);
+
 #ifdef RT_OS_WINDOWS
   QString str_command = QString("\"%1\" %2@%3 -p %4")
                             .arg(CSettingsManager::Instance().ssh_path())
@@ -547,6 +549,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
     return SCWE_SSH_LAUNCH_FAILED;
   }
 #endif
+
   return SCWE_SUCCESS;
 }
 
@@ -555,7 +558,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_LINUX> >
                                                                            const QString &ip,
                                                                            const QString &port,
                                                                            const QString &pass) {
-
+  UNUSED_ARG(pass);
   QString str_command = QString("%1 %2@%3 -p %4")
                             .arg(CSettingsManager::Instance().ssh_path())
                             .arg(user)
@@ -585,6 +588,23 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_MAC> >(c
                                                                            const QString &ip,
                                                                            const QString &port,
                                                                            const QString &pass) {
+  UNUSED_ARG(pass);
+  QString str_command = QString("%1 %2@%3 -p %4")
+                            .arg(CSettingsManager::Instance().ssh_path())
+                            .arg(user)
+                            .arg(ip)
+                            .arg(port);
+  QString cmd;
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args;
+  args << QString("-e");
+  qInfo("Launch command : %s",
+                                       str_command.toStdString().c_str());
+
+  args << QString("Tell application \"%1\" to %2 \"%3\"")
+              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
+                                            : SCWE_SSH_LAUNCH_FAILED;
 
   return SCWE_SUCCESS;
 }
