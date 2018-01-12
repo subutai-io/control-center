@@ -27,6 +27,7 @@
 #include "updater/HubComponentsUpdater.h"
 #include "DlgEnvironment.h"
 #include "P2PController.h"
+#include "RhController.h"
 
 using namespace update_system;
 
@@ -109,6 +110,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(CHubComponentsUpdater::Instance(),
           &CHubComponentsUpdater::update_available, this,
           &TrayControlWindow::update_available);
+  connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
+          &TrayControlWindow::ssh_to_rh_finished_sl);
 
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
@@ -431,7 +434,27 @@ void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, voi
   if (act != NULL) {
     act->setEnabled(false);
     act->setText("PROCESSSING...");
-    CRhController::Instance()->ssh_to_rh(peer_fingerprint, action);
+    QtConcurrent::run(CRhController::Instance(), &CRhController::ssh_to_rh
+                      , peer_fingerprint, action);
+  }
+}
+
+void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, void *action, system_call_wrapper_error_t res, int libbssh_exit_code) {
+  UNUSED_ARG(peer_fingerprint);
+
+  QPushButton* act = static_cast<QPushButton*>(action);
+  if (act != NULL) {
+    act->setText("Save && SSH into Peer");
+    act->setEnabled(true);
+    if (res != SCWE_SUCCESS)
+    {
+      if (libbssh_exit_code != 0)
+        CNotificationObserver::Info(QString("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
+                                    DlgNotification::N_NO_ACTION);
+      else
+        CNotificationObserver::Info(QString("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+                                    DlgNotification::N_NO_ACTION);
+    }
   }
 }
 
@@ -480,6 +503,10 @@ void TrayControlWindow::launch_Hub() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::environments_updated_sl(int rr) {
+  static QIcon unhealthy_icon(":/hub/BAD.png");
+  static QIcon healthy_icon(":/hub/GOOD.png");
+  static QIcon modification_icon(":/hub/OK.png");
+
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
   m_hub_menu->clear();
@@ -501,7 +528,11 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     env_name.replace(
         "_", "__");  // megahack :) Don't know how to handle underscores.
 #endif
+
+
     QAction* env_start = m_hub_menu->addAction(env->name());
+    env_start->setIcon(env->status() == "HEALTHY" ? healthy_icon :
+                          env->status() == "UNHEALTHY" ? unhealthy_icon : modification_icon);
 
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
@@ -561,7 +592,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-#include "RhController.h"
 
 void TrayControlWindow::my_peers_updated_sl() {
 
@@ -602,6 +632,13 @@ void TrayControlWindow::my_peers_updated_sl() {
 }
 
 void TrayControlWindow::update_peer_menu() {
+  static QIcon online_icon(":/hub/GOOD.png");
+  static QIcon offline_icon(":/hub/BAD.png");
+  static QIcon unknown_icon(":/hub/OK.png");
+  static QIcon local_hub(":/hub/local_hub.png");
+  static QIcon local_network_icon(":/hub/local-network.png");
+
+
   m_hub_peer_menu->clear();
   m_local_peer_menu->clear();
 
@@ -619,6 +656,8 @@ void TrayControlWindow::update_peer_menu() {
         if (eq == 0) // found peer both local and registered on hub
         {
           QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + " - " + local_peer.second);
+          peer_start->setIcon(local_hub);
+
           connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
             this->generate_peer_dlg(&(*hub_peer), local_peer);
             TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
@@ -643,10 +682,11 @@ void TrayControlWindow::update_peer_menu() {
 
     if (found_on_hub == false && local_peer.first != QString("current_setting")) {
       QAction *peer_start = m_local_peer_menu->addAction(local_peer.second);
+      peer_start->setIcon(local_network_icon);
       connect(peer_start, &QAction::triggered, [this, local_peer]() {
         this->generate_peer_dlg(NULL, local_peer);
         TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                       QString("Peer \"%1\"(%2)").arg(local_peer.second).arg(local_peer.first));
+                                       QString("Peer \"%1\"").arg(local_peer.second));
       });
     }
   }
@@ -664,6 +704,8 @@ void TrayControlWindow::update_peer_menu() {
     }
     if (found_on_local == false) {
       QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
+      peer_start->setIcon(hub_peer->status() == "ONLINE" ? online_icon :
+                            hub_peer->status() == "OFFLINE" ? offline_icon : unknown_icon);
       connect(peer_start, &QAction::triggered, [hub_peer, this](){
         this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""));
         TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,

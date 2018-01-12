@@ -136,7 +136,7 @@ class CSystemCallWrapper {
       bool &available);
 
   static system_call_wrapper_error_t is_peer_available(
-      const QString &peer_fingerprint);
+      const QString &peer_fingerprint, int* exit_code);
 
   static system_call_wrapper_error_t run_rh_updater(const char *host,
                                                     uint16_t port,

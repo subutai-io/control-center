@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <map>
+#include "SystemCallWrapper.h"
 
 class CRhController : public QObject {
   Q_OBJECT
@@ -44,6 +45,7 @@ private slots:
 
 signals:
   void resource_host_list_updated(bool);
+  void ssh_to_rh_finished(const QString &peer_fingerprint, void* action, system_call_wrapper_error_t res, int exit_code);
 };
 
 #endif // RHCONTROLLER_H

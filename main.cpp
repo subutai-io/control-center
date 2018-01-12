@@ -108,6 +108,8 @@ main(int argc, char *argv[]) {
   qRegisterMetaType<CNotificationObserver::notification_level_t>("CNotificationObserver::notification_level_t");
   qRegisterMetaType<DlgNotification::NOTIFICATION_ACTION_TYPE>("DlgNotification::NOTIFICATION_ACTION_TYPE");
   qRegisterMetaType<CEnvironment> ("CEnvironment");
+  qRegisterMetaType<system_call_wrapper_error_t> ("system_call_wrapper_error_t");
+
 
   QString tmp[] = {".tmp", "_download"};
   for (int i = 0; i < 2; ++i) {

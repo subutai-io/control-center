@@ -240,3 +240,7 @@ tests {
 } else {
     message(Normal build)
 }
+
+DISTFILES += \
+    resources/OK.png \
+    resources/local-network.png

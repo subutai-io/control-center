@@ -670,20 +670,17 @@ system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString &peer_fingerprint) {
+system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString &peer_fingerprint, int *exit_code) {
   static const int default_timeout = 10;
-  int exit_code
+  *exit_code
       = CLibsshController::check_auth_pass(
           CSettingsManager::Instance().rh_host(peer_fingerprint).toStdString().c_str(),
           CSettingsManager::Instance().rh_port(peer_fingerprint),
           CSettingsManager::Instance().rh_user(peer_fingerprint).toStdString().c_str(),
           CSettingsManager::Instance().rh_pass(peer_fingerprint).toStdString().c_str(),
           default_timeout);
-  if (exit_code != 0)
-    CNotificationObserver::Info(
-          QString("Cant connect to Peer. Error: %1.").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)exit_code)),
-          DlgNotification::N_NO_ACTION);
-  return exit_code == 0 ? SCWE_SUCCESS : SCWE_CANT_GET_RH_IP;
+  qDebug() << *exit_code;
+  return *exit_code == 0 ? SCWE_SUCCESS : SCWE_CANT_GET_RH_IP;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(

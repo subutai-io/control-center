@@ -15,18 +15,26 @@ DlgPeer::DlgPeer(QWidget *parent) :
 {
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
+  this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+  qDebug() << "Peer dialog is initialized";
 }
 
 
 
 void DlgPeer::addLocalPeer(const QString local_ip) {
+  qDebug() << "Adding a local peer with ip address: " << local_ip;
+
   connect(ui->btn_launch_console, &QPushButton::clicked, [local_ip](){
     CHubController::Instance().launch_browser(QString("https://%1:8443").arg(local_ip));
   });
+
   ui->le_ip->setText(local_ip);
+  ui->le_ip->setReadOnly(true);
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
+  qDebug() << "Adding a hub peer with name: " << peer.name();
+
   connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
     CHubController::Instance().launch_peer_page(peer.id().toInt());
   });
@@ -55,17 +63,20 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
       ui->env_owner->addWidget(env_owner);
       ui->env_status->addWidget(env_status);
     }
+    ui->show_ssh->setChecked(false);
+    ui->show_ssh->toggled(false);
   }
   else {
     ui->gr_ssh->setTitle("This peer doesn't have any \"Environments\" yet.");
-    ui->show_ssh->setChecked(true);
-    ui->show_ssh->toggled(true);
     ui->lbl_env->hide();
     ui->lbl_env_owner->hide();
     ui->lbl_env_status->hide();
     ui->line_1->hide();
     ui->line_2->hide();
     ui->line_3->hide();
+
+    ui->show_ssh->setChecked(true);
+    ui->show_ssh->toggled(true);
   }
 }
 
@@ -102,14 +113,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
 
   connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
-    if (checked == true) {
-      this->ui->gr_ssh->show();
-      this->setMaximumHeight(this->height()+this->ui->gr_ssh->height());
-    }
-    else {
-      this->ui->gr_ssh->hide();
-      this->setMaximumHeight(this->height()-this->ui->gr_ssh->height());
-    }
+    this->ui->gr_ssh->setVisible(checked);
     this->adjustSize();
   });
 
@@ -132,8 +136,6 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
   if (hub_peer != NULL) {
     addHubPeer(*hub_peer);
-    ui->show_ssh->setChecked(false);
-    ui->show_ssh->toggled(false);
   }
   else {
     ui->btn_peer_on_hub->setEnabled(false);
@@ -147,6 +149,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     ui->line_2->hide();
     ui->line_3->hide();
   }
+
 }
 
 
