@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>570</width>
+    <width>578</width>
     <height>220</height>
    </rect>
   </property>
@@ -70,7 +70,7 @@
    <item row="6" column="3">
     <widget class="QPushButton" name="btn_launch_console">
      <property name="text">
-      <string>Launch  Console</string>
+      <string>Launch  Subutai Console</string>
      </property>
     </widget>
    </item>
