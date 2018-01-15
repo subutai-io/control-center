@@ -58,7 +58,7 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
                                    const CHubContainer *cont,
                                    void *additional_data, finished_slot_t slot) {
 
-  int container_status = P2PController::Instance().get_container_status(env, cont);
+  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
   if (container_status != (int) SDLE_SUCCESS) {
      desktop_to_container_internal_helper(container_status, additional_data, slot);
      return;
@@ -116,7 +116,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                const CHubContainer *cont,
                                                void *additional_data,
                                                finished_slot_t slot) {
-  int container_status = P2PController::Instance().get_container_status(env, cont);
+  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
   if (container_status != (int) SDLE_SUCCESS) {
     ssh_to_container_internal_helper(container_status, additional_data, slot);
     return;
