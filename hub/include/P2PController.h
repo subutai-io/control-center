@@ -23,14 +23,14 @@ public:
             thread, &QThread::deleteLater);
     thread->start();
   }
-
 private slots:
   virtual void run_checker() = 0;
 signals:
-  virtual void connection_finished(system_call_wrapper_error_t res) = 0;
+  virtual void connection_finished(system_call_wrapper_error_t res);
 
 };
 Q_DECLARE_INTERFACE(StatusChecker, "StatusChecker")
+
 
 
 class RHStatusChecker : public StatusChecker
@@ -50,8 +50,11 @@ private slots:
     emit connection_finished(res.result());
   }
 signals:
-  void connection_finished(system_call_wrapper_error_t res);
+  //void connection_finished(system_call_wrapper_error_t res);
 };
+
+
+
 
 class SwarmConnector : public StatusChecker
 {
@@ -60,6 +63,7 @@ class SwarmConnector : public StatusChecker
   CEnvironment env;
   SwarmConnector(const CEnvironment &_env) : env(_env) {}
 
+private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"));
@@ -67,7 +71,27 @@ class SwarmConnector : public StatusChecker
     emit connection_finished(res.result());
   }
 signals:
-  void connection_finished(system_call_wrapper_error_t res);
+  //void connection_finished(system_call_wrapper_error_t res);
+};
+
+
+
+class SwarmLeaver : public StatusChecker
+{
+  Q_OBJECT
+  public:
+  QString hash;
+  SwarmLeaver(const QString &_hash) : hash(_hash) {}
+
+private slots:
+  void run_checker() {
+    QFuture<system_call_wrapper_error_t> res =
+        QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
+    res.waitForFinished();
+    emit connection_finished(res.result());
+  }
+signals:
+  //void connection_finished(system_call_wrapper_error_t res);
 };
 
 
@@ -84,8 +108,6 @@ public:
  bool cont_connected(const QString env_id, const QString& cont_id) const {
    return connected_conts.find(std::make_pair(env_id, cont_id)) != connected_conts.end();
  }
- void startInit();
-
 private:
  std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
  std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
@@ -96,8 +118,6 @@ private:
  void check_rh(const CEnvironment& env, const CHubContainer &cont);
 public slots:
  void update_status();
-
-
 };
 
 
@@ -120,13 +140,10 @@ public:
     return instance;
   }
 
-
   void init(){/* need to call constructor */}
   P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
   QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
-
-
 };
 
 #endif // P2PCONTROLLER_H

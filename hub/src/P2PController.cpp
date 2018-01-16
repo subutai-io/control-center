@@ -11,10 +11,8 @@
 
 
 
-void P2PConnector::startInit() {
 
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::join_swarm(const CEnvironment &env) {
   qInfo() << "Trying to join the swarm for env: " << env.name();
@@ -41,25 +39,30 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
   swarm_connector->startWork();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
 void P2PConnector::leave_swarm(const QString &hash) {
   qInfo() << QString("This swarm is not found in hub environments. Trying to delete. [swarm_hash: %1]").arg(hash);
 
-  QFuture<system_call_wrapper_error_t> res =
-      QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
-  res.waitForFinished();
-  if (res.result() == SCWE_SUCCESS) {
-    qInfo() << QString("Left the swarm [swarm_hash: %1]")
-               .arg(hash);
+  SwarmLeaver *swarm_leaver = new SwarmLeaver(hash);
+
+  connect(swarm_leaver, &SwarmLeaver::connection_finished, [this, hash](system_call_wrapper_error_t res) {
     this->connected_envs.erase(hash);
-  }
-  else {
-    qCritical()<< QString("Couldn't leave the swarm [swarm_hash: %1]. Error message: %2")
-                  .arg(hash)
-                  .arg(CSystemCallWrapper::scwe_error_to_str(res.result()));
-  }
+    if (res == SCWE_SUCCESS) {
+      qInfo() << QString("Left the swarm [swarm_hash: %1]")
+                 .arg(hash);
+    }
+    else {
+      qCritical()<< QString("Can't leave the swarm [swarm_hash: %1] Error message: %2")
+                    .arg(hash)
+                    .arg(CSystemCallWrapper::scwe_error_to_str(res));
+    }
+  });
+  swarm_leaver->startWork();
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) {
   qDebug() << "Checking the rh status" << env.name() << " " << cont.name();
@@ -89,7 +92,6 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
   rh_checker->startWork();
 }
 
-
 void P2PConnector::check_status(const CEnvironment &env) {
   qInfo() <<"Checking the status of environment: " << env.name();
   for (CHubContainer cont : env.containers()) {
@@ -97,21 +99,15 @@ void P2PConnector::check_status(const CEnvironment &env) {
   }
 }
 
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::update_status() {
-  if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())) {
-    qInfo() << "Can't launch p2p";
+  if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
+      || !CSystemCallWrapper::p2p_daemon_check()) {
+    qCritical() << "P2P is not launchable or p2p daemon is not running.";
     connected_conts.clear();
     connected_envs.clear();
-    return;
-  }
-
-  if (!CSystemCallWrapper::p2p_daemon_check()) {
-    qInfo() << "P2P daemon is not running";
-    connected_conts.clear();
-    connected_envs.clear();
+    QTimer::singleShot(1000, this, &P2PConnector::update_status);
     return;
   }
 
@@ -154,9 +150,10 @@ void P2PConnector::update_status() {
       leave_swarm(hash);
     }
   }
-
   QTimer::singleShot(1000, this, &P2PConnector::update_status);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 P2PController::P2PController() {
    qDebug() << "P2P controller is initialized";
@@ -167,7 +164,6 @@ P2PController::P2PController() {
 
    connect(thread, &QThread::started,
            connector, &P2PConnector::update_status);
-
    connect(qApp, &QCoreApplication::aboutToQuit,
            thread, &QThread::quit);
 
@@ -176,7 +172,9 @@ P2PController::P2PController() {
    connect(thread, &QThread::finished,
            thread, &QThread::deleteLater);
 
-   thread->start();
+   QTimer::singleShot(5000, [thread](){
+     thread->start();
+   });
 }
 
 
@@ -192,6 +190,9 @@ P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
   else
     return CONNECTION_SUCCESS;
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 QString P2PController::p2p_connection_status_to_str(P2P_CONNETION_STATUS status) {
   static QString str [] = {"Successfully connected",
