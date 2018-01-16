@@ -1,6 +1,10 @@
 #include "RhController.h"
 #include "SsdpController.h"
 #include "SettingsManager.h"
+#include "SystemCallWrapper.h"
+#include <QPushButton>
+#include "NotificationObserver.h"
+
 
 CRhController::CRhController(QObject *parent) :
   QObject(parent),
@@ -59,4 +63,30 @@ CRhController::delay_timer_timeout() {
   emit resource_host_list_updated(m_has_changes);
   m_has_changes = false;
 }
+////////////////////////////////////////////////////////////////////////////
+#include <QtConcurrent/QtConcurrent>
+#include "LibsshController.h"
+
+void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
+  QString ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
+  QString port = QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
+  QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
+  QString pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
+
+  int *exit_code = new int;
+  *exit_code = 0;
+
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::is_peer_available, peer_fingerprint, exit_code);
+  res.waitForFinished();
+
+
+  if (res.result() == SCWE_SUCCESS) {
+    res = QtConcurrent::run(CSystemCallWrapper::run_sshpass_in_terminal, user, ip, port, pass);
+    res.waitForFinished();
+  }
+
+  emit ssh_to_rh_finished(peer_fingerprint, action, res.result(), *exit_code);
+}
+
 ////////////////////////////////////////////////////////////////////////////

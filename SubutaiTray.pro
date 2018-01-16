@@ -240,3 +240,4 @@ tests {
 } else {
     message(Normal build)
 }
+
