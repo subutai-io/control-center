@@ -233,10 +233,10 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addAction(m_act_ssh_keys_management);
-  m_tray_menu->addSeparator();
-  m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_notifications_history);
+  m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_about);
+  m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_quit);
 
   m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
