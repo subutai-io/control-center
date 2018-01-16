@@ -7,6 +7,15 @@ Standards-Version: 3.9.6
 Homepage: https://subutai.io/
 
 Package: subutai-tray
-Architecture: all 
-Depends: gksu, libssh2-1, libxcb-xkb1, libxcb-render-util0, libxcb-xinerama0, libxcb-image0, libxcb-icccm4, libxcb-randr0, libxcb-keysyms1
-Description: Subutai Tray Application 
+Architecture: all
+Depends: gksu,
+         libssh2-1,
+         libssl1.0.2 | libssl1.0.1 | libssl1.0.0,
+         libxcb-icccm4,
+         libxcb-image0,
+         libxcb-keysyms1,
+         libxcb-randr0,
+         libxcb-render-util0,
+         libxcb-xinerama0,
+         libxcb-xkb1
+Description: Subutai Tray Application
