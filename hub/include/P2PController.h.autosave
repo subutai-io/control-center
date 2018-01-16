@@ -70,6 +70,7 @@ signals:
   void connection_finished(system_call_wrapper_error_t res);
 };
 
+ 
 
 class P2PConnector : public QObject {
   Q_OBJECT

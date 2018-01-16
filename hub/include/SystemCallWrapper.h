@@ -121,8 +121,6 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t run_x2goclient_session(const QString &session_id);
 
-  static system_call_wrapper_error_t send_handshake(const QString &ip,
-                                                         const QString &port);
 
   static system_call_wrapper_error_t run_x2go(QString remote_ip,
                                               QString remote_port,
