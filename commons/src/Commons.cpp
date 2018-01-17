@@ -173,7 +173,7 @@ QString CCommons::GetFingerprintFromUid(const QString &uid) {
   if (uid.indexOf("uid") == -1)
     return res;
   quint16 indexUid = uid.indexOf("uid:") + QString("uid:").size();
-  while (indexUid < uid.length() && uid[indexUid] != ":") {
+  while (indexUid < uid.length() && uid[indexUid] != ':') {
     res.append(uid[indexUid]);
     indexUid ++;
   }

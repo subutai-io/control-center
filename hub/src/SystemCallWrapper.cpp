@@ -683,22 +683,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QSt
 }
 
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
-        const QString &ip,
-        const QString &port) {
-  run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
-                                                    (uint16_t)port.toInt(), 30); // last parameter is timeout in sec
-  system_call_wrapper_error_t res = SCWE_SUCCESS;
 
-  if (exit_code != RLE_SUCCESS) {
-    res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical() << "Couldn't successfully handshake. Err : " << CLibsshController::run_libssh2_error_to_str(exit_code);
-  }
-  return res;
-}
-
-
-////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
     const QString &comment, const QString &file_path) {
   QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();

@@ -58,7 +58,7 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
                                    const CHubContainer *cont,
                                    void *additional_data, finished_slot_t slot) {
 
-  int container_status = P2PController::Instance().get_container_status(env, cont);
+  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
   if (container_status != (int) SDLE_SUCCESS) {
      desktop_to_container_internal_helper(container_status, additional_data, slot);
      return;
@@ -116,7 +116,7 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
                                                const CHubContainer *cont,
                                                void *additional_data,
                                                finished_slot_t slot) {
-  int container_status = P2PController::Instance().get_container_status(env, cont);
+  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
   if (container_status != (int) SDLE_SUCCESS) {
     ssh_to_container_internal_helper(container_status, additional_data, slot);
     return;
@@ -133,10 +133,6 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
 
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
-      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
-
   qInfo(
       "run_ssh_in_terminal : user : %s, "
       "ip : %s, port : %s, key : %s"
@@ -144,6 +140,10 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
       CSettingsManager::Instance().ssh_user().toStdString().c_str(),
       cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(), key.toStdString().c_str(),
       env->name().toStdString().c_str(), cont->name().toStdString().c_str());
+
+  system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
+      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
+
 
   if (err != SCWE_SUCCESS) {
     QString err_msg = tr("Run SSH failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
