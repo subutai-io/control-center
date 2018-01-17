@@ -4,14 +4,6 @@
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 
-#include <QFuture>
-#include <QFutureWatcher>
-
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::join_swarm(const CEnvironment &env) {

@@ -132,7 +132,7 @@ DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_PROD
+GBV=BT_DEV
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
