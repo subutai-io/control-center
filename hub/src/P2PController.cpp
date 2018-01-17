@@ -108,7 +108,7 @@ void P2PConnector::update_status() {
     qCritical() << "P2P is not launchable or p2p daemon is not running.";
     connected_conts.clear();
     connected_envs.clear();
-    timer->setInterval(1000);  // wait more, when p2p is not operational
+    timer->setInterval(30000);  // wait more, when p2p is not operational
     timer->start();
     return;
   }
@@ -151,7 +151,7 @@ void P2PConnector::update_status() {
     }
   }
 
-  timer->setInterval(1000);
+  timer->setInterval(15000);
   timer->start();
 }
 
