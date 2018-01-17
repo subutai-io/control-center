@@ -49,8 +49,6 @@ private slots:
     res.waitForFinished();
     emit connection_finished(res.result());
   }
-signals:
-  //void connection_finished(system_call_wrapper_error_t res);
 };
 
 
@@ -70,8 +68,6 @@ private slots:
     res.waitForFinished();
     emit connection_finished(res.result());
   }
-signals:
-  //void connection_finished(system_call_wrapper_error_t res);
 };
 
 
@@ -90,24 +86,22 @@ private slots:
     res.waitForFinished();
     emit connection_finished(res.result());
   }
-signals:
-  //void connection_finished(system_call_wrapper_error_t res);
 };
 
 
 class P2PConnector : public QObject {
   Q_OBJECT
-private:
-  QTimer* update_status_timer;
-
 public:
-
  bool env_connected(const QString& env_id) const {
    return connected_envs.find(env_id) != connected_envs.end();
  }
  bool cont_connected(const QString env_id, const QString& cont_id) const {
    return connected_conts.find(std::make_pair(env_id, cont_id)) != connected_conts.end();
  }
+
+public slots:
+ void update_status();
+
 private:
  std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
  std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
@@ -116,8 +110,7 @@ private:
  void check_status(const CEnvironment& env);
  void handshake(const CEnvironment& env, const CHubContainer &cont);
  void check_rh(const CEnvironment& env, const CHubContainer &cont);
-public slots:
- void update_status();
+
 };
 
 
@@ -133,7 +126,6 @@ public:
   };
 
   P2PController();
-  P2PConnector *connector;
 
   static P2PController& Instance() {
     static P2PController instance;
@@ -141,9 +133,14 @@ public:
   }
 
   void init(){/* need to call constructor */}
+
   P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
   QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
+
+private:
+  P2PConnector *connector;
+
 };
 
 #endif // P2PCONTROLLER_H
