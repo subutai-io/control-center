@@ -152,20 +152,20 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
        << p2p_dht_arg();
   system_call_res_t res;
 
-  res = ssystem_th(cmd, args, true, true);
+  res = ssystem_th(cmd, args, true, true, 1000 * 60 * 2); // timeout 2 min
   if (res.res != SCWE_SUCCESS)
     return res.res;
 
   if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
     QString err_msg = res.out.at(0);
-
     qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
     res.res = SCWE_CANT_JOIN_SWARM;
   }
 
   if (res.exit_code != 0) {
-    qCritical(
-        "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
+    qCritical()
+        << QString("Join to p2p swarm failed for swarm_hash: %1. Code : %2. Output: ")
+           .arg(hash).arg(res.exit_code) << res.out;
     res.res = SCWE_CREATE_PROCESS;
   }
 
