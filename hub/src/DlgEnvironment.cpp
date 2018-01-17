@@ -43,16 +43,36 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont) {
-  p2p_message_res_t res = P2PController::Instance().status(env, cont);
+  P2PController::P2P_CONNETION_STATUS
+      p2p_status = P2PController::Instance().is_ready(*env, *cont);
 
-  btn_ssh->setToolTip(res.btn_ssh_message);
-  btn_desktop->setToolTip(res.btn_desktop_message);
-  btn_ssh->setEnabled(res.btn_ssh_enabled);
-  btn_desktop->setEnabled(res.btn_desktop_enabled);
+  QString str_status
+      = P2PController::Instance().p2p_connection_status_to_str(p2p_status);
+
+
+  btn_ssh->setToolTip(str_status);
+  btn_desktop->setToolTip(str_status);
+  btn_ssh->setEnabled(p2p_status == P2PController::CONNECTION_SUCCESS);
+  btn_desktop->setEnabled(p2p_status == P2PController::CONNECTION_SUCCESS);
+
+  if (p2p_status == P2PController::CANT_JOIN_SWARM) {
+    ui->btn_ssh_all->setEnabled(false);
+    ui->btn_desktop_all->setEnabled(false);
+
+    ui->btn_ssh_all->setToolTip(str_status);
+    ui->btn_desktop_all->setToolTip(str_status);
+  }
+  else {
+    ui->btn_ssh_all->setEnabled(true);
+    ui->btn_desktop_all->setEnabled(true);
+
+    ui->btn_ssh_all->setToolTip("Press to SSH into ready containers.");
+    ui->btn_desktop_all->setToolTip("Press to DESKTOP into ready containers.");
+  }
 
   if (!cont->is_desktop()) {
-    btn_desktop->setToolTip(p2p_messages[NO_DESKTOP]);
     btn_desktop->setEnabled(false);
+    btn_desktop->setToolTip("Container doesn't have desktop");
   }
 }
 /////////////////////////////////////////////////////////////////////////

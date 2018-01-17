@@ -138,7 +138,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
     return;
   }
 
-  P2PController::Instance().p2p_restart();
+  //P2PController::Instance().p2p_restart();
 
   CNotificationObserver::Instance()->Info(tr("P2P has been updated"), DlgNotification::N_NO_ACTION);
   int rse_err = 0;
