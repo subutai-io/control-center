@@ -21,14 +21,14 @@ LanguageController* LanguageController::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& LanguageController::LocaleTypeToStr(LOCALE_TYPE lt) {
-  static QString lt_str[] = {tr("English"), tr("Brazilian Portuguese")};
+  static QString lt_str[] = {tr("English"), tr("Brazilian Portuguese"), tr("Russian")};
   return lt_str[lt];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& LanguageController::LocaleTypeToVal(LOCALE_TYPE lt) {
-  static QString lt_val[] = {"en_US", "pt_BR"};
+  static QString lt_val[] = {"en_US", "pt_BR", "ru_RU"};
   return lt_val[lt];
 }
 
@@ -37,7 +37,7 @@ const QString& LanguageController::LocaleTypeToVal(LOCALE_TYPE lt) {
 QString LanguageController::CurrentLocale() {
   QString locale = LanguageController::LocaleTypeToVal(LanguageController::LOCALE_EN);
 
-  if (LanguageController::LAST >= CSettingsManager::Instance().locale()) {
+  if (LanguageController::LOCALE_LAST >= CSettingsManager::Instance().locale()) {
     locale = LanguageController::LocaleTypeToVal(
              (LanguageController::LOCALE_TYPE)CSettingsManager::Instance().locale());
   }

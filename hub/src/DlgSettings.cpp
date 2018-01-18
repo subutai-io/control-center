@@ -33,7 +33,7 @@ static void fill_tray_skin_combobox(QComboBox* cb) {
 //////////////////////////////////////////////////////////////////////////
 
 static void fill_locale_combobox(QComboBox* cb) {
-  for (int i = 0; i <= LanguageController::LOCALE_PT_BR; ++i)
+  for (int i = 0; i <= LanguageController::LOCALE_LAST; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
@@ -194,8 +194,7 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
-
-  this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+  this->setMinimumWidth(this->width());
 }
 
 DlgSettings::~DlgSettings() {
