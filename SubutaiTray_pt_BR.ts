@@ -556,7 +556,6 @@
         <location filename="hub/forms/DlgPeer.ui" line="14"/>
         <source>Dialog</source>
         <translation>Diálogo</translation>
-        <translation>Diálogo</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="23"/>
