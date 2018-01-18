@@ -54,8 +54,8 @@ class CSettingsManager : public QObject {
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
+  static const QString SM_TRAY_SKIN;
   static const QString SM_SSH_KEYGEN_CMD;
-  static const QString SM_PYHOCA_CLI;
 
   static const QString SM_AUTOSTART;
   static const QString SM_CHROME_PATH;
@@ -115,6 +115,7 @@ class CSettingsManager : public QObject {
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
   uint32_t m_logs_level;
+  uint32_t m_tray_skin;
   uint32_t m_locale;
 
   bool m_use_animations;
@@ -222,6 +223,7 @@ class CSettingsManager : public QObject {
 
   uint32_t notifications_level() const { return m_notifications_level; }
   uint32_t logs_level() const { return m_logs_level; }
+  uint32_t tray_skin() const { return m_tray_skin; }
   uint32_t preferred_notifications_place() const {
     return m_preferred_notifications_place;
   }
@@ -290,6 +292,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(logs_level, uint32_t)
+  SET_FIELD_DECL(tray_skin, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
   SET_FIELD_DECL(autostart, bool)

@@ -56,7 +56,8 @@ SOURCES += \
     hub/src/DlgEnvironment.cpp \
     hub/src/P2PController.cpp \
     hub/src/X2GoClient.cpp \
-    hub/src/DlgPeer.cpp
+    hub/src/DlgPeer.cpp \
+    hub/src/TraySkinController.cpp
 
 
 
@@ -99,7 +100,8 @@ HEADERS  += \
     hub/include/DlgEnvironment.h \
     hub/include/P2PController.h \
     hub/include/X2GoClient.h \
-    hub/include/DlgPeer.h
+    hub/include/DlgPeer.h \
+    hub/include/TraySkinController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -117,7 +119,8 @@ FORMS    += \
     hub/forms/DlgPeer.ui
 
 RESOURCES += \
-    resources/resources.qrc
+    resources/resources.qrc \
+    skins/skins.qrc
 
 unix: {
   TRAY_VERSION = $$system(cat version)
