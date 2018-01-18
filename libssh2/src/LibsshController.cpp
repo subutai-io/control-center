@@ -253,13 +253,8 @@ run_ssh_command_internal(const char *str_host,
   int flags = fcntl(sock, F_GETFL, 0);
   flags |= O_NONBLOCK;
 #endif
-  fcntl(sock, F_GETFL, flags);
-  rc = connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
-
-  if (rc == EINPROGRESS)
-    rc = wait_socket_connected(sock, conn_timeout);
-  else
-    return RLE_CONNECTION_ERROR;
+  connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
+  rc = wait_socket_connected(sock, conn_timeout);
 
   if (rc == 0) {
     return RLE_CONNECTION_TIMEOUT;
