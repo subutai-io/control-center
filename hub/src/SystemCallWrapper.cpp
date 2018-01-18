@@ -152,20 +152,20 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
        << p2p_dht_arg();
   system_call_res_t res;
 
-  res = ssystem_th(cmd, args, true, true);
+  res = ssystem_th(cmd, args, true, true, 1000 * 60 * 2); // timeout 2 min
   if (res.res != SCWE_SUCCESS)
     return res.res;
 
   if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
     QString err_msg = res.out.at(0);
-
     qCritical("%s for swarm_hash : %s", err_msg.toStdString().c_str(), hash.toStdString().c_str());
     res.res = SCWE_CANT_JOIN_SWARM;
   }
 
   if (res.exit_code != 0) {
-    qCritical(
-        "Join to p2p swarm failed for swarm_hash : %s. Code : %d", hash.toStdString().c_str(), res.exit_code);
+    qCritical()
+        << QString("Join to p2p swarm failed for swarm_hash: %1. Code : %2. Output: ")
+           .arg(hash).arg(res.exit_code) << res.out;
     res.res = SCWE_CREATE_PROCESS;
   }
 
@@ -683,22 +683,7 @@ system_call_wrapper_error_t CSystemCallWrapper::run_x2goclient_session(const QSt
 }
 
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::send_handshake(
-        const QString &ip,
-        const QString &port) {
-  run_libssh2_error_t exit_code = CLibsshController::send_handshake(ip.toStdString().c_str(),
-                                                    (uint16_t)port.toInt(), 30); // last parameter is timeout in sec
-  system_call_wrapper_error_t res = SCWE_SUCCESS;
 
-  if (exit_code != RLE_SUCCESS) {
-    res = SCWE_CANT_SEND_HANDSHAKE;
-    qCritical() << "Couldn't successfully handshake. Err : " << CLibsshController::run_libssh2_error_to_str(exit_code);
-  }
-  return res;
-}
-
-
-////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
     const QString &comment, const QString &file_path) {
   QString cmd = CSettingsManager::Instance().ssh_keygen_cmd();

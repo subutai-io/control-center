@@ -5,126 +5,142 @@
 #include <QObject>
 #include "SystemCallWrapper.h"
 #include "HubController.h"
+#include <QtConcurrent/QtConcurrent>
 
-// Add new message to the end of array
-static QString p2p_messages[] = {
-  QObject::tr("The connection with environment is not established."),
-  QObject::tr("Can't connect to container."),
-  QObject::tr("Container doesn't have desktop."),
-  QObject::tr("Press this button to ez-ssh to container."),
-  QObject::tr("Press this button to ez-desktop to container.")
-};
-
-// Add new message code to the end of enum
-enum p2p_message_code_t {
-  CANT_JOIN_SWARM = 0,
-  CANT_CONNECT_CONTAINER,
-  NO_DESKTOP,
-  CLICK_EZ_SSH,
-  CLICK_EZ_DESKTOP
-};
-
-struct p2p_message_res_t {
-  bool btn_ssh_enabled;
-  bool btn_desktop_enabled;
-  QString btn_ssh_message;
-  QString btn_desktop_message;
-};
-
-class SwarmConnector : public QObject {
-Q_OBJECT
-private:
-  CEnvironment env;
-  int attemptCounter;
+class StatusChecker : public QObject {
+  Q_OBJECT
 public:
-  SwarmConnector(const CEnvironment &_env, QObject *parent = nullptr);
-public slots:
-  void join_to_swarm_begin();
-signals:
-  void successfully_joined_swarm(const CEnvironment&);
-  void join_swarm_timeout(const CEnvironment&);
-};
-
-class SwarmLeaver : public QObject {
-Q_OBJECT
-public:
-  SwarmLeaver();
-
-  static SwarmLeaver& Instance() {
-    static SwarmLeaver swarm_leaver;
-    return swarm_leaver;
+  virtual void startWork() {
+    QThread* thread = new QThread;
+    this->moveToThread(thread);
+    connect(thread, &QThread::started,
+            this, &StatusChecker::run_checker);
+    connect(this, &StatusChecker::connection_finished,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &StatusChecker::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    thread->start();
   }
+private slots:
+  virtual void run_checker() = 0;
+signals:
+  virtual void connection_finished(system_call_wrapper_error_t res);
 
-  void Init() {/* need to call constructor */}
-public slots:
-  void leave_to_swarm_begin();
 };
+Q_DECLARE_INTERFACE(StatusChecker, "StatusChecker")
 
-class HandshakeSender : public QObject {
-Q_OBJECT
-private:
-  CEnvironment env;
+
+
+class RHStatusChecker : public StatusChecker
+{
+  Q_OBJECT
 
 public:
-  HandshakeSender(const CEnvironment &_env, QObject *parent = nullptr);
-  void try_to_handshake(const CHubContainer &cont);
+  CEnvironment env;
+  CHubContainer cont;
+  RHStatusChecker(const CEnvironment &_env, const CHubContainer &_cont) : env(_env), cont(_cont) {}
 
-  void handshake_begin();
-
-signals:
-  void handshake_success(QString, QString);
-  void handshake_failure(QString, QString);
+private slots:
+  void run_checker() {
+    QFuture<system_call_wrapper_error_t> res =
+        QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
+    res.waitForFinished();
+    emit connection_finished(res.result());
+  }
 };
+
+
+
+
+class SwarmConnector : public StatusChecker
+{
+  Q_OBJECT
+  public:
+  CEnvironment env;
+  SwarmConnector(const CEnvironment &_env) : env(_env) {}
+
+private slots:
+  void run_checker() {
+    QFuture<system_call_wrapper_error_t> res =
+        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"));
+    res.waitForFinished();
+    emit connection_finished(res.result());
+  }
+};
+
+
+
+class SwarmLeaver : public StatusChecker
+{
+  Q_OBJECT
+  public:
+  QString hash;
+  SwarmLeaver(const QString &_hash) : hash(_hash) {}
+
+private slots:
+  void run_checker() {
+    QFuture<system_call_wrapper_error_t> res =
+        QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
+    res.waitForFinished();
+    emit connection_finished(res.result());
+  }
+};
+
+
+class P2PConnector : public QObject {
+  Q_OBJECT
+public:
+ bool env_connected(const QString& env_id) const {
+   return connected_envs.find(env_id) != connected_envs.end();
+ }
+ bool cont_connected(const QString env_id, const QString& cont_id) const {
+   return connected_conts.find(std::make_pair(env_id, cont_id)) != connected_conts.end();
+ }
+
+public slots:
+ void update_status();
+
+private:
+ std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
+ std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
+ void join_swarm(const CEnvironment& env);
+ void leave_swarm(const QString &hash);
+ void check_status(const CEnvironment& env);
+ void handshake(const CEnvironment& env, const CHubContainer &cont);
+ void check_rh(const CEnvironment& env, const CHubContainer &cont);
+
+};
+
 
 class P2PController : public QObject
 {
   Q_OBJECT
-private:
-  QTimer* m_handshake_timer;
-  QTimer* m_join_to_swarm_timer;
 
 public:
- P2PController();
+  enum P2P_CONNETION_STATUS{
+    CONNECTION_SUCCESS = 0,
+    CANT_JOIN_SWARM,
+    CANT_CONNECT_CONT,
+  };
 
- bool join_swarm_success(QString swarm_hash);
- bool handshake_success(QString env_id, QString cont_id);
- bool has_connector (QString env_id);
+  P2PController();
 
- void join_swarm(const CEnvironment &env);
- void leave_swarm(const CEnvironment &env);
- void try_to_handshake(const CEnvironment &env, const CHubContainer &cont);
- void send_handshake(const CEnvironment &env, const CHubContainer &cont);
- void check_handshakes(const std::vector<CEnvironment>& envs);
- void check_join_swarm_status();
+  static P2PController& Instance() {
+    static P2PController instance;
+    return instance;
+  }
 
- int get_container_status(const CEnvironment *env, const CHubContainer *cont);
+  void init(){/* need to call constructor */}
 
- std::vector<CEnvironment> get_envs_without_connectors();
+  P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
+  QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
+  ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
 
- std::set<QString> envs_joined_swarm_hash; // stores env_id
- std::set<QString> envs_with_connectors; // stores env_id
- std::set<std::pair<QString, QString>> successfull_handshakes; // stores env_id and cont_id
+private:
+  P2PConnector *connector;
 
- static P2PController& Instance() {
-   static P2PController instance;
-   return instance;
- }
-
- void init(){/* need to call constructor */}
- p2p_message_res_t status(const CEnvironment *env, const CHubContainer *cont);
-
-public slots:
- void handshake_with_env(const CEnvironment &env);
- void remove_connector(const CEnvironment &env);
- void joined_swarm(const CEnvironment &env);
- void handshaked(QString env_id, QString cont_id);
- void handshake_failed(QString env_id, QString cont_id);
-
-signals:
-
-public slots:
-  void update_join_swarm_status();
-  void p2p_restart();
 };
 
 #endif // P2PCONTROLLER_H
