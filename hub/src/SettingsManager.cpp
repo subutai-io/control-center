@@ -548,20 +548,20 @@ void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
 }
 
 void CSettingsManager::set_locale(const int locale) {
-    if (m_locale != (uint32_t)locale) {
-        m_locale = locale;
-        m_settings.setValue(SM_LOCALE, m_locale);
+  if (m_locale != (uint32_t)locale) {
+    m_locale = locale;
+    m_settings.setValue(SM_LOCALE, m_locale);
 
-        QMessageBox* msg_box =
-           new QMessageBox(QMessageBox::Question, tr("Info"),
-                           tr("You changed language. Would you like to restart tray?"),
-                           QMessageBox::Yes | QMessageBox::No);
-        connect(msg_box, &QMessageBox::finished, msg_box,
-                &QMessageBox::deleteLater);
-        if (msg_box->exec() == QMessageBox::Yes) {
-            CCommons::RestartTray();
-        }
+    QMessageBox* msg_box =
+       new QMessageBox(QMessageBox::Question, tr("Info"),
+                       tr("You changed language. Would you like to restart tray?"),
+                       QMessageBox::Yes | QMessageBox::No);
+    connect(msg_box, &QMessageBox::finished, msg_box,
+            &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Yes) {
+        CCommons::RestartTray();
     }
+  }
 }
 void CSettingsManager::set_tray_skin(const uint32_t tray_skin) {
   m_tray_skin = tray_skin;

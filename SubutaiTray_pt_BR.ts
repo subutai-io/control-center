@@ -4,7 +4,7 @@
 <context>
     <name>CDownloadFileManager</name>
     <message>
-        <location filename="hub/src/DownloadFileManager.cpp" line="55"/>
+        <location filename="hub/src/DownloadFileManager.cpp" line="54"/>
         <source>Download file error. %1</source>
         <translation>Erro no download do arquivo. %1</translation>
     </message>
@@ -12,67 +12,53 @@
 <context>
     <name>CHubController</name>
     <message>
-        <location filename="hub/src/HubController.cpp" line="179"/>
+        <location filename="hub/src/HubController.cpp" line="93"/>
+        <source>Run x2goclient session failed. Error code : %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="149"/>
+        <source>Run SSH failed. Error code : %1</source>
+        <translation type="unfinished">SSH falhou. Código do erro: %1</translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="243"/>
         <source>Balance: %1</source>
         <translation>Equilibrar: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="226"/>
+        <location filename="hub/src/HubController.cpp" line="290"/>
         <source>Refresh environments error : %1</source>
         <translation>Erro ao recarregar o ambiente: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="364"/>
+        <location filename="hub/src/HubController.cpp" line="455"/>
         <source>Launch hub website with google chrome failed</source>
         <translation>Falha ao lançar o website do hub com o google chrome</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="373"/>
+        <location filename="hub/src/HubController.cpp" line="463"/>
         <source>Launch hub website with default browser failed</source>
         <translation>Falha ao lançar o website do hub com navegador padrão</translation>
-    </message>
-    <message>
-        <location filename="hub/src/HubController.cpp" line="566"/>
-        <source>Peer%1 %2 %3 disconnected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/HubController.cpp" line="579"/>
-        <source>Environment%1 %2 %3 disconnected from your Peer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/HubController.cpp" line="592"/>
-        <source>Peer%1 %2 %3 connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/HubController.cpp" line="606"/>
-        <source>Environment%1 %2 %3 connected to your Peer</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CHubControllerP2PWorker</name>
     <message>
-        <location filename="hub/src/HubController.cpp" line="439"/>
         <source>Checking container. Please, wait</source>
-        <translation>Verificando container. Por favor, aguarde</translation>
+        <translation type="vanished">Verificando container. Por favor, aguarde</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="448"/>
         <source>Failed to run SSH because container isn&apos;t ready. Try little bit later.</source>
-        <translation>Falha ao rodar o SSH, o container não esta pronto. Tente mais tarde.</translation>
+        <translation type="vanished">Falha ao rodar o SSH, o container não esta pronto. Tente mais tarde.</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="470"/>
         <source>Failed to retrieve environment key. Try to restart application</source>
-        <translation>Falha ao recuperar a chave do ambiente. Tente reiniciar a aplicação</translation>
+        <translation type="vanished">Falha ao recuperar a chave do ambiente. Tente reiniciar a aplicação</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="489"/>
         <source>Run SSH failed. Error code : %1</source>
-        <translation>SSH falhou. Código do erro: %1</translation>
+        <translation type="vanished">SSH falhou. Código do erro: %1</translation>
     </message>
 </context>
 <context>
@@ -121,12 +107,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="499"/>
+        <location filename="hub/src/SettingsManager.cpp" line="557"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="500"/>
+        <location filename="hub/src/SettingsManager.cpp" line="558"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Língua modificada. Gostaria de reiniciar o tray?</translation>
     </message>
@@ -157,7 +143,7 @@
         <translation>Tray servidor websocket</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayWebSocketServer.cpp" line="24"/>
+        <location filename="hub/src/TrayWebSocketServer.cpp" line="27"/>
         <source>Can&apos;t listen websocket on port : %1 Reason : %2</source>
         <translation>Não é possível ouvir websocket na porta: %1 Razão: %2</translation>
     </message>
@@ -165,40 +151,34 @@
 <context>
     <name>CVBPlayer</name>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="960"/>
         <source>No resource hosts registered</source>
-        <translation>Nenhum anfitrião de recursos registrado </translation>
+        <translation type="vanished">Nenhum anfitrião de recursos registrado </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="975"/>
         <source>Resource hosts registered:</source>
-        <translation>Anfitrião de recursos registrado:</translation>
+        <translation type="vanished">Anfitrião de recursos registrado:</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="998"/>
         <source>No resource hosts registered:</source>
-        <translation>Nenhum anfitrião de recursos registrado:</translation>
+        <translation type="vanished">Nenhum anfitrião de recursos registrado:</translation>
     </message>
 </context>
 <context>
     <name>CVBPlayerItem</name>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1025"/>
         <source>Play/Pause/Resume</source>
-        <translation>Início/Pausa/Retomar</translation>
+        <translation type="vanished">Início/Pausa/Retomar</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1026"/>
         <source>Power off</source>
-        <translation>Desligar</translation>
+        <translation type="vanished">Desligar</translation>
     </message>
 </context>
 <context>
     <name>CVboxManager</name>
     <message>
-        <location filename="vbox/src/VBoxManager.cpp" line="13"/>
         <source>Couldn&apos;t get VBox version, sorry</source>
-        <translation>Desculpe, não foi possível obter a versão do VBox.</translation>
+        <translation type="vanished">Desculpe, não foi possível obter a versão do VBox.</translation>
     </message>
 </context>
 <context>
@@ -220,66 +200,64 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="56"/>
-        <location filename="hub/forms/DlgAbout.ui" line="96"/>
-        <location filename="hub/forms/DlgAbout.ui" line="190"/>
-        <location filename="hub/forms/DlgAbout.ui" line="207"/>
-        <location filename="hub/forms/DlgAbout.ui" line="233"/>
-        <location filename="hub/forms/DlgAbout.ui" line="288"/>
+        <location filename="hub/forms/DlgAbout.ui" line="128"/>
+        <location filename="hub/forms/DlgAbout.ui" line="138"/>
+        <location filename="hub/forms/DlgAbout.ui" line="184"/>
+        <location filename="hub/forms/DlgAbout.ui" line="258"/>
         <source>undefined</source>
         <translation>indefinido</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="75"/>
+        <location filename="hub/forms/DlgAbout.ui" line="251"/>
         <source>Update tray</source>
         <translation>Atualizar tray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="82"/>
+        <location filename="hub/forms/DlgAbout.ui" line="177"/>
         <source>P2P version:</source>
         <translation>Versão do P2P</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="89"/>
+        <location filename="hub/forms/DlgAbout.ui" line="121"/>
         <source>Tray application version:</source>
         <translation>Versão do Tray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="122"/>
+        <location filename="hub/forms/DlgAbout.ui" line="82"/>
         <source>Management version:</source>
         <translation>Versão do Gerenciador:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="138"/>
+        <location filename="hub/forms/DlgAbout.ui" line="98"/>
         <source>Update P2P</source>
         <translation>Atualizar P2P</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="167"/>
+        <location filename="hub/forms/DlgAbout.ui" line="154"/>
         <source>Chrome version:</source>
         <translation>Versão do Chrome</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="200"/>
+        <location filename="hub/forms/DlgAbout.ui" line="268"/>
         <source>RH version:</source>
         <translation>Versão do anfitrião de recursos</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="226"/>
+        <location filename="hub/forms/DlgAbout.ui" line="203"/>
         <source>Update Management</source>
         <translation>Atualizar o Gerenciador</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="249"/>
         <source>VBox version:</source>
-        <translation>Versão do VBox</translation>
+        <translation type="vanished">Versão do VBox</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="265"/>
+        <location filename="hub/forms/DlgAbout.ui" line="219"/>
         <source>Update RH</source>
         <translation>Atualizar Anfitrião de Recursos</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="189"/>
+        <location filename="hub/src/DlgAbout.cpp" line="191"/>
         <source>Couldn&apos;t update component %1</source>
         <translation>Não foi possível atualizar componente %1</translation>
     </message>
@@ -293,27 +271,47 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="20"/>
+        <source>Open Hub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="29"/>
+        <source>SSH ALL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="36"/>
+        <source>DESKTOP ALL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="45"/>
         <source>Container</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="30"/>
-        <source>Resource Host IP</source>
+        <location filename="hub/forms/DlgEnvironment.ui" line="55"/>
+        <source>IP Address</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="40"/>
-        <source>IP Address &amp; Port</source>
+        <location filename="hub/forms/DlgEnvironment.ui" line="65"/>
+        <source>Resource Host </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="57"/>
+        <location filename="hub/forms/DlgEnvironment.ui" line="75"/>
         <source>Remote Access</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="106"/>
-        <source>EZ-SSH All</source>
+        <location filename="hub/src/DlgEnvironment.cpp" line="87"/>
+        <source>SSH</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
+        <source>DESKTOP</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -325,29 +323,40 @@
         <translation>Gerando chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgGenerateSshKey.ui" line="38"/>
         <source>Ssh-keys :</source>
-        <translation>Chave-SSH :</translation>
+        <translation type="vanished">Chave-SSH :</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgGenerateSshKey.ui" line="38"/>
+        <source>Existing Keys:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="51"/>
-        <source>Healthy environments :</source>
-        <translation>Ambientes saudáveis :</translation>
+        <source>Healthy Environments:</source>
+        <oldsource>Healthy environments :</oldsource>
+        <translation type="unfinished">Ambientes saudáveis :</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="92"/>
-        <source>Select all</source>
-        <translation>Selecionar tudo</translation>
+        <source>Select All To Deploy</source>
+        <oldsource>Select all</oldsource>
+        <translation type="unfinished">Selecionar tudo</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="133"/>
-        <source>Generate new key pair</source>
-        <translation>Gerar novo par de chaves</translation>
+        <source>Generate New Key Pair</source>
+        <oldsource>Generate new key pair</oldsource>
+        <translation type="unfinished">Gerar novo par de chaves</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="140"/>
+        <source>Deploy Key[s]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save changes</source>
-        <translation>Salvar mudanças</translation>
+        <translation type="vanished">Salvar mudanças</translation>
     </message>
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
@@ -542,6 +551,69 @@
     </message>
 </context>
 <context>
+    <name>DlgPeer</name>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">Diálogo</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="23"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="46"/>
+        <source>Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="56"/>
+        <source>Peer on Hub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="63"/>
+        <source>Owner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="73"/>
+        <source>Launch  Subutai Console</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="89"/>
+        <source>Show SSH box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="125"/>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="132"/>
+        <source>IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="145"/>
+        <source>Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="152"/>
+        <source>Pass</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="159"/>
+        <source>SSH into Peer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DlgSettings</name>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="14"/>
@@ -549,296 +621,318 @@
         <translation>Configurações</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="770"/>
+        <location filename="hub/forms/DlgSettings.ui" line="38"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="777"/>
+        <location filename="hub/forms/DlgSettings.ui" line="31"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="33"/>
+        <location filename="hub/forms/DlgSettings.ui" line="51"/>
         <source>Common</source>
         <translation>Comum</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="41"/>
+        <location filename="hub/forms/DlgSettings.ui" line="59"/>
         <source>Log level :</source>
         <translation>Nível de Log :</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="50"/>
+        <location filename="hub/forms/DlgSettings.ui" line="68"/>
         <source>EZ-SSH User:</source>
         <translation>Usuário EZ-SSH:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="78"/>
-        <location filename="hub/forms/DlgSettings.ui" line="229"/>
+        <location filename="hub/forms/DlgSettings.ui" line="201"/>
+        <location filename="hub/forms/DlgSettings.ui" line="274"/>
         <source>Works only if tray couldn&apos;t get sys. tray icon&apos;s coordinates</source>
         <translation>Funciona apenas se o tray não conseguir a posição do systray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="81"/>
+        <location filename="hub/forms/DlgSettings.ui" line="277"/>
         <source>Area of notifications (only linux) :</source>
         <translation>Área de notificação (apenas linux) :</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="91"/>
+        <location filename="hub/forms/DlgSettings.ui" line="96"/>
         <source>Notification delay (sec.) :</source>
         <translation>Atraso da notificação (segundos):</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="121"/>
+        <location filename="hub/forms/DlgSettings.ui" line="140"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="140"/>
+        <location filename="hub/forms/DlgSettings.ui" line="166"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;mm,m,df&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="153"/>
+        <location filename="hub/forms/DlgSettings.ui" line="108"/>
         <source>Logs storage:</source>
         <translation>Armazenamento de Logs:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="170"/>
-        <location filename="hub/forms/DlgSettings.ui" line="190"/>
-        <location filename="hub/forms/DlgSettings.ui" line="204"/>
-        <location filename="hub/forms/DlgSettings.ui" line="320"/>
-        <location filename="hub/forms/DlgSettings.ui" line="327"/>
-        <location filename="hub/forms/DlgSettings.ui" line="429"/>
-        <location filename="hub/forms/DlgSettings.ui" line="455"/>
+        <location filename="hub/forms/DlgSettings.ui" line="115"/>
+        <location filename="hub/forms/DlgSettings.ui" line="153"/>
+        <location filename="hub/forms/DlgSettings.ui" line="325"/>
+        <location filename="hub/forms/DlgSettings.ui" line="420"/>
+        <location filename="hub/forms/DlgSettings.ui" line="443"/>
+        <location filename="hub/forms/DlgSettings.ui" line="473"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="177"/>
+        <location filename="hub/forms/DlgSettings.ui" line="192"/>
         <source>SSH-keys storage:</source>
         <translation>Armazenamento das chaves ssh:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="197"/>
         <source>DB folder:</source>
-        <translation>Pasta do banco de dados</translation>
+        <translation type="vanished">Pasta do banco de dados</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="236"/>
+        <location filename="hub/forms/DlgSettings.ui" line="211"/>
         <source>Notification level :</source>
         <translation>Nível de notificação</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="243"/>
+        <location filename="hub/forms/DlgSettings.ui" line="218"/>
         <source>Use animations</source>
         <translation>Usar animações</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="253"/>
+        <location filename="hub/forms/DlgSettings.ui" line="225"/>
         <source>Refresh time (sec.) :</source>
         <translation>Tempo de recarregamento (segundos)</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="292"/>
+        <location filename="hub/forms/DlgSettings.ui" line="287"/>
         <source>Start on login</source>
         <translation>Inicie no login</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="299"/>
+        <location filename="hub/forms/DlgSettings.ui" line="267"/>
         <source>Language</source>
         <translation>Língua</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="312"/>
+        <location filename="hub/forms/DlgSettings.ui" line="294"/>
+        <source>Skin Theme:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="307"/>
         <source>Commands</source>
         <translation>Comandos</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="334"/>
+        <location filename="hub/forms/DlgSettings.ui" line="318"/>
+        <source>x2goclient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="332"/>
         <source>SSH command:</source>
         <translation>Comando SSH:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="341"/>
+        <location filename="hub/forms/DlgSettings.ui" line="339"/>
         <source>P2P command:</source>
         <translation>Comando P2P:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="351"/>
+        <location filename="hub/forms/DlgSettings.ui" line="352"/>
         <source>Terminal settings:</source>
         <translation>Configurações do terminal</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="359"/>
+        <location filename="hub/forms/DlgSettings.ui" line="360"/>
         <source>Terminal:</source>
         <translation>Terminal:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="369"/>
+        <location filename="hub/forms/DlgSettings.ui" line="370"/>
         <source>Argument:</source>
         <translation>Melhoria:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="416"/>
         <source>Vboxmanage:</source>
-        <translation>Vboxmanage:</translation>
+        <translation type="vanished">Vboxmanage:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="462"/>
+        <location filename="hub/forms/DlgSettings.ui" line="450"/>
         <source>Ssh-keygen:</source>
         <translation>Gerador de chave ssh</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="520"/>
+        <location filename="hub/forms/DlgSettings.ui" line="515"/>
         <source>RH</source>
         <translation>AR</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="528"/>
         <source>RH host:</source>
-        <translation>AR anfitrião:</translation>
+        <translation type="vanished">AR anfitrião:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="535"/>
         <source>Resource hosts:</source>
-        <translation>Anfitriões de Recurso</translation>
+        <translation type="vanished">Anfitriões de Recurso</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="547"/>
         <source>Refresh</source>
-        <translation>Recarregar</translation>
+        <translation type="vanished">Recarregar</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="563"/>
+        <location filename="hub/forms/DlgSettings.ui" line="523"/>
+        <source>Default RH</source>
+        <oldsource>Default Peer</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="530"/>
+        <source>Available RHs</source>
+        <oldsource>Available Peers</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="542"/>
+        <source>Search RHs</source>
+        <oldsource>Search Peers</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgSettings.ui" line="558"/>
         <source>RH port:</source>
         <translation>Porta do Anfitrião:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="570"/>
+        <location filename="hub/forms/DlgSettings.ui" line="565"/>
         <source>RH user:</source>
         <translation>Usuário do Anfitrião</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="577"/>
+        <location filename="hub/forms/DlgSettings.ui" line="572"/>
         <source>RH password:</source>
         <translation>Senha do Anfitrião</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="686"/>
+        <location filename="hub/forms/DlgSettings.ui" line="681"/>
         <source>Updating</source>
         <translation>Atualizando</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="694"/>
+        <location filename="hub/forms/DlgSettings.ui" line="689"/>
         <source>Resource Host check for updates frequency:</source>
         <translation>Frequência em que o Anfitrião vai buscar por atualizações:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="701"/>
+        <location filename="hub/forms/DlgSettings.ui" line="696"/>
         <source>SubutaiTray check for updates frequency:</source>
         <translation>Frequência em que o SubutaiTray vai buscar por atualizações:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="714"/>
+        <location filename="hub/forms/DlgSettings.ui" line="709"/>
         <source>Automatic tray update</source>
         <translation>Atualizações automáticas do tray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="721"/>
+        <location filename="hub/forms/DlgSettings.ui" line="716"/>
         <source>Automatic rh update</source>
         <translation>Atualizações automáticas do anfitrião</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="728"/>
+        <location filename="hub/forms/DlgSettings.ui" line="723"/>
         <source>P2P check for updates frequency:</source>
         <translation>Frequência em que o P2P vai buscar por atualizações:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="738"/>
+        <location filename="hub/forms/DlgSettings.ui" line="733"/>
         <source>Automatic p2p update</source>
         <translation>Atualizações automáticas do p2p</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="745"/>
+        <location filename="hub/forms/DlgSettings.ui" line="740"/>
         <source>Management check for updates frequency:</source>
         <translation>Frequência em que o Gerenciador vai buscar por atualizações:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgSettings.ui" line="755"/>
+        <location filename="hub/forms/DlgSettings.ui" line="750"/>
         <source>Automatic mh update</source>
         <translation>Atualizações automáticas do mh:</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="251"/>
+        <location filename="hub/src/DlgSettings.cpp" line="263"/>
         <source>Field can&apos;t be empty</source>
         <translation>O campo não pode estar vazio</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="253"/>
+        <location filename="hub/src/DlgSettings.cpp" line="265"/>
         <source>You don&apos;t have write permission to this folder</source>
         <translation>Você não tem permissão de escrita para esse diretório</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="254"/>
+        <location filename="hub/src/DlgSettings.cpp" line="266"/>
         <source>Invalid path</source>
         <translation>Caminho inválido</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="256"/>
+        <location filename="hub/src/DlgSettings.cpp" line="268"/>
         <source>Can&apos;t launch application</source>
         <translation>Não consegui lançar a aplicação</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="330"/>
+        <location filename="hub/src/DlgSettings.cpp" line="337"/>
         <source>Attention! Wrong settings</source>
         <translation>Atenção! Configurações incorretas</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="331"/>
+        <location filename="hub/src/DlgSettings.cpp" line="338"/>
         <source>You have %1 wrong settings. Would you like to correct it? Yes - try to correct, No - save anyway</source>
         <translation>Você tem %1 configurações incorretas. Você gostaria de corrigi-las ? Sim - tente corrigir, Não - salve mesmo assim</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="356"/>
+        <location filename="hub/src/DlgSettings.cpp" line="363"/>
         <source>Attention! Wrong terminal argument</source>
         <translation>Atenção! Parâmetro incorreto para o terminal</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="431"/>
+        <location filename="hub/src/DlgSettings.cpp" line="439"/>
         <source>P2P command</source>
         <translation>Comando P2P</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="438"/>
+        <location filename="hub/src/DlgSettings.cpp" line="446"/>
         <source>Ssh command</source>
         <translation>Comando SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="445"/>
+        <location filename="hub/src/DlgSettings.cpp" line="459"/>
         <source>Ssh-keygen command</source>
         <translation>Comando gerador de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="452"/>
-        <source>Vboxmanage command</source>
-        <translation>Comando Vboxmanage</translation>
+        <location filename="hub/src/DlgSettings.cpp" line="451"/>
+        <source>x2goclient command</source>
+        <oldsource>Vboxmanage command</oldsource>
+        <translation type="unfinished">Comando Vboxmanage</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="459"/>
+        <location filename="hub/src/DlgSettings.cpp" line="467"/>
         <source>Logs storage</source>
         <translation>Armazenamento de Logs</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="466"/>
+        <location filename="hub/src/DlgSettings.cpp" line="474"/>
         <source>SSH-keys storage</source>
         <translation>Armazenamento de chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="473"/>
         <source>DB storage</source>
-        <translation>Armazenamento do banco de dados</translation>
+        <translation type="vanished">Armazenamento do banco de dados</translation>
     </message>
 </context>
 <context>
@@ -895,177 +989,177 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="commons/src/Commons.cpp" line="28"/>
+        <location filename="commons/src/Commons.cpp" line="29"/>
         <source>No error</source>
         <translation>Sem erro</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="31"/>
+        <location filename="commons/src/Commons.cpp" line="32"/>
         <source>Connection Refused Error</source>
         <translation>Erro de conexão recusada</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="32"/>
+        <location filename="commons/src/Commons.cpp" line="33"/>
         <source>Remote Host Closed Error</source>
         <translation>Erro de Host remoto fechado</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="33"/>
+        <location filename="commons/src/Commons.cpp" line="34"/>
         <source>Host Not Found Error</source>
         <translation>Erro de Host não encontrado</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="34"/>
+        <location filename="commons/src/Commons.cpp" line="35"/>
         <source>Timeout Error</source>
         <translation>Erro de tempo excedido</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="35"/>
+        <location filename="commons/src/Commons.cpp" line="36"/>
         <source>Operation Canceled Error</source>
         <translation>Erro operação cancelada</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="36"/>
+        <location filename="commons/src/Commons.cpp" line="37"/>
         <source>Ssl Handshake Failed Error</source>
         <translation>Erro aperto de mão ssl falhou</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="37"/>
+        <location filename="commons/src/Commons.cpp" line="38"/>
         <source>Temporary Network Failure Error</source>
         <translation>Falha temporária na rede</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="38"/>
+        <location filename="commons/src/Commons.cpp" line="39"/>
         <source>Network Session Failed Error</source>
         <translation>Sessão de rede falhou</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="39"/>
+        <location filename="commons/src/Commons.cpp" line="40"/>
         <source>Background Request Not Allowed Error</source>
         <translation>Requisição em segundo plano não permitido</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="40"/>
+        <location filename="commons/src/Commons.cpp" line="41"/>
         <source>TooMany Redirects Error</source>
         <translation>Muitos redirecionamentos</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="41"/>
+        <location filename="commons/src/Commons.cpp" line="42"/>
         <source>Insecure Redirect Error</source>
         <translation>Redirecionamento inseguro</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="42"/>
+        <location filename="commons/src/Commons.cpp" line="43"/>
         <source>Unknown Network Error</source>
         <translation>Rede Desconhecida</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="45"/>
+        <location filename="commons/src/Commons.cpp" line="46"/>
         <source>Proxy Connection Refused Error</source>
         <translation>Conexão proxy recusada</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="46"/>
+        <location filename="commons/src/Commons.cpp" line="47"/>
         <source>Proxy Connection Closed Error</source>
         <translation>Conexão proxy fechada</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="47"/>
+        <location filename="commons/src/Commons.cpp" line="48"/>
         <source>Proxy Not Found Error</source>
         <translation>Proxy não encontrado</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="48"/>
+        <location filename="commons/src/Commons.cpp" line="49"/>
         <source>Proxy Timeout Error</source>
         <translation>Tempo excedido do proxy</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="49"/>
+        <location filename="commons/src/Commons.cpp" line="50"/>
         <source>Proxy Authentication Required Error</source>
         <translation>Autenticação do proxy requerida</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="50"/>
+        <location filename="commons/src/Commons.cpp" line="51"/>
         <source>Unknown Proxy Error</source>
         <translation>Erro desconhecido do proxy</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="53"/>
+        <location filename="commons/src/Commons.cpp" line="54"/>
         <source>Content Access Denied</source>
         <translation>Acesso negado ao conteúdo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="54"/>
+        <location filename="commons/src/Commons.cpp" line="55"/>
         <source>Content Operation Not Permitted Error</source>
         <translation>Operação não permitida no conteúdo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="55"/>
+        <location filename="commons/src/Commons.cpp" line="56"/>
         <source>Content Not Found Error</source>
         <translation>Conteúdo não encontrado</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="56"/>
+        <location filename="commons/src/Commons.cpp" line="57"/>
         <source>Authentication Required Error</source>
         <translation>Autenticação requerida</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="57"/>
+        <location filename="commons/src/Commons.cpp" line="58"/>
         <source>Content Resend Error</source>
         <translation>Erro no re-envio do conteúdo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="58"/>
+        <location filename="commons/src/Commons.cpp" line="59"/>
         <source>Content Conflict Error</source>
         <translation>Erro de conflito do conteúdo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="59"/>
+        <location filename="commons/src/Commons.cpp" line="60"/>
         <source>Content Gone Error</source>
         <translation>Conteúdo não existe</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="60"/>
+        <location filename="commons/src/Commons.cpp" line="61"/>
         <source>Unknown Content Error</source>
         <translation>Erro desconhecido do conteúdo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="63"/>
+        <location filename="commons/src/Commons.cpp" line="64"/>
         <source>Protocol Unknown Error</source>
         <translation>Protocolo desconhecido</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="64"/>
+        <location filename="commons/src/Commons.cpp" line="65"/>
         <source>Protocol Invalid Operation Error</source>
         <translation>Operação inválida do protocolo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="65"/>
+        <location filename="commons/src/Commons.cpp" line="66"/>
         <source>Protocol Failure</source>
         <translation>Falha do protocolo</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="68"/>
+        <location filename="commons/src/Commons.cpp" line="69"/>
         <source>Internal Server Error</source>
         <translation>Erro interno do servidor</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="69"/>
+        <location filename="commons/src/Commons.cpp" line="70"/>
         <source>Operation not implemented error</source>
         <translation>Operação não implementada</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="70"/>
+        <location filename="commons/src/Commons.cpp" line="71"/>
         <source>Service unavailable error</source>
         <translation>Serviço indisponível</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="71"/>
+        <location filename="commons/src/Commons.cpp" line="72"/>
         <source>Unknown server error</source>
         <translation>Servidor desconhecido</translation>
     </message>
     <message>
-        <location filename="commons/src/Commons.cpp" line="72"/>
+        <location filename="commons/src/Commons.cpp" line="73"/>
         <source>Unknown network error</source>
         <translation>Erro desconhecido de rede</translation>
     </message>
@@ -1090,83 +1184,83 @@
         <translation>critíco</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="435"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="454"/>
         <source>Using %1 ssh key</source>
         <translation>Usando a chave ssh %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="844"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="914"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1074"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1144"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation>Não foi possível recuperar o diretório home</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="854"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1084"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation>Não foi possível criar o diretório de início automático, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="869"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1099"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation>Não foi possível deletar %1. %2</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="881"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1111"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation>Não foi possível criar o arquivo desktop de auto-início. Erro : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="893"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1123"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation>Não foi possível escrever no arquivo de auto-início.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="965"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1195"/>
         <source>Write plist file error</source>
         <translation>Erro ao gravar o arquivo plist</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1001"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1231"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation>Não foi possível criar a chave de registro, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1013"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1243"/>
         <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1023"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1253"/>
         <source>Couldn&apos;t add program to autorun, sorry</source>
         <translation>Não foi possível adicionar o programa ao auto-início, desculpe.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1031"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1261"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador. </translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1045"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1275"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation>Não foi possível remover o programa do auto-início, desculpe.</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="77"/>
+        <location filename="main.cpp" line="79"/>
         <source>Already running</source>
         <translation>Já está rodando</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="78"/>
+        <location filename="main.cpp" line="80"/>
         <source>One instance of tray application is already running</source>
         <translation>Uma instancia do tray já está rodando.</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="86"/>
+        <location filename="main.cpp" line="88"/>
         <source>This tray application should help users to work with hub</source>
         <translation>Essa aplicação deve ajudar usuário a trabalhar com o hub</translation>
     </message>
     <message>
-        <location filename="main.cpp" line="140"/>
+        <location filename="main.cpp" line="148"/>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1175,24 +1269,39 @@
         <translation type="vanished">Não foi possível operar sem o daemon p2p. Tanto mudar o caminho nas configurações ou instalar o daemon caso não instalado. Você pode pegar a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="483"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="508"/>
         <source>stage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="484"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="509"/>
         <source>development</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="485"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="510"/>
         <source>production</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="16"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="527"/>
+        <source>-master</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="commons/src/OsBranchConsts.cpp" line="528"/>
+        <source>-dev</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="19"/>
         <source>Undefined balance</source>
         <translation>Equilibrar: </translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="468"/>
+        <source>Can&apos;t run x2goclient instance. Make sure you have specified correct path to x2goclient.Or you can get the lasest x2goclient from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1203,127 +1312,143 @@
         <translation>Janela Principal</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="181"/>
         <source>Subutai console</source>
-        <translation>Console Subutai</translation>
+        <translation type="vanished">Console Subutai</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="186"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="184"/>
         <source>Hub website</source>
         <translation>Website do Hub</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="240"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="293"/>
         <source>Launch</source>
-        <translation>Lançar</translation>
+        <translation type="vanished">Lançar</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="243"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="911"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="170"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="870"/>
         <source>Settings</source>
         <translation>Configurações</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="248"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="298"/>
         <source>Virtual machines</source>
-        <translation>Máquinas Virtuais</translation>
+        <translation type="vanished">Máquinas Virtuais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="252"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="295"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="177"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="224"/>
         <source>Environments</source>
         <translation>Ambientes</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="254"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="179"/>
         <source>Quit</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="263"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="193"/>
         <source>About</source>
         <translation>Sobre</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="268"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="198"/>
         <source>SSH-keys management</source>
         <translation>Gerenciamento de chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="272"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="202"/>
         <source>Logout</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="276"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="933"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="206"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="892"/>
         <source>Notifications history</source>
         <translation>Histórico de notificações</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="567"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="227"/>
+        <source>My Peers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="229"/>
+        <source>Local Peers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="487"/>
         <source>Update for %1 is available. Check &quot;About&quot; dialog</source>
         <translation>Atualizações para %1 estão disponíveis. Verifique em &quot;Sobre&quot;</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="575"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="495"/>
         <source>Failed to update %1. See details in error logs</source>
         <translation>Falha ao atualizar %1. Veja detalhes nos logs de erro</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="589"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="608"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="623"/>
+        <source>&quot;%1&quot; is %2 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="885"/>
+        <source>SSH Key Manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="948"/>
+        <source>Can&apos;t desktop to container. Err : %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Launch hub website via google chrome failed</source>
-        <translation>Falha ao lançar o site via google chrome</translation>
+        <translation type="vanished">Falha ao lançar o site via google chrome</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="597"/>
         <source>Launch hub website via default browser failed</source>
-        <translation>Falha ao lançar o site via navegador padrão</translation>
+        <translation type="vanished">Falha ao lançar o site via navegador padrão</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="653"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="555"/>
         <source>Environment %1 became healthy</source>
         <translation>Ambiente %1 se tornou saudável</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="684"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="586"/>
         <source>Environment%1 %2 %3 %4</source>
         <translation>Ambiente %1 %2 %3 %4</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="726"/>
         <source>Can&apos;t get RH IP address. Error : %1, Exit_Code : %2</source>
-        <translation>Não foi possível conseguir o endereço de IP. Erro: %1, código: %2</translation>
+        <translation type="vanished">Não foi possível conseguir o endereço de IP. Erro: %1, código: %2</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="737"/>
         <source>Run subutai console via chrome failed. Couldn&apos;t start process</source>
-        <translation>Falha ao rodar o console subutai via chrome. Não foi possível iniciar o processo </translation>
+        <translation type="vanished">Falha ao rodar o console subutai via chrome. Não foi possível iniciar o processo </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="745"/>
         <source>Run subutai console via default browser failed. Couldn&apos;t start process</source>
-        <translation>Falha ao rodar o console subutai via navegador padrão. Não foi possível iniciar o processo </translation>
+        <translation type="vanished">Falha ao rodar o console subutai via navegador padrão. Não foi possível iniciar o processo </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="828"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="759"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="788"/>
         <source>Can&apos;t get RH IP address. Error : %1</source>
         <translation>Não foi possível conseguir o endereço de IP. Erro: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="917"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="876"/>
         <source>About Subutai Tray</source>
         <translation>Sobre o Subutai Tray</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="926"/>
         <source>SSH key generation</source>
-        <translation>Geração de chave SSH</translation>
+        <translation type="vanished">Geração de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1106"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="932"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
         <translation>Não foi possível estabelecer conexão ssh com o container. Err : %1</translation>
     </message>
@@ -1344,32 +1469,36 @@
 <context>
     <name>update_system::CUpdaterComponentP2P</name>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="36"/>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="37"/>
         <source>Can&apos;t find p2p in PATH. Err : %1</source>
         <translation>Não foi possível encontrar o caminho para p2p. Erro: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="132"/>
         <source>P2P has not been updated</source>
-        <translation>P2P não foi atualizado</translation>
+        <translation type="vanished">P2P não foi atualizado</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="136"/>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="137"/>
+        <source>P2P has not been updated. Most probably the permission is denied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="143"/>
         <source>P2P has been updated</source>
         <translation>P2P foi atualizado</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="143"/>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="150"/>
         <source>p2p post update failed. err : %1</source>
         <translation>Pós atualização do P2P falhou. err: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="149"/>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="156"/>
         <source>Attention! P2P update finished</source>
         <translation>Atenção! Atualização do P2P concluída</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="150"/>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="157"/>
         <source>P2P has been updated. Restart p2p daemon, please</source>
         <translation>P2P foi atualizado. Por favor reinicie o daemon p2p</translation>
     </message>
@@ -1394,8 +1523,9 @@
     <name>update_system::CUpdaterComponentTray</name>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="92"/>
-        <source>Tray application has not been updated</source>
-        <translation>Aplicação do Tray não foi atualizada</translation>
+        <source>Tray application has not been updated. Most probably the permission is denied.</source>
+        <oldsource>Tray application has not been updated</oldsource>
+        <translation type="unfinished">Aplicação do Tray não foi atualizada</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="96"/>
