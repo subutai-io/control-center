@@ -14,12 +14,12 @@
     <message>
         <location filename="hub/src/HubController.cpp" line="93"/>
         <source>Run x2goclient session failed. Error code : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha na execução de sessão do x2goclient. Código de erro : %1</translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="149"/>
         <source>Run SSH failed. Error code : %1</source>
-        <translation type="unfinished">SSH falhou. Código do erro: %1</translation>
+        <translation>SSH falhou. Código do erro: %1</translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="243"/>
@@ -122,12 +122,12 @@
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="138"/>
         <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerando novo par SSH. Por favor não mude de diretório</translation>
     </message>
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="140"/>
         <source>Ssh keys (*.pub);; All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaves SSH (*.pub);; Todos os arquivos (*.*)</translation>
     </message>
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="161"/>
@@ -267,52 +267,52 @@
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Formulário</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="20"/>
         <source>Open Hub</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Hub</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="29"/>
         <source>SSH ALL</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH TODOS</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="36"/>
         <source>DESKTOP ALL</source>
-        <translation type="unfinished"></translation>
+        <translation>DESKTOP TODOS</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="45"/>
         <source>Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Container</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="55"/>
         <source>IP Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Endereço IP</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="65"/>
         <source>Resource Host </source>
-        <translation type="unfinished"></translation>
+        <translation>Anfitrião de Recursos</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="75"/>
         <source>Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Acesso Remoto</translation>
     </message>
     <message>
         <location filename="hub/src/DlgEnvironment.cpp" line="87"/>
         <source>SSH</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH</translation>
     </message>
     <message>
         <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
         <source>DESKTOP</source>
-        <translation type="unfinished"></translation>
+        <translation>DESKTOP</translation>
     </message>
 </context>
 <context>
@@ -329,30 +329,30 @@
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="38"/>
         <source>Existing Keys:</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaves Existentes:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="51"/>
         <source>Healthy Environments:</source>
         <oldsource>Healthy environments :</oldsource>
-        <translation type="unfinished">Ambientes saudáveis :</translation>
+        <translation>Ambientes saudáveis :</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="92"/>
         <source>Select All To Deploy</source>
         <oldsource>Select all</oldsource>
-        <translation type="unfinished">Selecionar tudo</translation>
+        <translation>Selecionar Tudo Para Implementar</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="133"/>
         <source>Generate New Key Pair</source>
         <oldsource>Generate new key pair</oldsource>
-        <translation type="unfinished">Gerar novo par de chaves</translation>
+        <translation>Gerar novo Par de Chaves</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="140"/>
         <source>Deploy Key[s]</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementar Chaves</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -361,7 +361,7 @@
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
         <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
-        <translation>Você não tem permissão de escrita no diretório das chaves ssh. Por favor adicione a permissão de escrita ou mude as configurações. Obrigado</translation>
+        <translation>Você não tem permissão de escrita no diretório das chaves SSH. Por favor adicione a permissão de escrita ou mude as configurações. Obrigado</translation>
     </message>
 </context>
 <context>
@@ -473,7 +473,7 @@
     <message>
         <location filename="hub/forms/DlgNotification.ui" line="112"/>
         <source>Update Resource Host</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="hub/src/DlgNotification.cpp" line="56"/>
@@ -555,62 +555,63 @@
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
+        <translation>Diálogo</translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="23"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="46"/>
         <source>Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Ambiente</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="56"/>
         <source>Peer on Hub</source>
-        <translation type="unfinished"></translation>
+        <translation>Peer no Hub</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="63"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Proprietário</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="73"/>
         <source>Launch  Subutai Console</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Console Subutai</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="89"/>
         <source>Show SSH box</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar máquina SSH</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="125"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuário</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="132"/>
         <source>IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="145"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="152"/>
         <source>Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Senha</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="159"/>
         <source>SSH into Peer</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrar no Peer por SSH</translation>
     </message>
 </context>
 <context>
@@ -689,7 +690,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="192"/>
         <source>SSH-keys storage:</source>
-        <translation>Armazenamento das chaves ssh:</translation>
+        <translation>Armazenamento das chaves SSH:</translation>
     </message>
     <message>
         <source>DB folder:</source>
@@ -723,7 +724,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="294"/>
         <source>Skin Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema de interface:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="307"/>
@@ -733,7 +734,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="318"/>
         <source>x2goclient</source>
-        <translation type="unfinished"></translation>
+        <translation>x2goclient</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="332"/>
@@ -767,7 +768,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="450"/>
         <source>Ssh-keygen:</source>
-        <translation>Gerador de chave ssh</translation>
+        <translation>Gerador de chave SSH</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="515"/>
@@ -790,19 +791,19 @@
         <location filename="hub/forms/DlgSettings.ui" line="523"/>
         <source>Default RH</source>
         <oldsource>Default Peer</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Anfitrião de Recursos padrão</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="530"/>
         <source>Available RHs</source>
         <oldsource>Available Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Anfitriões de Recursos Disponíveis</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="542"/>
         <source>Search RHs</source>
         <oldsource>Search Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Buscar Anfitriões de Recursos</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="558"/>
@@ -918,7 +919,7 @@
         <location filename="hub/src/DlgSettings.cpp" line="451"/>
         <source>x2goclient command</source>
         <oldsource>Vboxmanage command</oldsource>
-        <translation type="unfinished">Comando Vboxmanage</translation>
+        <translation>Comando x2goclient</translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="467"/>
@@ -1186,7 +1187,7 @@
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="454"/>
         <source>Using %1 ssh key</source>
-        <translation>Usando a chave ssh %1</translation>
+        <translation>Usando a chave SSH %1</translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1074"/>
@@ -1262,46 +1263,46 @@
     <message>
         <location filename="main.cpp" line="148"/>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é possível executar sem o daemon p2p. Por favor mude o caminho nas Configurações, ou instale o daemon se ele ainda não foi instalado. Você pode obter o daemon %1 &lt;a href=&quot;%2&quot;&gt;aqui&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the [production|dev|stage] daemon from &lt;a href=&quot;%1&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="vanished">Não foi possível operar sem o daemon p2p. Tanto mudar o caminho nas configurações ou instalar o daemon caso não instalado. Você pode pegar a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
+        <translation type="vanished">Não foi possível operar sem o daemon p2p. Por favor mude o caminho nas Configurações, ou instale o daemon se ele ainda não foi instalado. Você pode obter a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="508"/>
         <source>stage</source>
-        <translation type="unfinished"></translation>
+        <translation>stage</translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="509"/>
         <source>development</source>
-        <translation type="unfinished"></translation>
+        <translation>development</translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="510"/>
         <source>production</source>
-        <translation type="unfinished"></translation>
+        <translation>production</translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="527"/>
         <source>-master</source>
-        <translation type="unfinished"></translation>
+        <translation>-master</translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="528"/>
         <source>-dev</source>
-        <translation type="unfinished"></translation>
+        <translation>-dev</translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="19"/>
         <source>Undefined balance</source>
-        <translation>Equilibrar: </translation>
+        <translation>Extrato indefinido </translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="468"/>
         <source>Can&apos;t run x2goclient instance. Make sure you have specified correct path to x2goclient.Or you can get the lasest x2goclient from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível executar instância do x2goclient. Certifique-se de haver especificado o caminho correto para o x2goclient. Ou obtenha a versão mais recente do x2goclient &lt;a href=&quot;%2&quot;&gt;aqui&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
@@ -1317,6 +1318,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="184"/>
+        <source>Hub website</source>
         <source>Hub website</source>
         <translation>Website do Hub</translation>
     </message>
@@ -1369,12 +1371,12 @@
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="227"/>
         <source>My Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Meus Peers</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="229"/>
         <source>Local Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Peers Locais</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="487"/>
@@ -1390,17 +1392,17 @@
         <location filename="hub/src/TrayControlWindow.cpp" line="608"/>
         <location filename="hub/src/TrayControlWindow.cpp" line="623"/>
         <source>&quot;%1&quot; is %2 </source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; é %2 </translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="885"/>
         <source>SSH Key Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerenciador de Chaves SSH</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="948"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível entrar por Desktop no container. Erro: %1</translation>
     </message>
     <message>
         <source>Launch hub website via google chrome failed</source>
@@ -1450,7 +1452,7 @@
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="932"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
-        <translation>Não foi possível estabelecer conexão ssh com o container. Err : %1</translation>
+        <translation>Não foi possível estabelecer conexão SSH com o container. Err : %1</translation>
     </message>
 </context>
 <context>
@@ -1480,7 +1482,7 @@
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="137"/>
         <source>P2P has not been updated. Most probably the permission is denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>P2P não foi atualizado. Provavelmente não tem permissões.</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="143"/>
@@ -1525,7 +1527,7 @@
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="92"/>
         <source>Tray application has not been updated. Most probably the permission is denied.</source>
         <oldsource>Tray application has not been updated</oldsource>
-        <translation type="unfinished">Aplicação do Tray não foi atualizada</translation>
+        <translation>Aplicação do Tray não foi atualizada. Provavelmente não tem permissões.</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="96"/>
