@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="skins">
+      <file>dark.css</file>
+      <file>orange-dark.css</file>
+  </qresource>
+</RCC>
+

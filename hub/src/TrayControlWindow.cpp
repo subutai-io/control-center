@@ -222,6 +222,7 @@ void TrayControlWindow::create_tray_icon() {
 
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
                                     tr("Environments"));
+  m_hub_menu->setStyleSheet(qApp->styleSheet());
   m_hub_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/tray.png"),
                                      tr("My Peers"));
   m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
