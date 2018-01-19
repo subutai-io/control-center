@@ -92,11 +92,11 @@ private slots:
 class P2PConnector : public QObject {
   Q_OBJECT
 public:
- bool env_connected(const QString& env_id) const {
-   return connected_envs.find(env_id) != connected_envs.end();
+ bool env_connected(const QString& env_hash) const {
+   return connected_envs.find(env_hash) != connected_envs.end();
  }
- bool cont_connected(const QString env_id, const QString& cont_id) const {
-   return connected_conts.find(std::make_pair(env_id, cont_id)) != connected_conts.end();
+ bool cont_connected(const QString env_hash, const QString& cont_id) const {
+   return connected_conts.find(std::make_pair(env_hash, cont_id)) != connected_conts.end();
  }
 
 public slots:

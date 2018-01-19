@@ -191,7 +191,7 @@ P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
 }
 P2PController::P2P_CONNETION_STATUS
 P2PController::is_connected_swarm(const CEnvironment&env) {
-  if(!connector->cont_connected(env.hash(), cont.id()))
+  if(!connector->env_connected(env.hash()))
     return CANT_CONNECT_CONT;
   else
     return CONNECTION_SUCCESS;

@@ -12,6 +12,16 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
 }
 
 /////////////////////////////////////////////////////////////////////////
+void DlgEnvironment::check_environment_status() {
+  P2PController::P2P_CONNETION_STATUS
+      swarm_status = P2PController::Instance().is_ready(*env, *cont);
+  
+}
+
+void DlgEnvironment::check_container_status() {
+    
+}
+
 
 void DlgEnvironment::addEnvironment(const CEnvironment *env){
   for (auto cont = env->containers().begin() ; cont != env->containers().end() ; cont ++) {
