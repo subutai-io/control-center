@@ -14,6 +14,8 @@
 #include "Logger.h"
 #include "LanguageController.h"
 #include "Commons.h"
+#include "TraySkinController.h"
+
 
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("tray");
@@ -61,8 +63,8 @@ const QString CSettingsManager::SM_NOTIFICATIONS_LEVEL("Notifications_Level");
 const QString CSettingsManager::SM_LOGS_LEVEL("Logs_Level");
 const QString CSettingsManager::SM_USE_ANIMATIONS("Use_Animations_On_Standard_Dialogs");
 const QString CSettingsManager::SM_PREFERRED_NOTIFICATIONS_PLACE("Preffered_Notifications_Place");
+const QString CSettingsManager::SM_TRAY_SKIN("Tray_Skin");
 const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
-const QString CSettingsManager::SM_PYHOCA_CLI("Pyhoca_CLI");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
@@ -189,6 +191,7 @@ CSettingsManager::CSettingsManager()
       m_terminal_arg(default_term_arg()),
       m_notifications_level(CNotificationObserver::NL_INFO),
       m_logs_level(Logger::LOG_DEBUG),
+      m_tray_skin(TraySkinController::DEFAULT_SKIN),
       m_locale(LanguageController::LOCALE_EN),
       m_use_animations(true),
       m_preferred_notifications_place(CNotificationObserver::NPP_RIGHT_UP),
@@ -248,6 +251,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
       {(void*)&m_logs_level, SM_LOGS_LEVEL, qvar_to_int},
+      {(void*)&m_tray_skin, SM_TRAY_SKIN, qvar_to_int},
       {(void*)&m_preferred_notifications_place,
        SM_PREFERRED_NOTIFICATIONS_PLACE, qvar_to_int},
       {(void*)&m_locale, SM_LOCALE, qvar_to_int},
@@ -544,22 +548,26 @@ void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
 }
 
 void CSettingsManager::set_locale(const int locale) {
-    if (m_locale != (uint32_t)locale) {
-        m_locale = locale;
-        m_settings.setValue(SM_LOCALE, m_locale);
+  if (m_locale != (uint32_t)locale) {
+    m_locale = locale;
+    m_settings.setValue(SM_LOCALE, m_locale);
 
-        QMessageBox* msg_box =
-           new QMessageBox(QMessageBox::Question, tr("Info"),
-                           tr("You changed language. Would you like to restart tray?"),
-                           QMessageBox::Yes | QMessageBox::No);
-        connect(msg_box, &QMessageBox::finished, msg_box,
-                &QMessageBox::deleteLater);
-        if (msg_box->exec() == QMessageBox::Yes) {
-            CCommons::RestartTray();
-        }
+    QMessageBox* msg_box =
+       new QMessageBox(QMessageBox::Question, tr("Info"),
+                       tr("You changed language. Would you like to restart tray?"),
+                       QMessageBox::Yes | QMessageBox::No);
+    connect(msg_box, &QMessageBox::finished, msg_box,
+            &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Yes) {
+        CCommons::RestartTray();
     }
+  }
 }
-
+void CSettingsManager::set_tray_skin(const uint32_t tray_skin) {
+  m_tray_skin = tray_skin;
+  m_settings.setValue(SM_TRAY_SKIN, m_tray_skin);
+  TraySkinController::Instance().set_tray_skin((TraySkinController::TRAY_SKINS) tray_skin);
+}
 void CSettingsManager::set_rh_pass(const QString &id, const QString &pass) {
   m_rh_passes[id] = pass;
   m_settings.setValue(SM_RH_PASS.arg(id), pass);

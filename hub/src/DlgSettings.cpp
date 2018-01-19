@@ -17,15 +17,23 @@
 #include "ui_DlgSettings.h"
 #include "Logger.h"
 #include "LanguageController.h"
+#include "TraySkinController.h"
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
     cb->addItem(Logger::LogLevelToStr((Logger::LOG_LEVEL)i));
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+static void fill_tray_skin_combobox(QComboBox* cb) {
+  for (int i = 0; i < TraySkinController::SKIN_NUMBER; ++i)
+    cb->addItem(TraySkinController::tray_skin_to_str((TraySkinController::TRAY_SKINS)i));
+}
 //////////////////////////////////////////////////////////////////////////
 
 static void fill_locale_combobox(QComboBox* cb) {
-  for (int i = 0; i <= LanguageController::LOCALE_PT_BR; ++i)
+  for (int i = 0; i <= LanguageController::LOCALE_LAST; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
 }
 //////////////////////////////////////////////////////////////////////////
@@ -102,6 +110,8 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
+  fill_tray_skin_combobox(ui->cb_tray_skin);
+
   fill_locale_combobox(ui->cb_locale);
 
   ui->cb_locale->setVisible(true);
@@ -116,6 +126,8 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
+  ui->cb_tray_skin->setCurrentIndex(CSettingsManager::Instance().tray_skin());
+
   ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 
   ui->cb_preferred_notifications_place->setCurrentIndex(
@@ -182,8 +194,7 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
-
-  this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+  this->setMinimumWidth(this->width());
 }
 
 DlgSettings::~DlgSettings() {
@@ -403,6 +414,8 @@ void DlgSettings::btn_ok_released() {
         ui->cb_notification_level->currentIndex());
 
   CSettingsManager::Instance().set_logs_level(ui->cb_log_level->currentIndex());
+  CSettingsManager::Instance().set_tray_skin(ui->cb_tray_skin->currentIndex());
+
   CSettingsManager::Instance().set_locale(ui->cb_locale->currentIndex());
 
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());

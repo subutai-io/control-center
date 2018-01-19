@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>483</height>
+    <width>641</width>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,7 +60,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="0" colspan="3">
+           <item row="9" column="0" colspan="3">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">
@@ -90,19 +90,6 @@
              </item>
             </layout>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QLabel" name="lbl_preferred_notifications_place">
-             <property name="toolTip">
-              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
-             </property>
-             <property name="text">
-              <string>Area of notifications (only linux) :</string>
-             </property>
-             <property name="wordWrap">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lbl_notification_delay">
              <property name="text">
@@ -113,7 +100,7 @@
            <item row="4" column="2">
             <widget class="QComboBox" name="cb_log_level"/>
            </item>
-           <item row="7" column="0" colspan="3">
+           <item row="8" column="0" colspan="3">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_logs_storage">
@@ -215,6 +202,9 @@
              </property>
             </widget>
            </item>
+           <item row="3" column="2">
+            <widget class="QComboBox" name="cb_notification_level"/>
+           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="lbl_notification_level">
              <property name="text">
@@ -222,15 +212,12 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QCheckBox" name="chk_use_animations">
              <property name="text">
               <string>Use animations</string>
              </property>
             </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QComboBox" name="cb_notification_level"/>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="lbl_refresh_timer">
@@ -271,12 +258,8 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1" colspan="2">
-            <widget class="QCheckBox" name="chk_autostart">
-             <property name="text">
-              <string>Start on login</string>
-             </property>
-            </widget>
+           <item row="0" column="2">
+            <widget class="QComboBox" name="cb_locale"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_locale">
@@ -285,8 +268,35 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
-            <widget class="QComboBox" name="cb_locale"/>
+           <item row="5" column="0">
+            <widget class="QLabel" name="lbl_preferred_notifications_place">
+             <property name="toolTip">
+              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+             </property>
+             <property name="text">
+              <string>Area of notifications (only linux) :</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <widget class="QCheckBox" name="chk_autostart">
+             <property name="text">
+              <string>Start on login</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="lbl_tray_skin">
+             <property name="text">
+              <string>Skin Theme:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QComboBox" name="cb_tray_skin"/>
            </item>
           </layout>
          </item>
@@ -510,14 +520,14 @@
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_rhip_host">
              <property name="text">
-              <string>Default Peer</string>
+              <string>Default RH</string>
              </property>
             </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lbl_rh_list">
              <property name="text">
-              <string>Available Peers</string>
+              <string>Available RHs</string>
              </property>
             </widget>
            </item>
@@ -529,7 +539,7 @@
              <item row="0" column="0">
               <widget class="QPushButton" name="btn_refresh_rh_list">
                <property name="text">
-                <string>Search Peers</string>
+                <string>Search RHs</string>
                </property>
               </widget>
              </item>

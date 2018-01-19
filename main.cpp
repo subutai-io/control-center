@@ -45,6 +45,7 @@ main(int argc, char *argv[]) {
   static const char* shmem_guid = "6ad2b325-682e-4acf-81e7-3bd368ee07d7";
   QSystemSemaphore sema(sem_guid, 1);
   bool is_first;
+
   sema.acquire();
 
   {
@@ -64,6 +65,7 @@ main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiTray");
   QApplication::setOrganizationName("subut.ai");
   QApplication app(argc, argv);
+
 
   Logger::Instance()->Init();
   qInstallMessageHandler(Logger::LoggerMessageOutput);
