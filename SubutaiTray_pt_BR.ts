@@ -107,12 +107,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="557"/>
+        <location filename="hub/src/SettingsManager.cpp" line="556"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="558"/>
+        <location filename="hub/src/SettingsManager.cpp" line="557"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Língua modificada. Gostaria de reiniciar o tray?</translation>
     </message>
@@ -1317,7 +1317,6 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="184"/>
-        <source>Hub website</source>
         <source>Hub website</source>
         <translation>Website do Hub</translation>
     </message>

@@ -107,12 +107,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="557"/>
+        <location filename="hub/src/SettingsManager.cpp" line="556"/>
         <source>Info</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="558"/>
+        <location filename="hub/src/SettingsManager.cpp" line="557"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Вы изменили язык приложения. Для вступления изменений в силу необходимо перезапустить приложение. Перезапустить?</translation>
     </message>

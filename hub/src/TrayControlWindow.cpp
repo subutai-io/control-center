@@ -450,10 +450,10 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, v
     if (res != SCWE_SUCCESS)
     {
       if (libbssh_exit_code != 0)
-        CNotificationObserver::Info(QString("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
+        CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
                                     DlgNotification::N_NO_ACTION);
       else
-        CNotificationObserver::Info(QString("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+        CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
                                     DlgNotification::N_NO_ACTION);
     }
   }
@@ -611,7 +611,7 @@ void TrayControlWindow::my_peers_updated_sl() {
   }
 
   if (!msg.isEmpty() && !msg.isNull())
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msg, DlgNotification::N_GO_TO_HUB);
 
 
   /// check if some new peers were connected or changed status
@@ -627,7 +627,7 @@ void TrayControlWindow::my_peers_updated_sl() {
   }
 
   if (!msg.isEmpty() && !msg.isNull())
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msg, DlgNotification::N_GO_TO_HUB);
   peers_connected = my_current_peers;
   update_peer_menu();
 }
