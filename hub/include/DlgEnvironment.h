@@ -22,7 +22,7 @@ public:
   ~DlgEnvironment();
   void check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all);
   void check_environment_status();
-  void remote_acces(const CHubContainer *cont, std::pair<QPushButton*, QPushButton*> btns);
+  void remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns);
   void change_btn(QPushButton *btn, const QString tt_msg, bool enabled);
 
 private:

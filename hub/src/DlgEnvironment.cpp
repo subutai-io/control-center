@@ -11,18 +11,6 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     this->layout()->setSizeConstraint(QLayout::SetDefaultConstraint);
 }
 
-void DlgEnvironment::remote_acces(const CHubContainer *cont, std::pair<QPushButton*, QPushButton*> btns) {
-  connect(btns.first, &QPushButton::clicked, [btns, this, cont](){
-    emit this->ssh_to_container_sig(&this->env, cont, (void *)btns.first);
-  });
-
-  connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    emit this->desktop_to_container_sig(&this->env, cont, (void *)btns.first);
-  });
-}
-
-
-
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
@@ -34,7 +22,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   }
 
   for (auto cont : env.containers()) {
-    remote_acces(&cont, dct_cont_btn[cont.id()]);
+    remote_acces(cont, dct_cont_btn[cont.id()]);
   }
 
 
@@ -42,17 +30,34 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
     CHubController::Instance().launch_environment_page(this->env.hub_id());
   });
 
-  QTimer *timer = new QTimer(this);
-  timer->setInterval(5000);
-  connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
-  timer->start();
+  if (env.healthy()) {
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(7000);
+    connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
+    timer->start();
+    check_environment_status();
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns) {
+  connect(ui->btn_ssh_all, &QPushButton::clicked, btns.first, &QPushButton::click);
+  connect(btns.first, &QPushButton::clicked, [btns, this, cont](){
+    emit this->ssh_to_container_sig(&this->env, &cont, (void *)btns.first);
+  });
+
+  connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
+  connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
+    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.first);
+  });
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::addContainer(const CHubContainer *cont) {
-  qDebug() << "Adding container cont: " << cont->name() << " " << cont;
-
+  qDebug()
+      << QString("Adding container cont: %1, env: %2 ").arg(cont->name(), env.name());
   QLabel *cont_name = new QLabel(cont->name(), this);
   QLabel *cont_ip = new QLabel(cont->ip(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
@@ -76,15 +81,16 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
 
 /////////////////////////////////////////////////////////////////////////
 
-
-
 void DlgEnvironment::change_btn(QPushButton *btn, const QString tt_msg, bool enabled) {
   btn->setEnabled(enabled);
   btn->setToolTip(tt_msg);
 }
 
+/////////////////////////////////////////////////////////////////////////
+
 void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all) {
-  qDebug() << "checking the status of container " << cont->name();
+  qDebug()
+      << "Checking the status of container: " << cont->name();
 
   static QString no_desktop = "This container doesn't have desktop";
   P2PController::P2P_CONNETION_STATUS
@@ -98,14 +104,16 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh
   else
     change_btn(dct_cont_btn[cont->id()].second, no_desktop, false);
 
-  ssh_all &= ready;
-  desktop_all &= ready;
-  desktop_all &= cont->is_desktop();
+  ssh_all |= ready;
+  desktop_all |= (ready & cont->is_desktop());
 }
 
 
+/////////////////////////////////////////////////////////////////////////
+
 void DlgEnvironment::check_environment_status() {
-  qDebug() << "checking the status of environment " << env.name();
+  qDebug()
+      << "Checking the status of environment " << env.name();
   P2PController::P2P_CONNETION_STATUS
       swarm_status = P2PController::Instance().is_swarm_connected(env);
 
