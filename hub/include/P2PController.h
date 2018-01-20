@@ -135,6 +135,7 @@ public:
   void init(){/* need to call constructor */}
 
   P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
+  P2P_CONNETION_STATUS is_swarm_connected(const CEnvironment&env);
   QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
 

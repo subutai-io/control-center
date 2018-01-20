@@ -16,17 +16,21 @@ class DlgEnvironment : public QDialog
 public:
 
   explicit DlgEnvironment(QWidget *parent = 0);
-  void addContainer(const CHubContainer *cont);
+  void addContainer(const CHubContainer*cont);
   void addEnvironment(const CEnvironment *env);
-  void addRemoteAccess(const CEnvironment *env, const CHubContainer *cont);
-  void check_status(QPushButton *btn_ssh, QPushButton *btn_desktop, const CEnvironment *env, const CHubContainer *cont);
-  void button_enhancement(QPushButton *btn);
 
   ~DlgEnvironment();
+  void check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all);
+  void check_environment_status();
+  void remote_acces(const CHubContainer *cont, std::pair<QPushButton*, QPushButton*> btns);
+  void change_btn(QPushButton *btn, const QString tt_msg, bool enabled);
 
 private:
     Ui::DlgEnvironment *ui;
-    CEnvironment m_env;
+    CEnvironment env;
+    std::map<QString,std::pair<QPushButton*, QPushButton*>>
+      dct_cont_btn; //
+
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
