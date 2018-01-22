@@ -184,11 +184,16 @@ P2PController::P2PController() {
 
 P2PController::P2P_CONNETION_STATUS
 P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
-  if (!connector->env_connected(env.hash()))
-      return CANT_JOIN_SWARM;
-  else
   if(!connector->cont_connected(env.hash(), cont.id()))
     return CANT_CONNECT_CONT;
+  else
+    return CONNECTION_SUCCESS;
+}
+
+P2PController::P2P_CONNETION_STATUS
+P2PController::is_swarm_connected(const CEnvironment&env) {
+  if(!connector->env_connected(env.hash()))
+    return CANT_JOIN_SWARM;
   else
     return CONNECTION_SUCCESS;
 }
