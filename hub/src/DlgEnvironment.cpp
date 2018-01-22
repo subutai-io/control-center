@@ -8,13 +8,14 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
     ui(new Ui::DlgEnvironment)
 {
     ui->setupUi(this);
-    this->layout()->setSizeConstraint(QLayout::SetDefaultConstraint);
+    this->setMinimumWidth(this->width());
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   env= *_env;
+
   qDebug() << "Environment added env: " << env.name();
 
   for (auto cont : env.containers()) {
@@ -25,18 +26,35 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
     remote_acces(cont, dct_cont_btn[cont.id()]);
   }
 
+  ui->le_env_hash->setText(env.hash());
+  ui->le_env_key->setText(env.key());
+  ui->le_env_status->setText(env.status_description());
+  ui->le_env_id->setText(env.id());
+
+  ui->le_env_hash->setReadOnly(true);
+  ui->le_env_key->setReadOnly(true);
+  ui->le_env_status->setReadOnly(true);
+  ui->le_env_id->setReadOnly(true);
+
+  connect(ui->cb_details, &QCheckBox::toggled, [this](bool checked){
+    this->ui->gr_details->setVisible(checked);
+    this->adjustSize();
+  });
+  ui->cb_details->toggled(false);
 
   connect(ui->btn_open_hub, &QPushButton::clicked, [this](){
     CHubController::Instance().launch_environment_page(this->env.hub_id());
   });
 
-  if (env.healthy()) {
+
+  if (env.healthy()) { // check status with timer
     QTimer *timer = new QTimer(this);
     timer->setInterval(7000);
     connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
     timer->start();
-    check_environment_status();
   }
+
+  check_environment_status();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -67,6 +85,7 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   cont_name->setAlignment(Qt::AlignHCenter);
   cont_ip->setAlignment(Qt::AlignHCenter);
   cont_rhip_port->setAlignment(Qt::AlignHCenter);
+
   cont_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
   cont_ip->setTextInteractionFlags(Qt::TextSelectableByMouse);
   cont_rhip_port->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -92,7 +111,9 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh
   qDebug()
       << "Checking the status of container: " << cont->name();
 
-  static QString no_desktop = "This container doesn't have desktop";
+  static QString
+      no_desktop = "This container doesn't have desktop";
+
   P2PController::P2P_CONNETION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
   bool ready = (P2PController::Instance().is_ready(env, *cont) == P2PController::CONNECTION_SUCCESS);

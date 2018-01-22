@@ -559,15 +559,11 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       }
     }
 
-    if (!env->containers().empty()) {
-      connect(env_start, &QAction::triggered, [env, this](){
-        this->generate_env_dlg(&(*env));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
-                                       QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
-      });
-    } else {
-      env_start->setEnabled(false);
-    }
+    connect(env_start, &QAction::triggered, [env, this](){
+      this->generate_env_dlg(&(*env));
+      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
+                                     QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
+    });
   }  // for auto env in environments list
 
   if (lst_unhealthy_envs.empty()) return;
