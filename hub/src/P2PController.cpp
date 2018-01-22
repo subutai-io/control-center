@@ -97,6 +97,8 @@ void P2PConnector::check_status(const CEnvironment &env) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+#include "RestWorker.h"
+
 
 void P2PConnector::update_status() {
   QTimer *timer = new QTimer(this); // singleshot timer to call this function, when it finishes to operate
@@ -115,6 +117,7 @@ void P2PConnector::update_status() {
 
   qInfo() << "Starting to update connection status";
 
+  CRestWorker::Instance()->update_p2p_status();
 
   QFuture<std::vector<QString> > res = QtConcurrent::run(CSystemCallWrapper::p2p_show);
   res.waitForFinished();
@@ -178,9 +181,29 @@ P2PController::P2PController() {
    QTimer::singleShot(5000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
    });
+
+   connect(CRestWorker::Instance(), &CRestWorker::on_get_p2p_status_finished,
+           this, &P2PController::p2p_status_updated_sl);
 }
 
+void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
+                                          int http_code,
+                                          int err_code,
+                                          int network_error){
+  UNUSED_ARG(http_code);
+  if (err_code || network_error) {
+    qCritical(
+        "Refresh p2p status failed. Err_code : %d, Net_err : %d", err_code,
+        network_error);
+    return;
+  }
+  qDebug() << "Hello I am here";
 
+  m_p2p_instances = new_p2p_instances;
+  for (auto i : m_p2p_instances) {
+    qDebug() << i.id();
+  }
+}
 
 P2PController::P2P_CONNETION_STATUS
 P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {

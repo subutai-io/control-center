@@ -129,6 +129,15 @@ const QString &
 hub_get_url() {
   return hub_get_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+const QString &
+p2p_rest_url() {
+  static QString p2p_rest_url_ret("http://127.0.0.1:52523/rest/v1/%1");
+  return p2p_rest_url_ret;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class BR> const QString& hub_healt_url_temp_internal();

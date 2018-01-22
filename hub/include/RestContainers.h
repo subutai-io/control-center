@@ -343,4 +343,50 @@ public:
   const QString &status() const { return m_status; }
 };
 
+class CP2Ppeer
+{
+private:
+  QString m_id;
+  QString m_ip;
+  QString m_state;
+  QString m_last_error;
+public:
+
+  explicit CP2Ppeer(const QJsonObject& obj) {
+    m_id = obj["id"].toString();
+    m_ip = obj["ip"].toString();
+    m_state = obj["state"].toString();
+    m_last_error = obj["lastError"].toString();
+  }
+  const QString &id() const { return m_id; }
+  const QString &ip() const { return m_ip; }
+  const QString &state() const { return m_state; }
+  const QString &last_error() const { return m_last_error; }
+};
+
+class CP2PInstance {
+
+private:
+  QString m_id;
+  QString m_ip;
+  std::vector <CP2Ppeer> m_peers;
+public:
+  explicit CP2PInstance(const QJsonObject& obj) {
+    m_id = obj["id"].toString();
+    m_ip = obj["ip"].toString();
+
+    QJsonArray arr = obj["peers"].toArray();
+    for (auto i = arr.begin(); i != arr.end(); ++i) {
+      if (i->isNull() || !i->isObject()) continue;
+      CP2Ppeer p2p_peer(i->toObject());
+      m_peers.push_back(p2p_peer);
+    }
+  }
+
+  const QString &id() const { return m_id; }
+  const QString &ip() const { return m_ip; }
+  const std::vector<CP2Ppeer>& peers() const {return m_peers;}
+
+};
+
 #endif // RESTCONTAINERS_H
