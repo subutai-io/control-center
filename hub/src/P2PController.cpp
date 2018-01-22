@@ -117,7 +117,6 @@ void P2PConnector::update_status() {
 
   qInfo() << "Starting to update connection status";
 
-  CRestWorker::Instance()->update_p2p_status();
 
   QFuture<std::vector<QString> > res = QtConcurrent::run(CSystemCallWrapper::p2p_show);
   res.waitForFinished();
@@ -178,10 +177,11 @@ P2PController::P2PController() {
    connect(thread, &QThread::finished,
            thread, &QThread::deleteLater);
 
-   QTimer::singleShot(5000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
+   QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
    });
 
+   CRestWorker::Instance()->update_p2p_status();
    connect(CRestWorker::Instance(), &CRestWorker::on_get_p2p_status_finished,
            this, &P2PController::p2p_status_updated_sl);
 }
@@ -200,9 +200,7 @@ void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_inst
   qDebug() << "Hello I am here";
 
   m_p2p_instances = new_p2p_instances;
-  for (auto i : m_p2p_instances) {
-    qDebug() << i.id();
-  }
+
 }
 
 P2PController::P2P_CONNETION_STATUS

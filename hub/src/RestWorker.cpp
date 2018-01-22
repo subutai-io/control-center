@@ -23,12 +23,18 @@ void CRestWorker::get_p2p_status_finished_sl() {
   QByteArray reply_arr = reply->readAll();
 
   QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
-  QJsonArray doc_arr = doc.array();
+
 
   std::vector<CP2PInstance> lst_res;
-  for (auto i : doc_arr) {
-    if (i.isNull() || !i.isObject()) continue;
-    lst_res.push_back(CP2PInstance(i.toObject()));
+  if (doc["code"].toInt() == 0){
+    QJsonArray doc_arr = doc["instances"].toArray();
+    for (auto i : doc_arr) {
+      if (i.isNull() || !i.isObject()) continue;
+      lst_res.push_back(CP2PInstance(i.toObject()));
+    }
+  }
+  else {
+    err_code = doc["code"].toInt();
   }
 
   emit on_get_p2p_status_finished(lst_res, http_code, err_code, network_error);
@@ -215,7 +221,7 @@ void CRestWorker::update_p2p_status() {
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
-  connect(reply, &QNetworkReply::finished, this,
+  connect(reply, &QNetworkReply::readyRead, this,
           &CRestWorker::get_p2p_status_finished_sl);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
