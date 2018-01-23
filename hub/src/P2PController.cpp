@@ -200,11 +200,13 @@ void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_inst
   qDebug() << "Hello I am here";
 
   m_p2p_instances = new_p2p_instances;
-
 }
 
 P2PController::P2P_CONNETION_STATUS
 P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
+  if(!connector->env_connected(env.hash()))
+    return CANT_JOIN_SWARM;
+  else
   if(!connector->cont_connected(env.hash(), cont.id()))
     return CANT_CONNECT_CONT;
   else
