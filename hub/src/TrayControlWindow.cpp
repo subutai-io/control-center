@@ -634,7 +634,7 @@ void TrayControlWindow::my_peers_updated_sl() {
 
   if (!msgDisconnected.isEmpty() && !msgDisconnected.isNull()) {
     qDebug() << "Disconnected Peer Message: " << msgDisconnected;
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msgDisconnected, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgDisconnected, DlgNotification::N_GO_TO_HUB);
   }
 
   /// check if some new peers were connected or changed status
@@ -650,7 +650,7 @@ void TrayControlWindow::my_peers_updated_sl() {
   }
   if (!msgConnected.isEmpty() && !msgConnected.isNull()) {
     qDebug() << "Connected Peer Message: " << msgConnected;
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msgConnected, DlgNotification::N_GO_TO_HUB);
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
   }
   peers_connected = my_current_peers;
   update_peer_menu();
