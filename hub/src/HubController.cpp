@@ -57,7 +57,6 @@ void CHubController::desktop_to_container_internal_helper(int result, void *addi
 void CHubController::desktop_to_container_internal(const CEnvironment *env,
                                    const CHubContainer *cont,
                                    void *additional_data, finished_slot_t slot) {
-
   int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
   if (container_status != (int) SDLE_SUCCESS) {
      desktop_to_container_internal_helper(container_status, additional_data, slot);
@@ -66,36 +65,40 @@ void CHubController::desktop_to_container_internal(const CEnvironment *env,
 
   QString key = get_env_key(env->id());
 
+  qInfo()
+      << "User: " << CSettingsManager::Instance().ssh_user()
+      << "RH IP: " << cont->rh_ip()
+      << "CONT IP: " << cont->ip()
+      << "Port: " << cont->port()
+      << "Environment: " << env->name()
+      << "Container: " << cont->name()
+      << "Key: " << key;
+
   if (key.isEmpty()) {
     //desktop_to_container_internal_helper((int)SDLE_ENV_KEY_FAIL, additional_data, slot);
     //return;
-    // for some cases we don't need to have a key
+    // for some cases we don't need to have a key  
   }
 
 
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+  qDebug()
+      << "Container: " << cont->name()
+      << "Ip from ifconfig: " << cip.ip
+      << "Port from ifconfig: " << cip.port;
 
   static const QString x2go_user = "x2go";
   X2GoClient::Instance().add_session(cont, x2go_user, key);
 
   system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id());
 
-  qInfo(
-      "run_x2goclient_session : user : %s, "
-      "ip : %s, port : %s, key : %s"
-      "env: %s , cont : %s, ",
-      CSettingsManager::Instance().ssh_user().toStdString().c_str(),
-      cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(), key.toStdString().c_str(),
-      env->name().toStdString().c_str(), cont->name().toStdString().c_str());
-
   if (err != SCWE_SUCCESS) {
     QString err_msg = tr("Run x2goclient session failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
-    qCritical("%s", err_msg.toStdString().c_str());
+    qCritical() << err_msg;
     desktop_to_container_internal_helper((int)SDLE_SYSTEM_CALL_FAILED, additional_data, slot);
     return;
   }
-
   desktop_to_container_internal_helper((int)SDLE_SUCCESS, additional_data, slot);
 }
 
@@ -123,6 +126,14 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
   }
 
   QString key = get_env_key(env->id());
+  qInfo()
+      << "User: " << CSettingsManager::Instance().ssh_user()
+      << "RH IP: " << cont->rh_ip()
+      << "CONT IP: " << cont->ip()
+      << "Port: " << cont->port()
+      << "Environment: " << env->name()
+      << "Container: " << cont->name()
+      << "Key: " << key;
 
   if (key.isEmpty()) {
     // ssh_to_container_internal_helper((int)SDLE_CONT_NOT_READY, additional_data, slot);
@@ -133,13 +144,10 @@ void CHubController::ssh_to_container_internal(const CEnvironment *env,
 
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-  qInfo(
-      "run_ssh_in_terminal : user : %s, "
-      "ip : %s, port : %s, key : %s"
-      "env: %s , cont : %s, ",
-      CSettingsManager::Instance().ssh_user().toStdString().c_str(),
-      cip.ip.toStdString().c_str(), cip.port.toStdString().c_str(), key.toStdString().c_str(),
-      env->name().toStdString().c_str(), cont->name().toStdString().c_str());
+  qDebug()
+      << "Container: " << cont->name()
+      << "Ip from ifconfig: " << cip.ip
+      << "Port from ifconfig: " << cip.port;
 
   system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
       CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
@@ -404,10 +412,10 @@ std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by
                                           const QString &cont_id) {
   CEnvironment *env = NULL;
   const CHubContainer *cont = NULL;
-  QEventLoop el;
-  connect(this, &CHubController::environments_updated, &el, &QEventLoop::quit);
-  refresh_environments_internal();
-  el.exec();
+  qDebug()
+      << "Environment ID: " << env_id
+      << "Container ID: " << cont_id;
+
   {
     SynchroPrimitives::Locker lock(&m_refresh_cs);
     for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
@@ -431,6 +439,7 @@ std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by
   }
   return std::make_pair(env, cont);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
@@ -447,6 +456,8 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
 
 void CHubController::launch_browser(const QString &url) {
   QString chrome_path = CSettingsManager::Instance().chrome_path();
+  qDebug() << "Trying to launch the browser with url: " << url;
+
   if (CCommons::IsApplicationLaunchable(chrome_path)) {
     QStringList args;
     args << "--new-window";

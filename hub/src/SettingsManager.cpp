@@ -240,6 +240,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
       {(void*)&m_p2p_autoupdate, SM_P2P_AUTOUPDATE, qvar_to_bool},
       {(void*)&m_rh_autoupdate, SM_RH_AUTOUPDATE, qvar_to_bool},
+      {(void*)&m_rh_management_autoupdate, SM_RHMANAGEMENT_AUTOUPDATE, qvar_to_bool},
       {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
       {(void*)&m_use_animations, SM_USE_ANIMATIONS, qvar_to_bool},
       {(void*)&m_autostart, SM_AUTOSTART, qvar_to_bool},
@@ -247,6 +248,7 @@ CSettingsManager::CSettingsManager()
       // uint
       {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_rh_update_freq, SM_RH_UPDATE_FREQ, qvar_to_int},
+      {(void*)&m_rh_management_update_freq, SM_RHMANAGEMENT_FREQ, qvar_to_int},
       {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
       {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},

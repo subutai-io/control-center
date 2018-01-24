@@ -7,7 +7,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::join_swarm(const CEnvironment &env) {
-  qInfo() << "Trying to join the swarm for env: " << env.name();
+  qInfo() <<
+            QString("Trying to join the swarm for [env_name: %1, env_id: %2, swarm_hash: %3]")
+             .arg(env.name())
+             .arg(env.id())
+             .arg(env.hash());
 
   SwarmConnector *swarm_connector = new SwarmConnector(env);
   connect(swarm_connector, &SwarmConnector::connection_finished, [this, env](system_call_wrapper_error_t res) {
@@ -58,7 +62,13 @@ void P2PConnector::leave_swarm(const QString &hash) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) {
-  qDebug() << "Checking the rh status" << env.name() << " " << cont.name();
+  qInfo() <<
+            QString("Checking rh status [cont_name: %1, cont_id: %2] [env_name: %3, env_id: %4, swarm_hash: %5]")
+             .arg(cont.name())
+             .arg(cont.id())
+             .arg(env.name())
+             .arg(env.id())
+             .arg(env.hash());
 
   RHStatusChecker *rh_checker = new RHStatusChecker(env, cont);
 
@@ -88,12 +98,14 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
 
 
 void P2PConnector::check_status(const CEnvironment &env) {
-  qInfo() <<"Checking the status of environment: " << env.name();
-
+  qInfo() <<
+            QString("Checking status of environment [env_name: %1, env_id: %2, swarm_hash: %3]")
+             .arg(env.name())
+             .arg(env.id())
+             .arg(env.hash());
   for (CHubContainer cont : env.containers()) {
     check_rh(env, cont);
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,6 +133,20 @@ void P2PConnector::update_status() {
 
   std::vector<QString> joined_swarms = res.result();
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
+  QStringList already_joined;
+  QStringList hub_swarms;
+  for (auto swarm : joined_swarms){
+    already_joined << swarm;
+  }
+  for (auto env : hub_environments){
+    hub_swarms << env.hash();
+  }
+  qDebug()
+      << "Joined swarm: " << already_joined;
+
+  qDebug()
+      << "Swarms from hub: " << hub_swarms;
+
 
   // joining the swarm
   for (CEnvironment env : hub_environments) {
