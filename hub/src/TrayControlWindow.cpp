@@ -159,6 +159,7 @@ TrayControlWindow::~TrayControlWindow() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::application_quit() {
+  qDebug() << "Quitting the tray";
   QApplication::quit();
 }
 
