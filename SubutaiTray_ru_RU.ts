@@ -102,7 +102,7 @@
         <location filename="hub/src/NotificationObserver.cpp" line="22"/>
         <source>Top-left corner</source>
         <translation>Левый верхний угол</translation>
-    </message>
+    </message><
 </context>
 <context>
     <name>CSettingsManager</name>

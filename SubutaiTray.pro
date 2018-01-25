@@ -57,7 +57,8 @@ SOURCES += \
     hub/src/P2PController.cpp \
     hub/src/X2GoClient.cpp \
     hub/src/DlgPeer.cpp \
-    hub/src/TraySkinController.cpp
+    hub/src/TraySkinController.cpp \
+    hub/src/HostMachineController.cpp
 
 
 
@@ -101,7 +102,8 @@ HEADERS  += \
     hub/include/P2PController.h \
     hub/include/X2GoClient.h \
     hub/include/DlgPeer.h \
-    hub/include/TraySkinController.h
+    hub/include/TraySkinController.h \
+    hub/include/HostMachineController.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \

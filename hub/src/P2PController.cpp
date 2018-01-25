@@ -113,6 +113,8 @@ void P2PConnector::check_status(const CEnvironment &env) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+#include "RestWorker.h"
+
 
 void P2PConnector::update_status() {
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
@@ -204,15 +206,36 @@ P2PController::P2PController() {
    connect(thread, &QThread::finished,
            thread, &QThread::deleteLater);
 
-   QTimer::singleShot(5000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
+   QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
    });
 }
 
 
+void P2PController::update_p2p_status() {
+  CRestWorker::Instance()->update_p2p_status();
+}
+
+void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
+                                          int http_code,
+                                          int err_code,
+                                          int network_error){
+  UNUSED_ARG(http_code);
+  if (err_code || network_error) {
+    qCritical(
+        "Refresh p2p status failed. Err_code : %d, Net_err : %d", err_code,
+        network_error);
+    return;
+  }
+
+  m_p2p_instances = new_p2p_instances;
+}
 
 P2PController::P2P_CONNETION_STATUS
 P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
+  if(!connector->env_connected(env.hash()))
+    return CANT_JOIN_SWARM;
+  else
   if(!connector->cont_connected(env.hash(), cont.id()))
     return CANT_CONNECT_CONT;
   else
