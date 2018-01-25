@@ -111,17 +111,12 @@ void P2PConnector::check_status(const CEnvironment &env) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::update_status() {
-  QTimer *timer = new QTimer(this); // singleshot timer to call this function, when it finishes to operate
-  timer->setSingleShot(true);
-  connect(timer, &QTimer::timeout, this, &P2PConnector::update_status);
-
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
       || !CSystemCallWrapper::p2p_daemon_check()) {
     qCritical() << "P2P is not launchable or p2p daemon is not running.";
     connected_conts.clear();
     connected_envs.clear();
-    timer->setInterval(30000);  // wait more, when p2p is not operational
-    timer->start();
+    QTimer::singleShot(30000, this, &P2PConnector::update_status); // wait more, when p2p is not operational
     return;
   }
 
@@ -176,9 +171,7 @@ void P2PConnector::update_status() {
       leave_swarm(hash);
     }
   }
-
-  timer->setInterval(15000);
-  timer->start();
+  QTimer::singleShot(15000, this, &P2PConnector::update_status);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
