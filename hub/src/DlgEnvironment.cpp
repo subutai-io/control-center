@@ -109,8 +109,10 @@ void DlgEnvironment::change_btn(QPushButton *btn, const QString tt_msg, bool ena
 
 void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all) {
   qDebug()
-      << "Checking the status of container: " << cont->name();
+      << "Checking the status of container via rest_api: " << cont->name();
 
+  qDebug()
+      << "Checking the status of container via p2p_show: " << cont->name();
   static QString
       no_desktop = "This container doesn't have desktop";
 

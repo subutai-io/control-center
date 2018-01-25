@@ -139,11 +139,14 @@ public:
   QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
   const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
+
 private slots:
   void p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
                              int http_code,
                              int err_code,
                              int network_error);
+
+  void update_p2p_status();
 
 private:
   P2PConnector *connector;

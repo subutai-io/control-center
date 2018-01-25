@@ -23,7 +23,7 @@ void CRestWorker::get_p2p_status_finished_sl() {
   QByteArray reply_arr = reply->readAll();
 
   QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
-
+  qDebug() << "Json: " << doc;
 
   std::vector<CP2PInstance> lst_res;
   if (doc["code"].toInt() == 0){

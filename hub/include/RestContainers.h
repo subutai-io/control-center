@@ -17,6 +17,8 @@ private:
   bool m_is_desktop;
   QString m_port;
   QString m_rh_ip;
+  QString m_rh_id;
+  QString m_peer_id;
   QString m_desk_env;
 
 public:
@@ -26,6 +28,8 @@ public:
     m_id(obj["container_id"].toString()),
     m_is_desktop(str_to_bool(obj["container_is_desktop"].toString())),
     m_rh_ip(obj["rh_ip"].toString()),
+    m_rh_id(obj["rh_id"].toString()),
+    m_peer_id(obj["peer_id"].toString()),
     m_desk_env(obj["container_desk_env"].isObject() ? obj["container_desk_env"].toString() : "MATE")
   {
     QHostAddress cont_ip_addr(m_ip.split("/")[0]);

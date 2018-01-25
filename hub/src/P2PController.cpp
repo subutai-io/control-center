@@ -181,9 +181,19 @@ P2PController::P2PController() {
      thread->start();
    });
 
-   CRestWorker::Instance()->update_p2p_status();
    connect(CRestWorker::Instance(), &CRestWorker::on_get_p2p_status_finished,
            this, &P2PController::p2p_status_updated_sl);
+
+   QTimer *p2p_status_timer = new QTimer(this);
+   p2p_status_timer->setInterval(15000);
+   connect(p2p_status_timer, &QTimer::timeout,
+           this, &P2PController::update_p2p_status);
+   p2p_status_timer->start();
+}
+
+
+void P2PController::update_p2p_status() {
+  CRestWorker::Instance()->update_p2p_status();
 }
 
 void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
@@ -197,7 +207,6 @@ void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_inst
         network_error);
     return;
   }
-  qDebug() << "Hello I am here";
 
   m_p2p_instances = new_p2p_instances;
 }
