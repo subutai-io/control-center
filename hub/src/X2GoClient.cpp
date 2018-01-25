@@ -5,11 +5,13 @@ QString X2GoClient::x2goclient_config_path() {
   static const QString config_file = "x2goclient_session.ini";
   QStringList lst_config=
       QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  qDebug() << "Finding a path for x2goclient conig files";
   do {
     if (lst_config.empty())
       break;
 
     QString dir_path = lst_config[0] + QDir::separator() + "subutai";
+
     QDir dir_config(dir_path);
     if (!dir_config.exists()) {
       if (!dir_config.mkdir(dir_path)) {
@@ -23,8 +25,12 @@ QString X2GoClient::x2goclient_config_path() {
       //todo log this
       break;
     }
+    qDebug() << "Selected path: " << dir_path + QDir::separator() + config_file;
+
     return dir_path + QDir::separator() + config_file;
   } while (false);
+
+  qDebug() << "Selected path: " << QApplication::applicationDirPath() + QDir::separator() + config_file;
 
   return QApplication::applicationDirPath() + QDir::separator() + config_file;
 }
@@ -36,6 +42,15 @@ X2GoClient::X2GoClient(QObject *parent) :
 }
 
 void X2GoClient::add_session(const CHubContainer *cont, QString username, QString key) {
+  qDebug() << "Adding a session file with following parameters: \n"
+           << "Name: " << cont->name() << "\n"
+           << "Host: " << cont->rh_ip() << "\n"
+           << "Port: " << cont->port() << "\n"
+           << "User: " << username << "\n"
+           << "Key: " << key << "\n"
+           << "Destop Env: " << cont->desk_env();
+
+
   m_settings.beginGroup(cont->id());
 
   // dynamic parameters

@@ -159,6 +159,7 @@ TrayControlWindow::~TrayControlWindow() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::application_quit() {
+  qDebug() << "Quitting the tray";
   QApplication::quit();
 }
 
@@ -337,6 +338,13 @@ void shift_notification_dialog_positions(int &src_y, int &dst_y, int shift_value
 void TrayControlWindow::notification_received(
     CNotificationObserver::notification_level_t level, const QString& msg,
     DlgNotification::NOTIFICATION_ACTION_TYPE action_type) {
+  qDebug()
+      << "Message: " << msg
+      << "Level: " << CNotificationObserver::notification_level_to_str(level)
+      << "Action Type: " << (size_t)action_type
+      << "Current notification level: " << CSettingsManager::Instance().notifications_level()
+      << "Message is ignored: " << CSettingsManager::Instance().is_notification_ignored(msg);
+
   if (CSettingsManager::Instance().is_notification_ignored(msg) ||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
     return;
@@ -420,6 +428,10 @@ void TrayControlWindow::login_success() {
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
+  qDebug()
+      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
+      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
+
   QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
@@ -431,6 +443,9 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, void* action) {
+  qDebug()
+      << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
+
   QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
     act->setEnabled(false);
@@ -441,7 +456,8 @@ void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, voi
 }
 
 void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, void *action, system_call_wrapper_error_t res, int libbssh_exit_code) {
-  UNUSED_ARG(peer_fingerprint);
+  qDebug()
+      << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
 
   QPushButton* act = static_cast<QPushButton*>(action);
   if (act != NULL) {
@@ -450,10 +466,10 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, v
     if (res != SCWE_SUCCESS)
     {
       if (libbssh_exit_code != 0)
-        CNotificationObserver::Info(QString("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
+        CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
                                     DlgNotification::N_NO_ACTION);
       else
-        CNotificationObserver::Info(QString("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+        CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
                                     DlgNotification::N_NO_ACTION);
     }
   }
@@ -464,6 +480,10 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, v
 void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont,
                                                    void* action) {
+  qDebug()
+      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
+      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
+      << QString("X2go is Launchable: %1").arg(CSystemCallWrapper::x2goclient_check());
   if (!CSystemCallWrapper::x2goclient_check()) {
     CNotificationObserver::Error(QObject::tr("Can't run x2goclient instance. Make sure you have specified correct path to x2goclient."
                                          "Or you can get the lasest x2goclient from <a href=\"%2\">here</a>.")
@@ -483,6 +503,7 @@ void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_available(QString file_id) {
+  qDebug() << "File ID: " << file_id;
   CNotificationObserver::Info(
       tr("Update for %1 is available. Check \"About\" dialog").arg(file_id), DlgNotification::N_ABOUT);
 }
@@ -490,6 +511,7 @@ void TrayControlWindow::update_available(QString file_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::update_finished(QString file_id, bool success) {
+  qDebug() << QString("File ID: %1, Success: %2").arg(file_id, success);
   if (!success) {
     CNotificationObserver::Error(
         tr("Failed to update %1. See details in error logs").arg(file_id), DlgNotification::N_NO_ACTION);
@@ -504,6 +526,12 @@ void TrayControlWindow::launch_Hub() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::environments_updated_sl(int rr) {
+  qDebug()
+      << "Updating environments list"
+      << "Result: " << rr;
+
+
+
   static QIcon unhealthy_icon(":/hub/BAD.png");
   static QIcon healthy_icon(":/hub/GOOD.png");
   static QIcon modification_icon(":/hub/OK.png");
@@ -525,12 +553,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
     QString env_name = env->name();
-#ifdef RT_OS_LINUX
-    env_name.replace(
-        "_", "__");  // megahack :) Don't know how to handle underscores.
-#endif
-
-
     QAction* env_start = m_hub_menu->addAction(env->name());
     env_start->setIcon(env->status() == "HEALTHY" ? healthy_icon :
                           env->status() == "UNHEALTHY" ? unhealthy_icon : modification_icon);
@@ -557,6 +579,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
       }
+      qInfo(
+          "Environment %s is healthy", env->name().toStdString().c_str());
     }
 
     connect(env_start, &QAction::triggered, [env, this](){
@@ -577,6 +601,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 
   str_unhealthy_envs += lst_unhealthy_envs[lst_unhealthy_envs.size() - 1];
   str_statuses += lst_unhealthy_env_statuses[lst_unhealthy_envs.size() - 1];
+  qDebug()
+      << QString("Unhealthy Environments: %1 with statuses: %2").arg(str_unhealthy_envs, str_statuses);
 
   QString str_notification =
       tr("Environment%1 %2 %3 %4")
@@ -593,37 +619,40 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 void TrayControlWindow::my_peers_updated_sl() {
 
   std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
-  QString msg = "";
+  QString msgDisconnected = "";
+  QString msgConnected = "";
 
   /// check if some peers were disconnected or deleted
   for (CMyPeerInfo peer : peers_connected) {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
     if(found_peer == my_current_peers.end()) // it was disconnected or deleted
-      msg +=
+      msgDisconnected +=
           tr("\"%1\" is %2 ")
             .arg(peer.name())
             .arg("disconnected");
   }
 
-  if (!msg.isEmpty() && !msg.isNull())
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
-
+  if (!msgDisconnected.isEmpty() && !msgDisconnected.isNull()) {
+    qDebug() << "Disconnected Peer Message: " << msgDisconnected;
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgDisconnected, DlgNotification::N_GO_TO_HUB);
+  }
 
   /// check if some new peers were connected or changed status
   for (CMyPeerInfo peer : my_current_peers) {
     std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
                                                     [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
     if(found_peer == peers_connected.end() || found_peer->status() != peer.status()) { // new connected or changed status
-      msg +=
+      msgConnected +=
           tr("\"%1\" is %2 ")
              .arg(peer.name())
              .arg(peer.status());
     }
   }
-
-  if (!msg.isEmpty() && !msg.isNull())
-    CNotificationObserver::Instance()->Info("Status of your Peers: " + msg, DlgNotification::N_GO_TO_HUB);
+  if (!msgConnected.isEmpty() && !msgConnected.isNull()) {
+    qDebug() << "Connected Peer Message: " << msgConnected;
+    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
+  }
   peers_connected = my_current_peers;
   update_peer_menu();
 }
@@ -729,6 +758,9 @@ void TrayControlWindow::balance_updated_sl() {
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
+  qDebug()
+      << "Is console ready: " << is_ready
+      << "Error: " << err;
   if (!is_ready) {
     CNotificationObserver::Info(tr(err.toStdString().c_str()), DlgNotification::N_NO_ACTION);
     return;
@@ -790,7 +822,7 @@ void TrayControlWindow::launch_ss() {
 void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
                                     const QString& title) {
   std::map<QString, QDialog*>::iterator iter = m_dct_active_dialogs.find(title);
-
+  qDebug() << "Poping up the dialog with title: " << title;
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
@@ -897,6 +929,9 @@ QDialog* TrayControlWindow::last_generated_env_dlg(QWidget *p) {
 }
 
 void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
+  qDebug()
+      << "Generating environment dialog... \n"
+      << "Environment name: " << env->name();
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
   connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::ssh_to_container_triggered);
@@ -939,6 +974,7 @@ void TrayControlWindow::ssh_to_container_finished(int result,
 
 void TrayControlWindow::desktop_to_container_finished(int result,
                                                   void* additional_data) {
+  qDebug() << "Result " << result;
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't desktop to container. Err : %1")

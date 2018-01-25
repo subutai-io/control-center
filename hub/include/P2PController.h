@@ -26,11 +26,10 @@ public:
 private slots:
   virtual void run_checker() = 0;
 signals:
-  virtual void connection_finished(system_call_wrapper_error_t res);
+  void connection_finished(system_call_wrapper_error_t res);
 
 };
 Q_DECLARE_INTERFACE(StatusChecker, "StatusChecker")
-
 
 
 class RHStatusChecker : public StatusChecker
@@ -112,7 +111,7 @@ private:
  void check_rh(const CEnvironment& env, const CHubContainer &cont);
 
 };
-
+#include "RestContainers.h"
 
 class P2PController : public QObject
 {
@@ -138,9 +137,19 @@ public:
   P2P_CONNETION_STATUS is_swarm_connected(const CEnvironment&env);
   QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
+  const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
+
+private slots:
+  void p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
+                             int http_code,
+                             int err_code,
+                             int network_error);
+
+  void update_p2p_status();
 
 private:
   P2PConnector *connector;
+  std::vector<CP2PInstance> m_p2p_instances;
 
 };
 
