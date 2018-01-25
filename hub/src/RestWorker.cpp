@@ -221,7 +221,7 @@ void CRestWorker::update_p2p_status() {
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
-  connect(reply, &QNetworkReply::readyRead, this,
+  connect(reply, &QNetworkReply::finished, this,
           &CRestWorker::get_p2p_status_finished_sl);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }

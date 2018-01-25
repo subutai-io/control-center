@@ -180,15 +180,6 @@ P2PController::P2PController() {
    QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
    });
-
-   connect(CRestWorker::Instance(), &CRestWorker::on_get_p2p_status_finished,
-           this, &P2PController::p2p_status_updated_sl);
-
-   QTimer *p2p_status_timer = new QTimer(this);
-   p2p_status_timer->setInterval(15000);
-   connect(p2p_status_timer, &QTimer::timeout,
-           this, &P2PController::update_p2p_status);
-   p2p_status_timer->start();
 }
 
 
