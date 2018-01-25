@@ -51,6 +51,8 @@ void CRestWorker::get_environments_finished_sl() {
   for (auto i = doc_arr.begin(); i != doc_arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;
     lst_res.push_back(CEnvironment(i->toObject()));
+
+
   }
 
   emit on_get_environments_finished(lst_res, http_code, err_code,

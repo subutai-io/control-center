@@ -70,7 +70,6 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
                  .arg(env.name())
                  .arg(env.id())
                  .arg(env.hash());
-      this->connected_conts.insert(std::make_pair(env.hash(), cont.id()));
     }
     else {
       qInfo() << QString("Can't handshake with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]. Error message: %6")
@@ -80,9 +79,14 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
                  .arg(env.id())
                  .arg(env.hash())
                  .arg(CSystemCallWrapper::scwe_error_to_str(res));
-      this->connected_conts.erase(std::make_pair(env.hash(), cont.id()));
     }
+    //SynchroPrimitives::Locker lock(&P2PConnector::m_cont_critical);
+    if (res == SCWE_SUCCESS)
+      this->connected_conts.insert(std::make_pair(env.hash(), cont.id()));
+    else
+      this->connected_conts.erase(std::make_pair(env.hash(), cont.id()));
   });
+
   rh_checker->startWork();
 }
 
@@ -122,10 +126,18 @@ void P2PConnector::update_status() {
   std::vector<QString> joined_swarms = res.result();
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
 
-  // joining the swarm
   for (CEnvironment env : hub_environments) {
     if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) == joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
       connected_envs.erase(env.hash());
+    }
+    else {
+      connected_envs.insert(env.hash());
+    }
+  }
+
+  // joining the swarm
+  for (CEnvironment env : hub_environments) {
+    if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) == joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
       if (env.healthy()) {
         join_swarm(env);
       }
@@ -135,7 +147,6 @@ void P2PConnector::update_status() {
   // checking the status of containers, handshaking
   for (CEnvironment env : hub_environments) {
     if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) != joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
-      connected_envs.insert(env.hash());
       check_status(env);
     }
   }
@@ -146,10 +157,10 @@ void P2PConnector::update_status() {
       return env.hash() == hash;
     });
     if (found_env == hub_environments.end()) {
-      connected_envs.erase(hash);
       leave_swarm(hash);
     }
   }
+
 
   timer->setInterval(15000);
   timer->start();

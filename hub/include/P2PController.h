@@ -92,6 +92,7 @@ private slots:
 class P2PConnector : public QObject {
   Q_OBJECT
 public:
+
  bool env_connected(const QString& env_hash) const {
    return connected_envs.find(env_hash) != connected_envs.end();
  }
@@ -103,6 +104,9 @@ public slots:
  void update_status();
 
 private:
+ static SynchroPrimitives::CriticalSection m_env_critical;
+ static SynchroPrimitives::CriticalSection m_cont_critical;
+
  std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
  std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
  void join_swarm(const CEnvironment& env);

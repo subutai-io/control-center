@@ -26,7 +26,10 @@ private:
   void check_environment_status();
   void remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns);
   void change_btn(QPushButton *btn, const QString tt_msg, bool enabled);
+private slots:
+  void ssh_to_container_finished_sl() {
 
+  }
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*, void*);
     void desktop_to_container_sig(const CEnvironment*, const CHubContainer*, void*);

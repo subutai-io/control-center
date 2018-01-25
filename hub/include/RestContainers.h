@@ -119,6 +119,7 @@ public:
     for (auto i = arr.begin(); i != arr.end(); ++i) {
       if (i->isNull() || !i->isObject()) continue;
       CHubContainer hc = CHubContainer(i->toObject());
+
       if (hc.name().isEmpty() || hc.name() == "") continue;
       m_lst_containers.push_back(hc);
     }
