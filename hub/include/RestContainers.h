@@ -17,6 +17,8 @@ private:
   bool m_is_desktop;
   QString m_port;
   QString m_rh_ip;
+  QString m_rh_id;
+  QString m_peer_id;
   QString m_desk_env;
 
 public:
@@ -26,6 +28,8 @@ public:
     m_id(obj["container_id"].toString()),
     m_is_desktop(str_to_bool(obj["container_is_desktop"].toString())),
     m_rh_ip(obj["rh_ip"].toString()),
+    m_rh_id(obj["rh_id"].toString()),
+    m_peer_id(obj["peer_id"].toString()),
     m_desk_env(obj["container_desk_env"].isObject() ? obj["container_desk_env"].toString() : "MATE")
   {
     QHostAddress cont_ip_addr(m_ip.split("/")[0]);
@@ -341,6 +345,52 @@ public:
   int rh_count() const { return m_rh_count; }
   const QString &scope() const { return m_scope; }
   const QString &status() const { return m_status; }
+};
+
+class CP2Ppeer
+{
+private:
+  QString m_id;
+  QString m_ip;
+  QString m_state;
+  QString m_last_error;
+public:
+
+  explicit CP2Ppeer(const QJsonObject& obj) {
+    m_id = obj["id"].toString();
+    m_ip = obj["ip"].toString();
+    m_state = obj["state"].toString();
+    m_last_error = obj["lastError"].toString();
+  }
+  const QString &id() const { return m_id; }
+  const QString &ip() const { return m_ip; }
+  const QString &state() const { return m_state; }
+  const QString &last_error() const { return m_last_error; }
+};
+
+class CP2PInstance {
+
+private:
+  QString m_id;
+  QString m_ip;
+  std::vector <CP2Ppeer> m_peers;
+public:
+  explicit CP2PInstance(const QJsonObject& obj) {
+    m_id = obj["id"].toString();
+    m_ip = obj["ip"].toString();
+
+    QJsonArray arr = obj["peers"].toArray();
+    for (auto i = arr.begin(); i != arr.end(); ++i) {
+      if (i->isNull() || !i->isObject()) continue;
+      CP2Ppeer p2p_peer(i->toObject());
+      m_peers.push_back(p2p_peer);
+    }
+  }
+
+  const QString &id() const { return m_id; }
+  const QString &ip() const { return m_ip; }
+  const std::vector<CP2Ppeer>& peers() const {return m_peers;}
+
 };
 
 #endif // RESTCONTAINERS_H
