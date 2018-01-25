@@ -87,16 +87,23 @@ private slots:
   }
 };
 
+#include "InternalCriticalSection.h"
+#include "Locker.h"
 
 class P2PConnector : public QObject {
   Q_OBJECT
 public:
  bool env_connected(const QString& env_hash) const {
+   SynchroPrimitives::Locker lock(&m_env_critical);
    return connected_envs.find(env_hash) != connected_envs.end();
  }
+
  bool cont_connected(const QString env_hash, const QString& cont_id) const {
+   SynchroPrimitives::Locker lock(&m_cont_critical);
    return connected_conts.find(std::make_pair(env_hash, cont_id)) != connected_conts.end();
  }
+ static SynchroPrimitives::CriticalSection m_cont_critical;
+ static SynchroPrimitives::CriticalSection m_env_critical;
 
 public slots:
  void update_status();

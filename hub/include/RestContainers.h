@@ -125,6 +125,11 @@ public:
       CHubContainer hc = CHubContainer(i->toObject());
       if (hc.name().isEmpty() || hc.name() == "") continue;
       m_lst_containers.push_back(hc);
+      m_lst_containers.push_back(hc);
+      m_lst_containers.push_back(hc);
+      m_lst_containers.push_back(hc);
+      m_lst_containers.push_back(hc);
+      m_lst_containers.push_back(hc);
     }
   }
 

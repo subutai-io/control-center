@@ -42,7 +42,7 @@ const QString& Logger::LogLevelToStr(LOG_LEVEL lt) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-
+#include "OsBranchConsts.h"
 void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
   if (typeToLevel(type) < (Logger::LOG_LEVEL)CSettingsManager::Instance().logs_level()) // comparing level of msg with currentLogLevel
     return;
@@ -54,16 +54,18 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
                               .arg(LogLevelToStr(typeToLevel(type)))
                               .arg(msg)
                               .arg(context.function);
+  static QString branch = branch_name_str();
 
   // log output to stdout
   QTextStream stdstream(stdout);
   stdstream << output_message;
   QString logs_folder(
-                  QString("%1%2logs_directory_%3")
+                  QString("%1%2logs_directory_%3%4")
                   .arg(
                     CSettingsManager::Instance().logs_storage(),
                     QDir::separator(),
-                    QDate::currentDate().toString("yyyy.MM.dd")
+                    QDate::currentDate().toString("yyyy.MM.dd"),
+                    branch
                   )
           );
 

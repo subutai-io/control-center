@@ -80,13 +80,12 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
       QtConcurrent::run(CSystemCallWrapper::is_peer_available, peer_fingerprint, exit_code);
   res.waitForFinished();
 
-
   if (res.result() == SCWE_SUCCESS) {
     res = QtConcurrent::run(CSystemCallWrapper::run_sshpass_in_terminal, user, ip, port, pass);
     res.waitForFinished();
   }
-
   emit ssh_to_rh_finished(peer_fingerprint, action, res.result(), *exit_code);
+  delete exit_code;
 }
 
 ////////////////////////////////////////////////////////////////////////////

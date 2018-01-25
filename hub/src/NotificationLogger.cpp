@@ -3,8 +3,9 @@
 
 #include "NotificationLogger.h"
 #include "SettingsManager.h"
+#include "OsBranchConsts.h"
 
-static const QString notifications_file = "notifications.log";
+static const QString notifications_file = QString("notifications%1.log").arg(branch_name_str());
 QString CNotification::LEVEL_STR[] = {QObject::tr("info"), QObject::tr("warning"), QObject::tr("error"), QObject::tr("critical")};
 
 CNotificationLogger::CNotificationLogger(QObject *parent) : QObject(parent) {

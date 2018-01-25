@@ -6,6 +6,9 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+SynchroPrimitives::CriticalSection P2PConnector::m_cont_critical;
+SynchroPrimitives::CriticalSection P2PConnector::m_env_critical;
+
 void P2PConnector::join_swarm(const CEnvironment &env) {
   qInfo() <<
             QString("Trying to join the swarm for [env_name: %1, env_id: %2, swarm_hash: %3]")
@@ -20,7 +23,6 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
                  .arg(env.name())
                  .arg(env.id())
                  .arg(env.hash());
-      this->connected_envs.insert(env.hash());
     }
     else {
       qCritical()<< QString("Can't join to swarm [env_name: %1, env_id: %2, swarm_hash: %3] Error message: %4")
@@ -28,8 +30,13 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
                     .arg(env.id())
                     .arg(env.hash())
                     .arg(CSystemCallWrapper::scwe_error_to_str(res));
-      this->connected_envs.erase(env.hash());
     }
+
+    SynchroPrimitives::Locker lock(&P2PConnector::m_env_critical);
+    if (res == SCWE_SUCCESS)
+      this->connected_envs.insert(env.hash());
+    else
+      this->connected_envs.erase(env.hash());
   });
 
   swarm_connector->startWork();
@@ -43,7 +50,6 @@ void P2PConnector::leave_swarm(const QString &hash) {
   SwarmLeaver *swarm_leaver = new SwarmLeaver(hash);
 
   connect(swarm_leaver, &SwarmLeaver::connection_finished, [this, hash](system_call_wrapper_error_t res) {
-    this->connected_envs.erase(hash);
     if (res == SCWE_SUCCESS) {
       qInfo() << QString("Left the swarm [swarm_hash: %1]")
                  .arg(hash);
@@ -53,6 +59,9 @@ void P2PConnector::leave_swarm(const QString &hash) {
                     .arg(hash)
                     .arg(CSystemCallWrapper::scwe_error_to_str(res));
     }
+
+    SynchroPrimitives::Locker lock(&P2PConnector::m_env_critical);
+    this->connected_envs.erase(hash);
   });
 
   swarm_leaver->startWork();
@@ -90,7 +99,7 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
                  .arg(env.hash())
                  .arg(CSystemCallWrapper::scwe_error_to_str(res));
     }
-    //SynchroPrimitives::Locker lock(&P2PConnector::m_cont_critical);
+    SynchroPrimitives::Locker lock(&P2PConnector::m_cont_critical);
     if (res == SCWE_SUCCESS)
       this->connected_conts.insert(std::make_pair(env.hash(), cont.id()));
     else
@@ -183,7 +192,7 @@ void P2PConnector::update_status() {
       leave_swarm(hash);
     }
   }
-  QTimer::singleShot(15000, this, &P2PConnector::update_status);
+  QTimer::singleShot(1000, this, &P2PConnector::update_status);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
