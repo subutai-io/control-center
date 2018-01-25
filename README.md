@@ -27,5 +27,5 @@ For __Mac OS__ do the same, but run `./build_mac.sh`
 For __WINDOWS__ run this : `build_win.bat "path_to libeay32.dll and ssleay32.dll"`
 ### Branching Model 
 
-We are using [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/)
+We are using [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/).
 
