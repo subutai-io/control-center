@@ -33,7 +33,7 @@ void DlgPeer::addLocalPeer(const QString local_ip) {
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
-  qDebug() << "Adding a hub peer with name: " << peer.name();
+  qDebug() << "Adding a hub peer with the name: " << peer.name() << " " << peer.id();
 
   connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
     CHubController::Instance().launch_peer_page(peer.id().toInt());

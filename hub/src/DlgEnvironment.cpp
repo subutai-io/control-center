@@ -9,6 +9,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setMinimumWidth(this->width());
+    qDebug() << "Environment dialog is initialized";
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
     this->ui->gr_details->setVisible(checked);
     this->adjustSize();
   });
+
   ui->cb_details->toggled(false);
 
   connect(ui->btn_open_hub, &QPushButton::clicked, [this](){
@@ -67,7 +69,7 @@ void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButt
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
   connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.first);
+    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.second);
   });
 }
 
@@ -109,10 +111,8 @@ void DlgEnvironment::change_btn(QPushButton *btn, const QString tt_msg, bool ena
 
 void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all) {
   qDebug()
-      << "Checking the status of container via rest_api: " << cont->name();
+      << "Checking the status of container: " << cont->name() << " in " << env.name();
 
-  qDebug()
-      << "Checking the status of container via p2p_show: " << cont->name();
   static QString
       no_desktop = "This container doesn't have desktop";
 
