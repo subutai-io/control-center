@@ -102,25 +102,17 @@
         <location filename="hub/src/NotificationObserver.cpp" line="22"/>
         <source>Top-left corner</source>
         <translation>Левый верхний угол</translation>
-    </message>
+    </message><
 </context>
 <context>
     <name>CSettingsManager</name>
     <message>
-<<<<<<< HEAD
-        <location filename="hub/src/SettingsManager.cpp" line="556"/>
-=======
         <location filename="hub/src/SettingsManager.cpp" line="558"/>
->>>>>>> 103d146b14f9417a35402574606ff41c0310e162
         <source>Info</source>
         <translation>Информация</translation>
     </message>
     <message>
-<<<<<<< HEAD
-        <location filename="hub/src/SettingsManager.cpp" line="557"/>
-=======
         <location filename="hub/src/SettingsManager.cpp" line="559"/>
->>>>>>> 103d146b14f9417a35402574606ff41c0310e162
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Вы изменили язык приложения. Для вступления изменений в силу необходимо перезапустить приложение. Перезапустить?</translation>
     </message>
