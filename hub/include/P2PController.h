@@ -26,11 +26,10 @@ public:
 private slots:
   virtual void run_checker() = 0;
 signals:
-  virtual void connection_finished(system_call_wrapper_error_t res);
+  void connection_finished(system_call_wrapper_error_t res);
 
 };
 Q_DECLARE_INTERFACE(StatusChecker, "StatusChecker")
-
 
 
 class RHStatusChecker : public StatusChecker
