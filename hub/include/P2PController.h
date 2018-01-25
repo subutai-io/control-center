@@ -26,13 +26,11 @@ public:
 private slots:
   virtual void run_checker() = 0;
 signals:
-  virtual void connection_finished(system_call_wrapper_error_t res);
+  void connection_finished(system_call_wrapper_error_t res);
 
 };
 Q_DECLARE_INTERFACE(StatusChecker, "StatusChecker")
 
-
-#include "HostMachineController.h"
 
 class RHStatusChecker : public StatusChecker
 {
@@ -48,11 +46,6 @@ private slots:
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
     res.waitForFinished();
-    if (res.result() == SCWE_SUCCESS)
-    {
-      res = QtConcurrent::run(HostMachineController::connect_to_host_scwe, cont.ip(), cont.port().toInt(), 15000);
-      res.waitForFinished();
-    }
     emit connection_finished(res.result());
   }
 };

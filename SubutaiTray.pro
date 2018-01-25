@@ -58,7 +58,7 @@ SOURCES += \
     hub/src/X2GoClient.cpp \
     hub/src/DlgPeer.cpp \
     hub/src/TraySkinController.cpp \
-    hub/include/HostMachineController.cpp
+    hub/src/HostMachineController.cpp
 
 
 
@@ -151,7 +151,7 @@ equals(GIT_BRANCH_STR, "head") {
 }
 
 equals(GIT_BRANCH_STR, "dev") {
-  GBV=BT_PROD
+  GBV=BT_DEV
 }
 
 DEFINES += CURRENT_BRANCH=$$GBV

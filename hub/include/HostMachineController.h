@@ -20,7 +20,7 @@ public:
   static HOST_CONNECTION_STATUS connect_to_host(const QString &ip, quint16 port, int connection_timeout) {
     QTcpSocket socket;
     socket.connectToHost(ip, port, QAbstractSocket::NotOpen);
-    if (!socket.waitForConnected(-1)) {
+    if (!socket.waitForConnected(connection_timeout)) {
       return HOST_CONNETION_TIMEOUT;
     }
     else if (socket.state() == QAbstractSocket::ConnectedState) {
@@ -30,6 +30,7 @@ public:
     else
       return HOST_CONNETION_FAIL;
   }
+
   static system_call_wrapper_error_t connect_to_host_scwe(const QString &ip, quint16 port, int connection_timeout)
   {
     HOST_CONNECTION_STATUS res = connect_to_host(ip, port, connection_timeout);
