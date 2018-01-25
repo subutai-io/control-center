@@ -58,13 +58,34 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
   // log output to stdout
   QTextStream stdstream(stdout);
   stdstream << output_message;
+  QString logs_folder(
+                  QString("%1%2logs_directory_%3")
+                  .arg(
+                    CSettingsManager::Instance().logs_storage(),
+                    QDir::separator(),
+                    QDate::currentDate().toString("yyyy.MM.dd")
+                  )
+          );
+
+  QDir logs_dir(logs_folder);
+
+  if (!logs_dir.exists())
+  {
+    if(!logs_dir.mkdir(logs_folder)) {
+      qDebug() << "Can't create folder " << logs_folder;
+    }
+  }
 
   // log output to file
-  QFile file(QString("%1/logs_%2.txt").arg(CSettingsManager::Instance().logs_storage()).
-             arg(QDate::currentDate().toString("yyyy.MM.dd")));
+  QFile file(QString("%1/logs_%2.txt")
+             .arg(logs_folder)
+             .arg(QTime::currentTime().toString("HH")));
 
-  if (!file.open(QIODevice::Append))
+  if (!file.open(QIODevice::Append)) {
+    qDebug() << "Can't Open file: " << file.fileName();
     return;
+  }
+
   QTextStream filestream(&file);
   filestream << output_message;
   file.close(); //

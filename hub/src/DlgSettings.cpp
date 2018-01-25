@@ -433,12 +433,14 @@ void DlgSettings::btn_ok_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_cancel_released() { this->close(); }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_p2p_file_dialog_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("P2P command"));
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
+  qDebug() << "Selected filename";
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -446,11 +448,16 @@ void DlgSettings::btn_ssh_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("Ssh command"));
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
+  qDebug() << "Selected filename "<< fn;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
 void DlgSettings::btn_x2goclient_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("x2goclient command"));
   if (fn == "") return;
   ui->le_x2goclient_command->setText(fn);
+  qDebug() << "Selected filename " << fn;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -459,6 +466,7 @@ void DlgSettings::btn_ssh_keygen_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("Ssh-keygen command"));
   if (fn == "") return;
   ui->le_ssh_keygen_command->setText(fn);
+  qDebug() << "Selected filename" << fn;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -467,6 +475,7 @@ void DlgSettings::btn_logs_storage_released() {
   QString dir = QFileDialog::getExistingDirectory(this, tr("Logs storage"));
   if (dir == "") return;
   ui->le_logs_storage->setText(dir);
+  qDebug() << "Selected directory" << dir;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -474,6 +483,7 @@ void DlgSettings::btn_ssh_keys_storage_released() {
   QString dir = QFileDialog::getExistingDirectory(this, tr("SSH-keys storage"));
   if (dir == "") return;
   ui->le_ssh_keys_storage->setText(dir);
+  qDebug() << "Selected directory " << dir;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -481,6 +491,7 @@ void DlgSettings::btn_ssh_keys_storage_released() {
 void DlgSettings::lstv_resource_hosts_double_clicked(QModelIndex ix0) {
   if (!ix0.isValid()) return;
   ui->le_rhip_host->setText(ix0.data().toString());
+  qDebug() << "Selected RH IP" << ix0.data().toString();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -502,12 +513,15 @@ void DlgSettings::resource_host_list_updated_sl(bool has_changes) {
   UNUSED_ARG(has_changes);
   rebuild_rh_list_model();
   ui->btn_refresh_rh_list->setEnabled(true);
+  qDebug() << "Has changes " << has_changes;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::le_terminal_cmd_changed() {
   QString recommendedArg;
   if (CCommons::HasRecommendedTerminalArg(ui->le_terminal_cmd->text(), recommendedArg))
     ui->le_terminal_arg->setText(recommendedArg);
+  qDebug() << "recommendedArg = " << recommendedArg;
 }
 ///////////////////////////////////////////∫/////////////////////////////////
