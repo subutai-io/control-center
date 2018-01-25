@@ -69,7 +69,7 @@ void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButt
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
   connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.first);
+    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.second);
   });
 }
 
