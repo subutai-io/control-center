@@ -36,6 +36,9 @@ void CRestWorker::get_my_peers_finished_sl() {
 
 void CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
+
   if (reply == nullptr) {
     return;
   }
@@ -61,6 +64,8 @@ void CRestWorker::get_environments_finished_sl() {
 
 void CRestWorker::get_balance_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -85,6 +90,8 @@ void CRestWorker::get_balance_finished_sl() {
 
 void CRestWorker::check_if_ss_console_is_ready_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -135,6 +142,10 @@ void CRestWorker::login(const QString& login, const QString& password,
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
       query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
+  qDebug()
+      << "Http code " << http_code
+      << "Error code " << err_code
+      << "Network Error " << network_error;
 
   static QString str_ok = "\"OK\"";
 
@@ -161,6 +172,8 @@ bool CRestWorker::get_user_id(QString& user_id_str) {
                                 err_code, network_error, QByteArray(), true);
 
   QJsonDocument doc = QJsonDocument::fromJson(arr);
+  qDebug()
+      << "Json file: " << doc;
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
     qCritical("Get user id failed. URL : %s",
                                           str_url.toStdString().c_str());
@@ -223,6 +236,9 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), true);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
+  qDebug()
+      << "Requested filename: " << file_name
+      << "Json file: " << doc;
 
   std::vector<CGorjunFileInfo> lst_res;
   if (doc.isNull()) {

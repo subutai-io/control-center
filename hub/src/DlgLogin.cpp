@@ -43,6 +43,8 @@ DlgLogin::login() {
   CSettingsManager::Instance().set_login(ui->le_login->text());
   CSettingsManager::Instance().set_password(ui->le_password->text());
   CSettingsManager::Instance().set_remember_me(ui->cb_save_credentials->checkState() == Qt::Checked);
+  qDebug() << "Username " << ui->le_login->text();
+  qDebug() << "Remember Me " << ui->cb_save_credentials->text();
 
   int http_code, err_code, network_err;
   CHubController::Instance().set_current_user(ui->le_login->text());

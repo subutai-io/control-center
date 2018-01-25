@@ -367,6 +367,7 @@ CLibsshController::run_ssh_command_pass_auth(const char* host,
   memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
   arg.user = user;
   arg.pass = pass;
+  qDebug() << user << " " << pass <<" " << cmd << conn_timeout;
   SynchroPrimitives::Locker lock(&m_libssh_cs);
   return run_ssh_command_internal(host, port, cmd, conn_timeout,
                                   lst_out, user_pass_authentication, &arg);
@@ -383,6 +384,7 @@ CLibsshController::check_auth_pass(const char* host,
   memset(&arg, 0, sizeof(rsc_user_pass_arg_t));
   arg.user = user;
   arg.pass = pass;
+  qDebug() << user << " " << pass  << conn_timeout;
   SynchroPrimitives::Locker lock(&m_libssh_cs);
   return check_auth_pass_internal(host, port, conn_timeout,
                                   user_pass_authentication, &arg);
