@@ -26,15 +26,17 @@ void CRestWorker::get_p2p_status_finished_sl() {
   qDebug() << "Json: " << doc;
 
   std::vector<CP2PInstance> lst_res;
-  if (doc["code"].toInt() == 0){
-    QJsonArray doc_arr = doc["instances"].toArray();
+  QJsonObject obj = doc.object();
+
+  if (obj["code"].toInt() == 0){
+    QJsonArray doc_arr = obj["instances"].toArray();
     for (auto i : doc_arr) {
       if (i.isNull() || !i.isObject()) continue;
       lst_res.push_back(CP2PInstance(i.toObject()));
     }
   }
   else {
-    err_code = doc["code"].toInt();
+    err_code = obj["code"].toInt();
   }
 
   emit on_get_p2p_status_finished(lst_res, http_code, err_code, network_error);
