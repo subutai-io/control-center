@@ -88,20 +88,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-<<<<<<< HEAD
-        <location filename="hub/src/SettingsManager.cpp" line="556"/>
-=======
         <location filename="hub/src/SettingsManager.cpp" line="558"/>
->>>>>>> 103d146b14f9417a35402574606ff41c0310e162
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-<<<<<<< HEAD
-        <location filename="hub/src/SettingsManager.cpp" line="557"/>
-=======
         <location filename="hub/src/SettingsManager.cpp" line="559"/>
->>>>>>> 103d146b14f9417a35402574606ff41c0310e162
         <source>You changed language. Would you like to restart tray?</source>
         <translation type="unfinished"></translation>
     </message>
