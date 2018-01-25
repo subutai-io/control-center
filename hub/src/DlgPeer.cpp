@@ -33,7 +33,7 @@ void DlgPeer::addLocalPeer(const QString local_ip) {
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
-  qDebug() << "Adding a hub peer with name: " << peer.name();
+  qDebug() << "Adding a hub peer with the name: " << peer.name() << " " << peer.id();
 
   connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
     CHubController::Instance().launch_peer_page(peer.id().toInt());
@@ -120,7 +120,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
   });
 
 
-  connect(ui->btn_ssh_peer, &QPushButton::clicked, [peer_fingerprint, this](){
+  connect(ui->btn_ssh_peer, &QPushButton::clicked, [peer_fingerprint, this]() {
     CSettingsManager::Instance().set_rh_host(peer_fingerprint, this->ui->le_ip->text());
     CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->le_port->text().toInt());
     CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());

@@ -13,6 +13,7 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
 {
   m_dst_file = new QFile(m_dst_file_path);
   m_dst_file->open(QIODevice::WriteOnly);
+  qDebug() << kurjun_file_id << " " << dst_file;
 }
 
 CDownloadFileManager::~CDownloadFileManager() {
