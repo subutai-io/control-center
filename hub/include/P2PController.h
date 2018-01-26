@@ -63,7 +63,7 @@ class SwarmConnector : public StatusChecker
 private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"));
+        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"), env.base_interface_id());
     res.waitForFinished();
     emit connection_finished(res.result());
   }

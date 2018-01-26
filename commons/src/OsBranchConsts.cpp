@@ -542,3 +542,21 @@ branch_name_str() {
     return branch_name_str_temp_internal<Branch2Type<CURRENT_BRANCH>>();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& base_interface_name_internal();
+
+#define base_interface_name_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& base_interface_name_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+base_interface_name_internal_def(OS_WIN, "windowsinterface")
+base_interface_name_internal_def(OS_MAC, "tap")
+base_interface_name_internal_def(OS_LINUX, "vptp")
+
+const QString&
+base_interface_name() {
+    return base_interface_name_internal< Os2Type<CURRENT_OS> >();
+}

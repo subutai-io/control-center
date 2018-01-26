@@ -2,6 +2,7 @@
 #define OSBRANCHCONSTS_H
 
 #include <QString>
+#include <vector>
 
 enum branch_t {
   BT_MASTER = 0,
@@ -74,4 +75,5 @@ const QString& x2goclient_url();
 
 const QString& current_branch_name();
 const QString& branch_name_str();
+const QString& base_interface_name();
 #endif // OSBRANCHCONSTS_H
