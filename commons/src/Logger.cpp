@@ -96,6 +96,7 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
 
 void Logger::deleteOldFiles() {
   try {
+    /*
     QDate currentDate = QDate::currentDate();
     QDirIterator it(CSettingsManager::Instance().logs_storage(),
                            QStringList() << "logs_*.*.*.txt", QDir::Files);
@@ -109,7 +110,8 @@ void Logger::deleteOldFiles() {
 
       file.setFileName(curFile);
       file.remove();
-    }
+    }*/
+
   } catch(...){
     /*do nothing here*/
   }
