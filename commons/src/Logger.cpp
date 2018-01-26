@@ -45,7 +45,7 @@ const QString& Logger::LogLevelToStr(LOG_LEVEL lt) {
 #include "OsBranchConsts.h"
 void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
   if (typeToLevel(type) < (Logger::LOG_LEVEL)CSettingsManager::Instance().logs_level()) // comparing level of msg with currentLogLevel
-    return;
+     return;
 
   QString output_message = QString("[%1] [%2(%3)] %4: %5 (in function %6)\n")
                               .arg(QTime::currentTime().toString("HH:mm:ss"))
