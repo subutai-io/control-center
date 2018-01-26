@@ -48,7 +48,6 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
     CHubController::Instance().launch_environment_page(this->env.hub_id());
   });
 
-
   if (env.healthy()) { // check status with timer
     QTimer *timer = new QTimer(this);
     timer->setInterval(7000);

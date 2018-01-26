@@ -107,12 +107,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="558"/>
+        <location filename="hub/src/SettingsManager.cpp" line="559"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="559"/>
+        <location filename="hub/src/SettingsManager.cpp" line="560"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Língua modificada. Gostaria de reiniciar o tray?</translation>
     </message>
@@ -1189,83 +1189,83 @@
         <translation>Erro desconhecido de rede</translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <location filename="hub/src/NotificationLogger.cpp" line="9"/>
         <source>info</source>
         <translation>informações</translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <location filename="hub/src/NotificationLogger.cpp" line="9"/>
         <source>warning</source>
         <translation>aviso</translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <location filename="hub/src/NotificationLogger.cpp" line="9"/>
         <source>error</source>
         <translation>erro</translation>
     </message>
     <message>
-        <location filename="hub/src/NotificationLogger.cpp" line="8"/>
+        <location filename="hub/src/NotificationLogger.cpp" line="9"/>
         <source>critical</source>
         <translation>critíco</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="454"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="460"/>
         <source>Using %1 ssh key</source>
         <translation>Usando a chave SSH %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1074"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1144"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1080"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1150"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation>Não foi possível recuperar o diretório home</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1084"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1090"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation>Não foi possível criar o diretório de início automático, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1099"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1105"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation>Não foi possível deletar %1. %2</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1111"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1117"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation>Não foi possível criar o arquivo desktop de auto-início. Erro : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1123"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1129"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation>Não foi possível escrever no arquivo de auto-início.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1195"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1201"/>
         <source>Write plist file error</source>
         <translation>Erro ao gravar o arquivo plist</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1231"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1237"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation>Não foi possível criar a chave de registro, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1243"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1249"/>
         <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1253"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1259"/>
         <source>Couldn&apos;t add program to autorun, sorry</source>
         <translation>Não foi possível adicionar o programa ao auto-início, desculpe.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1261"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1267"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador. </translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1275"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1281"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation>Não foi possível remover o programa do auto-início, desculpe.</translation>
     </message>
@@ -1294,27 +1294,27 @@
         <translation type="vanished">Não foi possível operar sem o daemon p2p. Por favor mude o caminho nas Configurações, ou instale o daemon se ele ainda não foi instalado. Você pode obter a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="508"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="517"/>
         <source>stage</source>
         <translation>stage</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="509"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="518"/>
         <source>development</source>
         <translation>development</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="510"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="519"/>
         <source>production</source>
         <translation>production</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="527"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="536"/>
         <source>-master</source>
         <translation>-master</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="528"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="537"/>
         <source>-dev</source>
         <translation>-dev</translation>
     </message>
@@ -1324,7 +1324,7 @@
         <translation>Extrato indefinido </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="487"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="488"/>
         <source>Can&apos;t run x2goclient instance. Make sure you have specified correct path to x2goclient.Or you can get the lasest x2goclient from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
         <translation>Não foi possível executar instância do x2goclient. Certifique-se de haver especificado o caminho correto para o x2goclient. Ou obtenha a versão mais recente do x2goclient &lt;a href=&quot;%2&quot;&gt;aqui&lt;/a&gt;.</translation>
     </message>
@@ -1341,7 +1341,7 @@
         <translation type="vanished">Console Subutai</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="184"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="185"/>
         <source>Hub website</source>
         <translation>Website do Hub</translation>
     </message>
@@ -1350,8 +1350,8 @@
         <translation type="vanished">Lançar</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="170"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="897"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="171"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="898"/>
         <source>Settings</source>
         <translation>Configurações</translation>
     </message>
@@ -1360,76 +1360,86 @@
         <translation type="vanished">Máquinas Virtuais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="177"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="224"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="178"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="225"/>
         <source>Environments</source>
         <translation>Ambientes</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="179"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="180"/>
         <source>Quit</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="193"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="194"/>
         <source>About</source>
         <translation>Sobre</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="198"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="199"/>
         <source>SSH-keys management</source>
         <translation>Gerenciamento de chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="202"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="203"/>
         <source>Logout</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="206"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="919"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="207"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="920"/>
         <source>Notifications history</source>
         <translation>Histórico de notificações</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="227"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="228"/>
         <source>My Peers</source>
         <translation>Meus Peers</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="229"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="230"/>
         <source>Local Peers</source>
         <translation>Peers Locais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="507"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="469"/>
+        <source>This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="472"/>
+        <source>Can&apos;t run terminal to ssh into peer. Error code: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="508"/>
         <source>Update for %1 is available. Check &quot;About&quot; dialog</source>
         <translation>Atualizações para %1 estão disponíveis. Verifique em &quot;Sobre&quot;</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="516"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="517"/>
         <source>Failed to update %1. See details in error logs</source>
         <translation>Falha ao atualizar %1. Veja detalhes nos logs de erro</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="630"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="646"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="631"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="647"/>
         <source>&quot;%1&quot; is %2 </source>
         <translation>&quot;%1&quot; é %2 </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="637"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="653"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="638"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="654"/>
         <source>Status of your Peers: </source>
         <translation>Cтатус ваших пиров: </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="912"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="913"/>
         <source>SSH Key Manager</source>
         <translation>Gerenciador de Chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="979"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="980"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
         <translation>Não foi possível entrar por Desktop no container. Erro: %1</translation>
     </message>
@@ -1442,12 +1452,12 @@
         <translation type="vanished">Falha ao lançar o site via navegador padrão</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="576"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="577"/>
         <source>Environment %1 became healthy</source>
         <translation>Ambiente %1 se tornou saudável</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="607"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="608"/>
         <source>Environment%1 %2 %3 %4</source>
         <translation>Ambiente %1 %2 %3 %4</translation>
     </message>
@@ -1464,13 +1474,13 @@
         <translation type="vanished">Falha ao rodar o console subutai via navegador padrão. Não foi possível iniciar o processo </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="786"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="815"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="787"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="816"/>
         <source>Can&apos;t get RH IP address. Error : %1</source>
         <translation>Não foi possível conseguir o endereço de IP. Erro: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="903"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="904"/>
         <source>About Subutai Tray</source>
         <translation>Sobre o Subutai Tray</translation>
     </message>
@@ -1479,7 +1489,7 @@
         <translation type="vanished">Geração de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="962"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="963"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
         <translation>Não foi possível estabelecer conexão SSH com o container. Err : %1</translation>
     </message>

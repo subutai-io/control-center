@@ -139,6 +139,7 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, const QString &swarm_base_interface_name) {
+  UNUSED_ARG(swarm_base_interface_name);
 
   if (is_in_swarm(hash)) return SCWE_SUCCESS;
 
@@ -153,7 +154,6 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
        << "-ip" << ip
        << "-key" << key
        << "-hash" << hash
-       << "-dev" << swarm_base_interface_name
        << "-dht" << p2p_dht_arg();
   qDebug() << "ARGS=" << args;
 

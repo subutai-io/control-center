@@ -3,6 +3,7 @@
 #include "Locker.h"
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
+#include "RestWorker.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -122,8 +123,6 @@ void P2PConnector::check_status(const CEnvironment &env) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-#include "RestWorker.h"
-
 
 void P2PConnector::update_status() {
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
@@ -192,7 +191,7 @@ void P2PConnector::update_status() {
       leave_swarm(hash);
     }
   }
-  QTimer::singleShot(1000, this, &P2PConnector::update_status);
+  QTimer::singleShot(15000, this, &P2PConnector::update_status);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
