@@ -1,5 +1,15 @@
 # Change Log
 
+## [6.6.1] 1/20/2018
+	
+* UI Enhancements
+* Optimized communication with P2P 
+
+## [6.6.0] 1/4/2018
+	
+* Added "Local Peer" and "My Peer" menus for launching SSConsole
+* VirtualBox Controller was removed 
+
 ## [6.5.0] 12/20/2017
 
 * EZ-Desktop feature using x2goclient
