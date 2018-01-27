@@ -4,7 +4,7 @@
 <context>
     <name>CDownloadFileManager</name>
     <message>
-        <location filename="hub/src/DownloadFileManager.cpp" line="54"/>
+        <location filename="hub/src/DownloadFileManager.cpp" line="55"/>
         <source>Download file error. %1</source>
         <translation>Ошибка загрузки файла. %1</translation>
     </message>
@@ -12,32 +12,32 @@
 <context>
     <name>CHubController</name>
     <message>
-        <location filename="hub/src/HubController.cpp" line="93"/>
+        <location filename="hub/src/HubController.cpp" line="97"/>
         <source>Run x2goclient session failed. Error code : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось запустить x2goclient. Код ошибки : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="149"/>
+        <location filename="hub/src/HubController.cpp" line="157"/>
         <source>Run SSH failed. Error code : %1</source>
-        <translation type="unfinished">Не удалось запустить SSH сессию. Код ошибки : %1</translation>
+        <translation>Не удалось запустить SSH-соединение. Код ошибки : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="243"/>
+        <location filename="hub/src/HubController.cpp" line="251"/>
         <source>Balance: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Баланс: %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="290"/>
+        <location filename="hub/src/HubController.cpp" line="298"/>
         <source>Refresh environments error : %1</source>
         <translation>Ошибка обновления списка &quot;окружений&quot; : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="455"/>
+        <location filename="hub/src/HubController.cpp" line="466"/>
         <source>Launch hub website with google chrome failed</source>
         <translation>Запуск сайта HUB с помощью google chrome не удался</translation>
     </message>
     <message>
-        <location filename="hub/src/HubController.cpp" line="463"/>
+        <location filename="hub/src/HubController.cpp" line="474"/>
         <source>Launch hub website with default browser failed</source>
         <translation>Запуск сайта HUB с помощью браузера по умолчанию не удался</translation>
     </message>
@@ -107,12 +107,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="557"/>
+        <location filename="hub/src/SettingsManager.cpp" line="558"/>
         <source>Info</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="558"/>
+        <location filename="hub/src/SettingsManager.cpp" line="559"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Вы изменили язык приложения. Для вступления изменений в силу необходимо перезапустить приложение. Перезапустить?</translation>
     </message>
@@ -267,52 +267,123 @@
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Форма</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="20"/>
+        <location filename="hub/forms/DlgEnvironment.ui" line="23"/>
+        <source>More details</source>
+        <translation>Больше информации</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="30"/>
         <source>Open Hub</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть Hub</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="29"/>
+        <location filename="hub/forms/DlgEnvironment.ui" line="39"/>
         <source>SSH ALL</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть все SSH</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="36"/>
+        <location filename="hub/forms/DlgEnvironment.ui" line="46"/>
         <source>DESKTOP ALL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgEnvironment.ui" line="45"/>
-        <source>Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть DESKTOP (ВСЕ)</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="55"/>
-        <source>IP Address</source>
-        <translation type="unfinished"></translation>
+        <source>Container</source>
+        <translation>Контейнер</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="65"/>
-        <source>Resource Host </source>
-        <translation type="unfinished"></translation>
+        <source>IP Address</source>
+        <translation>IP Адрес</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="75"/>
+        <source>Resource Host </source>
+        <translation>Ресурс Хост</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="141"/>
+        <source>Status</source>
+        <translation>Статус</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="148"/>
+        <source>Key</source>
+        <translation>Ключ</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="155"/>
+        <source>Hash</source>
+        <translation>Хэш</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="162"/>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Resource Host</source>
+        <translation type="vanished">Resource Host</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgEnvironment.ui" line="85"/>
         <source>Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Удаленный Доступ</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="87"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="84"/>
         <source>SSH</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="85"/>
         <source>DESKTOP</source>
-        <translation type="unfinished"></translation>
+        <translation>Рабочий Стол</translation>
+    </message>
+</context>
+<context>
+    <name>DlgGenerateSSHKey</name>
+    <message>
+        <source>SSH key generation</source>
+        <translation type="vanished">Генерация SSH-ключа</translation>
+    </message>
+    <message>
+        <source>SSH-keys :</source>
+        <translation type="vanished">SSH-ключи :</translation>
+    </message>
+    <message>
+        <source>Existing Keys:</source>
+        <translation type="vanished">Существующие Ключи</translation>
+    </message>
+    <message>
+        <source>Healthy Environments:</source>
+        <oldsource>Healthy environments :</oldsource>
+        <translation type="vanished">Рабочие инфраструктуры</translation>
+    </message>
+    <message>
+        <source>Select All To Deploy</source>
+        <oldsource>Select all</oldsource>
+        <translation type="vanished">Выбрать всё</translation>
+    </message>
+    <message>
+        <source>Generate New Key Pair</source>
+        <oldsource>Generate new key pair</oldsource>
+        <translation type="vanished">Сгенерировать новые ключи</translation>
+    </message>
+    <message>
+        <source>Deploy Key[s]</source>
+        <translation type="vanished">Добавить Ключ[и]</translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="vanished">Сохранить изменения</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
+        <translation type="vanished">У Вас нет права на запись в директорию ssh-ключей. Пожалуйста, добавьте права на запись или измените место хранения ssh-ключей в настройках. Спасибо</translation>
     </message>
 </context>
 <context>
@@ -323,40 +394,29 @@
         <translation>Генерация SSH-ключа</translation>
     </message>
     <message>
-        <source>Ssh-keys :</source>
-        <translation type="vanished">SSH-ключи :</translation>
-    </message>
-    <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="38"/>
         <source>Existing Keys:</source>
-        <translation type="unfinished"></translation>
+        <translation>Существующие Ключи</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="51"/>
         <source>Healthy Environments:</source>
-        <oldsource>Healthy environments :</oldsource>
-        <translation type="unfinished">Рабочие &quot;окружения&quot; :</translation>
+        <translation>Рабочие инфраструктуры</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="92"/>
         <source>Select All To Deploy</source>
-        <oldsource>Select all</oldsource>
-        <translation type="unfinished">Выбрать всё</translation>
+        <translation>Выбрать всё</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="133"/>
         <source>Generate New Key Pair</source>
-        <oldsource>Generate new key pair</oldsource>
-        <translation type="unfinished">Сгенерировать новую пару ключей</translation>
+        <translation>Сгенерировать новые ключи</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgGenerateSshKey.ui" line="140"/>
         <source>Deploy Key[s]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save changes</source>
-        <translation type="vanished">Сохранить изменения</translation>
+        <translation>Добавить Ключ[и]</translation>
     </message>
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="127"/>
@@ -413,27 +473,27 @@
         <translation>Статус</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="72"/>
+        <location filename="hub/src/DlgLogin.cpp" line="74"/>
         <source>Wrong login or password. Try again!</source>
         <translation>Неправильный логин или пароль.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="77"/>
+        <location filename="hub/src/DlgLogin.cpp" line="79"/>
         <source>HTTP error. Code</source>
         <translation>Ошибка уровня http. Код</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="82"/>
+        <location filename="hub/src/DlgLogin.cpp" line="84"/>
         <source>Timeout. Check internet connection, please!</source>
         <translation>Время ожидания ответа истекло. Пожалуйста, проверьте интернет соединение</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="87"/>
+        <location filename="hub/src/DlgLogin.cpp" line="89"/>
         <source>Network error. Code</source>
         <translation>Ошибка сети. Код</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="93"/>
+        <location filename="hub/src/DlgLogin.cpp" line="95"/>
         <source>Unknown error. Code</source>
         <translation>Неизвестная ошибка. Код</translation>
     </message>
@@ -473,7 +533,7 @@
     <message>
         <location filename="hub/forms/DlgNotification.ui" line="112"/>
         <source>Update Resource Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновить Resource Host</translation>
     </message>
     <message>
         <location filename="hub/src/DlgNotification.cpp" line="56"/>
@@ -524,12 +584,13 @@
     <message>
         <location filename="hub/forms/DlgNotifications.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Диалог</translation>
+        <oldsource>Dialogue</oldsource>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgNotifications.ui" line="25"/>
         <source>Full info</source>
-        <translation>Расширенная информация</translation>
+        <translation>Подробная информация</translation>
     </message>
 </context>
 <context>
@@ -555,62 +616,64 @@
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Диалог</translation>
+        <oldsource>Dialogue</oldsource>
+        <translation>Диалог</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="23"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="46"/>
         <source>Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Инфраструктура</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="56"/>
         <source>Peer on Hub</source>
-        <translation type="unfinished"></translation>
+        <translation>Пир на Хабе</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="63"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>Владелец</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="73"/>
         <source>Launch  Subutai Console</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Launch Subutai Console</oldsource>
+        <translation>Запустить Subutai Console</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="89"/>
         <source>Show SSH box</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать SSH box</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="125"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="132"/>
         <source>IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="145"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Порт</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="152"/>
         <source>Pass</source>
-        <translation type="unfinished"></translation>
+        <translation>Пропустить</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="159"/>
         <source>SSH into Peer</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH в Пир</translation>
     </message>
 </context>
 <context>
@@ -719,7 +782,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="294"/>
         <source>Skin Theme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Скин:</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="307"/>
@@ -729,7 +792,7 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="318"/>
         <source>x2goclient</source>
-        <translation type="unfinished"></translation>
+        <translation>x2goclient</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="332"/>
@@ -760,29 +823,30 @@
         <location filename="hub/forms/DlgSettings.ui" line="523"/>
         <source>Default RH</source>
         <oldsource>Default Peer</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Пир по умолчанию</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="530"/>
         <source>Available RHs</source>
         <oldsource>Available Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Доступные Пиры</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="542"/>
         <source>Search RHs</source>
         <oldsource>Search Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Искать Пиры</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="450"/>
         <source>Ssh-keygen:</source>
-        <translation type="unfinished"></translation>
+        <oldsource>SSH-keygen:</oldsource>
+        <translation>SSH-генератор</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="515"/>
         <source>RH</source>
-        <translation type="unfinished"></translation>
+        <translation>RH</translation>
     </message>
     <message>
         <source>Resource hosts:</source>
@@ -850,7 +914,8 @@
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="750"/>
         <source>Automatic mh update</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Automatic MH update</oldsource>
+        <translation>Автоматическое обвновление MH</translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="263"/>
@@ -888,22 +953,22 @@
         <translation>Внимание! Не рекомендуемый аргумент терминала</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="439"/>
+        <location filename="hub/src/DlgSettings.cpp" line="440"/>
         <source>P2P command</source>
         <translation>Команда P2P</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="446"/>
+        <location filename="hub/src/DlgSettings.cpp" line="448"/>
         <source>Ssh command</source>
         <translation>Команда SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="451"/>
+        <location filename="hub/src/DlgSettings.cpp" line="457"/>
         <source>x2goclient command</source>
-        <translation type="unfinished"></translation>
+        <translation>Команда x2goclient</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="459"/>
+        <location filename="hub/src/DlgSettings.cpp" line="466"/>
         <source>Ssh-keygen command</source>
         <translation>Команда ssh-keygen</translation>
     </message>
@@ -912,12 +977,12 @@
         <translation type="vanished">Команда vboxmanage</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="467"/>
+        <location filename="hub/src/DlgSettings.cpp" line="475"/>
         <source>Logs storage</source>
         <translation>Место хранения лог-файлов</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="474"/>
+        <location filename="hub/src/DlgSettings.cpp" line="483"/>
         <source>SSH-keys storage</source>
         <translation>Место хранения SSH-ключей</translation>
     </message>
@@ -978,197 +1043,200 @@
     <message>
         <location filename="commons/src/Commons.cpp" line="29"/>
         <source>No error</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет ошибки</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="32"/>
         <source>Connection Refused Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Соединение отклонено</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="33"/>
         <source>Remote Host Closed Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Remote Host закрыт</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="34"/>
         <source>Host Not Found Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Host не найден</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="35"/>
         <source>Timeout Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: время ожидания истекло</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="36"/>
         <source>Operation Canceled Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: отмена операции</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="37"/>
         <source>Ssl Handshake Failed Error</source>
-        <translation type="unfinished"></translation>
+        <oldsource>SSL Handshake Failed Error</oldsource>
+        <translation>Ошибка: сбой SSL Handshake</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="38"/>
         <source>Temporary Network Failure Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: временный сбой в сети</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="39"/>
         <source>Network Session Failed Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Сбой сети</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="40"/>
         <source>Background Request Not Allowed Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: фоновый запрос запрещен</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="41"/>
         <source>TooMany Redirects Error</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Too Many Redirects Error</oldsource>
+        <translation>Ошибка: слишком много перенаправлений</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="42"/>
         <source>Insecure Redirect Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: небезопасное перенаправление</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="43"/>
         <source>Unknown Network Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Неизвестная сеть</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="46"/>
         <source>Proxy Connection Refused Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Прокси-соединение отклонено</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="47"/>
         <source>Proxy Connection Closed Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Прокси-соединение прервано</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="48"/>
         <source>Proxy Not Found Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Прокси-соединение не найдено</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="49"/>
         <source>Proxy Timeout Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: время ожидания Прокси-соединение истекло</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="50"/>
         <source>Proxy Authentication Required Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Необходима аутентификация Прокси-соединения</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="51"/>
         <source>Unknown Proxy Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Неизвестное Прокси-соединение</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="54"/>
         <source>Content Access Denied</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступ к содержимому запрещен</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="55"/>
         <source>Content Operation Not Permitted Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Операция по содержимому не разрешена</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="56"/>
         <source>Content Not Found Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Содержимое не найдено</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="57"/>
         <source>Authentication Required Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: требуется аутентификация</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="58"/>
         <source>Content Resend Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: не удалось переслать содержимое</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="59"/>
         <source>Content Conflict Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Конфликт содержимого</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="60"/>
         <source>Content Gone Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Содержимое пропало</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="61"/>
         <source>Unknown Content Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: содержимое не распознано</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="64"/>
         <source>Protocol Unknown Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: неизвестный протокол</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="65"/>
         <source>Protocol Invalid Operation Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: недействительный протокол</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="66"/>
         <source>Protocol Failure</source>
-        <translation type="unfinished"></translation>
+        <translation>Сбой протокола</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="69"/>
         <source>Internal Server Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: внутренний сервер недоступен</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="70"/>
         <source>Operation not implemented error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: операция не была завершена</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="71"/>
         <source>Service unavailable error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: недействительный сервер</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="72"/>
         <source>Unknown server error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: Неизвестный сервер</translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="73"/>
         <source>Unknown network error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка: неизвестная сеть</translation>
     </message>
     <message>
         <location filename="main.cpp" line="79"/>
         <source>Already running</source>
-        <translation type="unfinished"></translation>
+        <translation>Уже запущено</translation>
     </message>
     <message>
         <location filename="main.cpp" line="80"/>
         <source>One instance of tray application is already running</source>
-        <translation type="unfinished"></translation>
+        <translation>Приложение Tray уже запущено</translation>
     </message>
     <message>
         <location filename="main.cpp" line="88"/>
         <source>This tray application should help users to work with hub</source>
-        <translation type="unfinished"></translation>
+        <oldsource>This Tray application should help users to work with Hub</oldsource>
+        <translation>Приложение Tray позволяет пользователям работать с Хабом</translation>
     </message>
     <message>
         <location filename="main.cpp" line="148"/>
         <source>Can&apos;t operate without the p2p daemon. Either change the path setting in Settings or install the daemon it is not installed. You can get the %1 daemon from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished">Не может работать без демона P2P. Измените путь до P2P в настройках или установите P2P сервис. Вы можете скчать %1 версию P2P сервиса  &lt;a href=&quot;%2&quot;&gt;отсюда&lt;/a&gt;.</translation>
+        <translation>Операция невозможна без P2P-сервиса. Измените путь P2P в настройках или установите P2P сервис. Вы можете скчать последнюю версию P2P-сервиса  &lt;a href=&quot;%2&quot;&gt;здесь&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="454"/>
@@ -1269,22 +1337,24 @@
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="527"/>
         <source>-master</source>
-        <translation type="unfinished"></translation>
+        <oldsource>-Master</oldsource>
+        <translation>-Master</translation>
     </message>
     <message>
         <location filename="commons/src/OsBranchConsts.cpp" line="528"/>
         <source>-dev</source>
-        <translation type="unfinished"></translation>
+        <oldsource>-Dev</oldsource>
+        <translation>-Dev</translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="19"/>
         <source>Undefined balance</source>
-        <translation type="unfinished"></translation>
+        <translation>Неизвестный баланс</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="468"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="487"/>
         <source>Can&apos;t run x2goclient instance. Make sure you have specified correct path to x2goclient.Or you can get the lasest x2goclient from &lt;a href=&quot;%2&quot;&gt;here&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось запустить x2goclient. Убедитесь, что путь к x2goclient установлен правильно. Также Вы можете скачать последнюю версию x2goclient здесь</translation>
     </message>
 </context>
 <context>
@@ -1309,7 +1379,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="170"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="870"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="897"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
@@ -1345,45 +1415,51 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="206"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="892"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="919"/>
         <source>Notifications history</source>
         <translation>История уведомлений</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="227"/>
         <source>My Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Мои Пиры</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="229"/>
         <source>Local Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Локальные Пиры</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="487"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="507"/>
         <source>Update for %1 is available. Check &quot;About&quot; dialog</source>
         <translation>Доступно обновление для %1. Проверьте пункт &quot;О программе&quot;</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="495"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="516"/>
         <source>Failed to update %1. See details in error logs</source>
         <translation>Не удалось обновить %1. Смотрите подробности в лог-файле</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="608"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="623"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="630"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="646"/>
         <source>&quot;%1&quot; is %2 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="885"/>
-        <source>SSH Key Manager</source>
-        <translation type="unfinished"></translation>
+        <location filename="hub/src/TrayControlWindow.cpp" line="637"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="653"/>
+        <source>Status of your Peers: </source>
+        <translation>Статус ваших пиров</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="948"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="912"/>
+        <source>SSH Key Manager</source>
+        <translation>Установщик SSH-ключа</translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="979"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
-        <translation type="unfinished"></translation>
+        <translation>. Невозможно подключиться к окну контейнера. Err : %1</translation>
     </message>
     <message>
         <source>Launch hub website via google chrome failed</source>
@@ -1394,12 +1470,12 @@
         <translation type="vanished">Не удалось запустить HUB сайт с помощью браузера по умолчанию</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="555"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="576"/>
         <source>Environment %1 became healthy</source>
         <translation>Окружение %1 готово к работе</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="586"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="607"/>
         <source>Environment%1 %2 %3 %4</source>
         <translation>Окружение %1 %2 %3 %4</translation>
     </message>
@@ -1412,13 +1488,13 @@
         <translation type="vanished">Запуск косоли Subutai с помощью браузера по умолчанию не удался. Не удалось запустить процесс</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="759"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="788"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="786"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="815"/>
         <source>Can&apos;t get RH IP address. Error : %1</source>
         <translation>Не удалось получить IP-адрес RH. Ошибка : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="876"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="903"/>
         <source>About Subutai Tray</source>
         <translation>О Subutai Tray</translation>
     </message>
@@ -1427,9 +1503,9 @@
         <translation type="vanished">Генерация SSH-ключа</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="932"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="962"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
-        <translation>Не удалось создать сессию SSH к контейнеру. Ошибка : %1</translation>
+        <translation>Не удалось создать SSH-соединение к контейнеру. Ошибка : %1</translation>
     </message>
 </context>
 <context>
@@ -1459,7 +1535,7 @@
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="137"/>
         <source>P2P has not been updated. Most probably the permission is denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>P2P не был обновлен. Возможно, доступ запрещен</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="143"/>
@@ -1507,7 +1583,7 @@
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="92"/>
         <source>Tray application has not been updated. Most probably the permission is denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Приложение Tray не было обновлено. Возможно, доступ запрещен</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="96"/>

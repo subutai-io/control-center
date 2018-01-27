@@ -69,10 +69,16 @@ private slots:
   void get_environments_finished_sl();
   void get_balance_finished_sl();
   void check_if_ss_console_is_ready_finished_sl();
+  void get_p2p_status_finished_sl();
 
 signals:
 
   void on_get_my_peers_finished(std::vector<CMyPeerInfo>,
+                                int http_code,
+                                int err_code,
+                                int network_error);
+
+  void on_get_p2p_status_finished(std::vector<CP2PInstance>,
                                 int http_code,
                                 int err_code,
                                 int network_error);
@@ -105,6 +111,8 @@ public:
   bool get_user_id(QString& user_id_str);
 
   void update_my_peers();
+  void update_p2p_status();
+
   void update_environments();
   void update_balance();
 

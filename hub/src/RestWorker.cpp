@@ -12,6 +12,38 @@ CRestWorker::CRestWorker() { m_network_manager = create_network_manager(); }
 CRestWorker::~CRestWorker() { free_network_manager(m_network_manager); }
 ////////////////////////////////////////////////////////////////////////////
 
+void CRestWorker::get_p2p_status_finished_sl() {
+  QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  if (reply == nullptr) {
+    return;
+  }
+  int http_code, err_code, network_error;
+  pre_handle_reply(reply, http_code, err_code, network_error);
+
+  QByteArray reply_arr = reply->readAll();
+
+  QJsonDocument doc = qjson_doc_from_arr(reply_arr, err_code);
+  qDebug() << "Json: " << doc;
+
+  std::vector<CP2PInstance> lst_res;
+  QJsonObject obj = doc.object();
+
+  if (obj["code"].toInt() == 0){
+    QJsonArray doc_arr = obj["instances"].toArray();
+    for (auto i : doc_arr) {
+      if (i.isNull() || !i.isObject()) continue;
+      lst_res.push_back(CP2PInstance(i.toObject()));
+    }
+  }
+  else {
+    err_code = obj["code"].toInt();
+  }
+
+  emit on_get_p2p_status_finished(lst_res, http_code, err_code, network_error);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void CRestWorker::get_my_peers_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
   if (reply == nullptr) {
@@ -36,6 +68,9 @@ void CRestWorker::get_my_peers_finished_sl() {
 
 void CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
+
   if (reply == nullptr) {
     return;
   }
@@ -51,6 +86,8 @@ void CRestWorker::get_environments_finished_sl() {
   for (auto i = doc_arr.begin(); i != doc_arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;
     lst_res.push_back(CEnvironment(i->toObject()));
+
+
   }
 
   emit on_get_environments_finished(lst_res, http_code, err_code,
@@ -61,6 +98,8 @@ void CRestWorker::get_environments_finished_sl() {
 
 void CRestWorker::get_balance_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -85,6 +124,8 @@ void CRestWorker::get_balance_finished_sl() {
 
 void CRestWorker::check_if_ss_console_is_ready_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+  qDebug()
+      << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -135,6 +176,10 @@ void CRestWorker::login(const QString& login, const QString& password,
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
       query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
+  qDebug()
+      << "Http code " << http_code
+      << "Error code " << err_code
+      << "Network Error " << network_error;
 
   static QString str_ok = "\"OK\"";
 
@@ -161,6 +206,8 @@ bool CRestWorker::get_user_id(QString& user_id_str) {
                                 err_code, network_error, QByteArray(), true);
 
   QJsonDocument doc = QJsonDocument::fromJson(arr);
+  qDebug()
+      << "Json file: " << doc;
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
     qCritical("Get user id failed. URL : %s",
                                           str_url.toStdString().c_str());
@@ -184,6 +231,18 @@ void CRestWorker::update_my_peers() {
           &CRestWorker::get_my_peers_finished_sl);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
+
+void CRestWorker::update_p2p_status() {
+  QUrl url_env(p2p_rest_url().arg("status"));
+  QNetworkRequest req(url_env);
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
+  connect(reply, &QNetworkReply::finished, this,
+          &CRestWorker::get_p2p_status_finished_sl);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::update_environments() {
@@ -223,6 +282,9 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), true);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
+  qDebug()
+      << "Requested filename: " << file_name
+      << "Json file: " << doc;
 
   std::vector<CGorjunFileInfo> lst_res;
   if (doc.isNull()) {
@@ -432,6 +494,7 @@ QJsonDocument CRestWorker::qjson_doc_from_arr(const QByteArray& arr,
   }
   return doc;
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 QNetworkReply* CRestWorker::get_reply(QNetworkAccessManager* nam,

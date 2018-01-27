@@ -2,6 +2,7 @@
 #define OSBRANCHCONSTS_H
 
 #include <QString>
+#include <vector>
 
 enum branch_t {
   BT_MASTER = 0,
@@ -41,6 +42,8 @@ template<int v> struct Int2Type {
 const QString& tray_kurjun_file_name();
 const QString& p2p_kurjun_file_name();
 const QString& p2p_dht_arg();
+const QString& p2p_rest_url();
+
 
 const QString& hub_post_url();
 const QString& hub_register_url();
@@ -72,4 +75,5 @@ const QString& x2goclient_url();
 
 const QString& current_branch_name();
 const QString& branch_name_str();
+const QString& base_interface_name();
 #endif // OSBRANCHCONSTS_H

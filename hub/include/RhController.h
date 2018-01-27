@@ -35,7 +35,6 @@ public:
     return m_dct_resource_hosts;
   }
 
-
   void ssh_to_rh(const QString &peer_fingerprint, void* action);
 
 private slots:
