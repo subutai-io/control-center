@@ -104,7 +104,6 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 static const int DEFAULT_REFRESH_TIMEOUT_SEC = 20;
 static QString settings_file_path() {
   static const QString settings_file = "subutai_tray.ini";
-  return "/home/lezh1k/Desktop/" + settings_file;
 
   QStringList lst_config=
       QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
