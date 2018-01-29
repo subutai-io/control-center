@@ -179,7 +179,8 @@ void P2PConnector::update_status() {
         std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
         return env.hash() == swarm_interface.first;
     });
-    if (found_swarm_interface != swarm_interfaces.end()) {
+    if (found_swarm_interface != swarm_interfaces.end()
+        && env.base_interface_id() == -1) {
       QString interface = found_swarm_interface->second;
       QRegExp regExp("(-?\\d+(?:[\\.,]\\d+(?:e\\d+)?)?)");
       regExp.indexIn(interface);
@@ -195,7 +196,8 @@ void P2PConnector::update_status() {
         std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
         return env.hash() == swarm_interface.first;
     });
-    if (found_swarm_interface == swarm_interfaces.end()) {
+    if (found_swarm_interface == swarm_interfaces.end()
+        && env.base_interface_id() == -1) {
       int id = get_unselected_interface_id();
       env.set_base_interface_id(id);
       interface_ids[id] = env.hash();

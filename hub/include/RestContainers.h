@@ -120,6 +120,7 @@ public:
     m_hub_id = obj["environment_hub_id"].toInt();
     m_status = obj["environment_status"].toString();
     m_status_descr = obj["environment_status_desc"].toString();
+    m_base_interface_id = -1;
     QJsonArray arr = obj["environment_containers"].toArray();
     for (auto i = arr.begin(); i != arr.end(); ++i) {
       if (i->isNull() || !i->isObject()) continue;

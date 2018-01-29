@@ -116,7 +116,7 @@ private:
 
  int get_unselected_interface_id() {
    for(int id = 0 ; id < 50 ; ++id) { // differents ids for 50 environments
-     if (interface_ids.find(id) != interface_ids.end()) {
+     if (interface_ids.find(id) == interface_ids.end()) {
        return id;
      }
    }
