@@ -172,13 +172,19 @@ void P2PConnector::update_status() {
   qDebug()
       << "Swarm Interfaces: " << lst_interfaces;
 
+  // need to clear it everytime
+  interface_ids.clear();
+
   // Setting the interfaces to swarm
   // if an interface found with command `p2p show --interfaces --bind`, then we use that interface
   for (CEnvironment &env : hub_environments) {
+    if (!env.healthy())
+      continue;
     std::vector<std::pair<QString, QString>>::iterator found_swarm_interface =
         std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
         return env.hash() == swarm_interface.first;
     });
+
     if (found_swarm_interface != swarm_interfaces.end()
         && env.base_interface_id() == -1) {
       QString interface = found_swarm_interface->second;
@@ -192,6 +198,8 @@ void P2PConnector::update_status() {
 
   // if an interface was not found with command, then we will  give the unselected interfaces
   for (CEnvironment &env : hub_environments) {
+    if (!env.healthy())
+      continue;
     std::vector<std::pair<QString, QString>>::iterator found_swarm_interface =
         std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
         return env.hash() == swarm_interface.first;
