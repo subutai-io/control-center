@@ -64,7 +64,7 @@ CHubComponentsUpdater::set_update_freq(const QString &component_id,
     return;
 
   m_dct_components[component_id].set_timer_interval(
-        CSettingsManager::update_freq_to_sec(freq)*1000);
+        CSettingsManager::update_freq_to_sec(freq) * 1000);
   m_dct_components[component_id].timer_start();
 }
 ////////////////////////////////////////////////////////////////////////////

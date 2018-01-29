@@ -185,39 +185,46 @@ check_auth_pass_internal(const char *str_host,
 #endif
   connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
   rc = wait_socket_connected(sock, conn_timeout);
+  run_libssh2_error_t res = RLE_SUCCESS;
+  do {
+    if (rc == 0) {
+      res = RLE_CONNECTION_TIMEOUT;
+      break;
+    }
+    else if (rc == SOCKET_ERROR) {
+      res = RLE_CONNECTION_ERROR;
+      break;
+    }
 
-  if (rc == 0) {
-    return RLE_CONNECTION_TIMEOUT;
-  }
-  else if (rc == SOCKET_ERROR) {
-    return RLE_CONNECTION_ERROR;
-  }
+    libssh2_session_auto_t sa;
+    if (!sa.session) {
+      res = RLE_LIBSSH2_SESSION_INIT;
+      break;
+    }
 
-  libssh2_session_auto_t sa;
-  if (!sa.session) {
-    return RLE_LIBSSH2_SESSION_INIT;
-  }
-  while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
-    ; //wait
+    while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
+      ; //wait
 
-  if (rc) {
-    return RLE_SESSION_HANDSHAKE;
-  }
+    if (rc) {
+      return RLE_SESSION_HANDSHAKE;
+      res = RLE_SESSION_HANDSHAKE;
+      break;
+    }
 
-  while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN);
+    while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN);
 
-  if (rc) {
-    return RLE_SSH_AUTHENTICATION;
-  }
-
+    if (rc) {
+      res = RLE_SSH_AUTHENTICATION;
+      break;
+    }
+  } while (0);
 
   #ifdef _WIN32
     closesocket(sock);
   #else
     close(sock);
   #endif
-
-  return exitcode;
+  return res == RLE_SUCCESS ? exitcode : res;
 }
 
 int
@@ -255,102 +262,109 @@ run_ssh_command_internal(const char *str_host,
 #endif
   connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
   rc = wait_socket_connected(sock, conn_timeout);
-
-  if (rc == 0) {
-    return RLE_CONNECTION_TIMEOUT;
-  }
-  else if (rc == SOCKET_ERROR) {
-    return RLE_CONNECTION_ERROR;
-  }
-
-  libssh2_session_auto_t sa;
-  if (!sa.session) {
-    return RLE_LIBSSH2_SESSION_INIT;
-  }
-
-  while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
-    ; //wait
-
-  if (rc) {
-    return RLE_SESSION_HANDSHAKE;
-  }
-
+  run_libssh2_error_t res = RLE_SUCCESS;
   do {
-    while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
-      ;
+    if (rc == 0) {
+      res = RLE_CONNECTION_TIMEOUT;
+      break;
+    }
+    else if (rc == SOCKET_ERROR) {
+      res = RLE_CONNECTION_ERROR;
+      break;
+    }
+
+    libssh2_session_auto_t sa;
+    if (!sa.session) {
+      return RLE_LIBSSH2_SESSION_INIT;
+    }
+
+    while ((rc = libssh2_session_handshake(sa.session, sock)) == LIBSSH2_ERROR_EAGAIN)
+      ; //wait
 
     if (rc) {
-      return RLE_SSH_AUTHENTICATION;
+      res = RLE_SESSION_HANDSHAKE;
+      break;
     }
 
-    LIBSSH2_CHANNEL *channel;
-    while ((channel = libssh2_channel_open_session(sa.session)) == NULL &&
-           libssh2_session_last_error(sa.session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
-      wait_ssh_socket_event(sock, sa.session);
-    }
+    do {
+      while ((rc = pf_auth(sa.session, pf_auth_arg)) == LIBSSH2_ERROR_EAGAIN)
+        ;
 
-    if (channel == NULL) {
-      return RLE_LIBSSH2_CHANNEL_OPEN;
-    }
-
-    while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
-           LIBSSH2_ERROR_EAGAIN) {
-      wait_ssh_socket_event(sock, sa.session);
-    }
-
-    if (rc != 0) {
-      return RLE_LIBSSH2_CHANNEL_EXEC;
-    }
-
-    for (;;) {
-      /* loop until we block */
-      int f, l, r;
-      static char buffer[0x100] = {0};
-      f = l = 0;
-      r = -1;
-
-      while ((r = libssh2_channel_read(channel, &buffer[l], sizeof(buffer) - l - 1)) > 0) {
-        buffer[l+r] = 0;
-
-        for (; buffer[l]; ++l) {
-          if (buffer[l] != '\n') continue;
-          lst_out.push_back(std::string(&buffer[f], l-f));
-          f = l+1;
-        }
-
-        memcpy(buffer, &buffer[f], l-f);
-        l = l-f;
-        f = 0;
+      if (rc) {
+        res = RLE_SSH_AUTHENTICATION;
+        break;
       }
 
-      /* this is due to blocking that would occur otherwise so we loop on
-      this condition */
-      if (r != LIBSSH2_ERROR_EAGAIN)
+      LIBSSH2_CHANNEL *channel;
+      while ((channel = libssh2_channel_open_session(sa.session)) == NULL &&
+             libssh2_session_last_error(sa.session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
+        wait_ssh_socket_event(sock, sa.session);
+      }
+
+      if (channel == NULL) {
+        res = RLE_LIBSSH2_CHANNEL_OPEN;
         break;
-      wait_ssh_socket_event(sock, sa.session);
-    }
+      }
 
-    exitcode = 127;
-    while ((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
-      wait_ssh_socket_event(sock, sa.session);
+      while ((rc = libssh2_channel_exec(channel, str_cmd)) ==
+             LIBSSH2_ERROR_EAGAIN) {
+        wait_ssh_socket_event(sock, sa.session);
+      }
 
-    if (rc == 0) {
-      exitcode = libssh2_channel_get_exit_status(channel);
-      libssh2_channel_get_exit_signal(channel, &exitsignal,
-                                      NULL, NULL, NULL, NULL, NULL);
-    }
+      if (rc != 0) {
+        res = RLE_LIBSSH2_CHANNEL_EXEC;
+        break;
+      }
 
-    libssh2_channel_free(channel);
-    channel = NULL;
-  } while (0);
+      for (;;) {
+        /* loop until we block */
+        int f, l, r;
+        static char buffer[0x100] = {0};
+        f = l = 0;
+        r = -1;
 
-#ifdef _WIN32
-  closesocket(sock);
-#else
-  close(sock);
-#endif
+        while ((r = libssh2_channel_read(channel, &buffer[l], sizeof(buffer) - l - 1)) > 0) {
+          buffer[l+r] = 0;
 
-  return exitcode;
+          for (; buffer[l]; ++l) {
+            if (buffer[l] != '\n') continue;
+            lst_out.push_back(std::string(&buffer[f], l-f));
+            f = l+1;
+          }
+
+          memcpy(buffer, &buffer[f], l-f);
+          l = l-f;
+          f = 0;
+        }
+
+        /* this is due to blocking that would occur otherwise so we loop on
+        this condition */
+        if (r != LIBSSH2_ERROR_EAGAIN)
+          break;
+        wait_ssh_socket_event(sock, sa.session);
+      }
+
+      exitcode = 127;
+      while ((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
+        wait_ssh_socket_event(sock, sa.session);
+
+      if (rc == 0) {
+        exitcode = libssh2_channel_get_exit_status(channel);
+        libssh2_channel_get_exit_signal(channel, &exitsignal,
+                                        NULL, NULL, NULL, NULL, NULL);
+      }
+
+      libssh2_channel_free(channel);
+      channel = NULL;
+    } while (0);
+  } while(0);
+
+  #ifdef _WIN32
+    closesocket(sock);
+  #else
+    close(sock);
+  #endif
+  return res == RLE_SUCCESS ? exitcode : res;
 }
 ////////////////////////////////////////////////////////////////////////////
 

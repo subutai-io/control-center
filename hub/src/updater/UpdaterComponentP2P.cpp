@@ -69,6 +69,8 @@ CUpdaterComponentP2P::update_available_internal() {
 
 chue_t
 CUpdaterComponentP2P::update_internal() {
+  qDebug() << "Starting to update P2P";
+
   QString str_p2p_path = p2p_path();
   if (str_p2p_path.isNull() ||
       str_p2p_path.isEmpty() ||

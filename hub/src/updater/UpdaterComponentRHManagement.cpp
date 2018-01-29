@@ -27,6 +27,7 @@ CUpdaterComponentRHM::update_available_internal() {
 
 chue_t
 update_system::CUpdaterComponentRHM::update_internal() {
+  qDebug() << "Starting to update Management";
   int exit_code = 0;
   system_call_wrapper_error_t res = CSystemCallWrapper::run_rh_management_updater(
                                     CSettingsManager::Instance().rh_host().toStdString().c_str(),
