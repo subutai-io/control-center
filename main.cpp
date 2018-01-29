@@ -68,12 +68,13 @@ main(int argc, char *argv[]) {
 
 
   Logger::Instance()->Init();
-  qInstallMessageHandler(Logger::LoggerMessageOutput);
 
   QTranslator translator;
   QString locale = LanguageController::CurrentLocale();
   translator.load(QString("SubutaiTray_%1.qm").arg(locale), QApplication::applicationDirPath());
   app.installTranslator(&translator);
+
+  qInstallMessageHandler(Logger::LoggerMessageOutput);
 
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
     QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Already running"),
