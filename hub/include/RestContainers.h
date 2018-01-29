@@ -107,7 +107,7 @@ private:
   int m_hub_id;
   QString m_status;
   QString m_status_descr;
-  QString m_base_interface_id;
+  int m_base_interface_id;
   std::vector<CHubContainer> m_lst_containers;
 public:
   CEnvironment() : m_name(""){}
@@ -120,7 +120,6 @@ public:
     m_hub_id = obj["environment_hub_id"].toInt();
     m_status = obj["environment_status"].toString();
     m_status_descr = obj["environment_status_desc"].toString();
-    m_base_interface_id = get_base_interface_id();
     QJsonArray arr = obj["environment_containers"].toArray();
     for (auto i = arr.begin(); i != arr.end(); ++i) {
       if (i->isNull() || !i->isObject()) continue;
@@ -128,11 +127,6 @@ public:
       if (hc.name().isEmpty() || hc.name() == "") continue;
       m_lst_containers.push_back(hc);
     }
-  }
-
-  static QString get_base_interface_id() {
-    static int current_id = 0;
-    return QString(base_interface_name() + QString::number(current_id ++));
   }
 
   ~CEnvironment(){}
@@ -163,8 +157,12 @@ public:
   const std::vector<CHubContainer>& containers() const {return m_lst_containers;}
   const QString& status() const {return m_status;}
   const QString& status_description() const {return m_status_descr;}
-  const QString& base_interface_id() const {return m_base_interface_id;}
+  const int& base_interface_id() const {return m_base_interface_id;}
   bool healthy() const {return m_status == QString("HEALTHY");}
+
+  void set_base_interface_id(int base_interface_id) {
+    m_base_interface_id = base_interface_id;
+  }
 };
 ////////////////////////////////////////////////////////////////////////////
 

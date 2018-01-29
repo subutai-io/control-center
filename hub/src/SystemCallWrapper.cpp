@@ -108,6 +108,40 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+std::vector<std::pair<QString, QString>> CSystemCallWrapper::p2p_show_interfaces() {
+  std::vector<std::pair<QString, QString>> swarm_lsts;
+
+  if (!p2p_daemon_check()) {
+    return swarm_lsts;
+  }
+
+  QString cmd = CSettingsManager::Instance().p2p_path();
+  QStringList args;
+
+
+  args << "show" << "--interfaces" << "--bind";
+  system_call_res_t res = ssystem_th(cmd, args, true, true);
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 1) {
+    qCritical("%s", error_strings[res.res].toStdString().c_str());
+    return swarm_lsts;
+  }
+
+  for (QString swarm : res.out) {
+    if (swarm.indexOf("swarm") != -1) {
+      QStringList lst = swarm.split("|", QString::SkipEmptyParts);
+      if (lst.empty() || lst.size() != 2) {
+        continue;
+      }
+      swarm_lsts.push_back(std::make_pair(lst[0], lst[1]));
+    }
+  }
+
+  return swarm_lsts;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 std::vector<QString> CSystemCallWrapper::p2p_show() {
   std::vector<QString> swarm_lsts;
 
@@ -139,7 +173,7 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, const QString &swarm_base_interface_name) {
-  UNUSED_ARG(swarm_base_interface_name);
+  // UNUSED_ARG(swarm_base_interface_name);
 
   if (is_in_swarm(hash)) return SCWE_SUCCESS;
 
@@ -154,7 +188,8 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
        << "-ip" << ip
        << "-key" << key
        << "-hash" << hash
-       << "-dht" << p2p_dht_arg();
+       << "-dht" << p2p_dht_arg()
+       << "-dev" << swarm_base_interface_name;
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res;

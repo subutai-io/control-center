@@ -137,26 +137,72 @@ void P2PConnector::update_status() {
   qInfo() << "Starting to update connection status";
 
 
-  QFuture<std::vector<QString> > res = QtConcurrent::run(CSystemCallWrapper::p2p_show);
-  res.waitForFinished();
+  QFuture<std::vector<QString>> res_swarm = QtConcurrent::run(CSystemCallWrapper::p2p_show);
+  res_swarm.waitForFinished();
 
-  std::vector<QString> joined_swarms = res.result();
+  QFuture<std::vector<std::pair<QString, QString>>>  res_interfaces = QtConcurrent::run(CSystemCallWrapper::p2p_show_interfaces);
+  res_interfaces.waitForFinished();
+
+  std::vector<QString> joined_swarms = res_swarm.result(); // swarms + interfaces
+  std::vector<std::pair<QString, QString>> swarm_interfaces = res_interfaces.result(); // swarms + interfaces
+
+
+
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
   QStringList already_joined;
   QStringList hub_swarms;
+  QStringList lst_interfaces;
+
+  for (auto tt : swarm_interfaces) {
+    lst_interfaces << tt.first << " -- " << tt.second << "\n";
+  }
   for (auto swarm : joined_swarms){
     already_joined << swarm;
   }
   for (auto env : hub_environments){
     hub_swarms << env.hash();
   }
+
   qDebug()
       << "Joined swarm: " << already_joined;
 
   qDebug()
       << "Swarms from hub: " << hub_swarms;
 
+  qDebug()
+      << "Swarm Interfaces: " << lst_interfaces;
 
+  // Setting the interfaces to swarm
+  // if an interface found with command `p2p show --interfaces --bind`, then we use that interface
+  for (CEnvironment &env : hub_environments) {
+    std::vector<std::pair<QString, QString>>::iterator found_swarm_interface =
+        std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
+        return env.hash() == swarm_interface.first;
+    });
+    if (found_swarm_interface != swarm_interfaces.end()) {
+      QString interface = found_swarm_interface->second;
+      QRegExp regExp("(-?\\d+(?:[\\.,]\\d+(?:e\\d+)?)?)");
+      regExp.indexIn(interface);
+      int id = regExp.capturedTexts().first().toInt();
+      env.set_base_interface_id(id);
+      interface_ids[id] = env.hash();
+    }
+  }
+
+  // if an interface was not found with command, then we will  give the unselected interfaces
+  for (CEnvironment &env : hub_environments) {
+    std::vector<std::pair<QString, QString>>::iterator found_swarm_interface =
+        std::find_if(swarm_interfaces.begin(), swarm_interfaces.end(), [&env](const std::pair<QString, QString>& swarm_interface) {
+        return env.hash() == swarm_interface.first;
+    });
+    if (found_swarm_interface == swarm_interfaces.end()) {
+      int id = get_unselected_interface_id();
+      env.set_base_interface_id(id);
+      interface_ids[id] = env.hash();
+    }
+  }
+
+  //
   for (CEnvironment env : hub_environments) {
     if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) == joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
       connected_envs.erase(env.hash());
