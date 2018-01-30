@@ -64,7 +64,7 @@ private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
-                          QString("dhcp"), base_interface_name() + QString::number(env.base_interface_id()));
+                          QString("dhcp"), env.base_interface_id());
     res.waitForFinished();
     emit connection_finished(res.result());
   }
@@ -115,12 +115,12 @@ private:
  std::map<int, QString> interface_ids; // Pair of interface id and swarm hash
 
  int get_unselected_interface_id() {
-   for(int id = 0 ; id < 50 ; ++id) { // differents ids for 50 environments
+   for(int id = 0 ; id < 30 ; ++id) { // differents ids for 30 environments
      if (interface_ids.find(id) == interface_ids.end()) {
        return id;
      }
    }
-   return 0;
+   return -1;
  }
 
  void join_swarm(const CEnvironment& env);

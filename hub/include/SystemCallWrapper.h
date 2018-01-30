@@ -103,7 +103,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
                                                        const QString &key,
                                                        const QString &ip,
-                                                       const QString &swarm_base_interface_name);
+                                                       int swarm_base_interface_id);
 
   static system_call_wrapper_error_t leave_p2p_swarm(const QString &hash);
   static system_call_wrapper_error_t restart_p2p_service(int *res_code);
