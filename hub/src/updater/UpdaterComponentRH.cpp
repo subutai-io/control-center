@@ -27,6 +27,7 @@ CUpdaterComponentRH::update_available_internal() {
 
 chue_t
 CUpdaterComponentRH::update_internal() {
+  qDebug() << "Starting to update RH";
   int exit_code = 0;
   system_call_wrapper_error_t res = CSystemCallWrapper::run_rh_updater(
                                     CSettingsManager::Instance().rh_host().toStdString().c_str(),
