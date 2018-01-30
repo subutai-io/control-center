@@ -98,6 +98,7 @@ class CSystemCallWrapper {
 
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();
+  static std::vector<std::pair<QString, QString>> p2p_show_interfaces();
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
                                                        const QString &key,
