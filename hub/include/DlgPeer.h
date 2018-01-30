@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "HubController.h"
+#include "SystemCallWrapper.h"
 
 namespace Ui {
   class DlgPeer;
@@ -19,9 +20,12 @@ public:
   void addHubPeer(CMyPeerInfo peer);
 private:
   Ui::DlgPeer *ui;
-signals:
-  void ssh_to_rh_sig(const QString&, void*);
+  QString current_peer_id;
 
+signals:
+  void ssh_to_rh_sig(const QString&);
+private slots:
+  void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code);
 };
 
 #endif // DLGPEER_H

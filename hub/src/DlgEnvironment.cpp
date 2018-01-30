@@ -80,8 +80,8 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_name = new QLabel(cont->name(), this);
   QLabel *cont_ip = new QLabel(cont->ip(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
-  QPushButton *btn_ssh = new QPushButton(tr("SSH"), this),
-              *btn_desktop = new QPushButton(tr("DESKTOP"), this);
+  QPushButton *btn_ssh = new QPushButton(tr("SSH")),
+              *btn_desktop = new QPushButton(tr("DESKTOP"));
 
   cont_name->setAlignment(Qt::AlignHCenter);
   cont_ip->setAlignment(Qt::AlignHCenter);

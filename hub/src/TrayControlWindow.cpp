@@ -436,42 +436,33 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
   if (act != NULL) {
     act->setEnabled(false);
     act->setText("PROCESSSING...");
-    CHubController::Instance().ssh_to_container(env, cont, action);
+    CEnvironment new_env = *env;
+    CHubContainer new_cont = *cont;
+    CHubController::Instance().ssh_to_container(&new_env, &new_cont, (void*) act);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, void* action) {
-  qDebug()
-      << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
-
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setEnabled(false);
-    act->setText("PROCESSSING...");
-    QtConcurrent::run(CRhController::Instance(), &CRhController::ssh_to_rh
-                      , peer_fingerprint, action);
-  }
+void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint) {
+  qDebug() << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
+  QtConcurrent::run(CRhController::Instance(), &CRhController::ssh_to_rh, peer_fingerprint);
 }
 
-void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, void *action, system_call_wrapper_error_t res, int libbssh_exit_code) {
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
   qDebug()
       << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
 
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setText("Save && SSH into Peer");
-    act->setEnabled(true);
-    if (res != SCWE_SUCCESS)
-    {
-      if (libbssh_exit_code != 0)
-        CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
-                                    DlgNotification::N_NO_ACTION);
-      else
-        CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
-                                    DlgNotification::N_NO_ACTION);
-    }
+  if (res != SCWE_SUCCESS)
+  {
+    if (libbssh_exit_code != 0)
+      CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
+                                  DlgNotification::N_NO_ACTION);
+    else
+      CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+                                  DlgNotification::N_NO_ACTION);
   }
 }
 

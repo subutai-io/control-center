@@ -35,7 +35,7 @@ public:
     return m_dct_resource_hosts;
   }
 
-  void ssh_to_rh(const QString &peer_fingerprint, void* action);
+  void ssh_to_rh(const QString &peer_fingerprint);
 
 private slots:
   void found_device_slot(QString uid, QString location);
@@ -44,7 +44,7 @@ private slots:
 
 signals:
   void resource_host_list_updated(bool);
-  void ssh_to_rh_finished(const QString &peer_fingerprint, void* action, system_call_wrapper_error_t res, int exit_code);
+  void ssh_to_rh_finished(const QString &peer_fingerprint, system_call_wrapper_error_t res, int exit_code);
 };
 
 #endif // RHCONTROLLER_H

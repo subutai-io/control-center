@@ -65,8 +65,7 @@ private:
 
   void ssh_to_container_internal(const CEnvironment *env,
                                  const CHubContainer *cont,
-                                 void *additional_data,
-                                 finished_slot_t slot);
+                                 const QString &key);
   void ssh_to_container_internal_helper(int result,
                                  void *additional_data,
                                  finished_slot_t slot);
