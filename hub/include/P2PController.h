@@ -63,7 +63,8 @@ class SwarmConnector : public StatusChecker
 private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(), QString("dhcp"), env.base_interface_id());
+        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
+                          QString("dhcp"), env.base_interface_id());
     res.waitForFinished();
     emit connection_finished(res.result());
   }
@@ -111,6 +112,17 @@ public slots:
 private:
  std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
  std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
+ std::map<int, QString> interface_ids; // Pair of interface id and swarm hash
+
+ int get_unselected_interface_id() {
+   for(int id = 0 ; id < 30 ; ++id) { // differents ids for 30 environments
+     if (interface_ids.find(id) == interface_ids.end()) {
+       return id;
+     }
+   }
+   return -1;
+ }
+
  void join_swarm(const CEnvironment& env);
  void leave_swarm(const QString &hash);
  void check_status(const CEnvironment& env);
