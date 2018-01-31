@@ -122,14 +122,18 @@ private slots:
   void ssh_to_rh_triggered(const QString &peer_fingerprint);
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
-  void ssh_to_container_triggered(const CEnvironment *env,
-                                      const CHubContainer *cont, void *action);
-  void desktop_to_container_triggered(const CEnvironment *env,
-                                      const CHubContainer *cont, void *action);
+  void ssh_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
+  void desktop_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
 
   void ssh_key_generate_triggered();
-  void ssh_to_container_finished(int result, void* additional_data);
-  void desktop_to_container_finished(int result, void* additional_data);
+
+  void ssh_to_container_finished(const CEnvironment &env,
+                                 const CHubContainer &cont,
+                                 int result);
+
+  void desktop_to_container_finished(const CEnvironment &env,
+                                     const CHubContainer &cont,
+                                     int result);
 
   /*updater*/
   void update_available(QString file_id);

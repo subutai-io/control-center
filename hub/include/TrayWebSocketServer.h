@@ -34,9 +34,12 @@ private slots:
   void process_bin_msg(QByteArray msg);
   void socket_disconnected();
 public slots:
-  void ssh_to_container_finished(int result, void* additional_data);
-  void desktop_to_container_finished(int result, void* additional_data);
-
+  void ssh_to_container_finished(const CEnvironment &env,
+                                 const CHubContainer &cont,
+                                 int result, void* additional_data);
+  void desktop_to_container_finished(const CEnvironment &env,
+                                 const CHubContainer &cont,
+                                 int result, void* additional_data);
 public slots:
 public:
   static CTrayServer *Instance(void);
