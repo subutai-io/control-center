@@ -125,6 +125,15 @@ void P2PConnector::check_status(const CEnvironment &env) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::update_status() {
+  /*send status of application to p2p status*/
+    if(CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())){
+        emit p2p_application_status(P2P_APPLICATION_READY);
+        if(CSystemCallWrapper::p2p_daemon_check())
+           emit p2p_application_status(P2P_APPLICATION_RUNNING);
+    }
+    else emit p2p_application_status(P2P_APPLICATION_FAIL);;
+////////////////////////////////
+
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
       || !CSystemCallWrapper::p2p_daemon_check()) {
     qCritical() << "P2P is not launchable or p2p daemon is not running.";

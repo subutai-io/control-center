@@ -129,6 +129,16 @@ private:
  void handshake(const CEnvironment& env, const CHubContainer &cont);
  void check_rh(const CEnvironment& env, const CHubContainer &cont);
 
+/*status of p2p application */
+public:
+ enum P2P_APPLICATION_STATUS{
+      P2P_APPLICATION_READY = 0,
+      P2P_APPLICATION_RUNNING,
+      P2P_APPLICATION_FAIL,
+ };
+/*send status signanls about p2p*/
+signals:
+    void p2p_application_status(P2P_APPLICATION_STATUS);
 };
 #include "RestContainers.h"
 

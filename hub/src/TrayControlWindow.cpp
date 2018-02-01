@@ -75,7 +75,10 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_about(NULL),
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
-      m_tray_menu(NULL) {
+      m_tray_menu(NULL),
+  /*p2p status*/    m_act_p2p_status(NULL)
+
+{
   ui->setupUi(this);
 
   create_tray_actions();
@@ -113,6 +116,12 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &TrayControlWindow::ssh_to_rh_finished_sl);
 
+  /*p2p status updater*/
+  P2PConnector *p2p_status_updater=new P2PConnector;
+  p2p_status_updater->update_status();
+  connect(p2p_status_updater, &P2PConnector::p2p_application_status, this,
+          &TrayControlWindow::update_p2p_status_sl);
+
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
@@ -128,7 +137,9 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_launch_Hub,
                      m_act_about,
                      m_act_logout,
-                     m_act_notifications_history};
+                     m_act_notifications_history,
+                     m_act_p2p_status
+                    };
 
   for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
     if (menus[i] == nullptr) continue;
@@ -207,6 +218,12 @@ void TrayControlWindow::create_tray_actions() {
       QIcon(":hub/notifications_history.png"), tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
+
+  /*p2p status*/
+  m_act_p2p_status = new QAction(
+        QIcon(":hub/stopped"), tr("p2p is not launched yet"), this);
+  connect(m_act_p2p_status, &QAction::triggered, this,
+          &TrayControlWindow::launch_p2p);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -215,6 +232,8 @@ void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
+  m_tray_menu->addAction(m_act_p2p_status);
+  m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
   m_tray_menu->addAction(m_act_balance);
@@ -525,6 +544,12 @@ void TrayControlWindow::launch_Hub() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+/*p2p status */
+void TrayControlWindow::launch_p2p(){
+   CHubController::Instance().launch_browser("http://stats.ioinformatics.org/img/photos/6ym9wl2aya.png");
+
+}
+//////////////
 void TrayControlWindow::environments_updated_sl(int rr) {
   qDebug()
       << "Updating environments list"
@@ -755,6 +780,24 @@ void TrayControlWindow::balance_updated_sl() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
+/* p2p status updater*/
+void TrayControlWindow::update_p2p_status_sl(P2PConnector::P2P_APPLICATION_STATUS status){
+    switch(status){
+        case P2PConnector::P2P_APPLICATION_READY :
+            m_act_p2p_status->setText("p2p is ready");
+            m_act_p2p_status->setIcon(QIcon(":/hub/waiting"));
+            break;
+        case P2PConnector::P2P_APPLICATION_RUNNING :
+            m_act_p2p_status->setText("p2p is running");
+            m_act_p2p_status->setIcon(QIcon(":/hub/running"));
+            break;
+        case P2PConnector::P2P_APPLICATION_FAIL :
+            m_act_p2p_status->setText("p2p is failed");
+            m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
+            break;
+    }
+}
 
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
