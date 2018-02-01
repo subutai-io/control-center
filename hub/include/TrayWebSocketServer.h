@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QByteArray>
+#include "HubController.h"
 
 class QWebSocketServer;
 class QWebSocket;

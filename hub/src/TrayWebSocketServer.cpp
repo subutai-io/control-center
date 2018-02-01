@@ -181,6 +181,8 @@ CTrayServer::ssh_to_container_finished(const CEnvironment &env,
                                        const CHubContainer &cont,
                                        int result,
                                        void *additional_data) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
                      .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))
@@ -196,7 +198,10 @@ void
 CTrayServer::desktop_to_container_finished(const CEnvironment &env,
                                            const CHubContainer &cont,
                                            int result,
-                                       void *additional_data) {
+                                           void *additional_data) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
+
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
                      .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))

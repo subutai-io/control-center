@@ -64,28 +64,24 @@ private:
     desktop_to_cont,
     desktop_to_cont_str
   };
-public:
-  ssh_desktop_launch_error_t ssh_to_container(const CEnvironment *env, const CHubContainer *cont);
-  ssh_desktop_launch_error_t desktop_to_container(const CEnvironment *env, const CHubContainer *cont);
 
+public:
   void ssh_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
   void desktop_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
+  void ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
+  void desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
 
-  ssh_desktop_launch_error_t ssh_to_container_internal(const CEnvironment *env,
-                                 const CHubContainer *cont,
-                                 const QString &key);
-  void ssh_to_container_from_hub(
-                                            const QString &env_id,
-                                            const QString &cont_id,
-                                            void *additional_data);
-  void desktop_to_container_from_hub(
-                                            const QString &env_id,
-                                            const QString &cont_id,
-                                            void *additional_data);
+private:
+  ssh_desktop_launch_error_t ssh_to_container(const CEnvironment &env, const CHubContainer &cont);
+  ssh_desktop_launch_error_t desktop_to_container(const CEnvironment &env, const CHubContainer &cont);
 
-  ssh_desktop_launch_error_t desktop_to_container_internal(const CEnvironment *env,
-                                 const CHubContainer *cont,
-                                 const QString &key);
+  ssh_desktop_launch_error_t ssh_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key);
+  ssh_desktop_launch_error_t desktop_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key);
+
+  system_call_wrapper_error_t desktop_to_container_in_x2go(const CHubContainer &cont, const QString &key);
+  system_call_wrapper_error_t ssh_to_container_in_terminal(const CHubContainer &cont, const QString &key);
+
+  const QString get_env_key(const QString &env_id);
 
   void refresh_my_peers_internal();
   void refresh_environments_internal();
@@ -120,7 +116,7 @@ public:
    * @brief start refresh timer. Refresh = update balance, list of environments and containers
    * by calling HUB REST-point
    */
-  void start();  
+  void start();
   void force_refresh();
 
   /**
@@ -132,25 +128,6 @@ public:
   /**
    * @brief remote desktop connection
    */
-
-  ssh_desktop_launch_error_t ssh_to_container_internal(
-                                                const CEnvironment &env,
-                                                 const CHubContainer &cont,
-                                                 const QString key);
-
-  ssh_desktop_launch_error_t desktop_to_container_internal(
-                                                const CEnvironment &env,
-                                                 const CHubContainer &cont,
-                                                 const QString key);
-
-  system_call_wrapper_error_t desktop_to_container_in_x2go(const CHubContainer &cont,
-                                                                           const QString key);
-
-  system_call_wrapper_error_t ssh_to_container_in_terminal(const CHubContainer &cont,
-                                                                           const QString key);
-
-
-  QString get_env_key(QString env_id);
 
   static const QString& ssh_desktop_launch_err_to_str(int err);
 

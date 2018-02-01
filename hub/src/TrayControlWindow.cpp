@@ -431,9 +431,7 @@ void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
   qDebug()
       << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
-  CEnvironment new_env = *env;
-  CHubContainer new_cont = *cont;
-  CHubController::Instance().ssh_to_container(&new_env, &new_cont);
+  CHubController::Instance().ssh_to_container_from_tray(*env, *cont);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -474,10 +472,7 @@ void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
                                  .arg(x2goclient_url()), DlgNotification::N_SETTINGS);
     return;
   }
-
-  CEnvironment new_env = *env;
-  CHubContainer new_cont = *cont;
-  CHubController::Instance().desktop_to_container(&new_env, &new_cont);
+  CHubController::Instance().desktop_to_container_from_tray(*env, *cont);
 }
 
 

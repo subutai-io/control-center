@@ -63,12 +63,20 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
 void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns) {
   connect(ui->btn_ssh_all, &QPushButton::clicked, btns.first, &QPushButton::click);
   connect(btns.first, &QPushButton::clicked, [btns, this, cont](){
-    emit this->ssh_to_container_sig(&this->env, &cont, (void *)btns.first);
+    QTimer::singleShot(4000, this, [btns] (){
+      btns.first->setEnabled(true);
+    });
+    btns.first->setEnabled(false);
+    emit this->ssh_to_container_sig(&this->env, &cont);
   });
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
   connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.second);
+    QTimer::singleShot(4000, this, [btns] (){
+      btns.second->setEnabled(true);
+    });
+    btns.second->setEnabled(false);
+    emit this->desktop_to_container_sig(&this->env, &cont);
   });
 }
 
