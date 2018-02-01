@@ -18,10 +18,11 @@ CTrayServer::CTrayServer(quint16 port,
   if (m_web_socket_server->listen(QHostAddress::Any, port)) {
     connect(m_web_socket_server, &QWebSocketServer::newConnection,
             this, &CTrayServer::on_new_connection);
-    connect(&CHubController::Instance(), &CHubController::ssh_to_container_str_finished,
+    connect(&CHubController::Instance(), &CHubController::ssh_to_container_from_hub_finished,
             this, &CTrayServer::ssh_to_container_finished);
-    connect(&CHubController::Instance(), &CHubController::desktop_to_container_str_finished,
+    connect(&CHubController::Instance(), &CHubController::desktop_to_container_from_hub_finished,
             this, &CTrayServer::desktop_to_container_finished);
+
 
   } else {
     QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
@@ -91,7 +92,7 @@ CTrayServer::handle_ssh(const QString &msg,
     pClient->sendTextMessage(response);
     return;
   }  
-  CHubController::Instance().ssh_to_container_str(args[1], args[2], (void*)pClient);
+  CHubController::Instance().ssh_to_container_from_hub(args[1], args[2], (void*)pClient);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +109,7 @@ CTrayServer::handle_desktop(const QString &msg,
     pClient->sendTextMessage(response);
     return;
   }
-  CHubController::Instance().desktop_to_container_str(args[1], args[2], (void*)pClient);
+  CHubController::Instance().desktop_to_container_from_hub(args[1], args[2], (void*)pClient);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -176,8 +177,12 @@ CTrayServer::socket_disconnected() {
 }
 
 void
-CTrayServer::ssh_to_container_finished(int result,
+CTrayServer::ssh_to_container_finished(const CEnvironment &env,
+                                       const CHubContainer &cont,
+                                       int result,
                                        void *additional_data) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
                      .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))
@@ -190,8 +195,13 @@ CTrayServer::ssh_to_container_finished(int result,
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CTrayServer::desktop_to_container_finished(int result,
-                                       void *additional_data) {
+CTrayServer::desktop_to_container_finished(const CEnvironment &env,
+                                           const CHubContainer &cont,
+                                           int result,
+                                           void *additional_data) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
+
   QString responce = QString("code:%1%%%error==%2%%%success==%3")
                      .arg(result)
                      .arg(result==SDLE_SUCCESS ? "" : CHubController::ssh_desktop_launch_err_to_str(result))
