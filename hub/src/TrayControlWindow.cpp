@@ -235,7 +235,8 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_p2p_status);
   m_tray_menu->addSeparator();
 
-  m_tray_menu->addAction(m_act_launch_Hub);
+  m_tray_menu->addAction(m_act_launch_Hu
+                         b);
   m_tray_menu->addAction(m_act_balance);
 
   m_tray_menu->addSeparator();
