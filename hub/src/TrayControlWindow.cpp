@@ -75,7 +75,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_about(NULL),
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
-      m_tray_menu(NULL) {
+      m_tray_menu(NULL),
+      m_act_p2p_status(NULL){
   ui->setupUi(this);
 
   create_tray_actions();
@@ -88,10 +89,11 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           this, &TrayControlWindow::notification_received);
 
   connect(&CHubController::Instance(),
-          &CHubController::ssh_to_container_finished, this,
-          &TrayControlWindow::ssh_to_container_finished);
+          &CHubController::ssh_to_container_from_tray_finished,
+          this, &TrayControlWindow::ssh_to_container_finished);
+
   connect(&CHubController::Instance(),
-          &CHubController::desktop_to_container_finished, this,
+          &CHubController::desktop_to_container_from_tray_finished, this,
           &TrayControlWindow::desktop_to_container_finished);
 
   connect(&CHubController::Instance(), &CHubController::balance_updated, this,
@@ -113,6 +115,12 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &TrayControlWindow::ssh_to_rh_finished_sl);
 
+  /*p2p status updater*/
+  P2PStatus_checker *p2p_status_updater=&P2PStatus_checker::Instance();
+  p2p_status_updater->update_status();
+  connect(p2p_status_updater, &P2PStatus_checker::p2p_status, this,
+          &TrayControlWindow::update_p2p_status_sl);
+
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
@@ -128,7 +136,8 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_launch_Hub,
                      m_act_about,
                      m_act_logout,
-                     m_act_notifications_history};
+                     m_act_notifications_history,
+                     m_act_p2p_status};
 
   for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
     if (menus[i] == nullptr) continue;
@@ -207,6 +216,12 @@ void TrayControlWindow::create_tray_actions() {
       QIcon(":hub/notifications_history.png"), tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
+
+  /*p2p status*/
+  m_act_p2p_status = new QAction(
+        QIcon(":hub/loading"), tr("P2P is loading..."), this);
+  connect(m_act_p2p_status, &QAction::triggered, this,
+          &TrayControlWindow::launch_p2p);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -215,6 +230,9 @@ void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
+  /*p2p status icon*/
+  m_tray_menu->addAction(m_act_p2p_status);
+  m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
   m_tray_menu->addAction(m_act_balance);
@@ -426,60 +444,41 @@ void TrayControlWindow::login_success() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont,
-                                                   void* action) {
+                                                   const CHubContainer* cont) {
   qDebug()
       << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
-
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setEnabled(false);
-    act->setText("PROCESSSING...");
-    CHubController::Instance().ssh_to_container(env, cont, action);
-  }
+  CHubController::Instance().ssh_to_container_from_tray(*env, *cont);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint, void* action) {
-  qDebug()
-      << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
-
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setEnabled(false);
-    act->setText("PROCESSSING...");
-    QtConcurrent::run(CRhController::Instance(), &CRhController::ssh_to_rh
-                      , peer_fingerprint, action);
-  }
+void TrayControlWindow::ssh_to_rh_triggered(const QString &peer_fingerprint) {
+  qDebug() << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
+  QtConcurrent::run(CRhController::Instance(), &CRhController::ssh_to_rh, peer_fingerprint);
 }
 
-void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, void *action, system_call_wrapper_error_t res, int libbssh_exit_code) {
+////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
   qDebug()
       << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
 
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setText("Save && SSH into Peer");
-    act->setEnabled(true);
-    if (res != SCWE_SUCCESS)
-    {
-      if (libbssh_exit_code != 0)
-        CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
-                                    DlgNotification::N_NO_ACTION);
-      else
-        CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
-                                    DlgNotification::N_NO_ACTION);
-    }
+  if (res != SCWE_SUCCESS)
+  {
+    if (libbssh_exit_code != 0)
+      CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
+                                  DlgNotification::N_NO_ACTION);
+    else
+      CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+                                  DlgNotification::N_NO_ACTION);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont,
-                                                   void* action) {
+                                                   const CHubContainer* cont) {
   qDebug()
       << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
@@ -490,13 +489,7 @@ void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
                                  .arg(x2goclient_url()), DlgNotification::N_SETTINGS);
     return;
   }
-
-  QPushButton* act = static_cast<QPushButton*>(action);
-  if (act != NULL) {
-    act->setEnabled(false);
-    act->setText("PROCESSSING...");
-    CHubController::Instance().desktop_to_container(env, cont, action);
-  }
+  CHubController::Instance().desktop_to_container_from_tray(*env, *cont);
 }
 
 
@@ -524,6 +517,13 @@ void TrayControlWindow::launch_Hub() {
   CHubController::Instance().launch_browser(hub_site());
 }
 ////////////////////////////////////////////////////////////////////////////
+
+/*p2p status */
+void TrayControlWindow::launch_p2p(){
+   CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
+}
+
+//////////////////////////////////////
 
 void TrayControlWindow::environments_updated_sl(int rr) {
   qDebug()
@@ -756,6 +756,25 @@ void TrayControlWindow::balance_updated_sl() {
 
 ////////////////////////////////////////////////////////////////////////////
 
+/* p2p status updater*/
+void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
+    switch(status){
+        case P2PStatus_checker::P2P_READY :
+            m_act_p2p_status->setText("P2P is not running");
+            m_act_p2p_status->setIcon(QIcon(":/hub/waiting"));
+            break;
+        case P2PStatus_checker::P2P_RUNNING :
+            m_act_p2p_status->setText("P2P is running");
+            m_act_p2p_status->setIcon(QIcon(":/hub/running"));
+            break;
+        case P2PStatus_checker::P2P_FAIL :
+            m_act_p2p_status->setText("Cannot find P2P");
+            m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
+            break;
+    }
+}
+//////////////////////////////////////
+
 void TrayControlWindow::got_ss_console_readiness_sl(bool is_ready,
                                                     QString err) {
   qDebug()
@@ -956,34 +975,32 @@ void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, 
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::ssh_to_container_finished(int result,
-                                                  void* additional_data) {
+void TrayControlWindow::ssh_to_container_finished(
+    const CEnvironment &env,
+    const CHubContainer &cont,
+    int result) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't ssh to container. Err : %1")
             .arg(CHubController::ssh_desktop_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
-
-  QPushButton* act = static_cast<QPushButton*>(additional_data);
-  if (act == NULL) return;
-  act->setEnabled(true);
-  act->setText("SSH");
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::desktop_to_container_finished(int result,
-                                                  void* additional_data) {
+void TrayControlWindow::desktop_to_container_finished(
+    const CEnvironment &env,
+    const CHubContainer &cont,
+    int result) {
+  UNUSED_ARG(env);
+  UNUSED_ARG(cont);
   qDebug() << "Result " << result;
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
         tr("Can't desktop to container. Err : %1")
             .arg(CHubController::ssh_desktop_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
-
-  QPushButton* act = static_cast<QPushButton*>(additional_data);
-  if (act == NULL) return;
-  act->setEnabled(true);
-  act->setText("DESKTOP");
 }
 ////////////////////////////////////////////////////////////////////////////

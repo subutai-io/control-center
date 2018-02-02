@@ -47,134 +47,8 @@ CHubController::CHubController()
 CHubController::~CHubController() {
 }
 
-void CHubController::desktop_to_container_internal_helper(int result, void *additional_data, finished_slot_t slot) {
-  if (slot == desktop_to_cont)
-    emit desktop_to_container_finished(result, additional_data);
-  else
-    emit desktop_to_container_str_finished(result, additional_data);
-}
-
-void CHubController::desktop_to_container_internal(const CEnvironment *env,
-                                   const CHubContainer *cont,
-                                   void *additional_data, finished_slot_t slot) {
-  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
-  if (container_status != (int) SDLE_SUCCESS) {
-     desktop_to_container_internal_helper(container_status, additional_data, slot);
-     return;
-  }
-
-  QString key = get_env_key(env->id());
-
-  qInfo()
-      << "User: " << CSettingsManager::Instance().ssh_user()
-      << "RH IP: " << cont->rh_ip()
-      << "CONT IP: " << cont->ip()
-      << "Port: " << cont->port()
-      << "Environment: " << env->name()
-      << "Container: " << cont->name()
-      << "Key: " << key;
-
-  if (key.isEmpty()) {
-    //desktop_to_container_internal_helper((int)SDLE_ENV_KEY_FAIL, additional_data, slot);
-    //return;
-    // for some cases we don't need to have a key  
-  }
 
 
-  CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-  qDebug()
-      << "Container: " << cont->name()
-      << "Ip from ifconfig: " << cip.ip
-      << "Port from ifconfig: " << cip.port;
-
-  static const QString x2go_user = "x2go";
-  X2GoClient::Instance().add_session(cont, x2go_user, key);
-
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_x2goclient_session(cont->id());
-
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = tr("Run x2goclient session failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
-    qCritical() << err_msg;
-    desktop_to_container_internal_helper((int)SDLE_SYSTEM_CALL_FAILED, additional_data, slot);
-    return;
-  }
-  desktop_to_container_internal_helper((int)SDLE_SUCCESS, additional_data, slot);
-}
-
-
-
-void CHubController::ssh_to_container_internal_helper(int result, void *additional_data, finished_slot_t slot) {
-  if (slot == ssh_to_cont) {
-    emit ssh_to_container_finished(result, additional_data);
-  }
-  else {
-    emit ssh_to_container_str_finished(result, additional_data);
-  }
-}
-
-
-
-void CHubController::ssh_to_container_internal(const CEnvironment *env,
-                                               const CHubContainer *cont,
-                                               void *additional_data,
-                                               finished_slot_t slot) {
-  int container_status = P2PController::Instance().is_ready_sdle(*env, *cont);
-  if (container_status != (int) SDLE_SUCCESS) {
-    ssh_to_container_internal_helper(container_status, additional_data, slot);
-    return;
-  }
-
-  QString key = get_env_key(env->id());
-  qInfo()
-      << "User: " << CSettingsManager::Instance().ssh_user()
-      << "RH IP: " << cont->rh_ip()
-      << "CONT IP: " << cont->ip()
-      << "Port: " << cont->port()
-      << "Environment: " << env->name()
-      << "Container: " << cont->name()
-      << "Key: " << key;
-
-  if (key.isEmpty()) {
-    // ssh_to_container_internal_helper((int)SDLE_CONT_NOT_READY, additional_data, slot);
-    // return;
-     // for some cases we don't need to have a key
-  }
-
-
-  CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-  qDebug()
-      << "Container: " << cont->name()
-      << "Ip from ifconfig: " << cip.ip
-      << "Port from ifconfig: " << cip.port;
-
-  system_call_wrapper_error_t err = CSystemCallWrapper::run_sshkey_in_terminal(
-      CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
-
-
-  if (err != SCWE_SUCCESS) {
-    QString err_msg = tr("Run SSH failed. Error code : %1").arg(CSystemCallWrapper::scwe_error_to_str(err));
-    qCritical("%s", err_msg.toStdString().c_str());
-    ssh_to_container_internal_helper((int)SDLE_SYSTEM_CALL_FAILED, additional_data, slot);
-    return;
-  }
-
-  ssh_to_container_internal_helper((int)SDLE_SUCCESS, additional_data, slot);
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-QString CHubController::get_env_key(QString env_id) {
-  QString key = "";
-  QStringList keys_in_env = CSshKeysController::Instance().keys_in_environment(env_id);
-  if (!keys_in_env.empty()) {
-    QString str_file = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + keys_in_env[0];
-    QFileInfo fi(str_file);
-    key = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + fi.baseName();
-  }
-  return key;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -367,92 +241,13 @@ void CHubController::force_refresh() {
     refresh_timer_timeout();
   }
 }
-////////////////////////////////////////////////////////////////////////////
-
-void CHubController::ssh_to_container(const CEnvironment *env,
-                                      const CHubContainer *cont,
-                                      void *additional_data) {
-  ssh_to_container_internal(env, cont, additional_data, ssh_to_cont);
-}
-void CHubController::ssh_to_container_str(const QString &env_id,
-                                          const QString &cont_id,
-                                          void *additional_data) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
-  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
-  env = res.first;
-  cont = res.second;
-  ssh_to_container_internal(env, cont, additional_data, ssh_to_cont_str);
-}
 
 ////////////////////////////////////////////////////////////////////////////
-
-void CHubController::desktop_to_container(const CEnvironment *env,
-                          const CHubContainer *cont,
-                          void *additional_data) {
-  desktop_to_container_internal(env, cont, additional_data, desktop_to_cont);
-}
-
-void CHubController::desktop_to_container_str(const QString &env_id,
-                                          const QString &cont_id,
-                                          void *additional_data) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
-
-  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
-  env = res.first;
-  cont = res.second;
-
-  desktop_to_container_internal(env, cont, additional_data, desktop_to_cont_str);
-}
-
+/*
+    LAUNCHING BROWSER SECTION
+*/
 ////////////////////////////////////////////////////////////////////////////
 
-std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_id(const QString &env_id,
-                                          const QString &cont_id) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
-  qDebug()
-      << "Environment ID: " << env_id
-      << "Container ID: " << cont_id;
-
-  {
-    SynchroPrimitives::Locker lock(&m_refresh_cs);
-    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
-      if (i->id() != env_id) continue;
-      env = &(*i);
-      break;
-    }
-    if (env == NULL) {
-      return std::make_pair(nullptr, nullptr);
-    }
-
-    for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
-      if (j->id() != cont_id) continue;
-      cont = &(*j);
-      break;
-    }
-
-    if (cont == NULL) {
-      return std::make_pair(nullptr, nullptr);
-    }
-  }
-  return std::make_pair(env, cont);
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
-  static QString lst_err_str[SDLE_LAST_ERR] = {"Success",
-                                              "Environment not found",
-                                              "Container not found",
-                                              "Container isn't ready",
-                                              "Join to p2p swarm failed",
-                                              "System call failed"};
-  return lst_err_str[err % SDLE_LAST_ERR];
-}
-
-////////////////////////////////////////////////////////////////////////////
 
 void CHubController::launch_browser(const QString &url) {
   QString chrome_path = CSettingsManager::Instance().chrome_path();
@@ -490,5 +285,208 @@ void CHubController::launch_peer_page(const int peer_id) {
   launch_browser(QString(hub_site() + "/peers/%1").arg(peer_id));
 }
 
+
 ////////////////////////////////////////////////////////////////////////////
+/*
+    SSH INTO CONTAINER SECTION
+*/
+////////////////////////////////////////////////////////////////////////////
+
+
+system_call_wrapper_error_t CHubController::ssh_to_container_in_terminal(const CHubContainer &cont, const QString &key) {
+  CSystemCallWrapper::container_ip_and_port cip =
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont.port(), cont.ip(), cont.rh_ip());
+  qDebug()
+      << "Container: " << cont.name()
+      << "Ip from ifconfig: " << cip.ip
+      << "Port from ifconfig: " << cip.port;
+  return CSystemCallWrapper::run_sshkey_in_terminal(CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);
+}
+
+ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key) {
+  qInfo()
+      << "User: " << CSettingsManager::Instance().ssh_user()
+      << "RH IP: " << cont.rh_ip()
+      << "CONT IP: " << cont.ip()
+      << "Port: " << cont.port()
+      << "Environment: " << env.name()
+      << "Container: " << cont.name()
+      << "Key: " << key;
+
+  ssh_desktop_launch_error_t
+        container_status = P2PController::Instance().is_ready_sdle(env, cont);
+  if (container_status != SDLE_SUCCESS) {
+    return container_status;
+  }
+  system_call_wrapper_error_t run_in_terminal_status = ssh_to_container_in_terminal(cont, key);
+  if (run_in_terminal_status != SCWE_SUCCESS) {
+    QString err_msg = tr("Run SSH failed. Error code : %1")
+                      .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
+    qCritical() << err_msg;
+    return SDLE_SYSTEM_CALL_FAILED;
+  }
+  return SDLE_SUCCESS;
+}
+
+ssh_desktop_launch_error_t CHubController::ssh_to_container(const CEnvironment &env, const CHubContainer &cont) {
+  QString key = get_env_key(env.id());
+  return ssh_to_container_internal(env, cont, key);
+}
+
+void CHubController::ssh_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont) {
+  ssh_desktop_launch_error_t res = ssh_to_container(env, cont);
+  emit ssh_to_container_from_tray_finished(env, cont, res);
+}
+
+void CHubController::ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data) {
+  CEnvironment *env = NULL;
+  const CHubContainer *cont = NULL;
+  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
+  env = res.first;
+  cont = res.second;
+  if (env == NULL) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
+  }
+  else
+  if (cont == NULL) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
+  }
+  else {
+    ssh_desktop_launch_error_t res = ssh_to_container(*env, *cont);
+    emit ssh_to_container_from_hub_finished(*env, *cont, res, additional_data);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+/*
+    DESKTOP INTO CONTAINER SECTION
+*/
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CHubController::desktop_to_container_in_x2go(const CHubContainer &cont,
+                                                                         const QString &key) {
+  static const QString x2go_user = "x2go";
+  qDebug() << "Container: " << cont.name();
+  X2GoClient::Instance().add_session(&cont, x2go_user, key);
+  return CSystemCallWrapper::run_x2goclient_session(cont.id());
+}
+
+ssh_desktop_launch_error_t CHubController::desktop_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key){
+
+  qInfo()
+      << "User: " << CSettingsManager::Instance().ssh_user()
+      << "RH IP: " << cont.rh_ip()
+      << "CONT IP: " << cont.ip()
+      << "Port: " << cont.port()
+      << "Environment: " << env.name()
+      << "Container: " << cont.name()
+      << "Key: " << key;
+
+  ssh_desktop_launch_error_t
+      container_status = P2PController::Instance().is_ready_sdle(env, cont);
+
+  if (container_status != SDLE_SUCCESS) {
+    return container_status;
+  }
+  system_call_wrapper_error_t
+      run_in_terminal_status = desktop_to_container_in_x2go(cont, key);
+
+  if (run_in_terminal_status != SCWE_SUCCESS) {
+    QString err_msg = tr("Run SSH failed. Error code : %1")
+                      .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
+    qCritical() << err_msg;
+    return SDLE_SYSTEM_CALL_FAILED;
+  }
+  return SDLE_SUCCESS;
+}
+
+ssh_desktop_launch_error_t CHubController::desktop_to_container(const CEnvironment &env, const CHubContainer &cont) {
+  QString key = get_env_key(env.id());
+  return desktop_to_container_internal(env, cont, key);
+}
+
+void CHubController::desktop_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont) {
+  ssh_desktop_launch_error_t res = desktop_to_container(env, cont);
+  emit desktop_to_container_from_tray_finished(env, cont, res);
+}
+
+void CHubController::desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data) {
+  CEnvironment *env = NULL;
+  const CHubContainer *cont = NULL;
+  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
+  env = res.first;
+  cont = res.second;
+  if (env == NULL) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
+  }
+  else
+  if (cont == NULL) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
+  }
+  else {
+    ssh_desktop_launch_error_t res = ssh_to_container(*env, *cont);
+    emit ssh_to_container_from_hub_finished(*env, *cont, res, additional_data);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+/*
+    SSH&DESKTOP INTO CONTAINER SECTION
+*/
+////////////////////////////////////////////////////////////////////////////
+
+
+const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
+  static QString lst_err_str[SDLE_LAST_ERR] = {"Success",
+                                              "Environment not found",
+                                              "Container not found",
+                                              "Container isn't ready",
+                                              "Join to p2p swarm failed",
+                                              "System call failed"};
+  return lst_err_str[err % SDLE_LAST_ERR];
+}
+
+const QString CHubController::get_env_key(const QString &env_id) {
+  QString key = "";
+  QStringList keys_in_env = CSshKeysController::Instance().keys_in_environment(env_id);
+  if (!keys_in_env.empty()) {
+    QString str_file = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + keys_in_env[0];
+    QFileInfo fi(str_file);
+    key = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + fi.baseName();
+  }
+  return key;
+}
+
+std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_id(const QString &env_id,
+                                          const QString &cont_id) {
+  CEnvironment *env = NULL;
+  const CHubContainer *cont = NULL;
+  qDebug()
+      << "Environment ID: " << env_id
+      << "Container ID: " << cont_id;
+
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+      if (i->id() != env_id) continue;
+      env = &(*i);
+      break;
+    }
+    if (env == NULL) {
+      return std::make_pair(nullptr, nullptr);
+    }
+
+    for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
+      if (j->id() != cont_id) continue;
+      cont = &(*j);
+      break;
+    }
+
+    if (cont == NULL) {
+      return std::make_pair(env, nullptr);
+    }
+  }
+  return std::make_pair(env, cont);
+}
 

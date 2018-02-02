@@ -19,6 +19,8 @@
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
 
+#include "P2PController.h"
+
 namespace Ui {
   class TrayControlWindow;
 }
@@ -77,6 +79,8 @@ private:
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
 
+  QAction *m_act_p2p_status; // p2p status
+
   std::map<QString, QDialog*> m_dct_active_dialogs;
 
   void create_tray_actions();
@@ -100,6 +104,9 @@ public slots:
   /*hub slots*/
   void show_notifications_triggered();
 
+  /*p2p status slots*/
+  void launch_p2p();
+
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
@@ -119,22 +126,28 @@ private slots:
   void got_ss_console_readiness_sl(bool is_ready, QString err);
 
 
-  void ssh_to_rh_triggered(const QString &peer_fingerprint, void *action);
-  void ssh_to_rh_finished_sl(const QString &peer_fingerprint, void* action, system_call_wrapper_error_t res, int libssh_exit_code);
+  void ssh_to_rh_triggered(const QString &peer_fingerprint);
+  void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
-  void ssh_to_container_triggered(const CEnvironment *env,
-                                      const CHubContainer *cont, void *action);
-  void desktop_to_container_triggered(const CEnvironment *env,
-                                      const CHubContainer *cont, void *action);
+  void ssh_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
+  void desktop_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
 
   void ssh_key_generate_triggered();
-  void ssh_to_container_finished(int result, void* additional_data);
-  void desktop_to_container_finished(int result, void* additional_data);
+
+  void ssh_to_container_finished(const CEnvironment &env,
+                                 const CHubContainer &cont,
+                                 int result);
+
+  void desktop_to_container_finished(const CEnvironment &env,
+                                     const CHubContainer &cont,
+                                     int result);
 
   /*updater*/
   void update_available(QString file_id);
   void update_finished(QString file_id, bool success);
 
+  /*p2p slots*/
+  void update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status);
 public slots:
   void tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason);
 };

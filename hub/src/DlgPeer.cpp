@@ -8,6 +8,7 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include "OsBranchConsts.h"
+#include "RhController.h"
 
 DlgPeer::DlgPeer(QWidget *parent) :
   QDialog(parent),
@@ -17,6 +18,8 @@ DlgPeer::DlgPeer(QWidget *parent) :
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
   qDebug() << "Peer dialog is initialized";
+  connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished,
+          this, &DlgPeer::ssh_to_rh_finished_sl);
 }
 
 
@@ -92,6 +95,9 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
   QString default_user = CSettingsManager::Instance().rh_user(peer_fingerprint);
   QString default_pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
 
+  current_peer_id = peer_fingerprint;
+
+
   if (!default_ip.isEmpty())
     ui->le_ip->setText(default_ip);
   else
@@ -120,12 +126,14 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
   });
 
 
-  connect(ui->btn_ssh_peer, &QPushButton::clicked, [peer_fingerprint, this]() {
-    CSettingsManager::Instance().set_rh_host(peer_fingerprint, this->ui->le_ip->text());
-    CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->le_port->text().toInt());
-    CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());
-    CSettingsManager::Instance().set_rh_pass(peer_fingerprint, this->ui->le_pass->text());
-    emit this->ssh_to_rh_sig(peer_fingerprint, (void *)this->ui->btn_ssh_peer);
+  connect(ui->btn_ssh_peer, &QPushButton::clicked, [this]() {
+    CSettingsManager::Instance().set_rh_host(this->current_peer_id, this->ui->le_ip->text());
+    CSettingsManager::Instance().set_rh_port(this->current_peer_id, this->ui->le_port->text().toInt());
+    CSettingsManager::Instance().set_rh_user(this->current_peer_id, this->ui->le_user->text());
+    CSettingsManager::Instance().set_rh_pass(this->current_peer_id, this->ui->le_pass->text());
+    this->ui->btn_ssh_peer->setEnabled(false);
+    this->ui->btn_ssh_peer->setText("PROCESSING..");
+    emit this->ssh_to_rh_sig(this->current_peer_id);
   });
 
 
@@ -155,8 +163,17 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
 }
 
+void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
+  UNUSED_ARG(res);
+  UNUSED_ARG(libbssh_exit_code); // need to use this variables to give feedback to user
+  if (QString::compare(current_peer_id, peer_fingerprint, Qt::CaseInsensitive) == 0) {
+    ui->btn_ssh_peer->setEnabled(true);
+    ui->btn_ssh_peer->setText("SSH into Peer");
+  }
+}
 
 DlgPeer::~DlgPeer()
 {
+  qDebug() << "Deleting DlgPeer";
   delete ui;
 }
