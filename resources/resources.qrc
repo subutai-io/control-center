@@ -42,6 +42,10 @@
         <file>OK.png</file>
         <file>local-network.png</file>
         <file>local_hub.png</file>
+        <file>running.png</file>
+        <file>stopped.png</file>
+        <file>waiting.png</file>
+        <file>loading.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
