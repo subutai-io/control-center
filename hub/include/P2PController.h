@@ -172,4 +172,27 @@ private:
 
 };
 
+/*p2p app status checker*/
+class P2PStatus_checker : public QObject
+{
+
+    Q_OBJECT
+
+public:
+
+    static P2PStatus_checker& Instance(){
+        static P2PStatus_checker instance;
+        return instance;
+    }
+    void update_status();
+     enum P2P_STATUS{
+          P2P_READY = 0,
+          P2P_RUNNING,
+          P2P_FAIL,
+     };
+
+signals:
+     void p2p_status(P2P_STATUS);
+};
+
 #endif // P2PCONTROLLER_H
