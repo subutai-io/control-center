@@ -140,7 +140,7 @@ private slots:
   /*updater*/
   void update_available(QString file_id);
   void update_finished(QString file_id, bool success);
-  void update_p2p_status_sl(P2PConnector::P2P_APPLICATION_STATUS status); //p2p updater
+  void update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status); //p2p updater
 
 public slots:
   void tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason);
