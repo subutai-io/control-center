@@ -63,12 +63,24 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
 void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns) {
   connect(ui->btn_ssh_all, &QPushButton::clicked, btns.first, &QPushButton::click);
   connect(btns.first, &QPushButton::clicked, [btns, this, cont](){
-    emit this->ssh_to_container_sig(&this->env, &cont, (void *)btns.first);
+    QTimer::singleShot(2500, this, [btns] (){
+      btns.first->setText("SSH");
+      btns.first->setEnabled(true);
+    });
+    btns.first->setText("PROCESSING..");
+    btns.first->setEnabled(false);
+    emit this->ssh_to_container_sig(&this->env, &cont);
   });
 
   connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
   connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    emit this->desktop_to_container_sig(&this->env, &cont, (void *)btns.second);
+    QTimer::singleShot(2500, this, [btns] (){
+      btns.second->setText("DESKTOP");
+      btns.second->setEnabled(true);
+    });
+    btns.second->setText("PROCESSING..");
+    btns.second->setEnabled(false);
+    emit this->desktop_to_container_sig(&this->env, &cont);
   });
 }
 
@@ -80,8 +92,8 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_name = new QLabel(cont->name(), this);
   QLabel *cont_ip = new QLabel(cont->ip(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
-  QPushButton *btn_ssh = new QPushButton(tr("SSH"), this),
-              *btn_desktop = new QPushButton(tr("DESKTOP"), this);
+  QPushButton *btn_ssh = new QPushButton(tr("SSH")),
+              *btn_desktop = new QPushButton(tr("DESKTOP"));
 
   cont_name->setAlignment(Qt::AlignHCenter);
   cont_ip->setAlignment(Qt::AlignHCenter);

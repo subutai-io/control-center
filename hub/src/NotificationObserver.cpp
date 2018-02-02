@@ -35,6 +35,7 @@ void
 CNotificationObserver::Info(const QString &msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type) {
   Instance()->notify_all_internal(NL_INFO, msg, action_type);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void

@@ -7,6 +7,8 @@
 #include <QTimer>
 #include "Locker.h"
 #include "RestContainers.h"
+#include "SystemCallWrapper.h"
+
 class CEnvironment;
 class CHubContainer;
 class CHubController;
@@ -63,21 +65,23 @@ private:
     desktop_to_cont_str
   };
 
-  void ssh_to_container_internal(const CEnvironment *env,
-                                 const CHubContainer *cont,
-                                 void *additional_data,
-                                 finished_slot_t slot);
-  void ssh_to_container_internal_helper(int result,
-                                 void *additional_data,
-                                 finished_slot_t slot);
+public:
+  void ssh_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
+  void desktop_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
+  void ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
+  void desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
 
-  void desktop_to_container_internal(const CEnvironment *env,
-                                     const CHubContainer *cont,
-                                     void *additional_data, finished_slot_t slot);
+private:
+  ssh_desktop_launch_error_t ssh_to_container(const CEnvironment &env, const CHubContainer &cont);
+  ssh_desktop_launch_error_t desktop_to_container(const CEnvironment &env, const CHubContainer &cont);
 
-  void desktop_to_container_internal_helper(int result,
-                                            void *additional_data,
-                                            finished_slot_t slot);
+  ssh_desktop_launch_error_t ssh_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key);
+  ssh_desktop_launch_error_t desktop_to_container_internal(const CEnvironment &env, const CHubContainer &cont, const QString &key);
+
+  system_call_wrapper_error_t desktop_to_container_in_x2go(const CHubContainer &cont, const QString &key);
+  system_call_wrapper_error_t ssh_to_container_in_terminal(const CHubContainer &cont, const QString &key);
+
+  const QString get_env_key(const QString &env_id);
 
   void refresh_my_peers_internal();
   void refresh_environments_internal();
@@ -112,38 +116,18 @@ public:
    * @brief start refresh timer. Refresh = update balance, list of environments and containers
    * by calling HUB REST-point
    */
-  void start();  
+  void start();
   void force_refresh();
-
-  /**
-   * @brief ssh_to_container from application
-   */
-  void ssh_to_container(const CEnvironment *env,
-                        const CHubContainer *cont,
-                        void *additional_data);
-
 
   /**
    * @brief ssh_to_container from web site (using websocket)
    */
-  void ssh_to_container_str(const QString& env_id,
-                            const QString& cont_id,
-                            void *additional_data);
+
   std::pair<CEnvironment*, const CHubContainer*> find_container_by_id(const QString& env_id,
                             const QString& cont_id);
   /**
    * @brief remote desktop connection
    */
-  void desktop_to_container(const CEnvironment *env,
-                            const CHubContainer *cont,
-                            void* additional_data);
-
-
-  void desktop_to_container_str(const QString &env_id,
-                                const QString &cont_id,
-                                void *additional_data);
-
-  QString get_env_key(QString env_id);
 
   static const QString& ssh_desktop_launch_err_to_str(int err);
 
@@ -176,11 +160,25 @@ public:
   }
 
 signals:
-  void ssh_to_container_finished(int result, void* additional_data);
-  void ssh_to_container_str_finished(int result, void* additional_data);
+  void ssh_to_container_from_hub_finished(
+      const  CEnvironment &env,
+      const CHubContainer &cont,
+      int result, void* additional_data);
 
-  void desktop_to_container_finished(int result, void* additional_data);
-  void desktop_to_container_str_finished(int result, void* additional_data);
+  void desktop_to_container_from_hub_finished(
+      const  CEnvironment &env,
+      const CHubContainer &cont,
+      int result, void* additional_data);
+
+  void ssh_to_container_from_tray_finished(
+      const CEnvironment &env,
+      const CHubContainer &cont,
+      int result);
+
+  void desktop_to_container_from_tray_finished(
+      const CEnvironment &env,
+      const CHubContainer &cont,
+      int result);
 
   void environments_updated(int);
   void my_peers_updated();

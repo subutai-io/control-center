@@ -20,10 +20,22 @@ if [ -L /usr/bin/SubutaiTray ]; then
   rm /usr/bin/SubutaiTray
 fi
 
-rm /opt/subutai/bin/*.qm
-rm /opt/subutai/bin/SubutaiTray
-rm /opt/subutai/bin/subutai-tray
+count=`ls -1 /opt/subutai/bin/*.qm 2>/dev/null | wc -l`
+if [ $count != 0 ]; then 
+  rm /opt/subutai/bin/*.qm
+fi 
+
+if [ -f /opt/subutai/lbin/SubutaiTray ]; then
+  rm /opt/subutai/bin/SubutaiTray
+fi
+
+if [ -f /opt/subutai/lbin/subutai-tray ]; then
+  rm /opt/subutai/bin/subutai-tray
+fi
 
 if [ -f /usr/share/applications/SubutaiTray.desktop ]; then
   rm /usr/share/applications/SubutaiTray.desktop
 fi
+
+
+

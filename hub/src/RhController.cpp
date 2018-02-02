@@ -67,7 +67,7 @@ CRhController::delay_timer_timeout() {
 #include <QtConcurrent/QtConcurrent>
 #include "LibsshController.h"
 
-void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
+void CRhController::ssh_to_rh(const QString &peer_fingerprint) {
   QString ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
   QString port = QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
   QString user = CSettingsManager::Instance().rh_user(peer_fingerprint);
@@ -84,7 +84,8 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint, void* action) {
     res = QtConcurrent::run(CSystemCallWrapper::run_sshpass_in_terminal, user, ip, port, pass);
     res.waitForFinished();
   }
-  emit ssh_to_rh_finished(peer_fingerprint, action, res.result(), *exit_code);
+
+  emit ssh_to_rh_finished(peer_fingerprint, res.result(), *exit_code);
   delete exit_code;
 }
 
