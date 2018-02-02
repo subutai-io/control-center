@@ -221,7 +221,7 @@ void TrayControlWindow::create_tray_actions() {
 
   /*p2p status*/
   m_act_p2p_status = new QAction(
-        QIcon(":hub/stopped"), tr("p2p is not launched yet"), this);
+        QIcon(":hub/loading"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
 }
