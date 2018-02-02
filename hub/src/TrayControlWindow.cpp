@@ -528,14 +528,14 @@ void TrayControlWindow::launch_p2p(){
         break;
     case P2PStatus_checker::P2P_READY :
         CSystemCallWrapper::restart_p2p_service(&rse_err);
-        CNotificationObserver::Instance()->Info(tr("Trying to launch again"), DlgNotification::N_SETTINGS);
+        CNotificationObserver::Instance()->Info(tr("Trying to launch again"), DlgNotification::N_NO_ACTION);
         emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
         break;
     case P2PStatus_checker::P2P_RUNNING :
-        CNotificationObserver::Instance()->Info(tr("P2P.service is running finely :)"), DlgNotification::N_SETTINGS);
+        CNotificationObserver::Instance()->Info(tr("P2P is running"), DlgNotification::N_NO_ACTION);
         break;
     case P2PStatus_checker::P2P_LOADING :
-        CNotificationObserver::Instance()->Info(tr("patience is numba wan"), DlgNotification::N_SETTINGS);
+        CNotificationObserver::Instance()->Info(tr("P2P is loading"), DlgNotification::N_NO_ACTION);
         break;
     }
 }
