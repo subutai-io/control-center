@@ -31,6 +31,7 @@
 
 using namespace update_system;
 
+static P2PStatus_checker::P2P_STATUS p2p_current_status=P2PStatus_checker::P2P_LOADING;
 
 template<class OS> static inline void
 InitTrayIconTriggerHandler_internal(QSystemTrayIcon* icon,
@@ -520,7 +521,23 @@ void TrayControlWindow::launch_Hub() {
 
 /*p2p status */
 void TrayControlWindow::launch_p2p(){
-   CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
+    int rse_err;
+    switch (p2p_current_status) {
+    case P2PStatus_checker::P2P_FAIL :
+        CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
+        break;
+    case P2PStatus_checker::P2P_READY :
+        CSystemCallWrapper::restart_p2p_service(&rse_err);
+        CNotificationObserver::Instance()->Info(tr("Trying to launch again"), DlgNotification::N_SETTINGS);
+        emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
+        break;
+    case P2PStatus_checker::P2P_RUNNING :
+        CNotificationObserver::Instance()->Info(tr("P2P.service is running finely :)"), DlgNotification::N_SETTINGS);
+        break;
+    case P2PStatus_checker::P2P_LOADING :
+        CNotificationObserver::Instance()->Info(tr("patience is numba wan"), DlgNotification::N_SETTINGS);
+        break;
+    }
 }
 
 //////////////////////////////////////
@@ -771,7 +788,11 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             m_act_p2p_status->setText("Cannot find P2P");
             m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
             break;
+        case P2PStatus_checker::P2P_LOADING :
+            m_act_p2p_status->setText("P2P is loading...");
+            m_act_p2p_status->setIcon(QIcon(":/hub/loading"));
     }
+    p2p_current_status=status;
 }
 //////////////////////////////////////
 
