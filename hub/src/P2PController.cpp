@@ -337,11 +337,11 @@ ssh_desktop_launch_error_t P2PController::is_ready_sdle(const CEnvironment& env,
 
 //p2p status updater
 void P2PStatus_checker::update_status(){
-    if(CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())){
-        emit p2p_status(P2P_READY);
-        if(CSystemCallWrapper::p2p_daemon_check())
-           emit p2p_status(P2P_RUNNING);
-    }
-    else emit p2p_status(P2P_FAIL);
+    if(!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path()))
+        emit p2p_status(P2P_FAIL);
+    else
+        if(!CSystemCallWrapper::p2p_daemon_check())
+           emit p2p_status(P2P_READY);
+        else emit p2p_status(P2P_RUNNING);
     QTimer::singleShot(15000, this, &P2PStatus_checker::update_status);
 }
