@@ -170,6 +170,31 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
   return swarm_lsts;
 }
 ////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::copy_paste
+(const QString &remote_user, const QString &ip, const QString &port,
+ const QString &destination, const QString &file_path) {
+  QString cmd
+      = CSettingsManager::Instance().scp_path();
+  QStringList args;
+  args << "-P" << port
+       << file_path
+       << QString("%1@%2:%3").arg(remote_user, ip, destination);
+  qDebug() << "ARGS=" << args;
+
+  system_call_res_t res;
+  res = ssystem_th(cmd, args, true, true);
+  for (QString ss : res.out) {
+    CNotificationObserver::Info(ss, DlgNotification::N_ABOUT);
+  }
+
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    CNotificationObserver::Critical("can't upload", DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return res.res;
+}
+//////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {

@@ -60,27 +60,45 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
 
 /////////////////////////////////////////////////////////////////////////
 
-void DlgEnvironment::remote_acces(const CHubContainer &cont, std::pair<QPushButton*, QPushButton*> btns) {
-  connect(ui->btn_ssh_all, &QPushButton::clicked, btns.first, &QPushButton::click);
-  connect(btns.first, &QPushButton::clicked, [btns, this, cont](){
-    QTimer::singleShot(2500, this, [btns] (){
-      btns.first->setText("SSH");
-      btns.first->setEnabled(true);
+void DlgEnvironment::remote_acces(const CHubContainer &cont) {
+  QPushButton *btn_ssh = ssh_buttons[cont.id()];
+  QPushButton *btn_desktop = desktop_buttons[cont.id()];
+  QPushButton *btn_upload = upload_buttons[cont.id()];
+
+  connect(ui->btn_ssh_all, &QPushButton::clicked,
+          btn_ssh, &QPushButton::click);
+  connect(ui->btn_desktop_all, &QPushButton::clicked,
+          btn_desktop, &QPushButton::click);
+
+  connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
+    QTimer::singleShot(2500, this, [btn_ssh] (){
+      btn_ssh->setText("SSH");
+      btn_ssh->setEnabled(true);
     });
-    btns.first->setText("PROCESSING..");
-    btns.first->setEnabled(false);
+
+    btn_ssh->setText("PROCESSING..");
+    btn_ssh->setEnabled(false);
     emit this->ssh_to_container_sig(&this->env, &cont);
   });
-
-  connect(ui->btn_desktop_all, &QPushButton::clicked, btns.second, &QPushButton::click);
-  connect(btns.second, &QPushButton::clicked, [btns, this, cont](){
-    QTimer::singleShot(2500, this, [btns] (){
-      btns.second->setText("DESKTOP");
-      btns.second->setEnabled(true);
+  connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
+    QTimer::singleShot(2500, this, [btn_ssh] (){
+      btn_ssh->setText("SSH");
+      btn_ssh->setEnabled(true);
     });
-    btns.second->setText("PROCESSING..");
-    btns.second->setEnabled(false);
-    emit this->desktop_to_container_sig(&this->env, &cont);
+
+    btn_ssh->setText("PROCESSING..");
+    btn_ssh->setEnabled(false);
+    emit this->ssh_to_container_sig(&this->env, &cont);
+  });
+  connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
+    QTimer::singleShot(2500, this, [btn_ssh] (){
+      btn_ssh->setText("SSH");
+      btn_ssh->setEnabled(true);
+    });
+
+    btn_ssh->setText("PROCESSING..");
+    btn_ssh->setEnabled(false);
+    emit this->ssh_to_container_sig(&this->env, &cont);
   });
 }
 
@@ -90,25 +108,27 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   qDebug()
       << QString("Adding container cont: %1, env: %2 ").arg(cont->name(), env.name());
   QLabel *cont_name = new QLabel(cont->name(), this);
-  QLabel *cont_ip = new QLabel(cont->ip(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
-  QPushButton *btn_ssh = new QPushButton(tr("SSH")),
-              *btn_desktop = new QPushButton(tr("DESKTOP"));
+  QPushButton *btn_ssh = new QPushButton(tr("SSH"), this),
+              *btn_desktop = new QPushButton(tr("DESKTOP"), this);
+  QPushButton *btn_upload = new QPushButton(tr("Upload"), this),
+              *btn_download = new QPushButton(tr("Download"), this);
+
 
   cont_name->setAlignment(Qt::AlignHCenter);
-  cont_ip->setAlignment(Qt::AlignHCenter);
   cont_rhip_port->setAlignment(Qt::AlignHCenter);
 
   cont_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  cont_ip->setTextInteractionFlags(Qt::TextSelectableByMouse);
   cont_rhip_port->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   ui->cont_name->addWidget(cont_name);
-  ui->cont_ip_port->addWidget(cont_ip);
   ui->cont_rhip->addWidget(cont_rhip_port);
+  ui->cont_transfer->addRow(btn_upload, btn_download);
   ui->cont_remote->addRow(btn_ssh, btn_desktop);
 
-  dct_cont_btn[cont->id()] = std::make_pair(btn_ssh, btn_desktop);
+  ssh_buttons[cont->id()] = btn_ssh;
+  desktop_buttons[cont->id()] = btn_desktop;
+  upload_buttons[cont->id()] = btn_upload;
 }
 
 /////////////////////////////////////////////////////////////////////////

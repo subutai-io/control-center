@@ -52,7 +52,7 @@ DlgNotification::DlgNotification(
   static QIcon icons[] = {QIcon(":/hub/info_notification.png"),
                           QIcon(":/hub/warning_notification.png"),
                           QIcon(":/hub/error_notification.png"),
-                          QIcon(":/hub/Tray_icon_set-07.png")};
+                          QIcon(":/hub/Tray_icon_set-07.png")}; // need to change icon
   static QString titles[] = {tr("Info"), tr("Warning"), tr("Error"),
                              tr("Critical")};
   this->setWindowTitle(titles[level]);

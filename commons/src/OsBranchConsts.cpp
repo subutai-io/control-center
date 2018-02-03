@@ -379,6 +379,28 @@ ssh_cmd_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& scp_cmd_path_internal();
+
+#define scp_cmd_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& scp_cmd_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+scp_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh")
+scp_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh")
+scp_cmd_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\ssh\\ssh.exe")
+
+const QString &
+scp_cmd_path() {
+  return scp_cmd_path_internal<Os2Type<CURRENT_OS> >();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR> const QString& hub_site_temp_internal();
 
 #define hub_site_temp_internal_def(BT_TYPE, STRING) \

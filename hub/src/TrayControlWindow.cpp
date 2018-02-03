@@ -180,6 +180,11 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
+  connect(m_act_settings, &QAction::triggered, [this](){
+        this->generate_transferfile_dlg();
+        this->show_dialog(this->last_generated_transferfile_dlg,
+                          QString("WOWO it is working"));
+  });
 
 
 
@@ -442,6 +447,11 @@ void TrayControlWindow::login_success() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
+                                                      const CHubContainer* cont) {
+  generate_transferfile_dlg();
+  show_dialog(last_generated_transferfile_dlg, env->name() + "/" + cont->name());
+}
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont) {
@@ -939,6 +949,7 @@ void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
 }
 
+////////////////////////////////////////////////////////////////////////////
 
 QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
 
@@ -953,10 +964,30 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
       << "Environment name: " << env->name();
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
+  connect(dlg_env, &DlgEnvironment::upload_to_container_sig, this, &TrayControlWindow::upload_to_container_triggered);
   connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::ssh_to_container_triggered);
   connect(dlg_env, &DlgEnvironment::desktop_to_container_sig, this, &TrayControlWindow::desktop_to_container_triggered);
   m_last_generated_env_dlg = dlg_env;
 }
+////////////////////////////////////////////////////////////////////////////
+
+QDialog* TrayControlWindow::m_last_generated_tranferfile_dlg = NULL;
+
+QDialog* TrayControlWindow::last_generated_transferfile_dlg(QWidget *p) {
+  UNUSED_ARG(p);
+  return m_last_generated_tranferfile_dlg;
+}
+
+#include "DlgTransferFile.h"
+
+void TrayControlWindow::generate_transferfile_dlg(){
+  qDebug()
+      << "Generating new transferfile dialog";
+  DlgTransferFile *dlg_transfer_file = new DlgTransferFile();
+  dlg_transfer_file;
+  m_last_generated_tranferfile_dlg = dlg_transfer_file;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* TrayControlWindow::m_last_generated_peer_dlg = NULL;

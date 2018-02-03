@@ -20,7 +20,10 @@ public:
 private:
   Ui::DlgEnvironment *ui;
   CEnvironment env;
-  std::map<QString,std::pair<QPushButton*, QPushButton*>> dct_cont_btn;
+  std::map<QString,QPushButton*> ssh_buttons;
+  std::map<QString,QPushButton*> desktop_buttons;
+  std::map<QString,QPushButton*> upload_buttons;
+
   void addContainer(const CHubContainer*cont);
   void check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all);
   void check_environment_status();
@@ -30,6 +33,7 @@ private:
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
     void desktop_to_container_sig(const CEnvironment*, const CHubContainer*);
+    void upload_to_container_sig(const CEnvironment*, const CHubContainer*);
 };
 
 #endif // DLGENVIRONMENT_H

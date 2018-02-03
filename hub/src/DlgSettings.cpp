@@ -76,6 +76,8 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_notification_delay->setValue(
         CSettingsManager::Instance().notification_delay_sec());
   ui->le_ssh_command->setText(CSettingsManager::Instance().ssh_path());
+  ui->le_scp_command->setText(CSettingsManager::Instance().scp_path());
+
   ui->le_x2goclient_command->setText(CSettingsManager::Instance().x2goclient());
 
   ui->le_ssh_user->setText(CSettingsManager::Instance().ssh_user());
@@ -379,6 +381,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
 
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
+  CSettingsManager::Instance().set_scp_path(ui->le_scp_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());

@@ -125,6 +125,7 @@ main(int argc, char *argv[]) {
     }
   }
 
+
   int result = 0;
   try {
     do {
@@ -151,7 +152,6 @@ main(int argc, char *argv[]) {
                                              "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                     arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
       }
-
 
       result = app.exec();
     } while (0);

@@ -14,6 +14,57 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Container</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Resource Host</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>File Transfer</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="Line" name="line_9">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="1" colspan="2" alignment="Qt::AlignHCenter">
     <widget class="QCheckBox" name="cb_details">
      <property name="layoutDirection">
@@ -31,71 +82,6 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="3">
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="btn_ssh_all">
-       <property name="text">
-        <string>SSH ALL</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="btn_desktop_all">
-       <property name="text">
-        <string>DESKTOP ALL</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Container</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>IP Address</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Resource Host </string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Remote Access</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
     <widget class="Line" name="line_2">
      <property name="orientation">
@@ -103,33 +89,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="Line" name="line_6">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="Line" name="line_9">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QVBoxLayout" name="cont_name"/>
-   </item>
-   <item row="2" column="1">
-    <layout class="QVBoxLayout" name="cont_ip_port"/>
-   </item>
-   <item row="2" column="2">
-    <layout class="QVBoxLayout" name="cont_rhip"/>
-   </item>
-   <item row="2" column="3">
-    <layout class="QFormLayout" name="cont_remote"/>
-   </item>
-   <item row="4" column="0" colspan="4">
+   <item row="5" column="0" colspan="4">
     <widget class="QGroupBox" name="gr_details">
      <property name="title">
       <string/>
@@ -177,6 +137,46 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Remote Access</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btn_ssh_all">
+       <property name="text">
+        <string>SSH ALL</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_desktop_all">
+       <property name="text">
+        <string>DESKTOP ALL</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QVBoxLayout" name="cont_name"/>
+   </item>
+   <item row="2" column="3">
+    <layout class="QFormLayout" name="cont_remote"/>
+   </item>
+   <item row="2" column="1">
+    <layout class="QVBoxLayout" name="cont_rhip"/>
+   </item>
+   <item row="2" column="2">
+    <layout class="QFormLayout" name="cont_transfer"/>
    </item>
   </layout>
  </widget>

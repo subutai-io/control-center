@@ -31,6 +31,7 @@ const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
+const QString CSettingsManager::SM_SCP_PATH("Scp_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 
 const QString CSettingsManager::SM_RH_USER("Rh_User_%1");
@@ -168,6 +169,7 @@ CSettingsManager::CSettingsManager()
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
+      m_scp_path(scp_cmd_path()),
       m_ssh_user("root"),
 
       m_rh_host("127.0.0.1"),
@@ -223,6 +225,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
+      {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
       {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
       {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
       {(void*)&m_rh_pass, SM_RH_PASS, qvar_to_str},
@@ -290,13 +293,16 @@ CSettingsManager::CSettingsManager()
   }
 
   // which using
-  QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
+  QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path, &m_scp_path,
                           &m_p2p_path, &m_x2goclient, nullptr};
-  static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
+  static const QString default_values[] = {ssh_keygen_cmd_path(),
+                                           ssh_cmd_path(),
+                                           scp_cmd_path(),
                                            default_p2p_path(), default_x2goclient_path()};
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
+                                     "scp",
                                      "p2p",
                                      "x2goclient"};
 
@@ -640,6 +646,7 @@ SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
 SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
 SET_FIELD_DEF(plugin_port, SM_PLUGIN_PORT, uint16_t)
 SET_FIELD_DEF(ssh_path, SM_SSH_PATH, QString&)
+SET_FIELD_DEF(scp_path, SM_SCP_PATH, QString&)
 SET_FIELD_DEF(ssh_user, SM_SSH_USER, QString&)
 SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
 SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
