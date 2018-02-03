@@ -528,7 +528,11 @@ void TrayControlWindow::launch_p2p(){
         break;
     case P2PStatus_checker::P2P_READY :
         CSystemCallWrapper::restart_p2p_service(&rse_err);
-        CNotificationObserver::Instance()->Info(tr("Trying to launch again"), DlgNotification::N_NO_ACTION);
+        if (rse_err == 0)
+            CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
+        else
+            CNotificationObserver::Instance()->Info(tr("Can't launch P2P."), DlgNotification::N_NO_ACTION);
+
         emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
         break;
     case P2PStatus_checker::P2P_RUNNING :
