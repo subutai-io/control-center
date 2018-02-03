@@ -150,6 +150,12 @@ main(int argc, char *argv[]) {
                                              "Either change the path setting in Settings or install the daemon it is not installed. "
                                              "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                     arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+
+        /*send signal about p2p_status *new feature* */
+        if(CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path()))
+            emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_READY);
+        else
+            emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_FAIL);
       }
 
 
