@@ -24,7 +24,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   }
 
   for (auto cont : env.containers()) {
-    remote_acces(cont, dct_cont_btn[cont.id()]);
+    remote_acces(cont);
   }
 
   ui->le_env_hash->setText(env.hash());
@@ -70,6 +70,17 @@ void DlgEnvironment::remote_acces(const CHubContainer &cont) {
   connect(ui->btn_desktop_all, &QPushButton::clicked,
           btn_desktop, &QPushButton::click);
 
+  connect(btn_desktop, &QPushButton::clicked, [btn_desktop, this, cont](){
+    QTimer::singleShot(2500, this, [btn_desktop] (){
+      btn_desktop->setText("SSH");
+      btn_desktop->setEnabled(true);
+    });
+
+    btn_desktop->setText("PROCESSING..");
+    btn_desktop->setEnabled(false);
+    emit this->desktop_to_container_sig(&this->env, &cont);
+  });
+
   connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
     QTimer::singleShot(2500, this, [btn_ssh] (){
       btn_ssh->setText("SSH");
@@ -80,25 +91,16 @@ void DlgEnvironment::remote_acces(const CHubContainer &cont) {
     btn_ssh->setEnabled(false);
     emit this->ssh_to_container_sig(&this->env, &cont);
   });
-  connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
-    QTimer::singleShot(2500, this, [btn_ssh] (){
-      btn_ssh->setText("SSH");
-      btn_ssh->setEnabled(true);
+
+  connect(btn_upload, &QPushButton::clicked, [btn_upload, this, cont](){
+    QTimer::singleShot(2500, this, [btn_upload] (){
+      btn_upload->setText("SSH");
+      btn_upload->setEnabled(true);
     });
 
-    btn_ssh->setText("PROCESSING..");
-    btn_ssh->setEnabled(false);
-    emit this->ssh_to_container_sig(&this->env, &cont);
-  });
-  connect(btn_ssh, &QPushButton::clicked, [btn_ssh, this, cont](){
-    QTimer::singleShot(2500, this, [btn_ssh] (){
-      btn_ssh->setText("SSH");
-      btn_ssh->setEnabled(true);
-    });
-
-    btn_ssh->setText("PROCESSING..");
-    btn_ssh->setEnabled(false);
-    emit this->ssh_to_container_sig(&this->env, &cont);
+    btn_upload->setText("PROCESSING..");
+    btn_upload->setEnabled(false);
+    emit this->upload_to_container_sig(&this->env, &cont);
   });
 }
 
@@ -151,12 +153,13 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont, bool &ssh
       cont_status = P2PController::Instance().is_ready(env, *cont);
   bool ready = (P2PController::Instance().is_ready(env, *cont) == P2PController::CONNECTION_SUCCESS);
 
-  change_btn(dct_cont_btn[cont->id()].first, P2PController::Instance().p2p_connection_status_to_str(cont_status), ready);
+  change_btn(ssh_buttons[cont->id()], P2PController::Instance().p2p_connection_status_to_str(cont_status), ready);
+  //change_btn(ssh_buttons[cont->id()], P2PController::Instance().p2p_connection_status_to_str(cont_status), ready);
 
   if (cont->is_desktop())
-    change_btn(dct_cont_btn[cont->id()].second, P2PController::Instance().p2p_connection_status_to_str(cont_status), ready);
+    change_btn(desktop_buttons[cont->id()], P2PController::Instance().p2p_connection_status_to_str(cont_status), ready);
   else
-    change_btn(dct_cont_btn[cont->id()].second, no_desktop, false);
+    change_btn(desktop_buttons[cont->id()], no_desktop, false);
 
   ssh_all |= ready;
   desktop_all |= (ready & cont->is_desktop());
@@ -184,8 +187,8 @@ void DlgEnvironment::check_environment_status() {
   else {
     qDebug() << "Not connected to  swarm";
     for (auto cont : env.containers()) {
-      change_btn(dct_cont_btn[cont.id()].first, P2PController::Instance().p2p_connection_status_to_str(swarm_status), false);
-      change_btn(dct_cont_btn[cont.id()].second, P2PController::Instance().p2p_connection_status_to_str(swarm_status), false);
+      change_btn(ssh_buttons[cont.id()], P2PController::Instance().p2p_connection_status_to_str(swarm_status), false);
+      change_btn(desktop_buttons[cont.id()], P2PController::Instance().p2p_connection_status_to_str(swarm_status), false);
     }
   }
 

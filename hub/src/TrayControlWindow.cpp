@@ -588,7 +588,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
-      }
+      }      
       qInfo(
           "Environment %s is healthy", env->name().toStdString().c_str());
     }
