@@ -68,16 +68,19 @@ class DlgTransferFile : public QDialog
 public:
   explicit DlgTransferFile(QWidget *parent = 0);
   ~DlgTransferFile();
+  void addSSHKey(const QString &key);
+  void addIPPort(const QString &ip, const QString &port);
+  void addUser(const QString &user);
 
 private:
   void upload_files();
 
   void select_file();
 
-  void addSSHKey(const QString &key);
-  void addIPPort(const QString &ip, const QString &port);
-  void addUser(const QString &user);
+  void add_file(const QString &filename);
 
+  void clear_all_files();
+  std::vector <QString> files_to_upload;
 
 
   Ui::DlgTransferFile *ui;

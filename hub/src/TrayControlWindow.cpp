@@ -447,9 +447,24 @@ void TrayControlWindow::login_success() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+#include "DlgTransferFile.h"
+
 void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
                                                       const CHubContainer* cont) {
-  generate_transferfile_dlg();
+  //generate_transferfile_dlg();
+  DlgTransferFile *dlg_transfer_file = new DlgTransferFile();
+  CSystemCallWrapper::container_ip_and_port cip =
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+
+  QString ssh_key = CHubController::Instance().get_env_key(env->id());
+  QString ip = cip.ip;
+  QString port = cip.port;
+  QString username = CSettingsManager::Instance().ssh_user();
+
+  dlg_transfer_file->addIPPort(ip, port);
+  dlg_transfer_file->addSSHKey(ssh_key);
+  dlg_transfer_file->addUser(username);
+  m_last_generated_tranferfile_dlg = dlg_transfer_file;
   show_dialog(last_generated_transferfile_dlg, env->name() + "/" + cont->name());
 }
 
@@ -768,6 +783,7 @@ void TrayControlWindow::balance_updated_sl() {
 
 /* p2p status updater*/
 void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
+    // need to put static icons
     switch(status){
         case P2PStatus_checker::P2P_READY :
             m_act_p2p_status->setText("P2P is not running");
@@ -984,7 +1000,6 @@ void TrayControlWindow::generate_transferfile_dlg(){
   qDebug()
       << "Generating new transferfile dialog";
   DlgTransferFile *dlg_transfer_file = new DlgTransferFile();
-  dlg_transfer_file;
   m_last_generated_tranferfile_dlg = dlg_transfer_file;
 }
 

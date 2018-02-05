@@ -6,23 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>637</width>
-    <height>409</height>
+    <width>545</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Or drag and drop files below:</string>
+      <string>Drag and Drop files below</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QPushButton" name="btn_upload_files">
+     <property name="text">
+      <string>Upload files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Upload Process</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QLineEdit" name="remote_destination">
+     <property name="text">
+      <string>/tmp</string>
      </property>
     </widget>
    </item>
    <item row="8" column="0">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="more_info">
      <property name="layoutDirection">
       <enum>Qt::LeftToRight</enum>
      </property>
@@ -31,20 +52,13 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="CustomListWidget" name="listWidget"/>
+   <item row="1" column="0" colspan="2">
+    <widget class="QTableWidget" name="tableWidget"/>
    </item>
-   <item row="0" column="0">
-    <widget class="QPushButton" name="btn_choose_files">
-     <property name="text">
-      <string>Choose files</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0">
+   <item row="9" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Parameter</string>
+      <string>Remote Machine Parameters</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
@@ -77,59 +91,49 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="remote_user"/>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Pass</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="3">
-       <widget class="QLineEdit" name="remote_pass"/>
-      </item>
-      <item row="2" column="1">
        <widget class="QLineEdit" name="remote_ssh_key_path"/>
       </item>
-      <item row="2" column="0">
+      <item row="1" column="2">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>SSH Key </string>
+         <string>Key </string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLineEdit" name="remote_destination">
-     <property name="text">
-      <string>/tmp</string>
+   <item row="6" column="0" colspan="2">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>24</number>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Destination Path</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
-    <widget class="QPushButton" name="btn_upload_files">
+   <item row="7" column="1">
+    <widget class="QPushButton" name="btn_clear">
      <property name="text">
-      <string>Upload files</string>
+      <string>Clear all Files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QPushButton" name="btn_choose_files">
+     <property name="text">
+      <string>Or choose file</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CustomListWidget</class>
-   <extends>QListWidget</extends>
-   <header location="global">DlgTransferFile.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

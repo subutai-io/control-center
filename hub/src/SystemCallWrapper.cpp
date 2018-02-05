@@ -172,7 +172,7 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::copy_paste
 (const QString &remote_user, const QString &ip, const QString &port,
- const QString &destination, const QString &file_path) {
+ const QString &destination, const QString &file_path, QStringList &output) {
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
@@ -186,9 +186,8 @@ system_call_wrapper_error_t CSystemCallWrapper::copy_paste
   for (QString ss : res.out) {
     CNotificationObserver::Info(ss, DlgNotification::N_ABOUT);
   }
-
+  output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    CNotificationObserver::Critical("can't upload", DlgNotification::N_NO_ACTION);
     return SCWE_CREATE_PROCESS;
   }
 

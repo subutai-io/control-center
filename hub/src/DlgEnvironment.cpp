@@ -94,7 +94,7 @@ void DlgEnvironment::remote_acces(const CHubContainer &cont) {
 
   connect(btn_upload, &QPushButton::clicked, [btn_upload, this, cont](){
     QTimer::singleShot(2500, this, [btn_upload] (){
-      btn_upload->setText("SSH");
+      btn_upload->setText("Upload");
       btn_upload->setEnabled(true);
     });
 
@@ -131,6 +131,8 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   ssh_buttons[cont->id()] = btn_ssh;
   desktop_buttons[cont->id()] = btn_desktop;
   upload_buttons[cont->id()] = btn_upload;
+  btn_download->setVisible(false); // temporary
+
 }
 
 /////////////////////////////////////////////////////////////////////////
