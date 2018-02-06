@@ -96,21 +96,22 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
 
 void Logger::deleteOldFiles() {
   try {
-    /*
+
     QDate currentDate = QDate::currentDate();
     QDirIterator it(CSettingsManager::Instance().logs_storage(),
-                           QStringList() << "logs_*.*.*.txt", QDir::Files);
-    QFile file;
+                           QStringList() << "logs_directory_*", QDir::Dirs);
+
 
     while (it.hasNext()) {
-      QString curFile = it.next();
-      QFileInfo fileInformation(curFile);
-      if (fileInformation.created().date().daysTo(currentDate) <= 7)
+      QString curDir = it.next();
+      QFileInfo fileInformation(curDir);
+
+      if (fileInformation.created().date().daysTo(currentDate) <= 4)
         continue;
 
-      file.setFileName(curFile);
-      file.remove();
-    }*/
+      QDir dir(curDir);
+      dir.removeRecursively();
+    }
 
   } catch(...){
     /*do nothing here*/
