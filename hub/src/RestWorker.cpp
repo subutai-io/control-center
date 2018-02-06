@@ -86,8 +86,6 @@ void CRestWorker::get_environments_finished_sl() {
   for (auto i = doc_arr.begin(); i != doc_arr.end(); ++i) {
     if (i->isNull() || !i->isObject()) continue;
     lst_res.push_back(CEnvironment(i->toObject()));
-
-
   }
 
   emit on_get_environments_finished(lst_res, http_code, err_code,
@@ -103,7 +101,6 @@ void CRestWorker::get_balance_finished_sl() {
   if (reply == nullptr) {
     return;
   }
-
   int http_code, err_code, network_error;
   pre_handle_reply(reply, http_code, err_code, network_error);
   QByteArray reply_arr = reply->readAll();
@@ -227,6 +224,23 @@ void CRestWorker::update_my_peers() {
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
+  QTimer *timer = new QTimer(this);
+  timer->setInterval(30000);
+  timer->setSingleShot(true);
+
+  connect(timer, &QTimer::timeout, [reply](){
+    CNotificationObserver::Instance()->
+        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+    if (reply)
+      reply->close();
+  });
+
+  timer->start();
+
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, this,
           &CRestWorker::get_my_peers_finished_sl);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
@@ -246,27 +260,68 @@ void CRestWorker::update_p2p_status() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::update_environments() {
+  qDebug() << "Getting the environments data from hub";
   QUrl url_env(hub_get_url().arg("environments"));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
-  connect(reply, &QNetworkReply::finished, this,
-          &CRestWorker::get_environments_finished_sl);
-  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+
+  QTimer *timer = new QTimer(this);
+  timer->setInterval(30000);
+  timer->setSingleShot(true);
+
+  connect(timer, &QTimer::timeout, [reply](){
+    CNotificationObserver::Instance()->
+        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+    if (reply)
+      reply->close();
+  });
+
+  timer->start();
+
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished,
+          this,  &CRestWorker::get_environments_finished_sl);
+  connect(reply, &QNetworkReply::finished,
+          reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::update_balance() {
+  qDebug() << "Getting the balance data from hub";
   QUrl url_env(hub_get_url().arg("balance"));
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
+
+  QTimer *timer = new QTimer(this);
+  timer->setInterval(30000);
+  timer->setSingleShot(true);
+
+  connect(timer, &QTimer::timeout, [reply](){
+    CNotificationObserver::Instance()->
+        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+    if (reply)
+      reply->close();
+  });
+
+  timer->start();
+
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished,
+          timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, this,
           &CRestWorker::get_balance_finished_sl);
-  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(reply, &QNetworkReply::finished,
+          reply, &QNetworkReply::deleteLater);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
