@@ -10,6 +10,8 @@
 #include "OsBranchConsts.h"
 #include "RhController.h"
 
+#include "LibsshController.h"
+
 DlgPeer::DlgPeer(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgPeer)
@@ -164,11 +166,29 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 }
 
 void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
+  qDebug()<<"ssh to rh finished";
   UNUSED_ARG(res);
   UNUSED_ARG(libbssh_exit_code); // need to use this variables to give feedback to user
-  if (QString::compare(current_peer_id, peer_fingerprint, Qt::CaseInsensitive) == 0) {
-    ui->btn_ssh_peer->setEnabled(true);
-    ui->btn_ssh_peer->setText("SSH into Peer");
+  if (QString::compare(current_peer_id, peer_fingerprint, Qt::CaseInsensitive) != 0)
+      return;
+
+  ui->btn_ssh_peer->setEnabled(true);
+  ui->btn_ssh_peer->setText("SSH into Peer");
+
+  if (res != SCWE_SUCCESS){
+      if(libbssh_exit_code!=0){
+        qDebug() << "Peer is not accessible";
+        ui->lbl_connection_status->setText(QString("Peer is not accessible. Error: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)));
+      }
+      else{
+          qDebug() << "Can't run terminal via SSH";
+          ui->lbl_connection_status->setText(QString("Can't run terminal to ssh into peer. Error: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)));}
+      ui->lbl_connection_status->setStyleSheet("QLabel { font-weight: bold; color : red; }");
+  }
+  else{
+      qDebug() <<"connected to peer";
+      ui->lbl_connection_status->setText(QString("Successfully connected"));
+      ui->lbl_connection_status->setStyleSheet("QLabel {font-weight: bold; color : green; }");
   }
 }
 

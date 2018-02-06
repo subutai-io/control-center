@@ -106,6 +106,7 @@ public slots:
 
   /*p2p status slots*/
   void launch_p2p();
+  void launch_p2p_installation();
 
 private slots:
   /*tray slots*/
