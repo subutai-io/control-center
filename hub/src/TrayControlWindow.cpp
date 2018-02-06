@@ -117,9 +117,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &TrayControlWindow::ssh_to_rh_finished_sl);
 
   /*p2p status updater*/
-  P2PStatus_checker *p2p_status_updater=&P2PStatus_checker::Instance();
-  p2p_status_updater->update_status();
-  connect(p2p_status_updater, &P2PStatus_checker::p2p_status, this,
+  connect(&P2PStatus_checker::Instance(), &P2PStatus_checker::p2p_status, this,
           &TrayControlWindow::update_p2p_status_sl);
 
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
@@ -426,7 +424,7 @@ void TrayControlWindow::logout() {
 
   CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();
-
+  CSettingsManager::Instance().set_remember_me(false);
   DlgLogin dlg;
   connect(&dlg, &DlgLogin::login_success, this,
           &TrayControlWindow::login_success);
@@ -438,7 +436,7 @@ void TrayControlWindow::logout() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::login_success() {
-  CHubController::Instance().start();
+  CHubController::Instance().force_refresh();
   m_sys_tray_icon->show();
 }
 
