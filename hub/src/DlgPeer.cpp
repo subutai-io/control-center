@@ -177,18 +177,18 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call
 
   if (res != SCWE_SUCCESS){
       if(libbssh_exit_code!=0){
-        qDebug() << "peer is not acces problems";
-        ui->label_5->setText(QString("Peer is not accessible. Error: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)));
+        qDebug() << "Peer is not accessible";
+        ui->lbl_connection_status->setText(QString("Peer is not accessible. Error: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)));
       }
       else{
-          qDebug() << "ssh commands problems";
-          ui->label_5->setText(QString("Can't run terminal to ssh into peer. Error: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)));}
-      ui->label_5->setStyleSheet("QLabel { font-weight: bold; color : red; }");
+          qDebug() << "Can't run terminal via SSH";
+          ui->lbl_connection_status->setText(QString("Can't run terminal to ssh into peer. Error: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)));}
+      ui->lbl_connection_status->setStyleSheet("QLabel { font-weight: bold; color : red; }");
   }
   else{
-      qDebug() <<"connected to peer"<<endl;
-      ui->label_5->setText(QString("Successfully connected"));
-      ui->label_5->setStyleSheet("QLabel {font-weight: bold; color : green; }");
+      qDebug() <<"connected to peer";
+      ui->lbl_connection_status->setText(QString("Successfully connected"));
+      ui->lbl_connection_status->setStyleSheet("QLabel {font-weight: bold; color : green; }");
   }
 }
 
