@@ -100,16 +100,26 @@ void CHubController::on_balance_updated_sl(CHubBalance balance, int http_code,
                                            int err_code, int network_error) {
   UNUSED_ARG(http_code);
   UNUSED_ARG(network_error);
-
   if (++UPDATED_COMPONENTS_COUNT == 2) {
     m_refresh_timer.start();
   }
 
+  qDebug() << "Current updated components "
+           << UPDATED_COMPONENTS_COUNT;
+  qDebug() << QString("Balance Update attempts %1-%2")
+              .arg(UPDATE_BALANCE_ATTEMPT_COUNT).arg(UPDATE_ATTEMPT_MAX);
+
+
   if (err_code == RE_NOT_JSON_DOC) {
+    qCritical(
+        "Failed to refresh balance. Received not json. Trying to "
+        "re-login");
     int lhttp, lerr, lnet;
     CRestWorker::Instance()->login(m_current_user, m_current_pass, lhttp, lerr,
                                    lnet);
     if (lerr == RE_SUCCESS) {
+      qDebug() << "Updating one more time";
+
       if (++UPDATE_BALANCE_ATTEMPT_COUNT <= UPDATE_ATTEMPT_MAX) {
         CRestWorker::Instance()->update_balance();
       } else {
@@ -138,15 +148,21 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
   if (++UPDATED_COMPONENTS_COUNT == 2) {
     m_refresh_timer.start();
   }
+  qDebug() << "Current updated components "
+           << UPDATED_COMPONENTS_COUNT;
+  qDebug() << QString("Environments Update attempts %1-%2")
+              .arg(UPDATE_ENVIRONMENTS_ATTEMTP_COUNT).arg(UPDATE_ATTEMPT_MAX);
 
+  // Note, Corner case: If err_code is RE_NOT_JSON_DOC, then UPDATED_COMPONENTS_COUNT will be increments, even though it was already updated :(
   if (err_code == RE_NOT_JSON_DOC) {
-    qInfo(
+    qCritical(
         "Failed to refresh environments. Received not json. Trying to "
         "re-login");
     int lhttp, lerr, lnet;
     CRestWorker::Instance()->login(m_current_user, m_current_pass, lhttp, lerr,
                                    lnet);
     if (lerr == RE_SUCCESS) {
+      qDebug() << "Updating one more time";
       if (++UPDATE_ENVIRONMENTS_ATTEMTP_COUNT <= UPDATE_ATTEMPT_MAX) {
         CRestWorker::Instance()->update_environments();
       } else {
@@ -155,6 +171,10 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
     } else {
       qInfo("Failed to re-login. %d - %d - %d",
                                            lhttp, lerr, lnet);
+      m_lst_healthy_environments.clear();
+      m_lst_environments.clear();
+      m_lst_environments_internal.clear();
+      emit environments_updated(rer_res);
       return;
     }
   }
@@ -163,6 +183,11 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
     qCritical(
         "Refresh environments failed. Err_code : %d, Net_err : %d", err_code,
         network_error);
+    rer_res = RER_ERROR;
+    m_lst_healthy_environments.clear();
+    m_lst_environments.clear();
+    m_lst_environments_internal.clear();
+    emit environments_updated(rer_res);
     return;
   }
 
@@ -172,10 +197,22 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    m_lst_healthy_environments.clear();
+    m_lst_environments.clear();
+    m_lst_environments_internal.clear();
+    rer_res = RER_ERROR;
+    emit environments_updated(rer_res);
     return;
   }
 
-  if (network_error != 0) return;
+  if (network_error != 0) {
+    m_lst_healthy_environments.clear();
+    m_lst_environments.clear();
+    m_lst_environments_internal.clear();
+    rer_res = RER_ERROR;
+    emit environments_updated(rer_res);
+    return;
+  }
 
   if (lst_environments == m_lst_environments_internal) {
     rer_res = m_lst_environments_internal.empty() ? RER_EMPTY : RER_NO_DIFF;
