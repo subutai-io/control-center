@@ -297,6 +297,8 @@ void CRestWorker::update_balance() {
   QNetworkRequest req(url_env);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
+
   QTimer *timer = new QTimer(this);
   timer->setInterval(30000);
   timer->setSingleShot(true);
