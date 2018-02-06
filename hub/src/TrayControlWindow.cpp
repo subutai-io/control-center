@@ -465,7 +465,7 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
   qDebug()
       << QString("Peer [peer_fingerprint: %1]").arg(peer_fingerprint);
 
-  /*if (res != SCWE_SUCCESS)
+  if (res != SCWE_SUCCESS)
   {
     if (libbssh_exit_code != 0)
       CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
@@ -473,7 +473,7 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
     else
       CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
                                   DlgNotification::N_NO_ACTION);
-  }*/
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -526,15 +526,20 @@ void TrayControlWindow::launch_p2p(){
     int rse_err;
     switch (p2p_current_status) {
     case P2PStatus_checker::P2P_FAIL :
-        CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
+        CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                             "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                             "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                    arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
         break;
     case P2PStatus_checker::P2P_READY :
         CSystemCallWrapper::restart_p2p_service(&rse_err);
         if (rse_err == 0)
             CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
         else
-            CNotificationObserver::Instance()->Info(tr("Can't launch P2P."), DlgNotification::N_NO_ACTION);
-
+            CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                                 "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                                 "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                        arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
         emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
         break;
     case P2PStatus_checker::P2P_RUNNING :
@@ -544,6 +549,12 @@ void TrayControlWindow::launch_p2p(){
         CNotificationObserver::Instance()->Info(tr("P2P is loading"), DlgNotification::N_NO_ACTION);
         break;
     }
+}
+
+/*p2p installations */
+
+void TrayControlWindow::launch_p2p_installation(){
+    CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
 }
 
 //////////////////////////////////////
@@ -793,7 +804,7 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             m_act_p2p_status->setIcon(QIcon(":/hub/running"));
             break;
         case P2PStatus_checker::P2P_FAIL :
-            m_act_p2p_status->setText("Cannot find P2P");
+            m_act_p2p_status->setText("Can't launch P2P");
             m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
             break;
         case P2PStatus_checker::P2P_LOADING :
