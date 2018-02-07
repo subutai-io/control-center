@@ -103,8 +103,7 @@ class CSystemCallWrapper {
                                                  const QString &ip,
                                                  const QString &port,
                                                  const QString &destination,
-                                                 const QString &file_path,
-                                                 QStringList &output
+                                                 const QString &file_path
                                                  );
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,

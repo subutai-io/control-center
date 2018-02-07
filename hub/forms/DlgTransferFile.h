@@ -9,6 +9,7 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QDebug>
+#include "P2PController.h"
 
 class CustomListWidget : public QListWidget
 {

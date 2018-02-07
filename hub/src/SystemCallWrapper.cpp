@@ -172,7 +172,8 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::copy_paste
 (const QString &remote_user, const QString &ip, const QString &port,
- const QString &destination, const QString &file_path, QStringList &output) {
+ const QString &destination, const QString &file_path) {
+    QStringList output;
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
@@ -183,9 +184,7 @@ system_call_wrapper_error_t CSystemCallWrapper::copy_paste
 
   system_call_res_t res;
   res = ssystem_th(cmd, args, true, true);
-  for (QString ss : res.out) {
-    CNotificationObserver::Info(ss, DlgNotification::N_ABOUT);
-  }
+
   output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return SCWE_CREATE_PROCESS;
