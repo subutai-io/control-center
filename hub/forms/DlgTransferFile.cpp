@@ -14,9 +14,10 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
           << "Date"
           << "Path"
           << "Status";
-
-  ui->tableWidget->setHorizontalHeaderLabels(headers);
   ui->tableWidget->setColumnCount(5);
+  ui->tableWidget->setHorizontalHeaderLabels(headers);
+  ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
 
 
   this->setMinimumWidth(this->width());
@@ -42,7 +43,7 @@ void DlgTransferFile::clear_all_files(){
 }
 void DlgTransferFile::add_file(const QString &filename) {
   QFileInfo fi(filename);
-  static int last_index = ui->tableWidget->rowCount();
+  int last_index = ui->tableWidget->rowCount();
 
   QTableWidgetItem *file_name = new QTableWidgetItem(fi.fileName());
   QTableWidgetItem *file_size = new QTableWidgetItem(QString::number(fi.size()/1024) + "KB");
@@ -86,7 +87,7 @@ void DlgTransferFile::upload_files() {
   static QIcon uploaded(":/hub/GOOD.png");
   static QIcon failed_upload(":/hub/BAD.png");
 
-  ui->tableWidget->clear();
+  //ui->tableWidget->clear();
   QString ip = ui->remote_ip->text();
   QString user = ui->remote_user->text();
   QString port = ui->remote_port->text();
@@ -95,7 +96,7 @@ void DlgTransferFile::upload_files() {
     CNotificationObserver::Instance()->Info(QString::number(ui->tableWidget->rowCount()),
                                             DlgNotification::N_NO_ACTION);
 
-    QTableWidgetItem *upload_status = ui->tableWidget->item(item_id, 0);
+    QTableWidgetItem *upload_status =(ui->tableWidget->item(item_id, 4));
     QString file = files_to_upload[item_id];
     QStringList output;
 
@@ -103,9 +104,11 @@ void DlgTransferFile::upload_files() {
     system_call_wrapper_error_t res
         = CSystemCallWrapper::copy_paste(user, ip, port, destination, file, output);
     if (res == SCWE_SUCCESS) {
+      upload_status->setText(tr("Uploaded"));
       upload_status->setIcon(uploaded);
     }
     else {
+      upload_status->setText(tr("Failed to upload"));
       upload_status->setIcon(failed_upload);
     }
 
