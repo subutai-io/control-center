@@ -189,6 +189,7 @@ public:
           P2P_READY = 0,
           P2P_RUNNING,
           P2P_FAIL,
+          P2P_LOADING
      };
 
 signals:

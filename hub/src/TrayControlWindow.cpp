@@ -31,6 +31,7 @@
 
 using namespace update_system;
 
+static P2PStatus_checker::P2P_STATUS p2p_current_status=P2PStatus_checker::P2P_LOADING;
 
 template<class OS> static inline void
 InitTrayIconTriggerHandler_internal(QSystemTrayIcon* icon,
@@ -116,9 +117,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           &TrayControlWindow::ssh_to_rh_finished_sl);
 
   /*p2p status updater*/
-  P2PStatus_checker *p2p_status_updater=&P2PStatus_checker::Instance();
-  p2p_status_updater->update_status();
-  connect(p2p_status_updater, &P2PStatus_checker::p2p_status, this,
+  connect(&P2PStatus_checker::Instance(), &P2PStatus_checker::p2p_status, this,
           &TrayControlWindow::update_p2p_status_sl);
 
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
@@ -430,7 +429,7 @@ void TrayControlWindow::logout() {
 
   CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();
-
+  CSettingsManager::Instance().set_remember_me(false);
   DlgLogin dlg;
   connect(&dlg, &DlgLogin::login_success, this,
           &TrayControlWindow::login_success);
@@ -442,7 +441,7 @@ void TrayControlWindow::logout() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::login_success() {
-  CHubController::Instance().start();
+  CHubController::Instance().force_refresh();
   m_sys_tray_icon->show();
 }
 
@@ -545,7 +544,40 @@ void TrayControlWindow::launch_Hub() {
 
 /*p2p status */
 void TrayControlWindow::launch_p2p(){
-   CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
+    qDebug()
+            <<"p2p button is pressed";
+    int rse_err;
+    switch (p2p_current_status) {
+    case P2PStatus_checker::P2P_FAIL :
+        CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                             "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                             "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                    arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+        break;
+    case P2PStatus_checker::P2P_READY :
+        CSystemCallWrapper::restart_p2p_service(&rse_err);
+        if (rse_err == 0)
+            CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
+        else
+            CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                                 "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                                 "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                        arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+        emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
+        break;
+    case P2PStatus_checker::P2P_RUNNING :
+        CNotificationObserver::Instance()->Info(tr("P2P is running"), DlgNotification::N_NO_ACTION);
+        break;
+    case P2PStatus_checker::P2P_LOADING :
+        CNotificationObserver::Instance()->Info(tr("P2P is loading"), DlgNotification::N_NO_ACTION);
+        break;
+    }
+}
+
+/*p2p installations */
+
+void TrayControlWindow::launch_p2p_installation(){
+    CHubController::Instance().launch_browser("https://subutai.io/install/index.html");
 }
 
 //////////////////////////////////////
@@ -784,6 +816,8 @@ void TrayControlWindow::balance_updated_sl() {
 /* p2p status updater*/
 void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
     // need to put static icons
+    qDebug()
+            <<"p2p updater got signal and try to update status";
     switch(status){
         case P2PStatus_checker::P2P_READY :
             m_act_p2p_status->setText("P2P is not running");
@@ -794,10 +828,14 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             m_act_p2p_status->setIcon(QIcon(":/hub/running"));
             break;
         case P2PStatus_checker::P2P_FAIL :
-            m_act_p2p_status->setText("Cannot find P2P");
+            m_act_p2p_status->setText("Can't launch P2P");
             m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
             break;
+        case P2PStatus_checker::P2P_LOADING :
+            m_act_p2p_status->setText("P2P is loading...");
+            m_act_p2p_status->setIcon(QIcon(":/hub/loading"));
     }
+    p2p_current_status=status;
 }
 //////////////////////////////////////
 
