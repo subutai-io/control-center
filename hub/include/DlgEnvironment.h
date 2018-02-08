@@ -2,6 +2,7 @@
 #define DLGENVIRONMENT_H
 
 #include <QWidget>
+#include <QCheckBox>
 #include "TrayControlWindow.h"
 
 
@@ -20,15 +21,14 @@ public:
 private:
   Ui::DlgEnvironment *ui;
   CEnvironment env;
-  std::map<QString,QPushButton*> ssh_buttons;
-  std::map<QString,QPushButton*> desktop_buttons;
-  std::map<QString,QPushButton*> upload_buttons;
+  std::map<QString,QCheckBox*> selected_conts;
+  std::map<QString,QLabel*> dekstops_info;
 
   void addContainer(const CHubContainer*cont);
-  void check_container_status(const CHubContainer *cont, bool &ssh_all, bool &desktop_all);
+  void check_container_status(const CHubContainer *cont);
   void check_environment_status();
   void remote_acces(const CHubContainer &cont);
-  void change_btn(QPushButton *btn, const QString tt_msg, bool enabled);
+  void change_cont_status(const CHubContainer *cont, int status);
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
