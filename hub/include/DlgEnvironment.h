@@ -29,6 +29,10 @@ private:
   void check_environment_status();
   void remote_acces(const CHubContainer &cont);
   void change_cont_status(const CHubContainer *cont, int status);
+  void upload_selected();
+  void desktop_selected();
+  void ssh_selected();
+  void select_all(bool checked);
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
