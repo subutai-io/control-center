@@ -398,7 +398,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
               " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
               " with administrator privileges" :
       args << "-e"
-           << "do shell script \"launchctl load"
+           << "do shell script \"launchctl load "
               "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
               " with administrator privileges";
   system_call_res_t res =
