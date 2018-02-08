@@ -390,9 +390,9 @@ template<class OS> const QString& scp_cmd_path_internal();
     return res; \
   }
 
-scp_cmd_path_internal_def(OS_LINUX, "/usr/bin/ssh")
-scp_cmd_path_internal_def(OS_MAC, "/usr/bin/ssh")
-scp_cmd_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\ssh\\ssh.exe")
+scp_cmd_path_internal_def(OS_LINUX, "/usr/bin/scp")
+scp_cmd_path_internal_def(OS_MAC, "/usr/bin/scp")
+scp_cmd_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\ssh\\scp.exe")
 
 const QString &
 scp_cmd_path() {

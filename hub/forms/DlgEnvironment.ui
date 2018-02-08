@@ -176,7 +176,7 @@
     <layout class="QVBoxLayout" name="cont_rhip"/>
    </item>
    <item row="2" column="2">
-    <layout class="QFormLayout" name="cont_transfer"/>
+    <layout class="QVBoxLayout" name="cont_transfer"/>
    </item>
   </layout>
  </widget>

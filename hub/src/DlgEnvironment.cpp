@@ -113,9 +113,7 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
   QPushButton *btn_ssh = new QPushButton(tr("SSH"), this),
               *btn_desktop = new QPushButton(tr("DESKTOP"), this);
-  QPushButton *btn_upload = new QPushButton(tr("Upload"), this),
-              *btn_download = new QPushButton(tr("Download"), this);
-
+  QPushButton *btn_upload = new QPushButton(tr("Upload"), this);
 
   cont_name->setAlignment(Qt::AlignHCenter);
   cont_rhip_port->setAlignment(Qt::AlignHCenter);
@@ -125,14 +123,12 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
 
   ui->cont_name->addWidget(cont_name);
   ui->cont_rhip->addWidget(cont_rhip_port);
-  ui->cont_transfer->addRow(btn_upload, btn_download);
+  ui->cont_transfer->addWidget(btn_upload);
   ui->cont_remote->addRow(btn_ssh, btn_desktop);
 
   ssh_buttons[cont->id()] = btn_ssh;
   desktop_buttons[cont->id()] = btn_desktop;
   upload_buttons[cont->id()] = btn_upload;
-  btn_download->setVisible(false); // temporary
-
 }
 
 /////////////////////////////////////////////////////////////////////////

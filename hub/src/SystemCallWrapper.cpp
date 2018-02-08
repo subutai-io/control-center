@@ -182,14 +182,11 @@ system_call_wrapper_error_t CSystemCallWrapper::copy_paste
        << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
-  system_call_res_t res;
-  res = ssystem_th(cmd, args, true, true);
-
+  system_call_res_t res = ssystem_th(cmd, args, true, true);
   output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return SCWE_CREATE_PROCESS;
   }
-
   return res.res;
 }
 //////////////////////////////////////////////////////////////////////
