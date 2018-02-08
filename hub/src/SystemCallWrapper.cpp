@@ -229,11 +229,11 @@ system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
-system_call_wrapper_error_t restart_p2p_service_internal(int *res_code);
+system_call_wrapper_error_t restart_p2p_service_internal(int *res_code,restart_p2p_type type);
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   *res_code = RSE_MANUAL;
 
   do {
@@ -310,14 +310,19 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         break;
       }
 
-      QByteArray restart_script = QString(
+      QByteArray restart_script = type==UPDATED_P2P ? QString(
                                       "#!/bin/bash\n"
                                       "%1 disable p2p.service\n"
                                       "%1 stop p2p.service\n"
                                       "%1 enable p2p.service\n"
                                       "%1 start p2p.service\n")
                                       .arg(systemctl_path)
-                                      .toUtf8();
+                                      .toUtf8() : QString(
+                                                          "#!/bin/bash\n"
+                                                          "%1 enable p2p.service\n"
+                                                          "%1 start p2p.service\n")
+                                                          .arg(systemctl_path)
+                                                          .toUtf8();
 
       if (tmpFile.write(restart_script) != restart_script.size()) {
         QString err_msg = QString("Couldn't write restart script to temp file")
@@ -365,16 +370,17 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   QString cmd("sc");
   QStringList args0, args1;
   args0 << "stop"
-        << "\"Subutai Social P2P\"";
+        << "Subutai P2P";
   args1 << "start"
-        << "\"Subutai Social P2P\"";
-  system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args0, false, true);
-  res = CSystemCallWrapper::ssystem_th(cmd, args1, false, true);
+        << "Subutai P2P";
+  system_call_res_t res;
+  if(type==UPDATED_P2P)
+      res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true);
+  res = CSystemCallWrapper::ssystem_th(cmd, args1, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
@@ -382,24 +388,30 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   QString cmd("osascript");
   QStringList args;
-  args << "-e"
-       << "do shell script \"launchctl unload "
-          "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
-          " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-          " with administrator privileges";
+  type == UPDATED_P2P ?
+      args << "-e"
+           << "do shell script \"launchctl unload "
+              "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
+              " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+              " with administrator privileges" :
+      args << "-e"
+           << "do shell script \"launchctl load "
+              "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+              " with administrator privileges";
   system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args, false, true);
+
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
 /*************************/
 
 system_call_wrapper_error_t CSystemCallWrapper::restart_p2p_service(
-    int *res_code) {
-  return restart_p2p_service_internal<Os2Type<CURRENT_OS> >(res_code);
+    int *res_code, restart_p2p_type type) {
+  return restart_p2p_service_internal<Os2Type<CURRENT_OS> >(res_code, type);
 }
 ////////////////////////////////////////////////////////////////////////////
 

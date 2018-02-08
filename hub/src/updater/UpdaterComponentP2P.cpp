@@ -146,7 +146,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
   int rse_err = 0;
 
   system_call_wrapper_error_t scwe =
-      CSystemCallWrapper::restart_p2p_service(&rse_err);
+      CSystemCallWrapper::restart_p2p_service(&rse_err,restart_p2p_type::UPDATED_P2P);
 
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(tr("p2p post update failed. err : %1").
