@@ -546,7 +546,6 @@ void TrayControlWindow::launch_Hub() {
 void TrayControlWindow::launch_p2p(){
     qDebug()
             <<"p2p button is pressed";
-    int rse_err;
     switch (p2p_current_status) {
     case P2PStatus_checker::P2P_FAIL :
         CNotificationObserver::Error(QObject::tr("Can't launch P2P daemon. "

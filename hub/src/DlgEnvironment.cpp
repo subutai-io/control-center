@@ -37,6 +37,8 @@ void DlgEnvironment::select_all(bool checked) {
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::upload_selected() {
+  ui->btn_upload_selected->setEnabled(false);
+  ui->btn_upload_selected->setText("Uploading..");
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -44,11 +46,18 @@ void DlgEnvironment::upload_selected() {
       emit upload_to_container_sig(&env, &cont);
     }
   }
+
+  QTimer::singleShot(2000, [this](){
+    this->ui->btn_upload_selected->setEnabled(true);
+    this->ui->btn_upload_selected->setText("EZ-UPLOAD");
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::desktop_selected() {
+  ui->btn_desktop_selected->setEnabled(false);
+  ui->btn_desktop_selected->setText("Uploading..");
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -56,11 +65,17 @@ void DlgEnvironment::desktop_selected() {
       emit desktop_to_container_sig(&env, &cont);
     }
   }
+  QTimer::singleShot(2000, [this](){
+    this->ui->btn_desktop_selected->setEnabled(true);
+    this->ui->btn_desktop_selected->setText("EZ-DESKTOP");
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::ssh_selected() {
+  ui->btn_ssh_selected->setEnabled(false);
+  ui->btn_ssh_selected->setText("Uploading..");
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -68,6 +83,10 @@ void DlgEnvironment::ssh_selected() {
       emit ssh_to_container_sig(&env, &cont);
     }
   }
+  QTimer::singleShot(2000, [this](){
+    this->ui->btn_ssh_selected->setEnabled(true);
+    this->ui->btn_ssh_selected->setText("EZ-SSH");
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////

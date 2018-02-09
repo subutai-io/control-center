@@ -70,6 +70,7 @@ CCommons::NetworkErrorToString(int err_code) {
     case QNetworkReply::OperationNotImplementedError: return QObject::tr("Operation not implemented error");
     case QNetworkReply::ServiceUnavailableError: return QObject::tr("Service unavailable error");
     case QNetworkReply::UnknownServerError: return QObject::tr("Unknown server error");
+
     default: return QObject::tr("Unknown network error");
   }
 }
