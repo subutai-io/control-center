@@ -374,13 +374,13 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
   QString cmd("sc");
   QStringList args0, args1;
   args0 << "stop"
-        << "\"Subutai Social P2P\"";
+        << "Subutai P2P";
   args1 << "start"
-        << "\"Subutai Social P2P\"";
+        << "Subutai P2P";
   system_call_res_t res;
   if(type==UPDATED_P2P)
-      res = CSystemCallWrapper::ssystem_th(cmd, args0, false, true);
-  res = CSystemCallWrapper::ssystem_th(cmd, args1, false, true);
+      res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true);
+  res = CSystemCallWrapper::ssystem_th(cmd, args1, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
@@ -403,7 +403,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
               " with administrator privileges";
   system_call_res_t res =
 
-      CSystemCallWrapper::ssystem_th(cmd, args, false, true);
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
