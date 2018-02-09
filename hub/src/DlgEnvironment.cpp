@@ -25,6 +25,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
           this, &DlgEnvironment::select_all);
 }
 
+/////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::select_all(bool checked) {
   for (CHubContainer cont : env.containers()) {
@@ -32,6 +33,8 @@ void DlgEnvironment::select_all(bool checked) {
     current_check_box->setChecked(checked);
   }
 }
+
+/////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::upload_selected() {
   for (CHubContainer cont : env.containers()) {
@@ -43,6 +46,8 @@ void DlgEnvironment::upload_selected() {
   }
 }
 
+/////////////////////////////////////////////////////////////////////////
+
 void DlgEnvironment::desktop_selected() {
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
@@ -52,6 +57,8 @@ void DlgEnvironment::desktop_selected() {
     }
   }
 }
+
+/////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::ssh_selected() {
   for (CHubContainer cont : env.containers()) {
@@ -139,15 +146,15 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   else
   if (status == 1)
   {
-    cont_checkbox->setCheckable(false);
-    cont_checkbox->setChecked(false);
+    //cont_checkbox->setCheckable(false);
+    //cont_checkbox->setChecked(false);
     cont_checkbox->setText(tr("CONNECTING"));
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
   }
   else
   if (status == 2){
-    cont_checkbox->setCheckable(false);
-    cont_checkbox->setChecked(false);
+    //cont_checkbox->setCheckable(false);
+    //cont_checkbox->setChecked(false);
     cont_checkbox->setText(tr("FAILED"));
     cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
   }
@@ -159,10 +166,8 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
   P2PController::P2P_CONNETION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
-  bool ready = (P2PController::Instance().is_ready(env, *cont) == P2PController::CONNECTION_SUCCESS);
   change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
 }
-
 
 /////////////////////////////////////////////////////////////////////////
 

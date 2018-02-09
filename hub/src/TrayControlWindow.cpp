@@ -464,7 +464,7 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
   dlg_transfer_file->addSSHKey(ssh_key);
   dlg_transfer_file->addUser(username);
   m_last_generated_tranferfile_dlg = dlg_transfer_file;
-  show_dialog(last_generated_transferfile_dlg, env->name() + "/" + cont->name());
+  show_dialog(last_generated_transferfile_dlg, "Upload " + env->name() + "/" + cont->name());
 }
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
@@ -825,7 +825,7 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             break;
         case P2PStatus_checker::P2P_RUNNING :
             m_act_p2p_status->setText("P2P is running");
-            m_act_p2p_status->setIcon(QIcon(":/hub/running"));
+            m_act_p2p_status->setIcon(QIcon(":/hub/running.png"));
             break;
         case P2PStatus_checker::P2P_FAIL :
             m_act_p2p_status->setText("Can't launch P2P");

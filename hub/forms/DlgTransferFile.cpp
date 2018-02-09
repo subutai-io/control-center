@@ -78,12 +78,14 @@ void DlgTransferFile::add_file(const QString &filename) {
   static QIcon icon_not_upload(":/hub/OK.png");
 
   QFileInfo fi(filename);
+  file_to_upload new_file(fi);
+
   int last_index = ui->tableWidget->rowCount();
 
-  QTableWidgetItem *file_name = new QTableWidgetItem(fi.fileName());
-  QTableWidgetItem *file_size = new QTableWidgetItem(QString::number(fi.size()/1024) + "KB");
-  QTableWidgetItem *file_date = new QTableWidgetItem(fi.created().date().toString());
-  QTableWidgetItem *file_path = new QTableWidgetItem(fi.filePath());
+  QTableWidgetItem *file_name = new QTableWidgetItem(new_file.file_name);
+  QTableWidgetItem *file_size = new QTableWidgetItem(QString::number(new_file.file_size/1024) + "KB");
+  QTableWidgetItem *file_date = new QTableWidgetItem(new_file.file_created.date().toString());
+  QTableWidgetItem *file_path = new QTableWidgetItem(new_file.file_path);
   QTableWidgetItem *upload_status = new QTableWidgetItem(icon_not_upload, "Not yet uploaded");
 
   ui->tableWidget->insertRow(last_index);
@@ -94,7 +96,7 @@ void DlgTransferFile::add_file(const QString &filename) {
   ui->tableWidget->setItem(last_index, 3, file_path);
   ui->tableWidget->setItem(last_index, 4, upload_status);
 
-  files_to_upload.push_back(fi.filePath());
+  files_to_upload.push_back(new_file);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -129,6 +131,40 @@ void DlgTransferFile::set_upload_status (bool uploading) {
 
 ////////////////////////////////////////////////////////////////////////
 
+void DlgTransferFile::upload_start(int file_id) {
+  static QIcon uploading(":/hub/uploading.png");
+
+  QString ip = ui->remote_ip->text();
+  QString user = ui->remote_user->text();
+  QString port = ui->remote_port->text();
+  QString destination = ui->remote_destination->text();
+  QString file = files_to_upload[file_id].file_path;
+
+  QFutureWatcher<system_call_wrapper_error_t> *future_watcher =
+          new QFutureWatcher<system_call_wrapper_error_t>(this);
+  QFuture<system_call_wrapper_error_t> res =
+      QtConcurrent::run(CSystemCallWrapper::copy_paste, user, ip, port, destination, file);
+  future_watcher->setFuture(res);
+  connect(future_watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res, file_id] () {
+      this->upload_finished(res.result(), file_id);
+  });
+
+  QTableWidgetItem *upload_status_item = ui->tableWidget->item(file_id, 4);
+
+  qDebug() << "Is status null: " << (upload_status_item == nullptr);
+
+  if (upload_status_item == nullptr)
+    return;
+
+  upload_status_item->setIcon(uploading);
+  upload_status_item->setText(tr("Uploading"));
+
+  // changing status
+  files_to_upload[file_id].file_status = UPLOAD_WAIT;
+}
+
+////////////////////////////////////////////////////////////////////////
+
 void DlgTransferFile::upload_finished(system_call_wrapper_error_t res, int file_id) {
   // status icons
   static QIcon uploaded(":/hub/GOOD.png");
@@ -139,8 +175,7 @@ void DlgTransferFile::upload_finished(system_call_wrapper_error_t res, int file_
     set_upload_status(false);
   }
 
-  QTableWidgetItem *upload_status_item =
-      ui->tableWidget->item(file_id, 4);
+  QTableWidgetItem *upload_status_item = ui->tableWidget->item(file_id, 4);
 
   qDebug() << "Is status null: " << (upload_status_item == nullptr);
 
@@ -150,10 +185,12 @@ void DlgTransferFile::upload_finished(system_call_wrapper_error_t res, int file_
   if (res == SCWE_SUCCESS) {
     upload_status_item->setIcon(uploaded);
     upload_status_item->setText(tr("Uploaded"));
+    files_to_upload[file_id].file_status = UPLOAD_SUCCESS;
   }
   else {
     upload_status_item->setIcon(failed_upload);
     upload_status_item->setText(tr("Failed to upload"));
+    files_to_upload[file_id].file_status = UPLOAD_FAIL;
   }
 }
 
@@ -176,21 +213,9 @@ void DlgTransferFile::upload_files() {
 
   set_upload_status(true);
 
-  QString ip = ui->remote_ip->text();
-  QString user = ui->remote_user->text();
-  QString port = ui->remote_port->text();
-  QString destination = ui->remote_destination->text();
-
   for (int file_id = 0 ; file_id < (int) files_to_upload.size() ; file_id++) {
-    QString file = files_to_upload[file_id];
-    QFutureWatcher<system_call_wrapper_error_t> *future_watcher =
-            new QFutureWatcher<system_call_wrapper_error_t>(this);
-    QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::copy_paste, user, ip, port, destination, file);
-    future_watcher->setFuture(res);
-    connect(future_watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res, file_id] () {
-        this->upload_finished(res.result(), file_id);
-    });
+    if (files_to_upload[file_id].file_status != UPLOAD_SUCCESS)
+      upload_start(file_id);
   }
 }
 

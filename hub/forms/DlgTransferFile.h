@@ -15,6 +15,34 @@ namespace Ui {
   class DlgTransferFile;
 }
 
+enum FILE_UPLOAD_STATUS
+{
+  UPLOAD_SUCCESS = 0,
+  UPLOAD_FAIL,
+  UPLOAD_WAIT,
+  UPLOAD_TIMEOUT,
+  UPLOAD_NOT_STARTED
+};
+
+struct file_to_upload
+{
+public:
+  file_to_upload(const QFileInfo &fi) {
+    file_name = fi.fileName();
+    file_path = fi.filePath();
+    file_size = fi.size();
+    file_status = UPLOAD_NOT_STARTED;
+    file_created = fi.created();
+  }
+
+
+  QString file_name;
+  QString file_path;
+  QDateTime file_created;
+  qint64 file_size;
+  FILE_UPLOAD_STATUS file_status;
+};
+
 class CustomListWidget : public QListWidget
 {
   Q_OBJECT
@@ -57,7 +85,8 @@ public:
 
 private:
   Ui::DlgTransferFile *ui;
-  std::vector <QString> files_to_upload;
+  std::vector <file_to_upload> files_to_upload;
+
 
   bool is_uploading;
   int cnt_upload_files;
@@ -67,6 +96,8 @@ private:
   void clear_all_files();
   void upload_files();
   void select_file();
+  void upload_start(int file_id);
+
 
 private slots:
   void file_dropped(const QString &filename);

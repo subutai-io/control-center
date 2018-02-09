@@ -46,6 +46,7 @@
         <file>running.png</file>
         <file>waiting.png</file>
         <file>stopped.png</file>
+        <file>uploading.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
