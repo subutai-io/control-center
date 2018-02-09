@@ -34,14 +34,25 @@ DlgNotification::DlgNotification(
     {"Notification history", [](){TrayControlWindow::Instance()->show_notifications_triggered();}},
     {"Restart Tray", [](){CCommons::RestartTray();}},
     {"About", [](){TrayControlWindow::Instance()->show_about();}},
-    {"No Action", [](){}}
+    {"No Action", [](){}},
+    {"Start P2P daemon", [](){
+      int rse_err;
+      CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STOPPED_P2P);
+      if (rse_err == 0)
+          CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
+      else
+          CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                               "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                               "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                      arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+      emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);}}
   };
 
   if (action_type == N_NO_ACTION)
     ui->btn_action->setVisible(false);
   else {
    connect(ui->btn_action, &QPushButton::released,
-            [action_type, this](){ this->hide(); action_handler[action_type].call_func();});
+            [action_type, this](){action_handler[action_type].call_func();this->btn_close_released();});
    ui->btn_action->setText(action_handler[action_type].btn_message);
   }
 
@@ -71,7 +82,6 @@ DlgNotification::DlgNotification(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
   connect(ui->btn_close, &QPushButton::released, this, &DlgNotification::btn_close_released);
-
   connect(&m_close_timer, &QTimer::timeout, this, &DlgNotification::close);
 
   connect(ui->chk_autohide, &QCheckBox::stateChanged, [this](int state) {
