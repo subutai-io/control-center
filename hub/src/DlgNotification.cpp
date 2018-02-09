@@ -52,7 +52,7 @@ DlgNotification::DlgNotification(
     ui->btn_action->setVisible(false);
   else {
    connect(ui->btn_action, &QPushButton::released,
-            [action_type, this](){ this->hide(); action_handler[action_type].call_func();});
+            [action_type, this](){action_handler[action_type].call_func();this->btn_close_released();});
    ui->btn_action->setText(action_handler[action_type].btn_message);
   }
 
@@ -82,8 +82,6 @@ DlgNotification::DlgNotification(
       CSettingsManager::Instance().is_notification_ignored(msg));
 
   connect(ui->btn_close, &QPushButton::released, this, &DlgNotification::btn_close_released);
-  connect(ui->btn_action, &QPushButton::released, this, &DlgNotification::btn_close_released);
-
   connect(&m_close_timer, &QTimer::timeout, this, &DlgNotification::close);
 
   connect(ui->chk_autohide, &QCheckBox::stateChanged, [this](int state) {
