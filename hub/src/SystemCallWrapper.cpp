@@ -249,11 +249,11 @@ system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
 ////////////////////////////////////////////////////////////////////////////
 
 template <class OS>
-system_call_wrapper_error_t restart_p2p_service_internal(int *res_code);
+system_call_wrapper_error_t restart_p2p_service_internal(int *res_code,restart_p2p_type type);
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   *res_code = RSE_MANUAL;
 
   do {
@@ -261,21 +261,27 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     system_call_wrapper_error_t scr =
         CSystemCallWrapper::which("gksu", gksu_path);
     if (scr != SCWE_SUCCESS) {
-      qCritical("Couldn't find gksu command");
+      QString err_msg = QString("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
     }
 
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-      qCritical("Couldn't find sh command");
+      QString err_msg = QString("Couldn't find sh command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
     }
 
     QString systemctl_path;
     scr = CSystemCallWrapper::which("systemctl", systemctl_path);
     if (scr != SCWE_SUCCESS) {
-      qCritical("Couldn't find systemctl");
+      QString err_msg = QString("Couldn't find systemctl");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
     }
 
@@ -285,16 +291,18 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         CSystemCallWrapper::ssystem(gksu_path, args, true, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
-      qCritical(
-          "gksu systemctl list-units call failed. ec = %d, res = %s",
-          cr.exit_code,
-          CSystemCallWrapper::scwe_error_to_str(cr.res).toStdString().c_str());
+      QString err_msg = QString("gksu systemctl list-units call failed. ec = %1, res = %2")
+                        .arg(cr.exit_code)
+                        .arg(CSystemCallWrapper::scwe_error_to_str(cr.res));
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       break;
     }
 
     if (cr.out.isEmpty()) {
-      qCritical(
-          "gksu systemctl list-units output is empty");
+      QString err_msg = QString("gksu systemctl list-units output is empty");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       break;
     }
 
@@ -304,8 +312,9 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
       if (lst_temp.empty()) {
-        qCritical(
-            "Couldn't get standard temp location");
+        QString err_msg = QString("Couldn't get standard temporary location");
+        qCritical() << err_msg;
+        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
 
@@ -314,24 +323,32 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       qDebug() << tmpFilePath;
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-        qCritical(
-            "Couldn't create reload script temp file. %s",
-            tmpFile.errorString().toStdString().c_str());
+        QString err_msg = QString("Couldn't create reload script temp file. %1")
+                          .arg(tmpFile.errorString());
+        qCritical() << err_msg;
+        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
 
-      QByteArray restart_script = QString(
+      QByteArray restart_script = type==UPDATED_P2P ? QString(
                                       "#!/bin/bash\n"
                                       "%1 disable p2p.service\n"
                                       "%1 stop p2p.service\n"
                                       "%1 enable p2p.service\n"
                                       "%1 start p2p.service\n")
                                       .arg(systemctl_path)
-                                      .toUtf8();
+                                      .toUtf8() : QString(
+                                                          "#!/bin/bash\n"
+                                                          "%1 enable p2p.service\n"
+                                                          "%1 start p2p.service\n")
+                                                          .arg(systemctl_path)
+                                                          .toUtf8();
 
       if (tmpFile.write(restart_script) != restart_script.size()) {
-        qCritical(
-            "Couldn't write restart script to temp file");
+        QString err_msg = QString("Couldn't write restart script to temp file")
+                                 .arg(tmpFile.errorString());
+        qCritical() << err_msg;
+        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
       tmpFile.close();  // save
@@ -342,8 +359,9 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                   QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                   QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                   QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-        qCritical(
-            "Couldn't set exe permission to reload script file");
+        QString err_msg = "Couldn't set exe permission to reload script file";
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
 
@@ -353,11 +371,11 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-        qCritical(
-            "Couldn't reload p2p.service. ec = %d, err = %s", cr2.exit_code,
-            CSystemCallWrapper::scwe_error_to_str(cr2.res)
-                .toStdString()
-                .c_str());
+        QString err_msg = QString("Couldn't reload p2p.service. ec = %1, err = %2")
+                                 .arg(cr.exit_code)
+                                 .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+        qCritical() << err_msg;
+        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
       *res_code = RSE_SUCCESS;
@@ -372,16 +390,17 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   QString cmd("sc");
   QStringList args0, args1;
   args0 << "stop"
-        << "\"Subutai Social P2P\"";
+        << "Subutai P2P";
   args1 << "start"
-        << "\"Subutai Social P2P\"";
-  system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args0, false, true);
-  res = CSystemCallWrapper::ssystem_th(cmd, args1, false, true);
+        << "Subutai P2P";
+  system_call_res_t res;
+  if(type==UPDATED_P2P)
+      res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true);
+  res = CSystemCallWrapper::ssystem_th(cmd, args1, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
@@ -389,24 +408,30 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
 
 template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
-    int *res_code) {
+    int *res_code, restart_p2p_type type) {
   QString cmd("osascript");
   QStringList args;
-  args << "-e"
-       << "do shell script \"launchctl unload "
-          "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
-          " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-          " with administrator privileges";
+  type == UPDATED_P2P ?
+      args << "-e"
+           << "do shell script \"launchctl unload "
+              "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
+              " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+              " with administrator privileges" :
+      args << "-e"
+           << "do shell script \"launchctl load "
+              "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+              " with administrator privileges";
   system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args, false, true);
+
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
 /*************************/
 
 system_call_wrapper_error_t CSystemCallWrapper::restart_p2p_service(
-    int *res_code) {
-  return restart_p2p_service_internal<Os2Type<CURRENT_OS> >(res_code);
+    int *res_code, restart_p2p_type type) {
+  return restart_p2p_service_internal<Os2Type<CURRENT_OS> >(res_code, type);
 }
 ////////////////////////////////////////////////////////////////////////////
 

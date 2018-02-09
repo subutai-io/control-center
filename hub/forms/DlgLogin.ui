@@ -25,7 +25,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="lbl_login">
          <property name="text">
-          <string>Login (e-mail):</string>
+          <string>Username (or email):</string>
          </property>
         </widget>
        </item>

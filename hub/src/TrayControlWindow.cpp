@@ -380,7 +380,7 @@ void TrayControlWindow::notification_received(
   int src_x, src_y, dst_x, dst_y;
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
-  if (DlgNotification::NOTIFICATIONS_COUNT > 1 && DlgNotification::NOTIFICATIONS_COUNT < 5) { // shift dialog if there is more than one dialogs
+  if (DlgNotification::NOTIFICATIONS_COUNT > 1 && DlgNotification::NOTIFICATIONS_COUNT < 4) { // shift dialog if there is more than one dialogs
       shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
   }
 
@@ -549,21 +549,14 @@ void TrayControlWindow::launch_p2p(){
     int rse_err;
     switch (p2p_current_status) {
     case P2PStatus_checker::P2P_FAIL :
-        CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+        CNotificationObserver::Error(QObject::tr("Can't launch P2P daemon. "
                                              "Either change the path setting in Settings or install the daemon if it is not installed. "
                                              "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                     arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
         break;
     case P2PStatus_checker::P2P_READY :
-        CSystemCallWrapper::restart_p2p_service(&rse_err);
-        if (rse_err == 0)
-            CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
-        else
-            CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
-                                                 "Either change the path setting in Settings or install the daemon if it is not installed. "
-                                                 "You can get the %1 daemon from <a href=\"%2\">here</a>.").
-                                        arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
-        emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
+        CNotificationObserver::Info(QObject::tr("P2P is not launched. "
+                                             "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
         break;
     case P2PStatus_checker::P2P_RUNNING :
         CNotificationObserver::Instance()->Info(tr("P2P is running"), DlgNotification::N_NO_ACTION);

@@ -7,6 +7,12 @@
 #include <string>
 #include <vector>
 
+//give type for restart p2p
+enum restart_p2p_type{
+    UPDATED_P2P=0, //when p2p updated, stop and start
+    STOPPED_P2P //when p2p is stopped, start
+};
+
 // if you are going to change this - change method
 // CSystemCallWrapper::scwe_error_to_str(system_call_wrapper_error_t err)
 enum system_call_wrapper_error_t {
@@ -112,7 +118,7 @@ class CSystemCallWrapper {
                                                        int swarm_base_interface_id);
 
   static system_call_wrapper_error_t leave_p2p_swarm(const QString &hash);
-  static system_call_wrapper_error_t restart_p2p_service(int *res_code);
+  static system_call_wrapper_error_t restart_p2p_service(int *res_code, restart_p2p_type type);
 
   static system_call_wrapper_error_t check_container_state(const QString &hash,
                                                            const QString &ip);
