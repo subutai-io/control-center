@@ -10,6 +10,7 @@
 #include <QMimeData>
 #include <QDebug>
 #include "P2PController.h"
+#include <QFileSystemModel>
 
 namespace Ui {
   class DlgTransferFile;
@@ -41,6 +42,45 @@ public:
   QDateTime file_created;
   qint64 file_size;
   FILE_UPLOAD_STATUS file_status;
+};
+
+enum FILE_TYPE {
+  FILE_SIMPLE = 0,
+  FILE_DIR,
+  FILE_BACK
+};
+
+enum HOST_MACHINE_TYPE {
+  HOST_MACHINE_REMOTE = 0,
+  HOST_MACHINE_LOCAL
+};
+
+class File {
+  QString m_fileName;
+  QString m_filePath;
+  QDateTime m_created;
+
+  quint64 m_fileSize;
+  FILE_TYPE m_fileType;
+  HOST_MACHINE_TYPE m_hostMachine;
+
+  const QString &fileName() const {
+    return m_fileName;
+  }
+  const QString &filePath() const {
+    return m_filePath;
+  }
+  FILE_TYPE fileType() const {
+    return m_fileType;
+  }
+
+  HOST_MACHINE_TYPE hostMachine() const {
+    return m_hostMachine;
+  }
+
+  quint64 fileSize() const {
+    return m_fileSize;
+  }
 };
 
 class CustomListWidget : public QListWidget
@@ -90,6 +130,9 @@ private:
 
   bool is_uploading;
   int cnt_upload_files;
+
+  void local_file_system_directory_selected(const QModelIndex &index);
+  QFileSystemModel *file_system_model;
 
   void set_upload_status (bool uploading);
   void add_file(const QString &filename);

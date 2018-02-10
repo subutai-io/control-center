@@ -1,4 +1,4 @@
-#include "DlgTransferFile.h"
+﻿#include "DlgTransferFile.h"
 #include "ui_DlgTransferFile.h"
 #include "QFileDialog"
 #include "NotificationObserver.h"
@@ -6,7 +6,9 @@
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <QFileSystemModel>
 
+#include <QTableWidgetItem>
 
 static QStringList headers;
 
@@ -41,6 +43,31 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
           this, &DlgTransferFile::select_file);
   connect(ui->btn_clear, &QPushButton::clicked,
           this, &DlgTransferFile::clear_all_files);
+
+  file_system_model = new QFileSystemModel(this);
+
+  ui->local_file_system->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  ui->local_file_system->setModel(file_system_model);
+
+  ui->local_file_system->setRootIndex(file_system_model->index(QDir::currentPath()));
+  file_system_model->setRootPath("/");
+
+  ui->local_file_system->verticalHeader()->setVisible(true);
+  ui->local_file_system->setShowGrid(false);
+
+  connect(ui->local_file_system, &QTableView::doubleClicked,
+          this, &DlgTransferFile::local_file_system_directory_selected);
+}
+
+void DlgTransferFile::local_file_system_directory_selected(const QModelIndex &index) {
+  QVariant data = ui->local_file_system->model()->data(
+                    ui->local_file_system->model()->index(index.row(), 0)
+                  );
+
+  CNotificationObserver::Instance()->Info(data.toString(), DlgNotification::N_ABOUT);
+
+ // ui->local_file_system->setRootIndex(
+  //file_system_model->setRootPath(data.toString()));
 
 }
 
