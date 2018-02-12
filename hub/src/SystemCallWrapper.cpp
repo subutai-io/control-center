@@ -170,6 +170,41 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
   return swarm_lsts;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+QStringList CSystemCallWrapper::get_output_from_ssh_command(
+    const QString &remote_user, const QString &ip, const QString &port,
+    const QString &commands) {
+  QStringList output;
+  system_call_wrapper_error_t res = send_command(remote_user, ip, port, commands, output);
+  if (res == SCWE_SUCCESS)
+    return output;
+  return QStringList();
+}
+
+
+system_call_wrapper_error_t CSystemCallWrapper::send_command(
+    const QString &remote_user, const QString &ip, const QString &port,
+    const QString &commands, QStringList &output) {
+
+  QString cmd
+      = CSettingsManager::Instance().ssh_path();
+  QStringList args;
+  args
+       << QString("%1@%2").arg(remote_user, ip)
+       << "-p" << port
+       << QString("%1").arg(commands);
+  qDebug() << "ARGS=" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+
+  output = res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    return SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
+
 system_call_wrapper_error_t CSystemCallWrapper::copy_paste
 (const QString &remote_user, const QString &ip, const QString &port,
  const QString &destination, const QString &file_path) {

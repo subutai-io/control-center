@@ -10,7 +10,6 @@
 
 #include <QTableWidgetItem>
 
-static QStringList headers;
 
 DlgTransferFile::DlgTransferFile(QWidget *parent) :
   QDialog(parent),
@@ -18,58 +17,238 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 
   qInfo() <<"Open new upload dialog";
 
-  headers << "File Name"
-          << "Size"
-          << "Date"
-          << "Path"
-          << "Status";
-
   ui->setupUi(this);
-  this->ui->groupBox->setVisible(false);
-  ui->tableWidget->setColumnCount(5);
-  ui->tableWidget->setHorizontalHeaderLabels(headers);
-  ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  ui->tableWidget->verticalHeader()->setVisible(true);
-  ui->tableWidget->setShowGrid(false);
+
+  connect(ui->more_info, &QCheckBox::toggled,
+          this, &DlgTransferFile::check_more_info);
+
+
+  ui->groupBox->setVisible(false);
+  current_local_dir.setCurrent("/");
+  current_remote_dir = "/";
+
   this->setMinimumWidth(this->width());
+  connect(ui->btn_refresh_local, &QPushButton::clicked,
+          this, &DlgTransferFile::refresh_button);
+  connect(ui->btn_refresh_remote, &QPushButton::clicked,
+          this, &DlgTransferFile::refresh_button);
+  connect(ui->le_local, &QLineEdit::textChanged,
+          this, &DlgTransferFile::refresh_button);
 
-  connect(ui->more_info, &QCheckBox::toggled, [this](bool checked){
-    this->ui->groupBox->setVisible(checked);
-    this->adjustSize();
+  connect(ui->le_local, &QLineEdit::textChanged,
+          this, &DlgTransferFile::refresh_button);
+
+  Init();
+  connect(ui->btn_local_back, &QPushButton::clicked,
+          this, &DlgTransferFile::local_back);
+  connect(ui->btn_remote_back, &QPushButton::clicked,
+          this, &DlgTransferFile::remote_back);
+
+  connect(ui->local_file_system, &QTableWidget::doubleClicked,
+          this, &DlgTransferFile::file_local_selected);
+
+  connect(ui->remote_file_system, &QTableWidget::doubleClicked,
+          this, &DlgTransferFile::file_remote_selected);
+
+  connect(ui->btn_add_local, &QPushButton::clicked,
+          this, &DlgTransferFile::file_to_upload);
+
+  connect(ui->btn_add_remote, &QPushButton::clicked,
+          this, &DlgTransferFile::file_to_download);
+
+}
+void DlgTransferFile::file_transfer_field_add_file
+(const QString fileName, const QString filePath,
+ quint64 fileSize, QDateTime created_date,
+ FILE_OPERATION_TYPE operation_type,
+ FILE_TYPE file_type) {
+
+}
+
+void DlgTransferFile::upload_selected() {
+  // TODO
+}
+void DlgTransferFile::download_selected() {
+  // TODO
+
+}
+
+void DlgTransferFile::file_to_upload() {
+  // TODO
+}
+
+void DlgTransferFile::file_to_download() {
+  // TODO
+}
+
+void DlgTransferFile::path_remote_changed(const QString &new_path) {
+  current_remote_dir = new_path;
+  refresh_remote_file_system();
+}
+
+void DlgTransferFile::path_local_changed(const QString &new_path) {
+  current_local_dir.setCurrent(new_path);
+  refresh_local_file_system();
+}
+
+
+void DlgTransferFile::file_local_selected(const QModelIndex &index) {
+  QTableWidgetItem *wi = ui->local_file_system->item(index.row(), 0);
+  CNotificationObserver::Instance()->Info(wi->text(), DlgNotification::N_NOTF_HISTORY);
+  current_local_dir.cd(wi->text());
+  refresh_local_file_system();
+}
+
+void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
+  QTableWidgetItem *wi = ui->remote_file_system->item(index.row(), 0);
+  //CNotificationObserver::Instance()->Info(wi->text(), DlgNotification::N_NOTF_HISTORY);
+  //current_local_dir.cd(wi->text());
+  //if (current_remote_dir.length() >= 1)
+    //current_remote_dir += "/";
+  if (!current_remote_dir.endsWith("/")) {
+    current_remote_dir += "/";
+  }
+  current_remote_dir += wi->text();
+  refresh_remote_file_system();
+}
+
+void DlgTransferFile::local_back() {
+  current_local_dir.cdUp();
+  refresh_local_file_system();
+}
+
+void DlgTransferFile::remote_back() {
+  QStringList ls = current_remote_dir.split("/");
+  if (ls.size() == 1) {
+    current_remote_dir = "/";
+    refresh_remote_file_system();
+    return;
+  }
+
+
+  QString new_dir = "";
+  for (int i = 0 ; i < ls.size() - 1; i ++) {
+    new_dir.append("/" + ls[i]);
+    CNotificationObserver::Instance()->Info("hello// :  " + ls[i], DlgNotification::N_NO_ACTION);
+  }
+
+  current_local_dir = new_dir;
+  refresh_remote_file_system();
+}
+
+void DlgTransferFile::check_more_info(bool checked) {
+  ui->groupBox->setVisible(checked);
+  this->adjustSize();
+}
+
+void DlgTransferFile::design_table_widget(QTableWidget *tw,
+                                          const QStringList &headers) {
+  tw->setColumnCount(headers.size());
+  tw->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  tw->verticalHeader()->setVisible(true);
+  tw->setHorizontalHeaderLabels(headers);
+  tw->setShowGrid(false);
+  tw->setSelectionBehavior(QAbstractItemView::SelectRows);
+}
+
+
+void DlgTransferFile::add_file(QTableWidget *tw,
+                               int row,
+                               const std::vector<QString> &values) {
+  tw->insertRow(row);
+  for (int col = 0 ; col < (int)values.size() && col < 2 ; col ++) {
+    QTableWidgetItem *wi = new QTableWidgetItem(values[col]);
+    tw->setItem(row, col, wi);
+  }
+}
+
+void DlgTransferFile::add_file_local(const QFileInfo &fi) {
+  std::vector<QString> values;
+  values.push_back(fi.fileName());
+  values.push_back(QString::number(fi.size()));
+  add_file(ui->local_file_system, ui->local_file_system->rowCount(), values);
+}
+
+void DlgTransferFile::Init() {
+  QStringList file_system_header {
+    "File Name",
+    "File Size"
+  };
+
+  design_table_widget(ui->local_file_system, file_system_header);
+  design_table_widget(ui->remote_file_system, file_system_header);
+
+  QStringList transfer_file_field_header {
+    "File Name",
+    "Operation Type",
+    "Size",
+    "Operation Status",
+  };
+
+  design_table_widget(ui->tw_transfer_file, transfer_file_field_header);
+}
+
+void DlgTransferFile::refresh_button() {
+  refresh_local_file_system();
+  refresh_remote_file_system();
+}
+
+void DlgTransferFile::refresh_local_file_system() {
+  ui->local_file_system->setRowCount(0);
+  ui->le_local->setText(current_local_dir.path());
+  for (QFileInfo fi : current_local_dir.entryInfoList()) {
+    add_file_local(fi);
+  }
+}
+
+void DlgTransferFile::add_file_remote(const QString file_name,
+                                      const QString file_size) {
+  std::vector<QString> values;
+  values.push_back(file_name);
+  values.push_back(file_size);
+  add_file(ui->remote_file_system,
+           ui->remote_file_system->rowCount(),
+           values);
+}
+
+void DlgTransferFile::refresh_remote_file_system() {
+  ui->remote_file_system->setRowCount(0);
+  ui->le_remote->setText(current_remote_dir);
+
+  //QStringList infoList = ssh_cmd(current_remote_dir, "cd %1; ls -l;".arg(current_remote_dir));
+  QString remote_user = ui->remote_user->text();
+  QString remote_port = ui->remote_port->text();
+  QString remote_ip = ui->remote_ip->text();
+  QString command = QString("cd %1; ls -l;").arg(current_remote_dir);
+
+  CNotificationObserver::Instance()->Info("sdfmklsdmfk ", DlgNotification::N_NO_ACTION);
+  //QString remote_
+  QFutureWatcher<QStringList> *watcher =
+      new QFutureWatcher<QStringList>(this);
+
+  QFuture<QStringList> res;
+  watcher->setFuture(res);
+  res = QtConcurrent::run(CSystemCallWrapper::get_output_from_ssh_command,
+                    remote_user, remote_ip, remote_port, command);
+  connect(watcher, &QFutureWatcher<QStringList>::finished,
+          [this, res](){
+    QStringList output = res.result();
+    for (QString ou : output) {
+      //CNotificationObserver::Instance()->Info(ou, DlgNotification::N_NO_ACTION);
+      QStringList splitted = ou.split(" ");
+      this->add_file_remote(splitted.last(), splitted.first());
+    }
+
   });
-  connect(ui->btn_upload_files, &QPushButton::clicked,
-          this, &DlgTransferFile::upload_files);
-  connect(ui->btn_choose_files, &QPushButton::clicked,
-          this, &DlgTransferFile::select_file);
-  connect(ui->btn_clear, &QPushButton::clicked,
-          this, &DlgTransferFile::clear_all_files);
 
-  file_system_model = new QFileSystemModel(this);
+  //if (res == SCWE_SUCCESS)
+  //  CNotificationObserver::Instance()->Info("Yea, Success", DlgNotification::N_NO_ACTION);
+  //else
+  //  CNotificationObserver::Instance()->Info("NO, not Success", DlgNotification::N_NO_ACTION);
 
-  ui->local_file_system->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  ui->local_file_system->setModel(file_system_model);
-
-  ui->local_file_system->setRootIndex(file_system_model->index(QDir::currentPath()));
-  file_system_model->setRootPath("/");
-
-  ui->local_file_system->verticalHeader()->setVisible(true);
-  ui->local_file_system->setShowGrid(false);
-
-  connect(ui->local_file_system, &QTableView::doubleClicked,
-          this, &DlgTransferFile::local_file_system_directory_selected);
-}
-
-void DlgTransferFile::local_file_system_directory_selected(const QModelIndex &index) {
-  QVariant data = ui->local_file_system->model()->data(
-                    ui->local_file_system->model()->index(index.row(), 0)
-                  );
-
-  CNotificationObserver::Instance()->Info(data.toString(), DlgNotification::N_ABOUT);
-
- // ui->local_file_system->setRootIndex(
-  //file_system_model->setRootPath(data.toString()));
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -79,173 +258,11 @@ void DlgTransferFile::addSSHKey(const QString &key) {
 void DlgTransferFile::addIPPort(const QString &ip, const QString &port) {
   ui->remote_ip->setText(ip);
   ui->remote_port->setText(port);
+
 }
 void DlgTransferFile::addUser(const QString &user) {
   ui->remote_user->setText(user);
 }
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::clear_all_files(){
-  qInfo()<<"Clear files list";
-
-  files_to_upload.clear();
-  ui->tableWidget->clear();
-  ui->progressBar->setValue(0);
-  ui->tableWidget->setRowCount(0);
-  ui->tableWidget->setHorizontalHeaderLabels(headers);
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::add_file(const QString &filename) {
-  qInfo() << "Add file " << filename;
-
-  // status icons
-  static QIcon icon_not_upload(":/hub/OK.png");
-
-  QFileInfo fi(filename);
-  file_to_upload new_file(fi);
-
-  int last_index = ui->tableWidget->rowCount();
-
-  QTableWidgetItem *file_name = new QTableWidgetItem(new_file.file_name);
-  QTableWidgetItem *file_size = new QTableWidgetItem(QString::number(new_file.file_size/1024) + "KB");
-  QTableWidgetItem *file_date = new QTableWidgetItem(new_file.file_created.date().toString());
-  QTableWidgetItem *file_path = new QTableWidgetItem(new_file.file_path);
-  QTableWidgetItem *upload_status = new QTableWidgetItem(icon_not_upload, "Not yet uploaded");
-
-  ui->tableWidget->insertRow(last_index);
-
-  ui->tableWidget->setItem(last_index, 0, file_name);
-  ui->tableWidget->setItem(last_index, 1, file_size);
-  ui->tableWidget->setItem(last_index, 2, file_date);
-  ui->tableWidget->setItem(last_index, 3, file_path);
-  ui->tableWidget->setItem(last_index, 4, upload_status);
-
-  files_to_upload.push_back(new_file);
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::select_file() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("File to upload"));
-  if (fn == "")
-    return;
-  add_file(fn);
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::file_dropped(const QString &filename) {
-  if (is_uploading)
-    return;
-  add_file(filename);
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::set_upload_status (bool uploading) {
-  ui->btn_choose_files->setEnabled(!uploading);
-  ui->btn_upload_files->setEnabled(!uploading);
-  ui->btn_clear->setEnabled(!uploading);
-  is_uploading = uploading;
-  if (is_uploading) {
-    cnt_upload_files = 0;
-    ui->progressBar->setMaximum(files_to_upload.size());
-  }
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::upload_start(int file_id) {
-  static QIcon uploading(":/hub/uploading.png");
-
-  QString ip = ui->remote_ip->text();
-  QString user = ui->remote_user->text();
-  QString port = ui->remote_port->text();
-  QString destination = ui->remote_destination->text();
-  QString file = files_to_upload[file_id].file_path;
-
-  QFutureWatcher<system_call_wrapper_error_t> *future_watcher =
-          new QFutureWatcher<system_call_wrapper_error_t>(this);
-  QFuture<system_call_wrapper_error_t> res =
-      QtConcurrent::run(CSystemCallWrapper::copy_paste, user, ip, port, destination, file);
-  future_watcher->setFuture(res);
-  connect(future_watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res, file_id] () {
-      this->upload_finished(res.result(), file_id);
-  });
-
-  QTableWidgetItem *upload_status_item = ui->tableWidget->item(file_id, 4);
-
-  qDebug() << "Is status null: " << (upload_status_item == nullptr);
-
-  if (upload_status_item == nullptr)
-    return;
-
-  upload_status_item->setIcon(uploading);
-  upload_status_item->setText(tr("Uploading"));
-
-  // changing status
-  files_to_upload[file_id].file_status = UPLOAD_WAIT;
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::upload_finished(system_call_wrapper_error_t res, int file_id) {
-  // status icons
-  static QIcon uploaded(":/hub/GOOD.png");
-  static QIcon failed_upload(":/hub/BAD.png");
-
-  ui->progressBar->setValue(++ cnt_upload_files);
-  if (ui->progressBar->maximum() == cnt_upload_files) {
-    set_upload_status(false);
-  }
-
-  QTableWidgetItem *upload_status_item = ui->tableWidget->item(file_id, 4);
-
-  qDebug() << "Is status null: " << (upload_status_item == nullptr);
-
-  if (upload_status_item == nullptr)
-    return;
-
-  if (res == SCWE_SUCCESS) {
-    upload_status_item->setIcon(uploaded);
-    upload_status_item->setText(tr("Uploaded"));
-    files_to_upload[file_id].file_status = UPLOAD_SUCCESS;
-  }
-  else {
-    upload_status_item->setIcon(failed_upload);
-    upload_status_item->setText(tr("Failed to upload"));
-    files_to_upload[file_id].file_status = UPLOAD_FAIL;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////
-
-void DlgTransferFile::upload_files() {
-  qInfo() << "Uploading files ";
-
-  if (files_to_upload.empty())
-  {
-    CNotificationObserver::Error(tr("Drag and Drop files to upload."), DlgNotification::N_NO_ACTION);
-    return;
-  }
-
-  if (ui->remote_ssh_key_path->text().isEmpty())
-  {
-    CNotificationObserver::Error(tr("Please, add ssh-key to current environment.") , DlgNotification::N_NO_ACTION);
-    return;
-  }
-
-  set_upload_status(true);
-
-  for (int file_id = 0 ; file_id < (int) files_to_upload.size() ; file_id++) {
-    if (files_to_upload[file_id].file_status != UPLOAD_SUCCESS)
-      upload_start(file_id);
-  }
-}
-
 
 DlgTransferFile::~DlgTransferFile()
 {

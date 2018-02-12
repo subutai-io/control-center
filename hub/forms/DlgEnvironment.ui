@@ -36,21 +36,21 @@
       <item row="0" column="0">
        <widget class="QPushButton" name="btn_ssh_selected">
         <property name="text">
-         <string>EZ-SSH </string>
+         <string>SSH </string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="btn_desktop_selected">
         <property name="text">
-         <string>EZ-DESKTOP </string>
+         <string>DESKTOP </string>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
        <widget class="QPushButton" name="btn_upload_selected">
         <property name="text">
-         <string>EZ-UPLOAD</string>
+         <string>TRANSFER</string>
         </property>
        </widget>
       </item>

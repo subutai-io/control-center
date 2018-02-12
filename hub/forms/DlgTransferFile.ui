@@ -6,32 +6,120 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>681</width>
-    <height>393</height>
+    <width>898</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="9" column="0" colspan="2">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
+   <item row="11" column="0" colspan="4">
+    <widget class="QCheckBox" name="more_info">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
      </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Upload Process</string>
+      <string>More Info about remote machine</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QTableWidget" name="tableWidget"/>
+   <item row="7" column="0" colspan="4">
+    <widget class="QLineEdit" name="le_local"/>
    </item>
-   <item row="12" column="0" colspan="2">
+   <item row="4" column="3">
+    <widget class="QPushButton" name="btn_refresh_local">
+     <property name="text">
+      <string>Refresh</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6">
+    <widget class="QPushButton" name="btn_remote_back">
+     <property name="text">
+      <string>Back</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5" colspan="4">
+    <widget class="QTableWidget" name="remote_file_system"/>
+   </item>
+   <item row="4" column="1">
+    <widget class="QPushButton" name="btn_local_back">
+     <property name="text">
+      <string>Back</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="7">
+    <widget class="QPushButton" name="btn_add_remote">
+     <property name="text">
+      <string>Add</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/add_blue.png</normaloff>:/hub/add_blue.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="5" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Remote Path</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QPushButton" name="btn_add_local">
+     <property name="text">
+      <string>Add</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/add_green.png</normaloff>:/hub/add_green.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="QTableWidget" name="local_file_system"/>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Local Path</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Upload</string>
+     </property>
+     <property name="icon">
+      <iconset theme=":/hub/upload" resource="../../resources/resources.qrc">
+       <normaloff>:/hub/upload.ico</normaloff>:/hub/upload.ico</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="5" colspan="4">
+    <widget class="QLineEdit" name="le_remote"/>
+   </item>
+   <item row="9" column="0" colspan="9">
+    <widget class="QTableWidget" name="tw_transfer_file"/>
+   </item>
+   <item row="13" column="0" colspan="9">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Remote Machine Parameters</string>
@@ -80,66 +168,55 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QLineEdit" name="remote_destination">
+   <item row="4" column="5">
+    <widget class="QPushButton" name="btn_download">
      <property name="text">
-      <string>/tmp</string>
+      <string>Download</string>
+     </property>
+     <property name="icon">
+      <iconset theme=":/hub/download" resource="../../resources/resources.qrc">
+       <normaloff>:/hub/download.png</normaloff>:/hub/download.png</iconset>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_2">
+   <item row="4" column="8">
+    <widget class="QPushButton" name="btn_refresh_remote">
      <property name="text">
-      <string>Destination Path</string>
+      <string>Refresh</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>Drag and Drop files below</string>
+      <string>Your files:</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
-    <widget class="QPushButton" name="btn_upload_files">
+   <item row="0" column="5">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Upload files</string>
+      <string>Remote Files:</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
-    <widget class="QCheckBox" name="more_info">
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>More Info about remote machine</string>
+   <item row="0" column="4" rowspan="8">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
-   </item>
-   <item row="10" column="1">
-    <widget class="QPushButton" name="btn_clear">
-     <property name="text">
-      <string>Clear all Files</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="btn_choose_files">
-     <property name="text">
-      <string>Or choose file</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QTableView" name="remote_file_system"/>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QTableView" name="local_file_system"/>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

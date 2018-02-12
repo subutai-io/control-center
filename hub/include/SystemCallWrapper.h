@@ -105,6 +105,16 @@ class CSystemCallWrapper {
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();
   static std::vector<std::pair<QString, QString>> p2p_show_interfaces();
+  static system_call_wrapper_error_t send_command(
+                                                  const QString &remote_user,
+      const QString &ip, const QString &port,
+      const QString &commands, QStringList &output);
+
+  static QStringList get_output_from_ssh_command(
+                                                  const QString &remote_user,
+      const QString &ip, const QString &port,
+      const QString &commands);
+
   static system_call_wrapper_error_t copy_paste (const QString &remote_user,
                                                  const QString &ip,
                                                  const QString &port,
