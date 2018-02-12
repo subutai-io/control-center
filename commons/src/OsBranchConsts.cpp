@@ -292,8 +292,8 @@ template<class OS> const QString& default_vagrant_path_temp_internal();
   }
 
 default_vagrant_path_internal_def(OS_LINUX, "/opt/vagrant/bin/vagrant")
-default_vagrant_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
-default_vagrant_path_internal_def(OS_MAC, "/usr/local/share/subutai/bin/p2p")
+default_vagrant_path_internal_def(OS_WIN, "C:\\Vagrant\\Vagrant")
+default_vagrant_path_internal_def(OS_MAC, "/usr/local/bin/vagrant")
 
 const QString &
 default_vagrant_path() {
