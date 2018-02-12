@@ -159,6 +159,10 @@ main(int argc, char *argv[]) {
             emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_FAIL);
       }
 
+      if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().vagrant_path())){
+         CNotificationObserver::Info(QObject::tr("Can't find Vagrant. Change path settings or install Vagrant if you want to manage your peers"), DlgNotification::N_SETTINGS);
+      }
+
 
       result = app.exec();
     } while (0);

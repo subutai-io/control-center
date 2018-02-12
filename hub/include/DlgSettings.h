@@ -68,6 +68,7 @@ private slots:
   void btn_logs_storage_released();
   void btn_ssh_keys_storage_released();
   void btn_refresh_rh_list_released();
+  void btn_vagrant_command_released();
 
   void refresh_rh_list_timer_timeout();
   void lstv_resource_hosts_double_clicked(QModelIndex ix0);
