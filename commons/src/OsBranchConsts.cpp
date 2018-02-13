@@ -291,7 +291,7 @@ template<class OS> const QString& default_vagrant_path_temp_internal();
     return res; \
   }
 
-default_vagrant_path_internal_def(OS_LINUX, "/opt/vagrant/bin/vagrant")
+default_vagrant_path_internal_def(OS_LINUX, "/usr/bin/vagrant")
 default_vagrant_path_internal_def(OS_WIN, "C:\\Vagrant\\Vagrant")
 default_vagrant_path_internal_def(OS_MAC, "/usr/local/bin/vagrant")
 

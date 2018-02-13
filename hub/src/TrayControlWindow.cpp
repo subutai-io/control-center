@@ -521,7 +521,6 @@ void TrayControlWindow::launch_Hub() {
 void TrayControlWindow::launch_p2p(){
     qDebug()
             <<"p2p button is pressed";
-    int rse_err;
     switch (p2p_current_status) {
     case P2PStatus_checker::P2P_FAIL :
         CNotificationObserver::Error(QObject::tr("Can't launch P2P daemon. "
@@ -565,9 +564,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   static std::vector<QString> lst_checked_unhealthy_env;
   m_hub_menu->clear();
 
-  //std::vector<QString> lst_unhealthy_envs;
-  //std::vector<QString> lst_unhealthy_env_statuses;
-
   std::map<QString, std::vector<QString> > tbl_envs;
 
   if (CHubController::Instance().lst_environments().empty()) {
@@ -590,8 +586,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 
     if (!env->healthy()) {
       if (iter_found == lst_checked_unhealthy_env.end()) {
-    //    lst_unhealthy_envs.push_back(env_name);
-    //    lst_unhealthy_env_statuses.push_back(env->status());
         lst_checked_unhealthy_env.push_back(env->id());
         tbl_envs[env->status()].push_back(env_name);
         qCritical(
@@ -617,29 +611,6 @@ void TrayControlWindow::environments_updated_sl(int rr) {
                                      QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
     });
   }  // for auto env in environments list
-
-  /*if (lst_unhealthy_envs.empty()) return;
-
-  QString str_unhealthy_envs = "";
-  QString str_statuses = "";
-  for (size_t i = 0; i < lst_unhealthy_envs.size() - 1; ++i) {
-    str_unhealthy_envs += lst_unhealthy_envs[i] + ", ";
-    str_statuses += lst_unhealthy_env_statuses[i] + ", ";
-  }
-
-  str_unhealthy_envs += lst_unhealthy_envs[lst_unhealthy_envs.size() - 1];
-  str_statuses += lst_unhealthy_env_statuses[lst_unhealthy_envs.size() - 1];
-  qDebug()
-      << QString("Unhealthy Environments: %1 with statuses: %2").arg(str_unhealthy_envs, str_statuses);
-
-  QString str_notification =
-      tr("Environment%1 %2 %3 %4")
-          .arg(lst_unhealthy_envs.size() > 1 ? "s" : "")
-          .arg(str_unhealthy_envs)
-          .arg(lst_unhealthy_envs.size() > 1 ? "are" : "is")
-          .arg(str_statuses);
-
-  CNotificationObserver::Instance()->Info(str_notification, DlgNotification::N_NO_ACTION);*/
 
   for (std::map<QString, std::vector<QString> >::iterator it = tbl_envs.begin(); it != tbl_envs.end(); it++){
       if(!it->second.empty()){
