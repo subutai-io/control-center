@@ -110,17 +110,23 @@ class CSystemCallWrapper {
       const QString &ip, const QString &port,
       const QString &commands, QStringList &output);
 
-  static QStringList get_output_from_ssh_command(
-                                                  const QString &remote_user,
-      const QString &ip, const QString &port,
-      const QString &commands);
+  static QStringList get_output_from_ssh_command(const QString &remote_user,
+                                                 const QString &ip,
+                                                 const QString &port,
+                                                 const QString &commands);
 
-  static system_call_wrapper_error_t copy_paste (const QString &remote_user,
+  static system_call_wrapper_error_t upload_file (const QString &remote_user,
                                                  const QString &ip,
                                                  const QString &port,
                                                  const QString &destination,
                                                  const QString &file_path
                                                  );
+
+  static system_call_wrapper_error_t download_file (const QString &remote_user,
+                                                    const QString &ip,
+                                                    const QString &port,
+                                                    const QString &local_destination,
+                                                    const QString &remote_file_path);
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
                                                        const QString &key,

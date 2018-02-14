@@ -12,47 +12,72 @@
 #include "P2PController.h"
 #include <QFileSystemModel>
 #include <QTableWidget>
+#include <deque>
+
 
 namespace Ui {
   class DlgTransferFile;
 }
-enum FILE_OPERATION_TYPE{
-  FILE_UPLOAD = 0,
-  FILE_DOWNLOAD,
+
+enum FILE_TYPE {
+  FILE_TYPE_SIMPLE = 0,
+  FILE_TYPE_DIRECTORY,
+  FILE_TYPE_UNKNOWN
 };
 
-enum FILE_UPLOAD_STATUS
-{
-  UPLOAD_SUCCESS = 0,
-  UPLOAD_FAIL,
-  UPLOAD_WAIT,
-  UPLOAD_TIMEOUT,
-  UPLOAD_NOT_STARTED
+enum TRANSFER_FILE_STATUS{
+  FILE_WITHOUT_OPERATION = 0,
+  // UPLOAD STATUSES
+  FILE_TO_UPLOAD,
+  FIlE_FAILED_TO_UPLOAD,
+  FILE_FINISHED_UPLOAD,
+  // DOWNLOAD STATUSES
+  FILE_TO_DOWNLOAD,
+  FILE_FINISHED_DOWNLOAD,
+  FILE_FAILED_TO_DOWNLOAD,
 };
 
-enum FILE_TYPE
-{
-  FILE_SIMPLE = 0,
-  FILE_DIRECTORY,
-  FILE_UNKNOWN
+enum MACHINE_TYPE{
+  MACHINE_UNKNOWN = 0,
+  LOCAL_MACHINE,
+  REMOTE_MACHINE
 };
+
 
 class OneFile
 {
   QString m_fileName;
   QString m_filePath;
   QDateTime m_created;
-
   quint64 m_fileSize;
-  FILE_UPLOAD_STATUS m_fileStatus;
   FILE_TYPE m_fileType;
 
 public:
+  OneFile(const QString &fileName,
+          const QString &filePath,
+          const QDateTime &created,
+          quint64 fileSize,
+          FILE_TYPE fileType)
+  {
+    m_fileName = fileName;
+    m_filePath = filePath;
+    m_created = created;
+    m_fileSize = fileSize;
+    m_fileType = fileType;
+  }
+  OneFile() {
+
+  }
+
   const QString &fileName() const {
     return m_fileName;
   }
   const QString &filePath() const {
     return m_filePath;
+  }
+
+  const QDateTime &created() const {
+    return m_created;
   }
 
   FILE_TYPE fileType() const {
@@ -64,7 +89,47 @@ public:
   }
 };
 
+class FileToTransfer {
 
+private:
+  OneFile m_fileInfo;
+  QString m_destinationPath;
+  MACHINE_TYPE m_sourceMachineType;
+  TRANSFER_FILE_STATUS m_fileStatus;
+
+public:
+  const OneFile &fileInfo () const {
+    return m_fileInfo;
+  }
+  const QString &destinationPath() const {
+    return m_destinationPath;
+  }
+  MACHINE_TYPE sourceMachineType () const {
+    return m_sourceMachineType;
+  }
+  TRANSFER_FILE_STATUS currentFileStatus () const {
+    return m_fileStatus;
+  }
+  void setFileInfo(const OneFile &fileInfo) {
+    m_fileInfo = fileInfo;
+  }
+
+  void setDesinationPath(const QString destinationPath) {
+    m_destinationPath = destinationPath;
+  }
+
+  void setSourceMachineType(MACHINE_TYPE sourceMachineType) {
+    m_sourceMachineType = sourceMachineType;
+  }
+
+  void setTransferFileStatus(TRANSFER_FILE_STATUS fileStatus) {
+    m_fileStatus = fileStatus;
+  }
+
+};
+
+
+/*
 class CustomListWidget : public QListWidget
 {
   Q_OBJECT
@@ -92,7 +157,7 @@ private:
     }
   }
 };
-
+*/
 
 
 class DlgTransferFile : public QDialog
@@ -105,52 +170,53 @@ public:
   void addSSHKey(const QString &key);
   void addIPPort(const QString &ip, const QString &port);
   void addUser(const QString &user);
-  void upload_finished(system_call_wrapper_error_t res, int file_id);
-  std::vector <OneFile> remote_files;
-  std::vector <OneFile> local_files;
 
 private:
-  void local_back();
-  void remote_back();
-  void path_remote_changed(const QString &new_path);
-  void path_local_changed(const QString &new_path);
 
-  void design_table_widget(QTableWidget *tw, const QStringList &headers);
+  std::vector <OneFile> remote_files;
+  std::vector <OneFile> local_files;
+  std::deque <FileToTransfer> files_to_transfer;
+  QDir current_local_dir;
+  QString current_remote_dir;
 
   Ui::DlgTransferFile *ui;
-  void add_file_local(const QFileInfo &fi);
-  void fill_with_local_dir();
 
-  bool is_uploading;
-  int cnt_upload_files;
-  void check_more_info(bool checked);
-  void add_file_remote(const QString file_name, const QString file_size);
-  void refresh_remote_file_system();
+  void local_back();
+  void remote_back();
+
+  void path_local_changed(const QString &new_path);
+  void path_remote_changed(const QString &new_path);
+
+  void add_file_local(const QFileInfo &fi);
+  void add_file_remote(const QString &file_info);
+
   void refresh_local_file_system();
-  void Init();
-  void file_to_download();
+  void refresh_remote_file_system();
+
   void file_to_upload();
+  void file_to_download();
+
   void upload_selected();
   void download_selected();
 
-  void add_file(QTableWidget *tw, int row, const std::vector<QString> &values) ;
-  void refresh_button();
-
-  void local_file_system_directory_selected(const QModelIndex &index);
+  void refresh_button_local();
+  void refresh_button_remote();
 
   void file_local_selected(const QModelIndex &index);
   void file_remote_selected(const QModelIndex &index);
 
+  // common functions
 
-  void set_upload_status (bool uploading);
-  void add_file(const QString &filename);
-  void clear_all_files();
-  void upload_files();
-  void select_file();
-  void upload_start(int file_id);
-  QDir current_local_dir;
-  QString current_remote_dir;
-
+  void transfer_finished(int tw_row, system_call_wrapper_error_t res);
+  void transfer_file(int tw_row);
+  void start_transfer_files();
+  void clear_files();
+  void design_table_widget(QTableWidget *tw, const QStringList &headers);
+  void add_file_to_file_system_tw(QTableWidget *file_system_tw, int row, const OneFile &file);
+  void file_transfer_field_add_file(const FileToTransfer &file, bool instant_transfer);
+  QString parseDate(const QString &month, const QString &day, const QString &year_or_time);
+  void check_more_info(bool checked);
+  void Init();
 };
 
 #endif // DLGTRANSFERFILE_H

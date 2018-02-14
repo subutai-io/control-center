@@ -205,10 +205,9 @@ system_call_wrapper_error_t CSystemCallWrapper::send_command(
 }
 
 
-system_call_wrapper_error_t CSystemCallWrapper::copy_paste
+system_call_wrapper_error_t CSystemCallWrapper::upload_file
 (const QString &remote_user, const QString &ip, const QString &port,
  const QString &destination, const QString &file_path) {
-    QStringList output;
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
@@ -218,12 +217,29 @@ system_call_wrapper_error_t CSystemCallWrapper::copy_paste
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true);
-  output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return SCWE_CREATE_PROCESS;
   }
   return res.res;
 }
+
+system_call_wrapper_error_t CSystemCallWrapper::download_file
+(const QString &remote_user, const QString &ip, const QString &port,
+ const QString &local_destination, const QString &remote_file_path) {
+  QString cmd
+      = CSettingsManager::Instance().scp_path();
+  QStringList args;
+  args << "-P" << port
+       << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
+       << local_destination;
+  qDebug() << "ARGS=" << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true);
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    return SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
 //////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(

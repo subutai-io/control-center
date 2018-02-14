@@ -49,7 +49,7 @@ void DlgEnvironment::upload_selected() {
 
   QTimer::singleShot(2000, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
-    this->ui->btn_upload_selected->setText("EZ-UPLOAD");
+    this->ui->btn_upload_selected->setText("TRANSFER");
   });
 }
 
@@ -67,7 +67,7 @@ void DlgEnvironment::desktop_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_desktop_selected->setEnabled(true);
-    this->ui->btn_desktop_selected->setText("EZ-DESKTOP");
+    this->ui->btn_desktop_selected->setText("DESKTOP");
   });
 }
 
@@ -85,7 +85,7 @@ void DlgEnvironment::ssh_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_ssh_selected->setEnabled(true);
-    this->ui->btn_ssh_selected->setText("EZ-SSH");
+    this->ui->btn_ssh_selected->setText("SSH");
   });
 }
 

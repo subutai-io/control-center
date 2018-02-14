@@ -7,23 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>898</width>
-    <height>454</height>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="11" column="0" colspan="4">
-    <widget class="QCheckBox" name="more_info">
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>More Info about remote machine</string>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="0" colspan="4">
     <widget class="QLineEdit" name="le_local"/>
    </item>
@@ -81,6 +71,9 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="5" colspan="4">
+    <widget class="QLineEdit" name="le_remote"/>
+   </item>
    <item row="4" column="2">
     <widget class="QPushButton" name="btn_add_local">
      <property name="text">
@@ -102,8 +95,11 @@
      </property>
     </widget>
    </item>
+   <item row="9" column="0" colspan="9">
+    <widget class="QTableWidget" name="tw_transfer_file"/>
+   </item>
    <item row="4" column="0">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="btn_upload_file">
      <property name="text">
       <string>Upload</string>
      </property>
@@ -113,13 +109,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="5" colspan="4">
-    <widget class="QLineEdit" name="le_remote"/>
-   </item>
-   <item row="9" column="0" colspan="9">
-    <widget class="QTableWidget" name="tw_transfer_file"/>
-   </item>
-   <item row="13" column="0" colspan="9">
+   <item row="15" column="0" colspan="9">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Remote Machine Parameters</string>
@@ -168,14 +158,28 @@
      </layout>
     </widget>
    </item>
+   <item row="0" column="4" rowspan="8">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="5">
-    <widget class="QPushButton" name="btn_download">
+    <widget class="QPushButton" name="btn_download_file">
      <property name="text">
       <string>Download</string>
      </property>
      <property name="icon">
       <iconset theme=":/hub/download" resource="../../resources/resources.qrc">
        <normaloff>:/hub/download.png</normaloff>:/hub/download.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Your files:</string>
      </property>
     </widget>
    </item>
@@ -190,13 +194,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Your files:</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="5">
     <widget class="QLabel" name="label_8">
      <property name="text">
@@ -204,10 +201,27 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="4" rowspan="8">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="10" column="7" colspan="2">
+    <widget class="QPushButton" name="btn_start_transfer">
+     <property name="text">
+      <string>Start to Transfer Files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="5" colspan="2">
+    <widget class="QPushButton" name="btn_clear_files">
+     <property name="text">
+      <string>Clear all files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="5" colspan="4">
+    <widget class="QCheckBox" name="more_info">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>More Info about remote machine</string>
      </property>
     </widget>
    </item>
