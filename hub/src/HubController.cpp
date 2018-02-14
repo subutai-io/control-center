@@ -454,15 +454,15 @@ void CHubController::desktop_to_container_from_hub(const QString &env_id, const 
   env = res.first;
   cont = res.second;
   if (env == NULL) {
-    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
+    emit desktop_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
   }
   else
   if (cont == NULL) {
-    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
+    emit desktop_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
   }
   else {
-    ssh_desktop_launch_error_t res = ssh_to_container(*env, *cont);
-    emit ssh_to_container_from_hub_finished(*env, *cont, res, additional_data);
+    ssh_desktop_launch_error_t res = desktop_to_container(*env, *cont);
+    emit desktop_to_container_from_hub_finished(*env, *cont, res, additional_data);
   }
 }
 
