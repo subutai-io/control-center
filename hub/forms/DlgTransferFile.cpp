@@ -25,6 +25,10 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::Init() {
+  ui->local_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  ui->remote_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  ui->tw_transfer_file->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
   ui->groupBox->setVisible(false);
 
   ui->le_local->setReadOnly(true);

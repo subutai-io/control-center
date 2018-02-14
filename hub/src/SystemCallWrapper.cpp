@@ -178,6 +178,8 @@ QStringList CSystemCallWrapper::get_output_from_ssh_command(
   system_call_wrapper_error_t res = send_command(remote_user, ip, port, commands, output);
   if (res == SCWE_SUCCESS)
     return output;
+  CNotificationObserver::Instance()->Error(QString("Can't execute ssh command remotely. Error: %1").arg(scwe_error_to_str(res)),
+                                          DlgNotification::N_NO_ACTION);
   return QStringList();
 }
 
@@ -195,7 +197,7 @@ system_call_wrapper_error_t CSystemCallWrapper::send_command(
        << QString("%1").arg(commands);
   qDebug() << "ARGS=" << args;
 
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
 
   output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
@@ -216,7 +218,7 @@ system_call_wrapper_error_t CSystemCallWrapper::upload_file
        << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
-  system_call_res_t res = ssystem_th(cmd, args, true, true);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return SCWE_CREATE_PROCESS;
   }
@@ -233,7 +235,7 @@ system_call_wrapper_error_t CSystemCallWrapper::download_file
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
-  system_call_res_t res = ssystem_th(cmd, args, true, true);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return SCWE_CREATE_PROCESS;
   }
