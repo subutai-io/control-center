@@ -42,13 +42,6 @@
    <item row="1" column="6" colspan="5">
     <widget class="FileSystemTableWidget" name="remote_file_system"/>
    </item>
-   <item row="4" column="10">
-    <widget class="QPushButton" name="btn_start_transfer">
-     <property name="text">
-      <string>Start to Transfer Files</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="6">
     <widget class="QPushButton" name="btn_download_file">
      <property name="text">
@@ -209,6 +202,13 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="5" column="4">
+    <widget class="QPushButton" name="btn_start_transfer">
+     <property name="text">
+      <string>Start to Transfer Files</string>
+     </property>
     </widget>
    </item>
   </layout>

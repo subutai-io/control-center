@@ -18,6 +18,120 @@
 namespace Ui {
   class DlgTransferFile;
 }
+
+class FileThreadDownloader : public QObject{
+  Q_OBJECT
+  QString remote_user, remote_ip, remote_port;
+  QString file_path, file_desination;
+
+public:
+  FileThreadDownloader(QObject *parent = nullptr) : QObject (parent)
+  {
+
+  }
+  void init (const QString &remote_user,
+             const QString &remote_ip,
+             const QString &remote_port,
+             const QString &file_path,
+             const QString &file_destination) {
+    this->remote_user = remote_user;
+    this->remote_ip = remote_ip;
+    this->remote_port = remote_port;
+    this->file_path = file_path;
+    this->file_desination = file_destination;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread(this);
+    connect(thread, &QThread::started,
+            this, &FileThreadDownloader::execute_remote_command);
+    connect(this, &FileThreadDownloader::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &FileThreadDownloader::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    //QStringList output;
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::download_file,
+                          remote_user, remote_ip, remote_port, file_desination, file_path);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result());
+    });
+  }
+
+signals:
+  void outputReceived(system_call_wrapper_error_t res);
+};
+
+
+class FileThreadUploader : public QObject{
+  Q_OBJECT
+  QString remote_user, remote_ip, remote_port;
+  QString file_path, file_desination;
+
+public:
+  FileThreadUploader(QObject *parent = nullptr) : QObject (parent)
+  {
+
+  }
+  void init (const QString &remote_user,
+             const QString &remote_ip,
+             const QString &remote_port,
+             const QString &file_path,
+             const QString &file_destination) {
+    this->remote_user = remote_user;
+    this->remote_ip = remote_ip;
+    this->remote_port = remote_port;
+    this->file_path = file_path;
+    this->file_desination = file_destination;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread(this);
+    connect(thread, &QThread::started,
+            this, &FileThreadUploader::execute_remote_command);
+    connect(this, &FileThreadUploader::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &FileThreadUploader::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    //QStringList output;
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::upload_file,
+                          remote_user, remote_ip, remote_port, file_desination, file_path);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result());
+    });
+  }
+
+signals:
+  void outputReceived(system_call_wrapper_error_t res);
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class RemoteCommandExecutor : public QObject{
   Q_OBJECT
   QString remote_user, remote_ip, remote_port;
@@ -39,8 +153,7 @@ public:
   }
 
   void startWork() {
-    QThread* thread = new QThread;
-    this->moveToThread(thread);
+    QThread* thread = new QThread(this);
     connect(thread, &QThread::started,
             this, &RemoteCommandExecutor::execute_remote_command);
     connect(this, &RemoteCommandExecutor::outputReceived,
@@ -49,16 +162,23 @@ public:
             this, &RemoteCommandExecutor::deleteLater);
     connect(thread, &QThread::finished,
             thread, &QThread::deleteLater);
+    this->moveToThread(thread);
     thread->start();
   }
 
+
   void execute_remote_command() {
     //QStringList output;
+    QFutureWatcher<QStringList> *watcher
+        = new QFutureWatcher<QStringList>(this);
+
     QFuture<QStringList>  res =
         QtConcurrent::run(CSystemCallWrapper::get_output_from_ssh_command,
-                                                   remote_user, remote_ip, remote_port, command);
-    res.waitForFinished();
-    emit outputReceived(res.result());
+                          remote_user, remote_ip, remote_port, command);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<QStringList>::finished, [this, res](){
+      emit this->outputReceived(res.result());
+    });
   }
 
 signals:
@@ -187,16 +307,15 @@ protected:
       e->accept();
     } else {
       e->accept();
-//      e->ignore();
     }
   }
 
   void dropEvent(QDropEvent *e) {
     foreach (const QUrl &url, e->mimeData()->urls()) {
       QString filePath = url.toLocalFile();
-      CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
-    }
 
+      // CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
+    }
   }
 };
 

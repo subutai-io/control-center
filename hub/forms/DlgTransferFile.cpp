@@ -52,8 +52,6 @@ void DlgTransferFile::Init() {
   ui->local_file_system->setDragEnabled(true);
   ui->remote_file_system->setDragEnabled(true);
 
-
-
   ui->tw_transfer_file->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
   ui->groupBox->setVisible(false);
@@ -161,7 +159,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
 
-  FileToTransfer file_to_transfer = files_to_transfer[tw_row];
+  FileToTransfer &file_to_transfer = files_to_transfer[tw_row];
   QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
   if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
@@ -212,22 +210,29 @@ void DlgTransferFile::transfer_file(int tw_row) {
   QFuture<system_call_wrapper_error_t> res;
   watcher->setFuture(res);
 
-  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD)
-    res = QtConcurrent::run(CSystemCallWrapper::upload_file,
-                      remote_user, remote_ip, remote_port, file_to_transfer.destinationPath(),
-                      file_to_transfer.fileInfo().filePath());
-  else
-    res = QtConcurrent::run(CSystemCallWrapper::download_file,
-                            remote_user, remote_ip, remote_port, file_to_transfer.destinationPath(),
-                            file_to_transfer.fileInfo().filePath());
+  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
+    FileThreadUploader *file_thread_uploader =
+        new FileThreadUploader(this);
+    file_thread_uploader->init(remote_user, remote_ip, remote_port, file_to_transfer.fileInfo().filePath(),
+                               file_to_transfer.destinationPath());
+    file_thread_uploader->startWork();
+    connect(file_thread_uploader, &FileThreadUploader::outputReceived,
+            [tw_row, this](system_call_wrapper_error_t res){
+      this->transfer_finished(tw_row, res);
+    });
+  }
+  else {
+    FileThreadUploader *file_thread_uploader =
+        new FileThreadUploader(this);
+    file_thread_uploader->init(remote_user, remote_ip, remote_port, file_to_transfer.fileInfo().filePath(),
+                               file_to_transfer.destinationPath());
 
-  connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
-          [this, res, tw_row, twi_operation_status](){
-    this->transfer_finished(tw_row, res.result());
-  });
-
-  connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
-          watcher, &QFutureWatcher<system_call_wrapper_error_t>::deleteLater);
+    file_thread_uploader->startWork();
+    connect(file_thread_uploader, &FileThreadUploader::outputReceived,
+            [tw_row, this](system_call_wrapper_error_t res){
+      this->transfer_finished(tw_row, res);
+    });
+  }
 }
 
 void DlgTransferFile::start_transfer_files() {
@@ -240,7 +245,7 @@ void DlgTransferFile::start_transfer_files() {
       transfer_file(row);
     }
   }
-  else{
+  else {
     for (QTableWidgetSelectionRange table_range : ui->tw_transfer_file->selectedRanges()) {
       for (int row = table_range.bottomRow() ; row >= table_range.topRow() ; row --) {
         if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
