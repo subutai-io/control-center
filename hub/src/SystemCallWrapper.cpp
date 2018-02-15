@@ -213,9 +213,11 @@ system_call_wrapper_error_t CSystemCallWrapper::upload_file
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
-  args << "-P" << port
-       << file_path
-       << QString("%1@%2:%3").arg(remote_user, ip, destination);
+
+  args<< "-rp"
+      << "-P" << port
+      << file_path
+      << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
@@ -231,7 +233,8 @@ system_call_wrapper_error_t CSystemCallWrapper::download_file
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
-  args << "-P" << port
+  args << "-rp"
+       << "-P" << port
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;

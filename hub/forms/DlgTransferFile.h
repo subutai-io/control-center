@@ -18,6 +18,53 @@
 namespace Ui {
   class DlgTransferFile;
 }
+class RemoteCommandExecutor : public QObject{
+  Q_OBJECT
+  QString remote_user, remote_ip, remote_port;
+  QString command;
+
+public:
+  RemoteCommandExecutor(QObject *parent = nullptr) : QObject (parent)
+  {
+
+  }
+  void init (const QString &remote_user,
+             const QString &remote_ip,
+             const QString &remote_port,
+             const QString &command) {
+    this->remote_user = remote_user;
+    this->remote_ip = remote_ip;
+    this->remote_port = remote_port;
+    this->command = command;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread;
+    this->moveToThread(thread);
+    connect(thread, &QThread::started,
+            this, &RemoteCommandExecutor::execute_remote_command);
+    connect(this, &RemoteCommandExecutor::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &RemoteCommandExecutor::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    thread->start();
+  }
+
+  void execute_remote_command() {
+    //QStringList output;
+    QFuture<QStringList>  res =
+        QtConcurrent::run(CSystemCallWrapper::get_output_from_ssh_command,
+                                                   remote_user, remote_ip, remote_port, command);
+    res.waitForFinished();
+    emit outputReceived(res.result());
+  }
+
+signals:
+  void outputReceived(const QStringList &output);
+};
+
 
 enum FILE_TYPE {
   FILE_TYPE_SIMPLE = 0,
@@ -128,16 +175,40 @@ public:
 
 };
 
+#include "NotificationObserver.h"
 
-/*
-class CustomListWidget : public QListWidget
+class FileSystemTableWidget : public QTableWidget
+{
+public:
+  FileSystemTableWidget(QWidget *parent) : QTableWidget(parent) {}
+protected:
+  void dragMoveEvent(QDragMoveEvent *e) {
+    if (e->source() != this) {
+      e->accept();
+    } else {
+      e->accept();
+//      e->ignore();
+    }
+  }
+
+  void dropEvent(QDropEvent *e) {
+    foreach (const QUrl &url, e->mimeData()->urls()) {
+      QString filePath = url.toLocalFile();
+      CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
+    }
+
+  }
+};
+
+class DropFileTableWidget : public QTableWidget
 {
   Q_OBJECT
 public:
-  explicit CustomListWidget(QWidget *parent = Q_NULLPTR) :
-    QListWidget(parent) {
+  explicit DropFileTableWidget(QWidget *parent = Q_NULLPTR) :
+    QTableWidget(parent) {
     setAcceptDrops(true);
   }
+
 private:
   void dragEnterEvent(QDragEnterEvent *event) override {
     setBackgroundRole(QPalette::Highlight);
@@ -152,12 +223,14 @@ private:
 
   void dropEvent(QDropEvent *event) override {
     foreach (const QUrl &url, event->mimeData()->urls()) {
-      QString fileName = url.toLocalFile();
-      this->addItem(fileName);
+      QString filePath = url.toLocalFile();
+      emit file_was_dropped(filePath);
     }
   }
+
+signals:
+  void file_was_dropped(const QString &file_path);
 };
-*/
 
 
 class DlgTransferFile : public QDialog
@@ -207,6 +280,8 @@ private:
 
   // common functions
 
+  void file_was_dropped(const QString &file_path);
+  void set_buttons_enabled(bool enabled);
   void transfer_finished(int tw_row, system_call_wrapper_error_t res);
   void transfer_file(int tw_row);
   void start_transfer_files();
@@ -216,6 +291,7 @@ private:
   void file_transfer_field_add_file(const FileToTransfer &file, bool instant_transfer);
   QString parseDate(const QString &month, const QString &day, const QString &year_or_time);
   void check_more_info(bool checked);
+  void output_from_remote_command(const QStringList &output);
   void Init();
 };
 

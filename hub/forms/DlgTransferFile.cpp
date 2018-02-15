@@ -25,8 +25,35 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::Init() {
+  ui->btn_add_local->setToolTip("Add selected files to transfer file stack");
+  ui->btn_add_remote->setToolTip("Add selected files to transfer file stack");
+
+  ui->btn_upload_file->setToolTip("Upload selected files");
+  ui->btn_download_file->setToolTip("Download selected files");
+
+  ui->btn_refresh_local->setToolTip("Refresh current local directory");
+  ui->btn_refresh_remote->setToolTip("Refresh current remote directory");
+
+  ui->btn_local_back->setToolTip("Go to the parent directory");
+  ui->btn_remote_back->setToolTip("Go to the parent directory");
+
   ui->local_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->remote_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+  ui->local_file_system->setDragDropMode(QAbstractItemView::DragDrop);
+  ui->remote_file_system->setDragDropMode(QAbstractItemView::DragDrop);
+
+  ui->local_file_system->setDropIndicatorShown(true);
+  ui->remote_file_system->setDropIndicatorShown(true);
+
+  ui->local_file_system->viewport()->setAcceptDrops(true);
+  ui->remote_file_system->viewport()->setAcceptDrops(true);
+
+  ui->local_file_system->setDragEnabled(true);
+  ui->remote_file_system->setDragEnabled(true);
+
+
+
   ui->tw_transfer_file->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
   ui->groupBox->setVisible(false);
@@ -75,29 +102,67 @@ void DlgTransferFile::Init() {
 
   connect(ui->btn_start_transfer, &QPushButton::clicked,
           this, &DlgTransferFile::start_transfer_files);
+
   connect(ui->btn_clear_files, &QPushButton::clicked,
           this, &DlgTransferFile::clear_files);
+
+  connect(ui->tw_transfer_file, &DropFileTableWidget::file_was_dropped,
+          this, &DlgTransferFile::file_was_dropped);
 
   QStringList file_system_header {
     "Name", "Size", "Modified", "File Path"
   };
 
   QStringList transfer_file_field_header {
-    "Source File", "File Path", "Destination", "Size", "Time", "Operation Status",
+    "Source File", "File Path", "Destination", "Size", "Operation Status",
   };
   design_table_widget(ui->local_file_system, file_system_header);
   design_table_widget(ui->remote_file_system, file_system_header);
   design_table_widget(ui->tw_transfer_file, transfer_file_field_header);
+
+  refresh_local_file_system();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+
+void DlgTransferFile::file_was_dropped(const QString &file_path) {
+  QFileInfo fi(file_path);
+  OneFile local_file(fi.fileName(),
+                     fi.absoluteFilePath(),
+                     fi.created(),
+                     fi.size(),
+                     fi.isDir() ? FILE_TYPE_DIRECTORY : FILE_TYPE_SIMPLE);
+  FileToTransfer file_to_transfer;
+  file_to_transfer.setFileInfo(local_file);
+  file_to_transfer.setDesinationPath(current_remote_dir);
+  file_to_transfer.setSourceMachineType(LOCAL_MACHINE);
+  file_to_transfer.setTransferFileStatus(FILE_TO_UPLOAD);
+  file_transfer_field_add_file(file_to_transfer, false);
+}
+
+void DlgTransferFile::set_buttons_enabled(bool enabled) {
+  ui->btn_clear_files->setEnabled(enabled);
+  ui->btn_start_transfer->setEnabled(enabled);
+
+  ui->btn_upload_file->setEnabled(enabled);
+  ui->btn_download_file->setEnabled(enabled);
+
+  ui->btn_add_local->setEnabled(enabled);
+  ui->btn_add_remote->setEnabled(enabled);
+
+  ui->btn_refresh_local->setEnabled(enabled);
+  ui->btn_refresh_remote->setEnabled(enabled);
+
+  ui->btn_local_back->setEnabled(enabled);
+  ui->btn_remote_back->setEnabled(enabled);
+}
 
 void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t res) {
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
 
   FileToTransfer file_to_transfer = files_to_transfer[tw_row];
-  QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 5);
+  QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
   if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
     if (res == SCWE_SUCCESS) {
@@ -130,7 +195,7 @@ void DlgTransferFile::transfer_file(int tw_row) {
     return;
 
   FileToTransfer file_to_transfer = files_to_transfer[tw_row];
-  QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 5);
+  QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
   static QIcon waiting_icon(":/hub/uploading.png");
 
@@ -166,17 +231,44 @@ void DlgTransferFile::transfer_file(int tw_row) {
 }
 
 void DlgTransferFile::start_transfer_files() {
-  for (int row = 0 ; row < (int)files_to_transfer.size() ; row ++) {
-    if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
-        || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
-      continue;
-    transfer_file(row);
+  set_buttons_enabled(false);
+  if (ui->tw_transfer_file->selectedRanges().isEmpty()) {
+    for (int row = 0 ; row < (int)files_to_transfer.size() ; row ++) {
+      if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
+          || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
+        continue;
+      transfer_file(row);
+    }
   }
+  else{
+    for (QTableWidgetSelectionRange table_range : ui->tw_transfer_file->selectedRanges()) {
+      for (int row = table_range.bottomRow() ; row >= table_range.topRow() ; row --) {
+        if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
+            || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
+          continue;
+        transfer_file(row);
+      }
+    }
+  }
+  set_buttons_enabled(true);
 }
 
 void DlgTransferFile::clear_files() {
-  ui->tw_transfer_file->setRowCount(0);
-  files_to_transfer.clear();
+  set_buttons_enabled(false);
+  if (ui->tw_transfer_file->selectedRanges().isEmpty())
+  {
+    ui->tw_transfer_file->setRowCount(0);
+    files_to_transfer.clear();
+  }
+  else{
+    for (QTableWidgetSelectionRange table_range : ui->tw_transfer_file->selectedRanges()) {
+      for (int row = table_range.bottomRow() ; row >= table_range.topRow() ; row --) {
+        ui->tw_transfer_file->removeRow(row);
+        files_to_transfer.erase(files_to_transfer.begin() + row);
+      }
+    }
+  }
+  set_buttons_enabled(true);
 }
 
 QString DlgTransferFile::parseDate(const QString &month, const QString &day, const QString &year_or_time) {
@@ -207,6 +299,7 @@ void DlgTransferFile::addIPPort(const QString &ip, const QString &port) {
 }
 void DlgTransferFile::addUser(const QString &user) {
   ui->remote_user->setText(user);
+  refresh_remote_file_system();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -227,9 +320,7 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
   QTableWidgetItem *wi_file_path = new QTableWidgetItem(file.fileInfo().filePath());
   QTableWidgetItem *wi_destination_directory = new QTableWidgetItem(file.destinationPath());
   QTableWidgetItem *wi_file_size = new QTableWidgetItem(QString::number(file.fileInfo().fileSize()));
-  QTableWidgetItem *wi_file_time = new QTableWidgetItem("00:00");
-  QTableWidgetItem *wi_file_status = new QTableWidgetItem("Uploading");
-
+  QTableWidgetItem *wi_file_status;
   if (file.currentFileStatus() == FILE_TO_UPLOAD) wi_file_status = new QTableWidgetItem(ok_icon,"Not yet Uploaded");
   else wi_file_status = new QTableWidgetItem(ok_icon, "Not yet downloaded");
 
@@ -237,8 +328,7 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
   ui->tw_transfer_file->setItem(current_row, 1, wi_file_path);
   ui->tw_transfer_file->setItem(current_row, 2, wi_destination_directory);
   ui->tw_transfer_file->setItem(current_row, 3, wi_file_size);
-  ui->tw_transfer_file->setItem(current_row, 4, wi_file_time);
-  ui->tw_transfer_file->setItem(current_row, 5, wi_file_status);
+  ui->tw_transfer_file->setItem(current_row, 4, wi_file_status);
 
   files_to_transfer.push_front(file);
   if (instant_transfer)
@@ -282,6 +372,7 @@ void DlgTransferFile::add_file_to_file_system_tw(QTableWidget *file_system_tw, i
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::upload_selected() {
+  set_buttons_enabled(false);
   for (QTableWidgetSelectionRange table_range : ui->local_file_system->selectedRanges()) {
     for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
       FileToTransfer file_to_transfer;
@@ -292,9 +383,11 @@ void DlgTransferFile::upload_selected() {
       file_transfer_field_add_file(file_to_transfer, true);
     }
   }
+  set_buttons_enabled(true);
 }
 
 void DlgTransferFile::download_selected() {
+  set_buttons_enabled(false);
   for (QTableWidgetSelectionRange table_range : ui->remote_file_system->selectedRanges()) {
     for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
       FileToTransfer file_to_transfer;
@@ -305,11 +398,13 @@ void DlgTransferFile::download_selected() {
       file_transfer_field_add_file(file_to_transfer, true);
     }
   }
+  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::file_to_upload() {
+  set_buttons_enabled(false);
   for (QTableWidgetSelectionRange table_range : ui->local_file_system->selectedRanges()) {
     for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
       FileToTransfer file_to_transfer;
@@ -321,9 +416,11 @@ void DlgTransferFile::file_to_upload() {
 
     }
   }
+  set_buttons_enabled(true);
 }
 
 void DlgTransferFile::file_to_download() {
+  set_buttons_enabled(false);
   for (QTableWidgetSelectionRange table_range : ui->remote_file_system->selectedRanges()) {
     for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
       FileToTransfer file_to_transfer;
@@ -334,6 +431,7 @@ void DlgTransferFile::file_to_download() {
       file_transfer_field_add_file(file_to_transfer, false);
     }
   }
+  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -390,11 +488,14 @@ void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::local_back() {
+  if (current_local_dir.absolutePath() == "/")
+    return;
   current_local_dir.cdUp();
   refresh_local_file_system();
 }
 
 void DlgTransferFile::remote_back() {
+  set_buttons_enabled(false);
   QStringList pwd = current_remote_dir.split("/");
   QString new_dir = "";
   // EXAMPLE: current_remote_dir= '/usr/bin/'
@@ -405,6 +506,7 @@ void DlgTransferFile::remote_back() {
   new_dir.append("/");
   current_remote_dir = new_dir;
   refresh_remote_file_system();
+  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -466,11 +568,15 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::refresh_button_local() {
+  set_buttons_enabled(false);
   refresh_local_file_system();
+  set_buttons_enabled(true);
 }
 
 void DlgTransferFile::refresh_button_remote() {
+  set_buttons_enabled(false);
   refresh_remote_file_system();
+  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -487,35 +593,25 @@ void DlgTransferFile::refresh_local_file_system() {
 void DlgTransferFile::refresh_remote_file_system() {
 
   ui->remote_file_system->setRowCount(0);
+  ui->le_remote->setText(current_remote_dir);
   remote_files.clear();
 
-  ui->le_remote->setText(current_remote_dir);
-
-  //QStringList infoList = ssh_cmd(current_remote_dir, "cd %1; ls -l;".arg(current_remote_dir));
   QString remote_user = ui->remote_user->text();
   QString remote_port = ui->remote_port->text();
   QString remote_ip = ui->remote_ip->text();
   QString command = QString("cd %1; ls -lF;").arg(current_remote_dir);
-
-  QFutureWatcher<QStringList> *watcher =
-      new QFutureWatcher<QStringList>(this);
-
-  QFuture<QStringList> res;
-  watcher->setFuture(res);
-  res = QtConcurrent::run(CSystemCallWrapper::get_output_from_ssh_command,
-                    remote_user, remote_ip, remote_port, command);
-  connect(watcher, &QFutureWatcher<QStringList>::finished,
-          [this, res](){
-    QStringList output = res.result();
-    for (QString file_info : output) {
-      this->add_file_remote(file_info);
-    }
-  });
-
-  connect(watcher, &QFutureWatcher<QStringList>::finished,
-          watcher, &QFutureWatcher<QStringList>::deleteLater);
+  RemoteCommandExecutor *command_executor = new RemoteCommandExecutor(this);
+  command_executor->init(remote_user, remote_ip,remote_port, command);
+  command_executor->startWork();
+  connect(command_executor, &RemoteCommandExecutor::outputReceived,
+          this, &DlgTransferFile::output_from_remote_command);
 }
 
+void DlgTransferFile::output_from_remote_command(const QStringList &output) {
+  for (QString file_info : output) {
+    add_file_remote(file_info);
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////////////
 
 DlgTransferFile::~DlgTransferFile()

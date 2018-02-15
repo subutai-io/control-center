@@ -49,7 +49,7 @@ void DlgEnvironment::upload_selected() {
 
   QTimer::singleShot(2000, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
-    this->ui->btn_upload_selected->setText("TRANSFER");
+    this->ui->btn_upload_selected->setText("TRANSFER FILE");
   });
 }
 
