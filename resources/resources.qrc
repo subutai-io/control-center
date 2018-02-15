@@ -55,6 +55,7 @@
         <file>directory_icon.png</file>
         <file>add_green.png</file>
         <file>add_blue.png</file>
+        <file>refreshing.gif</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

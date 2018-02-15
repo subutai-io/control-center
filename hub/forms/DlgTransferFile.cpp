@@ -23,8 +23,13 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////// COMMON FUNCTIONS ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+#include <QMovie>
 
 void DlgTransferFile::Init() {
+  QMovie *movie = new QMovie(":/hub/refreshing.gif");
+  ui->lbl_local_files->setMovie(movie);
+  movie->start();
+
   ui->btn_add_local->setToolTip("Add selected files to transfer file stack");
   ui->btn_add_remote->setToolTip("Add selected files to transfer file stack");
 

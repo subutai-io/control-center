@@ -21,13 +21,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Your files:</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QPushButton" name="btn_upload_file">
      <property name="text">
@@ -116,13 +109,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="6" colspan="3">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Remote Files:</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="7">
     <widget class="QPushButton" name="btn_remote_back">
      <property name="text">
@@ -208,6 +194,26 @@
     <widget class="QPushButton" name="btn_start_transfer">
      <property name="text">
       <string>Start to Transfer Files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QLabel" name="lbl_local_files">
+     <property name="text">
+      <string>Your files:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6" colspan="5">
+    <widget class="QLabel" name="lbl_remote_files">
+     <property name="text">
+      <string>Remote Files:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
