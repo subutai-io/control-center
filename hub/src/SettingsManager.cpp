@@ -27,6 +27,7 @@ const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
 const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
+const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -165,6 +166,7 @@ CSettingsManager::CSettingsManager()
       m_remember_me(false),
       m_refresh_time_sec(DEFAULT_REFRESH_TIMEOUT_SEC),
       m_p2p_path(default_p2p_path()),
+      m_vagrant_path(default_vagrant_path()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -221,6 +223,7 @@ CSettingsManager::CSettingsManager()
       // str
       {(void*)&m_login, SM_LOGIN, qvar_to_str},
       {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
+      {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
       {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
@@ -291,14 +294,15 @@ CSettingsManager::CSettingsManager()
 
   // which using
   QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, &m_x2goclient, nullptr};
+                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, nullptr};
   static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path(), default_x2goclient_path()};
+                                           default_p2p_path(), default_x2goclient_path(), default_vagrant_path()};
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
                                      "p2p",
-                                     "x2goclient"};
+                                     "x2goclient",
+                                     "vagrant"};
 
 
   QString tmp;
@@ -543,6 +547,11 @@ void CSettingsManager::set_p2p_path(QString p2p_path) {
   m_settings.setValue(SM_P2P_PATH, m_p2p_path);
 }
 
+void CSettingsManager::set_vagrant_path(QString vagrant_path) {
+  QString sl = QFile::symLinkTarget(vagrant_path);
+  m_vagrant_path = sl == "" ? vagrant_path : sl;
+  m_settings.setValue(SM_VAGRANT_PATH, m_vagrant_path);
+}
 void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
   QString sl = QFile::symLinkTarget(x2goclient_path);
   m_x2goclient = sl == "" ? x2goclient_path : sl;

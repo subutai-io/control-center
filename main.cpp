@@ -159,7 +159,6 @@ main(int argc, char *argv[]) {
             emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_FAIL);
       }
 
-
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {
