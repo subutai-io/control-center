@@ -171,22 +171,9 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QStringList CSystemCallWrapper::get_output_from_ssh_command(
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_command(
     const QString &remote_user, const QString &ip, const QString &port,
     const QString &commands) {
-  QStringList output;
-  system_call_wrapper_error_t res = send_command(remote_user, ip, port, commands, output);
-  if (res == SCWE_SUCCESS)
-    return output;
-  CNotificationObserver::Instance()->Error(QString("Can't execute ssh command remotely. Error: %1").arg(scwe_error_to_str(res)),
-                                          DlgNotification::N_NO_ACTION);
-  return QStringList();
-}
-
-
-system_call_wrapper_error_t CSystemCallWrapper::send_command(
-    const QString &remote_user, const QString &ip, const QString &port,
-    const QString &commands, QStringList &output) {
 
   QString cmd
       = CSettingsManager::Instance().ssh_path();
@@ -198,16 +185,14 @@ system_call_wrapper_error_t CSystemCallWrapper::send_command(
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
-
-  output = res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    return SCWE_CREATE_PROCESS;
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
-  return res.res;
+  return std::make_pair(res.res, res.out);
 }
 
 
-system_call_wrapper_error_t CSystemCallWrapper::upload_file
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_file
 (const QString &remote_user, const QString &ip, const QString &port,
  const QString &destination, const QString &file_path) {
   QString cmd
@@ -222,12 +207,12 @@ system_call_wrapper_error_t CSystemCallWrapper::upload_file
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    return SCWE_CREATE_PROCESS;
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
-  return res.res;
+  return std::make_pair(res.res, res.out);
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::download_file
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download_file
 (const QString &remote_user, const QString &ip, const QString &port,
  const QString &local_destination, const QString &remote_file_path) {
   QString cmd
@@ -240,9 +225,9 @@ system_call_wrapper_error_t CSystemCallWrapper::download_file
   qDebug() << "ARGS=" << args;
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    return SCWE_CREATE_PROCESS;
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
-  return res.res;
+  return std::make_pair(res.res, res.out);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -251,7 +236,6 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
 
   if (is_in_swarm(hash)) return SCWE_SUCCESS;
-
 
   if (!CCommons::IsApplicationLaunchable(
           CSettingsManager::Instance().p2p_path()))

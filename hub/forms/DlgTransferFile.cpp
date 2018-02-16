@@ -9,6 +9,7 @@
 #include <QFileSystemModel>
 #include <QTableWidgetSelectionRange>
 #include <QTableWidgetItem>
+#include <QMovie>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +24,6 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////// COMMON FUNCTIONS ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-#include <QMovie>
 
 void DlgTransferFile::Init() {
   local_movie = new QMovie(":/hub/refreshing.gif");
@@ -159,7 +159,7 @@ void DlgTransferFile::set_buttons_enabled(bool enabled) {
   ui->btn_remote_back->setEnabled(enabled);
 }
 
-void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t res) {
+void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t res, QStringList output) {
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
 
@@ -171,11 +171,15 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_UPLOAD);
       twi_operation_status->setText("Uploaded successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
+      twi_operation_status->setToolTip("");
     }
     else {
       file_to_transfer.setTransferFileStatus(FIlE_FAILED_TO_UPLOAD);
       twi_operation_status->setText("Failed to upload");
       twi_operation_status->setIcon(transfer_failed_icon);
+      twi_operation_status->setToolTip(
+            output.join(",") +
+            " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
   }
   else {
@@ -183,11 +187,15 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_DOWNLOAD);
       twi_operation_status->setText("Downloaded successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
+      twi_operation_status->setToolTip("");
     }
     else {
       file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_DOWNLOAD);
       twi_operation_status->setText("Failed to download");
       twi_operation_status->setIcon(transfer_failed_icon);
+      twi_operation_status->setToolTip(
+            output.join(",") +
+            " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
   }
 }
@@ -221,20 +229,20 @@ void DlgTransferFile::transfer_file(int tw_row) {
                                file_to_transfer.destinationPath());
     file_thread_uploader->startWork();
     connect(file_thread_uploader, &FileThreadUploader::outputReceived,
-            [tw_row, this](system_call_wrapper_error_t res){
-      this->transfer_finished(tw_row, res);
+            [tw_row, this](system_call_wrapper_error_t res, QStringList output){
+      this->transfer_finished(tw_row, res, output);
     });
   }
   else {
-    FileThreadUploader *file_thread_uploader =
-        new FileThreadUploader(this);
-    file_thread_uploader->init(remote_user, remote_ip, remote_port, file_to_transfer.fileInfo().filePath(),
+    FileThreadDownloader *file_thread_uploader =
+        new FileThreadDownloader(this);
+    file_thread_uploader->init(remote_user, remote_ip, remote_port,
+                               file_to_transfer.fileInfo().filePath(),
                                file_to_transfer.destinationPath());
-
     file_thread_uploader->startWork();
-    connect(file_thread_uploader, &FileThreadUploader::outputReceived,
-            [tw_row, this](system_call_wrapper_error_t res){
-      this->transfer_finished(tw_row, res);
+    connect(file_thread_uploader, &FileThreadDownloader::outputReceived,
+            [tw_row, this](system_call_wrapper_error_t res, QStringList output){
+      this->transfer_finished(tw_row, res, output);
     });
   }
 }
@@ -601,7 +609,7 @@ void DlgTransferFile::refresh_local_file_system() {
     add_file_local(fi);
   }
   remote_movie->stop();
-  ui->lbl_local_files->setText("Your files");
+  ui->lbl_local_files->setText("Local");
 }
 
 void DlgTransferFile::refresh_remote_file_system() {
@@ -623,12 +631,12 @@ void DlgTransferFile::refresh_remote_file_system() {
           this, &DlgTransferFile::output_from_remote_command);
 }
 
-void DlgTransferFile::output_from_remote_command(const QStringList &output) {
+void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res, const QStringList &output) {
   for (QString file_info : output) {
     add_file_remote(file_info);
   }
   remote_movie->stop();
-  ui->lbl_remote_files->setText("Remote files");
+  ui->lbl_remote_files->setText("Remote");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 

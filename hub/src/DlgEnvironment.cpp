@@ -49,7 +49,7 @@ void DlgEnvironment::upload_selected() {
 
   QTimer::singleShot(2000, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
-    this->ui->btn_upload_selected->setText("TRANSFER FILE");
+    this->ui->btn_upload_selected->setText("Transfer File");
   });
 }
 
@@ -67,7 +67,7 @@ void DlgEnvironment::desktop_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_desktop_selected->setEnabled(true);
-    this->ui->btn_desktop_selected->setText("DESKTOP");
+    this->ui->btn_desktop_selected->setText("Remote Desktop");
   });
 }
 

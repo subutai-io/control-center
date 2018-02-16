@@ -58,20 +58,20 @@ public:
 
   void execute_remote_command() {
     //QStringList output;
-    QFutureWatcher<system_call_wrapper_error_t> *watcher
-        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    QFutureWatcher< std::pair<system_call_wrapper_error_t, QStringList> > *watcher
+        = new QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>>(this);
 
-    QFuture<system_call_wrapper_error_t>  res =
+    QFuture< std::pair<system_call_wrapper_error_t, QStringList> >  res =
         QtConcurrent::run(CSystemCallWrapper::download_file,
                           remote_user, remote_ip, remote_port, file_desination, file_path);
     watcher->setFuture(res);
-    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
-      emit this->outputReceived(res.result());
+    connect(watcher, &QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList> >::finished, [this, res](){
+      emit this->outputReceived(res.result().first, res.result().second);
     });
   }
 
 signals:
-  void outputReceived(system_call_wrapper_error_t res);
+  void outputReceived(system_call_wrapper_error_t res, QStringList output);
 };
 
 
@@ -114,20 +114,20 @@ public:
 
   void execute_remote_command() {
     //QStringList output;
-    QFutureWatcher<system_call_wrapper_error_t> *watcher
-        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList> > *watcher
+        = new QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList> >(this);
 
-    QFuture<system_call_wrapper_error_t>  res =
+    QFuture<std::pair<system_call_wrapper_error_t, QStringList> >  res =
         QtConcurrent::run(CSystemCallWrapper::upload_file,
                           remote_user, remote_ip, remote_port, file_desination, file_path);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
-      emit this->outputReceived(res.result());
+      emit this->outputReceived(res.result().first, res.result().second);
     });
   }
 
 signals:
-  void outputReceived(system_call_wrapper_error_t res);
+  void outputReceived(system_call_wrapper_error_t res, QStringList output);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,20 +169,20 @@ public:
 
   void execute_remote_command() {
     //QStringList output;
-    QFutureWatcher<QStringList> *watcher
-        = new QFutureWatcher<QStringList>(this);
+    QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>> *watcher
+        = new QFutureWatcher<std::pair<system_call_wrapper_error_t,QStringList> >(this);
 
-    QFuture<QStringList>  res =
-        QtConcurrent::run(CSystemCallWrapper::get_output_from_ssh_command,
+    QFuture<std::pair<system_call_wrapper_error_t, QStringList> >  res =
+        QtConcurrent::run(CSystemCallWrapper::send_command,
                           remote_user, remote_ip, remote_port, command);
     watcher->setFuture(res);
-    connect(watcher, &QFutureWatcher<QStringList>::finished, [this, res](){
-      emit this->outputReceived(res.result());
+    connect(watcher, &QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>>::finished, [this, res](){
+      emit this->outputReceived(res.result().first, res.result().second);
     });
   }
 
 signals:
-  void outputReceived(const QStringList &output);
+  void outputReceived(system_call_wrapper_error_t res, const QStringList &output);
 };
 
 
@@ -403,7 +403,7 @@ private:
 
   void file_was_dropped(const QString &file_path);
   void set_buttons_enabled(bool enabled);
-  void transfer_finished(int tw_row, system_call_wrapper_error_t res);
+  void transfer_finished(int tw_row, system_call_wrapper_error_t res, QStringList output);
   void transfer_file(int tw_row);
   void start_transfer_files();
   void clear_files();
@@ -412,7 +412,7 @@ private:
   void file_transfer_field_add_file(const FileToTransfer &file, bool instant_transfer);
   QString parseDate(const QString &month, const QString &day, const QString &year_or_time);
   void check_more_info(bool checked);
-  void output_from_remote_command(const QStringList &output);
+  void output_from_remote_command(system_call_wrapper_error_t res, const QStringList &output);
   void Init();
 };
 

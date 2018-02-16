@@ -43,14 +43,14 @@
       <item row="0" column="2">
        <widget class="QPushButton" name="btn_desktop_selected">
         <property name="text">
-         <string> DESKTOP </string>
+         <string>Remote Desktop</string>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
        <widget class="QPushButton" name="btn_upload_selected">
         <property name="text">
-         <string>TRANSFER FILE</string>
+         <string>Transfer File</string>
         </property>
        </widget>
       </item>

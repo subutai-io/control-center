@@ -464,7 +464,7 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
   dlg_transfer_file->addSSHKey(ssh_key);
   dlg_transfer_file->addUser(username);
   m_last_generated_tranferfile_dlg = dlg_transfer_file;
-  show_dialog(last_generated_transferfile_dlg, "Upload " + env->name() + "/" + cont->name());
+  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env->name() + "/" + cont->name());
 }
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
