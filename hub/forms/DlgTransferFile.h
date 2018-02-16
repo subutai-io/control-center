@@ -351,6 +351,7 @@ signals:
   void file_was_dropped(const QString &file_path);
 };
 
+#include <QMovie>
 
 class DlgTransferFile : public QDialog
 {
@@ -364,7 +365,8 @@ public:
   void addUser(const QString &user);
 
 private:
-
+  QMovie *local_movie;
+  QMovie *remote_movie;
   std::vector <OneFile> remote_files;
   std::vector <OneFile> local_files;
   std::deque <FileToTransfer> files_to_transfer;

@@ -26,9 +26,8 @@ DlgTransferFile::DlgTransferFile(QWidget *parent) :
 #include <QMovie>
 
 void DlgTransferFile::Init() {
-  QMovie *movie = new QMovie(":/hub/refreshing.gif");
-  ui->lbl_local_files->setMovie(movie);
-  movie->start();
+  local_movie = new QMovie(":/hub/refreshing.gif");
+  remote_movie = new QMovie(":/hub/refreshing.gif");
 
   ui->btn_add_local->setToolTip("Add selected files to transfer file stack");
   ui->btn_add_remote->setToolTip("Add selected files to transfer file stack");
@@ -592,15 +591,22 @@ void DlgTransferFile::refresh_button_remote() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::refresh_local_file_system() {
+  ui->lbl_local_files->setMovie(remote_movie);
+  remote_movie->start();
+
   ui->local_file_system->setRowCount(0);
   ui->le_local->setText(current_local_dir.absolutePath());
   local_files.clear();
   for (QFileInfo fi : current_local_dir.entryInfoList()) {
     add_file_local(fi);
   }
+  remote_movie->stop();
+  ui->lbl_local_files->setText("Your files");
 }
 
 void DlgTransferFile::refresh_remote_file_system() {
+  ui->lbl_remote_files->setMovie(remote_movie);
+  remote_movie->start();
 
   ui->remote_file_system->setRowCount(0);
   ui->le_remote->setText(current_remote_dir);
@@ -621,6 +627,8 @@ void DlgTransferFile::output_from_remote_command(const QStringList &output) {
   for (QString file_info : output) {
     add_file_remote(file_info);
   }
+  remote_movie->stop();
+  ui->lbl_remote_files->setText("Remote files");
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
