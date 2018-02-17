@@ -69,6 +69,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_refresh_timeout->setValue(
         CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
+  ui->le_vagrant_command->setText(CSettingsManager::Instance().vagrant_path());
   ui->sb_notification_delay->setMinimum(
         CSettingsManager::NOTIFICATION_DELAY_MIN);
   ui->sb_notification_delay->setMaximum(
@@ -96,6 +97,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->lbl_err_ssh_keys_storage->hide();
   ui->lbl_err_ssh_user->hide();
   ui->lbl_err_p2p_command->hide();
+  ui->lbl_err_x2goclient_command->hide();
   ui->lbl_err_ssh_command->hide();
   ui->lbl_err_ssh_keygen_command->hide();
   ui->lbl_err_terminal_arg->hide();
@@ -178,6 +180,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
+  connect(ui->btn_vagrant_command, &QPushButton::released, this,
+          &DlgSettings::btn_vagrant_command_released);
   connect(ui->btn_x2goclient_command, &QPushButton::released, this,
           &DlgSettings::btn_x2goclient_command_released);
   connect(ui->btn_ssh_keygen_command, &QPushButton::released, this,
@@ -270,7 +274,7 @@ void DlgSettings::btn_ok_released() {
       tr("Can't launch application");
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
-                     ui->le_p2p_command,   ui->le_ssh_command};
+                     ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
@@ -298,6 +302,10 @@ void DlgSettings::btn_ok_released() {
 
     {ui->le_p2p_command, ui->lbl_err_p2p_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_p2p_command, ui->lbl_err_p2p_command, can_launch_application, 1,
+     can_launch_application_msg},
+
+    {ui->le_vagrant_command, ui->lbl_err_vagrant_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_vagrant_command, ui->lbl_err_vagrant_command, can_launch_application, 1,
      can_launch_application_msg},
 
     {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
@@ -378,6 +386,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_ssh_keys_storage(
         ui->le_ssh_keys_storage->text());
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
+  CSettingsManager::Instance().set_vagrant_path(ui->le_vagrant_command->text());
   CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
 
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
@@ -444,6 +453,14 @@ void DlgSettings::btn_p2p_file_dialog_released() {
   if (fn == "") return;
   ui->le_p2p_command->setText(fn);
   qDebug() << "Selected filename";
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_vagrant_command_released() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("Vagrant command"));
+  if (fn == "") return;
+  ui->le_vagrant_command->setText(fn);
+  qDebug() << "Selected vagrant path";
 }
 ////////////////////////////////////////////////////////////////////////////
 
