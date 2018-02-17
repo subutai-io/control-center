@@ -636,7 +636,14 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     add_file_remote(file_info);
   }
   remote_movie->stop();
-  ui->lbl_remote_files->setText("Remote");
+  if (res == SCWE_SUCCESS) {
+    ui->lbl_remote_files->setStyleSheet("");
+    ui->lbl_remote_files->setText("Remote");
+  }
+  else {
+    ui->lbl_remote_files->setStyleSheet(" QLabel {color : red;} ");
+    ui->lbl_remote_files->setText("Failed to refresh remote directory.");
+  }
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 

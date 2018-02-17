@@ -306,15 +306,16 @@ protected:
     if (e->source() != this) {
       e->accept();
     } else {
-      e->accept();
+      e->ignore();
     }
   }
 
   void dropEvent(QDropEvent *e) {
+    CNotificationObserver::Instance()->Info("Something is dropped " + e->mimeData()->text(),
+                                            DlgNotification::N_NO_ACTION);
     foreach (const QUrl &url, e->mimeData()->urls()) {
-      QString filePath = url.toLocalFile();
-
-      // CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
+      QString filePath = url.toString();
+      CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
     }
   }
 };
