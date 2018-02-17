@@ -119,8 +119,7 @@ DlgGenerateSshKey::rebuild_keys_model() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void
-DlgGenerateSshKey::btn_generate_released() {
+void DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
     CNotificationObserver::Instance()->Info(

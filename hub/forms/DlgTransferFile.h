@@ -13,6 +13,7 @@
 #include <QFileSystemModel>
 #include <QTableWidget>
 #include <deque>
+#include <QMovie>
 
 
 namespace Ui {
@@ -299,6 +300,7 @@ public:
 
 class FileSystemTableWidget : public QTableWidget
 {
+  Q_OBJECT
 public:
   FileSystemTableWidget(QWidget *parent) : QTableWidget(parent) {}
 protected:
@@ -310,14 +312,17 @@ protected:
     }
   }
 
-  void dropEvent(QDropEvent *e) {
-    CNotificationObserver::Instance()->Info("Something is dropped " + e->mimeData()->text(),
-                                            DlgNotification::N_NO_ACTION);
-    foreach (const QUrl &url, e->mimeData()->urls()) {
-      QString filePath = url.toString();
-      CNotificationObserver::Instance()->Info(filePath, DlgNotification::N_NO_ACTION);
-    }
+  QStringList mimeTypes() const {
+    return QStringList("text/plain");
   }
+  void dropEvent(QDropEvent *e) {
+    UNUSED_ARG (e);
+    // int row = columnAt(e->pos().y());
+    // int column = columnAt(e->pos().x());
+    emit something_is_dropped();
+  }
+signals:
+  void something_is_dropped();
 };
 
 class DropFileTableWidget : public QTableWidget
@@ -352,7 +357,6 @@ signals:
   void file_was_dropped(const QString &file_path);
 };
 
-#include <QMovie>
 
 class DlgTransferFile : public QDialog
 {
@@ -415,6 +419,13 @@ private:
   void check_more_info(bool checked);
   void output_from_remote_command(system_call_wrapper_error_t res, const QStringList &output);
   void Init();
+
+
+  // Drag and Drop from left to right and vice versa
+  void local_cell_pressed(int row, int column);
+  void remote_cell_pressed(int row, int column);
+  void local_file_system_drop();
+  void remote_file_system_drop();
 };
 
 #endif // DLGTRANSFERFILE_H

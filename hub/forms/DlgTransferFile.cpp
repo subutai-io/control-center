@@ -29,8 +29,6 @@ void DlgTransferFile::Init() {
   local_movie = new QMovie(":/hub/refreshing.gif");
   remote_movie = new QMovie(":/hub/refreshing.gif");
 
-  ui->btn_add_local->setToolTip("Add selected files to transfer file stack");
-  ui->btn_add_remote->setToolTip("Add selected files to transfer file stack");
 
   ui->btn_upload_file->setToolTip("Upload selected files");
   ui->btn_download_file->setToolTip("Download selected files");
@@ -90,12 +88,6 @@ void DlgTransferFile::Init() {
   connect(ui->remote_file_system, &QTableWidget::doubleClicked,
           this, &DlgTransferFile::file_remote_selected);
 
-  connect(ui->btn_add_local, &QPushButton::clicked,
-          this, &DlgTransferFile::file_to_upload);
-
-  connect(ui->btn_add_remote, &QPushButton::clicked,
-          this, &DlgTransferFile::file_to_download);
-
   connect(ui->btn_upload_file, &QPushButton::clicked,
           this, &DlgTransferFile::upload_selected);
 
@@ -110,6 +102,19 @@ void DlgTransferFile::Init() {
 
   connect(ui->tw_transfer_file, &DropFileTableWidget::file_was_dropped,
           this, &DlgTransferFile::file_was_dropped);
+
+  connect(ui->local_file_system, &FileSystemTableWidget::cellPressed,
+          this, &DlgTransferFile::local_cell_pressed);
+
+  connect(ui->remote_file_system, &FileSystemTableWidget::cellPressed,
+          this, &DlgTransferFile::remote_cell_pressed);
+
+  connect(ui->local_file_system, &FileSystemTableWidget::something_is_dropped,
+          this, &DlgTransferFile::local_file_system_drop);
+
+  connect(ui->remote_file_system, &FileSystemTableWidget::something_is_dropped,
+          this, &DlgTransferFile::remote_file_system_drop);
+
 
   QStringList file_system_header {
     "Name", "Size", "Modified", "File Path"
@@ -127,6 +132,43 @@ void DlgTransferFile::Init() {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+void DlgTransferFile::local_cell_pressed(int row, int column) {
+  UNUSED_ARG(row);
+  UNUSED_ARG(column);
+}
+
+void DlgTransferFile::remote_cell_pressed(int row, int column) {
+  UNUSED_ARG(row);
+  UNUSED_ARG(column);
+}
+
+void DlgTransferFile::local_file_system_drop() {
+  for (QTableWidgetSelectionRange table_range : ui->remote_file_system->selectedRanges()) {
+    for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
+      FileToTransfer file_to_transfer;
+      file_to_transfer.setFileInfo(remote_files[row]);
+      file_to_transfer.setDesinationPath(current_local_dir.absolutePath());
+      file_to_transfer.setSourceMachineType(REMOTE_MACHINE);
+      file_to_transfer.setTransferFileStatus(FILE_TO_DOWNLOAD);
+      file_transfer_field_add_file(file_to_transfer, true);
+    }
+  }
+}
+
+void DlgTransferFile::remote_file_system_drop() {
+  for (QTableWidgetSelectionRange table_range : ui->local_file_system->selectedRanges()) {
+    for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
+      FileToTransfer file_to_transfer;
+      file_to_transfer.setFileInfo(local_files[row]);
+      file_to_transfer.setDesinationPath(current_remote_dir);
+      file_to_transfer.setSourceMachineType(LOCAL_MACHINE);
+      file_to_transfer.setTransferFileStatus(FILE_TO_UPLOAD);
+      file_transfer_field_add_file(file_to_transfer, true);
+    }
+  }
+}
+
+
 void DlgTransferFile::file_was_dropped(const QString &file_path) {
   QFileInfo fi(file_path);
   OneFile local_file(fi.fileName(),
@@ -139,7 +181,7 @@ void DlgTransferFile::file_was_dropped(const QString &file_path) {
   file_to_transfer.setDesinationPath(current_remote_dir);
   file_to_transfer.setSourceMachineType(LOCAL_MACHINE);
   file_to_transfer.setTransferFileStatus(FILE_TO_UPLOAD);
-  file_transfer_field_add_file(file_to_transfer, false);
+  file_transfer_field_add_file(file_to_transfer, true);
 }
 
 void DlgTransferFile::set_buttons_enabled(bool enabled) {
@@ -148,9 +190,6 @@ void DlgTransferFile::set_buttons_enabled(bool enabled) {
 
   ui->btn_upload_file->setEnabled(enabled);
   ui->btn_download_file->setEnabled(enabled);
-
-  ui->btn_add_local->setEnabled(enabled);
-  ui->btn_add_remote->setEnabled(enabled);
 
   ui->btn_refresh_local->setEnabled(enabled);
   ui->btn_refresh_remote->setEnabled(enabled);
@@ -215,14 +254,16 @@ void DlgTransferFile::transfer_file(int tw_row) {
 
   twi_operation_status->setIcon(waiting_icon);
 
-  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) twi_operation_status->setText("Uploading");
+  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD
+      || file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) twi_operation_status->setText("Uploading");
   else twi_operation_status->setText("Downloading");
 
   QFutureWatcher<system_call_wrapper_error_t> *watcher = new QFutureWatcher<system_call_wrapper_error_t>(this);
   QFuture<system_call_wrapper_error_t> res;
   watcher->setFuture(res);
 
-  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
+  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD ||
+      file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) {
     FileThreadUploader *file_thread_uploader =
         new FileThreadUploader(this);
     file_thread_uploader->init(remote_user, remote_ip, remote_port, file_to_transfer.fileInfo().filePath(),
@@ -263,7 +304,12 @@ void DlgTransferFile::start_transfer_files() {
         if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
             || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
           continue;
+        if (files_to_transfer[row].currentFileStatus() == FILE_FAILED_TO_DOWNLOAD)
+          files_to_transfer[row].setTransferFileStatus(FILE_TO_DOWNLOAD);
+        if (files_to_transfer[row].currentFileStatus() == FIlE_FAILED_TO_UPLOAD)
+          files_to_transfer[row].setTransferFileStatus(FILE_TO_UPLOAD);
         transfer_file(row);
+
       }
     }
   }
