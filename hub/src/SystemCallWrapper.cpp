@@ -216,7 +216,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 (const QString &remote_user, const QString &ip, const QString &port,
  const QString &local_destination, const QString &remote_file_path) {
   QString cmd
-      = "sudo " + CSettingsManager::Instance().scp_path();
+      = CSettingsManager::Instance().scp_path();
   QStringList args;
   args << "-rp"
        << "-P" << port

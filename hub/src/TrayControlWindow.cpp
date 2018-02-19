@@ -179,13 +179,6 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
-  connect(m_act_settings, &QAction::triggered, [this](){
-        this->generate_transferfile_dlg();
-        this->show_dialog(this->last_generated_transferfile_dlg,
-                          QString("WOWO it is working"));
-  });
-
-
 
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
@@ -451,7 +444,7 @@ void TrayControlWindow::login_success() {
 void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
                                                       const CHubContainer* cont) {
   //generate_transferfile_dlg();
-  DlgTransferFile *dlg_transfer_file = new DlgTransferFile();
+  DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 

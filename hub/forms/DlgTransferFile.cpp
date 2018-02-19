@@ -202,6 +202,13 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
 
+  /*CNotificationObserver::Instance()->Info(QString("%1").arg(output.size()), DlgNotification::N_NO_ACTION);
+
+  for(QString s : output){
+    CNotificationObserver::Instance()->Info(s, DlgNotification::N_NO_ACTION);
+  }*/
+
+
   FileToTransfer &file_to_transfer = files_to_transfer[tw_row];
   QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
@@ -608,7 +615,9 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
   QString file_year_or_time = splitted[7];
   QString file_name = splitted[8];
   QString file_path = current_remote_dir + file_name;
-  file_path.chop(1); // remove last character, which is `*`
+
+  if(file_path[file_path.size()-1] == '*')
+    file_path.chop(1); // remove last character, which is `*`
 
   QDateTime created = QDateTime::fromString(parseDate(file_month, file_day, file_year_or_time),
                                             "dd/mm/yyyy");
