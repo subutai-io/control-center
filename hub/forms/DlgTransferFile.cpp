@@ -61,7 +61,12 @@ void DlgTransferFile::Init() {
   ui->le_local->setReadOnly(true);
   ui->le_remote->setReadOnly(true);
 
-  current_local_dir.setCurrent("/");
+  QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QStringList::iterator stdDir = stdDirList.begin();
+  if(stdDir == stdDirList.end())
+    current_local_dir.setCurrent("/");
+  else
+    current_local_dir.setCurrent(*stdDir);
   current_remote_dir = "/";
 
   this->setMinimumWidth(this->width());
@@ -210,6 +215,9 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
 
   if(&file_to_transfer == nullptr)
         return;
+
+  //refresh_local_file_system();
+  //refresh_remote_file_system();
 
   if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
     if (res == SCWE_SUCCESS) {
