@@ -205,6 +205,12 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   FileToTransfer &file_to_transfer = files_to_transfer[tw_row];
   QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
+  if(twi_operation_status == nullptr)
+      return;
+
+  if(&file_to_transfer == nullptr)
+        return;
+
   if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
     if (res == SCWE_SUCCESS) {
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_UPLOAD);

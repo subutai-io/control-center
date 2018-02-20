@@ -43,7 +43,7 @@ public:
   }
 
   void startWork() {
-    QThread* thread = new QThread(this);
+    QThread* thread = new QThread();
     connect(thread, &QThread::started,
             this, &FileThreadDownloader::execute_remote_command);
     connect(this, &FileThreadDownloader::outputReceived,
@@ -99,7 +99,7 @@ public:
   }
 
   void startWork() {
-    QThread* thread = new QThread(this);
+    QThread* thread = new QThread();
     connect(thread, &QThread::started,
             this, &FileThreadUploader::execute_remote_command);
     connect(this, &FileThreadUploader::outputReceived,
@@ -154,7 +154,7 @@ public:
   }
 
   void startWork() {
-    QThread* thread = new QThread(this);
+    QThread* thread = new QThread();
     connect(thread, &QThread::started,
             this, &RemoteCommandExecutor::execute_remote_command);
     connect(this, &RemoteCommandExecutor::outputReceived,

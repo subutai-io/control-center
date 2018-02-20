@@ -207,8 +207,8 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-      if(res.exit_code == 1)
-          return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
+     // if(res.exit_code == 1)
+      //    return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
     return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
   return std::make_pair(res.res, res.out);
@@ -227,8 +227,8 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
   qDebug() << "ARGS=" << args;
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    if(res.exit_code == 1)
-        return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
+    //if(res.exit_code == 1)
+     //   return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
     return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
   return std::make_pair(res.res, res.out);
