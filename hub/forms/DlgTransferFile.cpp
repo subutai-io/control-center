@@ -202,13 +202,6 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
 
-  /*CNotificationObserver::Instance()->Info(QString("%1").arg(output.size()), DlgNotification::N_NO_ACTION);
-
-  for(QString s : output){
-    CNotificationObserver::Instance()->Info(s, DlgNotification::N_NO_ACTION);
-  }*/
-
-
   FileToTransfer &file_to_transfer = files_to_transfer[tw_row];
   QTableWidgetItem *twi_operation_status = ui->tw_transfer_file->item(tw_row, 4);
 
@@ -221,7 +214,10 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
     }
     else {
       file_to_transfer.setTransferFileStatus(FIlE_FAILED_TO_UPLOAD);
-      twi_operation_status->setText("Failed to upload");
+      if(res == SCWE_PERMISSION_DENIED)
+        twi_operation_status->setText("Permision denied");
+      else
+          twi_operation_status->setText("Failed to upload");
       twi_operation_status->setIcon(transfer_failed_icon);
       twi_operation_status->setToolTip(
             output.join(",") +
@@ -237,7 +233,10 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
     }
     else {
       file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_DOWNLOAD);
-      twi_operation_status->setText("Failed to download");
+      if(res == SCWE_PERMISSION_DENIED)
+          twi_operation_status->setText("Permision denied");
+      else
+        twi_operation_status->setText("Failed to download");
       twi_operation_status->setIcon(transfer_failed_icon);
       twi_operation_status->setToolTip(
             output.join(",") +
@@ -658,6 +657,7 @@ void DlgTransferFile::refresh_local_file_system() {
   remote_movie->start();
 
   ui->local_file_system->setRowCount(0);
+  current_local_dir.refresh();
   ui->le_local->setText(current_local_dir.absolutePath());
   local_files.clear();
   for (QFileInfo fi : current_local_dir.entryInfoList()) {

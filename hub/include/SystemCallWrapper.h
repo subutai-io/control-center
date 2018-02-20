@@ -38,7 +38,8 @@ enum system_call_wrapper_error_t {
   SCWE_TIMEOUT,
   SCWE_WHICH_CALL_FAILED,
   SCWE_PROCESS_CRASHED,
-  SCWE_LAST
+  SCWE_LAST,
+  SCWE_PERMISSION_DENIED
 };
 ////////////////////////////////////////////////////////////////////////////
 
