@@ -179,6 +179,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
       = CSettingsManager::Instance().ssh_path();
   QStringList args;
   args
+       << "-o CheckHostIP=no"
        << QString("%1@%2").arg(remote_user, ip)
        << "-p" << port
        << "-i" << key
