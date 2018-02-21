@@ -99,6 +99,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->lbl_err_p2p_command->hide();
   ui->lbl_err_x2goclient_command->hide();
   ui->lbl_err_ssh_command->hide();
+  ui->lbl_err_vagrant_command->hide();
   ui->lbl_err_ssh_keygen_command->hide();
   ui->lbl_err_terminal_arg->hide();
   ui->lbl_err_terminal_cmd->hide();

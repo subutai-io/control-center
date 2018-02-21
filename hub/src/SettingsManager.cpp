@@ -303,7 +303,6 @@ CSettingsManager::CSettingsManager()
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
-                                     "scp",
                                      "p2p",
                                      "x2goclient",
                                      "vagrant"};

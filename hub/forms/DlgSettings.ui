@@ -316,17 +316,17 @@
              </property>
             </widget>
            </item>
-           <item row="10" column="2">
+           <item row="11" column="2">
             <widget class="QPushButton" name="btn_scp_command">
              <property name="text">
               <string>...</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="1">
+           <item row="11" column="1">
             <widget class="QLineEdit" name="le_scp_command"/>
            </item>
-           <item row="10" column="0">
+           <item row="11" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>SCP command</string>
@@ -335,6 +335,9 @@
            </item>
            <item row="6" column="1">
             <widget class="QLineEdit" name="le_x2goclient_command"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="le_ssh_command"/>
            </item>
            <item row="6" column="0">
             <widget class="QLabel" name="label_2">
@@ -350,8 +353,8 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="le_ssh_command"/>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="le_p2p_command"/>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="lbl_ssh_command">
@@ -360,8 +363,8 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="le_p2p_command"/>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="le_ssh_keygen_command"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_p2p_path">
@@ -370,10 +373,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="le_ssh_keygen_command"/>
-           </item>
-           <item row="13" column="0" colspan="3">
+           <item row="18" column="0" colspan="3">
             <widget class="QGroupBox" name="gb_terminal_settings">
              <property name="title">
               <string>Terminal settings:</string>
@@ -498,6 +498,9 @@
              </property>
             </widget>
            </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="le_vagrant_command"/>
+           </item>
            <item row="3" column="1">
             <widget class="QLabel" name="lbl_err_ssh_command">
              <property name="sizePolicy">
@@ -530,9 +533,6 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
-            <widget class="QLineEdit" name="le_vagrant_command"/>
-           </item>
            <item row="9" column="1">
             <widget class="QLabel" name="lbl_err_vagrant_command">
              <property name="sizePolicy">
@@ -556,6 +556,22 @@
             <widget class="QPushButton" name="btn_vagrant_command">
              <property name="text">
               <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="1">
+            <widget class="QLabel" name="lbl_err_scp_command">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
