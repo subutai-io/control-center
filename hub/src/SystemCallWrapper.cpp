@@ -173,7 +173,7 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_command(
     const QString &remote_user, const QString &ip, const QString &port,
-    const QString &commands) {
+    const QString &commands, const QString &key) {
 
   QString cmd
       = CSettingsManager::Instance().ssh_path();
@@ -181,6 +181,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
   args
        << QString("%1@%2").arg(remote_user, ip)
        << "-p" << port
+       << "-i" << key
        << QString("%1").arg(commands);
   qDebug() << "ARGS=" << args;
 

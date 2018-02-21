@@ -692,9 +692,10 @@ void DlgTransferFile::refresh_remote_file_system() {
   QString remote_user = ui->remote_user->text();
   QString remote_port = ui->remote_port->text();
   QString remote_ip = ui->remote_ip->text();
+  QString remote_key = ui->remote_ssh_key_path->text();
   QString command = QString("cd %1; ls -lF;").arg(current_remote_dir);
   RemoteCommandExecutor *command_executor = new RemoteCommandExecutor(this);
-  command_executor->init(remote_user, remote_ip,remote_port, command);
+  command_executor->init(remote_user, remote_ip,remote_port, command, remote_key);
   command_executor->startWork();
   connect(command_executor, &RemoteCommandExecutor::outputReceived,
           this, &DlgTransferFile::output_from_remote_command);

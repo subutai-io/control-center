@@ -136,7 +136,7 @@ signals:
 class RemoteCommandExecutor : public QObject{
   Q_OBJECT
   QString remote_user, remote_ip, remote_port;
-  QString command;
+  QString command, key;
 
 public:
   RemoteCommandExecutor(QObject *parent = nullptr) : QObject (parent)
@@ -146,11 +146,13 @@ public:
   void init (const QString &remote_user,
              const QString &remote_ip,
              const QString &remote_port,
-             const QString &command) {
+             const QString &command,
+             const QString &key) {
     this->remote_user = remote_user;
     this->remote_ip = remote_ip;
     this->remote_port = remote_port;
     this->command = command;
+    this->key = key;
   }
 
   void startWork() {
@@ -175,7 +177,7 @@ public:
 
     QFuture<std::pair<system_call_wrapper_error_t, QStringList> >  res =
         QtConcurrent::run(CSystemCallWrapper::send_command,
-                          remote_user, remote_ip, remote_port, command);
+                          remote_user, remote_ip, remote_port, command, key);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>>::finished, [this, res](){
       emit this->outputReceived(res.result().first, res.result().second);

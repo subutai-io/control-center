@@ -111,6 +111,7 @@ class CSystemCallWrapper {
                                                   const QString &remote_user,
                                                   const QString &ip,
                                                   const QString &port,
+                                                  const QString &key,
                                                   const QString &commands);
 
   static std::pair<system_call_wrapper_error_t, QStringList>
