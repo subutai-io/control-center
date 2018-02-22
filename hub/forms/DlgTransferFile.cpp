@@ -219,7 +219,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   //refresh_local_file_system();
   //refresh_remote_file_system();
 
-  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD) {
+  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD || file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) {
     if (res == SCWE_SUCCESS) {
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_UPLOAD);
       twi_operation_status->setText("Uploaded successfully");
@@ -238,7 +238,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
   }
-  else {
+  else if(file_to_transfer.currentFileStatus() == FILE_TO_DOWNLOAD || file_to_transfer.currentFileStatus() == FILE_FAILED_TO_DOWNLOAD){
     if (res == SCWE_SUCCESS) {
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_DOWNLOAD);
       twi_operation_status->setText("Downloaded successfully");
@@ -394,7 +394,7 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
 
 
   int current_row = ui->tw_transfer_file->rowCount();
-  current_row = 0;
+
 
   ui->tw_transfer_file->insertRow(current_row);
   QTableWidgetItem *wi_source_file;
@@ -413,9 +413,9 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
   ui->tw_transfer_file->setItem(current_row, 3, wi_file_size);
   ui->tw_transfer_file->setItem(current_row, 4, wi_file_status);
 
-  files_to_transfer.push_front(file);
+  files_to_transfer.push_back(file);
   if (instant_transfer)
-    transfer_file(0);
+    transfer_file(current_row);
 }
 
 void DlgTransferFile::check_more_info(bool checked) {
