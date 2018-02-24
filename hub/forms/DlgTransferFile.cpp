@@ -283,8 +283,6 @@ void DlgTransferFile::transfer_file(int tw_row) {
       destination_file_path.remove(0,2);
       destination_file_path.insert(0,QString("\\."));
   }
-  CNotificationObserver::Instance()->Info(transfer_file_path, DlgNotification::N_NO_ACTION);
-  CNotificationObserver::Instance()->Info(destination_file_path, DlgNotification::N_NO_ACTION);
 
   twi_operation_status->setIcon(waiting_icon);
 
