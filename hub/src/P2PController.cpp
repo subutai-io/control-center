@@ -212,13 +212,16 @@ void P2PConnector::update_status() {
     }
   }
 
-  //
-  for (CEnvironment env : hub_environments) {
-    if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) == joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
-      connected_envs.erase(env.hash());
-    }
-    else {
-      connected_envs.insert(env.hash());
+  {
+    // WARNING: critical section
+    SynchroPrimitives::Locker lock(&P2PConnector::m_env_critical);
+    for (CEnvironment env : hub_environments) {
+      if (std::find(joined_swarms.begin(), joined_swarms.end(), env.hash()) == joined_swarms.end()) { // environment not found in joined swarm hashes, we need to try to join it
+        connected_envs.erase(env.hash());
+      }
+      else {
+        connected_envs.insert(env.hash());
+      }
     }
   }
 

@@ -70,6 +70,7 @@ public:
   void desktop_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
   void ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
   void desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
+  const QString get_env_key(const QString &env_id);
 
 private:
   ssh_desktop_launch_error_t ssh_to_container(const CEnvironment &env, const CHubContainer &cont);
@@ -81,7 +82,6 @@ private:
   system_call_wrapper_error_t desktop_to_container_in_x2go(const CHubContainer &cont, const QString &key);
   system_call_wrapper_error_t ssh_to_container_in_terminal(const CHubContainer &cont, const QString &key);
 
-  const QString get_env_key(const QString &env_id);
 
   void refresh_my_peers_internal();
   void refresh_environments_internal();

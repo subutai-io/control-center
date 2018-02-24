@@ -171,11 +171,83 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_command(
+    const QString &remote_user, const QString &ip, const QString &port,
+    const QString &commands, const QString &key) {
+
+  QString cmd
+      = CSettingsManager::Instance().ssh_path();
+  QStringList args;
+  args
+       << "-o StrictHostKeyChecking=no"
+       << QString("%1@%2").arg(remote_user, ip)
+       << "-p" << port
+       << "-i" << key
+       << QString("%1").arg(commands);
+  qDebug() << "ARGS=" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
+  }
+  return std::make_pair(res.res, res.out);
+}
+
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_file
+(const QString &remote_user, const QString &ip, std::pair<QString, QString> ssh_info,
+ const QString &destination, const QString &file_path) {
+  QString cmd
+      = CSettingsManager::Instance().scp_path();
+  QStringList args;
+  CNotificationObserver::Instance()->Info(file_path, DlgNotification::N_NO_ACTION);
+  args<< "-rp"
+      << "-o StrictHostKeyChecking=no"
+      << "-P" << ssh_info.first
+      << "-S" << CSettingsManager::Instance().ssh_path()
+      << "-i" << ssh_info.second
+      << file_path
+      << QString("%1@%2:%3").arg(remote_user, ip, destination);
+  qDebug() << "ARGS=" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+     // if(res.exit_code == 1)
+      //    return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
+  }
+  return std::make_pair(res.res, res.out);
+}
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download_file
+(const QString &remote_user, const QString &ip, std::pair<QString, QString> ssh_info,
+ const QString &local_destination, const QString &remote_file_path) {
+  QString cmd
+      = CSettingsManager::Instance().scp_path();
+  QStringList args;
+  args << "-rp"
+       << "-o StrictHostKeyChecking=no"
+       << "-P" << ssh_info.first
+       << "-S" << CSettingsManager::Instance().ssh_path()
+       << "-i" << ssh_info.second
+       << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
+       << local_destination;
+  qDebug() << "ARGS=" << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+  if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    //if(res.exit_code == 1)
+     //   return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
+    return std::make_pair(SCWE_CREATE_PROCESS, res.out);
+  }
+  return std::make_pair(res.res, res.out);
+}
+
+//////////////////////////////////////////////////////////////////////
+
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
 
   if (is_in_swarm(hash)) return SCWE_SUCCESS;
-
 
   if (!CCommons::IsApplicationLaunchable(
           CSettingsManager::Instance().p2p_path()))

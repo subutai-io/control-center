@@ -32,6 +32,7 @@ const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
 const QString CSettingsManager::SM_SSH_PATH("Ssh_Path");
+const QString CSettingsManager::SM_SCP_PATH("Scp_Path");
 const QString CSettingsManager::SM_SSH_USER("Ssh_User");
 
 const QString CSettingsManager::SM_RH_USER("Rh_User_%1");
@@ -170,6 +171,7 @@ CSettingsManager::CSettingsManager()
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
+      m_scp_path(scp_cmd_path()),
       m_ssh_user("root"),
 
       m_rh_host("127.0.0.1"),
@@ -226,6 +228,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
+      {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
       {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
       {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
       {(void*)&m_rh_pass, SM_RH_PASS, qvar_to_str},
@@ -649,6 +652,7 @@ SET_FIELD_DEF(remember_me, SM_REMEMBER_ME, bool)
 SET_FIELD_DEF(refresh_time_sec, SM_REFRESH_TIME, uint32_t)
 SET_FIELD_DEF(plugin_port, SM_PLUGIN_PORT, uint16_t)
 SET_FIELD_DEF(ssh_path, SM_SSH_PATH, QString&)
+SET_FIELD_DEF(scp_path, SM_SCP_PATH, QString&)
 SET_FIELD_DEF(ssh_user, SM_SSH_USER, QString&)
 SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
 SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
