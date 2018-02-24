@@ -91,12 +91,15 @@ DlgNotificationsTableModel::data(const QModelIndex &index, int role) const {
   if (role != Qt::DisplayRole && role != Qt::EditRole)
     return QVariant();
 
-  QVariant vals[] = {(*m_ds)[index.row()].date_time(),
+  QVariant vals[] = {
+                     (*m_ds)[index.row()].date_time(),
                      (*m_ds)[index.row()].level_str(),
-                     (*m_ds)[index.row()].message() };
+                     (*m_ds)[index.row()].message()
+  };
 
   return vals[index.column()];
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 QVariant
@@ -114,6 +117,7 @@ DlgNotificationsTableModel::headerData(int section,
     return QString("%1").arg(section + 1); // возвращаем номера строк
   }
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 Qt::ItemFlags

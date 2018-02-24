@@ -22,6 +22,7 @@ class CSettingsManager : public QObject {
   static const QString SM_NOTIFICATION_DELAY_SEC;
   static const QString SM_PLUGIN_PORT;
   static const QString SM_SSH_PATH;
+  static const QString SM_SCP_PATH;
   static const QString SM_SSH_USER;
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
@@ -82,6 +83,7 @@ class CSettingsManager : public QObject {
 
   uint16_t m_plugin_port;
   QString m_ssh_path;
+  QString m_scp_path;
   QString m_ssh_user;
 
   QString m_rh_host;
@@ -181,6 +183,7 @@ class CSettingsManager : public QObject {
   uint32_t notification_delay_sec() const { return m_notification_delay_sec; }
   uint16_t plugin_port() const { return m_plugin_port; }
   const QString& ssh_path() const { return m_ssh_path; }
+  const QString& scp_path() const { return m_scp_path; }
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
 
@@ -280,6 +283,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(refresh_time_sec, uint32_t)
   SET_FIELD_DECL(plugin_port, uint16_t)
   SET_FIELD_DECL(ssh_path, QString&)
+  SET_FIELD_DECL(scp_path, QString&)
   SET_FIELD_DECL(ssh_user, QString&)
   SET_FIELD_DECL(rh_user, QString&)
   SET_FIELD_DECL(rh_pass, QString&)

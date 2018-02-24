@@ -180,8 +180,6 @@ void TrayControlWindow::create_tray_actions() {
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
 
-
-
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
@@ -441,6 +439,26 @@ void TrayControlWindow::login_success() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+#include "DlgTransferFile.h"
+
+void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
+                                                      const CHubContainer* cont) {
+  //generate_transferfile_dlg();
+  DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
+  CSystemCallWrapper::container_ip_and_port cip =
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+
+  QString ssh_key = CHubController::Instance().get_env_key(env->id());
+  QString ip = cip.ip;
+  QString port = cip.port;
+  QString username = CSettingsManager::Instance().ssh_user();
+
+  dlg_transfer_file->addIPPort(ip, port);
+  dlg_transfer_file->addSSHKey(ssh_key);
+  dlg_transfer_file->addUser(username);
+  m_last_generated_tranferfile_dlg = dlg_transfer_file;
+  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env->name() + "/" + cont->name());
+}
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont) {
@@ -600,7 +618,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
-      }
+      }      
       qInfo(
           "Environment %s is healthy", env->name().toStdString().c_str());
     }
@@ -773,6 +791,7 @@ void TrayControlWindow::balance_updated_sl() {
 
 /* p2p status updater*/
 void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
+    // need to put static icons
     qDebug()
             <<"p2p updater got signal and try to update status";
     switch(status){
@@ -782,7 +801,7 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             break;
         case P2PStatus_checker::P2P_RUNNING :
             m_act_p2p_status->setText("P2P is running");
-            m_act_p2p_status->setIcon(QIcon(":/hub/running"));
+            m_act_p2p_status->setIcon(QIcon(":/hub/running.png"));
             break;
         case P2PStatus_checker::P2P_FAIL :
             m_act_p2p_status->setText("Can't launch P2P");
@@ -960,6 +979,7 @@ void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
 }
 
+////////////////////////////////////////////////////////////////////////////
 
 QDialog* TrayControlWindow::m_last_generated_env_dlg = NULL;
 
@@ -974,10 +994,29 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env){
       << "Environment name: " << env->name();
   DlgEnvironment *dlg_env = new DlgEnvironment();
   dlg_env->addEnvironment(env);
+  connect(dlg_env, &DlgEnvironment::upload_to_container_sig, this, &TrayControlWindow::upload_to_container_triggered);
   connect(dlg_env, &DlgEnvironment::ssh_to_container_sig, this, &TrayControlWindow::ssh_to_container_triggered);
   connect(dlg_env, &DlgEnvironment::desktop_to_container_sig, this, &TrayControlWindow::desktop_to_container_triggered);
   m_last_generated_env_dlg = dlg_env;
 }
+////////////////////////////////////////////////////////////////////////////
+
+QDialog* TrayControlWindow::m_last_generated_tranferfile_dlg = NULL;
+
+QDialog* TrayControlWindow::last_generated_transferfile_dlg(QWidget *p) {
+  UNUSED_ARG(p);
+  return m_last_generated_tranferfile_dlg;
+}
+
+#include "DlgTransferFile.h"
+
+void TrayControlWindow::generate_transferfile_dlg(){
+  qDebug()
+      << "Generating new transferfile dialog";
+  DlgTransferFile *dlg_transfer_file = new DlgTransferFile();
+  m_last_generated_tranferfile_dlg = dlg_transfer_file;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog* TrayControlWindow::m_last_generated_peer_dlg = NULL;

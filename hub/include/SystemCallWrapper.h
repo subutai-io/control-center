@@ -38,7 +38,8 @@ enum system_call_wrapper_error_t {
   SCWE_TIMEOUT,
   SCWE_WHICH_CALL_FAILED,
   SCWE_PROCESS_CRASHED,
-  SCWE_LAST
+  SCWE_LAST,
+  SCWE_PERMISSION_DENIED
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -105,6 +106,31 @@ class CSystemCallWrapper {
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();
   static std::vector<std::pair<QString, QString>> p2p_show_interfaces();
+
+  static std::pair<system_call_wrapper_error_t, QStringList> send_command(
+                                                  const QString &remote_user,
+                                                  const QString &ip,
+                                                  const QString &port,
+                                                  const QString &key,
+                                                  const QString &commands);
+
+  static std::pair<system_call_wrapper_error_t, QStringList>
+                                                 upload_file (
+                                                 const QString &remote_user,
+                                                 const QString &ip,
+                                                 std::pair <QString, QString> ssh_info,
+                                                 const QString &destination,
+                                                 const QString &file_path
+                                                 );
+
+  static std::pair<system_call_wrapper_error_t, QStringList>
+                                                    download_file (
+                                                    const QString &remote_user,
+                                                    const QString &ip,
+                                                    std::pair <QString, QString> ssh_info,
+                                                    const QString &local_destination,
+                                                    const QString &remote_file_path
+                                                    );
 
   static system_call_wrapper_error_t join_to_p2p_swarm(const QString &hash,
                                                        const QString &key,

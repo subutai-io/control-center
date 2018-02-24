@@ -49,9 +49,15 @@ private:
   Ui::TrayControlWindow *ui;
 
   std::vector<CMyPeerInfo> peers_connected;
+
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
+
+  static QDialog *last_generated_transferfile_dlg(QWidget *p);
+  void generate_transferfile_dlg();
+  static QDialog *m_last_generated_tranferfile_dlg;
+
   QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
@@ -130,6 +136,7 @@ private slots:
   void ssh_to_rh_triggered(const QString &peer_fingerprint);
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
+  void upload_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
   void ssh_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
   void desktop_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
 

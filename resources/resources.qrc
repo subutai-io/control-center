@@ -46,6 +46,16 @@
         <file>running.png</file>
         <file>waiting.png</file>
         <file>stopped.png</file>
+        <file>uploading.png</file>
+        <file>upload.ico</file>
+        <file>download.png</file>
+        <file>back.png</file>
+        <file>refresh.png</file>
+        <file>file_icon.png</file>
+        <file>directory_icon.png</file>
+        <file>add_green.png</file>
+        <file>add_blue.png</file>
+        <file>refreshing.gif</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
