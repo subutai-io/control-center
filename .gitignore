@@ -26,6 +26,8 @@ html/
 # darwin
 darwin-packages/flat/*
 darwin-packages/root/*
+darwin-packages/SubutaiTray.app
+darwin-packages/*.pkg
 
 Makefile
 .*.stash
