@@ -22,7 +22,7 @@ namespace Ui {
 
 class FileThreadDownloader : public QObject{
   Q_OBJECT
-  QString remote_user, remote_ip, remote_port;
+  QString remote_user, remote_ip, remote_port, key;
   QString file_path, file_desination;
 
 public:
@@ -34,12 +34,14 @@ public:
              const QString &remote_ip,
              const QString &remote_port,
              const QString &file_path,
-             const QString &file_destination) {
+             const QString &file_destination,
+             const QString &key) {
     this->remote_user = remote_user;
     this->remote_ip = remote_ip;
     this->remote_port = remote_port;
     this->file_path = file_path;
     this->file_desination = file_destination;
+    this->key = key;
   }
 
   void startWork() {
@@ -64,7 +66,7 @@ public:
 
     QFuture< std::pair<system_call_wrapper_error_t, QStringList> >  res =
         QtConcurrent::run(CSystemCallWrapper::download_file,
-                          remote_user, remote_ip, remote_port, file_desination, file_path);
+                          remote_user, remote_ip, std::make_pair(remote_port, key), file_desination, file_path);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList> >::finished, [this, res](){
       emit this->outputReceived(res.result().first, res.result().second);
@@ -78,7 +80,7 @@ signals:
 
 class FileThreadUploader : public QObject{
   Q_OBJECT
-  QString remote_user, remote_ip, remote_port;
+  QString remote_user, remote_ip, remote_port, key;
   QString file_path, file_desination;
 
 public:
@@ -90,12 +92,14 @@ public:
              const QString &remote_ip,
              const QString &remote_port,
              const QString &file_path,
-             const QString &file_destination) {
+             const QString &file_destination,
+             const QString &key) {
     this->remote_user = remote_user;
     this->remote_ip = remote_ip;
     this->remote_port = remote_port;
     this->file_path = file_path;
     this->file_desination = file_destination;
+    this->key = key;
   }
 
   void startWork() {
@@ -120,7 +124,7 @@ public:
 
     QFuture<std::pair<system_call_wrapper_error_t, QStringList> >  res =
         QtConcurrent::run(CSystemCallWrapper::upload_file,
-                          remote_user, remote_ip, remote_port, file_desination, file_path);
+                          remote_user, remote_ip, std::make_pair(remote_port, key), file_desination, file_path);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
       emit this->outputReceived(res.result().first, res.result().second);

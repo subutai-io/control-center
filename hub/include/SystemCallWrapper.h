@@ -118,7 +118,7 @@ class CSystemCallWrapper {
                                                  upload_file (
                                                  const QString &remote_user,
                                                  const QString &ip,
-                                                 const QString &port,
+                                                 std::pair <QString, QString> ssh_info,
                                                  const QString &destination,
                                                  const QString &file_path
                                                  );
@@ -127,7 +127,7 @@ class CSystemCallWrapper {
                                                     download_file (
                                                     const QString &remote_user,
                                                     const QString &ip,
-                                                    const QString &port,
+                                                    std::pair <QString, QString> ssh_info,
                                                     const QString &local_destination,
                                                     const QString &remote_file_path
                                                     );

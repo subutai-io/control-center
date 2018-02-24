@@ -195,19 +195,22 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
 
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_file
-(const QString &remote_user, const QString &ip, const QString &port,
+(const QString &remote_user, const QString &ip, std::pair<QString, QString> ssh_info,
  const QString &destination, const QString &file_path) {
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
-
+  CNotificationObserver::Instance()->Info(file_path, DlgNotification::N_NO_ACTION);
   args<< "-rp"
-      << "-P" << port
+      << "-o StrictHostKeyChecking=no"
+      << "-P" << ssh_info.first
+      << "-S" << CSettingsManager::Instance().ssh_path()
+      << "-i" << ssh_info.second
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
      // if(res.exit_code == 1)
       //    return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
@@ -217,17 +220,20 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download_file
-(const QString &remote_user, const QString &ip, const QString &port,
+(const QString &remote_user, const QString &ip, std::pair<QString, QString> ssh_info,
  const QString &local_destination, const QString &remote_file_path) {
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
   args << "-rp"
-       << "-P" << port
+       << "-o StrictHostKeyChecking=no"
+       << "-P" << ssh_info.first
+       << "-S" << CSettingsManager::Instance().ssh_path()
+       << "-i" << ssh_info.second
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     //if(res.exit_code == 1)
      //   return std::make_pair(SCWE_PERMISSION_DENIED, res.out);

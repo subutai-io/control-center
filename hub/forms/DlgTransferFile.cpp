@@ -271,6 +271,20 @@ void DlgTransferFile::transfer_file(int tw_row) {
   QString remote_user = ui->remote_user->text();
   QString remote_ip = ui->remote_ip->text();
   QString remote_port = ui->remote_port->text();
+  QString transfer_file_path = file_to_transfer.fileInfo().filePath();
+  QString destination_file_path = file_to_transfer.destinationPath();
+  QString key = ui->remote_ssh_key_path->text();
+
+  if(transfer_file_path[1] == ":"){ //correct me for windows :D
+    transfer_file_path.remove(0,2);
+    transfer_file_path.insert(0,QString("\\."));
+  }
+  if(destination_file_path[1] == ":"){ //correct me for windows :D
+      destination_file_path.remove(0,2);
+      destination_file_path.insert(0,QString("\\."));
+  }
+  CNotificationObserver::Instance()->Info(transfer_file_path, DlgNotification::N_NO_ACTION);
+  CNotificationObserver::Instance()->Info(destination_file_path, DlgNotification::N_NO_ACTION);
 
   twi_operation_status->setIcon(waiting_icon);
 
@@ -286,8 +300,8 @@ void DlgTransferFile::transfer_file(int tw_row) {
       file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) {
     FileThreadUploader *file_thread_uploader =
         new FileThreadUploader(this);
-    file_thread_uploader->init(remote_user, remote_ip, remote_port, file_to_transfer.fileInfo().filePath(),
-                               file_to_transfer.destinationPath());
+    file_thread_uploader->init(remote_user, remote_ip, remote_port, transfer_file_path,
+                               destination_file_path, key);
     file_thread_uploader->startWork();
     connect(file_thread_uploader, &FileThreadUploader::outputReceived,
             [tw_row, this](system_call_wrapper_error_t res, QStringList output){
@@ -298,8 +312,8 @@ void DlgTransferFile::transfer_file(int tw_row) {
     FileThreadDownloader *file_thread_uploader =
         new FileThreadDownloader(this);
     file_thread_uploader->init(remote_user, remote_ip, remote_port,
-                               file_to_transfer.fileInfo().filePath(),
-                               file_to_transfer.destinationPath());
+                               transfer_file_path,
+                               destination_file_path, key);
     file_thread_uploader->startWork();
     connect(file_thread_uploader, &FileThreadDownloader::outputReceived,
             [tw_row, this](system_call_wrapper_error_t res, QStringList output){
