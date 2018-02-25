@@ -66,13 +66,20 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
     return res;
   }
 
-
-  if (!proc.waitForFinished(timeout_msec)) {
-    proc.terminate();
-    res.res = SCWE_TIMEOUT;
-    return res;
+  if(timeout_msec == 97){
+      if (!proc.waitForFinished(-1)) {
+        proc.terminate();
+        res.res = SCWE_TIMEOUT;
+        return res;
+      }
   }
-
+      else{
+      if (!proc.waitForFinished(timeout_msec)) {
+        proc.terminate();
+        res.res = SCWE_TIMEOUT;
+        return res;
+      }
+  }
   if (read_out) {
     QString output = QString(proc.readAll());
     res.out = output.split("\n", QString::SkipEmptyParts);
@@ -210,7 +217,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
      // if(res.exit_code == 1)
       //    return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
@@ -233,7 +240,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 100000);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     //if(res.exit_code == 1)
      //   return std::make_pair(SCWE_PERMISSION_DENIED, res.out);
