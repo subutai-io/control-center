@@ -118,7 +118,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="lbl_tray_version">
          <property name="text">
-          <string>Tray application version:</string>
+          <string>Control Center version:</string>
          </property>
         </widget>
        </item>
@@ -248,7 +248,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Update tray</string>
+          <string>Update Control Center</string>
          </property>
         </widget>
        </item>

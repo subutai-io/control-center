@@ -11,7 +11,7 @@ CONFIG   += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
-TARGET = SubutaiTray
+TARGET = SubutaiControlCenter
 TEMPLATE = app
 
 INCLUDEPATH += commons/include
@@ -141,7 +141,7 @@ DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_DEV
+GBV=BT_PROD
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
