@@ -5,11 +5,11 @@ showhelp()
 cat << ENDHELP
 
 usage: configure [options]
-Configure Tray
+Configure Control Center
 
 Options:
     --scheme=<build_scheme>
-        Builds Tray with specified build scheme. Supported schemes is: master, dev, branch. Default: master
+        Builds Control Center with specified build scheme. Supported schemes is: master, dev, branch. Default: master
 
     --no-debian
         Disables build of deb file
@@ -31,7 +31,7 @@ Options:
 ENDHELP
 }
 
-name_prefix=tray
+name_prefix=control-center
 scheme="master"
 branch=`git branch | grep \* | cut -d ' ' -f2`
 maintainer="Subutai Social"

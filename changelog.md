@@ -1,3 +1,6 @@
+## Version 6.7.0
+1. New feature File Transfer System.
+2. Fixed minor bugs.
 ## Version 6.2.0
 
 1. Rewritten ssh-keys management
