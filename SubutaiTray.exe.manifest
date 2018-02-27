@@ -2,7 +2,7 @@
 
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 
-	<assemblyIdentity version="6.6.0.0" processorArchitecture="ia64"	name="SubutaiTray.myapp" type="win32" />
+	<assemblyIdentity version="6.7.0.0" processorArchitecture="ia64"	name="SubutaiControlCenter.myapp" type="win32" />
 
 		<description> This application allows non technical users to manage their containers and see information about their environments, peers, balance etc. </description>
 	
