@@ -21,7 +21,7 @@ try {
 
             build_mac = "master"
             upload_pkg = "subutai-control-center-master.pkg"
-            upload_osx = "SubutaControlCenter_osx"
+            upload_osx = "SubutaiControlCenter_osx"
 
             break;
 	    	default: 
@@ -40,7 +40,7 @@ try {
 
             build_mac = "dev"
             upload_pkg = "subutai-control-center-dev.pkg"
-            upload_osx = "SubutaControlCenter_osx"
+            upload_osx = "SubutaiControlCenter_osx"
     }
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
