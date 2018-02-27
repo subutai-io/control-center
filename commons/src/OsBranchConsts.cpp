@@ -37,15 +37,15 @@ template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal(
     return res; \
   }
 
-tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiTray.exe")
-tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiTray.exe")
-tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiTray.exe")
+tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiControlCenter.exe")
 
 const QString &
 tray_kurjun_file_name() {
@@ -168,9 +168,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subut.ai:8338/kurjun/rest/%1")
 
 const QString &
 hub_gorjun_url() {

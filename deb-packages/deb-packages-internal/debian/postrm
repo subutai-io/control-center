@@ -16,8 +16,8 @@ if [ -d /opt/subutai/log ]; then
   rm -rf /opt/subutai/log
 fi
 
-if [ -L /usr/bin/SubutaiTray ]; then
-  rm /usr/bin/SubutaiTray
+if [ -L /usr/bin/SubutaiControlCenter ]; then
+  rm /usr/bin/SubutaiControlCenter
 fi
 
 count=`ls -1 /opt/subutai/bin/*.qm 2>/dev/null | wc -l`
@@ -25,16 +25,16 @@ if [ $count != 0 ]; then
   rm /opt/subutai/bin/*.qm
 fi 
 
-if [ -f /opt/subutai/lbin/SubutaiTray ]; then
-  rm /opt/subutai/bin/SubutaiTray
+if [ -f /opt/subutai/lbin/SubutaiControlCenter ]; then
+  rm /opt/subutai/bin/SubutaiControlCenter
 fi
 
-if [ -f /opt/subutai/lbin/subutai-tray ]; then
-  rm /opt/subutai/bin/subutai-tray
+if [ -f /opt/subutai/lbin/subutai-control-center ]; then
+  rm /opt/subutai/bin/subutai-control-center
 fi
 
-if [ -f /usr/share/applications/SubutaiTray.desktop ]; then
-  rm /usr/share/applications/SubutaiTray.desktop
+if [ -f /usr/share/applications/SubutaiControlCenter.desktop ]; then
+  rm /usr/share/applications/SubutaiControlCenter.desktop
 fi
 
 
