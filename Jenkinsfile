@@ -60,9 +60,9 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
-		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_osx}
+		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
 		"""
 
 	}
