@@ -37,15 +37,15 @@ template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal(
     return res; \
   }
 
-tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiTray.exe")
-tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiTray.exe")
-tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiTray")
-tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiTray_osx")
-tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiTray.exe")
+tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiControlCenter")
+tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiControlCenter_osx")
+tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiControlCenter.exe")
 
 const QString &
 tray_kurjun_file_name() {
@@ -62,9 +62,9 @@ template<class BR> const QString& hub_post_url_temp_internal();
     return res; \
   }
 
-hub_post_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/%1")
-hub_post_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/rest/v1/tray/%1")
-hub_post_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io/rest/v1/tray/%1")
+hub_post_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/tray/%1")
 
 const QString &
 hub_post_url() {
@@ -81,9 +81,9 @@ template<class BR> const QString& hub_register_url_temp_internal();
     return res; \
   }
 
-hub_register_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/register")
-hub_register_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/register")
-hub_register_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/register")
+hub_register_url_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io/register")
+hub_register_url_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io/register")
+hub_register_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/register")
 
 const QString &
 hub_register_url() {
@@ -102,9 +102,9 @@ template<class BR> const QString& hub_user_profile_temp_internal();
     return res; \
   }
 
-hub_user_profile_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/")
-hub_user_profile_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/users/")
-hub_user_profile_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/users/")
+hub_user_profile_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io/users/")
+hub_user_profile_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io/users/")
+hub_user_profile_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/")
 
 const QString &
 hub_user_profile_url() {
@@ -121,9 +121,9 @@ template<class BR> const QString& hub_get_url_temp_internal();
     return res; \
   }
 
-hub_get_url_temp_internal_def(BT_PROD,    "https://hub.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_MASTER,  "https://masterhub.subut.ai/rest/v1/tray/%1")
-hub_get_url_temp_internal_def(BT_DEV,     "https://devhub.subut.ai/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_PROD,    "https://bazaar.subutai.io/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_MASTER,  "https://masterbazaar.subutai.io/rest/v1/tray/%1")
+hub_get_url_temp_internal_def(BT_DEV,     "https://devbazaar.subutai.io/rest/v1/tray/%1")
 
 const QString &
 hub_get_url() {
@@ -149,9 +149,9 @@ template<class BR> const QString& hub_healt_url_temp_internal();
     return res; \
   }
 
-hub_health_url_temp_internal_def(BT_PROD,   "https://hub.subut.ai/rest/v1/tray/tray-data")
-hub_health_url_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/rest/v1/tray/tray-data")
-hub_health_url_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io/rest/v1/tray/tray-data")
+hub_health_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/tray/tray-data")
 
 const QString &
 hub_health_url() {
@@ -168,9 +168,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subut.ai:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subut.ai:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subutai.io:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subutai.io:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/kurjun/rest/%1")
 
 const QString &
 hub_gorjun_url() {
@@ -187,9 +187,9 @@ template<class BR> const QString& hub_billing_temp_internal();
     return res; \
   }
 
-hub_billing_temp_internal_def(BT_PROD,   "https://hub.subut.ai/users/%1")
-hub_billing_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai/users/%1")
-hub_billing_temp_internal_def(BT_DEV,    "https://devhub.subut.ai/users/%1")
+hub_billing_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io/users/%1")
+hub_billing_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io/users/%1")
+hub_billing_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/%1")
 
 const QString &
 hub_billing_url() {
@@ -253,9 +253,9 @@ template<class BR> const QString& p2p_dht_arg_temp_internal();
     return res; \
   }
 
-p2p_dht_arg_internal_def(BT_MASTER, "dht.mastercdn.subut.ai:6881")
-p2p_dht_arg_internal_def(BT_PROD,   "dht.cdn.subut.ai:6881")
-p2p_dht_arg_internal_def(BT_DEV,    "dht.devcdn.subut.ai:6881")
+p2p_dht_arg_internal_def(BT_MASTER, "eu0.mastercdn.subutai.io:6881")
+p2p_dht_arg_internal_def(BT_PROD,   "eu0.cdn.subutai.io:6881")
+p2p_dht_arg_internal_def(BT_DEV,    "eu0.devcdn.subutai.io:6881")
 
 const QString &
 p2p_dht_arg() {
@@ -429,9 +429,9 @@ template<class BR> const QString& hub_site_temp_internal();
     return res; \
   }
 
-hub_site_temp_internal_def(BT_PROD,   "https://hub.subut.ai")
-hub_site_temp_internal_def(BT_MASTER, "https://masterhub.subut.ai")
-hub_site_temp_internal_def(BT_DEV,    "https://devhub.subut.ai")
+hub_site_temp_internal_def(BT_PROD,   "https://bazaar.subutai.io")
+hub_site_temp_internal_def(BT_MASTER, "https://masterbazaar.subutai.io")
+hub_site_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io")
 
 const QString &
 hub_site() {
@@ -524,15 +524,15 @@ template<class BR, class OS> const QString& p2p_package_url_temp_internal();
     return res; \
   }
 
-p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.deb")
-p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.pkg")
-p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-master.msi")
-p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.deb")
-p2p_package_url_def(BT_DEV,        OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.pkg")
-p2p_package_url_def(BT_DEV,        OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.msi")
-p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
-p2p_package_url_def(BT_PROD,       OS_MAC,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg")
-p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subut.ai:8338/kurjun/rest/raw/get?name=subutai-p2p.msi")
+p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.deb")
+p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.pkg")
+p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.msi")
+p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.deb")
+p2p_package_url_def(BT_DEV,        OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.pkg")
+p2p_package_url_def(BT_DEV,        OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.msi")
+p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
+p2p_package_url_def(BT_PROD,       OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg")
+p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.msi")
 
 const QString &
 p2p_package_url() {

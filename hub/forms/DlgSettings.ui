@@ -65,7 +65,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">
                <property name="text">
-                <string>EZ-SSH User:</string>
+                <string>SSH User:</string>
                </property>
               </widget>
              </item>
@@ -762,7 +762,7 @@
            <item row="1" column="0">
             <widget class="QLabel" name="lbl_tray_update">
              <property name="text">
-              <string>SubutaiTray check for updates frequency:</string>
+              <string>Control Center check for updates frequency:</string>
              </property>
             </widget>
            </item>

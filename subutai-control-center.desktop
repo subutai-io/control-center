@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Subutai Control Center
+Type=Application
+Version=1.0
+Comment=Control Center for Subutai
+Icon=subutai-tray
+Exec=/usr/bin/subutai-control-center
+Path=/opt/subutai/control-center
+Categories=Network;
+X-Desktop-File-Install-Version=0.22

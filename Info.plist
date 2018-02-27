@@ -13,9 +13,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>SubutaiTray</string>
+	<string>SubutaiControlCenter</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.subutai-io.SubutaiTray</string>
+	<string>com.subutai-io.SubutaiControlCenter</string>
 	<key>LSUIElement</key>
 	<string>1</string>
 </dict>

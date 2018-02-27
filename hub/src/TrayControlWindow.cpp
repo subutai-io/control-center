@@ -188,7 +188,7 @@ void TrayControlWindow::create_tray_actions() {
           &TrayControlWindow::application_quit);
 
   m_act_launch_Hub =
-      new QAction(QIcon(":/hub/Hub-07.png"), tr("Hub website"), this);
+      new QAction(QIcon(":/hub/Hub-07.png"), tr("Bazaar website"), this);
   connect(m_act_launch_Hub, &QAction::triggered, this,
           &TrayControlWindow::launch_Hub);
 
@@ -960,7 +960,7 @@ void TrayControlWindow::show_settings_dialog() {
 
 QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
-  show_dialog(create_about_dialog, tr("About Subutai Tray"));
+  show_dialog(create_about_dialog, tr("About Subutai Control Center"));
 }
 
 ////////////////////////////////////////////////////////////////////////////
