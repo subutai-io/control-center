@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-script minSpecVersion="1.000000" authoringTool="com.apple.PackageMaker" authoringToolVersion="3.0.3" authoringToolBuild="174">
-    <title>Subutai Tray {VERSION_PLACEHOLDER}</title>
+    <title>Subutai Control Center {VERSION_PLACEHOLDER}</title>
     <options customize="never" allow-external-scripts="no"/>
     <domains enable_anywhere="true"/>
     <installation-check script="pm_install_check();"/>
@@ -18,7 +18,7 @@
         <line choice="choice1"/>
     </choices-outline>
     <choice id="choice1" title="base">
-        <pkg-ref id="com.Subutai.Tray"/>
+        <pkg-ref id="com.Subutai.ControlCenter"/>
     </choice>
-    <pkg-ref id="com.Subutai.Tray" installKBytes="{SIZE_PLACEHOLDER}" version="{VERSION_PLACEHOLDER}" auth="Root">#base.pkg</pkg-ref>
+    <pkg-ref id="com.Subutai.ControlCenter" installKBytes="{SIZE_PLACEHOLDER}" version="{VERSION_PLACEHOLDER}" auth="Root">#base.pkg</pkg-ref>
 </installer-script>
