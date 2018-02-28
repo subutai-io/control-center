@@ -133,6 +133,9 @@ void DlgTransferFile::Init() {
   design_table_widget(ui->tw_transfer_file, transfer_file_field_header);
 
   refresh_local_file_system();
+
+  ui->local_file_system->setShowGrid(true);
+  ui->remote_file_system->setShowGrid(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

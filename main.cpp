@@ -62,8 +62,8 @@ main(int argc, char *argv[]) {
   }
   sema.release();
 
-  QApplication::setApplicationName("SubutaiTray");
-  QApplication::setOrganizationName("subut.ai");
+  QApplication::setApplicationName("SubutaiControlCenter");
+  QApplication::setOrganizationName("subutai.io");
   QApplication app(argc, argv);
 
 
@@ -132,7 +132,7 @@ main(int argc, char *argv[]) {
       DlgLogin dlg;
       dlg.setModal(true);
 
-      QPixmap pm(":/hub/tray_splash.png");
+      QPixmap pm(":/hub/logo.png");
       QSplashScreen sc(pm);
       sc.show();
 

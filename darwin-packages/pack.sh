@@ -32,14 +32,14 @@ cp ./Distribution.tmpl ./flat/Distribution
 sed -i -e "s/{VERSION_PLACEHOLDER}/$version/g" ./flat/Distribution
 sed -i -e "s/{SIZE_PLACEHOLDER}/$mbsize/g" ./flat/Distribution
 
-PKGNAME="subutai-tray.pkg"
+PKGNAME="subutai-control-center.pkg"
 
 case $BRANCH in
         dev)
-                PKGNAME="subutai-tray-dev.pkg"
+                PKGNAME="subutai-control-center-dev.pkg"
                 ;;
         master)
-                PKGNAME="subutai-tray-master.pkg"
+                PKGNAME="subutai-control-center-master.pkg"
                 ;;
 esac
 

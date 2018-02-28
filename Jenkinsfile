@@ -14,14 +14,14 @@ try {
 
             build_path_linux = "home/builder/build_master"
             linux_tray_build = "build_master.sh"
-            upload_deb = "subutai-tray-master.deb"
-            upload_sh = "SubutaiTray"
+            upload_deb = "subutai-control-center-master.deb"
+            upload_sh = "SubutaiControlCenter"
             upload_script = "upload_master.sh"
 			upload_script_prod ="upload_prod.sh"
 
             build_mac = "master"
-            upload_pkg = "subutai-tray-master.pkg"
-            upload_osx = "SubutaiTray_osx"
+            upload_pkg = "subutai-control-center-master.pkg"
+            upload_osx = "SubutaiControlCenter_osx"
 
             break;
 	    	default: 
@@ -33,14 +33,14 @@ try {
 
             build_path_linux = "home/builder/build_dev"
             linux_tray_build = "./build_dev.sh"
-            upload_deb = "subutai-tray-dev.deb"
-            upload_sh = "SubutaiTray"
+            upload_deb = "subutai-control-center-dev.deb"
+            upload_sh = "SubutaiControlCenter"
             upload_script = "upload_dev.sh"
 			upload_script_prod ="upload_prod.sh"
 
             build_mac = "dev"
-            upload_pkg = "subutai-tray-dev.pkg"
-            upload_osx = "SubutaiTray_osx"
+            upload_pkg = "subutai-control-center-dev.pkg"
+            upload_osx = "SubutaiControlCenter_osx"
     }
 	/* Building agent binary.
 	Node block used to separate agent and subos code.
@@ -60,9 +60,9 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_tray_bin/${upload_osx}
-		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_tray_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
+		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_osx}
+		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
 		"""
 
 	}
