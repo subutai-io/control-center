@@ -374,6 +374,7 @@ public:
   void addSSHKey(const QString &key);
   void addIPPort(const QString &ip, const QString &port);
   void addUser(const QString &user);
+  void parse_remote_file(const QString &file_info, QStringList &splitted);
 
 private:
   QMovie *local_movie;

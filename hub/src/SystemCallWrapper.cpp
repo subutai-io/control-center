@@ -207,7 +207,6 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
-  CNotificationObserver::Instance()->Info(file_path, DlgNotification::N_NO_ACTION);
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
@@ -237,7 +236,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
        << "-i" << ssh_info.second
-       << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path)
+       << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
