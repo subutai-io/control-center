@@ -371,8 +371,7 @@ void DlgTransferFile::clear_files() {
 
 QString DlgTransferFile::parseDate(const QString &month, const QString &day, const QString &year_or_time) {
   QString result;
-  result.append(day);
-  result.append("/");
+
   static std::map <QString, QString> month_converter {
     {"Jan", "01"}, {"Feb", "02"}, {"Mar", "03"}, {"Apr", "04"}, {"May", "05"}, {"Jun", "06"},
     {"Jul", "07"}, {"Aug", "08"}, {"Sep", "09"}, {"Oct", "10"}, {"Nov", "11"}, {"Dec", "12"},
@@ -380,6 +379,10 @@ QString DlgTransferFile::parseDate(const QString &month, const QString &day, con
   if(month_converter.find(month) == month_converter.end()) result.append("01");
   else result.append(month_converter[month]);
   result.append("/");
+
+  result.append(day);
+  result.append("/");
+
   if (year_or_time.contains(":")) result.append(QDate::currentDate().toString("yyyy"));
   else result.append(year_or_time);
   return result;
@@ -456,7 +459,7 @@ void DlgTransferFile::add_file_to_file_system_tw(QTableWidget *file_system_tw, i
   file_system_tw->insertRow(row);
   QTableWidgetItem *wi_file_name;
   QTableWidgetItem *wi_file_size = new QTableWidgetItem(QString::number(file.fileSize()));
-  QTableWidgetItem *wi_file_modified = new QTableWidgetItem(file.created().toString("dd/mm/yyyy"));
+  QTableWidgetItem *wi_file_modified = new QTableWidgetItem(file.created().toString("MM/dd/yyyy"));
   QTableWidgetItem *wi_file_path = new QTableWidgetItem(file.filePath());
   if (file.fileType() == FILE_TYPE_DIRECTORY) wi_file_name = new QTableWidgetItem(directory_icon, file.fileName());
   else wi_file_name = new QTableWidgetItem(file_icon, file.fileName());
@@ -648,7 +651,7 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
     file_path.chop(1); // remove last character, which is `*`
 
   QDateTime created = QDateTime::fromString(parseDate(file_month, file_day, file_year_or_time),
-                                            "dd/mm/yyyy");
+                                            "MM/d/yyyy");
 
   OneFile remote_file(file_name,
                       file_path,
