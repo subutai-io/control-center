@@ -595,8 +595,6 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
                             .arg(port);
 
   if (!key.isEmpty()) {
-    CNotificationObserver::Instance()->Info(
-        QObject::tr("Using %1 ssh key").arg(key), DlgNotification::N_NO_ACTION);
     str_command += QString(" -i \"%1\" ").arg(key);
   }
 

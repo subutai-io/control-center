@@ -367,7 +367,6 @@ ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvi
 
 ssh_desktop_launch_error_t CHubController::ssh_to_container(const CEnvironment &env, const CHubContainer &cont) {
   QString key = get_env_key(env.id());
-  CNotificationObserver::Instance()->Info(key, DlgNotification::N_NO_ACTION);
   return ssh_to_container_internal(env, cont, key);
 }
 
