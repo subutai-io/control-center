@@ -371,8 +371,7 @@ void DlgTransferFile::clear_files() {
 
 QString DlgTransferFile::parseDate(const QString &month, const QString &day, const QString &year_or_time) {
   QString result;
-  result.append(day);
-  result.append("/");
+
   static std::map <QString, QString> month_converter {
     {"Jan", "01"}, {"Feb", "02"}, {"Mar", "03"}, {"Apr", "04"}, {"May", "05"}, {"Jun", "06"},
     {"Jul", "07"}, {"Aug", "08"}, {"Sep", "09"}, {"Oct", "10"}, {"Nov", "11"}, {"Dec", "12"},
@@ -380,6 +379,10 @@ QString DlgTransferFile::parseDate(const QString &month, const QString &day, con
   if(month_converter.find(month) == month_converter.end()) result.append("01");
   else result.append(month_converter[month]);
   result.append("/");
+
+  result.append(day);
+  result.append("/");
+
   if (year_or_time.contains(":")) result.append(QDate::currentDate().toString("yyyy"));
   else result.append(year_or_time);
   return result;
@@ -456,7 +459,7 @@ void DlgTransferFile::add_file_to_file_system_tw(QTableWidget *file_system_tw, i
   file_system_tw->insertRow(row);
   QTableWidgetItem *wi_file_name;
   QTableWidgetItem *wi_file_size = new QTableWidgetItem(QString::number(file.fileSize()));
-  QTableWidgetItem *wi_file_modified = new QTableWidgetItem(file.created().toString("dd/mm/yyyy"));
+  QTableWidgetItem *wi_file_modified = new QTableWidgetItem(file.created().toString("MM/dd/yyyy"));
   QTableWidgetItem *wi_file_path = new QTableWidgetItem(file.filePath());
   if (file.fileType() == FILE_TYPE_DIRECTORY) wi_file_name = new QTableWidgetItem(directory_icon, file.fileName());
   else wi_file_name = new QTableWidgetItem(file_icon, file.fileName());
@@ -627,8 +630,8 @@ void DlgTransferFile::add_file_local(const QFileInfo &fi) {
 
 void DlgTransferFile::add_file_remote(const QString &file_info) {
   // Parsing the string
-  QString new_file_info = file_info;
-  QStringList splitted = new_file_info.trimmed().replace(QRegExp(" +"), " ").split(" ");
+  QStringList splitted;
+  DlgTransferFile::parse_remote_file(file_info, splitted);
   if (splitted.size() < 9)
     return;
 
@@ -648,7 +651,7 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
     file_path.chop(1); // remove last character, which is `*`
 
   QDateTime created = QDateTime::fromString(parseDate(file_month, file_day, file_year_or_time),
-                                            "dd/mm/yyyy");
+                                            "MM/d/yyyy");
 
   OneFile remote_file(file_name,
                       file_path,
@@ -674,9 +677,7 @@ void DlgTransferFile::refresh_button_local() {
 }
 
 void DlgTransferFile::refresh_button_remote() {
-  set_buttons_enabled(false);
   refresh_remote_file_system();
-  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -697,6 +698,12 @@ void DlgTransferFile::refresh_local_file_system() {
 }
 
 void DlgTransferFile::refresh_remote_file_system() {
+
+  qDebug()
+          << "Refresh remote file system"
+          << current_remote_dir;
+
+  ui->btn_refresh_remote->setEnabled(false);
   ui->lbl_remote_files->setMovie(remote_movie);
   remote_movie->start();
 
@@ -718,9 +725,13 @@ void DlgTransferFile::refresh_remote_file_system() {
 
 void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res, const QStringList &output) {
   for (QString file_info : output) {
+    qDebug()
+            << "files from remote: "
+            << file_info;
     add_file_remote(file_info);
   }
   remote_movie->stop();
+  ui->btn_refresh_remote->setEnabled(true);
   if (res == SCWE_SUCCESS) {
     ui->lbl_remote_files->setStyleSheet("");
     ui->lbl_remote_files->setText("Remote");
@@ -729,6 +740,41 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     ui->lbl_remote_files->setStyleSheet(" QLabel {color : red;} ");
     ui->lbl_remote_files->setText("Failed to refresh remote directory.");
   }
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+void DlgTransferFile::parse_remote_file(const QString &file_info, QStringList &splitted){
+    int counter = 0;
+    bool reading_file = false;
+    bool reading_file_name = false;
+    int number_strings_parsed = 0;
+    QString st = "";
+    while(counter != file_info.size()){
+        if(reading_file_name == true){
+            st+=file_info[counter];
+        }
+        else {
+            if(reading_file == true){
+                if(file_info[counter] == ' '){
+                    reading_file = false;
+                    splitted.push_back(st);
+                    st="";
+                    number_strings_parsed++;
+                }
+                else st+=file_info[counter];
+            }
+            else{
+                if(file_info[counter] != ' '){
+                    reading_file = true;
+                    st+=file_info[counter];
+                    if (number_strings_parsed == 8)
+                        reading_file_name = true;
+                }
+            }
+        }
+        counter++;
+    }
+    if(reading_file == true) splitted.push_back(st);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
