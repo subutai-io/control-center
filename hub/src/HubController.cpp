@@ -355,6 +355,9 @@ ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvi
   if (container_status != SDLE_SUCCESS) {
     return container_status;
   }
+  if(key.isEmpty()){
+    return SDLE_NO_KEY_DEPLOYED;
+  }
   system_call_wrapper_error_t run_in_terminal_status = ssh_to_container_in_terminal(cont, key);
   if (run_in_terminal_status != SCWE_SUCCESS) {
     QString err_msg = tr("Run SSH failed. Error code : %1")
@@ -480,8 +483,9 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
                                               "Container not found",
                                               "Container isn't ready",
                                               "Join to p2p swarm failed",
-                                              "System call failed"};
-  return lst_err_str[err % SDLE_LAST_ERR];
+                                              "System call failed",
+                                              "No key deployed"};
+  return lst_err_str[err %  SDLE_LAST_ERR];
 }
 
 const QString CHubController::get_env_key(const QString &env_id) {
