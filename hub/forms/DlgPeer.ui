@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>578</width>
-    <height>413</height>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
     </widget>
    </item>
    <item row="9" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="show_peer_control">
      <property name="text">
       <string>Peer Control</string>
      </property>
@@ -187,23 +187,23 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_3"/>
+       <widget class="QLineEdit" name="le_dir"/>
       </item>
       <item row="0" column="4">
-       <widget class="QLineEdit" name="lineEdit_2"/>
+       <widget class="QLineEdit" name="le_state"/>
       </item>
       <item row="1" column="4">
-       <widget class="QLineEdit" name="lineEdit_4"/>
+       <widget class="QLineEdit" name="le_name"/>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="lbl_id">
         <property name="text">
          <string>ID</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="lbl_dir">
         <property name="text">
          <string>Dir</string>
         </property>
@@ -212,23 +212,23 @@
       <item row="2" column="1">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="btn_start">
           <property name="text">
            <string>Start</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="btn_stop">
           <property name="text">
-           <string>Halt</string>
+           <string>Stop</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="le_id"/>
       </item>
       <item row="2" column="4">
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -249,14 +249,14 @@
        </layout>
       </item>
       <item row="1" column="3">
-       <widget class="QLabel" name="label_8">
+       <widget class="QLabel" name="lbl_name">
         <property name="text">
          <string>Name</string>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="lbl_state">
         <property name="minimumSize">
          <size>
           <width>44</width>

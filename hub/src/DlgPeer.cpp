@@ -153,9 +153,13 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
   if (!local_ip_addr.isEmpty()) {
     addLocalPeer(local_ip_addr);
+    ui->btn_unregister->setEnabled(true);
+    ui->btn_register->setEnabled(true);
   }
   else {
     ui->btn_launch_console->setEnabled(false);
+    ui->btn_unregister->setEnabled(false);
+    ui->btn_register->setEnabled(false);
   }
 
   if (hub_peer != NULL) {
