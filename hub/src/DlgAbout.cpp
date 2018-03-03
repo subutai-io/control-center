@@ -48,7 +48,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
     (*i)->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     (*i)->setWordWrap(true);
   }
-
+  CNotificationObserver::Instance()->Info(snap_p2p_path(),DlgNotification::N_NO_ACTION);
   bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
   ui->btn_p2p_update->setVisible(p2p_visible);
   ui->pb_p2p->setVisible(p2p_visible);

@@ -216,7 +216,7 @@ void TrayControlWindow::create_tray_actions() {
 
   /*p2p status*/
   m_act_p2p_status = new QAction(
-        QIcon(":hub/loading"), tr("P2P is loading..."), this);
+        QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
 }
@@ -809,7 +809,7 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             break;
         case P2PStatus_checker::P2P_LOADING :
             m_act_p2p_status->setText("P2P is loading...");
-            m_act_p2p_status->setIcon(QIcon(":/hub/loading"));
+            m_act_p2p_status->setIcon(QIcon(":/hub/loading.png"));
     }
     p2p_current_status=status;
 }

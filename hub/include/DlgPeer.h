@@ -20,12 +20,17 @@ public:
   void addHubPeer(CMyPeerInfo peer);
 private:
   Ui::DlgPeer *ui;
+  QString current_peer_name;
   QString current_peer_id;
+  QDialog* registration_dialog;
 
 signals:
   void ssh_to_rh_sig(const QString&);
 private slots:
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code);
+  void registerPeer();
+  void unregisterPeer();
+  void regDlgClosed();
 };
 
 #endif // DLGPEER_H

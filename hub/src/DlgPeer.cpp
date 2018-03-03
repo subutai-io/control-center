@@ -1,6 +1,7 @@
 #include "DlgPeer.h"
 #include "ui_DlgPeer.h"
 #include "SystemCallWrapper.h"
+#include "DlgRegisterPeer.h"
 #include "TrayControlWindow.h"
 
 #include <QGroupBox>
@@ -22,9 +23,9 @@ DlgPeer::DlgPeer(QWidget *parent) :
   qDebug() << "Peer dialog is initialized";
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished,
           this, &DlgPeer::ssh_to_rh_finished_sl);
+  registration_dialog = nullptr;
+  ui->lbl_connection_status->hide();
 }
-
-
 
 void DlgPeer::addLocalPeer(const QString local_ip) {
   qDebug() << "Adding a local peer with ip address: " << local_ip;
@@ -35,6 +36,10 @@ void DlgPeer::addLocalPeer(const QString local_ip) {
 
   ui->le_ip->setText(local_ip);
   ui->le_ip->setReadOnly(true);
+  ui->btn_register->show();
+  ui->btn_unregister->hide();
+
+  connect(ui->btn_register, &QPushButton::clicked,this, &DlgPeer::registerPeer);
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
@@ -43,6 +48,8 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
   connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
     CHubController::Instance().launch_peer_page(peer.id().toInt());
   });
+
+  current_peer_name = peer.name();
 
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
 
@@ -70,6 +77,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
     }
     ui->show_ssh->setChecked(false);
     ui->show_ssh->toggled(false);
+    ui->btn_unregister->setEnabled(false);
     this->adjustSize();
   }
   else {
@@ -83,8 +91,12 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
 
     ui->show_ssh->setChecked(true);
     ui->show_ssh->toggled(true);
+    ui->btn_unregister->setEnabled(true);
     this->adjustSize();
   }
+  ui->btn_unregister->show();
+  ui->btn_register->hide();
+  connect(ui->btn_unregister, &QPushButton::released, this, &DlgPeer::unregisterPeer);
 }
 
 void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer) { // local_peer - pair of fingerprint and local_ip adress of Peer
@@ -114,12 +126,12 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
   if (!default_user.isEmpty())
     ui->le_user->setText(default_user);
   else
-    ui->le_user->setText("ubuntu");
+    ui->le_user->setText("subutai");
 
   if (!default_pass.isEmpty())
     ui->le_pass->setText(default_pass);
   else
-    ui->le_pass->setText("ubuntu");
+    ui->le_pass->setText("ubuntai");
 
 
   connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
@@ -174,6 +186,7 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call
 
   ui->btn_ssh_peer->setEnabled(true);
   ui->btn_ssh_peer->setText("SSH into Peer");
+  ui->lbl_connection_status->show();
 
   if (res != SCWE_SUCCESS){
       if(libbssh_exit_code!=0){
@@ -190,6 +203,38 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call
       ui->lbl_connection_status->setText(QString("Successfully connected"));
       ui->lbl_connection_status->setStyleSheet("QLabel {font-weight: bold; color : green; }");
   }
+}
+
+void DlgPeer::registerPeer(){
+    ui->btn_register->setEnabled(false);
+    DlgRegisterPeer* dlg_register = new DlgRegisterPeer(this);
+    const QString ip_addr=ui->le_ip->text();
+    dlg_register->setLocalAddr(ip_addr);
+    dlg_register->setRegistrationMode();
+    dlg_register->setWindowTitle(tr("Register peer: %1").arg(ip_addr));
+    dlg_register->show();
+    registration_dialog = dlg_register;
+    connect (dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+}
+
+void DlgPeer::unregisterPeer(){
+    ui->btn_unregister->setEnabled(false);
+    DlgRegisterPeer* dlg_unregister = new DlgRegisterPeer(this);
+    const QString ip_addr=ui->le_ip->text();
+    dlg_unregister->setLocalAddr(ip_addr);
+    dlg_unregister->setUnregistrationMode();
+    dlg_unregister->setWindowTitle(tr("Unregister peer: %1").arg(current_peer_name));
+    dlg_unregister->show();
+    registration_dialog = dlg_unregister;
+    connect (dlg_unregister, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+}
+
+void DlgPeer::regDlgClosed(){
+    if(registration_dialog == nullptr)
+        return;
+    registration_dialog->deleteLater();
+    ui->btn_register->setEnabled(true);
+    ui->btn_unregister->setEnabled(true );
 }
 
 DlgPeer::~DlgPeer()
