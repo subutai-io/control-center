@@ -20,6 +20,7 @@ typedef enum ssh_desktop_launch_error {
   SDLE_CONT_NOT_READY,
   SDLE_JOIN_TO_SWARM_FAILED,
   SDLE_SYSTEM_CALL_FAILED,
+  SDLE_NO_KEY_DEPLOYED,
   SDLE_LAST_ERR
 } ssh_desktop_launch_error_t;
 
