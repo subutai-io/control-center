@@ -108,9 +108,9 @@ HEADERS  += \
     hub/include/HostMachineController.h \
     hub/forms/DlgTransferFile.h
 
-TRANSLATIONS = SubutaiTray_en_US.ts \
-               SubutaiTray_ru_RU.ts \
-               SubutaiTray_pt_BR.ts
+TRANSLATIONS = SubutaiControlCenter_en_US.ts \
+               SubutaiControlCenter_ru_RU.ts \
+               SubutaiControlCenter_pt_BR.ts
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
