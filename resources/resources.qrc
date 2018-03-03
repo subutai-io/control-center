@@ -57,6 +57,7 @@
         <file>add_blue.png</file>
         <file>refreshing.gif</file>
         <file>logo.png</file>
+        <file>add.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

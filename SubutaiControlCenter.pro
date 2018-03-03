@@ -61,7 +61,8 @@ SOURCES += \
     hub/src/TraySkinController.cpp \
     hub/src/HostMachineController.cpp \
     hub/forms/DlgTransferFile.cpp \
-    hub/src/DlgRegisterPeer.cpp
+    hub/src/DlgRegisterPeer.cpp \
+    DlgCreatePeer.cpp
 
 
 
@@ -108,7 +109,8 @@ HEADERS  += \
     hub/include/TraySkinController.h \
     hub/include/HostMachineController.h \
     hub/forms/DlgTransferFile.h \
-    hub/include/DlgRegisterPeer.h
+    hub/include/DlgRegisterPeer.h \
+    DlgCreatePeer.h
 
 TRANSLATIONS = SubutaiTray_en_US.ts \
                SubutaiTray_ru_RU.ts \
@@ -125,7 +127,8 @@ FORMS    += \
     hub/forms/DlgEnvironment.ui \
     hub/forms/DlgPeer.ui \
     hub/forms/DlgTransferFile.ui \
-    hub/forms/DlgRegisterPeer.ui
+    hub/forms/DlgRegisterPeer.ui \
+    DlgCreatePeer.ui
 
 RESOURCES += \
     resources/resources.qrc \

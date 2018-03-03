@@ -77,7 +77,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
       m_tray_menu(NULL),
-      m_act_p2p_status(NULL){
+      m_act_p2p_status(NULL),
+      m_act_create_peer(NULL){
   ui->setupUi(this);
 
   create_tray_actions();
@@ -136,7 +137,8 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_about,
                      m_act_logout,
                      m_act_notifications_history,
-                     m_act_p2p_status};
+                     m_act_p2p_status,
+                     m_act_create_peer};
 
   for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
     if (menus[i] == nullptr) continue;
@@ -219,6 +221,10 @@ void TrayControlWindow::create_tray_actions() {
         QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
+
+  m_act_create_peer = new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
+  connect(m_act_create_peer, &QAction::triggered, this,
+          &TrayControlWindow::create_peer);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -229,6 +235,8 @@ void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon->setContextMenu(m_tray_menu);
   /*p2p status icon*/
   m_tray_menu->addAction(m_act_p2p_status);
+  m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_create_peer);
   m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
@@ -243,10 +251,6 @@ void TrayControlWindow::create_tray_icon() {
                                      tr("My Peers"));
   m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
                                      tr("Local Peers"));
-
-
-
-
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addAction(m_act_ssh_keys_management);
@@ -1064,3 +1068,7 @@ void TrayControlWindow::desktop_to_container_finished(
   }
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void TrayControlWindow::create_peer(){
+  CNotificationObserver::Instance()->Info("Salam aleikum uf uf", DlgNotification::N_NO_ACTION);
+}

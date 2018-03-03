@@ -81,6 +81,7 @@ private:
   QAction *m_act_about;
   QAction *m_act_logout;
   QAction *m_act_notifications_history;
+  QAction *m_act_create_peer;
 
   QSystemTrayIcon* m_sys_tray_icon;
   QMenu* m_tray_menu;  
@@ -113,6 +114,9 @@ public slots:
   /*p2p status slots*/
   void launch_p2p();
   void launch_p2p_installation();
+
+  /*peer slots*/
+  void create_peer();
 
 private slots:
   /*tray slots*/
