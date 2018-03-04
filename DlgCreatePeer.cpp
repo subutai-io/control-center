@@ -5,6 +5,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgCreatePeer)
 {
+
   ui->setupUi(this);
 }
 

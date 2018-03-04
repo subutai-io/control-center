@@ -18,6 +18,7 @@
 #include "HubController.h"
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
+#include "DlgCreatePeer.h"
 
 #include "P2PController.h"
 
@@ -107,6 +108,7 @@ public slots:
   void show_settings_dialog();
   void launch_Hub();
   void launch_ss();
+  void show_create_dialog();
 
   /*hub slots*/
   void show_notifications_triggered();
@@ -114,9 +116,6 @@ public slots:
   /*p2p status slots*/
   void launch_p2p();
   void launch_p2p_installation();
-
-  /*peer slots*/
-  void create_peer();
 
 private slots:
   /*tray slots*/
@@ -153,6 +152,9 @@ private slots:
   void desktop_to_container_finished(const CEnvironment &env,
                                      const CHubContainer &cont,
                                      int result);
+
+//  void peer_create_finished(int result);
+//  void create_peer_triggered(int kkukala);
 
   /*updater*/
   void update_available(QString file_id);

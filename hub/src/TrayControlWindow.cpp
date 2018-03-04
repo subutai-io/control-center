@@ -10,6 +10,7 @@
 
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
+#include "DlgCreatePeer.h"
 #include "DlgLogin.h"
 #include "DlgNotification.h"
 #include "DlgNotifications.h"
@@ -224,7 +225,7 @@ void TrayControlWindow::create_tray_actions() {
 
   m_act_create_peer = new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
   connect(m_act_create_peer, &QAction::triggered, this,
-          &TrayControlWindow::create_peer);
+          &TrayControlWindow::show_create_dialog);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -962,6 +963,11 @@ void TrayControlWindow::show_settings_dialog() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QDialog* create_create_peer_dialog(QWidget* p){ return new DlgCreatePeer(p); }
+void TrayControlWindow::show_create_dialog() {
+    show_dialog(create_create_peer_dialog, tr("Create peer"));
+}
+////////////////////////////////////////////////////////////////////////////
 QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
   show_dialog(create_about_dialog, tr("About Subutai Control Center"));
@@ -1053,7 +1059,7 @@ void TrayControlWindow::ssh_to_container_finished(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::desktop_to_container_finished(
     const CEnvironment &env,
     const CHubContainer &cont,
@@ -1068,7 +1074,3 @@ void TrayControlWindow::desktop_to_container_finished(
   }
 }
 ////////////////////////////////////////////////////////////////////////////
-
-void TrayControlWindow::create_peer(){
-  CNotificationObserver::Instance()->Info("Salam aleikum uf uf", DlgNotification::N_NO_ACTION);
-}
