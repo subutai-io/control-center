@@ -720,7 +720,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QEventLoop* loop = new QEventLoop;
   QTimer* timer = new QTimer;
   timer->setSingleShot(true);
-  timer->start(10000);
+  timer->start(15000);
 
   QNetworkReply* reply;
   switch (get) {

@@ -148,6 +148,10 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
+  static system_call_wrapper_error_t run_vagrant_up_in_terminal(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,

@@ -4,6 +4,7 @@
 #include "SystemCallWrapper.h"
 #include <QPushButton>
 #include "NotificationObserver.h"
+#include "RestContainers.h"
 
 
 CRhController::CRhController(QObject *parent) :
@@ -37,6 +38,7 @@ void
 CRhController::refresh() {
   m_dct_resource_hosts.clear();
   CSsdpController::Instance()->search();
+  search_local();
   m_refresh_in_progress = true;
   m_delay_timer.start();
 }
@@ -90,3 +92,19 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+
+void CRhController::search_local(){
+    /*
+    QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QDir peers_dir;
+    QStringList::iterator stdDir = stdDirList.begin();
+    if(stdDir == stdDirList.end())
+      peers_dir.setCurrent("/");
+    else
+      peers_dir.setCurrent(*stdDir);
+    peers_dir.mkdir("Subutai-peers");
+    peers_dir.cd("Subutai-peers");
+    peers_dir.mkdir("erkin kandai");
+    CNotificationObserver::Instance()->Info(peers_dir.dirName(), DlgNotification::N_NO_ACTION);
+    */
+}

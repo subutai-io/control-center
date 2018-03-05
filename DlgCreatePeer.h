@@ -14,9 +14,13 @@ class DlgCreatePeer : public QDialog
 public:
   explicit DlgCreatePeer(QWidget *parent = 0);
   ~DlgCreatePeer();
+  QString create_dir(const QString &name);
 
 private:
   Ui::DlgCreatePeer *ui;
+
+public slots:
+  void create_button_pressed();
 };
 
 #endif // DLGCREATEPEER_H
