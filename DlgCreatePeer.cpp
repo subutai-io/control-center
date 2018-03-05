@@ -58,12 +58,18 @@ void DlgCreatePeer::create_button_pressed(){
     }
 
     system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_init(dir, os);
-    if(res == SCWE_SUCCESS){
-        CNotificationObserver::Instance()->Info("I'm genius", DlgNotification::N_NO_ACTION);
-    }
-    else{
-        CNotificationObserver::Instance()->Info("you loh",  DlgNotification::N_NO_ACTION);
-    }
+    bool flag = true;
+    do{
+        if(res == SCWE_SUCCESS){
+            if(flag)
+                res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
+            flag = false;
+            continue;
+        }
+        else{
+            CNotificationObserver::Instance()->Error("Failed to create peer. Please if all software is installed correctly",  DlgNotification::N_NO_ACTION);
+        }
+    }while(0);
     ui->btn_create->setEnabled(true);
 }
 

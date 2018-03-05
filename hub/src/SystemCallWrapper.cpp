@@ -37,7 +37,7 @@ static QString error_strings[] = {"Success",
                                   "System call timeout"};
 
 system_call_res_t CSystemCallWrapper::ssystem_th(const QString &cmd,
-                                                 const QStringList &args,
+                                                 QStringList &args,
                                                  bool read_output, bool log,
                                                  unsigned long timeout_msec) {
   QFuture<system_call_res_t> f1 =
@@ -48,10 +48,18 @@ system_call_res_t CSystemCallWrapper::ssystem_th(const QString &cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
-                                              const QStringList &args,
+                                              QStringList &args,
                                               bool read_out, bool log,
                                               unsigned long timeout_msec) {
   QProcess proc;
+  if(args.begin() != args.end() && args.size() >= 2){
+      if(*(args.begin())=="set_working_directory"){
+          args.erase(args.begin());
+          proc.setWorkingDirectory(*(args.begin()));
+          args.erase(args.begin());
+      }
+  }
+
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
@@ -251,21 +259,24 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 //////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir, const QString &box){
-    QProcess proc;
-    QString command = QString("%2 init ").arg(dir, CSettingsManager::Instance().vagrant_path());
-    if(box == "Debian Stretch")
-        command += QString("subutai/stretch");
-    else command += QString("subutai/xenial");
-    proc.setWorkingDirectory(dir);
-    proc.start(command);
-    if(!proc.waitForStarted(-1)){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "init";
+    if (box == "Debian Stretch")
+        args << "subutai/stretch";
+    else args << "subutai/xenial";
+
+    qDebug()<<"vagrant init ARGS: " << args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
-    if(!proc.waitForFinished(-1)){
-        return SCWE_TIMEOUT;
-    }
-    QString output = proc.readAllStandardOutput();
-    return proc.exitStatus()!=QProcess::NormalExit? CSystemCallWrapper::run_vagrant_up_in_terminal(dir) : SCWE_PROCESS_CRASHED;
+    return res.res;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -662,8 +673,8 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &d
 
 template <>
 system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
-    QString str_command = QString("cd %1;%2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString("up;");
+    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += QString(" up");
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {

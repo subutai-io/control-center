@@ -95,11 +95,11 @@ class CSystemCallWrapper {
 
  public:
   static system_call_res_t ssystem_th(const QString &cmd,
-                                      const QStringList &args, bool read_output,
+                                      QStringList &args, bool read_output,
                                       bool log,
                                       unsigned long timeout_msec = ULONG_MAX);
 
-  static system_call_res_t ssystem(const QString &cmd, const QStringList &args,
+  static system_call_res_t ssystem(const QString &cmd, QStringList &args,
                                    bool read_out, bool log,
                                    unsigned long timeout_msec = 30000);
 

@@ -71,7 +71,7 @@ main(int argc, char *argv[]) {
 
   QTranslator translator;
   QString locale = LanguageController::CurrentLocale();
-  translator.load(QString("SubutaiTray_%1.qm").arg(locale), QApplication::applicationDirPath());
+  translator.load(QString("SubutaiControlCenter_%1.qm").arg(locale), QApplication::applicationDirPath());
   app.installTranslator(&translator);
 
   qInstallMessageHandler(Logger::LoggerMessageOutput);
