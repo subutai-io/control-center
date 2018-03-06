@@ -141,7 +141,7 @@ DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_DEV
+GBV=BT_PROD
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
@@ -192,7 +192,7 @@ win32: {
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
-  RC_FILE = tray.rc
+  RC_FILE = control-center.rc
 #  LIBS += -lpthread
 # QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
