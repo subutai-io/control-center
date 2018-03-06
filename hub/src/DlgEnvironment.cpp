@@ -150,6 +150,9 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   ui->cont_desktop_info->addWidget(cont_desktop_info);
   ui->cont_select->addWidget(cont_select);
   selected_conts[cont->id()] = cont_select;
+  connect(cont_select, &QCheckBox::stateChanged, [this](){
+      this->check_buttons();
+  });
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -158,22 +161,17 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   QCheckBox *cont_checkbox = selected_conts[cont->id()];
   if (status == 0)
   {
-    cont_checkbox->setCheckable(true);
     cont_checkbox->setText(tr("READY"));
     cont_checkbox->setStyleSheet("QCheckBox {color : green;}");
   }
   else
   if (status == 1)
   {
-    //cont_checkbox->setCheckable(false);
-    //cont_checkbox->setChecked(false);
     cont_checkbox->setText(tr("CONNECTING"));
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
   }
   else
   if (status == 2){
-    //cont_checkbox->setCheckable(false);
-    //cont_checkbox->setChecked(false);
     cont_checkbox->setText(tr("FAILED"));
     cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
   }
@@ -209,8 +207,39 @@ void DlgEnvironment::check_environment_status() {
       change_cont_status(&cont, 2);
     }
   }
+  check_buttons();
 }
 
+////////////////////////////////////////////////////////////////////////////
+void DlgEnvironment::check_buttons() {
+    qDebug()
+        << "Checking which button I can press" << env.name();
+    bool not_empty = false;
+    bool upload = true, ssh = true, desktop =  true;
+    P2PController::P2P_CONNETION_STATUS
+        swarm_status = P2PController::Instance().is_swarm_connected(env);
+    bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
+    if(connected_to_swarm){
+        for (CHubContainer cont : env.containers()) {
+            QCheckBox *current_check_box = selected_conts[cont.id()];
+            if(current_check_box->checkState() == Qt::Checked){
+              if(current_check_box->text() != "READY"){
+                  upload =  ssh = desktop = false;
+                  break;
+                }
+              if(!cont.is_desktop())
+                  desktop = false;
+              not_empty = true;
+              }
+        }
+    }
+    else{
+        upload = ssh = desktop = false;
+    }
+    ui->btn_desktop_selected->setEnabled(desktop & not_empty);
+    ui->btn_upload_selected->setEnabled(upload & not_empty);
+    ui->btn_ssh_selected->setEnabled(ssh & not_empty);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {

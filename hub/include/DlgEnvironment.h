@@ -33,6 +33,7 @@ private:
   void desktop_selected();
   void ssh_selected();
   void select_all(bool checked);
+  void check_buttons();
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
