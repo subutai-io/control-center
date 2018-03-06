@@ -106,21 +106,23 @@ void CRhController::search_local(){
     peers_dir.cd("Subutai-peers");
 
     //start looking each subfolder
-    CNotificationObserver::Instance()->Info(peers_dir.absolutePath(), DlgNotification::N_NO_ACTION);
     for (QFileInfo fi : peers_dir.entryInfoList()) {
-        get_peer_info(fi);
+        get_peer_info(fi, peers_dir);
     }
 }
 
-void  CRhController::get_peer_info(const QFileInfo &fi){
+void  CRhController::get_peer_info(const QFileInfo &fi, QDir dir){
    if(fi.fileName() == "." || fi.fileName() == "..")
        return;
    if(!fi.isDir())
        return;
    QString peer_name = parse_name(fi.fileName());
-   CNotificationObserver::Instance()->Info(peer_name, DlgNotification::N_NO_ACTION);
    if(peer_name=="")
        return;
+   dir.cd(fi.fileName());
+   QStringList status = CSystemCallWrapper::vagrant_status(dir.absolutePath());
+   QStringList fingerprint = CSystemCallWrapper::vagrant_fingerprint(dir.absolutePath());
+   return;
 }
 
 QString CRhController::parse_name(const QString &name){

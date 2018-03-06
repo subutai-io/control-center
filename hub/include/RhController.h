@@ -24,7 +24,7 @@ private:
   bool m_refresh_in_progress;
 
   void search_local();
-  void get_peer_info(const QFileInfo &fi);
+  void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
 
 public:

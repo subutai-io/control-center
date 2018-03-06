@@ -279,6 +279,33 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     return res.res;
 }
 
+QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "subutai"
+        << "fingerprint";
+    qDebug()
+            << "get fingerprint of peer" <<dir;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    return res.out;
+}
+
+QStringList CSystemCallWrapper::vagrant_status(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "status";
+    qDebug()
+            << "get fingerprint of peer" <<dir;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    return res.out;
+}
+
 //////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
