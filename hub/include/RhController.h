@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <map>
 #include "SystemCallWrapper.h"
+#include <QFileSystemModel>
 #include "RestContainers.h"
 
 class CRhController : public QObject {
@@ -23,6 +24,8 @@ private:
   bool m_refresh_in_progress;
 
   void search_local();
+  void get_peer_info(const QFileInfo &fi);
+  QString parse_name(const QString &name);
 
 public:
 

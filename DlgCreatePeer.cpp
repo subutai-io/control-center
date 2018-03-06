@@ -24,30 +24,27 @@ DlgCreatePeer::~DlgCreatePeer()
 void DlgCreatePeer::create_button_pressed(){
     ui->btn_create->setEnabled(false);
 
-    QString name = ui->le_name->text();
+    QString name = "subutai-peer_";
+    name += ui->le_name->text();
     QString ram = ui->le_ram->text();
     QString cpu = ui->cmb_cpu->currentText();
     QString os = ui->cmb_os->currentText();
-    QString dir = create_dir(name);
-    CNotificationObserver::Instance()->Info(dir, DlgNotification::N_NO_ACTION);
 
-    if(dir.isEmpty()){
-        CNotificationObserver::Error(tr("Name already exists"), DlgNotification::N_NO_ACTION);
-    }
+    QRegExp check_ram("\\d*");
 
     if(name.isEmpty()){
         CNotificationObserver::Error(tr("Name can't be empty"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
+
     if(name.contains(" ")){
         CNotificationObserver::Error(tr("Name can't have space"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
-
-    if(ram.contains(" ")){
-        CNotificationObserver::Error(tr("Ram can't have space"), DlgNotification::N_NO_ACTION);
+    if(!check_ram.exactMatch(ram)){
+        CNotificationObserver::Error(tr("Ram shold be integer"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
@@ -57,20 +54,19 @@ void DlgCreatePeer::create_button_pressed(){
         return;
     }
 
-    system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_init(dir, os);
-    bool flag = true;
-    do{
-        if(res == SCWE_SUCCESS){
-            if(flag)
-                res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
-            flag = false;
-            continue;
-        }
-        else{
-            CNotificationObserver::Instance()->Error("Failed to create peer. Please if all software is installed correctly",  DlgNotification::N_NO_ACTION);
-        }
-    }while(0);
-    ui->btn_create->setEnabled(true);
+    QString dir = create_dir(name);
+
+    if(dir.isEmpty()){
+        CNotificationObserver::Error(tr("Name already exists"), DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(false);
+    }
+
+    InitPeer *thread_init = new InitPeer(this);
+    thread_init->init(dir, os);
+    thread_init->startWork();
+    connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, this](system_call_wrapper_error_t res){
+       this->init_completed(res, dir, ram, cpu);
+    });
 }
 
 //for peers, empty if that peer dir exists
@@ -88,4 +84,17 @@ QString DlgCreatePeer::create_dir(const QString &name){
         return new_dir;
     current_local_dir.cd(name);
     return current_local_dir.absolutePath();
+}
+
+void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu){
+    ui->btn_create->setEnabled(true);
+    if(res != SCWE_SUCCESS){
+        CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if vagrant is installed correctly", DlgNotification::N_NO_ACTION);
+        return;
+    }
+    CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);
+    res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir, ram, cpu);
+    if(res != SCWE_SUCCESS){
+        CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
+    }
 }

@@ -669,13 +669,12 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
 }
 //////////////////////////////////////////////////////////////////////////////
 template <class  OS>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir);
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir, const QString &ram, const QString &cpu);
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
-    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");
-    QString cmd;
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir, const QString &ram, const QString &cpu){
+    QString str_command = QString("cd %1;SUBUTAI_RAM=%2 SUBUTAI_CPU=%3 %4").arg(dir, ram, cpu, CSettingsManager::Instance().vagrant_path());
+    str_command += QString(" up");    QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
       system_call_wrapper_error_t tmp_res;
@@ -692,8 +691,8 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX
                                               : SCWE_CREATE_PROCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir){
-    return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir);
+system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir, const QString &ram, const QString &cpu){
+    return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir, ram, cpu);
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>

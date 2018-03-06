@@ -94,7 +94,7 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint) {
 ////////////////////////////////////////////////////////////////////////////
 
 void CRhController::search_local(){
-    /*
+    //get correct path;
     QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     QDir peers_dir;
     QStringList::iterator stdDir = stdDirList.begin();
@@ -104,7 +104,40 @@ void CRhController::search_local(){
       peers_dir.setCurrent(*stdDir);
     peers_dir.mkdir("Subutai-peers");
     peers_dir.cd("Subutai-peers");
-    peers_dir.mkdir("erkin kandai");
-    CNotificationObserver::Instance()->Info(peers_dir.dirName(), DlgNotification::N_NO_ACTION);
-    */
+
+    //start looking each subfolder
+    CNotificationObserver::Instance()->Info(peers_dir.absolutePath(), DlgNotification::N_NO_ACTION);
+    for (QFileInfo fi : peers_dir.entryInfoList()) {
+        get_peer_info(fi);
+    }
+}
+
+void  CRhController::get_peer_info(const QFileInfo &fi){
+   if(fi.fileName() == "." || fi.fileName() == "..")
+       return;
+   if(!fi.isDir())
+       return;
+   QString peer_name = parse_name(fi.fileName());
+   CNotificationObserver::Instance()->Info(peer_name, DlgNotification::N_NO_ACTION);
+   if(peer_name=="")
+       return;
+}
+
+QString CRhController::parse_name(const QString &name){
+    QString peer_name;
+    QString prefix;
+    bool flag = false;
+    for (auto q_char : name){
+        if(q_char == '_'){
+            if(flag==false){
+                if(prefix != "subutai-peer")
+                    break;
+                flag = true;
+                continue;
+            }
+            else peer_name +=q_char;
+        }
+        else flag ? peer_name += q_char : prefix += q_char;
+    }
+    return peer_name;
 }
