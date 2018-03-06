@@ -22,7 +22,7 @@ private:
   Ui::DlgEnvironment *ui;
   CEnvironment env;
   std::map<QString,QCheckBox*> selected_conts;
-  std::map<QString,QLabel*> dekstops_info;
+  std::map<QString,QLabel*> desktops_info;
 
   void addContainer(const CHubContainer*cont);
   void check_container_status(const CHubContainer *cont);

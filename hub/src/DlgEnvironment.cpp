@@ -150,6 +150,7 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   ui->cont_desktop_info->addWidget(cont_desktop_info);
   ui->cont_select->addWidget(cont_select);
   selected_conts[cont->id()] = cont_select;
+  desktops_info[cont->id()] = cont_desktop_info;
   connect(cont_select, &QCheckBox::stateChanged, [this](){
       this->check_buttons();
   });
@@ -183,6 +184,7 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
   P2PController::P2P_CONNETION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
+    desktops_info[cont->id()]->setText(QString(cont->is_desktop() ? cont->desk_env().isEmpty() ? "MATE" :  cont->desk_env()  : "No Desktop"));
   change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
 }
 
