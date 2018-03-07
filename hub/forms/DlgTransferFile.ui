@@ -27,8 +27,8 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset theme=":/hub/upload">
-       <normaloff>:/hub/upload.ico</normaloff>:/hub/upload.ico</iconset>
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/upload-0.png</normaloff>:/hub/upload-0.png</iconset>
      </property>
     </widget>
    </item>
@@ -41,7 +41,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset theme=":/hub/download">
+      <iconset resource="../../resources/resources.qrc">
        <normaloff>:/hub/download.png</normaloff>:/hub/download.png</iconset>
      </property>
     </widget>
@@ -62,7 +62,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../resources/resources.qrc">
        <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
      </property>
     </widget>
@@ -86,7 +86,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../resources/resources.qrc">
        <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
      </property>
     </widget>
@@ -100,7 +100,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../resources/resources.qrc">
        <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
      </property>
     </widget>
@@ -187,7 +187,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../../resources/resources.qrc">
        <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
      </property>
     </widget>
@@ -209,6 +209,10 @@
    <header location="global">DlgTransferFile.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

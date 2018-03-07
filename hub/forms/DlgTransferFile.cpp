@@ -31,7 +31,9 @@ void DlgTransferFile::Init() {
 
 
   ui->btn_upload_file->setToolTip("Upload selected files");
+  ui->btn_upload_file->setIcon(QIcon(":/hub/upload-0.png"));
   ui->btn_download_file->setToolTip("Download selected files");
+  ui->btn_download_file->setIcon(QIcon(":/hub/download.png"));
 
   ui->btn_refresh_local->setToolTip("Refresh current local directory");
   ui->btn_refresh_remote->setToolTip("Refresh current remote directory");
@@ -206,6 +208,12 @@ void DlgTransferFile::set_buttons_enabled(bool enabled) {
   ui->btn_remote_back->setEnabled(enabled);
 }
 
+void  DlgTransferFile::set_remote_button_enabled(bool enabled){
+    ui->btn_refresh_remote->setEnabled(enabled);
+    ui->btn_remote_back->setEnabled(enabled);
+    ui->btn_download_file->setEnabled(enabled);
+}
+
 void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t res, QStringList output) {
   static QIcon transfer_finished_icon(":/hub/GOOD");
   static QIcon transfer_failed_icon(":/hub/BAD");
@@ -232,10 +240,12 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
     else {
       file_to_transfer.setTransferFileStatus(FIlE_FAILED_TO_UPLOAD);
       if(res == SCWE_PERMISSION_DENIED)
-        twi_operation_status->setText("Permision denied");
+        twi_operation_status->setToolTip("Permision denied");
       else
-          twi_operation_status->setText("Failed to upload");
+          twi_operation_status->setToolTip("Failed to upload");
       twi_operation_status->setIcon(transfer_failed_icon);
+      if(file_to_transfer.fileInfo().fileName().contains("\\"))
+        twi_operation_status->setText("Invalid file name");
       twi_operation_status->setToolTip(
             output.join(",") +
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
@@ -255,8 +265,9 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       else
         twi_operation_status->setText("Failed to download");
       twi_operation_status->setIcon(transfer_failed_icon);
-      twi_operation_status->setToolTip(
-            output.join(",") +
+      if(file_to_transfer.fileInfo().fileName().contains("\\"))
+        twi_operation_status->setText("Invalid file name");
+      twi_operation_status->setToolTip(output.join(",") +
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
   }
@@ -596,7 +607,7 @@ void DlgTransferFile::local_back() {
 }
 
 void DlgTransferFile::remote_back() {
-  set_buttons_enabled(false);
+  set_remote_button_enabled(false);
   QStringList pwd = current_remote_dir.split("/");
   QString new_dir = "";
   // EXAMPLE: current_remote_dir= '/usr/bin/'
@@ -607,7 +618,6 @@ void DlgTransferFile::remote_back() {
   new_dir.append("/");
   current_remote_dir = new_dir;
   refresh_remote_file_system();
-  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -703,7 +713,7 @@ void DlgTransferFile::refresh_remote_file_system() {
           << "Refresh remote file system"
           << current_remote_dir;
 
-  ui->btn_refresh_remote->setEnabled(false);
+  set_remote_button_enabled(false);
   ui->lbl_remote_files->setMovie(remote_movie);
   remote_movie->start();
 
@@ -731,7 +741,7 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     add_file_remote(file_info);
   }
   remote_movie->stop();
-  ui->btn_refresh_remote->setEnabled(true);
+  set_remote_button_enabled(true);
   if (res == SCWE_SUCCESS) {
     ui->lbl_remote_files->setStyleSheet("");
     ui->lbl_remote_files->setText("Remote");
