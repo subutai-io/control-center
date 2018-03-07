@@ -105,7 +105,7 @@ static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
 
 static const int DEFAULT_REFRESH_TIMEOUT_SEC = 20;
 static QString settings_file_path() {
-  static const QString settings_file = "subutai_tray.ini";
+  static const QString settings_file = "subutai_control.ini";
 
   QStringList lst_config=
       QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
@@ -148,7 +148,7 @@ static QString subutai_path() {
         }
       }
 
-      dir_path = dir_path + QDir::separator() + QString("tray");
+      dir_path = dir_path + QDir::separator() + QString("control-center");
       QDir dir_tray(dir_path);
       if (!dir_tray.exists()) {
         if (!dir_tray.mkdir(dir_path)) {
@@ -157,7 +157,7 @@ static QString subutai_path() {
       }
     }
 
-  return QDir::homePath() +QDir::separator() + QString(".subutai") + QDir::separator() + QString("tray");
+  return QDir::homePath() +QDir::separator() + QString(".subutai") + QDir::separator() + QString("control-center");
 }
 ////////////////////////////////////////////////////////////////////////////
 
