@@ -415,6 +415,7 @@ private:
 
   void file_was_dropped(const QString &file_path);
   void set_buttons_enabled(bool enabled);
+  void set_remote_button_enabled(bool enabled);
   void transfer_finished(int tw_row, system_call_wrapper_error_t res, QStringList output);
   void transfer_file(int tw_row);
   void start_transfer_files();
