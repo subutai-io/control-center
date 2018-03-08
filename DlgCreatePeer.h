@@ -5,7 +5,8 @@
 #include <QObject>
 #include <QDebug>
 #include "SystemCallWrapper.h"
-#include "P2PController.h"
+
+#include <QtConcurrent/QtConcurrent>
 
 namespace Ui {
   class DlgCreatePeer;

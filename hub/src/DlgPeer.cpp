@@ -234,11 +234,11 @@ void DlgPeer::unregisterPeer(){
 }
 
 void DlgPeer::regDlgClosed(){
+    ui->btn_register->setEnabled(true);
+    ui->btn_unregister->setEnabled(true );
     if(registration_dialog == nullptr)
         return;
     registration_dialog->deleteLater();
-    ui->btn_register->setEnabled(true);
-    ui->btn_unregister->setEnabled(true );
 }
 
 DlgPeer::~DlgPeer()

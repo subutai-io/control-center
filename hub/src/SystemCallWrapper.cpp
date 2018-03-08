@@ -289,7 +289,7 @@ QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
         << "fingerprint";
     qDebug()
             << "get fingerprint of peer" <<dir;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
     return res.out;
 }
 

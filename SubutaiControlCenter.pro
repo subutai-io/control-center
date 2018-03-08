@@ -62,7 +62,8 @@ SOURCES += \
     hub/src/HostMachineController.cpp \
     hub/forms/DlgTransferFile.cpp \
     hub/src/DlgRegisterPeer.cpp \
-    DlgCreatePeer.cpp
+    DlgCreatePeer.cpp \
+    hub/src/PeerController.cpp
 
 
 
@@ -110,7 +111,8 @@ HEADERS  += \
     hub/include/HostMachineController.h \
     hub/forms/DlgTransferFile.h \
     hub/include/DlgRegisterPeer.h \
-    DlgCreatePeer.h
+    DlgCreatePeer.h \
+    hub/include/PeerController.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

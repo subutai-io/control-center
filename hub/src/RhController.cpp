@@ -4,7 +4,7 @@
 #include "SystemCallWrapper.h"
 #include <QPushButton>
 #include "NotificationObserver.h"
-#include "RestContainers.h"
+#include "PeerController.h"
 
 
 CRhController::CRhController(QObject *parent) :
@@ -29,6 +29,7 @@ CRhController::~CRhController() {
 
 void
 CRhController::init() {
+  PeerController::Instance()->init();
   refresh();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -38,7 +39,6 @@ void
 CRhController::refresh() {
   m_dct_resource_hosts.clear();
   CSsdpController::Instance()->search();
-  search_local();
   m_refresh_in_progress = true;
   m_delay_timer.start();
 }
@@ -89,57 +89,4 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint) {
 
   emit ssh_to_rh_finished(peer_fingerprint, res.result(), *exit_code);
   delete exit_code;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-void CRhController::search_local(){
-    //get correct path;
-    QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    QDir peers_dir;
-    QStringList::iterator stdDir = stdDirList.begin();
-    if(stdDir == stdDirList.end())
-      peers_dir.setCurrent("/");
-    else
-      peers_dir.setCurrent(*stdDir);
-    peers_dir.mkdir("Subutai-peers");
-    peers_dir.cd("Subutai-peers");
-
-    //start looking each subfolder
-    for (QFileInfo fi : peers_dir.entryInfoList()) {
-        get_peer_info(fi, peers_dir);
-    }
-}
-
-void  CRhController::get_peer_info(const QFileInfo &fi, QDir dir){
-   if(fi.fileName() == "." || fi.fileName() == "..")
-       return;
-   if(!fi.isDir())
-       return;
-   QString peer_name = parse_name(fi.fileName());
-   if(peer_name=="")
-       return;
-   dir.cd(fi.fileName());
-   QStringList status = CSystemCallWrapper::vagrant_status(dir.absolutePath());
-   QStringList fingerprint = CSystemCallWrapper::vagrant_fingerprint(dir.absolutePath());
-   return;
-}
-
-QString CRhController::parse_name(const QString &name){
-    QString peer_name;
-    QString prefix;
-    bool flag = false;
-    for (auto q_char : name){
-        if(q_char == '_'){
-            if(flag==false){
-                if(prefix != "subutai-peer")
-                    break;
-                flag = true;
-                continue;
-            }
-            else peer_name +=q_char;
-        }
-        else flag ? peer_name += q_char : prefix += q_char;
-    }
-    return peer_name;
 }

@@ -400,23 +400,4 @@ public:
 
 };
 
-class CLocalPeer {
-
-private:
-    QString m_id;
-    QString m_name;
-    QString m_ip;
-    QString m_fingerprint;
-    QString m_status;
-    QString m_dir;
-public:
-    CLocalPeer();
-    const QString &id() const { return m_id; }
-    const QString &ip() const { return m_ip; }
-    const QString &name() const { return m_name; }
-    const QString &fingerprint() const { return m_fingerprint; }
-    const QString &status() const { return m_status; }
-    const QString &dir() const { return m_dir; }
-};
-
 #endif // RESTCONTAINERS_H

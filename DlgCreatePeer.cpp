@@ -59,6 +59,7 @@ void DlgCreatePeer::create_button_pressed(){
     if(dir.isEmpty()){
         CNotificationObserver::Error(tr("Name already exists"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(false);
+        return;
     }
 
     InitPeer *thread_init = new InitPeer(this);

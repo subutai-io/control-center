@@ -29,6 +29,7 @@
 #include "DlgEnvironment.h"
 #include "P2PController.h"
 #include "RhController.h"
+#include "PeerController.h"
 
 using namespace update_system;
 
@@ -104,6 +105,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &TrayControlWindow::environments_updated_sl);
   connect(&CHubController::Instance(), &CHubController::my_peers_updated,
+          this, &TrayControlWindow::my_peers_updated_sl);
+  connect(PeerController::Instance(), &PeerController::local_peer_list_updated,
           this, &TrayControlWindow::my_peers_updated_sl);
 
   connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
@@ -701,6 +704,7 @@ void TrayControlWindow::update_peer_menu() {
   static QIcon unknown_icon(":/hub/OK.png");
   static QIcon local_hub(":/hub/local_hub.png");
   static QIcon local_network_icon(":/hub/local-network.png");
+  static QIcon local_machine_off_icon(":/hub/local_off.png");
 
 
   m_hub_peer_menu->clear();
@@ -712,28 +716,47 @@ void TrayControlWindow::update_peer_menu() {
   for (std::pair<QString, QString> local_peer : CRhController::Instance()->dct_resource_hosts()) {
     found_local_peers.push_back(std::make_pair(CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
   }
+  // get local machine peers
+  std::vector <CLocalPeer> found_local_machine_peers = PeerController::Instance()->local_peers();
 
   // Find local&hub peers
   for (std::pair<QString, QString> local_peer : found_local_peers) {
-    for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
-        int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
-        if (eq == 0) // found peer both local and registered on hub
-        {
-          QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + " - " + local_peer.second);
-          peer_start->setIcon(local_hub);
-
-          connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
-            this->generate_peer_dlg(&(*hub_peer), local_peer);
-            TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                           QString("Peer \"%1\" - %2(%3)").arg(hub_peer->name()).arg(local_peer.second).arg(hub_peer->status()));
-          });
-          break;
+    bool found_on_machine = false;
+    for (auto machine_peer : found_local_machine_peers){
+        int eq = QString::compare(local_peer.second, machine_peer.ip(), Qt::CaseInsensitive);
+        if(eq == 0){
+            found_on_machine = true;
+            break;
         }
     }
+    if(!found_on_machine)
+        for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
+            int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
+            if (eq == 0) // found peer both local and registered on hub
+            {
+              QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + " - " + local_peer.second);
+              peer_start->setIcon(local_hub);
+
+              connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
+                this->generate_peer_dlg(&(*hub_peer), local_peer);
+                TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                               QString("Peer \"%1\" - %2(%3)").arg(hub_peer->name()).arg(local_peer.second).arg(hub_peer->status()));
+              });
+              break;
+            }
+        }
   }
 
   // Find local peers
   for (std::pair<QString, QString> local_peer : found_local_peers) {
+    bool found_on_machine = false;
+    for (auto machine_peer : found_local_machine_peers){
+        int eq = QString::compare(local_peer.second, machine_peer.ip(), Qt::CaseInsensitive);
+        if(eq == 0){
+            found_on_machine = true;
+            break;
+        }
+    }
     bool found_on_hub = false;
     for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
       int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
@@ -744,7 +767,7 @@ void TrayControlWindow::update_peer_menu() {
       }
     }
 
-    if (found_on_hub == false && local_peer.first != QString("current_setting")) {
+    if (found_on_hub == false && local_peer.first != QString("current_setting") && found_on_machine == false) {
       QAction *peer_start = m_local_peer_menu->addAction(local_peer.second);
       peer_start->setIcon(local_network_icon);
       connect(peer_start, &QAction::triggered, [this, local_peer]() {
@@ -755,9 +778,33 @@ void TrayControlWindow::update_peer_menu() {
     }
   }
 
+  // find local machine peers
+  for (auto local_peer : found_local_machine_peers){
+    bool found_on_hub = false;
+    for (auto hub_peer : peers_connected){
+        int eq = QString::compare(local_peer.fingerprint(), hub_peer.fingerprint(), Qt::CaseInsensitive);
+        if(eq == 0){
+            found_on_hub = true;
+            QAction *peer_start = m_hub_peer_menu->addAction(hub_peer.name() + "-" + local_peer.ip());
+            peer_start->setIcon(local_hub);
+            break;
+        }
+    }
+    if(found_on_hub == false){
+        if(local_peer.status() == "running"){
+            QAction *peer_start = m_hub_peer_menu->addAction(local_peer.name() + " - " + local_peer.ip());
+            peer_start->setIcon(local_network_icon);
+        }
+        else{
+            QAction *peer_start = m_hub_peer_menu->addAction(local_peer.name());
+            peer_start->setIcon(local_machine_off_icon);
+        }
+    }
+  }
   // Find hub peers
   for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
     bool found_on_local = false;
+    bool found_on_machine = false;
     for (std::pair<QString, QString> local_peer : found_local_peers) {
       int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
       if (eq == 0) // found peer on local
@@ -766,7 +813,15 @@ void TrayControlWindow::update_peer_menu() {
         break;
       }
     }
-    if (found_on_local == false) {
+    for (auto machine_peer : found_local_machine_peers){
+        int eq = QString::compare(machine_peer.fingerprint(), hub_peer->fingerprint(), Qt::CaseInsensitive);
+        if (eq == 0) // found peer on local machine
+        {
+          found_on_machine = true;
+          break;
+        }
+    }
+    if (found_on_local == false && found_on_machine == false) {
       QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
       peer_start->setIcon(hub_peer->status() == "ONLINE" ? online_icon :
                             hub_peer->status() == "OFFLINE" ? offline_icon : unknown_icon);
@@ -777,6 +832,9 @@ void TrayControlWindow::update_peer_menu() {
       });
     }
   }
+
+  // Find local machine peers
+ // for (auto local_peer = )
 
   if (m_hub_peer_menu->isEmpty()) {
     m_hub_peer_menu->addAction("Empty")->setEnabled(false);

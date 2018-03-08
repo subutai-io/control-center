@@ -58,6 +58,7 @@
         <file>refreshing.gif</file>
         <file>logo.png</file>
         <file>add.png</file>
+        <file>local_off.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
