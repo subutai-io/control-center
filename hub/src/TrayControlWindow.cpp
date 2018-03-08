@@ -660,8 +660,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 void TrayControlWindow::my_peers_updated_sl() {
 
   std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
-  if(PeerController::Instance()->get_number_threads() != 0)
-      return;
+
   QString msgDisconnected = "";
   QString msgConnected = "";
 
@@ -697,6 +696,9 @@ void TrayControlWindow::my_peers_updated_sl() {
     CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
   }
   peers_connected = my_current_peers;
+  if(PeerController::Instance()->get_number_threads()==0){
+      local_peers_connected = PeerController::Instance()->local_peers();
+  }
   update_peer_menu();
 }
 
@@ -719,7 +721,7 @@ void TrayControlWindow::update_peer_menu() {
     found_local_peers.push_back(std::make_pair(CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
   }
   // get local machine peers
-  std::vector <CLocalPeer> found_local_machine_peers = PeerController::Instance()->local_peers();
+  std::vector <CLocalPeer> found_local_machine_peers = local_peers_connected;
 
   // Find local&hub peers
   for (std::pair<QString, QString> local_peer : found_local_peers) {
@@ -793,7 +795,7 @@ void TrayControlWindow::update_peer_menu() {
             peer_start->setIcon(local_hub);
             connect(peer_start, &QAction::triggered, [this, hub_peer, local_peer]() {
               std::vector<CLocalPeer> machine_peer_info;
-              machine_peer_info.push_back(*local_peer);
+             // machine_peer_info.push_back(*local_peer);
               this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""), machine_peer_info);
               TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
                                              QString("Peer \"%1\"").arg(hub_peer->name()));

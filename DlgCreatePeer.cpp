@@ -90,7 +90,7 @@ QString DlgCreatePeer::create_dir(const QString &name){
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu){
     ui->btn_create->setEnabled(true);
     if(res != SCWE_SUCCESS){
-        CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if vagrant is installed correctly", DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if all software is installed correctly", DlgNotification::N_NO_ACTION);
         return;
     }
     CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);

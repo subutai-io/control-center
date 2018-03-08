@@ -51,6 +51,7 @@ private:
   Ui::TrayControlWindow *ui;
 
   std::vector<CMyPeerInfo> peers_connected;
+  std::vector<CLocalPeer> local_peers_connected;
 
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
