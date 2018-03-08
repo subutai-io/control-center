@@ -65,6 +65,10 @@ public:
       return m_local_peers;
   }
 
+  int get_number_threads(){
+      return number_threads;
+  }
+
 private slots:
   void refresh_timer_timeout();
 signals:

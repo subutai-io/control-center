@@ -29,7 +29,6 @@ CRhController::~CRhController() {
 
 void
 CRhController::init() {
-  PeerController::Instance()->init();
   refresh();
 }
 ////////////////////////////////////////////////////////////////////////////
