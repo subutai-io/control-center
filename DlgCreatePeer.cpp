@@ -94,6 +94,14 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         return;
     }
     CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);
+    QString filename=QString("%1/vagrant-subutai.yml").arg(dir);
+    QFile file(filename);
+    if ( file.open(QIODevice::ReadWrite) ){
+        QTextStream stream( &file );
+        stream << "SUBUTAI_RAM : " << ram << endl;
+        stream << "SUBUTAI_CPU : " << cpu << endl;
+    }
+    file.close();
     res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir, ram, cpu);
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);

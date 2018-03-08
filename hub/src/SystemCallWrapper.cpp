@@ -717,6 +717,44 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX
     return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
+
+template <>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_WIN> >(const QString &dir, const QString &ram, const QString &cpu){
+UNUSED_ARG(ram);
+UNUSED_ARG(cpu);
+#ifdef RT_OS_WINDOWS
+  QString str_command = QString("cd %1 && \"%4\"")
+                            .arg(dir)
+                            .arg(CSettingsManager::Instance().vagrant_path());
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString cmd_args =
+      QString("\"%1\" /k \"%2\" up").arg(cmd).arg(str_command);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
+                          NULL, &si, &pi);
+  if (!cp) {
+    qCritical(
+        "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+        GetLastError());
+    return SCWE_CREATE_PROCESS;
+  }
+#endif
+  return SCWE_SUCCESS;
+}
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir, const QString &ram, const QString &cpu){
     return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir, ram, cpu);
