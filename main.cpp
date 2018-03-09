@@ -79,7 +79,7 @@ main(int argc, char *argv[]) {
 
   if (is_first && !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
     QMessageBox* msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Already running"),
-                        QObject::tr("One instance of tray application is already running"),
+                        QObject::tr("One instance of control center application is already running"),
                         QMessageBox::Ok);
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
@@ -134,7 +134,7 @@ main(int argc, char *argv[]) {
       DlgLogin dlg;
       dlg.setModal(true);
 
-      QPixmap pm(":/hub/logo.png");
+      QPixmap pm(":/hub/cc_splash.png");
       QSplashScreen sc(pm);
       sc.show();
 

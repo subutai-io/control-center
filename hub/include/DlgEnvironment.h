@@ -22,7 +22,7 @@ private:
   Ui::DlgEnvironment *ui;
   CEnvironment env;
   std::map<QString,QCheckBox*> selected_conts;
-  std::map<QString,QLabel*> dekstops_info;
+  std::map<QString,QLabel*> desktops_info;
 
   void addContainer(const CHubContainer*cont);
   void check_container_status(const CHubContainer *cont);
@@ -33,6 +33,7 @@ private:
   void desktop_selected();
   void ssh_selected();
   void select_all(bool checked);
+  void check_buttons();
 
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);

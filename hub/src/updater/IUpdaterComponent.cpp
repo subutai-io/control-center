@@ -11,7 +11,7 @@ const QString IUpdaterComponent::P2P = "p2p";
 const QString IUpdaterComponent::P2P = "p2p.exe";
 #endif
 #ifndef RT_OS_WINDOWS
-const QString IUpdaterComponent::TRAY = "SubutaiControlCennter";
+const QString IUpdaterComponent::TRAY = "SubutaiControlCenter";
 #else
 const QString IUpdaterComponent::TRAY = "SubutaiControlCenter.exe";
 #endif
@@ -23,7 +23,7 @@ const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
     {P2P, "p2p"},
-    {TRAY, "SubutaiControlCenter application"},
+    {TRAY, "ControlCenter"},
     {RH, "resource host"},
     {RHMANAGEMENT, "resource host management"}
   };

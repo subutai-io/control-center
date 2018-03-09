@@ -334,7 +334,7 @@ void CRestWorker::update_my_peers() {
 
   connect(timer, &QTimer::timeout, [reply](){
     CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
     if (reply)
       reply->close();
   });
@@ -377,7 +377,7 @@ void CRestWorker::update_environments() {
 
   connect(timer, &QTimer::timeout, [reply](){
     CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
     if (reply)
       reply->close();
   });
@@ -409,7 +409,7 @@ void CRestWorker::update_balance() {
 
   connect(timer, &QTimer::timeout, [reply](){
     CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to hub", DlgNotification::N_NO_ACTION);
+        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
     if (reply)
       reply->close();
   });

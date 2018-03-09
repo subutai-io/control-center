@@ -184,7 +184,7 @@ macx: {
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
-  ICON = $$PWD/resources/tray_logo.icns
+  ICON = $$PWD/resources/cc_icon_mac.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
   LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION
@@ -200,7 +200,7 @@ win32: {
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
-  RC_FILE = tray.rc
+  RC_FILE = control-center.rc
 #  LIBS += -lpthread
 # QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
