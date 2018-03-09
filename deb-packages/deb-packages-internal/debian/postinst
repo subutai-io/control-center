@@ -49,7 +49,7 @@ ldconfig
 
 which_res=$(which p2p)
 which_res_code=$?
-settings_file=~/.config/subutai/subutai_control_center.ini
+settings_file=~/.config/subutai/subutai_tray.ini
 mkdir -p ~/.config/subutai/
 default_snap_files=(/snap/subutai-dev/current/bin/p2p /snap/subutai/current/bin/p2p /snap/subutai-master/current/bin/p2p /opt/subutai/bin/p2p)
 p2p_path="/opt/subutai/bin/p2p"
