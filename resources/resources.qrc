@@ -60,6 +60,7 @@
         <file>upload-0.png</file>
         <file>cc_splash.png</file>
         <file>cc_icon.png</file>
+        <file>cc_icon_mac.icns</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
