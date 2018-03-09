@@ -696,7 +696,7 @@ void TrayControlWindow::my_peers_updated_sl() {
     CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
   }
   peers_connected = my_current_peers;
-  if(PeerController::Instance()->get_number_threads()==0){
+  if(PeerController::Instance()->get_number_threads()==0 || local_peers_connected.empty()){
       local_peers_connected = PeerController::Instance()->local_peers();
   }
   update_peer_menu();
