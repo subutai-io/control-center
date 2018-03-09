@@ -132,7 +132,7 @@ main(int argc, char *argv[]) {
       DlgLogin dlg;
       dlg.setModal(true);
 
-      QPixmap pm(":/hub/logo.png");
+      QPixmap pm(":/hub/cc_splash.png");
       QSplashScreen sc(pm);
       sc.show();
 

@@ -40,7 +40,7 @@ echo "Keywords=Internet" >> $desktop_file
 echo "Exec=/usr/bin/SubutaiControlCenter" >> $desktop_file
 echo "Terminal=false" >> $desktop_file
 echo "Type=Application" >> $desktop_file
-echo "Icon=/usr/share/icons/Tray_icon_set-07.png" >> $desktop_file
+echo "Icon=/usr/share/icons/cc_icon.png" >> $desktop_file
 echo "Categories=GNOME;Network" >> $desktop_file
 echo "StartupNotify=true" >> $desktop_file
 
