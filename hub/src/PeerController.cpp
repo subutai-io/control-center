@@ -10,7 +10,7 @@
 PeerController::PeerController(QObject *parent) :
     QObject(parent){
         m_refresh_timer.setInterval(60*1000);
-
+        number_threads = 0;
         connect(&m_refresh_timer, &QTimer::timeout,
               this, &PeerController::refresh_timer_timeout);
         m_refresh_timer.start();
@@ -96,8 +96,8 @@ void PeerController::output_from_fingerprint(const QString &name, const QString 
     // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
     number_threads--;
     static  QString empty_string = "";
-    static QString running_status = "running";
-    static QString poweroff_status = "poweroff";
+    static QString running_status = "Running";
+    static QString poweroff_status = "Poweroff";
     if(output.size() != 2 || output[0].contains("Try again") || output[1].contains("Try again")){
         m_local_peers.push_back(CLocalPeer(name, empty_string, empty_string, poweroff_status, dir));
     }

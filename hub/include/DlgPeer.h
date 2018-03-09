@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "HubController.h"
 #include "SystemCallWrapper.h"
+#include "PeerController.h"
 
 namespace Ui {
   class DlgPeer;
@@ -15,7 +16,7 @@ class DlgPeer : public QDialog
 public:
   explicit DlgPeer(QWidget *parent = 0);
   ~DlgPeer();
-  void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer);
+  void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp);
   void addLocalPeer(const QString local_ip);
   void addHubPeer(CMyPeerInfo peer);
 private:

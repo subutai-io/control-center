@@ -102,7 +102,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         stream << "SUBUTAI_CPU : " << cpu << endl;
     }
     file.close();
-    res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir, ram, cpu);
+    res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
     }
