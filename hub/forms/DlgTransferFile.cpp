@@ -240,9 +240,9 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
     else {
       file_to_transfer.setTransferFileStatus(FIlE_FAILED_TO_UPLOAD);
       if(res == SCWE_PERMISSION_DENIED)
-        twi_operation_status->setToolTip("Permision denied");
+        twi_operation_status->setText("Permision denied");
       else
-          twi_operation_status->setToolTip("Failed to upload");
+          twi_operation_status->setText("Failed to upload");
       twi_operation_status->setIcon(transfer_failed_icon);
       if(file_to_transfer.fileInfo().fileName().contains("\\"))
         twi_operation_status->setText("Invalid file name");

@@ -58,6 +58,7 @@
         <file>refreshing.gif</file>
         <file>logo.png</file>
         <file>upload-0.png</file>
+        <file>cc_splash.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
