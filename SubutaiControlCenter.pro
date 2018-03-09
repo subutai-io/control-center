@@ -176,7 +176,7 @@ macx: {
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
-  ICON = $$PWD/resources/tray_logo.icns
+  ICON = $$PWD/resources/cc_icon_mac.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
   LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION

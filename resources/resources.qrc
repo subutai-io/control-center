@@ -59,6 +59,7 @@
         <file>logo.png</file>
         <file>upload-0.png</file>
         <file>cc_splash.png</file>
+        <file>cc_icon.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
