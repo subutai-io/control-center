@@ -256,7 +256,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_quit);
 
-  m_sys_tray_icon->setIcon(QIcon(":/hub/Tray_icon_set-07.png"));
+  m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon.png"));
 }
 
 void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
