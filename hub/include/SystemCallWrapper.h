@@ -157,6 +157,10 @@ class CSystemCallWrapper {
 
   static QStringList vagrant_status(const QString &dir);
 
+  static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_halt(const QString &dir);
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,

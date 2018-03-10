@@ -106,7 +106,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
           this, &TrayControlWindow::environments_updated_sl);
   connect(&CHubController::Instance(), &CHubController::my_peers_updated,
           this, &TrayControlWindow::my_peers_updated_sl);
-  connect(PeerController::Instance(), &PeerController::local_peer_list_updated,
+  connect(CPeerController::Instance(), &CPeerController::local_peer_list_updated,
           this, &TrayControlWindow::my_peers_updated_sl);
 
   connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
@@ -696,8 +696,8 @@ void TrayControlWindow::my_peers_updated_sl() {
     CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
   }
   peers_connected = my_current_peers;
-  if(PeerController::Instance()->get_number_threads()==0 || local_peers_connected.empty()){
-      local_peers_connected = PeerController::Instance()->local_peers();
+  if(CPeerController::Instance()->get_number_threads()==0 || local_peers_connected.empty()){
+      local_peers_connected = CPeerController::Instance()->local_peers();
   }
   update_peer_menu();
 }

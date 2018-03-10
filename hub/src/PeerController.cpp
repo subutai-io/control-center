@@ -7,23 +7,23 @@
 #include "QStandardPaths"
 
 
-PeerController::PeerController(QObject *parent) :
+CPeerController::CPeerController(QObject *parent) :
     QObject(parent){
         m_refresh_timer.setInterval(60*1000);
         number_threads = 0;
         connect(&m_refresh_timer, &QTimer::timeout,
-              this, &PeerController::refresh_timer_timeout);
+              this, &CPeerController::refresh_timer_timeout);
         m_refresh_timer.start();
 }
 
-PeerController::~PeerController() {
+CPeerController::~CPeerController() {
 }
 
-void PeerController::init() {
+void CPeerController::init() {
     refresh();
 }
 
-void PeerController::refresh() {
+void CPeerController::refresh() {
     if(number_threads != 0)
         return;
     m_local_peers.clear();
@@ -32,11 +32,11 @@ void PeerController::refresh() {
 }
 
 
-void PeerController::refresh_timer_timeout() {
+void CPeerController::refresh_timer_timeout() {
     refresh();
 }
 
-void PeerController::search_local(){
+void CPeerController::search_local(){
     //get correct path;
     QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     QDir peers_dir;
@@ -54,7 +54,7 @@ void PeerController::search_local(){
     }
 }
 
-void PeerController::get_peer_info(const QFileInfo &fi, QDir dir){
+void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    if(fi.fileName() == "." || fi.fileName() == "..")
        return;
    if(!fi.isDir())
@@ -73,7 +73,7 @@ void PeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    return;
 }
 
-QString PeerController::parse_name(const QString &name){
+QString CPeerController::parse_name(const QString &name){
     QString peer_name;
     QString prefix;
     bool flag = false;
@@ -92,7 +92,7 @@ QString PeerController::parse_name(const QString &name){
     return peer_name;
 }
 
-void PeerController::output_from_fingerprint(const QString &name, const QString &dir, const QStringList &output){
+void CPeerController::output_from_fingerprint(const QString &name, const QString &dir, const QStringList &output){
     // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
     number_threads--;
     static  QString empty_string = "";

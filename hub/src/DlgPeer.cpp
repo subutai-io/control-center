@@ -36,9 +36,11 @@ void DlgPeer::addLocalPeer(const QString local_ip) {
 
   ui->le_ip->setText(local_ip);
   ui->le_ip->setReadOnly(true);
-  ui->btn_register->show();
-  ui->btn_unregister->hide();
-  connect(ui->btn_register, &QPushButton::clicked,this, &DlgPeer::registerPeer);
+
+  if(ui->le_state->text() == "Running"){
+      ui->btn_register->show();
+      ui->btn_unregister->hide();
+  }
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
@@ -87,22 +89,30 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
     ui->line_1->hide();
     ui->line_2->hide();
     ui->line_3->hide();
-
-    ui->show_ssh->setChecked(true);
-    ui->show_ssh->toggled(true);
     ui->btn_unregister->setEnabled(true);
     this->adjustSize();
   }
-  ui->btn_unregister->show();
-  ui->btn_register->hide();
-  connect(ui->btn_unregister, &QPushButton::released, this, &DlgPeer::unregisterPeer);
+  if(ui->le_state->text() == "Running"){
+      ui->btn_unregister->show();
+      ui->btn_register->hide();
+  }
 }
 
 void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp) { // local_peer - pair of fingerprint and local_ip adress of Peer
+//peer  control cosmetics
+    ui->le_id->hide();
+    ui->le_dir->hide();
+    ui->lbl_id->hide();
+    ui->lbl_dir->hide();
+    ui->le_dir->setReadOnly(true);
+    ui->le_name->setReadOnly(true);
+    ui->le_state->setReadOnly(true);
+    ui->le_id->setReadOnly(true);
+
+//other stupid staff with parsing information, warning ugly code
     if(lp.empty()){
 
         QString peer_fingerprint = hub_peer == NULL ? local_peer.first : hub_peer->fingerprint();
-        QString local_ip_addr = local_peer.second;
 
         QString default_ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
         QString default_port = QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
@@ -133,55 +143,44 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         else
         ui->le_pass->setText("ubuntai");
 
+        hidePeer();
+        ui->show_ssh->setChecked(true);
+        ui->gr_ssh->setVisible(true);
         ui->show_peer_control->setChecked(false);
         this->ui->gr_peer_control->setVisible(false);
         this->adjustSize();
 
-        if (!local_ip_addr.isEmpty()) {
-            addLocalPeer(local_ip_addr);
-            ui->btn_unregister->setEnabled(true);
-            ui->btn_register->setEnabled(true);
-        }
-        else {
-            ui->btn_launch_console->setEnabled(false);
-            ui->btn_unregister->setEnabled(false);
-            ui->btn_register->setEnabled(false);
-        }
-
-        if (hub_peer != NULL) {
-            addHubPeer(*hub_peer);
-        }
-        else {
-            ui->btn_peer_on_hub->setEnabled(false);
-            ui->gr_ssh->setTitle("This Peer is not registered to Bazaar.");
-            ui->show_ssh->setChecked(true);
-            ui->show_ssh->toggled(true);
-            ui->lbl_env->hide();
-            ui->lbl_env_owner->hide();
-            ui->lbl_env_status->hide();
-            ui->line_1->hide();
-            ui->line_2->hide();
-            ui->line_3->hide();
-            this->adjustSize();
-        }
-        ui->lbl_name->hide();
-        ui->lbl_state->hide();
-        ui->le_name->hide();
-        ui->le_state->hide();
-        ui->btn_register->hide();
-        ui->btn_unregister->hide();
-        ui->btn_start->hide();
-        ui->btn_stop->hide();
-        ui->gr_peer_control->setTitle("This peer is not your machine");
+        ui->gr_peer_control->setTitle("This peer is not in your machine");
     }
     else{
         ui->gr_peer_control->setTitle("This peer is in your machine");
         ui->le_state->setText(lp[0].status());
         ui->le_name->setText(lp[0].name());
-        if(lp[0].status() == "Running")
+        ui->le_dir->setText(lp[0].dir());
+        if(lp[0].status() == "Running"){
+            ui->show_ssh->setChecked(true);
+            ui->gr_ssh->setVisible(true);
+            ui->show_peer_control->setChecked(false);
+            this->ui->gr_peer_control->setVisible(false);
+            ui->btn_start->hide();
+            ui->btn_register->setEnabled(true);
+            ui->btn_unregister->setEnabled(true);
             ui->le_state->setStyleSheet("QLineEdit { color : green; }");
-        else
+            this->adjustSize();
+        }
+        else{
+            ui->show_ssh->setChecked(false);
+            ui->gr_ssh->setVisible(false);
+            ui->show_peer_control->setChecked(true);
+            ui->gr_peer_control->setVisible(true);
+            ui->btn_stop->hide();
+            ui->btn_unregister->hide();
+            ui->btn_register->setEnabled(false);
+            ui->btn_unregister->setEnabled(false);
+            hideSSH();
+            this->adjustSize();
             ui->le_state->setStyleSheet("QLineEdit { color : red; }");
+        }
         QString peer_fingerprint = hub_peer != NULL ? hub_peer->fingerprint() : lp[0].fingerprint();
         QString default_ip = lp[0].ip();
 
@@ -212,36 +211,41 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->le_pass->setText(default_pass);
         else
             ui->le_pass->setText("ubuntai");
-        if(ui->le_state->text() == "Running")
-            addLocalPeer(default_ip);
-        ui->btn_unregister->setEnabled(true);
-        ui->btn_register->setEnabled(true);
-        if (hub_peer != NULL) {
-            addHubPeer(*hub_peer);
-        }
-        else{
-            ui->btn_peer_on_hub->setEnabled(false);
-            ui->gr_ssh->setTitle("This Peer is not registered to Bazaar.");
-            ui->show_ssh->setChecked(true);
-            ui->show_ssh->toggled(true);
-            ui->lbl_env->hide();
-            ui->lbl_env_owner->hide();
-            ui->lbl_env_status->hide();
-            ui->line_1->hide();
-            ui->line_2->hide();
-            ui->line_3->hide();
-            this->adjustSize();
-        }
-        ui->btn_start->hide();
+    }
+    //general settings
+    ui->gr_peer_control->setStyleSheet("QGroupBox:title{max-width: 0; max-height: 0;}");
+    this->adjustSize();
+    QString local_ip_addr = local_peer.second;
+    if(local_ip_addr.isEmpty() && !lp.empty()){
+        local_ip_addr  = lp[0].ip();
+    }
+    if (!local_ip_addr.isEmpty())
+        addLocalPeer(local_ip_addr);
+    else{
+        ui->btn_launch_console->setEnabled(false);
+        ui->btn_unregister->setEnabled(false);
+        ui->btn_register->setEnabled(false);
+    }
 
-        ui->show_peer_control->setChecked(false);
-        this->ui->gr_peer_control->setVisible(false);
+    if (hub_peer != NULL)
+        addHubPeer(*hub_peer);
+    else{
+        ui->btn_peer_on_hub->setEnabled(false);
+        ui->gr_ssh->setTitle("This Peer is not registered to Bazaar.");
+        ui->lbl_env->hide();
+        ui->lbl_env_owner->hide();
+        ui->lbl_env_status->hide();
+        ui->line_1->hide();
+        ui->line_2->hide();
+        ui->line_3->hide();
         this->adjustSize();
     }
-    ui->le_id->hide();
-    ui->le_dir->hide();
-    ui->lbl_id->hide();
-    ui->lbl_dir->hide();
+
+
+    connect(ui->btn_unregister, &QPushButton::released, this, &DlgPeer::unregisterPeer);
+    connect(ui->btn_register, &QPushButton::clicked,this, &DlgPeer::registerPeer);
+    connect(ui->btn_stop, &QPushButton::clicked,this, &DlgPeer::stopPeer);
+    connect(ui->btn_start,&QPushButton::clicked,this, &DlgPeer::startPeer);
     connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
         this->ui->gr_ssh->setVisible(checked);
         this->adjustSize();
@@ -319,6 +323,81 @@ void DlgPeer::regDlgClosed(){
     if(registration_dialog == nullptr)
         return;
     registration_dialog->deleteLater();
+}
+
+void DlgPeer::hideSSH(){
+    ui->label->hide();
+    ui->label_3->hide();
+    ui->label_2->hide();
+    ui->label_4->hide();
+    ui->le_ip->hide();
+    ui->le_port->hide();
+    ui->le_user->hide();
+    ui->le_pass->hide();
+    ui->btn_ssh_peer->hide();
+    this->adjustSize();
+}
+
+void DlgPeer::hidePeer(){
+    ui->lbl_name->hide();
+    ui->lbl_state->hide();
+    ui->le_name->hide();
+    ui->le_state->hide();
+    ui->btn_start->hide();
+    ui->btn_stop->hide();
+    ui->btn_register->hide();
+    ui->btn_unregister->hide();
+    this->adjustSize();
+}
+
+void DlgPeer::stopPeer(){
+    StopPeer *thread_init = new StopPeer(this);
+    ui->btn_stop->setEnabled(false);
+    ui->btn_register->setEnabled(false);
+    ui->btn_unregister->setEnabled(false);
+    ui->btn_stop->setText(tr("Trying to stop peer..."));
+    thread_init->init(ui->le_dir->text());
+    thread_init->startWork();
+    connect(thread_init, &StopPeer::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            CNotificationObserver::Instance()->Info(tr("Peer \"%1\" succesfully stopped").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            this->close();
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            ui->btn_stop->setEnabled(true);
+            ui->btn_register->setEnabled(true);
+            ui->btn_unregister->setEnabled(true);
+            ui->btn_stop->setText(tr("Stop"));
+        }
+    });
+}
+
+void DlgPeer::startPeer(){
+    StartPeer *thread_init = new StartPeer(this);
+    ui->btn_start->setEnabled(false);
+    ui->btn_register->setEnabled(false);
+    ui->btn_unregister->setEnabled(false);
+    ui->btn_stop->setText(tr("Trying to launch peer..."));
+    thread_init->init(ui->le_dir->text());
+    thread_init->startWork();
+    connect(thread_init, &StartPeer::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            CNotificationObserver::Instance()->Info(tr("Starting process started. Don't close before it finished"), DlgNotification::N_NO_ACTION);
+            this->close();
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            ui->btn_stop->setEnabled(true);
+            ui->btn_register->setEnabled(true);
+            ui->btn_unregister->setEnabled(true);
+            ui->btn_stop->setText(tr("Start"));
+        }
+    });
 }
 
 DlgPeer::~DlgPeer()

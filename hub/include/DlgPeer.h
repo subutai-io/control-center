@@ -19,6 +19,10 @@ public:
   void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp);
   void addLocalPeer(const QString local_ip);
   void addHubPeer(CMyPeerInfo peer);
+  void hideSSH();
+  void hidePeer();
+  void stopPeer();
+  void startPeer();
 private:
   Ui::DlgPeer *ui;
   QString current_peer_name;

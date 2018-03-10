@@ -74,6 +74,12 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
     return res;
   }
 
+  //some trick for vagrant up usage
+ /* if(cmd == CSettingsManager::Instance().vagrant_path() && args[0] == "up"){
+      QByteArray bridge("1");
+      proc.write(bridge); //choose bridge
+  }*/
+
   if(timeout_msec == 97){
       if (!proc.waitForFinished(-1)) {
         proc.terminate();
@@ -266,13 +272,22 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
         args << "subutai/stretch";
     else args << "subutai/xenial";
 
-    qDebug()<<"vagrant init ARGS: " << args;
+
+    qDebug()
+            <<"Vagrant init ARGS: "
+            <<args;
 
     system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Finished vagrant init:"
+            <<args
+            <<res.res;
 
     if(res.res == SCWE_SUCCESS && res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
+
     return res.res;
 }
 
@@ -285,8 +300,15 @@ QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
         << "subutai"
         << "fingerprint";
     qDebug()
-            << "get fingerprint of peer" <<dir;
+            <<"Starting to get fingerprint. Args:"
+            <<args;
     system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            << "Got fingerprint of peer: "
+            <<dir
+            <<res.res;
+
     return res.out;
 }
 
@@ -297,10 +319,65 @@ QStringList CSystemCallWrapper::vagrant_status(const QString &dir){
         << "set_working_directory"
         << dir
         << "status";
+
     qDebug()
-            << "get fingerprint of peer" <<dir;
+            <<"Starting to get satus. Args:"
+            <<args;
     system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Got status of peer:"
+            <<dir
+            <<res.res;
+
     return res.out;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "halt";
+
+    qDebug()
+            <<"Starting to halt peer. Args:"
+            <<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Halt finished:"
+            <<dir
+            <<res.res;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "up";
+
+    qDebug()
+            <<"Vagrant up. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Finished vagrant up:"
+            <<dir
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return std::make_pair(res.res, res.out);
 }
 
 //////////////////////////////////////////////////////////////////////
