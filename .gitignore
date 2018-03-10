@@ -29,7 +29,7 @@ html/
 darwin-packages/flat/*
 darwin-packages/root/*
 darwin-packages/SubutaiTray.app
-darwin-packages/SubutraiControlCenter.app
+darwin-packages/SubutaiControlCenter.app
 darwin-packages/*.pkg
 
 Makefile
