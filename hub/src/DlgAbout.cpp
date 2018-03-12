@@ -223,6 +223,9 @@ DlgAbout::init_progress_sl(int part,
 void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
+  if(version == "undefined"){
+      ui->btn_p2p_update->setText("Install P2P");
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

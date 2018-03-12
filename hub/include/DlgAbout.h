@@ -68,6 +68,7 @@ private slots:
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
+ // void unavailable(const QString &file_id);
   void update_finished(const QString &file_id, bool success);  
 
   void initialization_finished();

@@ -149,6 +149,8 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
+  static system_call_wrapper_error_t install_package(const QString &file_info);
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,

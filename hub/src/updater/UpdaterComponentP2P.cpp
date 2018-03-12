@@ -42,6 +42,9 @@ CUpdaterComponentP2P::p2p_path()
   if (checkFile.exists() && checkFile.isSymLink()) {
     p2p_path = QFile::symLinkTarget(p2p_path);
   }
+
+  if(!checkFile.exists())
+      p2p_path = "Not found";
   return p2p_path;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -79,6 +82,35 @@ CUpdaterComponentP2P::update_internal() {
                                           (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
                                              "empty" : str_p2p_path.toStdString().c_str()));
     return CHUE_FAILED;
+  }
+// need to install p2p first after if not installed
+  if(str_p2p_path == "Not found"){
+
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      QString str_p2p_downloaded_path = (!lst_temp.empty() ?
+                  lst_temp[0] : QApplication::applicationDirPath()) + QDir::separator() + p2p_kurjun_package_name();
+
+      std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_package_name());
+      if (fi.empty()) {
+        qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+        return CHUE_NOT_ON_KURJUN;
+      }
+      std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+      CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                          str_p2p_downloaded_path,
+                                                          item->size());
+      connect(dm, &CDownloadFileManager::download_progress_sig,
+              this, &CUpdaterComponentP2P::update_progress_sl);
+      connect(dm, &CDownloadFileManager::finished,[str_p2p_downloaded_path](){
+        CSystemCallWrapper::install_package(str_p2p_downloaded_path);
+      });
+      connect(dm, &CDownloadFileManager::finished,
+              this, &CUpdaterComponentP2P::update_finished_sl);
+      connect(dm, &CDownloadFileManager::finished,
+              dm, &CDownloadFileManager::deleteLater);
+      dm->start_download();
+      return CHUE_SUCCESS;
   }
 
   //original file path
