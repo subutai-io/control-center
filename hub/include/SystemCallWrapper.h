@@ -96,11 +96,11 @@ class CSystemCallWrapper {
 
  public:
   static system_call_res_t ssystem_th(const QString &cmd,
-                                      const QStringList &args, bool read_output,
+                                      QStringList &args, bool read_output,
                                       bool log,
                                       unsigned long timeout_msec = ULONG_MAX);
 
-  static system_call_res_t ssystem(const QString &cmd, const QStringList &args,
+  static system_call_res_t ssystem(const QString &cmd, QStringList &args,
                                    bool read_out, bool log,
                                    unsigned long timeout_msec = 30000);
 
@@ -149,7 +149,7 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
-  static system_call_wrapper_error_t install_package(const QString &file_info);
+  static system_call_wrapper_error_t install_package(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,

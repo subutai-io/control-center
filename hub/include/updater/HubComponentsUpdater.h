@@ -4,8 +4,11 @@
 #include <QObject>
 #include <QTimer>
 #include <map>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 #include "updater/IUpdaterComponent.h"
+#include "SystemCallWrapper.h"
 #include "SettingsManager.h"
 
 namespace update_system {
@@ -107,6 +110,13 @@ namespace update_system {
     void force_update_rh();
     void force_update_rhm();
 
+    /**
+      * @brief Instal implementation for components
+      *
+      */
+    void install(const QString& component_id);
+    void install_p2p();
+
   private slots:
 
     void update_component_timer_timeout(const QString& component_id);
@@ -119,5 +129,50 @@ namespace update_system {
     void update_available(const QString& file_id);
   };
 }
+
+
+class SilentPackageInstaller : public QObject{
+  Q_OBJECT
+  QString dir, file_name;
+
+public:
+  SilentPackageInstaller(QObject *parent = nullptr) : QObject (parent){}
+  void init (const QString &dir,
+             const QString &file_name){
+      this->dir = dir;
+      this->file_name = file_name;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentPackageInstaller::execute_remote_command);
+    connect(this, &SilentPackageInstaller::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentPackageInstaller::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    //QStringList output;
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::install_package, dir, file_name);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
+  }
+
+signals:
+  void outputReceived(bool success);
+};
 
 #endif // HUBCOMPONENTSUPDATER_H

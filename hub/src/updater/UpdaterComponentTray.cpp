@@ -118,3 +118,11 @@ CUpdaterComponentTray::download_tray_path() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+//instalation staff just to make compiler happy
+chue_t CUpdaterComponentTray::install_internal(){
+    return CHUE_SUCCESS;
+}
+void CUpdaterComponentTray::install_post_interntal(bool success){
+    UNUSED_ARG(success);
+    return;
+}

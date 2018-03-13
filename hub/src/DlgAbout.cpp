@@ -136,7 +136,9 @@ void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
-  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
+  if(ui->lbl_p2p_version_val->text()=="undefined")
+      CHubComponentsUpdater::Instance()->install(IUpdaterComponent::P2P);
+  else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -226,6 +228,7 @@ DlgAbout::got_p2p_version_sl(QString version) {
   if(version == "undefined"){
       ui->btn_p2p_update->setText("Install P2P");
   }
+  else ui->btn_p2p_update->setText("Update P2P");
 }
 ////////////////////////////////////////////////////////////////////////////
 

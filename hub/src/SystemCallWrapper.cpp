@@ -37,7 +37,7 @@ static QString error_strings[] = {"Success",
                                   "System call timeout"};
 
 system_call_res_t CSystemCallWrapper::ssystem_th(const QString &cmd,
-                                                 const QStringList &args,
+                                                 QStringList &args,
                                                  bool read_output, bool log,
                                                  unsigned long timeout_msec) {
   QFuture<system_call_res_t> f1 =
@@ -48,10 +48,17 @@ system_call_res_t CSystemCallWrapper::ssystem_th(const QString &cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
-                                              const QStringList &args,
+                                              QStringList &args,
                                               bool read_out, bool log,
                                               unsigned long timeout_msec) {
   QProcess proc;
+  if(args.begin() != args.end() && args.size() >= 2){
+      if(*(args.begin())=="set_working_directory"){
+          args.erase(args.begin());
+          proc.setWorkingDirectory(*(args.begin()));
+          args.erase(args.begin());
+      }
+  }
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
@@ -637,11 +644,32 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
 
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
-system_call_wrapper_error_t install_package_internal(const QString &dir);
+system_call_wrapper_error_t install_package_internal(const QString &dir, const QString &file_name);
 //write installation script to install package
 template <>
-system_call_wrapper_error_t install_package_internal<Os2Type <OS_LINUX> >(const QString &file_info){
+system_call_wrapper_error_t install_package_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd("msiexec");
+    QStringList args0;
+    args0 << "set_working_directory"
+          << dir
+          << "/i"
+          << file_name
+          << "/qn";
 
+    qDebug()
+            <<"Installing package:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true);
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_package_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+
+    QString file_info = dir + "/" + file_name;
     QString gksu_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
     if (scr != SCWE_SUCCESS) {
@@ -727,8 +755,8 @@ system_call_wrapper_error_t install_package_internal<Os2Type <OS_LINUX> >(const 
     return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_package(const QString &dir){
-    return install_package_internal<Os2Type<CURRENT_OS> >(dir);
+system_call_wrapper_error_t CSystemCallWrapper::install_package(const QString &dir, const QString &file_name){
+    return install_package_internal<Os2Type<CURRENT_OS> >(dir, file_name);
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>

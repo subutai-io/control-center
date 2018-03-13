@@ -13,6 +13,7 @@
 #include "updater/UpdaterComponentRH.h"
 #include "updater/UpdaterComponentRHManagement.h"
 
+
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
@@ -193,6 +194,23 @@ void CHubComponentsUpdater::force_update_rhm() {
   force_update(IUpdaterComponent::RHMANAGEMENT);
 }
 
+
+////////////////////////////////////////////////////////////////////////////
+
+void CHubComponentsUpdater::install(const QString &component_id){
+    qDebug()
+        <<"Install"<<component_id.toStdString().c_str()<<"called";
+    if (m_dct_components.find(component_id) == m_dct_components.end()) {
+      qCritical(
+            "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+      return;
+    }
+    m_dct_components[component_id].Component()->install();
+}
+
+void CHubComponentsUpdater::install_p2p(){
+    install(IUpdaterComponent::P2P);
+}
 
 ////////////////////////////////////////////////////////////////////////////
 
