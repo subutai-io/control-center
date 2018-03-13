@@ -130,6 +130,7 @@ namespace update_system {
     void updating_finished(const QString& file_id, bool success);
     void update_available(const QString& file_id);
     void installing_finished(const QString & file_id, bool success);
+    void install_component_started(const QString &file_id);
   };
 }
 

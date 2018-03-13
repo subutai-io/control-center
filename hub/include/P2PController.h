@@ -5,8 +5,10 @@
 #include <QObject>
 #include "SystemCallWrapper.h"
 #include "HubController.h"
+#include "updater/HubComponentsUpdater.h"
 #include <QtConcurrent/QtConcurrent>
-
+#include "NotificationObserver.h"
+using namespace update_system;
 class StatusChecker : public QObject {
   Q_OBJECT
 public:
@@ -177,7 +179,6 @@ class P2PStatus_checker : public QObject
 {
 
     Q_OBJECT
-
 public:
 
     static P2PStatus_checker& Instance(){
@@ -189,11 +190,40 @@ public:
           P2P_READY = 0,
           P2P_RUNNING,
           P2P_FAIL,
-          P2P_LOADING
+          P2P_LOADING,
+          P2P_INSTALLING
      };
+     P2PStatus_checker(){
+         m_status = P2P_LOADING;
+         connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::install_component_started,
+                                          this, &P2PStatus_checker::install_started);
+         connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
+                 this, &P2PStatus_checker::install_finished);
+     }
+     P2P_STATUS get_status(){
+         return m_status;
+     }
+
+private:
+    P2P_STATUS m_status;
 
 signals:
      void p2p_status(P2P_STATUS);
+private slots:
+     void install_started(const QString &file_id){
+         if(file_id == "P2P"){
+            CNotificationObserver::Instance()->Info(tr("P2P installation have started"), DlgNotification::N_NO_ACTION);
+            m_status = P2P_INSTALLING;
+            emit p2p_status(P2P_INSTALLING);
+         }
+     }
+     void install_finished(const QString &file_id, bool success){
+         UNUSED_ARG(success);
+         if(file_id == "P2P"){
+            m_status = P2P_READY;
+            emit p2p_status(P2P_READY);
+         }
+     }
 };
 
 #endif // P2PCONTROLLER_H

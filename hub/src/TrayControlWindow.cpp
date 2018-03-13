@@ -540,19 +540,20 @@ void TrayControlWindow::launch_p2p(){
     qDebug()
             <<"p2p button is pressed";
     switch (p2p_current_status) {
-    case P2PStatus_checker::P2P_FAIL :
-        CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."), DlgNotification::N_INSTALL_P2P);
-        break;
-    case P2PStatus_checker::P2P_READY :
-        CNotificationObserver::Info(QObject::tr("P2P is not launched. "
-                                             "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
-        break;
-    case P2PStatus_checker::P2P_RUNNING :
-        CNotificationObserver::Instance()->Info(tr("P2P is running"), DlgNotification::N_NO_ACTION);
-        break;
-    case P2PStatus_checker::P2P_LOADING :
-        CNotificationObserver::Instance()->Info(tr("P2P is loading"), DlgNotification::N_NO_ACTION);
-        break;
+        case P2PStatus_checker::P2P_FAIL :
+            CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
+                                         DlgNotification::N_INSTALL_P2P);
+            break;
+        case P2PStatus_checker::P2P_READY :
+            CNotificationObserver::Info(QObject::tr("P2P is not launched. "
+                                                 "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
+            break;
+        case P2PStatus_checker::P2P_RUNNING :
+            break;
+        case P2PStatus_checker::P2P_LOADING :
+            break;
+        case P2PStatus_checker::P2P_INSTALLING:
+            break;
     }
 }
 
@@ -795,6 +796,11 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
     static QIcon p2p_loading(":/hub/loading");
     qDebug()
             <<"p2p updater got signal and try to update status";
+    if(P2PStatus_checker::Instance().get_status() == P2PStatus_checker::P2P_INSTALLING){
+        m_act_p2p_status->setText("P2P is installing");
+        m_act_p2p_status->setIcon(p2p_loading);
+        return;
+    }
     switch(status){
         case P2PStatus_checker::P2P_READY :
             m_act_p2p_status->setText("P2P is not running");
@@ -805,11 +811,17 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             m_act_p2p_status->setIcon(p2p_running);
             break;
         case P2PStatus_checker::P2P_FAIL :
+            if(p2p_current_status == P2PStatus_checker::P2P_LOADING)
+                CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
+                                             DlgNotification::N_INSTALL_P2P);
             m_act_p2p_status->setText("Can't launch P2P");
             m_act_p2p_status->setIcon(p2p_fail);
             break;
         case P2PStatus_checker::P2P_LOADING :
             m_act_p2p_status->setText("P2P is loading...");
+            m_act_p2p_status->setIcon(p2p_loading);
+        case P2PStatus_checker::P2P_INSTALLING :
+            m_act_p2p_status->setText("P2P is installing");
             m_act_p2p_status->setIcon(p2p_loading);
     }
     p2p_current_status=status;

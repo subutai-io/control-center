@@ -707,7 +707,7 @@ system_call_wrapper_error_t install_package_internal<Os2Type <OS_LINUX> >(const 
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "install_me.sh";
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
 
     qDebug() << tmpFilePath;
 

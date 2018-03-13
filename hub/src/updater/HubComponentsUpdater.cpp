@@ -207,6 +207,7 @@ void CHubComponentsUpdater::install(const QString &component_id){
             "can't find component updater in map with id = %s", component_id.toStdString().c_str());
       return;
     }
+    emit install_component_started(IUpdaterComponent::component_id_to_user_view(component_id));
     m_dct_components[component_id].Component()->install();
 }
 
