@@ -45,7 +45,8 @@ DlgNotification::DlgNotification(
                                                "Either change the path setting in Settings or install the daemon if it is not installed. "
                                                "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                       arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
-      emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);}}
+      emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);}},
+   {"Install P2P", [](){update_system::CHubComponentsUpdater::Instance()->install_p2p();}}
   };
 
   if (action_type == N_NO_ACTION)

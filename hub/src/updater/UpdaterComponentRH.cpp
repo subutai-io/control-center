@@ -57,4 +57,13 @@ void
 CUpdaterComponentRH::update_post_action(bool success) {
   UNUSED_ARG(success); //do nothing
 }
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+/// instalation staff just to make compiler happy
+chue_t CUpdaterComponentRH::install_internal(){
+    return CHUE_SUCCESS;
+}
+void CUpdaterComponentRH::install_post_interntal(bool success){
+    UNUSED_ARG(success);
+    return;
+}
+
