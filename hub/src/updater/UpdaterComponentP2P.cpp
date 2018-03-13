@@ -101,8 +101,8 @@ chue_t CUpdaterComponentP2P::install_internal(){
         silent_installer->startWork();
     });
     connect(silent_installer, &SilentPackageInstaller::outputReceived,
-            this, &CUpdaterComponentP2P::update_finished_sl);
-    connect(dm, &CDownloadFileManager::finished,
+            this, &CUpdaterComponentP2P::install_finished_sl);
+    connect(silent_installer, &SilentPackageInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;

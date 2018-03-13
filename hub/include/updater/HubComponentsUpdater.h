@@ -116,17 +116,20 @@ namespace update_system {
       */
     void install(const QString& component_id);
     void install_p2p();
+    QString component_name(const QString& component_id);
 
   private slots:
 
     void update_component_timer_timeout(const QString& component_id);
     void update_component_progress_sl(const QString &file_id, qint64 cur, qint64 full);
     void update_component_finished_sl(const QString &file_id, bool replaced);
+    void install_component_finished_sl(const QString &file_id, bool replaced);
 
   signals:
     void download_file_progress(const QString& file_id, qint64 rec, qint64 total);
     void updating_finished(const QString& file_id, bool success);
     void update_available(const QString& file_id);
+    void installing_finished(const QString & file_id, bool success);
   };
 }
 

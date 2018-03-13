@@ -6,7 +6,7 @@
 using namespace update_system;
 
 #ifndef RT_OS_WINDOWS
-const QString IUpdaterComponent::P2P = "p2p";
+const QString IUpdaterComponent::P2P = "P2P";
 #else
 const QString IUpdaterComponent::P2P = "p2p.exe";
 #endif
@@ -22,7 +22,7 @@ const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
-    {P2P, "p2p"},
+    {P2P, "P2P"},
     {TRAY, "ControlCenter"},
     {RH, "resource host"},
     {RHMANAGEMENT, "resource host management"}

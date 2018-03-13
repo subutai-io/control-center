@@ -70,6 +70,7 @@ private slots:
   void update_available(const QString &file_id);
  // void unavailable(const QString &file_id);
   void update_finished(const QString &file_id, bool success);  
+  void install_finished(const QString &file_id, bool success);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);
