@@ -645,7 +645,16 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_package_internal(const QString &dir, const QString &file_name);
-//write installation script to install package
+template <>
+system_call_wrapper_error_t install_package_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+  return res.res;
+}
 template <>
 system_call_wrapper_error_t install_package_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd("msiexec");
