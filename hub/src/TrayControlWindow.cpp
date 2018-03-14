@@ -31,8 +31,6 @@
 
 using namespace update_system;
 
-static P2PStatus_checker::P2P_STATUS p2p_current_status=P2PStatus_checker::P2P_LOADING;
-
 template<class OS> static inline void
 InitTrayIconTriggerHandler_internal(QSystemTrayIcon* icon,
                                     TrayControlWindow* win);
@@ -77,7 +75,8 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
       m_tray_menu(NULL),
-      m_act_p2p_status(NULL){
+      m_act_p2p_status(NULL),
+      p2p_current_status(P2PStatus_checker::P2P_LOADING){
   ui->setupUi(this);
 
   create_tray_actions();
@@ -799,6 +798,7 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
     if(P2PStatus_checker::Instance().get_status() == P2PStatus_checker::P2P_INSTALLING){
         m_act_p2p_status->setText("P2P is installing");
         m_act_p2p_status->setIcon(p2p_loading);
+        p2p_current_status=status;
         return;
     }
     switch(status){

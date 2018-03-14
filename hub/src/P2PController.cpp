@@ -322,8 +322,8 @@ P2PController::is_swarm_connected(const CEnvironment&env) {
 
 QString P2PController::p2p_connection_status_to_str(P2P_CONNETION_STATUS status) {
   static QString str [] = {"Successfully connected",
-                           "P2P trying to establish connection with container",
-                           "Can't connect to container yet"
+                           "Can't join to swarm with environment",
+                           "Handshaking with container"
                           };
   return str[(size_t) status];
 }
