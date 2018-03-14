@@ -45,10 +45,16 @@ public:
 
 private slots:
   void run_checker() {
+
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
-    res.waitForFinished();
-    emit connection_finished(res.result());
+
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
@@ -67,8 +73,12 @@ private slots:
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
                           QString("dhcp"), env.base_interface_id());
-    res.waitForFinished();
-    emit connection_finished(res.result());
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
@@ -85,8 +95,12 @@ private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
-    res.waitForFinished();
-    emit connection_finished(res.result());
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
