@@ -66,6 +66,8 @@ DlgAbout::DlgAbout(QWidget *parent) :
           this, &DlgAbout::update_available);
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::updating_finished,
           this, &DlgAbout::update_finished);
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
+          this, &DlgAbout::install_finished);
 
   static bool p2p_in_progress = false;
   static bool tray_in_progress = false;
@@ -136,7 +138,9 @@ void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
   *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
-  CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
+  if(ui->lbl_p2p_version_val->text()=="undefined")
+      CHubComponentsUpdater::Instance()->install(IUpdaterComponent::P2P);
+  else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -223,6 +227,10 @@ DlgAbout::init_progress_sl(int part,
 void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
+  if(version == "undefined"){
+      ui->btn_p2p_update->setText("Install P2P");
+  }
+  else ui->btn_p2p_update->setText("Update P2P");
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -295,6 +303,25 @@ DlgAboutInitializer::do_initialization() {
   }
 
   emit finished();
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::install_finished(const QString &file_id, bool success){
+    if(!success){
+        CNotificationObserver::Error(tr("Installation of %1 failed").arg(CHubComponentsUpdater::Instance()->component_name(file_id)),
+                                     DlgNotification::N_NO_ACTION);
+        return;
+    }
+    if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
+    m_dct_fpb[file_id].btn->setEnabled(false);
+    m_dct_fpb[file_id].pb->setEnabled(false);
+    m_dct_fpb[file_id].pb->setValue(0);
+    m_dct_fpb[file_id].pb->setRange(0, 100);
+    *m_dct_fpb[file_id].in_progress = false;
+    m_dct_fpb[file_id].btn->setText(tr("Update %1").arg(CHubComponentsUpdater::Instance()->component_name(file_id)));
+    if (m_dct_fpb[file_id].pf_version) {
+      m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
+    }
+
 }
 ////////////////////////////////////////////////////////////////////////////
 

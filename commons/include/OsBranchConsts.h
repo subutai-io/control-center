@@ -41,6 +41,7 @@ template<int v> struct Int2Type {
 
 const QString& tray_kurjun_file_name();
 const QString& p2p_kurjun_file_name();
+const QString& p2p_kurjun_package_name();
 const QString& p2p_dht_arg();
 const QString& p2p_rest_url();
 

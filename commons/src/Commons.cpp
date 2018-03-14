@@ -14,10 +14,18 @@ const char* CCommons::RESTARTED_ARG = "restarted";
 
 QString
 CCommons::FileMd5(const QString &file_path) {
+  if(file_path == "Not found")
+      return "";
   QFile f(file_path);
   if (!f.exists()) return "";
   if (!f.open(QIODevice::ReadOnly)) return "";
   QString hash = QCryptographicHash::hash(f.readAll(), QCryptographicHash::Md5).toHex().constData();
+
+  qDebug()
+          <<"Asking md5 of"
+          <<f.fileName()
+          <<"and result is:"
+          <<hash;
   f.close();
   return hash;
 }

@@ -540,22 +540,20 @@ void TrayControlWindow::launch_p2p(){
     qDebug()
             <<"p2p button is pressed";
     switch (p2p_current_status) {
-    case P2PStatus_checker::P2P_FAIL :
-        CNotificationObserver::Error(QObject::tr("Can't launch P2P daemon. "
-                                             "Either change the path setting in Settings or install the daemon if it is not installed. "
-                                             "You can get the %1 daemon from <a href=\"%2\">here</a>.").
-                                    arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
-        break;
-    case P2PStatus_checker::P2P_READY :
-        CNotificationObserver::Info(QObject::tr("P2P is not launched. "
-                                             "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
-        break;
-    case P2PStatus_checker::P2P_RUNNING :
-        CNotificationObserver::Instance()->Info(tr("P2P is running"), DlgNotification::N_NO_ACTION);
-        break;
-    case P2PStatus_checker::P2P_LOADING :
-        CNotificationObserver::Instance()->Info(tr("P2P is loading"), DlgNotification::N_NO_ACTION);
-        break;
+        case P2PStatus_checker::P2P_FAIL :
+            CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
+                                         DlgNotification::N_INSTALL_P2P);
+            break;
+        case P2PStatus_checker::P2P_READY :
+            CNotificationObserver::Info(QObject::tr("P2P is not launched. "
+                                                 "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
+            break;
+        case P2PStatus_checker::P2P_RUNNING :
+            break;
+        case P2PStatus_checker::P2P_LOADING :
+            break;
+        case P2PStatus_checker::P2P_INSTALLING:
+            break;
     }
 }
 
@@ -792,24 +790,39 @@ void TrayControlWindow::balance_updated_sl() {
 /* p2p status updater*/
 void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
     // need to put static icons
+    static QIcon p2p_running(":/hub/running.png");
+    static QIcon p2p_waiting(":/hub/waiting");
+    static QIcon p2p_fail(":/hub/stopped");
+    static QIcon p2p_loading(":/hub/loading");
     qDebug()
             <<"p2p updater got signal and try to update status";
+    if(P2PStatus_checker::Instance().get_status() == P2PStatus_checker::P2P_INSTALLING){
+        m_act_p2p_status->setText("P2P is installing");
+        m_act_p2p_status->setIcon(p2p_loading);
+        return;
+    }
     switch(status){
         case P2PStatus_checker::P2P_READY :
             m_act_p2p_status->setText("P2P is not running");
-            m_act_p2p_status->setIcon(QIcon(":/hub/waiting"));
+            m_act_p2p_status->setIcon(p2p_waiting);
             break;
         case P2PStatus_checker::P2P_RUNNING :
             m_act_p2p_status->setText("P2P is running");
-            m_act_p2p_status->setIcon(QIcon(":/hub/running.png"));
+            m_act_p2p_status->setIcon(p2p_running);
             break;
         case P2PStatus_checker::P2P_FAIL :
+            if(p2p_current_status == P2PStatus_checker::P2P_LOADING)
+                CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
+                                             DlgNotification::N_INSTALL_P2P);
             m_act_p2p_status->setText("Can't launch P2P");
-            m_act_p2p_status->setIcon(QIcon(":/hub/stopped"));
+            m_act_p2p_status->setIcon(p2p_fail);
             break;
         case P2PStatus_checker::P2P_LOADING :
             m_act_p2p_status->setText("P2P is loading...");
-            m_act_p2p_status->setIcon(QIcon(":/hub/loading"));
+            m_act_p2p_status->setIcon(p2p_loading);
+        case P2PStatus_checker::P2P_INSTALLING :
+            m_act_p2p_status->setText("P2P is installing");
+            m_act_p2p_status->setIcon(p2p_loading);
     }
     p2p_current_status=status;
 }
