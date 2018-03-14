@@ -230,7 +230,7 @@ CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool
 }
 ////////////////////////////////////////////////////////////////////////////
 void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced){
-    emit installing_finished(file_id, replaced);
+    emit installing_finished(IUpdaterComponent::component_id_to_user_view(file_id), replaced);
 }
 /////////////////////////////////////////////////////////////////////////////
 QString CHubComponentsUpdater::component_name(const QString &component_id){

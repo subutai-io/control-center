@@ -233,6 +233,10 @@ private slots:
          }
      }
      void install_finished(const QString &file_id, bool success){
+         qDebug()
+                 <<"One of the components just got installed"
+                <<"Component: "<<file_id
+                <<"success: "<<success;
          UNUSED_ARG(success);
          if(file_id == "P2P"){
             m_status = P2P_READY;

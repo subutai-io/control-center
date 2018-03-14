@@ -820,9 +820,11 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
         case P2PStatus_checker::P2P_LOADING :
             m_act_p2p_status->setText("P2P is loading...");
             m_act_p2p_status->setIcon(p2p_loading);
+            break;
         case P2PStatus_checker::P2P_INSTALLING :
             m_act_p2p_status->setText("P2P is installing");
             m_act_p2p_status->setIcon(p2p_loading);
+            break;
     }
     p2p_current_status=status;
 }
