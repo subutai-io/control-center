@@ -143,6 +143,7 @@ public:
     CONNECTION_SUCCESS = 0,
     CANT_JOIN_SWARM,
     CANT_CONNECT_CONT,
+    P2P_NOT_INSTALLED,
   };
 
   P2PController();
@@ -156,7 +157,7 @@ public:
 
   P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
   P2P_CONNETION_STATUS is_swarm_connected(const CEnvironment&env);
-  QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
+  static QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
   const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
 

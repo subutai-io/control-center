@@ -164,17 +164,20 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   {
     cont_checkbox->setText(tr("READY"));
     cont_checkbox->setStyleSheet("QCheckBox {color : green;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CONNECTION_SUCCESS));
   }
   else
   if (status == 1)
   {
     cont_checkbox->setText(tr("CONNECTING"));
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_CONNECT_CONT));
   }
   else
   if (status == 2){
     cont_checkbox->setText(tr("FAILED"));
     cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_JOIN_SWARM));
   }
 }
 

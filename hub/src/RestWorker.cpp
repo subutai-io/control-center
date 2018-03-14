@@ -532,7 +532,7 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
     qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
-    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
+//    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
