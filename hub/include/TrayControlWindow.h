@@ -18,6 +18,7 @@
 #include "HubController.h"
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
+#include "RestContainers.h"
 
 #include "P2PController.h"
 
@@ -32,7 +33,8 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  virtual ~TrayControlWindow();
+  virtual ~TrayControlWindow();  
+  P2PStatus_checker::P2P_STATUS p2p_current_status;
   static TrayControlWindow* Instance(){
     static TrayControlWindow *tcw = new TrayControlWindow();
     return tcw;
@@ -45,6 +47,7 @@ public:
   QString default_peer_id() const {
     return m_default_peer_id;
   }
+  std::map<QString, CEnvironment> environments_table;
 private:
   Ui::TrayControlWindow *ui;
 

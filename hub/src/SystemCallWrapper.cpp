@@ -277,8 +277,11 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
   system_call_res_t res;
   res = ssystem_th(cmd, args, true, true, 1000 * 60 * 2); // timeout 2 min
-  if (res.res != SCWE_SUCCESS)
-    return res.res;
+  if (res.res != SCWE_SUCCESS){
+      qCritical()
+          << QString("Join to p2p swarm failed for swarm_hash: %1. Code : %2. Output: ")
+             .arg(hash).arg(res.exit_code) << res.out;
+  }
 
   if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
     QString err_msg = res.out.at(0);
@@ -305,7 +308,7 @@ system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
   args << "stop"
        << "-hash" << hash;
   system_call_res_t res =
-      ssystem_th(cmd, args, false, true);  // we don't need output. AHAHA
+      ssystem_th(cmd, args, false, true);  // we don't need output. AHAHA // wtf is this????
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -503,7 +506,9 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   QStringList args;
   args << "show"
        << "-hash" << hash << "-check" << ip;
-  system_call_res_t res = ssystem_th(cmd, args, false, true);
+  system_call_res_t res = ssystem_th(cmd, args, true, true);
+  qDebug()
+          <<"container state of hash:"<<hash<<"ip:"<<ip<<"exit code:"<<res.exit_code<<"out:"<<res.out;
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
 

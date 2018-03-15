@@ -45,10 +45,16 @@ public:
 
 private slots:
   void run_checker() {
+
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
-    res.waitForFinished();
-    emit connection_finished(res.result());
+
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
@@ -67,8 +73,12 @@ private slots:
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
                           QString("dhcp"), env.base_interface_id());
-    res.waitForFinished();
-    emit connection_finished(res.result());
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
@@ -85,8 +95,12 @@ private slots:
   void run_checker() {
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
-    res.waitForFinished();
-    emit connection_finished(res.result());
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
+        emit this->connection_finished(res.result());
+    });
   }
 };
 
@@ -143,6 +157,7 @@ public:
     CONNECTION_SUCCESS = 0,
     CANT_JOIN_SWARM,
     CANT_CONNECT_CONT,
+    P2P_NOT_INSTALLED,
   };
 
   P2PController();
@@ -156,7 +171,7 @@ public:
 
   P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
   P2P_CONNETION_STATUS is_swarm_connected(const CEnvironment&env);
-  QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
+  static QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
   const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
 
@@ -218,6 +233,10 @@ private slots:
          }
      }
      void install_finished(const QString &file_id, bool success){
+         qDebug()
+                 <<"One of the components just got installed"
+                <<"Component: "<<file_id
+                <<"success: "<<success;
          UNUSED_ARG(success);
          if(file_id == "P2P"){
             m_status = P2P_READY;
