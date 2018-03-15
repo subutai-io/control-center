@@ -548,10 +548,13 @@ void TrayControlWindow::launch_p2p(){
                                                  "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
             break;
         case P2PStatus_checker::P2P_RUNNING :
+            CNotificationObserver::Info(QObject::tr("P2P is running"), DlgNotification::N_NO_ACTION);
             break;
         case P2PStatus_checker::P2P_LOADING :
+            CNotificationObserver::Info(QObject::tr("P2P daemon is loading"), DlgNotification::N_NO_ACTION);
             break;
         case P2PStatus_checker::P2P_INSTALLING:
+            CNotificationObserver::Info(QObject::tr("P2P is installing"), DlgNotification::N_NO_ACTION);
             break;
     }
 }
