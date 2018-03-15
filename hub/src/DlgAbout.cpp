@@ -95,7 +95,7 @@ DlgAbout::~DlgAbout() {
 void DlgAbout::check_for_versions_and_updates() {
   ui->btn_recheck->setEnabled(false);
   ui->pb_initialization_progress->setEnabled(true);
-  QThread* th = new QThread;
+  QThread* th = new QThread(this);
   DlgAboutInitializer* di = new DlgAboutInitializer;
 
   connect(di, &DlgAboutInitializer::finished,
