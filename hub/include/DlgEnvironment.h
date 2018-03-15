@@ -35,6 +35,11 @@ private:
   void select_all(bool checked);
   void check_buttons();
 
+  // staff that i need to delete
+  std::vector <QTimer*> timers;
+  std::vector <QLabel*> labels;
+  std::vector <QCheckBox*> checkboxs;
+
 signals:
     void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
     void desktop_to_container_sig(const CEnvironment*, const CHubContainer*);

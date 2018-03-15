@@ -120,13 +120,10 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   connect(ui->btn_open_hub, &QPushButton::clicked, [this](){
     CHubController::Instance().launch_environment_page(this->env.hub_id());
   });
-
-  if (env.healthy()) { // check status with timer
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(7000);
-    connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
-    timer->start();
-  }
+  QTimer *timer = new QTimer(this);
+  timer->setInterval(7000);
+  connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
+  timer->start();
 
   check_environment_status();
 }
@@ -199,7 +196,6 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
   P2PController::P2P_CONNETION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
-    desktops_info[cont->id()]->setText(QString(cont->is_desktop() ? cont->desk_env().isEmpty() ? "MATE" :  cont->desk_env()  : "No Desktop"));
   change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
   check_buttons();
 }
@@ -210,6 +206,12 @@ void DlgEnvironment::check_environment_status() {
   qDebug()
       << "Checking the status of environment " << env.name();
   static int state_all;
+  CEnvironment update_env = TrayControlWindow::Instance()->environments_table[env.id()];
+  if(update_env.status() != env.status())
+      this->close();
+  if(update_env.name() != env.name())
+      this->close();
+  env = update_env;
 
   if(!env.healthy())
      state_all = 3;
@@ -221,10 +223,11 @@ void DlgEnvironment::check_environment_status() {
       P2PController::P2P_CONNETION_STATUS
           swarm_status = P2PController::Instance().is_swarm_connected(env);
 
-      bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
+      bool connected_to_swarm = (swarm_status == P2PController::CONNECTION_SUCCESS);
 
       if (connected_to_swarm){
         for (auto cont : env.containers()){
+          desktops_info[cont.id()]->setText(QString(cont.is_desktop() ? cont.desk_env().isEmpty() ? "MATE" :  cont.desk_env()  : "No Desktop"));
           check_container_status(&cont);
         }
         return;
@@ -269,5 +272,11 @@ void DlgEnvironment::check_buttons() {
 ////////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {
+  for (size_t counter = 0; counter < timers.size(); counter++)
+      delete timers[counter];
+  for (size_t counter = 0; counter < labels.size(); counter++)
+      delete labels[counter];
+  for (size_t counter = 0; counter < checkboxs.size(); counter++)
+      delete checkboxs[counter];
   delete ui;
 }
