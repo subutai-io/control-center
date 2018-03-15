@@ -7,6 +7,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QLabel>
+#include <QThread>
 
 namespace Ui {
   class DlgAbout;
@@ -14,12 +15,25 @@ namespace Ui {
 
 class DlgAboutInitializer : public QObject {
   Q_OBJECT
-private:
 public:
+    DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
   static const int COMPONENTS_COUNT = 8;
-public slots:
+public:
   void do_initialization();
   void abort();
+  void startWork(){
+        QThread* th = new QThread();
+        connect(th, &QThread::started,
+                this, &DlgAboutInitializer::do_initialization);
+        connect(this, &DlgAboutInitializer::finished,
+                th, &QThread::quit);
+        connect(th, &QThread::finished,
+                this, &DlgAboutInitializer::deleteLater);
+        connect(th, &QThread::finished,
+                th, &QThread::deleteLater);
+        this->moveToThread(th);
+        th->start();
+  }
 signals:
   void init_progress(int part, int total);
   void finished();
