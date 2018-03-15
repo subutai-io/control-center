@@ -32,7 +32,8 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  virtual ~TrayControlWindow();
+  virtual ~TrayControlWindow();  
+  P2PStatus_checker::P2P_STATUS p2p_current_status;
   static TrayControlWindow* Instance(){
     static TrayControlWindow *tcw = new TrayControlWindow();
     return tcw;
