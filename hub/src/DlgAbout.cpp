@@ -95,15 +95,10 @@ DlgAbout::~DlgAbout() {
 void DlgAbout::check_for_versions_and_updates() {
   ui->btn_recheck->setEnabled(false);
   ui->pb_initialization_progress->setEnabled(true);
-  QThread* th = new QThread(this);
-  DlgAboutInitializer* di = new DlgAboutInitializer;
+  DlgAboutInitializer* di = new DlgAboutInitializer();
 
   connect(di, &DlgAboutInitializer::finished,
           this, &DlgAbout::initialization_finished);
-  connect(di, &DlgAboutInitializer::finished,
-          th, &QThread::quit);
-  connect(th, &QThread::started, di,
-          &DlgAboutInitializer::do_initialization);
   connect(di, &DlgAboutInitializer::got_chrome_version,
           this, &DlgAbout::got_chrome_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version,
@@ -116,13 +111,7 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress,
           this, &DlgAbout::init_progress_sl);
-
-  connect(th, &QThread::finished, di, &DlgAboutInitializer::deleteLater);
-  connect(th, &QThread::finished, th, &QThread::deleteLater);
-  connect(this, &DlgAbout::finished, di, &DlgAboutInitializer::abort);
-
-  di->moveToThread(th);
-  th->start();
+  di->startWork();
 }
 ////////////////////////////////////////////////////////////////////////////
 
