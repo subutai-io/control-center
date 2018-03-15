@@ -548,10 +548,13 @@ void TrayControlWindow::launch_p2p(){
                                                  "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
             break;
         case P2PStatus_checker::P2P_RUNNING :
+            CNotificationObserver::Info(QObject::tr("P2P is running"), DlgNotification::N_NO_ACTION);
             break;
         case P2PStatus_checker::P2P_LOADING :
+            CNotificationObserver::Info(QObject::tr("P2P daemon is loading"), DlgNotification::N_NO_ACTION);
             break;
         case P2PStatus_checker::P2P_INSTALLING:
+            CNotificationObserver::Info(QObject::tr("P2P is installing"), DlgNotification::N_NO_ACTION);
             break;
     }
 }
@@ -590,6 +593,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
+    QString env_id = env->id();
+    environments_table[env_id] = *env;
     QString env_name = env->name();
     QAction* env_start = m_hub_menu->addAction(env->name());
     env_start->setIcon(env->status() == "HEALTHY" ? healthy_icon :
@@ -619,13 +624,12 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       qInfo(
           "Environment %s is healthy", env->name().toStdString().c_str());
     }
-
     connect(env_start, &QAction::triggered, [env, this](){
       this->generate_env_dlg(&(*env));
       TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
                                      QString("Environment \"%1\" (%2)").arg(env->name()).arg(env->status()));
     });
-  }  // for auto env in environments list
+  }
 
   for (std::map<QString, std::vector<QString> >::iterator it = tbl_envs.begin(); it != tbl_envs.end(); it++){
       if(!it->second.empty()){

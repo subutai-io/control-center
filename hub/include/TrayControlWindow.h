@@ -18,6 +18,7 @@
 #include "HubController.h"
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
+#include "RestContainers.h"
 
 #include "P2PController.h"
 
@@ -46,6 +47,7 @@ public:
   QString default_peer_id() const {
     return m_default_peer_id;
   }
+  std::map<QString, CEnvironment> environments_table;
 private:
   Ui::TrayControlWindow *ui;
 

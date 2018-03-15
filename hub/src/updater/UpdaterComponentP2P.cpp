@@ -113,6 +113,10 @@ CUpdaterComponentP2P::update_internal() {
   qDebug() << "Starting to update P2P";
 
   QString str_p2p_path = p2p_path();
+  if(str_p2p_path == "Not found"){
+      CNotificationObserver::Instance()->Error(tr("P2P is not installed. Please install P2P first"),DlgNotification::N_INSTALL_P2P);
+      return CHUE_FAILED;
+  }
   if (str_p2p_path.isNull() ||
       str_p2p_path.isEmpty() ||
       str_p2p_path == P2P) {
