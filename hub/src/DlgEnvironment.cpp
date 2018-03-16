@@ -156,6 +156,8 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
+  if(selected_conts.find(cont->id()) == selected_conts.end())
+      return;
   QCheckBox *cont_checkbox = selected_conts[cont->id()];
   if (status == 0)
   {
@@ -227,6 +229,8 @@ void DlgEnvironment::check_environment_status() {
 
       if (connected_to_swarm){
         for (auto cont : env.containers()){
+          if(desktops_info.find(cont.id()) == desktops_info.end())
+              return;
           desktops_info[cont.id()]->setText(QString(cont.is_desktop() ? cont.desk_env().isEmpty() ? "MATE" :  cont.desk_env()  : "No Desktop"));
           check_container_status(&cont);
         }
