@@ -12,22 +12,27 @@
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentRH.h"
 #include "updater/UpdaterComponentRHManagement.h"
+#include "updater/IUpdaterComponent.h"
 
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
   uc_rhm  = new CUpdaterComponentRHM;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, NULL};
+  uc_x2go = new CUpdaterComponentX2GO;
+  uc_vagrant = new CUpdaterComponentVAGRANT;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
   m_dct_components[IUpdaterComponent::RH]   = CUpdaterComponentItem(uc_rh);
   m_dct_components[IUpdaterComponent::RHMANAGEMENT] = CUpdaterComponentItem(uc_rhm);
+  m_dct_components[IUpdaterComponent::X2GO] = CUpdaterComponentItem(uc_x2go);
+  m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -215,6 +220,9 @@ void CHubComponentsUpdater::install_p2p(){
     install(IUpdaterComponent::P2P);
 }
 
+void CHubComponentsUpdater::install_x2go(){
+    install(IUpdaterComponent::X2GO);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -230,7 +238,7 @@ CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool
 }
 ////////////////////////////////////////////////////////////////////////////
 void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced){
-    emit installing_finished(IUpdaterComponent::component_id_to_user_view(file_id), replaced);
+    emit installing_finished(file_id, replaced);
 }
 /////////////////////////////////////////////////////////////////////////////
 QString CHubComponentsUpdater::component_name(const QString &component_id){

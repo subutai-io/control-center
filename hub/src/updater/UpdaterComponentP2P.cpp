@@ -93,16 +93,16 @@ chue_t CUpdaterComponentP2P::install_internal(){
                                                         str_p2p_downloaded_path,
                                                         item->size());
 
-    SilentPackageInstaller *silent_installer = new SilentPackageInstaller(this);
+    SilentPackageInstallerP2P *silent_installer = new SilentPackageInstallerP2P(this);
     silent_installer->init(file_dir, file_name);
     connect(dm, &CDownloadFileManager::download_progress_sig,
-            this, &CUpdaterComponentP2P::update_progress_sl);
+            [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](){
         silent_installer->startWork();
     });
-    connect(silent_installer, &SilentPackageInstaller::outputReceived,
+    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
             this, &CUpdaterComponentP2P::install_finished_sl);
-    connect(silent_installer, &SilentPackageInstaller::outputReceived,
+    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;

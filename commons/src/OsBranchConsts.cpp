@@ -50,6 +50,54 @@ const QString &
 p2p_kurjun_package_name() {
   return p2p_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
+//////////////////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_internal();
+
+#define x2go_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& x2go_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+x2go_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "subutai-p2p-master.pkg")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "subutai-p2p-master.msi")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "subutai-p2p-master.deb")
+x2go_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
+x2go_kurjun_package_name_def(BT_DEV,        OS_MAC,     "subutai-p2p-dev.pkg")
+x2go_kurjun_package_name_def(BT_DEV,        OS_WIN,     "subutai-p2p-dev.msi")
+x2go_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "subutai-p2p.deb")
+x2go_kurjun_package_name_def(BT_PROD,      OS_MAC,      "subutai-p2p.pkg")
+x2go_kurjun_package_name_def(BT_PROD,      OS_WIN,      "subutai-p2p.msi")
+
+const QString &
+x2go_kurjun_package_name(){
+    return x2go_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& vagrant_kurjun_package_name_temp_internal();
+
+#define vagrant_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& vagrant_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_MAC,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_MAC,      "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.deb")
+
+const QString &
+vagrant_kurjun_package_name(){
+    return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
 ////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 

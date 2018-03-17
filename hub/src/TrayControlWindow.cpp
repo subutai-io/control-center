@@ -500,9 +500,8 @@ void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
       << QString("X2go is Launchable: %1").arg(CSystemCallWrapper::x2goclient_check());
   if (!CSystemCallWrapper::x2goclient_check()) {
-    CNotificationObserver::Error(QObject::tr("Can't run x2goclient instance. Make sure you have specified correct path to x2goclient."
-                                         "Or you can get the lasest x2goclient from <a href=\"%2\">here</a>.")
-                                 .arg(x2goclient_url()), DlgNotification::N_SETTINGS);
+    CNotificationObserver::Error(QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is istalled from \"About\" settings.")
+                                 .arg(x2goclient_url()), DlgNotification::N_ABOUT);
     return;
   }
   CHubController::Instance().desktop_to_container_from_tray(*env, *cont);
