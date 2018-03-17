@@ -216,6 +216,8 @@ class CSystemCallWrapper {
   static bool set_application_autostart(bool start);
   static bool application_autostart();
 
+  static system_call_wrapper_error_t vagrant_plugin_install(const QString &plugin_name);
+
   struct container_ip_and_port {
     QString ip;
     QString port;

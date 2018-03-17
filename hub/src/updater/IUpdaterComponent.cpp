@@ -192,7 +192,5 @@ void CUpdaterComponentVAGRANT::update_post_action(bool success){
 }
 /////////////////////////////////////////////////////////////////
 void CUpdaterComponentVAGRANT::install_post_interntal(bool success){
-    if(!success)
-        CNotificationObserver::Instance()->Error(tr("vagrant installation failed"), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("vagrant has been installed."), DlgNotification::N_NO_ACTION);
+    if(success) CNotificationObserver::Instance()->Info(tr("vagrant has been installed."), DlgNotification::N_NO_ACTION);
 }

@@ -189,7 +189,7 @@ void DlgAbout::btn_x2go_update_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_vagrant_update_released(){
-    ui->btn_x2go_update->setEnabled(false);
+    ui->btn_vagrant_update->setEnabled(false);
     *m_dct_fpb[IUpdaterComponent::VAGRANT].in_progress = true;
     if(ui->lbl_vagrant_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT);
@@ -361,7 +361,6 @@ void DlgAbout::install_finished(const QString &file_id, bool success){
     if(!success){
         CNotificationObserver::Error(tr("Installation of %1 failed").arg(CHubComponentsUpdater::Instance()->component_name(file_id)),
                                      DlgNotification::N_NO_ACTION);
-        return;
     }
     if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
     m_dct_fpb[file_id].btn->setEnabled(false);
