@@ -795,8 +795,8 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
   QStringList args;
   QString file_path  = dir + "/" + file_name;
   args << "-e"
-       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+       << QString("do shell script \"hdiutil attach %1; cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   return res.res;
 }
 
