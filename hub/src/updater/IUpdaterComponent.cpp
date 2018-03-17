@@ -73,7 +73,9 @@ QString CUpdaterComponentX2GO::download_x2go_path(){
 }
 //////////////////////////////////////////////////////////
 bool CUpdaterComponentX2GO::update_available_internal(){
-    return true;
+    QString version;
+    CSystemCallWrapper::x2go_version(version);
+    return version == "undefined";
 }
 //////////////////////////////////////////////////////////////
 chue_t CUpdaterComponentX2GO::install_internal(){
@@ -142,7 +144,9 @@ QString CUpdaterComponentVAGRANT::download_vagrant_path(){
 }
 //////////////////////////////////////////////////////////
 bool CUpdaterComponentVAGRANT::update_available_internal(){
-    return true;
+    QString version;
+    CSystemCallWrapper::vagrant_version(version);
+    return version == "undefined";
 }
 //////////////////////////////////////////////////////////////
 chue_t CUpdaterComponentVAGRANT::install_internal(){
