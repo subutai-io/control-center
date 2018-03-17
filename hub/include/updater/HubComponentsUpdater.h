@@ -252,7 +252,6 @@ public:
 
 
   void execute_remote_command() {
-    //QStringList output;
     QFutureWatcher<system_call_wrapper_error_t> *watcher
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
 

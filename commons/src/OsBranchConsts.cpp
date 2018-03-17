@@ -61,14 +61,14 @@ template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_intern
   }
 
 x2go_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "subutai-p2p-master.pkg")
-x2go_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "subutai-p2p-master.msi")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
 x2go_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "subutai-p2p-master.deb")
 x2go_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
 x2go_kurjun_package_name_def(BT_DEV,        OS_MAC,     "subutai-p2p-dev.pkg")
-x2go_kurjun_package_name_def(BT_DEV,        OS_WIN,     "subutai-p2p-dev.msi")
+x2go_kurjun_package_name_def(BT_DEV,        OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
 x2go_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "subutai-p2p.deb")
 x2go_kurjun_package_name_def(BT_PROD,      OS_MAC,      "subutai-p2p.pkg")
-x2go_kurjun_package_name_def(BT_PROD,      OS_WIN,      "subutai-p2p.msi")
+x2go_kurjun_package_name_def(BT_PROD,      OS_WIN,      "X2GoClient_latest_mswin32-setup.exe")
 
 const QString &
 x2go_kurjun_package_name(){
@@ -85,14 +85,14 @@ template<class BR, class OS> const QString& vagrant_kurjun_package_name_temp_int
   }
 
 vagrant_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "vagrant_2.0.3_x86_64.deb")
-vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.msi")
 vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
 vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
 vagrant_kurjun_package_name_def(BT_DEV,        OS_MAC,     "vagrant_2.0.3_x86_64.deb")
-vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.msi")
 vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.0.3_x86_64.deb")
 vagrant_kurjun_package_name_def(BT_PROD,      OS_MAC,      "vagrant_2.0.3_x86_64.deb")
-vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.msi")
 
 const QString &
 vagrant_kurjun_package_name(){
@@ -363,7 +363,7 @@ template<class OS> const QString& default_vagrant_path_temp_internal();
   }
 
 default_vagrant_path_internal_def(OS_LINUX, "/usr/bin/vagrant")
-default_vagrant_path_internal_def(OS_WIN, "C:\\Vagrant\\Vagrant")
+default_vagrant_path_internal_def(OS_WIN, "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe")
 default_vagrant_path_internal_def(OS_MAC, "/usr/local/bin/vagrant")
 
 const QString &
