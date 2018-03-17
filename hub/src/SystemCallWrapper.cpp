@@ -790,6 +790,17 @@ template <class OS>
 system_call_wrapper_error_t install_x2go_internal(const QString &dir, const QString &file_name);
 
 template <>
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  return res.res;
+}
+
+template <>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd(dir+"/"+file_name);
     QStringList args0;
@@ -905,6 +916,16 @@ system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir,
 template <class OS>
 system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
 template <>
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  return res.res;
+}
+template <>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd("msiexec");
     QStringList args0;
@@ -1019,6 +1040,9 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
    QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
+   if(res == SCWE_SUCCESS){
+       CNotificationObserver::Instance()->Info("Vagrant installed, setting additional plugins.", DlgNotification::N_NO_ACTION);
+   }
    for (auto s : plugins){
        if(res!=SCWE_SUCCESS)
            return res;
