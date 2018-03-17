@@ -52,6 +52,8 @@ namespace update_system {
     static const QString TRAY;
     static const QString RH;
     static const QString RHMANAGEMENT;
+    static const QString X2GO;
+    static const QString VAGRANT;
 
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
@@ -103,7 +105,45 @@ namespace update_system {
     void install_finished(const QString& component_id, bool success);
     void update_available_changed(const QString& component_id);
   };
+////////////////////////// declaration of other staff
+    /**
+     * @brief The CUpdaterComponentX2GO class implements IUpdaterComponent. Works with X2GO
+     */
+    class CUpdaterComponentX2GO : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentX2GO();
+      virtual ~CUpdaterComponentX2GO();
 
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_x2go_path();
+    };
+    /**
+     * @brief The CUpdaterComponentVAGRANT class implements IUpdaterComponent. Works with VAGRANT
+     */
+    class CUpdaterComponentVAGRANT : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentVAGRANT();
+      virtual ~CUpdaterComponentVAGRANT();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_vagrant_path();
+    };
 }
 
 #endif // IUPDATERCOMPONENT_H

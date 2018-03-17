@@ -50,6 +50,54 @@ const QString &
 p2p_kurjun_package_name() {
   return p2p_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
+//////////////////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_internal();
+
+#define x2go_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& x2go_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+x2go_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "X2GoClient_latest_macosx_10_9.dmg")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "subutai-p2p-master.deb")
+x2go_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
+x2go_kurjun_package_name_def(BT_DEV,        OS_MAC,     "X2GoClient_latest_macosx_10_9.dmg")
+x2go_kurjun_package_name_def(BT_DEV,        OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
+x2go_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "subutai-p2p.deb")
+x2go_kurjun_package_name_def(BT_PROD,      OS_MAC,      "X2GoClient_latest_macosx_10_9.dmg")
+x2go_kurjun_package_name_def(BT_PROD,      OS_WIN,      "X2GoClient_latest_mswin32-setup.exe")
+
+const QString &
+x2go_kurjun_package_name(){
+    return x2go_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& vagrant_kurjun_package_name_temp_internal();
+
+#define vagrant_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& vagrant_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "vagrant.pkg")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.msi")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_MAC,     "vagrant.pkg")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.msi")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_MAC,      "vagrant.pkg")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.msi")
+
+const QString &
+vagrant_kurjun_package_name(){
+    return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
 ////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
@@ -315,7 +363,7 @@ template<class OS> const QString& default_vagrant_path_temp_internal();
   }
 
 default_vagrant_path_internal_def(OS_LINUX, "/usr/bin/vagrant")
-default_vagrant_path_internal_def(OS_WIN, "C:\\Vagrant\\Vagrant")
+default_vagrant_path_internal_def(OS_WIN, "C:\\HashiCorp\\Vagrant\\bin\\vagrant.exe")
 default_vagrant_path_internal_def(OS_MAC, "/usr/local/bin/vagrant")
 
 const QString &
