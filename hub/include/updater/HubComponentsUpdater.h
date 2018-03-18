@@ -116,6 +116,7 @@ namespace update_system {
       */
     void install(const QString& component_id);
     void install_p2p();
+    void install_x2go();
     QString component_name(const QString& component_id);
 
   private slots:
@@ -134,13 +135,13 @@ namespace update_system {
   };
 }
 
-
-class SilentPackageInstaller : public QObject{
+// USED FOR P2P INSTALLATION
+class SilentPackageInstallerP2P : public QObject{
   Q_OBJECT
   QString dir, file_name;
 
 public:
-  SilentPackageInstaller(QObject *parent = nullptr) : QObject (parent){}
+  SilentPackageInstallerP2P(QObject *parent = nullptr) : QObject (parent){}
   void init (const QString &dir,
              const QString &file_name){
       this->dir = dir;
@@ -150,11 +151,11 @@ public:
   void startWork() {
     QThread* thread = new QThread();
     connect(thread, &QThread::started,
-            this, &SilentPackageInstaller::execute_remote_command);
-    connect(this, &SilentPackageInstaller::outputReceived,
+            this, &SilentPackageInstallerP2P::execute_remote_command);
+    connect(this, &SilentPackageInstallerP2P::outputReceived,
             thread, &QThread::quit);
     connect(thread, &QThread::finished,
-            this, &SilentPackageInstaller::deleteLater);
+            this, &SilentPackageInstallerP2P::deleteLater);
     connect(thread, &QThread::finished,
             thread, &QThread::deleteLater);
     this->moveToThread(thread);
@@ -168,7 +169,7 @@ public:
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
 
     QFuture<system_call_wrapper_error_t>  res =
-        QtConcurrent::run(CSystemCallWrapper::install_package, dir, file_name);
+        QtConcurrent::run(CSystemCallWrapper::install_p2p, dir, file_name);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
       emit this->outputReceived(res.result() == SCWE_SUCCESS);
@@ -178,5 +179,91 @@ public:
 signals:
   void outputReceived(bool success);
 };
+// FOR X2GO INSTALLATION
+class SilentPackageInstallerX2GO : public QObject{
+  Q_OBJECT
+  QString dir, file_name;
 
+public:
+  SilentPackageInstallerX2GO(QObject *parent = nullptr) : QObject (parent){}
+  void init (const QString &dir,
+             const QString &file_name){
+      this->dir = dir;
+      this->file_name = file_name;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentPackageInstallerX2GO::execute_remote_command);
+    connect(this, &SilentPackageInstallerX2GO::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentPackageInstallerX2GO::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    //QStringList output;
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::install_x2go, dir, file_name);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
+  }
+
+signals:
+  void outputReceived(bool success);
+};
+// FOR X2GO INSTALLATION
+class SilentPackageInstallerVAGRANT : public QObject{
+  Q_OBJECT
+  QString dir, file_name;
+
+public:
+  SilentPackageInstallerVAGRANT(QObject *parent = nullptr) : QObject (parent){}
+  void init (const QString &dir,
+             const QString &file_name){
+      this->dir = dir;
+      this->file_name = file_name;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentPackageInstallerVAGRANT::execute_remote_command);
+    connect(this, &SilentPackageInstallerVAGRANT::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentPackageInstallerVAGRANT::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::install_vagrant, dir, file_name);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
+  }
+
+signals:
+  void outputReceived(bool success);
+};
 #endif // HUBCOMPONENTSUPDATER_H
