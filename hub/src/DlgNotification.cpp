@@ -35,7 +35,7 @@ DlgNotification::DlgNotification(
     {"Restart Control Center", [](){CCommons::RestartTray();}},
     {"About", [](){TrayControlWindow::Instance()->show_about();}},
     {"No Action", [](){}},
-    {"Start P2P daemon", [](){
+    {"Start P2P", [](){
       int rse_err;
       CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STOPPED_P2P);
       if (rse_err == 0)

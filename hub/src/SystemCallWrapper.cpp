@@ -209,7 +209,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
        << "-o StrictHostKeyChecking=no"
        << QString("%1@%2").arg(remote_user, ip)
        << "-p" << port
-       << "-i" << key
+       << QString("-i \"%1\"").arg(key)
        << QString("%1").arg(commands);
   qDebug() << "ARGS=" << args;
 
@@ -231,7 +231,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << "-i" << ssh_info.second
+      << QString("-i \"%1\"").arg(ssh_info.second)
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
@@ -253,7 +253,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-o StrictHostKeyChecking=no"
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << "-i" << ssh_info.second
+       << QString("-i \"%1\"").arg(ssh_info.second)
        << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
@@ -547,7 +547,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
   QString cmd;
@@ -582,7 +582,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
   QString cmd;
@@ -1056,7 +1056,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
     QStringList args;
     args<<"plugin"<<"install"<<plugin_name;
     qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 3);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
