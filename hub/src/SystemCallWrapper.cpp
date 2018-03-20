@@ -1067,6 +1067,142 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
+system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  qDebug()
+          <<"Starting installation of oracle virtualbox"
+          <<cmd
+          <<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  qDebug()
+          <<"Installation of oracle virtualbox is finished"
+          <<"error :"<<res.exit_code
+          <<"output :"<<res.out;
+  return res.res;
+}
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(file_name);
+    QStringList args0;
+    args0 << "set_working_directory"
+          << dir
+          << "--silent";
+
+    qDebug()
+            <<"Installing package virtualbox oracle:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true, 97);
+    qDebug()
+            <<"oracle virtualbox installation finished. results: "
+            <<"exit code: "<<res.exit_code
+            <<"result code: "<<res.res
+            <<"output: "<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    if(res.res != SCWE_SUCCESS)
+        return res.res;
+    return res.res;
+}
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QString("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QString("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QString("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QString("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "chmod +x %1;"
+                                    "cd %2 dir;"
+                                    "./%3 --nox11")
+                                    .arg(file_info, dir, file_name)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QString("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = "Couldn't set exe permission to reload script file";
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+    cr2 = CSystemCallWrapper::ssystem_th(gksu_path, args2, true, true, 97);
+    qDebug()
+            <<"virtualbox oracle installation finished"
+            <<"error code:"<<cr2.exit_code
+            <<"output: "<<cr2.out;
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+      return SCWE_CREATE_PROCESS;
+
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
+    return install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,
@@ -1489,6 +1625,15 @@ system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_version(QString &version){
     version = "undefined";
     QString cmd = CSettingsManager::Instance().vagrant_path();
+    if(CCommons::IsApplicationLaunchable(cmd))
+        version = "Installed";
+    else return SCWE_CREATE_PROCESS;
+    return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QString &version){
+    version = "undefined";
+    QString cmd = CSettingsManager::Instance().oracle_virtualbox_path();
     if(CCommons::IsApplicationLaunchable(cmd))
         version = "Installed";
     else return SCWE_CREATE_PROCESS;

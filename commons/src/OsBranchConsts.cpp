@@ -51,6 +51,30 @@ p2p_kurjun_package_name() {
   return p2p_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 //////////////////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& oracle_virtualbox_kurjun_package_name_temp_internal();
+
+#define oracle_virtualbox_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "subutai-p2p-master.msi")
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "virtualBox-5.2.8-Linux_amd64.run")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_MAC,     "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_WIN,     "subutai-p2p-dev.msi")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "virtualBox-5.2.8-Linux_amd64.run")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_MAC,      "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_WIN,      "subutai-p2p.msi")
+
+const QString &
+oracle_virtualbox_kurjun_package_name() {
+  return oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+//////////////////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_internal();
 
 #define x2go_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \

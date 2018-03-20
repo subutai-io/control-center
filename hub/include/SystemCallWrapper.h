@@ -155,6 +155,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_vagrant(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,
@@ -200,6 +202,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t p2p_status(QString &status);
   static system_call_wrapper_error_t x2go_version(QString &version);
   static system_call_wrapper_error_t vagrant_version(QString &version);
+  static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
