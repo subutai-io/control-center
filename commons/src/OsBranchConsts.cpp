@@ -371,7 +371,23 @@ default_vagrant_path() {
   return default_vagrant_path_temp_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_oracle_virtualbox_path_temp_internal();
 
+#define default_oracle_virtualbox_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_oracle_virtualbox_path_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_oracle_virtualbox_path_internal_def(OS_LINUX, "/usr/bin/virtualbox")
+default_oracle_virtualbox_path_internal_def(OS_WIN, "C:\\Program Files\\Oracle\\VirtualBox\\VirtualBox.exe")
+default_oracle_virtualbox_path_internal_def(OS_MAC, "/usr/local/bin/virtualbox")
+
+const QString & default_oracle_virtualbox_path() {
+    return default_oracle_virtualbox_path_temp_internal<Os2Type<CURRENT_OS > >();
+}
+////////////////////////////////////////////////////////////////////////////
 template<class OS> const QString& default_terminal_temp_internal();
 
 #define default_terminal_internal_def(OS_TYPE, STRING) \

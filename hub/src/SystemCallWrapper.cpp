@@ -899,11 +899,13 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     args2 << sh_path << tmpFilePath;
     cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
     tmpFile.remove();
+
+    qDebug()
+            <<"installation of x2goclient finished "
+           <<"error code: "<<cr2.exit_code
+          <<"output: "<<cr2.out;
+
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      QString err_msg = QString("Couldn't reload p2p.service. err = %1")
-                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
     }
 
