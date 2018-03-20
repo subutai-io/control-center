@@ -61,14 +61,14 @@ template<class BR, class OS> const QString& oracle_virtualbox_kurjun_package_nam
   }
 
 oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "subutai-p2p-master.msi")
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
 oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "virtualBox-5.2.8-Linux_amd64.run")
 oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
 oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_MAC,     "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_WIN,     "subutai-p2p-dev.msi")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
 oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "virtualBox-5.2.8-Linux_amd64.run")
 oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_MAC,      "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_WIN,      "subutai-p2p.msi")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_WIN,      "VirtualBox-5.2.8-121009-Win.exe")
 
 const QString &
 oracle_virtualbox_kurjun_package_name() {
