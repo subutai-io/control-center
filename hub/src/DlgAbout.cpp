@@ -318,8 +318,6 @@ void DlgAbout::got_vagrant_version_sl(QString version){
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
-    if(m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX].in_progress)
-        return;
     if(version == "undefined")
         ui->btn_oracle_virtualbox_update->setText("Install Oracle VirtualBox");
     else ui->btn_oracle_virtualbox_update->setText("Update Oracle VirtualBox");
