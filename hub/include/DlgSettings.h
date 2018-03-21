@@ -62,6 +62,7 @@ private slots:
   void btn_ok_released();
   void btn_cancel_released();
   void btn_p2p_file_dialog_released();
+  void btn_scp_command_released();
   void btn_ssh_command_released();
   void btn_x2goclient_command_released();
   void btn_ssh_keygen_command_released();

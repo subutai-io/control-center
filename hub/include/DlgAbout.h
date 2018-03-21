@@ -17,7 +17,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 public:
     DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
-  static const int COMPONENTS_COUNT = 12;
+  static const int COMPONENTS_COUNT = 14;
 public:
   void do_initialization();
   void abort();
@@ -43,6 +43,7 @@ signals:
   void got_rh_management_version(QString version);
   void got_x2go_version(QString version);
   void got_vagrant_version(QString version);
+  void got_oracle_virtualbox_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -82,6 +83,7 @@ private slots:
   void btn_rhm_update_released();
   void btn_x2go_update_released();
   void btn_vagrant_update_released();
+  void btn_oracle_virtualbox_update_released();
   void btn_recheck_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
@@ -98,6 +100,7 @@ private slots:
   void got_rh_management_version_sl(QString version);
   void got_x2go_version_sl(QString version);
   void got_vagrant_version_sl(QString version);
+  void got_oracle_virtualbox_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 

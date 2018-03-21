@@ -29,7 +29,7 @@
     <message>
         <location filename="Bazaar/src/BazaarController.cpp" line="290"/>
         <source>Refresh environments error : %1</source>
-        <translation>Ошибка обновления списка &quot;окружений&quot; : %1</translation>
+        <translation>Ошибка обновления списка &quot;инфраструктур&quot; : %1</translation>
     </message>
     <message>
         <location filename="Bazaar/src/BazaarController.cpp" line="455"/>
@@ -54,7 +54,7 @@
     </message>
     <message>
         <source>Failed to retrieve environment key. Try to restart application</source>
-        <translation type="vanished">Не удалось получить ключ &quot;окружения&quot;. Попробуйте перезапустить приложение</translation>
+        <translation type="vanished">Не удалось получить ключ &quot;инфраструктуры&quot;. Попробуйте перезапустить приложение</translation>
     </message>
     <message>
         <source>Run SSH failed. Error code : %1</source>
@@ -118,21 +118,21 @@
     </message>
 </context>
 <context>
-    <name>CSshKeysController</name>
+    <name>CSSHKeysController</name>
     <message>
-        <location filename="Bazaar/src/SshKeysController.cpp" line="138"/>
-        <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
+        <location filename="Bazaar/src/SSHKeysController.cpp" line="138"/>
+        <source>Generate new SSH key pair. Don&apos;t change directory, please</source>
         <translation>Создание новой SSH пары ключей. Пожалуйста, не изменяйте директорию</translation>
     </message>
     <message>
-        <location filename="Bazaar/src/SshKeysController.cpp" line="140"/>
-        <source>Ssh keys (*.pub);; All files (*.*)</source>
-        <translation>Ssh ключи (*.pub);; Все файлы (*.*)</translation>
+        <location filename="Bazaar/src/SSHKeysController.cpp" line="140"/>
+        <source>SSH keys (*.pub);; All files (*.*)</source>
+        <translation>SSH ключи (*.pub);; Все файлы (*.*)</translation>
     </message>
     <message>
-        <location filename="Bazaar/src/SshKeysController.cpp" line="161"/>
-        <source>Can&apos;t generate ssh-key. Err : %1</source>
-        <translation>Не удалось сгенерировать ssh-ключ. Ошибка : %1</translation>
+        <location filename="Bazaar/src/SSHKeysController.cpp" line="161"/>
+        <source>Can&apos;t generate SSH-key. Err : %1</source>
+        <translation>Не удалось сгенерировать SSH-ключ. Ошибка : %1</translation>
     </message>
 </context>
 <context>
@@ -152,7 +152,7 @@
     <name>CVBPlayer</name>
     <message>
         <source>No resource hosts registered</source>
-        <translation type="vanished">Не зарегистрирован ни один RH (resource host)</translation>
+        <translation type="vanished">Не зарегистрирован ни один Resource Host</translation>
     </message>
     <message>
         <source>Resource hosts registered:</source>
@@ -160,7 +160,7 @@
     </message>
     <message>
         <source>No resource hosts registered:</source>
-        <translation type="vanished">Не зарегистрирован ни один RH (resource  host):</translation>
+        <translation type="vanished">Не зарегистрирован ни один Resource  Host):</translation>
     </message>
 </context>
 <context>
@@ -316,41 +316,41 @@
     </message>
 </context>
 <context>
-    <name>DlgGenerateSshKey</name>
+    <name>DlgGenerateSSHKey</name>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="20"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="20"/>
         <source>SSH key generation</source>
         <translation>Генерация SSH-ключа</translation>
     </message>
     <message>
-        <source>Ssh-keys :</source>
+        <source>SSH-keys :</source>
         <translation type="vanished">SSH-ключи :</translation>
     </message>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="38"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="38"/>
         <source>Existing Keys:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="51"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="51"/>
         <source>Healthy Environments:</source>
         <oldsource>Healthy environments :</oldsource>
-        <translation type="unfinished">Рабочие &quot;окружения&quot; :</translation>
+        <translation type="unfinished">Активные &quot;инфраструктуры&quot; :</translation>
     </message>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="92"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="92"/>
         <source>Select All To Deploy</source>
         <oldsource>Select all</oldsource>
         <translation type="unfinished">Выбрать всё</translation>
     </message>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="133"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="133"/>
         <source>Generate New Key Pair</source>
         <oldsource>Generate new key pair</oldsource>
         <translation type="unfinished">Сгенерировать новую пару ключей</translation>
     </message>
     <message>
-        <location filename="Bazaar/forms/DlgGenerateSshKey.ui" line="140"/>
+        <location filename="Bazaar/forms/DlgGenerateSSHKey.ui" line="140"/>
         <source>Deploy Key[s]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -359,9 +359,9 @@
         <translation type="vanished">Сохранить изменения</translation>
     </message>
     <message>
-        <location filename="Bazaar/src/DlgGenerateSshKey.cpp" line="127"/>
-        <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
-        <translation>У Вас нет права на запись в директорию ssh-ключей. Пожалуйста, добавьте права на запись или измените место хранения ssh-ключей в настройках. Спасибо</translation>
+        <location filename="Bazaar/src/DlgGenerateSSHKey.cpp" line="127"/>
+        <source>You don&apos;t have write permission to SSH-keys directory. Please add write permission or change SSH-keys storage in settings. Thanks</source>
+        <translation>У Вас нет права на запись в директорию SSH-ключей. Пожалуйста, добавьте права на запись или измените место хранения SSH-ключей в настройках. Спасибо</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="Bazaar/forms/DlgLogin.ui" line="14"/>
         <source>Bazaar Account Login</source>
-        <translation>Логин учетной записи Bazaar</translation>
+        <translation>Bazaar аккаунт</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgLogin.ui" line="28"/>
@@ -384,7 +384,7 @@
     <message>
         <location filename="Bazaar/forms/DlgLogin.ui" line="69"/>
         <source>Show password when type</source>
-        <translation>Показать пароль во время набора</translation>
+        <translation>Показать пароль</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgLogin.ui" line="106"/>
@@ -400,7 +400,7 @@
         <location filename="Bazaar/forms/DlgLogin.ui" line="137"/>
         <location filename="Bazaar/src/DlgLogin.cpp" line="18"/>
         <source>Register</source>
-        <translation>Зарегистрироваться</translation>
+        <translation>Регистрация</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgLogin.ui" line="144"/>
@@ -565,12 +565,12 @@
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="46"/>
         <source>Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Инфраструктура</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="56"/>
         <source>Peer on Bazaar</source>
-        <translation type="unfinished"></translation>
+        <translation>Пир в Bazaar</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="63"/>
@@ -590,7 +590,7 @@
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="125"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Пользователь</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="132"/>
@@ -610,7 +610,7 @@
     <message>
         <location filename="Bazaar/forms/DlgPeer.ui" line="159"/>
         <source>SSH into Peer</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-соединение в Пир</translation>
     </message>
 </context>
 <context>
@@ -669,7 +669,7 @@
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="68"/>
         <source>EZ-SSH User:</source>
-        <translation>Логин юзера для ssh:</translation>
+        <translation>Пользователь EZ-SSH:</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="287"/>
@@ -760,23 +760,23 @@
         <location filename="Bazaar/forms/DlgSettings.ui" line="523"/>
         <source>Default RH</source>
         <oldsource>Default Peer</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Пир по умолчанию</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="530"/>
         <source>Available RHs</source>
         <oldsource>Available Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Доступные Пиры</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="542"/>
         <source>Search RHs</source>
         <oldsource>Search Peers</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Поиск Пиров</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="450"/>
-        <source>Ssh-keygen:</source>
+        <source>SSH-keygen:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -795,17 +795,17 @@
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="558"/>
         <source>RH port:</source>
-        <translation>RH порт (для ssh):</translation>
+        <translation>RH порт (для SSH):</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="565"/>
         <source>RH user:</source>
-        <translation>Пользователь RH (для ssh):</translation>
+        <translation>Пользователь RH:</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="572"/>
         <source>RH password:</source>
-        <translation>Пароль RH (для ssh):</translation>
+        <translation>Пароль RH (для SSH):</translation>
     </message>
     <message>
         <location filename="Bazaar/forms/DlgSettings.ui" line="681"/>
@@ -894,7 +894,7 @@
     </message>
     <message>
         <location filename="Bazaar/src/DlgSettings.cpp" line="446"/>
-        <source>Ssh command</source>
+        <source>SSH command</source>
         <translation>Команда SSH</translation>
     </message>
     <message>
@@ -904,8 +904,8 @@
     </message>
     <message>
         <location filename="Bazaar/src/DlgSettings.cpp" line="459"/>
-        <source>Ssh-keygen command</source>
-        <translation>Команда ssh-keygen</translation>
+        <source>SSH-keygen command</source>
+        <translation>Команда SSH-keygen</translation>
     </message>
     <message>
         <source>Vboxmanage command</source>
@@ -1172,8 +1172,8 @@
     </message>
     <message>
         <location filename="Bazaar/src/SystemCallWrapper.cpp" line="454"/>
-        <source>Using %1 ssh key</source>
-        <translation>Используется %1 ssh-ключ</translation>
+        <source>Using %1 SSH key</source>
+        <translation>Используется %1 SSH-ключ</translation>
     </message>
     <message>
         <location filename="Bazaar/src/SystemCallWrapper.cpp" line="1074"/>
@@ -1301,7 +1301,7 @@
     <message>
         <location filename="Bazaar/src/TrayControlWindow.cpp" line="184"/>
         <source>Bazaar website</source>
-        <translation>Bazaar сайт</translation>
+        <translation>Bazaar вебсайт</translation>
     </message>
     <message>
         <source>Launch</source>
@@ -1352,12 +1352,12 @@
     <message>
         <location filename="Bazaar/src/TrayControlWindow.cpp" line="227"/>
         <source>My Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Мои Пиры</translation>
     </message>
     <message>
         <location filename="Bazaar/src/TrayControlWindow.cpp" line="229"/>
         <source>Local Peers</source>
-        <translation type="unfinished"></translation>
+        <translation>Местные Пиры</translation>
     </message>
     <message>
         <location filename="Bazaar/src/TrayControlWindow.cpp" line="487"/>
@@ -1428,7 +1428,7 @@
     </message>
     <message>
         <location filename="Bazaar/src/TrayControlWindow.cpp" line="932"/>
-        <source>Can&apos;t ssh to container. Err : %1</source>
+        <source>Can&apos;t SSH to container. Err : %1</source>
         <translation>Не удалось создать сессию SSH к контейнеру. Ошибка : %1</translation>
     </message>
 </context>
@@ -1479,7 +1479,7 @@
     <message>
         <location filename="Bazaar/src/updater/UpdaterComponentP2P.cpp" line="157"/>
         <source>P2P has been updated. Restart p2p daemon, please</source>
-        <translation>P2P сервис был обновлен. Пожалуйста, перезапустите P2P сервис (daemon)</translation>
+        <translation>P2P сервис был обновлен. Пожалуйста, перезапустите P2P сервис</translation>
     </message>
 </context>
 <context>

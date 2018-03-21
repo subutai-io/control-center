@@ -223,7 +223,7 @@ public:
 signals:
   void outputReceived(bool success);
 };
-// FOR X2GO INSTALLATION
+// FOR VAGRANT INSTALLATION
 class SilentPackageInstallerVAGRANT : public QObject{
   Q_OBJECT
   QString dir, file_name;
@@ -257,6 +257,49 @@ public:
 
     QFuture<system_call_wrapper_error_t>  res =
         QtConcurrent::run(CSystemCallWrapper::install_vagrant, dir, file_name);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
+  }
+
+signals:
+  void outputReceived(bool success);
+};
+//FOR VIRTUALBOX INSTALLATION
+class SilentPackageInstallerORACLE_VIRTUALBOX : public QObject{
+  Q_OBJECT
+  QString dir, file_name;
+
+public:
+  SilentPackageInstallerORACLE_VIRTUALBOX(QObject *parent = nullptr) : QObject (parent){}
+  void init (const QString &dir,
+             const QString &file_name){
+      this->dir = dir;
+      this->file_name = file_name;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentPackageInstallerORACLE_VIRTUALBOX::execute_remote_command);
+    connect(this, &SilentPackageInstallerORACLE_VIRTUALBOX::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentPackageInstallerORACLE_VIRTUALBOX::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_remote_command() {
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+
+    QFuture<system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::install_oracle_virtualbox, dir, file_name);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
       emit this->outputReceived(res.result() == SCWE_SUCCESS);
