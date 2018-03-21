@@ -1084,6 +1084,8 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> 
           <<"Installation of oracle virtualbox is finished"
           <<"error :"<<res.exit_code
           <<"output :"<<res.out;
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
   return res.res;
 }
 template <>
