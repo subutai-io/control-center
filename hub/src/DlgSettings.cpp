@@ -179,6 +179,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_cancel_released);
   connect(ui->btn_p2p_file_dialog, &QPushButton::released, this,
           &DlgSettings::btn_p2p_file_dialog_released);
+  connect(ui->btn_scp_command, &QPushButton::released, this,
+         &DlgSettings::btn_scp_command_released);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
   connect(ui->btn_vagrant_command, &QPushButton::released, this,
@@ -275,7 +277,7 @@ void DlgSettings::btn_ok_released() {
       tr("Can't launch application");
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
-                     ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command};
+                     ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command, ui->le_scp_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QString home_folder = lst_home.empty() ? "~" : lst_home[0];
@@ -307,6 +309,10 @@ void DlgSettings::btn_ok_released() {
 
     {ui->le_vagrant_command, ui->lbl_err_vagrant_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_vagrant_command, ui->lbl_err_vagrant_command, can_launch_application, 1,
+     can_launch_application_msg},
+
+    {ui->le_scp_command, ui->lbl_err_scp_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_scp_command, ui->lbl_err_scp_command, can_launch_application, 1,
      can_launch_application_msg},
 
     {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
@@ -465,6 +471,13 @@ void DlgSettings::btn_vagrant_command_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgSettings::btn_scp_command_released() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("SCP command"));
+  if (fn == "") return;
+  ui->le_scp_command->setText(fn);
+  qDebug() << "Selected scp path";
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgSettings::btn_ssh_command_released() {
   QString fn = QFileDialog::getOpenFileName(this, tr("Ssh command"));
   if (fn == "") return;

@@ -28,6 +28,7 @@ const QString CSettingsManager::SM_REFRESH_TIME("Refresh_Time_Sec");
 const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
+const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -168,6 +169,7 @@ CSettingsManager::CSettingsManager()
       m_refresh_time_sec(DEFAULT_REFRESH_TIMEOUT_SEC),
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
+      m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -226,6 +228,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_login, SM_LOGIN, qvar_to_str},
       {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
       {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
+      {(void*)&m_oracle_virtualbox_path, SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
       {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
@@ -555,6 +558,13 @@ void CSettingsManager::set_vagrant_path(QString vagrant_path) {
   m_vagrant_path = sl == "" ? vagrant_path : sl;
   m_settings.setValue(SM_VAGRANT_PATH, m_vagrant_path);
 }
+
+void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
+    QString sl = QFile::symLinkTarget(virtualbox_path);
+    m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
+    m_settings.setValue(SM_ORACLE_VIRTUALBOX_PATH, m_oracle_virtualbox_path);
+}
+
 void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
   QString sl = QFile::symLinkTarget(x2goclient_path);
   m_x2goclient = sl == "" ? x2goclient_path : sl;

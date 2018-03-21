@@ -51,6 +51,30 @@ p2p_kurjun_package_name() {
   return p2p_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 //////////////////////////////////////////////////////////////////////////////////////////
+template<class BR, class OS> const QString& oracle_virtualbox_kurjun_package_name_temp_internal();
+
+#define oracle_virtualbox_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
+oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "virtualBox-5.2.8-Linux_amd64.run")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_MAC,     "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "virtualBox-5.2.8-Linux_amd64.run")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_MAC,      "VirtualBox.pkg")
+oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_WIN,      "VirtualBox-5.2.8-121009-Win.exe")
+
+const QString &
+oracle_virtualbox_kurjun_package_name() {
+  return oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+//////////////////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_internal();
 
 #define x2go_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -371,7 +395,23 @@ default_vagrant_path() {
   return default_vagrant_path_temp_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_oracle_virtualbox_path_temp_internal();
 
+#define default_oracle_virtualbox_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_oracle_virtualbox_path_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_oracle_virtualbox_path_internal_def(OS_LINUX, "/usr/bin/virtualbox")
+default_oracle_virtualbox_path_internal_def(OS_WIN, "C:\\Program Files\\Oracle\\VirtualBox\\VirtualBox.exe")
+default_oracle_virtualbox_path_internal_def(OS_MAC, "/usr/local/bin/virtualbox")
+
+const QString & default_oracle_virtualbox_path() {
+    return default_oracle_virtualbox_path_temp_internal<Os2Type<CURRENT_OS > >();
+}
+////////////////////////////////////////////////////////////////////////////
 template<class OS> const QString& default_terminal_temp_internal();
 
 #define default_terminal_internal_def(OS_TYPE, STRING) \
