@@ -1088,26 +1088,24 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> 
 }
 template <>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
-    QString cmd(file_name);
+    QString cmd(dir + "/" + file_name);
     QStringList args0;
-    args0 << "set_working_directory"
-          << dir
-          << "--silent";
+    args0 << "--silent";
 
     qDebug()
-            <<"Installing package virtualbox oracle:"
-            <<args0;
+            <<"Installing package oralce:"
+            <<args0
+            <<cmd;
 
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true, 97);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
     qDebug()
-            <<"oracle virtualbox installation finished. results: "
-            <<"exit code: "<<res.exit_code
-            <<"result code: "<<res.res
-            <<"output: "<<res.out;
+            <<"Installing package oracle finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
     if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
         res.res = SCWE_CREATE_PROCESS;
-    if(res.res != SCWE_SUCCESS)
-        return res.res;
     return res.res;
 }
 template <>
