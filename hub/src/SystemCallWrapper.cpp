@@ -592,7 +592,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
                             .arg(port);
 
   if (!key.isEmpty()) {
-    str_command += QString(" -i \"%1\" ").arg(key);
+    str_command += QString(" -i '%1' ").arg(key);
   }
 
 
