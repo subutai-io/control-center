@@ -868,7 +868,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install x2goclient")
+                                    "apt-get install --yes x2goclient")
                                     .arg(file_info)
                                     .toUtf8();
 
