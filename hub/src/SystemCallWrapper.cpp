@@ -582,7 +582,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i \"%1\" ").arg(key);
+    str_command += QString(" -i '%1' ").arg(key);
   }
 
   QString cmd;
