@@ -478,13 +478,13 @@ void CHubController::desktop_to_container_from_hub(const QString &env_id, const 
 
 
 const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
-  static QString lst_err_str[SDLE_LAST_ERR] = {"Success",
-                                              "Environment not found",
-                                              "Container not found",
-                                              "Container isn't ready",
-                                              "Join to p2p swarm failed",
-                                              "System call failed",
-                                              "No key deployed"};
+  static QString lst_err_str[SDLE_LAST_ERR] = {tr("Success"),
+                                              tr("Environment not found"),
+                                              tr("Container not found"),
+                                              tr("Container isn't ready"),
+                                              tr("Join to p2p swarm failed"),
+                                              tr("System call failed"),
+                                              tr("No key deployed")};
   return lst_err_str[err %  SDLE_LAST_ERR];
 }
 
