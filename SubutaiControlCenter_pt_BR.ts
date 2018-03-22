@@ -41,6 +41,41 @@
         <source>Launch hub website with default browser failed</source>
         <translation>Falha ao lançar o website do hub com navegador padrão</translation>
     </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="481"/>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="482"/>
+        <source>Environment not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="483"/>
+        <source>Container not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="484"/>
+        <source>Container isn&apos;t ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="485"/>
+        <source>Join to p2p swarm failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="486"/>
+        <source>System call failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/HubController.cpp" line="487"/>
+        <source>No key deployed</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CHubControllerP2PWorker</name>
@@ -107,12 +142,12 @@
 <context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="570"/>
+        <location filename="hub/src/SettingsManager.cpp" line="580"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="571"/>
+        <location filename="hub/src/SettingsManager.cpp" line="581"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Língua modificada. Gostaria de reiniciar o tray?</translation>
     </message>
@@ -199,22 +234,33 @@
         <translation>Coletando dados:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="95"/>
-        <location filename="hub/forms/DlgAbout.ui" line="121"/>
-        <location filename="hub/forms/DlgAbout.ui" line="160"/>
-        <location filename="hub/forms/DlgAbout.ui" line="236"/>
-        <location filename="hub/forms/DlgAbout.ui" line="246"/>
-        <location filename="hub/forms/DlgAbout.ui" line="267"/>
-        <location filename="hub/forms/DlgAbout.ui" line="303"/>
+        <location filename="hub/forms/DlgAbout.ui" line="56"/>
+        <location filename="hub/forms/DlgAbout.ui" line="66"/>
+        <location filename="hub/forms/DlgAbout.ui" line="154"/>
+        <location filename="hub/forms/DlgAbout.ui" line="200"/>
+        <location filename="hub/forms/DlgAbout.ui" line="279"/>
+        <location filename="hub/forms/DlgAbout.ui" line="315"/>
+        <location filename="hub/forms/DlgAbout.ui" line="322"/>
+        <location filename="hub/forms/DlgAbout.ui" line="350"/>
         <source>undefined</source>
         <translation>indefinido</translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgAbout.ui" line="343"/>
+        <source>Oracle VirtualBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgAbout.ui" line="360"/>
+        <source>Update VirtualBox</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Update tray</source>
         <translation type="vanished">Atualizar tray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="253"/>
+        <location filename="hub/forms/DlgAbout.ui" line="329"/>
         <source>P2P version:</source>
         <translation>Versão do P2P</translation>
     </message>
@@ -223,52 +269,60 @@
         <translation type="vanished">Versão do Tray</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="88"/>
+        <location filename="hub/forms/DlgAbout.ui" line="210"/>
         <source>Management version:</source>
         <translation>Versão do Gerenciador:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="114"/>
+        <location filename="hub/forms/DlgAbout.ui" line="173"/>
+        <location filename="hub/src/DlgAbout.cpp" line="283"/>
         <source>Update P2P</source>
         <translation>Atualizar P2P</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="137"/>
+        <location filename="hub/forms/DlgAbout.ui" line="193"/>
+        <location filename="hub/src/DlgAbout.cpp" line="309"/>
+        <source>Update X2Go-Client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgAbout.ui" line="223"/>
         <source>Chrome version:</source>
         <translation>Versão do Chrome</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="153"/>
+        <location filename="hub/forms/DlgAbout.ui" line="239"/>
         <source>Update Control Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="170"/>
+        <location filename="hub/forms/DlgAbout.ui" line="76"/>
         <source>Control Center version:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="209"/>
+        <location filename="hub/forms/DlgAbout.ui" line="115"/>
         <source>X2Go-Client</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">x2goclient</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="260"/>
+        <location filename="hub/forms/DlgAbout.ui" line="336"/>
         <source>RH version:</source>
         <translation>Versão do anfitrião de recursos</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="329"/>
+        <location filename="hub/forms/DlgAbout.ui" line="265"/>
+        <location filename="hub/src/DlgAbout.cpp" line="316"/>
         <source>Update Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="336"/>
+        <location filename="hub/forms/DlgAbout.ui" line="272"/>
         <source>Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="81"/>
+        <location filename="hub/forms/DlgAbout.ui" line="131"/>
         <source>Update Management</source>
         <translation>Atualizar o Gerenciador</translation>
     </message>
@@ -277,22 +331,47 @@
         <translation type="vanished">Versão do VBox</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgAbout.ui" line="319"/>
+        <location filename="hub/forms/DlgAbout.ui" line="255"/>
         <source>Update RH</source>
         <translation>Atualizar Anfitrião de Recursos</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="225"/>
+        <location filename="hub/src/DlgAbout.cpp" line="245"/>
         <source>Couldn&apos;t update component %1</source>
         <translation>Não foi possível atualizar componente %1</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="362"/>
+        <location filename="hub/src/DlgAbout.cpp" line="281"/>
+        <source>Install P2P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="308"/>
+        <source>Install X2Go-Client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="315"/>
+        <source>Install Vagrant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="322"/>
+        <source>Install Oracle VirtualBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="323"/>
+        <source>Update Oracle VirtualBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="393"/>
         <source>Installation of %1 failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="371"/>
+        <location filename="hub/src/DlgAbout.cpp" line="402"/>
         <source>Update %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -316,6 +395,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="53"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="52"/>
         <source>Transfer File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -346,6 +426,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="46"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="70"/>
         <source>Remote Desktop</source>
         <oldsource>DESKTOP ALL</oldsource>
         <translation type="unfinished">DESKTOP TODOS</translation>
@@ -393,12 +474,28 @@
         <translation>ID</translation>
     </message>
     <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
         <source>SSH</source>
-        <translation type="vanished">SSH</translation>
+        <translation>SSH</translation>
     </message>
     <message>
         <source>DESKTOP</source>
         <translation type="vanished">DESKTOP</translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="41"/>
+        <source>Loading..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="60"/>
+        <source>Opening X2Go-Client..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="78"/>
+        <source>Running ssh commands..</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgEnvironment.cpp" line="164"/>
@@ -862,14 +959,21 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="315"/>
-        <location filename="hub/src/DlgSettings.cpp" line="461"/>
+        <location filename="hub/src/DlgSettings.cpp" line="467"/>
         <source>Vagrant command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="hub/forms/DlgSettings.ui" line="332"/>
+        <location filename="hub/src/DlgSettings.cpp" line="475"/>
+        <source>SCP command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="hub/forms/DlgSettings.ui" line="345"/>
-        <source>x2goclient</source>
-        <translation>x2goclient</translation>
+        <source>X2Go-Client</source>
+        <oldsource>x2goclient</oldsource>
+        <translation type="unfinished">x2goclient</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="362"/>
@@ -1005,68 +1109,68 @@
         <translation>Atualizações automáticas do mh:</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="270"/>
+        <location filename="hub/src/DlgSettings.cpp" line="272"/>
         <source>Field can&apos;t be empty</source>
         <translation>O campo não pode estar vazio</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="272"/>
+        <location filename="hub/src/DlgSettings.cpp" line="274"/>
         <source>You don&apos;t have write permission to this folder</source>
         <translation>Você não tem permissão de escrita para esse diretório</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="273"/>
+        <location filename="hub/src/DlgSettings.cpp" line="275"/>
         <source>Invalid path</source>
         <translation>Caminho inválido</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="275"/>
+        <location filename="hub/src/DlgSettings.cpp" line="277"/>
         <source>Can&apos;t launch application</source>
         <translation>Não consegui lançar a aplicação</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="348"/>
+        <location filename="hub/src/DlgSettings.cpp" line="354"/>
         <source>Attention! Wrong settings</source>
         <translation>Atenção! Configurações incorretas</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="349"/>
+        <location filename="hub/src/DlgSettings.cpp" line="355"/>
         <source>You have %1 wrong settings. Would you like to correct it? Yes - try to correct, No - save anyway</source>
         <translation>Você tem %1 configurações incorretas. Você gostaria de corrigi-las ? Sim - tente corrigir, Não - salve mesmo assim</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="374"/>
+        <location filename="hub/src/DlgSettings.cpp" line="380"/>
         <source>Attention! Wrong terminal argument</source>
         <translation>Atenção! Parâmetro incorreto para o terminal</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="453"/>
+        <location filename="hub/src/DlgSettings.cpp" line="459"/>
         <source>P2P command</source>
         <translation>Comando P2P</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="469"/>
+        <location filename="hub/src/DlgSettings.cpp" line="482"/>
         <source>Ssh command</source>
         <translation>Comando SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="487"/>
+        <location filename="hub/src/DlgSettings.cpp" line="500"/>
         <source>Ssh-keygen command</source>
         <translation>Comando gerador de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="478"/>
+        <location filename="hub/src/DlgSettings.cpp" line="491"/>
         <source>x2goclient command</source>
         <oldsource>Vboxmanage command</oldsource>
         <translation>Comando x2goclient</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="496"/>
+        <location filename="hub/src/DlgSettings.cpp" line="509"/>
         <source>Logs storage</source>
         <translation>Armazenamento de Logs</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgSettings.cpp" line="504"/>
+        <location filename="hub/src/DlgSettings.cpp" line="517"/>
         <source>SSH-keys storage</source>
         <translation>Armazenamento de chaves SSH</translation>
     </message>
@@ -1394,58 +1498,155 @@
         <translation type="vanished">Usando a chave SSH %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1672"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1742"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="342"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="703"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="831"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="961"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1119"/>
+        <source>Couldn&apos;t find gksu command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="351"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="712"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="840"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="970"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1128"/>
+        <source>Couldn&apos;t find sh command</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="360"/>
+        <source>Couldn&apos;t find systemctl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="372"/>
+        <source>gksu systemctl list-units call failed. ec = %1, res = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="381"/>
+        <source>gksu systemctl list-units output is empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="393"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="721"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="849"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="979"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1137"/>
+        <source>Couldn&apos;t get standard temporary location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="404"/>
+        <source>Couldn&apos;t create reload script temp file. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="426"/>
+        <source>Couldn&apos;t write restart script to temp file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="440"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="763"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="891"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1021"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1181"/>
+        <source>Couldn&apos;t set exe permission to reload script file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="452"/>
+        <source>Couldn&apos;t reload p2p.service. ec = %1, err = %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="734"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="862"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="992"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1150"/>
+        <source>Couldn&apos;t create install script temp file. %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="748"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="876"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1006"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1166"/>
+        <source>Couldn&apos;t write install script to temp file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="775"/>
+        <source>Couldn&apos;t install p2p err = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1033"/>
+        <source>Couldn&apos;t install vagrant err = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1046"/>
+        <source>Vagrant installed, setting additional plugins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1819"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1889"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation>Não foi possível recuperar o diretório home</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1682"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1829"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation>Não foi possível criar o diretório de início automático, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1697"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1844"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation>Não foi possível deletar %1. %2</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1709"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1856"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation>Não foi possível criar o arquivo desktop de auto-início. Erro : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1721"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1868"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation>Não foi possível escrever no arquivo de auto-início.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1793"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1940"/>
         <source>Write plist file error</source>
         <translation>Erro ao gravar o arquivo plist</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1829"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1976"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation>Não foi possível criar a chave de registro, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1841"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1988"/>
         <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1851"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1998"/>
         <source>Couldn&apos;t add program to autorun, sorry</source>
         <translation>Não foi possível adicionar o programa ao auto-início, desculpe.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1859"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2006"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador. </translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1873"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2020"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation>Não foi possível remover o programa do auto-início, desculpe.</translation>
     </message>
@@ -1481,27 +1682,27 @@
         <translation type="vanished">Não foi possível operar sem o daemon p2p. Por favor mude o caminho nas Configurações, ou instale o daemon se ele ainda não foi instalado. Você pode obter a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="629"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="669"/>
         <source>stage</source>
         <translation>stage</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="630"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="670"/>
         <source>development</source>
         <translation>development</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="631"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="671"/>
         <source>production</source>
         <translation>production</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="648"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="688"/>
         <source>-master</source>
         <translation>-master</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="649"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="689"/>
         <source>-dev</source>
         <translation>-dev</translation>
     </message>
@@ -1520,33 +1721,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="503"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="507"/>
         <source>X2Go-Client is not launchable. Make sure x2go-client is istalled from &quot;About&quot; settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="542"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="818"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="546"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="822"/>
         <source>P2P is not installed. You can&apos;t connect to the environments without P2P.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="546"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="550"/>
         <source>P2P is not launched. Press start to launch P2P daemon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="550"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="554"/>
         <source>P2P is running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="553"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="557"/>
         <source>P2P daemon is loading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="556"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="560"/>
         <source>P2P is installing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1572,7 +1773,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="178"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="975"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="979"/>
         <source>Settings</source>
         <translation>Configurações</translation>
     </message>
@@ -1613,12 +1814,13 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="212"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="997"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1001"/>
         <source>Notifications history</source>
         <translation>Histórico de notificações</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="218"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="828"/>
         <source>P2P is loading...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1633,49 +1835,69 @@
         <translation>Peers Locais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="486"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="490"/>
         <source>This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="489"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="493"/>
         <source>Can&apos;t run terminal to ssh into peer. Error code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="516"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="520"/>
         <source>Update for %1 is available. Check &quot;About&quot; dialog</source>
         <translation>Atualizações para %1 estão disponíveis. Verifique em &quot;Sobre&quot;</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="525"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="529"/>
         <source>Failed to update %1. See details in error logs</source>
         <translation>Falha ao atualizar %1. Veja detalhes nos logs de erro</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="664"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="680"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="668"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="684"/>
         <source>&quot;%1&quot; is %2 </source>
         <translation>&quot;%1&quot; é %2 </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="671"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="687"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="675"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="691"/>
         <source>Status of your Peers: </source>
         <translation>Cтатус ваших пиров: </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="981"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="813"/>
+        <source>P2P is not running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="817"/>
+        <source>P2P is running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="824"/>
+        <source>Can&apos;t launch P2P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="832"/>
+        <source>P2P is installing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="985"/>
         <source>About Subutai Control Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="990"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="994"/>
         <source>SSH Key Manager</source>
         <translation>Gerenciador de Chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1080"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1084"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
         <translation>Não foi possível entrar por Desktop no container. Erro: %1</translation>
     </message>
@@ -1688,12 +1910,12 @@
         <translation type="vanished">Falha ao lançar o site via navegador padrão</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="618"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="622"/>
         <source>Environment %1 became healthy</source>
         <translation>Ambiente %1 se tornou saudável</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="640"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="644"/>
         <source>Environment%1 %2 %3 %4</source>
         <translation>Ambiente %1 %2 %3 %4</translation>
     </message>
@@ -1710,8 +1932,8 @@
         <translation type="vanished">Falha ao rodar o console subutai via navegador padrão. Não foi possível iniciar o processo </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="864"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="893"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="868"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="897"/>
         <source>Can&apos;t get RH IP address. Error : %1</source>
         <translation>Não foi possível conseguir o endereço de IP. Erro: %1</translation>
     </message>
@@ -1724,7 +1946,7 @@
         <translation type="vanished">Geração de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1064"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1068"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
         <translation>Não foi possível estabelecer conexão SSH com o container. Err : %1</translation>
     </message>
@@ -1732,14 +1954,27 @@
 <context>
     <name>update_system::CHubComponentsUpdater</name>
     <message>
-        <location filename="hub/src/updater/HubComponentsUpdater.cpp" line="104"/>
+        <location filename="hub/src/updater/HubComponentsUpdater.cpp" line="106"/>
         <source>%1 updating started</source>
         <translation>%1 iniciou atualização</translation>
     </message>
     <message>
-        <location filename="hub/src/updater/HubComponentsUpdater.cpp" line="109"/>
+        <location filename="hub/src/updater/HubComponentsUpdater.cpp" line="111"/>
         <source>New version of %1 is available!</source>
         <translation>Nova versão do %1 esta disponível!</translation>
+    </message>
+</context>
+<context>
+    <name>update_system::CUpdaterComponentORACLE_VIRTUALBOX</name>
+    <message>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="248"/>
+        <source>Running installation script.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="270"/>
+        <source>Oracle VirtualBox has been installed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1814,30 +2049,32 @@
     <name>update_system::CUpdaterComponentTray</name>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="92"/>
-        <source>Tray application has not been updated. Most probably the permission is denied.</source>
-        <oldsource>Tray application has not been updated</oldsource>
-        <translation>Aplicação do Tray não foi atualizada. Provavelmente não tem permissões.</translation>
+        <source>Control Center has not been updated. Most probably the permission is denied.</source>
+        <oldsource>Tray application has not been updated. Most probably the permission is denied.</oldsource>
+        <translation type="unfinished">Aplicação do Tray não foi atualizada. Provavelmente não tem permissões.</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="96"/>
-        <source>Attention! Tray update finished</source>
-        <translation>Atenção! Atualização do Tray concluída</translation>
+        <source>Attention! Control Center update finished</source>
+        <oldsource>Attention! Tray update finished</oldsource>
+        <translation type="unfinished">Atenção! Atualização do Tray concluída</translation>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentTray.cpp" line="97"/>
-        <source>Tray application has been updated. Do you want to restart it now?</source>
-        <translation>Atualização do Tray concluída. Deseja reiniciá-lo agora?</translation>
+        <source>Control Center application has been updated. Do you want to restart it now?</source>
+        <oldsource>Tray application has been updated. Do you want to restart it now?</oldsource>
+        <translation type="unfinished">Atualização do Tray concluída. Deseja reiniciá-lo agora?</translation>
     </message>
 </context>
 <context>
     <name>update_system::CUpdaterComponentVAGRANT</name>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="173"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="180"/>
         <source>Running installation scripts.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="195"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="202"/>
         <source>vagrant has been installed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1845,17 +2082,17 @@
 <context>
     <name>update_system::CUpdaterComponentX2GO</name>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="104"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="109"/>
         <source>Running installation scripts.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="127"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="132"/>
         <source>x2go-client installation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="128"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="133"/>
         <source>x2go-client has been installed.</source>
         <translation type="unfinished"></translation>
     </message>
