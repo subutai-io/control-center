@@ -278,9 +278,9 @@ void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
   if(version == "undefined"){
-      ui->btn_p2p_update->setText("Install P2P");
+      ui->btn_p2p_update->setText(tr("Install P2P"));
   }
-  else ui->btn_p2p_update->setText("Update P2P");
+  else ui->btn_p2p_update->setText(tr("Update P2P"));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -305,22 +305,22 @@ DlgAbout::got_rh_management_version_sl(QString version) {
 
 void DlgAbout::got_x2go_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_x2go_update->setText("Install X2Go-Client");
-    else ui->btn_x2go_update->setText("Update X2Go-Client");
+        ui->btn_x2go_update->setText(tr("Install X2Go-Client"));
+    else ui->btn_x2go_update->setText(tr("Update X2Go-Client"));
     ui->lbl_x2go_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_vagrant_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_vagrant_update->setText("Install Vagrant");
-    else ui->btn_vagrant_update->setText("Update Vagrant");
+        ui->btn_vagrant_update->setText(tr("Install Vagrant"));
+    else ui->btn_vagrant_update->setText(tr("Update Vagrant"));
     ui->lbl_vagrant_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_oracle_virtualbox_update->setText("Install Oracle VirtualBox");
-    else ui->btn_oracle_virtualbox_update->setText("Update Oracle VirtualBox");
+        ui->btn_oracle_virtualbox_update->setText(tr("Install Oracle VirtualBox"));
+    else ui->btn_oracle_virtualbox_update->setText(tr("Update Oracle VirtualBox"));
     ui->lbl_oracle_virtualbox_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////

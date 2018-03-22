@@ -302,6 +302,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="173"/>
+        <location filename="hub/src/DlgAbout.cpp" line="283"/>
         <source>Update P2P</source>
         <translation>Обновить P2P</translation>
     </message>
@@ -322,6 +323,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="193"/>
+        <location filename="hub/src/DlgAbout.cpp" line="309"/>
         <source>Update X2Go-Client</source>
         <translation type="unfinished"></translation>
     </message>
@@ -337,6 +339,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="265"/>
+        <location filename="hub/src/DlgAbout.cpp" line="316"/>
         <source>Update Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
@@ -380,6 +383,31 @@
         <translation>Не удалось обновить компонент %1</translation>
     </message>
     <message>
+        <location filename="hub/src/DlgAbout.cpp" line="281"/>
+        <source>Install P2P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="308"/>
+        <source>Install X2Go-Client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="315"/>
+        <source>Install Vagrant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="322"/>
+        <source>Install Oracle VirtualBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="323"/>
+        <source>Update Oracle VirtualBox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="hub/src/DlgAbout.cpp" line="393"/>
         <source>Installation of %1 failed</source>
         <translation type="unfinished"></translation>
@@ -414,11 +442,13 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="46"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="70"/>
         <source>Remote Desktop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="53"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="52"/>
         <source>Transfer File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -465,6 +495,26 @@
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="156"/>
         <source>Container</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="41"/>
+        <source>Loading..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="60"/>
+        <source>Opening X2Go-Client..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="78"/>
+        <source>Running ssh commands..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
+        <source>SSH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1797,6 +1847,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="218"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="828"/>
         <source>P2P is loading...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1840,6 +1891,26 @@
         <location filename="hub/src/TrayControlWindow.cpp" line="675"/>
         <location filename="hub/src/TrayControlWindow.cpp" line="691"/>
         <source>Status of your Peers: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="813"/>
+        <source>P2P is not running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="817"/>
+        <source>P2P is running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="824"/>
+        <source>Can&apos;t launch P2P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="832"/>
+        <source>P2P is installing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -38,7 +38,7 @@ void DlgEnvironment::select_all(bool checked) {
 
 void DlgEnvironment::upload_selected() {
   ui->btn_upload_selected->setEnabled(false);
-  ui->btn_upload_selected->setText("Uploading..");
+  ui->btn_upload_selected->setText(tr("Loading.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -49,7 +49,7 @@ void DlgEnvironment::upload_selected() {
 
   QTimer::singleShot(2000, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
-    this->ui->btn_upload_selected->setText("Transfer File");
+    this->ui->btn_upload_selected->setText(tr("Transfer File"));
   });
 }
 
@@ -57,7 +57,7 @@ void DlgEnvironment::upload_selected() {
 
 void DlgEnvironment::desktop_selected() {
   ui->btn_desktop_selected->setEnabled(false);
-  ui->btn_desktop_selected->setText("Uploading..");
+  ui->btn_desktop_selected->setText(tr("Opening X2Go-Client.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -67,7 +67,7 @@ void DlgEnvironment::desktop_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_desktop_selected->setEnabled(true);
-    this->ui->btn_desktop_selected->setText("Remote Desktop");
+    this->ui->btn_desktop_selected->setText(tr("Remote Desktop"));
   });
 }
 
@@ -75,7 +75,7 @@ void DlgEnvironment::desktop_selected() {
 
 void DlgEnvironment::ssh_selected() {
   ui->btn_ssh_selected->setEnabled(false);
-  ui->btn_ssh_selected->setText("Uploading..");
+  ui->btn_ssh_selected->setText(tr("Running ssh commands.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -85,7 +85,7 @@ void DlgEnvironment::ssh_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_ssh_selected->setEnabled(true);
-    this->ui->btn_ssh_selected->setText("SSH");
+    this->ui->btn_ssh_selected->setText(tr("SSH"));
   });
 }
 
