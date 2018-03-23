@@ -211,8 +211,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 }
 
 void CUpdaterComponentP2P::install_post_interntal(bool success){
-    if(!success)
-        CNotificationObserver::Instance()->Error(tr("P2P installation failed"), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("P2P has been installed. Wait 15 seconds until it's started."), DlgNotification::N_NO_ACTION);
+    if(success)
+        CNotificationObserver::Instance()->Info(tr("P2P has been installed. Wait 15 seconds until it's started."), DlgNotification::N_NO_ACTION);
 }
 ////////////////////////////////////////////////////////////////////////////

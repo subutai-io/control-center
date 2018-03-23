@@ -239,7 +239,7 @@ private slots:
                 <<"Component: "<<file_id
                 <<"success: "<<success;
          UNUSED_ARG(success);
-         if(file_id == "P2P"){
+         if(file_id == "P2P" || file_id == "p2p.exe"){
             m_status = P2P_READY;
             emit p2p_status(P2P_READY);
          }
