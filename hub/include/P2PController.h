@@ -12,6 +12,7 @@ using namespace update_system;
 class StatusChecker : public QObject {
   Q_OBJECT
 public:
+    StatusChecker(QObject *parent = nullptr) : QObject (parent){}
   virtual void startWork() {
     QThread* thread = new QThread;
     this->moveToThread(thread);
@@ -41,7 +42,7 @@ class RHStatusChecker : public StatusChecker
 public:
   CEnvironment env;
   CHubContainer cont;
-  RHStatusChecker(const CEnvironment &_env, const CHubContainer &_cont) : env(_env), cont(_cont) {}
+  RHStatusChecker(const CEnvironment &_env, const CHubContainer &_cont) : StatusChecker(), env(_env), cont(_cont) {}
 
 private slots:
   void run_checker() {
@@ -66,7 +67,7 @@ class SwarmConnector : public StatusChecker
   Q_OBJECT
   public:
   CEnvironment env;
-  SwarmConnector(const CEnvironment &_env) : env(_env) {}
+  SwarmConnector(const CEnvironment &_env) : StatusChecker(), env(_env) {}
 
 private slots:
   void run_checker() {
@@ -89,7 +90,7 @@ class SwarmLeaver : public StatusChecker
   Q_OBJECT
   public:
   QString hash;
-  SwarmLeaver(const QString &_hash) : hash(_hash) {}
+  SwarmLeaver(const QString &_hash) : StatusChecker(), hash(_hash) {}
 
 private slots:
   void run_checker() {
@@ -238,7 +239,7 @@ private slots:
                 <<"Component: "<<file_id
                 <<"success: "<<success;
          UNUSED_ARG(success);
-         if(file_id == "P2P"){
+         if(file_id == "P2P" || file_id == "p2p.exe"){
             m_status = P2P_READY;
             emit p2p_status(P2P_READY);
          }
