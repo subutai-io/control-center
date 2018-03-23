@@ -7,6 +7,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QLabel>
+#include <QThread>
 
 namespace Ui {
   class DlgAbout;
@@ -14,12 +15,25 @@ namespace Ui {
 
 class DlgAboutInitializer : public QObject {
   Q_OBJECT
-private:
 public:
-  static const int COMPONENTS_COUNT = 8;
-public slots:
+    DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
+  static const int COMPONENTS_COUNT = 14;
+public:
   void do_initialization();
   void abort();
+  void startWork(){
+        QThread* th = new QThread();
+        connect(th, &QThread::started,
+                this, &DlgAboutInitializer::do_initialization);
+        connect(this, &DlgAboutInitializer::finished,
+                th, &QThread::quit);
+        connect(th, &QThread::finished,
+                this, &DlgAboutInitializer::deleteLater);
+        connect(th, &QThread::finished,
+                th, &QThread::deleteLater);
+        this->moveToThread(th);
+        th->start();
+  }
 signals:
   void init_progress(int part, int total);
   void finished();
@@ -27,6 +41,9 @@ signals:
   void got_chrome_version(QString version);
   void got_rh_version(QString version);
   void got_rh_management_version(QString version);
+  void got_x2go_version(QString version);
+  void got_vagrant_version(QString version);
+  void got_oracle_virtualbox_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -64,11 +81,16 @@ private slots:
   void btn_p2p_update_released();
   void btn_rh_update_released();
   void btn_rhm_update_released();
+  void btn_x2go_update_released();
+  void btn_vagrant_update_released();
+  void btn_oracle_virtualbox_update_released();
   void btn_recheck_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
+ // void unavailable(const QString &file_id);
   void update_finished(const QString &file_id, bool success);  
+  void install_finished(const QString &file_id, bool success);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);
@@ -76,6 +98,9 @@ private slots:
   void got_chrome_version_sl(QString version);
   void got_rh_version_sl(QString version);
   void got_rh_management_version_sl(QString version);
+  void got_x2go_version_sl(QString version);
+  void got_vagrant_version_sl(QString version);
+  void got_oracle_virtualbox_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 

@@ -38,7 +38,7 @@ void DlgEnvironment::select_all(bool checked) {
 
 void DlgEnvironment::upload_selected() {
   ui->btn_upload_selected->setEnabled(false);
-  ui->btn_upload_selected->setText("Uploading..");
+  ui->btn_upload_selected->setText(tr("Loading.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -49,7 +49,7 @@ void DlgEnvironment::upload_selected() {
 
   QTimer::singleShot(2000, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
-    this->ui->btn_upload_selected->setText("Transfer File");
+    this->ui->btn_upload_selected->setText(tr("Transfer File"));
   });
 }
 
@@ -57,7 +57,7 @@ void DlgEnvironment::upload_selected() {
 
 void DlgEnvironment::desktop_selected() {
   ui->btn_desktop_selected->setEnabled(false);
-  ui->btn_desktop_selected->setText("Uploading..");
+  ui->btn_desktop_selected->setText(tr("Opening X2Go-Client.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -67,7 +67,7 @@ void DlgEnvironment::desktop_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_desktop_selected->setEnabled(true);
-    this->ui->btn_desktop_selected->setText("Remote Desktop");
+    this->ui->btn_desktop_selected->setText(tr("Remote Desktop"));
   });
 }
 
@@ -75,7 +75,7 @@ void DlgEnvironment::desktop_selected() {
 
 void DlgEnvironment::ssh_selected() {
   ui->btn_ssh_selected->setEnabled(false);
-  ui->btn_ssh_selected->setText("Uploading..");
+  ui->btn_ssh_selected->setText(tr("Running ssh commands.."));
   for (CHubContainer cont : env.containers()) {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
@@ -85,7 +85,7 @@ void DlgEnvironment::ssh_selected() {
   }
   QTimer::singleShot(2000, [this](){
     this->ui->btn_ssh_selected->setEnabled(true);
-    this->ui->btn_ssh_selected->setText("SSH");
+    this->ui->btn_ssh_selected->setText(tr("SSH"));
   });
 }
 
@@ -120,13 +120,10 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   connect(ui->btn_open_hub, &QPushButton::clicked, [this](){
     CHubController::Instance().launch_environment_page(this->env.hub_id());
   });
-
-  if (env.healthy()) { // check status with timer
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(7000);
-    connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
-    timer->start();
-  }
+  QTimer *timer = new QTimer(this);
+  timer->setInterval(7000);
+  connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
+  timer->start();
 
   check_environment_status();
 }
@@ -159,22 +156,39 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
+  if(selected_conts.find(cont->id()) == selected_conts.end())
+      return;
   QCheckBox *cont_checkbox = selected_conts[cont->id()];
   if (status == 0)
   {
     cont_checkbox->setText(tr("READY"));
     cont_checkbox->setStyleSheet("QCheckBox {color : green;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CONNECTION_SUCCESS));
   }
   else
   if (status == 1)
   {
     cont_checkbox->setText(tr("CONNECTING"));
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_CONNECT_CONT));
   }
   else
   if (status == 2){
     cont_checkbox->setText(tr("FAILED"));
     cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_JOIN_SWARM));
+  }
+  else
+  if (status == 3){
+      cont_checkbox->setText(tr("FAILED"));
+      cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+      cont_checkbox->setToolTip(tr("Environment is not HEALTHY"));
+  }
+  else
+  if (status == 4){
+      cont_checkbox->setText(tr("FAILED"));
+      cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+      cont_checkbox->setToolTip(tr("P2P is not installed"));
   }
 }
 
@@ -184,8 +198,8 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
   P2PController::P2P_CONNETION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
-    desktops_info[cont->id()]->setText(QString(cont->is_desktop() ? cont->desk_env().isEmpty() ? "MATE" :  cont->desk_env()  : "No Desktop"));
   change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
+  check_buttons();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -193,22 +207,39 @@ void DlgEnvironment::check_container_status(const CHubContainer *cont) {
 void DlgEnvironment::check_environment_status() {
   qDebug()
       << "Checking the status of environment " << env.name();
-  P2PController::P2P_CONNETION_STATUS
-      swarm_status = P2PController::Instance().is_swarm_connected(env);
+  static int state_all;
+  CEnvironment update_env = TrayControlWindow::Instance()->environments_table[env.id()];
+  if(update_env.status() != env.status())
+      this->close();
+  if(update_env.name() != env.name())
+      this->close();
+  env = update_env;
 
-  bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
+  if(!env.healthy())
+     state_all = 3;
 
-  if (connected_to_swarm){
-    for (auto cont : env.containers()){
-      check_container_status(&cont);
-    }
+  else if(TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING)
+        state_all = 4;
+  else{
+
+      P2PController::P2P_CONNETION_STATUS
+          swarm_status = P2PController::Instance().is_swarm_connected(env);
+
+      bool connected_to_swarm = (swarm_status == P2PController::CONNECTION_SUCCESS);
+
+      if (connected_to_swarm){
+        for (auto cont : env.containers()){
+          if(desktops_info.find(cont.id()) == desktops_info.end())
+              return;
+          desktops_info[cont.id()]->setText(QString(cont.is_desktop() ? cont.desk_env().isEmpty() ? "MATE" :  cont.desk_env()  : "No Desktop"));
+          check_container_status(&cont);
+        }
+        return;
+      }
+    state_all = 2;
   }
-  else {
-    qDebug() << "Not connected to  swarm";
-    for (auto cont : env.containers()) {
-      change_cont_status(&cont, 2);
-    }
-  }
+  for (auto cont : env.containers())
+    change_cont_status(&cont, state_all);
   check_buttons();
 }
 
@@ -245,5 +276,11 @@ void DlgEnvironment::check_buttons() {
 ////////////////////////////////////////////////////////////////////////////
 
 DlgEnvironment::~DlgEnvironment() {
+  for (size_t counter = 0; counter < timers.size(); counter++)
+      delete timers[counter];
+  for (size_t counter = 0; counter < labels.size(); counter++)
+      delete labels[counter];
+  for (size_t counter = 0; counter < checkboxs.size(); counter++)
+      delete checkboxs[counter];
   delete ui;
 }

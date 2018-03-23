@@ -59,28 +59,22 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
           args.erase(args.begin());
       }
   }
-
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
-  if (!proc.waitForStarted(timeout_msec)) {
-    if (log) {
-      qCritical(
-          "Failed to wait for started process %s", cmd.toStdString().c_str());
-      qCritical(
-          "%s", proc.errorString().toStdString().c_str());
-    }
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
-
-  //some trick for vagrant up usage
- /* if(cmd == CSettingsManager::Instance().vagrant_path() && args[0] == "up"){
-      QByteArray bridge("1");
-      proc.write(bridge); //choose bridge
-  }*/
-
   if(timeout_msec == 97){
+
+      if (!proc.waitForStarted(-1)) {
+        if (log) {
+          qCritical(
+              "Failed to wait for started process %s", cmd.toStdString().c_str());
+          qCritical(
+              "%s", proc.errorString().toStdString().c_str());
+        }
+        res.res = SCWE_CREATE_PROCESS;
+        return res;
+      }
+
       if (!proc.waitForFinished(-1)) {
         proc.terminate();
         res.res = SCWE_TIMEOUT;
@@ -88,6 +82,18 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
       }
   }
   else{
+
+      if (!proc.waitForStarted(timeout_msec)) {
+        if (log) {
+          qCritical(
+              "Failed to wait for started process %s", cmd.toStdString().c_str());
+          qCritical(
+              "%s", proc.errorString().toStdString().c_str());
+        }
+        res.res = SCWE_CREATE_PROCESS;
+        return res;
+      }
+
       if (!proc.waitForFinished(timeout_msec)) {
         proc.terminate();
         res.res = SCWE_TIMEOUT;
@@ -203,7 +209,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
        << "-o StrictHostKeyChecking=no"
        << QString("%1@%2").arg(remote_user, ip)
        << "-p" << port
-       << "-i" << key
+       << QString("-i \"%1\"").arg(key)
        << QString("%1").arg(commands);
   qDebug() << "ARGS=" << args;
 
@@ -225,7 +231,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << "-i" << ssh_info.second
+      << QString("-i \"%1\"").arg(ssh_info.second)
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
@@ -247,7 +253,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-o StrictHostKeyChecking=no"
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << "-i" << ssh_info.second
+       << QString("-i \"%1\"").arg(ssh_info.second)
        << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
@@ -404,8 +410,11 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
   system_call_res_t res;
   res = ssystem_th(cmd, args, true, true, 1000 * 60 * 2); // timeout 2 min
-  if (res.res != SCWE_SUCCESS)
-    return res.res;
+  if (res.res != SCWE_SUCCESS){
+      qCritical()
+          << QString("Join to p2p swarm failed for swarm_hash: %1. Code : %2. Output: ")
+             .arg(hash).arg(res.exit_code) << res.out;
+  }
 
   if (res.out.size() == 1 && res.out.at(0).indexOf("[ERROR]") != -1) {
     QString err_msg = res.out.at(0);
@@ -432,7 +441,7 @@ system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
   args << "stop"
        << "-hash" << hash;
   system_call_res_t res =
-      ssystem_th(cmd, args, false, true);  // we don't need output. AHAHA
+      ssystem_th(cmd, args, false, true);  // we don't need output. AHAHA // wtf is this????
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -450,7 +459,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     system_call_wrapper_error_t scr =
         CSystemCallWrapper::which("gksu", gksu_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QString("Couldn't find gksu command");
+      QString err_msg = QObject::tr("Couldn't find gksu command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -459,7 +468,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QString("Couldn't find sh command");
+      QString err_msg = QObject::tr("Couldn't find sh command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -468,7 +477,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     QString systemctl_path;
     scr = CSystemCallWrapper::which("systemctl", systemctl_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QString("Couldn't find systemctl");
+      QString err_msg = QObject::tr("Couldn't find systemctl");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -480,7 +489,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         CSystemCallWrapper::ssystem(gksu_path, args, true, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
-      QString err_msg = QString("gksu systemctl list-units call failed. ec = %1, res = %2")
+      QString err_msg = QObject::tr("gksu systemctl list-units call failed. ec = %1, res = %2")
                         .arg(cr.exit_code)
                         .arg(CSystemCallWrapper::scwe_error_to_str(cr.res));
       qCritical() << err_msg;
@@ -489,7 +498,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
 
     if (cr.out.isEmpty()) {
-      QString err_msg = QString("gksu systemctl list-units output is empty");
+      QString err_msg = QObject::tr("gksu systemctl list-units output is empty");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       break;
@@ -501,7 +510,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
       if (lst_temp.empty()) {
-        QString err_msg = QString("Couldn't get standard temporary location");
+        QString err_msg = QObject::tr("Couldn't get standard temporary location");
         qCritical() << err_msg;
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
@@ -512,7 +521,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       qDebug() << tmpFilePath;
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-        QString err_msg = QString("Couldn't create reload script temp file. %1")
+        QString err_msg = QObject::tr("Couldn't create reload script temp file. %1")
                           .arg(tmpFile.errorString());
         qCritical() << err_msg;
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -534,7 +543,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                                                           .toUtf8();
 
       if (tmpFile.write(restart_script) != restart_script.size()) {
-        QString err_msg = QString("Couldn't write restart script to temp file")
+        QString err_msg = QObject::tr("Couldn't write restart script to temp file")
                                  .arg(tmpFile.errorString());
         qCritical() << err_msg;
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -548,7 +557,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                   QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                   QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                   QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-        QString err_msg = "Couldn't set exe permission to reload script file";
+        QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
         break;
@@ -560,7 +569,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-        QString err_msg = QString("Couldn't reload p2p.service. ec = %1, err = %2")
+        QString err_msg = QObject::tr ("Couldn't reload p2p.service. ec = %1, err = %2")
                                  .arg(cr.exit_code)
                                  .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
         qCritical() << err_msg;
@@ -630,7 +639,9 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
   QStringList args;
   args << "show"
        << "-hash" << hash << "-check" << ip;
-  system_call_res_t res = ssystem_th(cmd, args, false, true);
+  system_call_res_t res = ssystem_th(cmd, args, true, true);
+  qDebug()
+          <<"container state of hash:"<<hash<<"ip:"<<ip<<"exit code:"<<res.exit_code<<"out:"<<res.out;
   return res.exit_code == 0 ? SCWE_SUCCESS : SCWE_CONTAINER_IS_NOT_READY;
 }
 
@@ -656,7 +667,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
   QString cmd;
@@ -691,7 +702,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
-    str_command += QString(" -i %1 ").arg(key);
+    str_command += QString(" -i '%1' ").arg(key);
   }
 
   QString cmd;
@@ -726,7 +737,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
                             .arg(port);
 
   if (!key.isEmpty()) {
-    str_command += QString(" -i \"%1\" ").arg(key);
+    str_command += QString(" -i '%1' ").arg(key);
   }
 
 
@@ -833,6 +844,547 @@ system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const
     return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir);
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd("msiexec");
+    QStringList args0;
+    args0 << "set_working_directory"
+          << dir
+          << "/i"
+          << file_name
+          << "/qn";
+
+    qDebug()
+            <<"Installing package:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "dpkg -i %1")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't install p2p err = %1")
+                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
+    return install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+}
+////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_x2go_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1; cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(dir+"/"+file_name);
+    QStringList args0;
+    args0 << "/S";
+
+    qDebug()
+            <<"Installing package x2go:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
+    qDebug()
+            <<"Installing package x2go finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "apt-get install --yes x2goclient")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+    tmpFile.remove();
+
+    qDebug()
+            <<"installation of x2goclient finished "
+           <<"error code: "<<cr2.exit_code
+          <<"output: "<<cr2.out;
+
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name){
+   return install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+}
+////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  return res.res;
+}
+template <>
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd("msiexec");
+    QStringList args0;
+    args0 << "set_working_directory"
+          << dir
+          << "/i"
+          << file_name;
+
+    qDebug()
+            <<"Installing package vagrant:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true, 97);
+    qDebug()
+            <<"vagrant installation finished. results: "
+            <<"exit code: "<<res.exit_code
+            <<"result code: "<<res.res
+            <<"output: "<<res.out;
+    if(res.exit_code != 0 && res.exit_code != 3010 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    if(res.res != SCWE_SUCCESS)
+        return res.res;
+    return res.res;
+}
+template <>
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "dpkg -i %1")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
+   system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+   QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
+   if(res == SCWE_SUCCESS){
+       CNotificationObserver::Instance()->Info(QObject::tr ("Vagrant installed, setting additional plugins."), DlgNotification::N_NO_ACTION);
+   }
+   for (auto s : plugins){
+       if(res!=SCWE_SUCCESS)
+           return res;
+       res = vagrant_plugin_install(s);
+   }
+   return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<<"plugin"<<"install"<<plugin_name;
+    qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+    qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
+           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
+  qDebug()
+          <<"Starting installation of oracle virtualbox"
+          <<cmd
+          <<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  qDebug()
+          <<"Installation of oracle virtualbox is finished"
+          <<"error :"<<res.exit_code
+          <<"output :"<<res.out;
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+  return res.res;
+}
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(dir + "/" + file_name);
+    QStringList args0;
+    args0 << "--silent";
+
+    qDebug()
+            <<"Installing package oralce:"
+            <<args0
+            <<cmd;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
+    qDebug()
+            <<"Installing package oracle finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+template <>
+system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "chmod +x %1;"
+                                    "cd %2 dir;"
+                                    "./%3 --nox11")
+                                    .arg(file_info, dir, file_name)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+    cr2 = CSystemCallWrapper::ssystem_th(gksu_path, args2, true, true, 97);
+    qDebug()
+            <<"virtualbox oracle installation finished"
+            <<"error code:"<<cr2.exit_code
+            <<"output: "<<cr2.out;
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+      return SCWE_CREATE_PROCESS;
+
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
+    return install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal(const QString &user,
                                                          const QString &ip,
@@ -1233,7 +1785,44 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
-
+system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
+    version = "undefined";
+    QString cmd = CSettingsManager::Instance().x2goclient();
+    /*
+    QStringList args;
+    args
+        << "--debug"
+        << "--hide"
+        << "--no-menu"
+        << "--thinclient"
+        << "-v";
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
+    */
+    //if (res.res == SCWE_SUCCESS && res.exit_code == 255)
+    if(x2goclient_check())
+        version = "Installed";
+    else return SCWE_CREATE_PROCESS;
+    return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_version(QString &version){
+    version = "undefined";
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    if(CCommons::IsApplicationLaunchable(cmd))
+        version = "Installed";
+    else return SCWE_CREATE_PROCESS;
+    return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QString &version){
+    version = "undefined";
+    QString cmd = CSettingsManager::Instance().oracle_virtualbox_path();
+    if(CCommons::IsApplicationLaunchable(cmd))
+        version = "Installed";
+    else return SCWE_CREATE_PROCESS;
+    return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
@@ -1278,6 +1867,8 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
   QStringList args;
   args << prog;
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
+  qDebug()<<"requested which for"<<prog<<"exit code:"<<res.exit_code
+         <<"result:"<<res.res<<"output:"<<res.out;
   if (res.res != SCWE_SUCCESS) return res.res;
 
   if (res.exit_code == success_ec && !res.out.empty()) {

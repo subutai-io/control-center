@@ -12,21 +12,29 @@
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentRH.h"
 #include "updater/UpdaterComponentRHManagement.h"
+#include "updater/IUpdaterComponent.h"
+
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
   uc_rhm  = new CUpdaterComponentRHM;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, NULL};
+  uc_x2go = new CUpdaterComponentX2GO;
+  uc_vagrant = new CUpdaterComponentVAGRANT;
+  uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, uc_oracle_virtualbox, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
   m_dct_components[IUpdaterComponent::RH]   = CUpdaterComponentItem(uc_rh);
   m_dct_components[IUpdaterComponent::RHMANAGEMENT] = CUpdaterComponentItem(uc_rhm);
+  m_dct_components[IUpdaterComponent::X2GO] = CUpdaterComponentItem(uc_x2go);
+  m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
+  m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -35,6 +43,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
         this, &CHubComponentsUpdater::update_component_progress_sl);
     connect(ucs[i], &IUpdaterComponent::update_finished,
         this, &CHubComponentsUpdater::update_component_finished_sl);
+    connect(ucs[i], &IUpdaterComponent::install_finished,
+            this, &CHubComponentsUpdater::install_component_finished_sl);
   }
   ///
   set_p2p_update_freq();
@@ -196,6 +206,27 @@ void CHubComponentsUpdater::force_update_rhm() {
 
 ////////////////////////////////////////////////////////////////////////////
 
+void CHubComponentsUpdater::install(const QString &component_id){
+    qDebug()
+        <<"Install"<<component_id.toStdString().c_str()<<"called";
+    if (m_dct_components.find(component_id) == m_dct_components.end()) {
+      qCritical(
+            "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+      return;
+    }
+    emit install_component_started(IUpdaterComponent::component_id_to_user_view(component_id));
+    m_dct_components[component_id].Component()->install();
+}
+
+void CHubComponentsUpdater::install_p2p(){
+    install(IUpdaterComponent::P2P);
+}
+
+void CHubComponentsUpdater::install_x2go(){
+    install(IUpdaterComponent::X2GO);
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 CHubComponentsUpdater::update_component_progress_sl(const QString& file_id, qint64 cur,
                                                     qint64 full) {
@@ -208,3 +239,12 @@ CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool
   emit updating_finished(file_id, replaced);
 }
 ////////////////////////////////////////////////////////////////////////////
+void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced){
+    emit installing_finished(file_id, replaced);
+}
+/////////////////////////////////////////////////////////////////////////////
+QString CHubComponentsUpdater::component_name(const QString &component_id){
+    if(m_dct_components.find(component_id) == m_dct_components.end())
+        return "";
+    return m_dct_components[component_id].Component()->component_id_to_user_view(component_id);
+}

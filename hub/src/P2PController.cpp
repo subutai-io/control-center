@@ -322,8 +322,8 @@ P2PController::is_swarm_connected(const CEnvironment&env) {
 
 QString P2PController::p2p_connection_status_to_str(P2P_CONNETION_STATUS status) {
   static QString str [] = {"Successfully connected",
-                           "The connection with environment is not established",
-                           "Can't connect to container yet"
+                           "Can't join to swarm with environment",
+                           "Handshaking with container"
                           };
   return str[(size_t) status];
 }
@@ -348,5 +348,5 @@ void P2PStatus_checker::update_status(){
         if(!CSystemCallWrapper::p2p_daemon_check())
            emit p2p_status(P2P_READY);
         else emit p2p_status(P2P_RUNNING);
-    QTimer::singleShot(15000, this, &P2PStatus_checker::update_status);
+    QTimer::singleShot(5000, this, &P2PStatus_checker::update_status);
 }

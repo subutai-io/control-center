@@ -10,6 +10,7 @@
 #include "NotificationObserver.h"
 #include "DownloadFileManager.h"
 #include "Commons.h"
+#include "updater/HubComponentsUpdater.h"
 #include "OsBranchConsts.h"
 #include "P2PController.h"
 
@@ -42,6 +43,9 @@ CUpdaterComponentP2P::p2p_path()
   if (checkFile.exists() && checkFile.isSymLink()) {
     p2p_path = QFile::symLinkTarget(p2p_path);
   }
+
+  if(!checkFile.exists())
+      p2p_path = "Not found";
   return p2p_path;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -49,8 +53,7 @@ CUpdaterComponentP2P::p2p_path()
 QString
 CUpdaterComponentP2P::download_p2p_path() {
   QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-  return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]) +
-                              QDir::separator() + P2P;
+  return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -63,15 +66,57 @@ CUpdaterComponentP2P::update_available_internal() {
   if (str_p2p_path == P2P) return false;
   QString md5_current = CCommons::FileMd5(str_p2p_path);
   QString md5_kurjun = fi[0].md5_sum();
+  qDebug()
+          <<"Checking for p2p update"
+          <<"md5_current: "<<md5_current
+          <<"md5_kurjun: "<<md5_kurjun;
   return md5_current != md5_kurjun;
 }
 ////////////////////////////////////////////////////////////////////////////
+chue_t CUpdaterComponentP2P::install_internal(){
+    qDebug()
+            << "Starting install P2P";
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    QString file_name = p2p_kurjun_package_name();
+    QString file_dir = download_p2p_path();
+    QString str_p2p_downloaded_path = file_dir + "/" + file_name;
+
+    std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_package_name());
+    if (fi.empty()) {
+      qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      return CHUE_NOT_ON_KURJUN;
+    }
+    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                        str_p2p_downloaded_path,
+                                                        item->size());
+
+    SilentPackageInstallerP2P *silent_installer = new SilentPackageInstallerP2P(this);
+    silent_installer->init(file_dir, file_name);
+    connect(dm, &CDownloadFileManager::download_progress_sig,
+            [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
+        silent_installer->startWork();
+    });
+    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
+            this, &CUpdaterComponentP2P::install_finished_sl);
+    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
+            dm, &CDownloadFileManager::deleteLater);
+    dm->start_download();
+    return CHUE_SUCCESS;
+}
 
 chue_t
 CUpdaterComponentP2P::update_internal() {
   qDebug() << "Starting to update P2P";
 
   QString str_p2p_path = p2p_path();
+  if(str_p2p_path == "Not found"){
+      CNotificationObserver::Instance()->Error(tr("P2P is not installed. Please install P2P first"),DlgNotification::N_INSTALL_P2P);
+      return CHUE_FAILED;
+  }
   if (str_p2p_path.isNull() ||
       str_p2p_path.isEmpty() ||
       str_p2p_path == P2P) {
@@ -85,7 +130,9 @@ CUpdaterComponentP2P::update_internal() {
   QString str_p2p_executable_path = p2p_path();
 
   //this file will replace original file
-  QString str_p2p_downloaded_path = download_p2p_path();
+  QString file_name = P2P;
+  QString file_dir = download_p2p_path();
+  QString str_p2p_downloaded_path = file_dir + "/" + file_name;
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       p2p_kurjun_file_name());
@@ -161,5 +208,11 @@ CUpdaterComponentP2P::update_post_action(bool success) {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
   }
+}
+
+void CUpdaterComponentP2P::install_post_interntal(bool success){
+    if(!success)
+        CNotificationObserver::Instance()->Error(tr("P2P installation failed"), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("P2P has been installed. Wait 15 seconds until it's started."), DlgNotification::N_NO_ACTION);
 }
 ////////////////////////////////////////////////////////////////////////////
