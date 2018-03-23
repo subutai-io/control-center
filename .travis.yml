@@ -5,7 +5,6 @@ branches:
   - dev
 env:
   global:
-  - secure: HAiF306tiw1CVqxTmPCNBI48gVRda6Q6fqhWDbJ8NvaIB0E5o6cJzTjOK+okG8HsFPQx5G6b/h3uP3FkBMf/cYFTnCt1V9b4cssVa3WTJXRrsHHpzkoUXSGCq4/i0fnB9a8BJJOMx1qZgxqV6FibTKpkk2NF/VuWJa0axiC4/qk/ri/FBVXNUN3mL4TW3EENAGs+MrA+lcNhRCb89rYnRoy7Hxrhyd+gJppvKF+KxDSbxuZvLdiGys95SqPDwMNbdDO/ZtSeNbZawB/I+MUe32WC3+auZuetjd60rE4I6xhtmE2cIHph0Znkxt6/ftbR2cj+j1BQxzt86LxUgCHDrhi6/1duT2JjvWL0syiBFs1FkIiNBHfngzZPeGJ5dADk7TOaIONL8rXPLc8wSJQCCTC9Hgw9T6YeonD9MO8iNuO6rz6GYVKnMKt8Emetdqx0C1/LIYS98CC2Wx6ecYXrQKZYmy/WCqso6h50dMUUDscBH/6E0iYzE0+i2iq4bQtuAv9YWePWd3iIvD8+UO1HYbffFFhUcbAQmVWVI+awIiBRwxmHlZIVsdot5KZxPwH57EL0CKcPc8g5XugMOUMEb1c6oupZV2xV9nxpicPCK8Vjkdb9G4qN/X/RlAJp1ZJoD1PSt7l19iXmwoLJJsT6NU/BETVxFDCvYy09tCWExQ0=
   - secure: 6AnLOxUI/0w9ckqN3jd5GfhtQssxg0p8/8l/5c7uB9CS0ES5B9LoMRr4cltXKkNwBJ1qVh8Bc1Y2MlLLCO2SUWw0qhZI0k4y+IL/kKVs2QzzmoiPbwrCqtg3Z/8UkdALu3msIko0U+J5ksaXG4H/xvDpsFLrbDAljejqko7tgm646fmqi14QLEjRi7nnmbZ7/T/FzacTk9hopNf/QraRGvNfX8z45hhEVyOX/+rncc/Mf3MmIIeJGUYRC3/pdAPhz1h6l0fLtTEHCwagaPeRxOdKei5JMfiS8wyKyplfcIiZ9vXUugYOaP3WM7XmH6iDtSWVSRi0DAX4RP8f5Jdd/Nu+z9hcvW2dDjF8A/q+BebWiuNNoIQpmn9/DLKYYhekx0KVraAb6bRGED8o5ZOMK85KCB8SzFIshU1kGcv+DjYadyzLfl9WM2fZDUUrIpzIBKQm+vylOK0JdWbJL22txe/Jng6vo82FQskhWcWE5Dyus9NQ/iQhJFdvtFDx8bJQn62QEI1oIXPCy/8z6yZalBhP1wR67Nk1/89DmBo6qQg3h3xl7YmpJYNGAd7C39OCzY1p5oiIDXfkXQtdycUlk0Z4rw4p8EO1zIqnK15kdVEnD78P/QI1UmCByq1MnlYZt0PiOxlIbinxHdJPFOey1c78Xpl2QPjbx21Oq36Nz7g=
 matrix:
   include:
@@ -24,10 +23,8 @@ matrix:
       libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf
     script:
     - sudo mkdir -p /home/builder/ && sudo chmod 777 /home/builder/
-    - wget -nv -O /home/builder/qt_static.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=qt_static.tar.gz
-      && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
+    - wget -nv -O /home/builder/qt_static.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=qt_static.tar.gz && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
     - sudo /home/travis/build/subutai-io/control-center/./build_linux.sh $TRAVIS_BRANCH
-    - PROD_URL=https://cdn.subutai.io:8338/kurjun/rest
     - ls subutai_control_center_bin
     deploy:
     - provider: script
