@@ -1,4 +1,17 @@
 #!/bin/bash
+QTBINPATH=/tmp/Qt5.9.2/5.9.2/clang_64/bin/
+BRANCH=$1
+TRAYDIR=/Users/travis/build/tasankulov/control-center/
+
+echo "$BRANCH"
+
+export PATH=$QTBINPATH:$PATH
+
+git checkout -- .
+git pull
+git checkout $BRANCH
+git pull origin $BRANCH
+
 build="subutai_control_center_bin"
 
 if [ -d "$build" ]; then 
@@ -18,3 +31,28 @@ cp ../../../*.qm .
 #source ../../../../after_build_step_mac_os 
 cp SubutaiControlCenter SubutaiControlCenter_osx
 cp SubutaiControlCenter_osx ../../../.
+
+cd $TRAYDIR
+
+PKGNAME="subutai-control-center.pkg"
+case $BRANCH in
+	dev)
+		PKGNAME="subutai-control-center-dev.pkg"
+		;;
+	master)
+		PKGNAME="subutai-control-center-master.pkg"
+		;;
+	head)
+		PKGNAME="subutai-control-center.pkg"   
+    	;;
+    HEAD)
+		PKGNAME="subutai-control-center.pkg"
+    	;;  
+esac
+
+cd darwin-packages/
+rm -rf flat
+rm -rf root
+
+./pack.sh ../subutai_control_center_bin/SubutaiControlCenter.app $BRANCH
+mv $PKGNAME ../subutai_control_center_bin/
