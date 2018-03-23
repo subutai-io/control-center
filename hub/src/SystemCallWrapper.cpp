@@ -769,16 +769,18 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     system_call_res_t cr2;
     QStringList args2;
     args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+    qDebug()
+            <<"Installation of p2p started:"
+            <<"args: "<<args2;
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 97);
+    qDebug()
+            <<"Installation of p2p finished:"
+            <<"error code: "<<cr2.exit_code
+            <<"output: "<<cr2.out
+            <<"result: "<<cr2.res;
     tmpFile.remove();
-    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't install p2p err = %1")
-                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
-    }
-
     return SCWE_SUCCESS;
 }
 
