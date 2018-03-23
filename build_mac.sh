@@ -1,7 +1,7 @@
 #!/bin/bash
 QTBINPATH=/tmp/Qt5.9.2/5.9.2/clang_64/bin/
 BRANCH=$1
-TRAYDIR=/Users/travis/build/tasankulov/control-center/
+TRAYDIR=/Users/travis/build/subutai-io/control-center/
 
 echo "$BRANCH"
 
