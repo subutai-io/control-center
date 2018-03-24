@@ -173,6 +173,7 @@ TrayControlWindow::~TrayControlWindow() {
 
 void TrayControlWindow::application_quit() {
   qDebug() << "Quitting the tray";
+  m_sys_tray_icon->hide();
   QApplication::quit();
 }
 
