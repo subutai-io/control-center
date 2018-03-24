@@ -15,7 +15,19 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_183109265BFB4723887615916DFA988F"
+        "MsmKey" = "8:_02A8E8B077ED44438E81167C4A808336"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_037D9BF12DE4436CBF13A75F4FE591D9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0B99EA238DB946AEA0F6CF6B062219D3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -105,6 +117,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_38B7B4FD4D594BBBA0BD8B559B49EB65"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3B7B345DF8254FED8F1FC7FB485AD52D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -171,12 +189,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_584C4802876A4B699BE2C6B24F4A6FCE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_59C12790068B45D1834FE8A4F8CD0A9C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -225,12 +237,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_75B819FB364B4679BD73B5597529B1F4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_75BDBE1ADC974AA89A76CF8CA25D0B74"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -243,6 +249,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7BBC66335F4640BFA764A50E6EE0BA90"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7D5658AF5E1542A0938392572B0B6794"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -250,6 +262,12 @@
         "Entry"
         {
         "MsmKey" = "8:_7E8C63254EC34D7C84C96A3B50FD46F6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7FAB74AAFCE145A18F97CCEBE4DF4D07"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -273,13 +291,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_897CF6D81AF548BAA75AAA01AC096E9D"
+        "MsmKey" = "8:_8F355CB8B39D41ABA155BB384146D39E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8F355CB8B39D41ABA155BB384146D39E"
+        "MsmKey" = "8:_94544A31FA18499EBE37A22CB2D8BBD4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -334,12 +352,6 @@
         "Entry"
         {
         "MsmKey" = "8:_A8761B0663944B12836CAFC9EC9E0C70"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AB572F93ED5A4671BAFA4EC94CFED22D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -423,12 +435,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D19328D6E78D4632A91D0EE4119F1EB5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D664A2D9C85E4F02A710C90CC2CCE616"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -453,13 +459,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EEDEA4FB3AE24D1EB122E4C197AC1C97"
+        "MsmKey" = "8:_EDE89DB26FC5408688F8EA60176D2144"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_F0589F885A2D44139F65F7C876E07B71"
+        "MsmKey" = "8:_EEDEA4FB3AE24D1EB122E4C197AC1C97"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -588,10 +594,50 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_183109265BFB4723887615916DFA988F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02A8E8B077ED44438E81167C4A808336"
             {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5WebSockets.dll"
-            "TargetName" = "8:Qt5WebSockets.dll"
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Core.dll"
+            "TargetName" = "8:Qt5Core.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_037D9BF12DE4436CBF13A75F4FE591D9"
+            {
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Svg.dll"
+            "TargetName" = "8:Qt5Svg.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0B99EA238DB946AEA0F6CF6B062219D3"
+            {
+            "SourcePath" = "8:C:\\Qt\\5.10.1\\msvc2017_64\\bin\\opengl32sw.dll"
+            "TargetName" = "8:opengl32sw.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -888,6 +934,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_38B7B4FD4D594BBBA0BD8B559B49EB65"
+            {
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Network.dll"
+            "TargetName" = "8:Qt5Network.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B7B345DF8254FED8F1FC7FB485AD52D"
             {
             "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\msvcr120.dll"
@@ -1108,26 +1174,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_584C4802876A4B699BE2C6B24F4A6FCE"
-            {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Core.dll"
-            "TargetName" = "8:Qt5Core.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59C12790068B45D1834FE8A4F8CD0A9C"
             {
             "SourcePath" = "8:..\\..\\ssh\\cygwin1.dll"
@@ -1288,26 +1334,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75B819FB364B4679BD73B5597529B1F4"
-            {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Svg.dll"
-            "TargetName" = "8:Qt5Svg.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75BDBE1ADC974AA89A76CF8CA25D0B74"
             {
             "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\libeay32.dll"
@@ -1332,6 +1358,26 @@
             {
             "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\SubutaiControlCenter.exe"
             "TargetName" = "8:SubutaiControlCenter.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BBC66335F4640BFA764A50E6EE0BA90"
+            {
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5WebSockets.dll"
+            "TargetName" = "8:Qt5WebSockets.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -1374,6 +1420,26 @@
             "TargetName" = "8:qsvg.dll"
             "Tag" = "8:"
             "Folder" = "8:_5E8A492262524B298D475FA2917421EB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7FAB74AAFCE145A18F97CCEBE4DF4D07"
+            {
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\styles\\qwindowsvistastyle.dll"
+            "TargetName" = "8:qwindowsvistastyle.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_56D90D8AA0DC4A7A84E2036ACA3EA9D4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1448,10 +1514,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_897CF6D81AF548BAA75AAA01AC096E9D"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F355CB8B39D41ABA155BB384146D39E"
             {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Network.dll"
-            "TargetName" = "8:Qt5Network.dll"
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\control-center.res"
+            "TargetName" = "8:control-center.res"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -1468,10 +1534,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F355CB8B39D41ABA155BB384146D39E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_94544A31FA18499EBE37A22CB2D8BBD4"
             {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\control-center.res"
-            "TargetName" = "8:control-center.res"
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Gui.dll"
+            "TargetName" = "8:Qt5Gui.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -1652,26 +1718,6 @@
             {
             "SourcePath" = "8:..\\..\\ssh\\cyggssapi_krb5-2.dll"
             "TargetName" = "8:cyggssapi_krb5-2.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AB572F93ED5A4671BAFA4EC94CFED22D"
-            {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Widgets.dll"
-            "TargetName" = "8:Qt5Widgets.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -1948,26 +1994,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D19328D6E78D4632A91D0EE4119F1EB5"
-            {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\opengl32sw.dll"
-            "TargetName" = "8:opengl32sw.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D664A2D9C85E4F02A710C90CC2CCE616"
             {
             "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\api-ms-win-crt-runtime-l1-1-0.dll"
@@ -2048,10 +2074,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0589F885A2D44139F65F7C876E07B71"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EDE89DB26FC5408688F8EA60176D2144"
             {
-            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Gui.dll"
-            "TargetName" = "8:Qt5Gui.dll"
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\Qt5Widgets.dll"
+            "TargetName" = "8:Qt5Widgets.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
@@ -2186,6 +2212,17 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_56D90D8AA0DC4A7A84E2036ACA3EA9D4"
+                    {
+                    "Name" = "8:styles"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_2B5BE82F68BA4B9284A5D9B73F58DF83"
+                        "Folders"
+                        {
+                        }
+                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_5E8A492262524B298D475FA2917421EB"
                     {
                     "Name" = "8:imageplatforms"

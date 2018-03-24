@@ -127,6 +127,7 @@ void P2PConnector::check_status(const CEnvironment &env) {
 void P2PConnector::update_status() {
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
       || !CSystemCallWrapper::p2p_daemon_check()) {
+    qDebug()<<"p2p path is:"<<CSettingsManager::Instance().p2p_path();
     qCritical() << "P2P is not launchable or p2p daemon is not running.";
     connected_conts.clear();
     connected_envs.clear();

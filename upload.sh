@@ -90,6 +90,6 @@ echo "---------"
 echo $PKGNAME
 echo $BINNAME
 echo $OS
-echo $URL
+echo $BRANCH
 echo "---------"
-echo "TEEEEEEEEEEEEEEST"
+echo "Successfull"
