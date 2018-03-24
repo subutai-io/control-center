@@ -25,3 +25,8 @@ build_script:
 deploy_script:
   - C:\msys64\usr\bin\bash -lc "cd /C/SRC/control-center && gpg --allow-secret-key-import --import subutai.gpg && rm -f subutai.gpg"
   - C:\msys64\usr\bin\bash -lc "cd /C/SRC/control-center && ./upload.sh %APPVEYOR_REPO_BRANCH%"
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: XvXgDMClnzByrEK4GBG1fbeku4a4NvgKw8rpzb+aTNYwxhGXiL9yBSfvhqkCaqRqDJcNNP5ZxoN9Yx8nOBz7sKoA2BvxXHElJmK4mCrmHBQ=
