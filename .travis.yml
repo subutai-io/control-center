@@ -54,7 +54,6 @@ matrix:
       && rm -f /Users/travis/build/subutai-io/control-center/travis.gpg
     - brew update
     - brew install libssh2
-    - brew install qt5
     script:
     - wget -nv -O /tmp/Qt5.9.2.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=Qt5.9.2.tar.gz
       && tar -xf /tmp/Qt5.9.2.tar.gz -C /tmp
