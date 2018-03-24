@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SubutaiTraySetup", "SubutaiTraySetup\SubutaiTraySetup.vdproj", "{2DE31E5F-BC12-4BC8-977B-D859A2998F41}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DE31E5F-BC12-4BC8-977B-D859A2998F41}.Debug|Default.ActiveCfg = Debug
+		{2DE31E5F-BC12-4BC8-977B-D859A2998F41}.Debug|Default.Build.0 = Debug
+		{2DE31E5F-BC12-4BC8-977B-D859A2998F41}.Release|Default.ActiveCfg = Release
+		{2DE31E5F-BC12-4BC8-977B-D859A2998F41}.Release|Default.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9047C7FC-BCBC-4B0C-ACF6-D46B4D641C0D}
+	EndGlobalSection
+EndGlobal
