@@ -90,5 +90,5 @@ echo "---------"
 echo $PKGNAME
 echo $BINNAME
 echo $OS
-echo $URL
+echo $BRANCH
 echo "---------"
