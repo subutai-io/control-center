@@ -267,6 +267,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7FAB74AAFCE145A18F97CCEBE4DF4D07"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_822F85391A0349D9B3AB966F3564BE94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -394,12 +400,6 @@
         "Entry"
         {
         "MsmKey" = "8:_C3722053EC5A40058D9FB6DEFD45D301"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C7D504121842400F96785CC4DA94F6FF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -656,7 +656,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1943E18903D54D01A00ED981614CEDB7"
             {
-            "SourcePath" = "8:C:\\control-center\\SubutaiControlCenter_en_US.ts"
+            "SourcePath" = "8:..\\..\\control-center\\SubutaiControlCenter_en_US.ts"
             "TargetName" = "8:SubutaiControlCenter_en_US.ts"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -716,7 +716,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2091E156CF97443DB718930E9D19A260"
             {
-            "SourcePath" = "8:C:\\ssh\\cygkrb5support-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygkrb5support-0.dll"
             "TargetName" = "8:cygkrb5support-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -736,7 +736,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_296ED10BB1694C03921555F5E6C7B81B"
             {
-            "SourcePath" = "8:C:\\ssh\\cyggcc_s-seh-1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cyggcc_s-seh-1.dll"
             "TargetName" = "8:cyggcc_s-seh-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -756,7 +756,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A2FC23BAEE34D1FA9F8B10F2266F2A1"
             {
-            "SourcePath" = "8:C:\\control-center\\resources\\cc_icon_win.ico"
+            "SourcePath" = "8:..\\..\\control-center\\resources\\cc_icon_win.ico"
             "TargetName" = "8:cc_icon_win.ico"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -836,7 +836,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2E1549D9919B48759F04DF26F1268BB6"
             {
-            "SourcePath" = "8:C:\\control-center\\SubutaiControlCenter_pt_BR.ts"
+            "SourcePath" = "8:..\\..\\control-center\\SubutaiControlCenter_pt_BR.ts"
             "TargetName" = "8:SubutaiControlCenter_pt_BR.ts"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -856,7 +856,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2FB2E09D6A8F4BF3AA4FC0F3EFA042FC"
             {
-            "SourcePath" = "8:C:\\ssh\\cygk5crypto-3.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygk5crypto-3.dll"
             "TargetName" = "8:cygk5crypto-3.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -876,7 +876,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_309623EF41564516989CC12058670D16"
             {
-            "SourcePath" = "8:C:\\ssh\\cygiconv-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygiconv-2.dll"
             "TargetName" = "8:cygiconv-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -896,7 +896,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_367FA5A06ACC4CC3B6B9213F28BD097A"
             {
-            "SourcePath" = "8:C:\\ssh\\cyggssapi_krb5-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cyggssapi_krb5-2.dll"
             "TargetName" = "8:cyggssapi_krb5-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -916,7 +916,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_382E044F3EF444FFB885B63797A352DA"
             {
-            "SourcePath" = "8:C:\\ssh\\cygintl-8.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygintl-8.dll"
             "TargetName" = "8:cygintl-8.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -976,7 +976,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3E21651BD8F149638E050FADD3B14409"
             {
-            "SourcePath" = "8:C:\\ssh\\cygattr-1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygattr-1.dll"
             "TargetName" = "8:cygattr-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -996,7 +996,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_412F319D5BFE4B86817E996FE928A705"
             {
-            "SourcePath" = "8:C:\\ssh\\cygkrb5-3.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygkrb5-3.dll"
             "TargetName" = "8:cygkrb5-3.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1016,7 +1016,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_41A4CEAC9B354D8593514F05B06908FA"
             {
-            "SourcePath" = "8:C:\\control-center\\SubutaiControlCenter_ru_RU.ts"
+            "SourcePath" = "8:..\\..\\control-center\\SubutaiControlCenter_ru_RU.ts"
             "TargetName" = "8:SubutaiControlCenter_ru_RU.ts"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1076,7 +1076,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4D5B8089B24A456095261FD9961A68D4"
             {
-            "SourcePath" = "8:C:\\ssh\\cygk5crypto-3.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygk5crypto-3.dll"
             "TargetName" = "8:cygk5crypto-3.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1096,7 +1096,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_501B1E2E89E24A19905FA56A67BA94CF"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcrypt-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcrypt-0.dll"
             "TargetName" = "8:cygcrypt-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1156,7 +1156,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_572426BD8DED4746AF84B45B29DDB0F7"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcom_err-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcom_err-2.dll"
             "TargetName" = "8:cygcom_err-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1176,7 +1176,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59C12790068B45D1834FE8A4F8CD0A9C"
             {
-            "SourcePath" = "8:C:\\ssh\\cygwin1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygwin1.dll"
             "TargetName" = "8:cygwin1.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1196,7 +1196,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67595C989A3F4BA4837D244FDF30AA2F"
             {
-            "SourcePath" = "8:C:\\ssh\\ssh.exe"
+            "SourcePath" = "8:..\\..\\ssh\\ssh.exe"
             "TargetName" = "8:ssh.exe"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1236,7 +1236,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6931FF70A0144BA6B1AE59EA328C09D1"
             {
-            "SourcePath" = "8:C:\\ssh\\cygncursesw-10.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygncursesw-10.dll"
             "TargetName" = "8:cygncursesw-10.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1256,7 +1256,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_695E1EC1AE9B407AB432DB88CA35E9A1"
             {
-            "SourcePath" = "8:C:\\ssh\\cygreadline7.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygreadline7.dll"
             "TargetName" = "8:cygreadline7.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1276,7 +1276,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6A74B1E58D384B3EA73071E0B46584A7"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcrypt-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcrypt-0.dll"
             "TargetName" = "8:cygcrypt-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1296,7 +1296,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B4C567A5462440EA1ACA47496B88653"
             {
-            "SourcePath" = "8:C:\\addvariablesshtopath.vbs"
+            "SourcePath" = "8:..\\..\\addvariablesshtopath.vbs"
             "TargetName" = "8:addvariablesshtopath.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1316,7 +1316,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_717ACAA0454E4A639CCB52CC0BA23468"
             {
-            "SourcePath" = "8:C:\\ssh\\scp.exe"
+            "SourcePath" = "8:..\\..\\ssh\\scp.exe"
             "TargetName" = "8:scp.exe"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1396,7 +1396,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D5658AF5E1542A0938392572B0B6794"
             {
-            "SourcePath" = "8:C:\\ssh\\cyggcc_s-seh-1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cyggcc_s-seh-1.dll"
             "TargetName" = "8:cyggcc_s-seh-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1434,9 +1434,29 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7FAB74AAFCE145A18F97CCEBE4DF4D07"
+            {
+            "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\styles\\qwindowsvistastyle.dll"
+            "TargetName" = "8:qwindowsvistastyle.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_56D90D8AA0DC4A7A84E2036ACA3EA9D4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_822F85391A0349D9B3AB966F3564BE94"
             {
-            "SourcePath" = "8:C:\\ssh\\cygiconv-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygiconv-2.dll"
             "TargetName" = "8:cygiconv-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1456,7 +1476,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8405120E4AB34877962A10D0DA89F9EF"
             {
-            "SourcePath" = "8:C:\\ssh\\cygattr-1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygattr-1.dll"
             "TargetName" = "8:cygattr-1.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1556,7 +1576,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9754D2EDB71C4A64897E18E902766890"
             {
-            "SourcePath" = "8:C:\\ssh\\cygreadline7.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygreadline7.dll"
             "TargetName" = "8:cygreadline7.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1576,7 +1596,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9954F161C59E43109B05A960A1E8E9CE"
             {
-            "SourcePath" = "8:C:\\ssh\\cygssp-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygssp-0.dll"
             "TargetName" = "8:cygssp-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1676,7 +1696,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A6A18BD45CDA4F94821C5FFF1BE9A03B"
             {
-            "SourcePath" = "8:C:\\ssh\\cygz.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygz.dll"
             "TargetName" = "8:cygz.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1696,7 +1716,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A8761B0663944B12836CAFC9EC9E0C70"
             {
-            "SourcePath" = "8:C:\\ssh\\cyggssapi_krb5-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cyggssapi_krb5-2.dll"
             "TargetName" = "8:cyggssapi_krb5-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1736,7 +1756,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B54F19BED905419091F00C0CC668D4D1"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcrypto-1.0.0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcrypto-1.0.0.dll"
             "TargetName" = "8:cygcrypto-1.0.0.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1836,7 +1856,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BAFB5CFB4AC940D2BA1C9AB2F25BA96B"
             {
-            "SourcePath" = "8:C:\\ssh\\cygintl-8.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygintl-8.dll"
             "TargetName" = "8:cygintl-8.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1856,7 +1876,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C3722053EC5A40058D9FB6DEFD45D301"
             {
-            "SourcePath" = "8:C:\\ssh\\cygedit-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygedit-0.dll"
             "TargetName" = "8:cygedit-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1874,29 +1894,9 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C7D504121842400F96785CC4DA94F6FF"
-            {
-            "SourcePath" = "8:C:\\Qt\\5.10.1\\msvc2017_64\\plugins\\styles\\qwindowsvistastyle.dll"
-            "TargetName" = "8:qwindowsvistastyle.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_0004D9A6C48B42A28EF050E008EF0BE8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C96A7AAF05FE4F6887806F916E69E9DF"
             {
-            "SourcePath" = "8:C:\\ssh\\cygedit-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygedit-0.dll"
             "TargetName" = "8:cygedit-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -1936,7 +1936,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC12F50851B84A4CBD4556A9653B7132"
             {
-            "SourcePath" = "8:C:\\ssh\\cygkrb5support-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygkrb5support-0.dll"
             "TargetName" = "8:cygkrb5support-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1956,7 +1956,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CE02A35FEF6E49A9BCB9DBEB17892C67"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcom_err-2.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcom_err-2.dll"
             "TargetName" = "8:cygcom_err-2.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -2016,7 +2016,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DC77D98889FD484EAF767E95BFF0CD67"
             {
-            "SourcePath" = "8:C:\\ssh\\cygncursesw-10.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygncursesw-10.dll"
             "TargetName" = "8:cygncursesw-10.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -2036,7 +2036,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF74EA22289C4140BB7356C616DD2C9A"
             {
-            "SourcePath" = "8:C:\\ssh\\cygssp-0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygssp-0.dll"
             "TargetName" = "8:cygssp-0.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -2056,7 +2056,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB118C316E2C4BB39B5CE0283A195756"
             {
-            "SourcePath" = "8:C:\\ssh\\cygz.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygz.dll"
             "TargetName" = "8:cygz.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -2096,7 +2096,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F398EE1EFA554023A56972542012F8EE"
             {
-            "SourcePath" = "8:C:\\ssh\\ssh-keygen.exe"
+            "SourcePath" = "8:..\\..\\ssh\\ssh-keygen.exe"
             "TargetName" = "8:ssh-keygen.exe"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -2116,7 +2116,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC151954B50A454D99C64ECEFB2D4FEF"
             {
-            "SourcePath" = "8:C:\\ssh\\cygcrypto-1.0.0.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygcrypto-1.0.0.dll"
             "TargetName" = "8:cygcrypto-1.0.0.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -2136,7 +2136,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FD6D93951EC64D51AF51080A36743AFF"
             {
-            "SourcePath" = "8:C:\\ssh\\cygwin1.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygwin1.dll"
             "TargetName" = "8:cygwin1.dll"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -2156,7 +2156,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FD73A37EAD95474FB4088BC9DAAAEAAA"
             {
-            "SourcePath" = "8:C:\\ssh\\cygkrb5-3.dll"
+            "SourcePath" = "8:..\\..\\ssh\\cygkrb5-3.dll"
             "TargetName" = "8:cygkrb5-3.dll"
             "Tag" = "8:"
             "Folder" = "8:_2722772411B841358F893DB4D36EC62A"
@@ -2212,13 +2212,13 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_0004D9A6C48B42A28EF050E008EF0BE8"
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_56D90D8AA0DC4A7A84E2036ACA3EA9D4"
                     {
-                    "Name" = "8:style"
+                    "Name" = "8:styles"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
-                    "Property" = "8:_6CCE4A7220A249BFA28A860382508D07"
+                    "Property" = "8:_2B5BE82F68BA4B9284A5D9B73F58DF83"
                         "Folders"
                         {
                         }

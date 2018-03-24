@@ -5,7 +5,7 @@ git checkout %APPVEYOR_REPO_BRANCH%
 git pull origin %APPVEYOR_REPO_BRANCH%
 git pull origin %APPVEYOR_REPO_BRANCH% --tags
 
-xcopy "C:\SRC\control-center\ssh" "C:\ssh" /S /Y /E /I /H
+xcopy "C:\SRC\control-center\ssh" "C:\SRC\ssh" /S /Y /E /I /H
 xcopy "C:\SRC\control-center\SubutaiTraySetup" "C:\SRC\SubutaiTraySetup" /S /Y /E /I /H
 copy "C:\SRC\control-center\addvariablesshtopath.vbs" C:\SRC\addvariablesshtopath.vbs
 
