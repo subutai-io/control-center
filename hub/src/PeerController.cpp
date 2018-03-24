@@ -102,9 +102,9 @@ void CPeerController::output_from_fingerprint(const QString &name, const QString
         m_local_peers.push_back(CLocalPeer(name, empty_string, empty_string, poweroff_status, dir));
     }
     else{
-        CLocalPeer new_peer(name, output[0], output[1], running_status, dir);
-        m_local_peers.push_back(new_peer);
         QString finger = output[1];
+        CLocalPeer new_peer(name, output[0], finger, running_status, dir);
+        m_local_peers.push_back(new_peer);
     }
     if(number_threads == 0){
         emit local_peer_list_updated();
