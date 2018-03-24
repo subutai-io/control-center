@@ -50,7 +50,7 @@ matrix:
     - brew update
     - brew install libssh2
     script:
-    - sudo mkdir /Users/dev
+    - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
     - wget -nv -O /Users/dev/Qt5.9.2.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=Qt5.9.2.tar.gz && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - ls subutai_control_center_bin
