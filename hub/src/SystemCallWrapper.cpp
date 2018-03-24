@@ -304,7 +304,7 @@ QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
         << "set_working_directory"
         << dir
         << "subutai"
-        << "fingerprint";
+        << "finger";
     qDebug()
             <<"Starting to get fingerprint. Args:"
             <<args;
