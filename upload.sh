@@ -92,4 +92,3 @@ echo $BINNAME
 echo $OS
 echo $URL
 echo "---------"
-echo "TEEEEEEEEEEEEEEST"
