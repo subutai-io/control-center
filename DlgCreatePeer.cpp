@@ -100,6 +100,12 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         QTextStream stream( &file );
         stream << "SUBUTAI_RAM : " << ram << endl;
         stream << "SUBUTAI_CPU : " << cpu << endl;
+        QString branch = current_branch_name();
+        if(branch == "production")
+            stream << "SUBUTAI_ENV : " << "prod" << endl;
+        else if (branch == "development")
+             stream << "SUBUTAI_ENV : "<< "dev" << endl;
+        else stream << "SUBTUAI_ENV : "<< "master" << endl;
     }
     file.close();
     res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);

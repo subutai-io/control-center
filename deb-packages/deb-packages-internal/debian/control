@@ -10,11 +10,7 @@ Package: subutai-control-center
 Architecture: all
 Depends: gksu,
          libssh2-1,
-<<<<<<< HEAD
-	 libssl1.0.2 | libssl1.0.1 | libssl1.0.0 | libssl1.0-dev,
-=======
 	 libssl1.0.2 | libssl1.0.1 | libssl1.0.0 | libssl1.0 | libssl1.0-dev,
->>>>>>> d9d6d71a46ec0305f0314993fb5904b979e30bbf
          libxcb-icccm4,
          libxcb-image0,
          libxcb-keysyms1,

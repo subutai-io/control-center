@@ -240,8 +240,6 @@ void TrayControlWindow::create_tray_icon() {
   /*p2p status icon*/
   m_tray_menu->addAction(m_act_p2p_status);
   m_tray_menu->addSeparator();
-  m_tray_menu->addAction(m_act_create_peer);
-  m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
   m_tray_menu->addAction(m_act_balance);
@@ -872,6 +870,8 @@ void TrayControlWindow::update_peer_menu() {
   if (m_hub_peer_menu->isEmpty()) {
     m_hub_peer_menu->addAction("Empty")->setEnabled(false);
   }
+  m_hub_peer_menu->addSection("Create Peer");
+  m_hub_peer_menu->addAction(m_act_create_peer);
   if (m_local_peer_menu->isEmpty()) {
     m_local_peer_menu->addAction("Empty")->setEnabled(false);
   }

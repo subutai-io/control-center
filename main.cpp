@@ -40,6 +40,8 @@
  * --l  - uses to set log_level. can be 0, 1 and 2. 0 - most detailed. or use "trace", "info" and "error"
  */
 
+static QApplication* application_image;
+
 int
 main(int argc, char *argv[]) {
   static const char* sem_guid = "6a27ccc9-8b72-4e9f-8d2a-5e25cb389b77";
@@ -66,7 +68,6 @@ main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiControlCenter");
   QApplication::setOrganizationName("subutai.io");
   QApplication app(argc, argv);
-
 
   Logger::Instance()->Init();
 
