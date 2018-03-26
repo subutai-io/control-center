@@ -691,6 +691,12 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
     if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
         res.res = SCWE_CREATE_PROCESS;
+    else{
+        int exit_code;
+        CSystemCallWrapper::restart_p2p_service(&exit_code, UPDATED_P2P);
+        if(exit_code != 0)
+            res.res = SCWE_CREATE_PROCESS;
+    }
     return res.res;
 }
 

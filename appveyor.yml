@@ -1,0 +1,32 @@
+version: "{build}"
+branches:
+  only:
+  - dev
+  - master
+skip_branch_with_pr: true
+
+image: Visual Studio 2017
+clone_folder: c:\SRC\control-center
+
+environment:
+  matrix:
+  - QT: C:\Qt\5.10.1\msvc2017_64
+    PLATFORM: amd64
+    COMPILER: msvc
+  decrypt_key:
+    secure: Tltl7p3aLMTyXRsy3msl5g==
+
+install:
+  - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
+  - nuget install secure-file -ExcludeVersion
+  - secure-file\tools\secure-file -decrypt C:\SRC\control-center\subutai.gpg.enc -secret %decrypt_key%
+build_script:
+  - cmd: build_win.bat
+deploy_script:
+  - C:\msys64\usr\bin\bash -lc "cd /C/SRC/control-center && gpg --allow-secret-key-import --import subutai.gpg && rm -f subutai.gpg"
+  - C:\msys64\usr\bin\bash -lc "cd /C/SRC/control-center && ./upload.sh %APPVEYOR_REPO_BRANCH%"
+
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: XvXgDMClnzByrEK4GBG1fbeku4a4NvgKw8rpzb+aTNYwxhGXiL9yBSfvhqkCaqRqDJcNNP5ZxoN9Yx8nOBz7sKoA2BvxXHElJmK4mCrmHBQ=
