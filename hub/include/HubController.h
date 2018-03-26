@@ -50,6 +50,7 @@ private:
   QString m_current_user;
   QString m_current_pass;
   QString m_user_id;
+  QString m_user_email;
   SynchroPrimitives::CriticalSection m_refresh_cs;
   QTimer m_refresh_timer;
   QTimer m_report_timer;
@@ -135,6 +136,7 @@ public:
   void set_current_user(const QString& cu) {m_current_user = cu;}
   void set_current_pass(const QString& cp) {m_current_pass = cp;}
   void set_current_user_id(const QString& user_id){ m_user_id = user_id; }
+  void set_current_email(const QString& cp) {m_user_email = cp;}
 
   const std::vector<CEnvironment>& lst_environments() const {return m_lst_environments;}
   const std::vector<CEnvironment>& lst_healthy_environments() const {return m_lst_healthy_environments;}
@@ -145,6 +147,7 @@ public:
   const QString& current_user() const {return m_current_user;}
 
   const QString& current_user_id() const {return m_user_id;}
+  const QString& current_email() const {return m_user_email;}
   const QString& current_pass() const {return m_current_pass;}
 
   void launch_balance_page();

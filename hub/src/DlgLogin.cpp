@@ -57,10 +57,14 @@ DlgLogin::login() {
                                  network_err);
 
   QString id = "";
+  QString email = "";
   switch (err_code) {
     case RE_SUCCESS:
       if (CRestWorker::Instance()->get_user_id(id))
         CHubController::Instance().set_current_user_id(id);
+
+      if (CRestWorker::Instance()->get_user_email(email))
+          CHubController::Instance().set_current_email(email);
 
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
