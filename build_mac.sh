@@ -12,6 +12,8 @@ git pull
 git checkout $BRANCH
 git pull origin $BRANCH
 
+mkdir -p /usr/local/opt/libssh2/lib/
+cp /Users/travis/build/tasankulov/control-center/libssh2/lib/mac/libssh2.1.dylib /usr/local/opt/libssh2/lib/libssh2.1.dylib
 build="subutai_control_center_bin"
 
 if [ -d "$build" ]; then 
