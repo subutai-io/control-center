@@ -5,6 +5,7 @@
 #include "RestWorker.h"
 #include <QSplashScreen>
 #include "OsBranchConsts.h"
+#include "NotificationObserver.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -145,3 +146,14 @@ DlgLogin::cb_show_pass_state_changed(int st)
                                  QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void DlgLogin::solve_libssl(){
+    std::vector<std::pair<QString, QString> > info;
+    current_os_info(info);
+    if(info.empty())
+        return;
+    if(info.size() < 2)
+        return;
+    CNotificationObserver::Instance()->Error(tr("Error in using libssl libraries. Press button to resolve it."), DlgNotification::N_ABOUT);
+
+}

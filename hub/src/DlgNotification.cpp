@@ -26,7 +26,7 @@ DlgNotification::DlgNotification(
     std::function<void()> call_func;
   } action_handler[] = {
     {"Update P2P", [](){update_system::CHubComponentsUpdater::Instance()->force_update_p2p();}},
-    {"Update Control Center",[](){update_system::CHubComponentsUpdater::Instance()->force_update_tray();}},
+    {"Update",[](){update_system::CHubComponentsUpdater::Instance()->force_update_tray();}},
     {"Update Resource Host", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rh();}},
     {"Update RH Management", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rhm();}},
     {"Settings", [](){TrayControlWindow::Instance()->show_settings_dialog();}},
@@ -46,7 +46,8 @@ DlgNotification::DlgNotification(
                                                "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                       arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
       emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);}},
-   {"Install P2P", [](){update_system::CHubComponentsUpdater::Instance()->install_p2p();}}
+    {"Install P2P", [](){update_system::CHubComponentsUpdater::Instance()->install_p2p();}},
+    {"Resolve", [](){system_call_wrapper_error_t res = CSystemCallWrapper::install_libssl(); UNUSED_ARG(res);}}
   };
 
   if (action_type == N_NO_ACTION)
