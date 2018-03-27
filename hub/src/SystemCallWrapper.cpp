@@ -1167,7 +1167,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
                                     "#!/bin/bash\n"
                                     "chmod +x %1;"
                                     "cd %2 dir;"
-                                    "./%3 --nox11")
+                                    "dpkg -i %3")
                                     .arg(file_info, dir, file_name)
                                     .toUtf8();
 
@@ -1200,7 +1200,8 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     qDebug()
             <<"virtualbox oracle installation finished"
             <<"error code:"<<cr2.exit_code
-            <<"output: "<<cr2.out;
+            <<"output: "<<cr2.out
+            <<"result: "<<cr2.res;
     tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
