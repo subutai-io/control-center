@@ -719,17 +719,30 @@ base_interface_name() {
 
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
     v.clear();
+    QString flag;
+    QStringList output;
     switch (CURRENT_OS) {
     case OS_WIN:
         v.push_back(std::make_pair("TYPE", "Windows"));
-        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion());
+        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion()));
         break;
     case OS_MAC:
         v.push_back(std::make_pair("TYPE", "Mac"));
-        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion());
+        v.push_back(std::make_pair("VERSION:", QSysInfo::productVersion()));
         break;
     case OS_LINUX:
         v.push_back(std::make_pair("TYPE", "Linux"));
+        output = CSystemCallWrapper::lsb_release();
+        flag="";
+        for (auto s : output){
+            if(s == "Codename:"){
+                flag = "code";
+                continue;
+            }
+            else if(flag == "code")
+                v.push_back(std::make_pair("CODE",s));
+            flag = "";
+        }
         break;
     default:
         break;
