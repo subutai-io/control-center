@@ -7,6 +7,7 @@
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QProcess>
+#include <QSysInfo>
 #include <QUrl>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
@@ -2153,5 +2154,25 @@ CSystemCallWrapper::container_ip_from_ifconfig_analog(const QString &port,
   }
 
   return res;
+}
+////////////////////////////////////////////////////////////////////////////
+QStringList CSystemCallWrapper::lsb_release(){
+    qDebug()
+            <<"Taking info about system on Linux";
+
+    QString cmd = "lsb_release";
+    QStringList args("-a");
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Result about system on Linux:"
+            <<"Exit code: "<<res.exit_code
+            <<"Result code: "<<res.res
+            <<"Output: "<<res.out;
+
+    QStringList output = res.out;
+    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+        output.clear();
+    return output;
 }
 ////////////////////////////////////////////////////////////////////////////

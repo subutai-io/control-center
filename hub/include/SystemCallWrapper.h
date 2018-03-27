@@ -157,6 +157,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
 
+  static QStringList lsb_release();
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,

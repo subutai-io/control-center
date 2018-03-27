@@ -2,6 +2,8 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QSysInfo>
+#include "SystemCallWrapper.h"
 
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 
@@ -711,4 +713,25 @@ base_interface_name_internal_def(OS_LINUX, "vptp")
 const QString&
 base_interface_name() {
     return base_interface_name_internal< Os2Type<CURRENT_OS> >();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void current_os_info(std::vector<std::pair<QString, QString> >& v){
+    v.clear();
+    switch (CURRENT_OS) {
+    case OS_WIN:
+        v.push_back(std::make_pair("TYPE", "Windows"));
+        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion());
+        break;
+    case OS_MAC:
+        v.push_back(std::make_pair("TYPE", "Mac"));
+        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion());
+        break;
+    case OS_LINUX:
+        v.push_back(std::make_pair("TYPE", "Linux"));
+        break;
+    default:
+        break;
+    }
 }
