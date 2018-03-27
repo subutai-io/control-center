@@ -44,7 +44,9 @@ CTrayServer::handle_current_user(const QString &msg,
                                  QWebSocket *pClient) {
   UNUSED_ARG(msg);
   qInfo("*** handle_current_user ***");
-  pClient->sendTextMessage(CHubController::Instance().current_user());
+  qInfo()
+       <<"sending  email to e2e:"<<CHubController::Instance().current_email();
+  pClient->sendTextMessage(CHubController::Instance().current_email());
 }
 ////////////////////////////////////////////////////////////////////////////
 
