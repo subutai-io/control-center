@@ -15,6 +15,7 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->setupUi(this);
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
+  ui->btn_resolve->hide();
 
   ui->lbl_register_link->setText(QString("<a href=\"%1\">%2</a>").arg(hub_register_url()).arg(tr("Register")));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
@@ -155,6 +156,13 @@ void DlgLogin::solve_libssl(){
         return;
     if(info.size() < 2)
         return;
-    CNotificationObserver::Instance()->Error(tr("Error in using libssl libraries. Press button to resolve it."), DlgNotification::N_RESOLVE_LIBSSL);
-
+    ui->btn_resolve->show();
+    connect(ui->btn_resolve, &QPushButton::released, [this](){
+        this->ui->btn_resolve->setText(tr("Resolving..."));
+        system_call_wrapper_error_t res = CSystemCallWrapper::install_libssl();
+        if(res == SCWE_SUCCESS)
+            CCommons::RestartTray();
+        this->ui->btn_resolve->setText(tr("Resolve"));
+        ui->btn_resolve->hide();
+    });
 }
