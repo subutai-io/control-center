@@ -249,8 +249,6 @@ public:
             this, &SilentPackageInstallerVAGRANT::deleteLater);
     connect(thread, &QThread::finished,
             thread, &QThread::deleteLater);
-    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
-            [](){CNotificationObserver::Instance()->Info("Hello mazafaka",DlgNotification::N_NO_ACTION);});
     this->moveToThread(thread);
     thread->start();
   }
