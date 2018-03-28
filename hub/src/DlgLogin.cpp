@@ -99,6 +99,7 @@ DlgLogin::login() {
       ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
                               arg(tr("Unknown error. Code")).
                               arg(err_code));
+      solve_libssl();
       break;
   }
   return false;
@@ -154,6 +155,6 @@ void DlgLogin::solve_libssl(){
         return;
     if(info.size() < 2)
         return;
-    CNotificationObserver::Instance()->Error(tr("Error in using libssl libraries. Press button to resolve it."), DlgNotification::N_ABOUT);
+    CNotificationObserver::Instance()->Error(tr("Error in using libssl libraries. Press button to resolve it."), DlgNotification::N_RESOLVE_LIBSSL);
 
 }
