@@ -81,11 +81,11 @@ oracle_virtualbox_kurjun_package_name() {
     else if(codename == "xenial")
         kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb";
     else if(codename == "trusty")
-        kurjun_file = "";
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb";
     else if(codename == "stretch")
-        kurjun_file = "";
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb";
     else if(codename == "jessie")
-        kurjun_file = "";
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb";
     else if(codename == "wheezy")
         kurjun_file = "";
     return kurjun_file;

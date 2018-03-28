@@ -129,8 +129,8 @@ void CUpdaterComponentX2GO::update_post_action(bool success){
 /////////////////////////////////////////////////////////////////
 void CUpdaterComponentX2GO::install_post_interntal(bool success){
     if(!success)
-        CNotificationObserver::Instance()->Error(tr("x2go-client installation failed"), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("x2go-client has been installed."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("X2Go-Client installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("X2Go-Client has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -198,8 +198,9 @@ void CUpdaterComponentVAGRANT::update_post_action(bool success){
     UNUSED_ARG(success);
 }
 /////////////////////////////////////////////////////////////////
-void CUpdaterComponentVAGRANT::install_post_interntal(bool success){
-    if(success) CNotificationObserver::Instance()->Info(tr("vagrant has been installed."), DlgNotification::N_NO_ACTION);
+void CUpdaterComponentVAGRANT::install_post_interntal(bool success){if(!success)
+        CNotificationObserver::Instance()->Error(tr("Vagrant installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
 //////////////////////////////////////////////////////////////////
 
@@ -267,5 +268,6 @@ void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success){
 }
 /////////////////////////////////////////////////////////////////
 void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
-    if(success) CNotificationObserver::Instance()->Info(tr("Oracle VirtualBox has been installed."), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Instance()->Error(tr("Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
