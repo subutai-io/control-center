@@ -5,9 +5,12 @@
 #include <QTimer>
 #include <map>
 #include <QFuture>
+#include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
 
 #include "updater/IUpdaterComponent.h"
+#include "NotificationObserver.h"
+#include "DlgNotification.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
 
@@ -246,6 +249,8 @@ public:
             this, &SilentPackageInstallerVAGRANT::deleteLater);
     connect(thread, &QThread::finished,
             thread, &QThread::deleteLater);
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+            [](){CNotificationObserver::Instance()->Info("Hello mazafaka",DlgNotification::N_NO_ACTION);});
     this->moveToThread(thread);
     thread->start();
   }

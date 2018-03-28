@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets
+QT       += core gui network websockets quick
 CONFIG   += c++11
 
 
