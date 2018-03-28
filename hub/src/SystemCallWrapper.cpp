@@ -386,7 +386,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
 
     for (QString str : cr.out) {
-      if (str.indexOf("p2p.service") == -1) continue;
+      if (str.indexOf("p2p.service") == -1 && type != STOPPED_P2P) continue;
 
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
@@ -416,26 +416,25 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                                         "%1 disable p2p.service\n"
                                         "%1 stop p2p.service\n"
                                         "%1 enable p2p.service\n"
-                                        "%1 start p2p.service\n").toUtf8();
+                                        "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
               break;
           case STOPPED_P2P:
               restart_script = QString(
                                         "#!/bin/bash\n"
                                         "%1 enable p2p.service\n"
-                                        "%1 start p2p.service\n").toUtf8();
+                                        "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
               break;
           case STARTED_P2P:
               restart_script = QString(
                                         "#!/bin/bash\n"
                                         "%1 disable p2p.service\n"
-                                        "%1 stop p2p.service\n").toUtf8();
+                                        "%1 stop p2p.service\n").arg(systemctl_path).toUtf8();
               break;
       }
       if (tmpFile.write(restart_script) != restart_script.size()) {
         QString err_msg = QObject::tr("Couldn't write restart script to temp file")
                                  .arg(tmpFile.errorString());
         qCritical() << err_msg;
-        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
       tmpFile.close();  // save
@@ -455,7 +454,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       system_call_res_t cr2;
       QStringList args2;
       args2 << sh_path << tmpFilePath;
-      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         QString err_msg = QObject::tr ("Couldn't reload p2p.service. ec = %1, err = %2")
