@@ -1007,6 +1007,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
+                                    "apt-get install -f;"
                                     "dpkg -i %1")
                                     .arg(file_info)
                                     .toUtf8();
@@ -1036,13 +1037,21 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     system_call_res_t cr2;
     QStringList args2;
     args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+
+    qDebug()<<"Vagrant installation started"
+            <<"gksu_path:"<<gksu_path
+            <<"args2:"<<arg2;
+
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    qDebug()<<"Vagrant installation finished:"
+            <<"exit code:"<<cr2.exit_code
+            <<"result code:"<<cr2.res
+            <<"output:"<<cr2.out;
     tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
       QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
                                .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
       qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
     }
 
@@ -1165,10 +1174,10 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "chmod +x %1;"
-                                    "cd %2 dir;"
-                                    "dpkg -i %3")
-                                    .arg(file_info, dir, file_name)
+                                    "apt-get install -f;"
+                                    "cd %1 dir;"
+                                    "dpkg -i %2")
+                                    .arg(dir, file_name)
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
