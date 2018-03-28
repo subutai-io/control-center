@@ -408,21 +408,29 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
-
-      QByteArray restart_script = type==UPDATED_P2P ? QString(
-                                      "#!/bin/bash\n"
-                                      "%1 disable p2p.service\n"
-                                      "%1 stop p2p.service\n"
-                                      "%1 enable p2p.service\n"
-                                      "%1 start p2p.service\n")
-                                      .arg(systemctl_path)
-                                      .toUtf8() : QString(
-                                                          "#!/bin/bash\n"
-                                                          "%1 enable p2p.service\n"
-                                                          "%1 start p2p.service\n")
-                                                          .arg(systemctl_path)
-                                                          .toUtf8();
-
+      QByteArray restart_script;
+      switch (type){
+          case UPDATED_P2P:
+              restart_script = QString(
+                                        "#!/bin/bash\n"
+                                        "%1 disable p2p.service\n"
+                                        "%1 stop p2p.service\n"
+                                        "%1 enable p2p.service\n"
+                                        "%1 start p2p.service\n").toUtf8();
+              break;
+          case STOPPED_P2P:
+              restart_script = QString(
+                                        "#!/bin/bash\n"
+                                        "%1 enable p2p.service\n"
+                                        "%1 start p2p.service\n").toUtf8();
+              break;
+          case STARTED_P2P:
+              restart_script = QString(
+                                        "#!/bin/bash\n"
+                                        "%1 disable p2p.service\n"
+                                        "%1 stop p2p.service\n").toUtf8();
+              break;
+      }
       if (tmpFile.write(restart_script) != restart_script.size()) {
         QString err_msg = QObject::tr("Couldn't write restart script to temp file")
                                  .arg(tmpFile.errorString());
@@ -454,7 +462,6 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                                  .arg(cr.exit_code)
                                  .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
         qCritical() << err_msg;
-        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
       }
       *res_code = RSE_SUCCESS;
@@ -477,9 +484,10 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
   args1 << "start"
         << "Subutai P2P";
   system_call_res_t res;
-  if(type==UPDATED_P2P)
+  if(type != STOPPED_P2P)
       res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true);
-  res = CSystemCallWrapper::ssystem_th(cmd, args1, true, true);
+  if(type != STARTED_P2P)
+    res = CSystemCallWrapper::ssystem_th(cmd, args1, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
 }
@@ -496,12 +504,17 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
               "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist;"
               " launchctl load /Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
               " with administrator privileges" :
-      args << "-e"
-           << "do shell script \"launchctl load "
-              "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
-              " with administrator privileges";
-  system_call_res_t res =
+              type == STOPPED_P2P ?
+                  args << "-e"
+                       << "do shell script \"launchctl load "
+                          "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+                          " with administrator privileges" :
+                  args << "-e"
+                       << "do shell script \"launchctl unload "
+                          "/Library/LaunchDaemons/io.subutai.p2p.daemon.plist\""
+                          " with administrator privileges";
 
+  system_call_res_t res =
       CSystemCallWrapper::ssystem_th(cmd, args, true, true);
   *res_code = RSE_SUCCESS;
   return res.res;
@@ -1040,7 +1053,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     qDebug()<<"Vagrant installation started"
             <<"gksu_path:"<<gksu_path
-            <<"args2:"<<arg2;
+            <<"args2:"<<args2;
 
     cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
     qDebug()<<"Vagrant installation finished:"
@@ -1306,7 +1319,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_res_t CSystemCallWrapper::run_linux_script(QStringList args){
+void CSystemCallWrapper::run_linux_script(QStringList args){
     UNUSED_ARG(args);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

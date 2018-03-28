@@ -268,6 +268,7 @@ void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success){
 }
 /////////////////////////////////////////////////////////////////
 void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
-    CNotificationObserver::Instance()->Error(tr("Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+    if(!success)
+            CNotificationObserver::Instance()->Error(tr("Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
