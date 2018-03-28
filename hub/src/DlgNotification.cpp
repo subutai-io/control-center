@@ -47,7 +47,11 @@ DlgNotification::DlgNotification(
                                       arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
       emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);}},
     {"Install P2P", [](){update_system::CHubComponentsUpdater::Instance()->install_p2p();}},
-    {"Resolve", [](){system_call_wrapper_error_t res = CSystemCallWrapper::install_libssl(); UNUSED_ARG(res);}}
+    {"Resolve", [](){system_call_wrapper_error_t res = CSystemCallWrapper::install_libssl(); UNUSED_ARG(res);}},
+    {"Stop P2P", [](){
+      int rse_err;
+      CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STARTED_P2P);
+    }}
   };
 
   if (action_type == N_NO_ACTION)
