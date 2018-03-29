@@ -248,3 +248,17 @@ QString CHubComponentsUpdater::component_name(const QString &component_id){
         return "";
     return m_dct_components[component_id].Component()->component_id_to_user_view(component_id);
 }
+///// experimentation permutation
+void SilentPackageInstallerVAGRANT::startWork(){
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentPackageInstallerVAGRANT::execute_remote_command);
+    connect(this, &SilentPackageInstallerVAGRANT::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentPackageInstallerVAGRANT::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+}
