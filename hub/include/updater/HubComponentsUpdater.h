@@ -239,20 +239,7 @@ public:
       this->file_name = file_name;
   }
 
-  void startWork() {
-    QThread* thread = new QThread();
-    connect(thread, &QThread::started,
-            this, &SilentPackageInstallerVAGRANT::execute_remote_command);
-    connect(this, &SilentPackageInstallerVAGRANT::outputReceived,
-            thread, &QThread::quit);
-    connect(thread, &QThread::finished,
-            this, &SilentPackageInstallerVAGRANT::deleteLater);
-    connect(thread, &QThread::finished,
-            thread, &QThread::deleteLater);
-    this->moveToThread(thread);
-    thread->start();
-  }
-
+  void startWork();
 
   void execute_remote_command() {
     QFutureWatcher<system_call_wrapper_error_t> *watcher
