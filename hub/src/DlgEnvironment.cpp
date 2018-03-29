@@ -29,6 +29,8 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
 
 void DlgEnvironment::select_all(bool checked) {
   for (CHubContainer cont : env.containers()) {
+    if(selected_conts.find(cont.id()) == selected_conts.end())
+        continue;
     QCheckBox *current_check_box = selected_conts[cont.id()];
     current_check_box->setChecked(checked);
   }
@@ -40,6 +42,8 @@ void DlgEnvironment::upload_selected() {
   ui->btn_upload_selected->setEnabled(false);
   ui->btn_upload_selected->setText(tr("Loading.."));
   for (CHubContainer cont : env.containers()) {
+    if(selected_conts.find(cont.id()) == selected_conts.end())
+      continue;
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
@@ -59,6 +63,8 @@ void DlgEnvironment::desktop_selected() {
   ui->btn_desktop_selected->setEnabled(false);
   ui->btn_desktop_selected->setText(tr("Opening X2Go-Client.."));
   for (CHubContainer cont : env.containers()) {
+    if(selected_conts.find(cont.id()) == selected_conts.end())
+        continue;
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
@@ -77,6 +83,8 @@ void DlgEnvironment::ssh_selected() {
   ui->btn_ssh_selected->setEnabled(false);
   ui->btn_ssh_selected->setText(tr("Running ssh commands.."));
   for (CHubContainer cont : env.containers()) {
+    if(selected_conts.find(cont.id()) == selected_conts.end())
+        continue;
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
@@ -124,8 +132,8 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
   timer->setInterval(7000);
   connect(timer, &QTimer::timeout, this, &DlgEnvironment::check_environment_status);
   timer->start();
-
   check_environment_status();
+  timers.push_back(timer);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,6 +144,11 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
   QLabel *cont_desktop_info = new QLabel(cont->is_desktop() ? cont->desk_env().isEmpty() ? "MATE" :  cont->desk_env()  : "No Desktop", this);
   QCheckBox *cont_select = new QCheckBox("READY" , this);
+
+  labels.push_back(cont_name);
+  labels.push_back(cont_rhip_port);
+  labels.push_back(cont_desktop_info);
+  checkboxs.push_back(cont_select);
 
   cont_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
   cont_rhip_port->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -254,6 +267,8 @@ void DlgEnvironment::check_buttons() {
     bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
     if(connected_to_swarm){
         for (CHubContainer cont : env.containers()) {
+            if(selected_conts.find(cont.id()) == selected_conts.end())
+                continue;
             QCheckBox *current_check_box = selected_conts[cont.id()];
             if(current_check_box->checkState() == Qt::Checked){
               if(current_check_box->text() != "READY"){

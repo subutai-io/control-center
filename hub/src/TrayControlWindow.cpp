@@ -552,7 +552,7 @@ void TrayControlWindow::launch_p2p(){
                                                  "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
             break;
         case P2PStatus_checker::P2P_RUNNING :
-            CNotificationObserver::Info(QObject::tr("P2P is running"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Info(QObject::tr("P2P is running. Stop and start it, if you have troubles."), DlgNotification::N_STOP_P2P);
             break;
         case P2PStatus_checker::P2P_LOADING :
             CNotificationObserver::Info(QObject::tr("P2P daemon is loading"), DlgNotification::N_NO_ACTION);
@@ -908,6 +908,12 @@ void TrayControlWindow::show_dialog(QDialog* (*pf_dlg_create)(QWidget*),
   if (iter == m_dct_active_dialogs.end()) {
     QDialog* dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
+    Qt::WindowFlags flags = 0;
+    flags = Qt::Window;
+    flags |= Qt::WindowMinimizeButtonHint;
+    flags |= Qt::WindowMaximizeButtonHint;
+    flags |= Qt::WindowCloseButtonHint;
+    dlg->setWindowFlags(flags);
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
     int src_x, src_y, dst_x, dst_y;

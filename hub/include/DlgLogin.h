@@ -27,6 +27,7 @@ public:
    * \brief Run dialog in different modes. When "Remember me" flag checked - it tries to login without dialog.
    */
   void run_dialog(QSplashScreen *sc);
+  void solve_libssl();
 
 private slots:
   void btn_ok_released();
