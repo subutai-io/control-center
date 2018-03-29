@@ -2,6 +2,8 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QSysInfo>
+#include "SystemCallWrapper.h"
 
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 
@@ -51,28 +53,42 @@ p2p_kurjun_package_name() {
   return p2p_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-template<class BR, class OS> const QString& oracle_virtualbox_kurjun_package_name_temp_internal();
-
-#define oracle_virtualbox_kurjun_package_name_def(BT_TYPE, OS_TYPE, STRING) \
-  template<> \
-  const QString& oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
-    static QString res(STRING); \
-    return res; \
-  }
-
-oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
-oracle_virtualbox_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "virtualBox-5.2.8-Linux_amd64.run")
-oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
-oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_MAC,     "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_DEV,        OS_WIN,     "VirtualBox-5.2.8-121009-Win.exe")
-oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "virtualBox-5.2.8-Linux_amd64.run")
-oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_MAC,      "VirtualBox.pkg")
-oracle_virtualbox_kurjun_package_name_def(BT_PROD,      OS_WIN,      "VirtualBox-5.2.8-121009-Win.exe")
-
 const QString &
 oracle_virtualbox_kurjun_package_name() {
-  return oracle_virtualbox_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+    static std::vector <std::pair<QString , QString> > info;
+    static QString kurjun_file = "not_found";
+    if(info.empty())
+        current_os_info(info);
+    if(info.empty())
+        return kurjun_file;
+    //first check type of os
+    QString type = info.begin()->second;
+    if(type == "Windows")
+        kurjun_file = "VirtualBox-5.2.8-121009-Win.exe";
+    else if(type == "Mac")
+        kurjun_file = "VirtualBox.pkg";
+    if(kurjun_file != "not_found")
+        return kurjun_file;
+    if(info.size() < 2 || info[0].second != "Linux")
+        return kurjun_file;
+    QString codename = info[1].second;
+    if(codename == "bionic")
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb";
+    else if(codename == "zesty")
+        kurjun_file = "";
+    else if(codename == "yakkety")
+        kurjun_file = "";
+    else if(codename == "xenial")
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb";
+    else if(codename == "trusty")
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb";
+    else if(codename == "stretch")
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb";
+    else if(codename == "jessie")
+        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb";
+    else if(codename == "wheezy")
+        kurjun_file = "";
+    return kurjun_file;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_internal();
@@ -711,4 +727,39 @@ base_interface_name_internal_def(OS_LINUX, "vptp")
 const QString&
 base_interface_name() {
     return base_interface_name_internal< Os2Type<CURRENT_OS> >();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void current_os_info(std::vector<std::pair<QString, QString> >& v){
+    v.clear();
+    QString flag, st;
+    QStringList output;
+    switch (CURRENT_OS) {
+    case OS_WIN:
+        v.push_back(std::make_pair("TYPE", "Windows"));
+        v.push_back(std::make_pair("VERSION:",QSysInfo::productVersion()));
+        break;
+    case OS_MAC:
+        v.push_back(std::make_pair("TYPE", "Mac"));
+        v.push_back(std::make_pair("VERSION:", QSysInfo::productVersion()));
+        break;
+    case OS_LINUX:
+        v.push_back(std::make_pair("TYPE", "Linux"));
+        output = CSystemCallWrapper::lsb_release();
+        for (auto s : output){
+            flag = st = "";
+            for (int i = 0; i < s.length(); i++)
+                if(s[i] == '\t'){
+                    flag = st;
+                    st = "";
+                }
+                else st += s[i];
+            if(flag == "Codename:")
+                v.push_back(std::make_pair("CODE", st));
+        }
+        break;
+    default:
+        break;
+    }
 }

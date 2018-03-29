@@ -5,6 +5,7 @@
 #include "RestWorker.h"
 #include <QSplashScreen>
 #include "OsBranchConsts.h"
+#include "NotificationObserver.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
@@ -14,6 +15,7 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->setupUi(this);
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
+  ui->btn_resolve->hide();
 
   ui->lbl_register_link->setText(QString("<a href=\"%1\">%2</a>").arg(hub_register_url()).arg(tr("Register")));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
@@ -57,10 +59,14 @@ DlgLogin::login() {
                                  network_err);
 
   QString id = "";
+  QString email = "";
   switch (err_code) {
     case RE_SUCCESS:
       if (CRestWorker::Instance()->get_user_id(id))
         CHubController::Instance().set_current_user_id(id);
+
+      if (CRestWorker::Instance()->get_user_email(email))
+          CHubController::Instance().set_current_email(email);
 
       ui->lbl_status->setText("");
       ui->lbl_status->setVisible(false);
@@ -88,6 +94,7 @@ DlgLogin::login() {
       ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
                               arg(tr("Network error. Code")).
                               arg(CCommons::NetworkErrorToString(network_err)));
+      solve_libssl();
       break;
     default:
       ui->lbl_status->setVisible(true);
@@ -141,3 +148,21 @@ DlgLogin::cb_show_pass_state_changed(int st)
                                  QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void DlgLogin::solve_libssl(){
+    std::vector<std::pair<QString, QString> > info;
+    current_os_info(info);
+    if(info.empty())
+        return;
+    if(info.size() < 2)
+        return;
+    ui->btn_resolve->show();
+    connect(ui->btn_resolve, &QPushButton::released, [this](){
+        this->ui->btn_resolve->setText(tr("Resolving..."));
+        system_call_wrapper_error_t res = CSystemCallWrapper::install_libssl();
+        if(res == SCWE_SUCCESS)
+            CCommons::RestartTray();
+        this->ui->btn_resolve->setText(tr("Resolve"));
+        ui->btn_resolve->hide();
+    });
+}

@@ -388,10 +388,6 @@ DlgAboutInitializer::do_initialization() {
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::install_finished(const QString &file_id, bool success){
     qDebug()<<"Install finished  for"<<file_id<<"with result"<<success;
-    if(!success){
-        CNotificationObserver::Error(tr("Installation of %1 failed").arg(CHubComponentsUpdater::Instance()->component_name(file_id)),
-                                     DlgNotification::N_NO_ACTION);
-    }
     if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
     m_dct_fpb[file_id].btn->setEnabled(false);
     m_dct_fpb[file_id].pb->setEnabled(false);

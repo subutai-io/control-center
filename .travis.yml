@@ -1,0 +1,73 @@
+language: cpp
+branches:
+  only:
+  - master
+  - dev
+env:
+  global:
+  - secure: MF4u+11dbLkxvSiffBatl6627SrGEHM6l9YOvf+xLDLu2lfKmcNBUPRe2C/f1U5cwe33UIQynXti+3Y2ro0DyvNU1fZ7PVg4tEx5EjK4aSx5YAg8F2vbdS5v6kTRefBpwg70Apxjt7ZDGr4CPbcLMgZYA9vZizoKkoM/xBgOPftBE/lVa7cDKYwpOtq1vvaiIcttCOea3VNgA//M1Kpf+xAO0h2OFP3a1hTMHTzCYPHbfpCf3LfWQPifEfn252RKG3ewOowbCuuUj78tBqKOryrx9w1kbxvIdJUXbgRvliCQZ9s6/cR1fufGkNQiaAEzsaipTeQ4XdLWC950FBjhBelnNe58uNmGAKfS+zdqbXnx0/Cr9uIFjzqoGHs1pqSZFEm118i7khjcaGwlfAZdeGVbsXmv8/QGuwrfAoTZE1R8j925goKvztNZy+TSGu0wHsewlZOdCmYU5tIzdPCBAEOBm2YUmPmX5BmDhQVZAx0nL1wsmBjaMxejrcIvR+IQjiSbFQBYA6nTb1J0u6UckWT2WgI/iKEN4OhZnjYT7QhxJLjEEE20C2RWZS9u596ufUAtYchcpRn1matJhdekbKwBSDQWhU4ALl+PcVjFfahYmX3qCOFJiigP7aeENG+FEPoguiMI308rtAx5WGbzOHyz2LkRv9ep83PSja8PX1o=
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    sudo: required
+    before_install:
+    - openssl aes-256-cbc -k "$decrypt_key" -in /home/travis/build/subutai-io/control-center/travis.gpg.enc -out /home/travis/build/subutai-io/control-center/travis.gpg -d
+    - gpg --allow-secret-key-import --import /home/travis/build/subutai-io/control-center/travis.gpg && rm -f /home/travis/build/subutai-io/control-center/travis.gpg
+    - LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH
+    - sudo apt-add-repository --yes ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update
+    - sudo apt-get install gcc-4.9 g++-4.9 libicu52 devscripts libssh2-1-dev libxi-dev
+      libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev
+      libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf
+    script:
+    - sudo mkdir -p /home/builder/ && sudo chmod 777 /home/builder/
+    - wget -nv -O /home/builder/qt_static.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=qt_static.tar.gz && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
+    - sudo /home/travis/build/subutai-io/control-center/./build_linux.sh $TRAVIS_BRANCH
+    - ls subutai_control_center_bin
+    deploy:
+    - provider: script
+      script: bash upload.sh $TRAVIS_BRANCH
+      skip_cleanup: true
+      on:
+        branch: dev
+    - provider: script
+      script: bash upload.sh $TRAVIS_BRANCH
+      skip_cleanup: true
+      on:
+        branch: master
+    - provider: script
+      script: bash upload.sh HEAD
+      skip_cleanup: true
+      on:
+        tags: true
+  - os: osx
+    osx_image: xcode9
+    before_install:
+    - openssl aes-256-cbc -k "$decrypt_key" -in /Users/travis/build/subutai-io/control-center/travis.gpg.enc -out /Users/travis/build/subutai-io/control-center/travis.gpg -d
+    - gpg --allow-secret-key-import --import /Users/travis/build/subutai-io/control-center/travis.gpg && rm -f /Users/travis/build/subutai-io/control-center/travis.gpg
+    script:
+    - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
+    - wget -nv -O /Users/dev/Qt5.9.2.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=Qt5.9.2.tar.gz && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
+    - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
+    - ls subutai_control_center_bin
+    deploy:
+    - provider: script
+      script: bash upload.sh $TRAVIS_BRANCH
+      skip_cleanup: true
+      on:
+        branch: dev
+    - provider: script
+      script: bash upload.sh $TRAVIS_BRANCH
+      skip_cleanup: true
+      on:
+        branch: master
+    - provider: script
+      script: bash upload.sh HEAD
+      skip_cleanup: true
+      on:
+        tags: true
+notifications:
+  slack:
+    secure: EiyEIfV7Ki+KyjiVS3UJqjtEjDWyERm9c7eW2DY5FzbZ2A4ZRZ1s3ZdTvQlEsVOgk4FCgezNgPfkPYEZubmgcDOP/HEpJf0cCnVc1UMfis9xI3BD0Xtek5uzriZGL+GuvHb0eXywD8MVQ3iwwVgCLQkEq11jWAJ/nZL4tzFxHLtJ4Xf6JTw5QPA2HlN7PfNVa87l6tPymLYJUPyZgVUTjj825R7KOh2oZrewPksuxJl9eV8V9rdpRGPg+t7jZno4KirkDp6HgAbrukiNdx5qp6EMDW6cgXy3cDcVXUmogzHT3MxSFFKmAlW8A5c2jtTnEB6FcNJ1IMeP54+CvvIS1ogR3TeSe30xlNluJAmvUQqGpmaDIWZTgChpJVo55NyU24g3Ia/cUG1P0MfbgIC5TfNtmKWcVKABDX9W4bNK8E1Lod7JiW6U0zFIhy1PUeRF4ifooL/LgnJdSZyyAhNPbTpV1DRbVjNiquRHF08bWJ9M1Xy5Qlt9EKOpYdOB8ukNW9Z/2DD19wZztGcynv0TfsO3e2IfvfcWzym/LeGushGw+qLvvo0VYfq1OqSAS9iYNVbAvPGA0f9MeiZbSbWsvLLyT4yLs1/nskW+iZ6KwQYBweqK+IQ//7Po4VNmzCRYdpfyN3s4aqwTyd7Kw+nps4wOEgHPjveL6yVtToSyjZI=

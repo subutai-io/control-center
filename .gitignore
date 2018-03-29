@@ -1,6 +1,5 @@
 *.pro.user
 *.sdf
-*.sln
 *.suo
 *.swp
 bin/*

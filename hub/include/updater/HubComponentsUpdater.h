@@ -5,9 +5,12 @@
 #include <QTimer>
 #include <map>
 #include <QFuture>
+#include <QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
 
 #include "updater/IUpdaterComponent.h"
+#include "NotificationObserver.h"
+#include "DlgNotification.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
 

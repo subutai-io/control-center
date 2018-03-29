@@ -10,7 +10,8 @@
 //give type for restart p2p
 enum restart_p2p_type{
     UPDATED_P2P=0, //when p2p updated, stop and start
-    STOPPED_P2P //when p2p is stopped, start
+    STOPPED_P2P, //when p2p is stopped, start
+    STARTED_P2P //when p2p is started, stop
 };
 
 // if you are going to change this - change method
@@ -168,6 +169,12 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_vagrant(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
+
+  static void run_linux_script(QStringList args);
+
+  static system_call_wrapper_error_t install_libssl();
+
+  static QStringList lsb_release();
 
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,

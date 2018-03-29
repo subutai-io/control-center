@@ -83,4 +83,5 @@ const QString& x2goclient_url();
 const QString& current_branch_name();
 const QString& branch_name_str();
 const QString& base_interface_name();
+void current_os_info(std::vector<std::pair<QString, QString> >& v);
 #endif // OSBRANCHCONSTS_H

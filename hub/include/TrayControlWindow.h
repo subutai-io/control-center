@@ -35,7 +35,7 @@ class TrayControlWindow : public QMainWindow
 
 public:
   explicit TrayControlWindow(QWidget *parent = 0);
-  virtual ~TrayControlWindow();  
+  virtual ~TrayControlWindow();
   P2PStatus_checker::P2P_STATUS p2p_current_status;
   static TrayControlWindow* Instance(){
     static TrayControlWindow *tcw = new TrayControlWindow();
@@ -102,7 +102,7 @@ private:
   void get_sys_tray_icon_coordinates_for_dialog(int &src_x, int &src_y,
                                      int &dst_x, int &dst_y, int dlg_w, int dlg_h,
                                      bool use_cursor_position);
-  void fill_launch_menu();  
+  void fill_launch_menu();
 
   /*tray icon end*/
 
