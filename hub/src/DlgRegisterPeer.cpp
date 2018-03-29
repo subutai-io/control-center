@@ -30,6 +30,9 @@ void DlgRegisterPeer::registerPeer(){
             << "Register button pressed: "
             << ip_addr;
 
+    ui->btn_register->setEnabled(false);
+    ui->btn_cancel->setEnabled(false);
+
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
     QString token;
@@ -38,8 +41,6 @@ void DlgRegisterPeer::registerPeer(){
                                             token, err_code, http_code, network_error);
     const QString peer_name = ui->lne_peername->text();
     const QString peer_scope = ui->cmb_peer_scope->currentText();
-    ui->btn_register->setEnabled(false);
-    ui->btn_cancel->setEnabled(false);
 
     qDebug()
             << "Register peer: Get token errors: "

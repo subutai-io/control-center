@@ -1740,6 +1740,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
@@ -1761,6 +1762,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
 system_call_wrapper_error_t
 CSystemCallWrapper::is_rh_management_update_available(bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
 
@@ -1841,6 +1843,7 @@ system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(
 QString CSystemCallWrapper::rh_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -1866,6 +1869,7 @@ QString CSystemCallWrapper::rh_version() {
 QString CSystemCallWrapper::rhm_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),

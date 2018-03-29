@@ -788,7 +788,12 @@ void TrayControlWindow::update_peer_menu() {
   }
 
   // find local machine peers
+  qDebug()
+          <<"Listing local machine peers:";
   for (auto local_peer = found_local_machine_peers.begin(); local_peer != found_local_machine_peers.end(); local_peer++){
+    qDebug()
+            <<"ip: "<<local_peer->ip()
+            <<"finger "<<local_peer->fingerprint();
     bool found_on_hub = false;
     for (auto hub_peer = peers_connected.begin(); hub_peer != peers_connected.end(); hub_peer++ ){
         int eq = QString::compare(local_peer->fingerprint(), hub_peer->fingerprint(), Qt::CaseInsensitive);

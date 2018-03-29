@@ -95,7 +95,7 @@ QString CPeerController::parse_name(const QString &name){
 void CPeerController::output_from_fingerprint(const QString &name, const QString &dir, const QStringList &output){
     // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
     number_threads--;
-    static  QString empty_string = "";
+    static QString empty_string = "";
     static QString running_status = "Running";
     static QString poweroff_status = "Poweroff";
     if(output.size() != 2 || output[0].contains("Try again") || output[1].contains("Try again")){
@@ -103,7 +103,12 @@ void CPeerController::output_from_fingerprint(const QString &name, const QString
     }
     else{
         QString finger = output[1];
-        CLocalPeer new_peer(name, output[0], finger, running_status, dir);
+        QString ip = output[0];
+        if(finger[finger.size()-1] == '\r')
+            finger.remove(finger.size()-1, 1);
+        if(ip[ip.size()-1] == '\r')
+            ip.remove(ip.size()-1, 1);
+        CLocalPeer new_peer(name, ip, finger, running_status, dir);
         m_local_peers.push_back(new_peer);
     }
     if(number_threads == 0){
