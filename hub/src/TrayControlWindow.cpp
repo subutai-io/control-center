@@ -1085,6 +1085,17 @@ void TrayControlWindow::show_settings_dialog() {
 
 QDialog* create_create_peer_dialog(QWidget* p){ return new DlgCreatePeer(p); }
 void TrayControlWindow::show_create_dialog() {
+    QString vg_version, vb_version;
+    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+    CSystemCallWrapper::vagrant_version(vg_version);
+    if(vg_version == "undefined"){
+        CNotificationObserver::Instance()->Error(tr("Install Vagrant to create Peers"), DlgNotification::N_ABOUT);
+        return;
+    }
+    if(vb_version == "undefined"){
+        CNotificationObserver::Instance()->Error(tr("You don't have any hypervisor for Vagrant"), DlgNotification::N_ABOUT);
+        return;
+    }
     show_dialog(create_create_peer_dialog, tr("Create peer"));
 }
 ////////////////////////////////////////////////////////////////////////////
