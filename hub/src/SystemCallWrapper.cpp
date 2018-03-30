@@ -5,10 +5,12 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QHostAddress>
+#include <QCoreApplication>
 #include <QNetworkInterface>
 #include <QProcess>
 #include <QSysInfo>
 #include <QUrl>
+#include <QObject>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 
@@ -63,6 +65,9 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::close);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::kill);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [&proc](){ proc.finished(1,QProcess::CrashExit);});
   if(timeout_msec == 97){
 
       if (!proc.waitForStarted(-1)) {
