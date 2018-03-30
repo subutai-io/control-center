@@ -856,9 +856,29 @@ template <class  OS>
 system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir);
 
 template <>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> > (const QString &dir){
+
+    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += QString(" up");
+
+    QString cmd;
+
+    cmd = CSettingsManager::Instance().terminal_cmd();
+    QStringList args;
+    args << QString("-e");
+    qInfo("Launch command : %s",str_command.toStdString().c_str());
+
+    args << QString("Tell application \"%1\" to %2 \"%3\"")
+                .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+    return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
+                                              : SCWE_SSH_LAUNCH_FAILED;
+}
+
+template <>
 system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
     QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");    QString cmd;
+    str_command += QString(" up");
+    QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
       system_call_wrapper_error_t tmp_res;
