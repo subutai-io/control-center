@@ -388,6 +388,18 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
 }
 
 //////////////////////////////////////////////////////////////////////
+QStringList CSystemCallWrapper::list_interfaces(){
+    /*#1 how to get bridged interfaces
+     * using command VBoxManage get list of all bridged interfaces
+     * */
+    QString vb_version;
+    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+    QStringList interfaces;
+    if(vb_version == "undefined")
+        return interfaces;
+    QString path = CSettingsManager::oracle_virtualbox_path();
+}
+//////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
 
