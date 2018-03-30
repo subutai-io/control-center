@@ -20,7 +20,7 @@ public:
   explicit DlgCreatePeer(QWidget *parent = 0);
   ~DlgCreatePeer();
   QString create_dir(const QString &name);
-  void init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu);
+  void init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk);
 
 private:
   Ui::DlgCreatePeer *ui;

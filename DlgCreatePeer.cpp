@@ -38,7 +38,7 @@ void DlgCreatePeer::create_button_pressed(){
 
     QRegExp check_ram("\\d*");
 
-    if(name.isEmpty()){
+    if(ui->le_name->text().isEmpty()){
         CNotificationObserver::Error(tr("Name can't be empty"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
@@ -86,8 +86,8 @@ void DlgCreatePeer::create_button_pressed(){
     InitPeer *thread_init = new InitPeer(this);
     thread_init->init(dir, os);
     thread_init->startWork();
-    connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, this](system_call_wrapper_error_t res){
-       this->init_completed(res, dir, ram, cpu);
+    connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, disk, this](system_call_wrapper_error_t res){
+       this->init_completed(res, dir, ram, cpu, disk);
     });
 }
 
@@ -108,7 +108,7 @@ QString DlgCreatePeer::create_dir(const QString &name){
     return current_local_dir.absolutePath();
 }
 
-void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu){
+void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk){
     ui->btn_create->setEnabled(true);
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if all software is installed correctly", DlgNotification::N_NO_ACTION);
@@ -127,6 +127,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         else if (branch == "development")
              stream << "SUBUTAI_ENV : "<< "dev" << endl;
         else stream << "SUBTUAI_ENV : "<< "master" << endl;
+        stream << "DISK_SIZE : "<< disk << endl;
     }
     file.close();
     res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);

@@ -397,7 +397,8 @@ QStringList CSystemCallWrapper::list_interfaces(){
     QStringList interfaces;
     if(vb_version == "undefined")
         return interfaces;
-    QString path = CSettingsManager::oracle_virtualbox_path();
+    QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+    return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
