@@ -57,6 +57,11 @@ void DlgCreatePeer::create_button_pressed(){
         ui->btn_create->setEnabled(true);
         return;
     }
+    if(ram.toInt() < 512 ){
+        CNotificationObserver::Error(tr("Ram should be more than 512 MB"), DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(true);
+        return;
+    }
     if(disk.isEmpty()){
         CNotificationObserver::Error(tr("Disk size can't be empty"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
@@ -127,6 +132,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
              stream << "SUBUTAI_ENV : "<< "dev" << endl;
         else stream << "SUBTUAI_ENV : "<< "master" << endl;
         stream << "DISK_SIZE : "<< disk << endl;
+        stream << "BRIDGE : "<< this->ui->cmb_bridge->currentText();
     }
     file.close();
     res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
