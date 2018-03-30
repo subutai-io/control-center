@@ -405,7 +405,12 @@ QStringList CSystemCallWrapper::list_interfaces(){
     path += "/VBoxManage";
     QStringList args;
     args << "list" << "bridgedifs";
+    qDebug()<<path<<args;
     system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+    qDebug()<<"Listing interfaces result:"
+            <<"exit code:"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output:"<<res.out;
     if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
         return interfaces;
     //time to parse data
@@ -418,6 +423,7 @@ QStringList CSystemCallWrapper::list_interfaces(){
         flag = value = "";
         reading_value = false;
         for (int i=0; i < s.size(); i++){
+            if(s[i]=='\r')continue;
             if(reading_value){
                 value += s[i];
                 continue;
