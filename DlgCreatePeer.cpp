@@ -12,11 +12,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgCreatePeer)
 {
-    QString vb_version, vg_version;
-    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-    CSystemCallWrapper::vagrant_version(vg_version);
     ui->setupUi(this);
     ui->le_disk->setText("100");
+    QStringList bridged_ifs = CSystemCallWrapper::list_interfaces();
+    ui->cmb_bridge->addItems(bridged_ifs);
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
 }

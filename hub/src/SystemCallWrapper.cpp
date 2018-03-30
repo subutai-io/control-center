@@ -392,12 +392,52 @@ QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
      * using command VBoxManage get list of all bridged interfaces
      * */
+    qDebug("Getting list of bridged interfaces");
     QString vb_version;
     CSystemCallWrapper::oracle_virtualbox_version(vb_version);
     QStringList interfaces;
     if(vb_version == "undefined")
         return interfaces;
     QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+    QDir dir(path);
+    dir.cdUp();
+    path = dir.absolutePath();
+    path += "/VBoxManage";
+    QStringList args;
+    args << "list" << "bridgedifs";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+        return interfaces;
+    //time to parse data
+    QStringList parse_me = res.out;
+    QString flag;
+    QString value;
+    QString last_name;
+    bool reading_value = false;
+    for (auto s : parse_me){
+        flag = value = "";
+        reading_value = false;
+        for (int i=0; i < s.size(); i++){
+            if(reading_value){
+                value += s[i];
+                continue;
+            }
+            if(s[i] == ':'){
+                flag = value;
+                value = "";
+                continue;
+            }
+            if(s[i] != ' '){
+                if(value == "" && !flag.isEmpty())
+                    reading_value = true;
+                value+=s[i];
+            }
+        }
+        if(flag == "Name")
+            last_name = value;
+        if(flag == "Status" && value == "Up")
+            interfaces.push_back(last_name);
+    }
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
