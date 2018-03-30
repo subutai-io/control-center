@@ -18,6 +18,7 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     this->setMinimumWidth( this->width());
     connect(ui->btn_cancel, &QPushButton::clicked,
             [this](){ this->close(); });
+    ui->lne_username->setText("admin");
 }
 
 DlgRegisterPeer::~DlgRegisterPeer()

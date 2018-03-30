@@ -16,6 +16,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     CSystemCallWrapper::oracle_virtualbox_version(vb_version);
     CSystemCallWrapper::vagrant_version(vg_version);
     ui->setupUi(this);
+    ui->le_disk->setText("100");
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
 }
@@ -33,6 +34,7 @@ void DlgCreatePeer::create_button_pressed(){
     QString ram = ui->le_ram->text();
     QString cpu = ui->cmb_cpu->currentText();
     QString os = ui->cmb_os->currentText();
+    QString disk = ui->le_disk->text();
 
     QRegExp check_ram("\\d*");
 
@@ -41,7 +43,6 @@ void DlgCreatePeer::create_button_pressed(){
         ui->btn_create->setEnabled(true);
         return;
     }
-
     if(name.contains(" ")){
         CNotificationObserver::Error(tr("Name can't have space"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
@@ -54,6 +55,22 @@ void DlgCreatePeer::create_button_pressed(){
     }
     if(ram.isEmpty()){
         CNotificationObserver::Error(tr("Ram can't be empty"), DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(true);
+        return;
+    }
+    if(disk.isEmpty()){
+        CNotificationObserver::Error(tr("Disk size can't be empty"), DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(true);
+        return;
+    }
+    if(!check_ram.exactMatch(disk)){
+        CNotificationObserver::Error(tr("Disk size should be in integer"), DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(true);
+        return;
+    }
+
+    if(disk.toInt() < 100){
+        CNotificationObserver::Error(tr("Disk size can't be less than 100 GB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
