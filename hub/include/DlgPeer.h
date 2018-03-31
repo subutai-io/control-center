@@ -23,6 +23,7 @@ public:
   void hidePeer();
   void stopPeer();
   void startPeer();
+  void destroyPeer();
 private:
   Ui::DlgPeer *ui;
   QString current_peer_name;

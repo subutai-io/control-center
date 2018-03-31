@@ -87,11 +87,11 @@ private:
   QAction *m_act_about;
   QAction *m_act_logout;
   QAction *m_act_notifications_history;
-  QAction *m_act_p2p_status; // p2p status
 
   QSystemTrayIcon* m_sys_tray_icon;
   QAction *m_act_create_peer;
   QMenu* m_tray_menu;
+  QAction *m_act_p2p_status; // p2p status
 
 
   std::map<QString, QDialog*> m_dct_active_dialogs;

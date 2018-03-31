@@ -243,9 +243,10 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
 
 
     connect(ui->btn_unregister, &QPushButton::released, this, &DlgPeer::unregisterPeer);
-    connect(ui->btn_register, &QPushButton::clicked,this, &DlgPeer::registerPeer);
-    connect(ui->btn_stop, &QPushButton::clicked,this, &DlgPeer::stopPeer);
-    connect(ui->btn_start,&QPushButton::clicked,this, &DlgPeer::startPeer);
+    connect(ui->btn_register, &QPushButton::clicked, this, &DlgPeer::registerPeer);
+    connect(ui->btn_stop, &QPushButton::clicked, this, &DlgPeer::stopPeer);
+    connect(ui->btn_start,&QPushButton::clicked, this, &DlgPeer::startPeer);
+    connect(ui->btn_destroy, &QPushButton::clicked, this, &DlgPeer::destroyPeer);
     connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
         this->ui->gr_ssh->setVisible(checked);
         this->adjustSize();
@@ -353,6 +354,7 @@ void DlgPeer::hidePeer(){
 void DlgPeer::stopPeer(){
     StopPeer *thread_init = new StopPeer(this);
     ui->btn_stop->setEnabled(false);
+    ui->btn_destroy->setEnabled(false);
     ui->btn_register->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->btn_stop->setText(tr("Trying to stop peer..."));
@@ -370,6 +372,7 @@ void DlgPeer::stopPeer(){
             ui->btn_stop->setEnabled(true);
             ui->btn_register->setEnabled(true);
             ui->btn_unregister->setEnabled(true);
+            ui->btn_destroy->setEnabled(true);
             ui->btn_stop->setText(tr("Stop"));
         }
     });
@@ -379,6 +382,7 @@ void DlgPeer::startPeer(){
     StartPeer *thread_init = new StartPeer(this);
     ui->btn_start->setEnabled(false);
     ui->btn_register->setEnabled(false);
+    ui->btn_destroy->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
     thread_init->init(ui->le_dir->text());
@@ -395,6 +399,34 @@ void DlgPeer::startPeer(){
             ui->btn_stop->setEnabled(true);
             ui->btn_register->setEnabled(true);
             ui->btn_unregister->setEnabled(true);
+            ui->btn_destroy->setEnabled(true);
+            ui->btn_stop->setText(tr("Start"));
+        }
+    });
+}
+
+void DlgPeer::destroyPeer(){
+    DestroyPeer *thread_init = new DestroyPeer(this);
+    ui->btn_start->setEnabled(false);
+    ui->btn_destroy->setEnabled(false);
+    ui->btn_register->setEnabled(false);
+    ui->btn_unregister->setEnabled(false);
+    ui->btn_destroy->setText(tr("Trying to destroy peer..."));
+    thread_init->init(ui->le_dir->text());
+    thread_init->startWork();
+    connect(thread_init, &DestroyPeer::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
+            this->close();
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            ui->btn_stop->setEnabled(true);
+            ui->btn_register->setEnabled(true);
+            ui->btn_unregister->setEnabled(true);
+            ui->btn_destroy->setEnabled(true);
             ui->btn_stop->setText(tr("Start"));
         }
     });

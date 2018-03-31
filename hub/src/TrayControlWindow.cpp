@@ -76,15 +76,15 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_about(NULL),
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
-      m_tray_menu(NULL),
-      m_act_p2p_status(NULL),
       m_act_create_peer(NULL),
-      p2p_current_status(P2PStatus_checker::P2P_LOADING){
+      m_tray_menu(NULL),
+      m_act_p2p_status(NULL){
   ui->setupUi(this);
 
   create_tray_actions();
   create_tray_icon();
   m_sys_tray_icon->show();
+  p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
 
 

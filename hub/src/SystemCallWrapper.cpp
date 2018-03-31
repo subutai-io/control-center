@@ -67,6 +67,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   proc.start(cmd, args);
   QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::close);
   QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::kill);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::terminate);
   QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [&proc](){ proc.finished(1,QProcess::CrashExit);});
   if(timeout_msec == 97){
 
@@ -314,6 +315,7 @@ QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
     qDebug()
             <<"Starting to get fingerprint. Args:"
             <<args;
+
     system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
     qDebug()
@@ -324,7 +326,7 @@ QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
     return res.out;
 }
 
-QStringList CSystemCallWrapper::vagrant_status(const QString &dir){
+QString CSystemCallWrapper::vagrant_status(const QString &dir){
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -335,14 +337,35 @@ QStringList CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug()
             <<"Starting to get satus. Args:"
             <<args;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
 
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    QString status("");
     qDebug()
             <<"Got status of peer:"
-            <<dir
-            <<res.res;
+            <<"exit code: "<<res.exit_code
+            <<"result code: "<<res.res
+            <<"output: "<<res.out;
+    //the best part is parsing data
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return QString("broken");
+    }
+    QString st;
+    for(auto s : res.out){
+        st="";
+        for (int i=0; i < s.size(); i++){
+            if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
+                if(st == "running")
+                    return st;
+                if(st == "poweroff")
+                    return st;
+                st = "";
+            }
+            else
+                st += s[i];
 
-    return res.out;
+        }
+    }
+    return status;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
@@ -368,6 +391,26 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir)
     return res.res;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<< "set_working_directory"
+        << dir
+        << "destroy";
+
+    qDebug()
+            <<"Starting to destroy peer. Args:"<<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+    qDebug()<<"Destroying peer finished"
+            <<"Exit code:"<<res.exit_code
+            <<"Result:"<<res.res
+            <<"Output:"<<res.out;
+    QDir dir_path(dir);
+    if(dir_path.removeRecursively())
+        return SCWE_SUCCESS;
+    else return SCWE_CREATE_PROCESS;
+}
+
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
@@ -390,6 +433,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;
     return std::make_pair(res.res, res.out);
+}
+
+QStringList CSystemCallWrapper::vagrant_peer_info(const QString &dir){
+    QStringList result;
+    QString status;
+    status = CSystemCallWrapper::vagrant_status(dir);
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////

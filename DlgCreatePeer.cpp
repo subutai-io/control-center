@@ -132,7 +132,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
              stream << "SUBUTAI_ENV : "<< "dev" << endl;
         else stream << "SUBTUAI_ENV : "<< "master" << endl;
         stream << "DISK_SIZE : "<< disk << endl;
-        stream << "BRIDGE : "<< this->ui->cmb_bridge->currentText();
+        stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
     }
     file.close();
     res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);

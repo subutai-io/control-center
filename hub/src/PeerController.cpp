@@ -64,11 +64,11 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
        return;
    number_threads++;
    dir.cd(fi.fileName());
-   GetFingerPrint *thread_for = new GetFingerPrint(this);
+   GetPeerInfo *thread_for = new GetPeerInfo(this);
    thread_for->init(dir.absolutePath());
    thread_for->startWork();
-   connect(thread_for, &GetFingerPrint::outputReceived, [dir, peer_name, this](QStringList res){
-      this->output_from_fingerprint(peer_name, dir.absolutePath(), res);
+   connect(thread_for, &GetPeerInfo::outputReceived, [dir, peer_name, this](QStringList res){
+      this->parse_peer_info(peer_name, dir.absolutePath(), res);
    });
    return;
 }
@@ -92,7 +92,7 @@ QString CPeerController::parse_name(const QString &name){
     return peer_name;
 }
 
-void CPeerController::output_from_fingerprint(const QString &name, const QString &dir, const QStringList &output){
+void CPeerController::parse_peer_info(const QString &name, const QString &dir, const QStringList &output){
     // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
     number_threads--;
     static QString empty_string = "";
