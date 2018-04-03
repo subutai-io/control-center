@@ -212,7 +212,7 @@ void CRestWorker::get_peer_token(const QString &ip_addr,const QString &login, co
                       "application/x-www-form-urlencoded");
     QByteArray arr = send_request(
         m_network_manager, request, false, http_code, err_code, network_error,
-        query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
+        query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
 
     qDebug()
         << "Http code " << http_code
@@ -359,7 +359,7 @@ bool CRestWorker::get_peer_finger(const QString &ip_addr, QString &finger){
     QByteArray nothing;
     QByteArray arr = send_request(
         m_network_manager, request, 1, http_code, err_code, network_error,
-        nothing, true);
+        nothing, false);
 
     qDebug()
         << "Http code " << http_code
@@ -684,7 +684,6 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
     qCritical(
         "Send request network error : %s",
         reply->errorString().toStdString().c_str());
-//    CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
   }
 }
 ////////////////////////////////////////////////////////////////////////////

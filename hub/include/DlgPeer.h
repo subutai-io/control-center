@@ -17,18 +17,38 @@ public:
   explicit DlgPeer(QWidget *parent = 0);
   ~DlgPeer();
   void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp);
-  void addLocalPeer(const QString local_ip);
+  void addLocalPeer(std::pair<QString, QString> peer);
   void addHubPeer(CMyPeerInfo peer);
+  void addMachinePeer(CLocalPeer peer);
   void hideSSH();
   void hidePeer();
+  void hideEnvs();
   void stopPeer();
   void startPeer();
   void destroyPeer();
+  void update_environments(const std::vector<CMyPeerInfo::env_info> envs);
 private:
   Ui::DlgPeer *ui;
-  QString current_peer_name;
-  QString current_peer_id;
   QDialog* registration_dialog;
+
+  // some staf about peer
+  //global parameters
+  QString peer_name;
+  QString peer_fingerprint;
+  //parameters for ssh section
+  QString ssh_port;
+  QString ssh_ip;
+  QString ssh_user;
+  QString ssh_pass;
+  bool ssh_available;
+  //advanced parameters
+  bool advanced;
+  QString peer_disk;
+  QString peer_os;
+  QString peer_cpu;
+  QString peer_ram;
+  QString peer_bridge;
+  QString peer_status;
 
 signals:
   void ssh_to_rh_sig(const QString&);
