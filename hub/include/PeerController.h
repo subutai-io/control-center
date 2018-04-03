@@ -16,20 +16,31 @@ private:
     QString m_ip;
     QString m_fingerprint;
     QString m_status;
+    QString m_update;
     QString m_dir;
 public:
-    explicit CLocalPeer(const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir){
-        m_name = name;
-        m_ip = ip;
-        m_fingerprint = fingerprint;
-        m_status = status;
-        m_dir = dir;
+    CLocalPeer(){
+        m_name = "loading";
+        m_ip = "loading";
+        m_status = "loading";
+        m_dir = "loading";
+        m_fingerprint = "loading";
+        m_update = "old";
     }
     const QString &ip() const { return m_ip; }
     const QString &name() const { return m_name; }
     const QString &fingerprint() const { return m_fingerprint; }
     const QString &status() const { return m_status; }
     const QString &dir() const { return m_dir; }
+    const QString &update() const { return m_update; }
+
+    void set_ip(const QString &val){m_ip = val;}
+    void set_name(const QString &val){m_name = val;}
+    void set_status(const QString &val){m_status = val;}
+    void set_dir(const QString &val){m_dir = val;}
+    void set_fingerprint(const QString &val){m_fingerprint = val;}
+    void set_update(const QString &val){m_update = val;}
+
 };
 
 class CPeerController : public QObject {
@@ -39,19 +50,16 @@ private:
   CPeerController(QObject* parent = nullptr);
   virtual ~CPeerController();
 
-  std::vector<CLocalPeer> m_local_peers;
-
   QTimer m_refresh_timer;
 
-  int number_threads; // to emit signal when all finished
 
   void search_local();
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
+  int number_threads; // to emit signal when all finished
 
 public:
 
-  static const int REFRESH_DELAY_SEC = 8;
   static CPeerController* Instance() {
     static CPeerController inst;
     return &inst;
@@ -59,30 +67,39 @@ public:
 
   void init();
   void refresh();
-  void parse_peer_info(const QString &name, const QString &dir, const QStringList &output);
-
-  const std::vector<CLocalPeer>& local_peers() const {
-      return m_local_peers;
-  }
+  void parse_peer_info(int type,
+                       const QString &name,
+                       const QString &dir,
+                       const QString &output);
 
   int get_number_threads(){
       return number_threads;
   }
 
+  void dec_number_threads(){
+      number_threads--;
+  }
+
+
 private slots:
   void refresh_timer_timeout();
 signals:
-  void local_peer_list_updated();
+  void got_peer_info(int type,
+                     QString name,
+                     QString dir,
+                     QString output);
 };
 
 class GetPeerInfo : public QObject{
     Q_OBJECT
-    QString directory;
+    QString arg;
+    int action;
 public:
     GetPeerInfo(QObject *parent = nullptr) : QObject(parent){}
 
-    void init (const QString &directory){
-        this->directory = directory;
+    void init (const QString &arg, const int &action){
+        this->arg = arg;
+        this->action = action;
     }
 
     void startWork() {
@@ -100,17 +117,28 @@ public:
     }
 
     void execute_remote_command() {
-        QFutureWatcher<QStringList> *watcher
-            = new QFutureWatcher<QStringList>(this);
-        QFuture<QStringList>  res =
-            QtConcurrent::run(CSystemCallWrapper::vagrant_peer_info, directory);
+        QFutureWatcher<QString> *watcher
+            = new QFutureWatcher<QString>(this);
+        QFuture<QString> res;
+        switch (action) {
+        case 0:
+            res = QtConcurrent::run(CSystemCallWrapper::vagrant_status, arg);
+            break;
+        case 1:
+            res = QtConcurrent::run(CSystemCallWrapper::vagrant_ip, arg);
+            break;
+        case 2:
+            res = QtConcurrent::run(CSystemCallWrapper::vagrant_fingerprint, arg);
+            break;
+        }
         watcher->setFuture(res);
-        connect(watcher, &QFutureWatcher<QStringList>::finished, [this, res](){
-          emit this->outputReceived(res.result());
+        int lala = action;
+        connect(watcher, &QFutureWatcher<QString>::finished, [this, res, lala](){
+          emit this->outputReceived(lala, res.result());
         });
     }
 signals:
-    void outputReceived(QStringList res);
+    void outputReceived(int action, QString res);
 };
 
 class StopPeer : public QObject{

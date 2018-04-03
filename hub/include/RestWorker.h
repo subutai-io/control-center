@@ -140,6 +140,9 @@ public:
 
   bool get_user_email(QString& user_email_str);
 
+  bool get_peer_finger(const QString& ip_addr,
+                       QString& finger);
+
   void update_my_peers();
   void update_p2p_status();
 

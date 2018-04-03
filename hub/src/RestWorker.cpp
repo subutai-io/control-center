@@ -346,6 +346,29 @@ bool CRestWorker::get_user_email(QString& user_email_str) {
     user_email_str = QString("%1").arg(obj["email"].toString());
   return true;
 }
+
+bool CRestWorker::get_peer_finger(const QString &ip_addr, QString &finger){
+    qInfo()
+            << tr("getting token of %1").arg(ip_addr);
+    const QString str_url(QString("https://%1:8443/rest/v1/security/keyman/getpublickeyfingerprint").arg(ip_addr));
+    QUrl url_finger(str_url);
+    QNetworkRequest request(url_finger);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/x-www-form-urlencoded");
+    int http_code, err_code, network_error;
+    QByteArray nothing;
+    QByteArray arr = send_request(
+        m_network_manager, request, 1, http_code, err_code, network_error,
+        nothing, true);
+
+    qDebug()
+        << "Http code " << http_code
+        << "Error code " << err_code
+        << "Network Error " << network_error;
+
+    finger=QString(arr);
+    return true;
+}
 ////////////////////////////////////////////////////////////////////////////
 void CRestWorker::update_my_peers() {
   QUrl url_env(hub_get_url().arg("my-peers"));

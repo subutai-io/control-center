@@ -26,8 +26,6 @@ void CPeerController::init() {
 void CPeerController::refresh() {
     if(number_threads != 0)
         return;
-    m_local_peers.clear();
-    number_threads = 0;
     search_local();
 }
 
@@ -60,15 +58,18 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    if(!fi.isDir())
        return;
    QString peer_name = parse_name(fi.fileName());
+   static int status_type = 0;
    if(peer_name=="")
        return;
    number_threads++;
    dir.cd(fi.fileName());
-   GetPeerInfo *thread_for = new GetPeerInfo(this);
-   thread_for->init(dir.absolutePath());
-   thread_for->startWork();
-   connect(thread_for, &GetPeerInfo::outputReceived, [dir, peer_name, this](QStringList res){
-      this->parse_peer_info(peer_name, dir.absolutePath(), res);
+   emit got_peer_info(3, peer_name, dir.absolutePath(), QString(""));
+   // get status of peer
+   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
+   thread_for_status->init(dir.absolutePath(), status_type);
+   thread_for_status->startWork();
+   connect(thread_for_status, &GetPeerInfo::outputReceived, [dir, peer_name, this](int type, QString res){
+      this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
    });
    return;
 }
@@ -92,26 +93,43 @@ QString CPeerController::parse_name(const QString &name){
     return peer_name;
 }
 
-void CPeerController::parse_peer_info(const QString &name, const QString &dir, const QStringList &output){
+void CPeerController::parse_peer_info(int type, const QString &name, const QString &dir, const QString &output){
     // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
-    number_threads--;
-    static QString empty_string = "";
-    static QString running_status = "Running";
-    static QString poweroff_status = "Poweroff";
-    if(output.size() != 2 || output[0].contains("Try again") || output[1].contains("Try again")){
-        m_local_peers.push_back(CLocalPeer(name, empty_string, empty_string, poweroff_status, dir));
+    // wait mazafaka
+    // get ip of peer
+    if(type == 0){
+        qDebug() << "Got status of "<<name<<"status:"<<output;
+        GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
+        if(output == "poweroff" || output == "broken"){
+            qCritical()<<"not working peer"<<name;
+        }
+        else{
+            int ip_type = 1;
+            thread_for_ip->init(dir, ip_type);
+            thread_for_ip->startWork();
+            connect(thread_for_ip, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+               this->parse_peer_info(type, name, dir, res);
+            });
+        }
     }
-    else{
-        QString finger = output[1];
-        QString ip = output[0];
-        if(finger[finger.size()-1] == '\r')
-            finger.remove(finger.size()-1, 1);
-        if(ip[ip.size()-1] == '\r')
-            ip.remove(ip.size()-1, 1);
-        CLocalPeer new_peer(name, ip, finger, running_status, dir);
-        m_local_peers.push_back(new_peer);
+    else if(type == 1){
+        qDebug() << "Got ip of "<<name<<"ip:"<<output;
+        if(!output.isEmpty()){
+            GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
+            int finger_type = 2;
+            thread_for_finger->init(output, finger_type);
+            thread_for_finger->startWork();
+            connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+               this->parse_peer_info(type, name, dir, res);
+            });
+        }
     }
-    if(number_threads == 0){
-        emit local_peer_list_updated();
+    else if(type == 2){
+        qDebug() << "Got finger of "<<name<<"finger:"<<output;
     }
+    static QString undefined_string = "undefined";
+    if(output.isEmpty())
+        emit got_peer_info(type, name, dir, undefined_string);
+    else emit got_peer_info(type, name, dir, output);
+    return;
 }

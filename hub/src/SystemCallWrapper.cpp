@@ -17,6 +17,7 @@
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
+#include "RestWorker.h"
 #include "SettingsManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
@@ -304,26 +305,14 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     return res.res;
 }
 
-QStringList CSystemCallWrapper::vagrant_fingerprint(const QString &dir){
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "subutai"
-        << "finger";
+QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     qDebug()
-            <<"Starting to get fingerprint. Args:"
-            <<args;
-
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
-
-    qDebug()
-            << "Got fingerprint of peer: "
-            <<dir
-            <<res.res;
-
-    return res.out;
+            <<"Trying to get fingerprint of "<<ip;
+    QString finger = "";
+    if(CRestWorker::Instance()->get_peer_finger(ip, finger)){
+        return finger;
+    }
+    else return QString("");
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
@@ -338,7 +327,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
             <<"Starting to get satus. Args:"
             <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 20000);
     QString status("");
     qDebug()
             <<"Got status of peer:"
@@ -423,25 +412,46 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
             <<"Vagrant up. Args:"
             <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
     qDebug()
             <<"Finished vagrant up:"
             <<dir
-            <<res.res;
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res;
 
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;
     return std::make_pair(res.res, res.out);
 }
 
-QStringList CSystemCallWrapper::vagrant_peer_info(const QString &dir){
-    QStringList result;
-    QString status;
-    status = CSystemCallWrapper::vagrant_status(dir);
-    return result;
-}
+QString CSystemCallWrapper::vagrant_ip(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "subutai"
+        << "info ipaddr";
 
+    qDebug()
+            <<"Getting vagrant ip:"
+            <<args;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 20000);
+    qDebug()
+            <<"Finished vagrant ip:"
+            <<dir
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+
+    QString ip = "";
+
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.size() != 1)
+        return ip;
+    ip = res.out[0];
+    return ip;
+}
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces

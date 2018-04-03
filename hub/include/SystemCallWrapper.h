@@ -156,11 +156,11 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
 
-  static QStringList vagrant_fingerprint(const QString &dir);
+  static QString vagrant_fingerprint(const QString &ip);
 
   static QString vagrant_status(const QString &dir);
 
-  static QStringList vagrant_peer_info(const QString &dir);
+  static QString vagrant_ip(const QString &dir);
 
   static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
 

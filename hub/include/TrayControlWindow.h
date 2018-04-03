@@ -55,6 +55,7 @@ private:
 
   std::vector<CMyPeerInfo> peers_connected;
   std::vector<CLocalPeer> local_peers_connected;
+  std::map<QString, CLocalPeer> machine_peers_table;
 
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
@@ -135,6 +136,11 @@ private slots:
   void environments_updated_sl(int rr);
   void balance_updated_sl();
   void my_peers_updated_sl();
+  void got_peer_info_sl(int type,
+                        QString name,
+                        QString dir,
+                        QString output);
+  void machine_peers_upd_finished();
   void update_peer_menu();
 
 
