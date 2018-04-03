@@ -201,7 +201,7 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   if (status == 4){
       cont_checkbox->setText(tr("FAILED"));
       cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
-      cont_checkbox->setToolTip(tr("P2P is not installed"));
+      cont_checkbox->setToolTip(tr("P2P is not running"));
   }
 }
 
