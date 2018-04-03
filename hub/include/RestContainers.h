@@ -164,6 +164,8 @@ public:
   void set_base_interface_id(int base_interface_id) {
     m_base_interface_id = base_interface_id;
   }
+
+  void set_status(const QString& val){m_status = val;}
 };
 ////////////////////////////////////////////////////////////////////////////
 
