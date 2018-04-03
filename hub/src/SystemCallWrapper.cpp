@@ -65,9 +65,6 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
-  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::close);
-  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, &proc, &QProcess::kill);
-  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [&proc](){ proc.finished(1,QProcess::CrashExit);});
   if(timeout_msec == 97){
 
       if (!proc.waitForStarted(-1)) {
@@ -212,14 +209,19 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
       = CSettingsManager::Instance().ssh_path();
   QStringList args;
   args
-       << "-o StrictHostKeyChecking=no"
+       << "-o" << "StrictHostKeyChecking=no"
        << QString("%1@%2").arg(remote_user, ip)
        << "-p" << port
-       << QString("-i \"%1\"").arg(key)
+       << "-i" << QString("%1").arg(key)
        << QString("%1").arg(commands);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "ARGS of command=" << args
+           << "finished"
+           << "exit code:" <<res.exit_code
+           << "res" << res.res
+           << "output" << res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
