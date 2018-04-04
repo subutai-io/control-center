@@ -18,7 +18,7 @@
 
 
 const QString CSettingsManager::ORG_NAME("subutai");
-const QString CSettingsManager::APP_NAME("tray");
+const QString CSettingsManager::APP_NAME("Control Center");
 
 const QString CSettingsManager::SM_LOGIN("Login");
 const QString CSettingsManager::SM_PASSWORD("Password");
