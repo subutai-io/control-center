@@ -140,8 +140,12 @@ private slots:
                         QString name,
                         QString dir,
                         QString output);
-  void machine_peers_upd_finished();
   void update_peer_menu();
+
+  /*peer slots*/
+  void machine_peers_upd_finished();
+  void peer_deleted_sl(const QString&);
+  void peer_under_modification_sl(const QString &);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);

@@ -20,13 +20,25 @@ DlgPeer::DlgPeer(QWidget *parent) :
     //ui
     ui->setupUi(this);
     this->setMinimumWidth(this->width());
-    ui->gr_peer_control->setStyleSheet("QGroupBox:title{max-width: 0; max-height: 0;}");
     this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
     ui->show_ssh->setChecked(true);
     ui->gr_ssh->setVisible(true);
     ui->gr_peer_control->setVisible(false);
     ui->show_peer_control->setChecked(false);
     ui->btn_launch_console->setEnabled(false);
+
+    ui->le_name->setReadOnly(true);
+    ui->le_cpu->setReadOnly(true);
+    ui->le_ram->setReadOnly(true);
+    ui->le_disk->setReadOnly(true);
+    ui->cmb_bridge->setEnabled(false);
+
+    ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
+    ui->le_ram->setValidator(new QIntValidator(1, 20000, this));
+    ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
+
+    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    ui->cmb_bridge->addItems(bridges);
 
     //slots
     connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished,
@@ -43,6 +55,7 @@ DlgPeer::DlgPeer(QWidget *parent) :
     registration_dialog = nullptr;
     ssh_available = false;
     advanced = false;
+    hub_available = false;
 }
 
 void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
@@ -56,6 +69,7 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
 }
 
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
+    hub_available = true;
     connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
     CHubController::Instance().launch_peer_page(peer.id().toInt());
     });
@@ -67,14 +81,81 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
 }
 
 void DlgPeer::addMachinePeer(CLocalPeer peer){
+    advanced = true;
+    peer_status = peer.status();
+    peer_dir = peer.dir();
+    peer_name = peer.name();
     if(peer.fingerprint() != "loading" || peer.fingerprint() != "undefined")
         peer_fingerprint = peer.fingerprint();
+    if(peer.ip() != "loading" && peer.ip() != "undefined"){
+        ssh_ip = peer.ip();
+        ssh_available = true;
+        connect(ui->btn_launch_console, &QPushButton::clicked,
+                [peer](){
+            CHubController::Instance().launch_browser(QString("https://%1:8443").arg(peer.ip()));});
+        ui->btn_launch_console->setEnabled(true);
+    }
+    else if(peer_status == "running")
+            peer_status = "not ready";
+    parse_yml();
 }
 
+void DlgPeer::parse_yml(){
+    QString filename = QString("%1/vagrant-subutai.yml").arg(peer_dir);
+    QFile file(filename);
+    if(file.exists()){
+        if (file.open(QIODevice::ReadWrite) ){
+            QTextStream stream( &file );
+            QString output = QString(stream.readAll());
+            QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
+            for (auto s : vagrant_info){
+                QString flag, value;
+                bool reading_value = false;
+                flag = value = "";
+                reading_value = false;
+                for (int i=0; i < s.size(); i++){
+                    if(s[i]=='\r')continue;
+                    if(reading_value){
+                        value += s[i];
+                        continue;
+                    }
+                    if(s[i] == ':'){
+                        flag = value;
+                        value = "";
+                        continue;
+                    }
+                    if(s[i] != ' '){
+                        if(value == "" && !flag.isEmpty())
+                            reading_value = true;
+                        value+=s[i];
+                    }
+                }
+                if(flag == "SUBUTAI_RAM")
+                    peer_ram = value;
+                if(flag == "SUBUTAI_CPU")
+                    peer_cpu = value;
+                if(flag == "DISK_SIZE")
+                    peer_disk = value;
+                if(flag == "BRIDGE")
+                    peer_bridge = value;
+                }
+            }
+        file.close();
+    }
+}
+
+
 void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp) {
+    static QPalette *green_text = new QPalette();
+    green_text->setColor(QPalette::Text, Qt::green);
+    static QPalette *yellow_text = new QPalette();
+    yellow_text->setColor(QPalette::Text, Qt::yellow);
+    static QPalette *red_text = new QPalette();
+    red_text->setColor(QPalette::Text, Qt::red);
     if(hub_peer != nullptr)
         addHubPeer(*hub_peer);
-    else hideEnvs();
+    else
+        hideEnvs();
     if(!local_peer.first.isEmpty())
         addLocalPeer(local_peer);
     if(!lp.empty())
@@ -103,6 +184,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->le_port->text().toInt());
         CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());
         CSettingsManager::Instance().set_rh_pass(peer_fingerprint, this->ui->le_pass->text());
+        //slots
         connect(ui->btn_ssh_peer, &QPushButton::clicked, [this]() {
             this->ui->btn_ssh_peer->setEnabled(false);
             this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
@@ -111,6 +193,72 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     }
     else
         hideSSH();
+    if(advanced){
+        ui->gr_peer_control->setTitle(tr("Peer is in your machine."));
+        hub_available ?
+            ui->btn_register->hide() : ui->btn_unregister->hide();
+        ui->le_name->setText(peer_name);
+        if(peer_status == "running"){
+            ui->btn_start->hide();
+            ui->le_status->setText(tr("Peer is runnning"));
+        }
+        if(peer_status == "broken"){
+            ui->btn_stop->hide();
+            ui->btn_start->setEnabled(false);
+            ui->btn_reload->setEnabled(false);
+            ui->btn_register->setEnabled(false);
+            ui->le_status->setText(tr("Peer is broken."));
+        }
+        if(peer_status == "not ready"){
+            ui->btn_start->hide();
+            ui->btn_register->setEnabled(false);
+            ui->le_status->setText(tr("Peer is not ready."));
+        }
+        if(peer_status == "poweroff"){
+            ui->btn_stop->hide();
+            ui->btn_register->setEnabled(false);
+            ui->btn_reload->setEnabled(false);
+            ui->le_status->setText(tr("Peer is poweroff"));
+        }
+        configs();
+
+        connect(ui->btn_destroy, &QPushButton::clicked, [this](){this->destroyPeer();});
+        connect(ui->btn_start, &QPushButton::clicked, [this](){this->startPeer();});
+        connect(ui->btn_stop, &QPushButton::clicked, [this](){this->stopPeer();});
+        connect(ui->btn_reload, &QPushButton::clicked, [this](){this->reloadPeer();});
+        connect(ui->btn_register, &QPushButton::clicked, this, &DlgPeer::registerPeer);
+        connect(ui->btn_unregister, &QPushButton::clicked, this, &DlgPeer::unregisterPeer);
+        connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked){
+            ui->le_name->setReadOnly(!checked);
+            ui->le_cpu->setReadOnly(!checked);
+            ui->le_ram->setReadOnly(!checked);
+            ui->le_disk->setReadOnly(!checked);
+            ui->cmb_bridge->setEnabled(checked);
+            if(checked == false){
+                this->configs();
+            }
+        });
+    }
+    else hidePeer();
+}
+
+void DlgPeer::configs(){
+    ui->le_cpu->setText(peer_cpu);
+    ui->le_ram->setText(peer_ram);
+    ui->le_disk->setText(peer_disk);
+    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    int index_bridge = -1;
+    for(int i=0; i < bridges.size(); i++){
+        QString s = bridges[i];
+        s += "\"";
+        s = "\"" + s;
+        if (s == peer_bridge){
+            index_bridge = i;
+            break;
+        }
+    }
+    if(index_bridge >= 0)
+        ui->cmb_bridge->setCurrentIndex(index_bridge);
 }
 
 void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
@@ -172,14 +320,25 @@ void DlgPeer::hideSSH(){
 }
 
 void DlgPeer::hidePeer(){
-    ui->lbl_name->hide();
-    ui->lbl_state->hide();
-    ui->le_name->hide();
-    ui->le_state->hide();
+    ui->lbl_name->hide(); ui->le_name->hide();
+    ui->lbl_status->hide(); ui->le_status->hide();
+    ui->lbl_bridge->hide(); ui->cmb_bridge->hide();
+    ui->lbl_cpu->hide(); ui->le_cpu->hide();
+    ui->lbl_disk->hide(); ui->le_disk->hide();
+    ui->lbl_ram->hide(); ui->le_ram->hide();
+
+    //buttons
     ui->btn_start->hide();
     ui->btn_stop->hide();
+    ui->change_confugre->hide();
+    ui->btn_reload->hide();
     ui->btn_register->hide();
     ui->btn_unregister->hide();
+
+    ui->show_peer_control->toggle(); //lifehack :D
+    ui->show_peer_control->toggle();
+
+    ui->gr_peer_control->setTitle(tr("This peer is not in your machine"));
     this->adjustSize();
 }
 
@@ -253,14 +412,15 @@ void DlgPeer::startPeer(){
 }
 
 void DlgPeer::destroyPeer(){
-    /*
     DestroyPeer *thread_init = new DestroyPeer(this);
     ui->btn_start->setEnabled(false);
+    ui->btn_reload->setEnabled(false);
     ui->btn_destroy->setEnabled(false);
     ui->btn_register->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
+    ui->btn_stop->setEnabled(false);
     ui->btn_destroy->setText(tr("Trying to destroy peer..."));
-    thread_init->init(ui->le_dir->text());
+    thread_init->init(peer_dir);
     thread_init->startWork();
     connect(thread_init, &DestroyPeer::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
@@ -270,15 +430,20 @@ void DlgPeer::destroyPeer(){
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
-            ui->btn_stop->setEnabled(true);
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
+            ui->btn_start->setEnabled(true);
+            ui->btn_reload->setEnabled(true);
+            ui->btn_destroy->setEnabled(true);
             ui->btn_register->setEnabled(true);
             ui->btn_unregister->setEnabled(true);
-            ui->btn_destroy->setEnabled(true);
+            ui->btn_stop->setEnabled(true);
             ui->btn_stop->setText(tr("Start"));
         }
     });
-    */
+}
+
+void DlgPeer::reloadPeer(){
+    return;
 }
 
 void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs){
@@ -304,9 +469,13 @@ void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs)
         ui->env_owner->addWidget(env_owner);
         ui->env_status->addWidget(env_status);
       }
+      ui->btn_register->setEnabled(false);
       this->adjustSize();
     }
-    else hideEnvs();
+    else{
+        ui->btn_register->setEnabled(true);
+        hideEnvs();
+    }
 }
 
 DlgPeer::~DlgPeer()

@@ -119,7 +119,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         return;
     }
     CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);
-    QString filename=QString("%1/vagrant-subutai.yml").arg(dir);
+    QString filename = QString("%1/vagrant-subutai.yml").arg(dir);
     QFile file(filename);
     if ( file.open(QIODevice::ReadWrite) ){
         QTextStream stream( &file );
