@@ -541,6 +541,23 @@ QStringList CSystemCallWrapper::list_interfaces(){
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::check_peer_management_components(){
+    QString version;
+    vagrant_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("Before using vagrant. Install vagrant first"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    oracle_virtualbox_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    return true;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
 

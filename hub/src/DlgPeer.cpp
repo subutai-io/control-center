@@ -448,8 +448,12 @@ void DlgPeer::hideEnvs(){
 }
 
 void DlgPeer::stopPeer(){
-    StopPeer *thread_init = new StopPeer(this);
     enabled_peer_buttons(false);
+    if(!CSystemCallWrapper::check_peer_management_components()){
+        enabled_peer_buttons(true);
+        return;
+    }
+    StopPeer *thread_init = new StopPeer(this);
     ui->btn_stop->setText(tr("Trying to stop peer..."));
     thread_init->init(peer_dir);
     emit peer_modified(peer_name);
@@ -471,12 +475,16 @@ void DlgPeer::stopPeer(){
 }
 
 void DlgPeer::startPeer(){
+    enabled_peer_buttons(false);
+    if(!CSystemCallWrapper::check_peer_management_components()){
+        enabled_peer_buttons(true);
+        return;
+    }
     if(ui->change_confugre->isChecked()){
         if(!change_configs())
             return;
     }
     StartPeer *thread_init = new StartPeer(this);
-    enabled_peer_buttons(false);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
     thread_init->init(peer_dir);
     thread_init->startWork();
@@ -497,6 +505,11 @@ void DlgPeer::startPeer(){
 }
 
 void DlgPeer::destroyPeer(){
+    enabled_peer_buttons(false);
+    if(!CSystemCallWrapper::check_peer_management_components()){
+        enabled_peer_buttons(true);
+        return;
+    }
     if(peer_status == "broken"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
@@ -504,11 +517,11 @@ void DlgPeer::destroyPeer(){
             CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
-        else CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permissions"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permissions"), DlgNotification::N_NO_ACTION);
+        enabled_peer_buttons(true);
         return;
     }
     DestroyPeer *thread_init = new DestroyPeer(this);
-    enabled_peer_buttons(false);
     ui->btn_destroy->setText(tr("Trying to destroy peer..."));
     if(peer_status != "broken"){
         thread_init->init(peer_dir);
@@ -532,12 +545,16 @@ void DlgPeer::destroyPeer(){
 }
 
 void DlgPeer::reloadPeer(){
+    enabled_peer_buttons(false);
+    if(!CSystemCallWrapper::check_peer_management_components()){
+        enabled_peer_buttons(true);
+        return;
+    }
     if(ui->change_confugre->isChecked()){
         if(!change_configs())
             return;
     }
     ReloadPeer *thread_init = new ReloadPeer(this);
-    enabled_peer_buttons(false);
     ui->btn_reload->setText(tr("Trying to reload peer..."));
     thread_init->init(peer_dir);
     thread_init->startWork();

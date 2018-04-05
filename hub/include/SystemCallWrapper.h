@@ -162,6 +162,8 @@ class CSystemCallWrapper {
 
   static QString vagrant_ip(const QString &dir);
 
+  static bool check_peer_management_components();
+
   static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
 
   static system_call_wrapper_error_t vagrant_halt(const QString &dir);
