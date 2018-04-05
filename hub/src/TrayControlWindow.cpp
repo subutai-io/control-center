@@ -737,6 +737,11 @@ void TrayControlWindow::update_peer_menu() {
             found_on_machine = true;
             break;
         }
+        eq = QString::compare(local_peer.first, machine_peer.fingerprint(), Qt::CaseInsensitive);
+        if(eq == 0){
+            found_on_machine = true;
+            break;
+        }
     }
     if(!found_on_machine)
         for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
@@ -910,6 +915,9 @@ void TrayControlWindow::got_peer_info_sl(int type,
                                          QString name,
                                          QString dir,
                                          QString output){
+    if(CPeerController::Instance()->get_number_threads() <= 0){
+        return;
+    }
     CLocalPeer updater_peer;
     if(machine_peers_table.find(name) != machine_peers_table.end())
         updater_peer = machine_peers_table[name];
@@ -961,6 +969,35 @@ void TrayControlWindow::machine_peers_upd_finished(){
     }
     update_peer_menu();
 }
+
+void TrayControlWindow::peer_deleted_sl(const QString &peer_name){
+    machine_peers_table.erase(machine_peers_table.find(peer_name));
+    CPeerController::Instance()->finish_current_update();
+    update_peer_menu();
+}
+
+void TrayControlWindow::peer_under_modification_sl(const QString &peer_name){
+    static QString running_string = "running";
+    static QString undefined_string = "undefined";
+    if(machine_peers_table.find(peer_name) != machine_peers_table.end()){
+        machine_peers_table[peer_name].set_status(running_string);
+        machine_peers_table[peer_name].set_ip(undefined_string);
+    }
+    CPeerController::Instance()->finish_current_update();
+    update_peer_menu();
+}
+
+void TrayControlWindow::peer_poweroff_sl(const QString &peer_name){
+    static QString poweroff_string = "poweroff";
+    static QString undefined_string = "undefined";
+    if(machine_peers_table.find(peer_name) != machine_peers_table.end()){
+        machine_peers_table[peer_name].set_status(poweroff_string);
+        machine_peers_table[peer_name].set_ip(undefined_string);
+    }
+    CPeerController::Instance()->finish_current_update();
+    update_peer_menu();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 /* p2p status updater*/
@@ -1244,6 +1281,8 @@ void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, 
   DlgPeer *dlg_peer = new DlgPeer();
   dlg_peer->addPeer(peer , local_peer, lp);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this, &TrayControlWindow::ssh_to_rh_triggered);
+  connect(dlg_peer, &DlgPeer::peer_deleted, this, &TrayControlWindow::peer_deleted_sl);
+  connect(dlg_peer, &DlgPeer::peer_modified, this, &TrayControlWindow::peer_under_modification_sl);
   m_last_generated_peer_dlg = dlg_peer;
 }
 

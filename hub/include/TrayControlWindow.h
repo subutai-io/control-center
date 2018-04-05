@@ -144,8 +144,9 @@ private slots:
 
   /*peer slots*/
   void machine_peers_upd_finished();
-  void peer_deleted_sl(const QString&);
-  void peer_under_modification_sl(const QString &);
+  void peer_deleted_sl(const QString& peer_name);
+  void peer_under_modification_sl(const QString& peer_name);
+  void peer_poweroff_sl(const QString& peer_name);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);

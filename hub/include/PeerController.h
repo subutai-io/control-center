@@ -77,7 +77,12 @@ public:
   }
 
   void dec_number_threads(){
-      number_threads--;
+      if(number_threads > 0)
+        number_threads--;
+  }
+
+  void finish_current_update(){
+      number_threads = 0;
   }
 
 

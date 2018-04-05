@@ -324,7 +324,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
             <<args;
 
     system_call_res_t res = ssystem_th(cmd, args, true, true, 20000);
-    QString status("");
+    QString status("broken");
     qDebug()
             <<"Got status of peer:"
             <<"exit code: "<<res.exit_code
@@ -334,7 +334,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return QString("broken");
     }
-    QString st;
+    QString st = "";
     for(auto s : res.out){
         st="";
         for (int i=0; i < s.size(); i++){
@@ -381,7 +381,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &d
     QStringList args;
     args<< "set_working_directory"
         << dir
-        << "destroy";
+        << "destroy"
+        << "-f";
 
     qDebug()
             <<"Starting to destroy peer. Args:"<<args;
@@ -390,6 +391,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &d
             <<"Exit code:"<<res.exit_code
             <<"Result:"<<res.res
             <<"Output:"<<res.out;
+    if(res.exit_code !=0 || res.res != SCWE_SUCCESS)
+        return SCWE_CREATE_PROCESS;
     QDir dir_path(dir);
     if(dir_path.removeRecursively())
         return SCWE_SUCCESS;

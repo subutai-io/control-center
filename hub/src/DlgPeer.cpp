@@ -7,6 +7,7 @@
 #include <QGroupBox>
 #include <QLayout>
 #include <QFormLayout>
+#include <QDir>
 #include <QLineEdit>
 #include "OsBranchConsts.h"
 #include "RhController.h"
@@ -31,7 +32,11 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->le_cpu->setReadOnly(true);
     ui->le_ram->setReadOnly(true);
     ui->le_disk->setReadOnly(true);
+
     ui->cmb_bridge->setEnabled(false);
+    ui->le_ram->setEnabled(false);
+    ui->le_disk->setEnabled(false);
+    ui->le_cpu->setEnabled(false);
 
     ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
     ui->le_ram->setValidator(new QIntValidator(1, 20000, this));
@@ -229,14 +234,19 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         connect(ui->btn_register, &QPushButton::clicked, this, &DlgPeer::registerPeer);
         connect(ui->btn_unregister, &QPushButton::clicked, this, &DlgPeer::unregisterPeer);
         connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked){
-            ui->le_name->setReadOnly(!checked);
             ui->le_cpu->setReadOnly(!checked);
             ui->le_ram->setReadOnly(!checked);
             ui->le_disk->setReadOnly(!checked);
+
             ui->cmb_bridge->setEnabled(checked);
+            ui->le_disk->setEnabled(checked);
+            ui->le_cpu->setEnabled(checked);
+            ui->le_ram->setEnabled(checked);
             if(checked == false){
                 this->configs();
             }
+            static std::vector<QString> states = {tr("Locked configs"), tr("Unlocked configs")};
+            ui->change_confugre->setText(states[checked]);
         });
     }
     else hidePeer();
@@ -260,6 +270,90 @@ void DlgPeer::configs(){
     if(index_bridge >= 0)
         ui->cmb_bridge->setCurrentIndex(index_bridge);
 }
+
+bool DlgPeer::check_configs(){
+    static bool bool_me;
+    static int base = 10;
+    int ram = ui->le_ram->text().toInt(&bool_me, base);
+    int cpu = ui->le_cpu->text().toInt(&bool_me, base);
+    int disk = ui->le_disk->text().toInt(&bool_me, base);
+    if(ram < 1024){
+        CNotificationObserver::Error(tr("1024 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
+        return false;
+    }
+
+    if(cpu < 1){
+        CNotificationObserver::Error(tr("Number of CPU can't be less than 1"), DlgNotification::N_NO_ACTION);
+        return false;
+    }
+
+    if(disk < peer_disk.toInt(&bool_me, base)){
+        CNotificationObserver::Error(tr("Sorry you can only increase disk size"), DlgNotification::N_NO_ACTION);
+        return false;
+    }
+    return true;
+}
+
+bool DlgPeer::change_configs(){
+    QString filename = QString("%1/vagrant-subutai.yml").arg(peer_dir);
+    QFile file(filename);
+    if(!check_configs())
+        return false;
+    peer_ram = ui->le_ram->text();
+    peer_cpu = ui->le_cpu->text();
+    peer_disk = ui->le_disk->text();
+    peer_bridge = ui->cmb_bridge->currentText();
+    if(file.exists()){
+        if (file.remove() && file.open(QIODevice::ReadWrite)){
+            QTextStream stream(&file);
+            stream << "SUBUTAI_RAM : " << peer_ram << endl;
+            stream << "SUBUTAI_CPU : " << peer_cpu << endl;
+            QString branch = current_branch_name();
+            if(branch == "production")
+                stream << "SUBUTAI_ENV : " << "prod" << endl;
+            else if (branch == "development")
+                 stream << "SUBUTAI_ENV : "<< "dev" << endl;
+            else stream << "SUBTUAI_ENV : "<< "master" << endl;
+            stream << "DISK_SIZE : "<< peer_disk << endl;
+            stream << "BRIDGE : "<< QString("\"%1\"").arg(peer_bridge)<<endl;
+        }
+        else{
+            CNotificationObserver::Error(tr("Failed to create new configuration file"), DlgNotification::N_NO_ACTION);
+            return false;
+        }
+        file.close();
+    }
+    else{
+        CNotificationObserver::Error(tr("Configuration file was not set"), DlgNotification::N_NO_ACTION);
+        return false;
+    }
+    return true;
+}
+
+void DlgPeer::enabled_peer_buttons(bool state){
+    if(peer_status == "running"){
+        ui->btn_stop->setEnabled(state);
+        ui->btn_destroy->setEnabled(state);
+        ui->btn_reload->setEnabled(state);
+        if(hub_available){
+            ui->btn_unregister->setEnabled(state);
+        }
+        else ui->btn_register->setEnabled(state);
+    }
+    if(peer_status == "broken"){
+        ui->btn_destroy->setEnabled(state);
+    }
+    if(peer_status == "not ready"){
+        ui->btn_destroy->setEnabled(state);
+        ui->btn_stop->setEnabled(state);
+        ui->btn_reload->setEnabled(state);
+    }
+    if(peer_status == "poweroff"){
+        ui->btn_destroy->setEnabled(state);
+        ui->btn_start->setEnabled(state);
+    }
+}
+
 
 void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code) {
   qDebug()<<"ssh to rh finished";
@@ -354,53 +448,53 @@ void DlgPeer::hideEnvs(){
 }
 
 void DlgPeer::stopPeer(){
-    /*
     StopPeer *thread_init = new StopPeer(this);
-    ui->btn_stop->setEnabled(false);
-    ui->btn_destroy->setEnabled(false);
-    ui->btn_register->setEnabled(false);
-    ui->btn_unregister->setEnabled(false);
+    enabled_peer_buttons(false);
     ui->btn_stop->setText(tr("Trying to stop peer..."));
-    thread_init->init(ui->le_dir->text());
+    thread_init->init(peer_dir);
+    emit peer_modified(peer_name);
     thread_init->startWork();
     connect(thread_init, &StopPeer::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
             return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Peer \"%1\" succesfully stopped").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            emit peer_stopped(this->peer_name);
             this->close();
         }
         else{
             CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
-            ui->btn_stop->setEnabled(true);
-            ui->btn_register->setEnabled(true);
-            ui->btn_unregister->setEnabled(true);
-            ui->btn_destroy->setEnabled(true);
+            enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Stop"));
         }
     });
-    */
 }
 
 void DlgPeer::startPeer(){
-    /*
+    if(ui->change_confugre->isChecked()){
+        if(!change_configs())
+            return;
+    }
     StartPeer *thread_init = new StartPeer(this);
+    ui->btn_reload->setEnabled(false);
     ui->btn_start->setEnabled(false);
     ui->btn_register->setEnabled(false);
     ui->btn_destroy->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
-    thread_init->init(ui->le_dir->text());
+    thread_init->init(peer_dir);
     thread_init->startWork();
     connect(thread_init, &StartPeer::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
             return;
         if(res == SCWE_SUCCESS){
+            emit peer_modified(this->peer_name);
             CNotificationObserver::Instance()->Info(tr("Starting process started. Don't close before it finished"), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
             CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            ui->btn_reload->setEnabled(true);
             ui->btn_stop->setEnabled(true);
             ui->btn_register->setEnabled(true);
             ui->btn_unregister->setEnabled(true);
@@ -408,38 +502,41 @@ void DlgPeer::startPeer(){
             ui->btn_stop->setText(tr("Start"));
         }
     });
-    */
 }
 
 void DlgPeer::destroyPeer(){
-    DestroyPeer *thread_init = new DestroyPeer(this);
-    ui->btn_start->setEnabled(false);
-    ui->btn_reload->setEnabled(false);
-    ui->btn_destroy->setEnabled(false);
-    ui->btn_register->setEnabled(false);
-    ui->btn_unregister->setEnabled(false);
-    ui->btn_stop->setEnabled(false);
-    ui->btn_destroy->setText(tr("Trying to destroy peer..."));
-    thread_init->init(peer_dir);
-    thread_init->startWork();
-    connect(thread_init, &DestroyPeer::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
-            return;
-        if(res == SCWE_SUCCESS){
+    if(peer_status == "broken"){
+        QDir  del_me(peer_dir);
+        if(del_me.removeRecursively()){
+            emit peer_deleted(this->peer_name);
             CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
-        else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
-            ui->btn_start->setEnabled(true);
-            ui->btn_reload->setEnabled(true);
-            ui->btn_destroy->setEnabled(true);
-            ui->btn_register->setEnabled(true);
-            ui->btn_unregister->setEnabled(true);
-            ui->btn_stop->setEnabled(true);
-            ui->btn_stop->setText(tr("Start"));
-        }
-    });
+        else CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permissions"), DlgNotification::N_NO_ACTION);
+        return;
+    }
+    DestroyPeer *thread_init = new DestroyPeer(this);
+    enabled_peer_buttons(false);
+    ui->btn_destroy->setText(tr("Trying to destroy peer..."));
+    if(peer_status != "broken"){
+        thread_init->init(peer_dir);
+        thread_init->startWork();
+        connect(thread_init, &DestroyPeer::outputReceived, [this](system_call_wrapper_error_t res){
+            if(this == nullptr)
+                return;
+            if(res == SCWE_SUCCESS){
+                CNotificationObserver::Instance()->Info(tr("Peer is destroyed successfully %1").arg(peer_name), DlgNotification::N_NO_ACTION);
+                emit peer_deleted(this->peer_name);
+                this->close();
+            }
+            else{
+                CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
+                enabled_peer_buttons(true);
+                ui->btn_destroy->setText(tr("Destroy"));
+            }
+        });
+    }
+    return;
 }
 
 void DlgPeer::reloadPeer(){
