@@ -476,11 +476,7 @@ void DlgPeer::startPeer(){
             return;
     }
     StartPeer *thread_init = new StartPeer(this);
-    ui->btn_reload->setEnabled(false);
-    ui->btn_start->setEnabled(false);
-    ui->btn_register->setEnabled(false);
-    ui->btn_destroy->setEnabled(false);
-    ui->btn_unregister->setEnabled(false);
+    enabled_peer_buttons(false);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
     thread_init->init(peer_dir);
     thread_init->startWork();
@@ -494,11 +490,7 @@ void DlgPeer::startPeer(){
         }
         else{
             CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
-            ui->btn_reload->setEnabled(true);
-            ui->btn_stop->setEnabled(true);
-            ui->btn_register->setEnabled(true);
-            ui->btn_unregister->setEnabled(true);
-            ui->btn_destroy->setEnabled(true);
+             enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Start"));
         }
     });
@@ -540,7 +532,29 @@ void DlgPeer::destroyPeer(){
 }
 
 void DlgPeer::reloadPeer(){
-    return;
+    if(ui->change_confugre->isChecked()){
+        if(!change_configs())
+            return;
+    }
+    ReloadPeer *thread_init = new ReloadPeer(this);
+    enabled_peer_buttons(false);
+    ui->btn_reload->setText(tr("Trying to reload peer..."));
+    thread_init->init(peer_dir);
+    thread_init->startWork();
+    emit peer_modified(this->peer_name);
+    connect(thread_init, &ReloadPeer::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            CNotificationObserver::Instance()->Info(tr("Peer reloading finished. Wait peer to start running"), DlgNotification::N_NO_ACTION);
+            this->close();
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not reload peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            enabled_peer_buttons(true);
+            ui->btn_stop->setText(tr("Reload"));
+        }
+    });
 }
 
 void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs){

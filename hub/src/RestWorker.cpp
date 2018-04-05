@@ -287,7 +287,7 @@ void CRestWorker::register_peer(const QString &ip_addr,
                       "application/x-www-form-urlencoded");
     QByteArray arr = send_request(
         m_network_manager, request, false, http_code, err_code, network_error,
-        query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
+        query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
     qDebug()
         << "Http code " << http_code
         << "Error code " << err_code

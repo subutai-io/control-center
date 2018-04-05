@@ -166,6 +166,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t vagrant_halt(const QString &dir);
 
+  static system_call_wrapper_error_t vagrant_reload(const QString &dir);
+
   static QStringList list_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);

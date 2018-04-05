@@ -260,4 +260,42 @@ signals:
     void outputReceived(system_call_wrapper_error_t res);
 };
 
+class ReloadPeer : public QObject{
+    Q_OBJECT
+    QString directory;
+public:
+    ReloadPeer(QObject *parent = nullptr) : QObject(parent){}
+
+    void init (const QString &directory){
+        this->directory = directory;
+    }
+
+    void startWork() {
+        QThread* thread = new QThread();
+        connect(thread, &QThread::started,
+                this, &ReloadPeer::execute_remote_command);
+        connect(this, &ReloadPeer::outputReceived,
+                thread, &QThread::quit);
+        connect(thread, &QThread::finished,
+                this, &ReloadPeer::deleteLater);
+        connect(thread, &QThread::finished,
+                thread, &QThread::deleteLater);
+        this->moveToThread(thread);
+        thread->start();
+    }
+
+    void execute_remote_command() {
+        QFutureWatcher<system_call_wrapper_error_t> *watcher
+            = new QFutureWatcher<system_call_wrapper_error_t>(this);
+        QFuture<system_call_wrapper_error_t>  res =
+            QtConcurrent::run(CSystemCallWrapper::vagrant_reload, directory);
+        watcher->setFuture(res);
+        connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+          emit this->outputReceived(res);
+        });
+    }
+signals:
+    void outputReceived(system_call_wrapper_error_t res);
+};
+
 #endif

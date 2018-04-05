@@ -376,6 +376,31 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir)
     return res.res;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "reload";
+
+    qDebug()
+            <<"Starting to reload peer. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Reload finished:"
+            <<dir
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;

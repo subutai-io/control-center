@@ -85,7 +85,7 @@ void DlgRegisterPeer::registerPeer(){
     }
     if(kill_me){
         CRestWorker::Instance()->register_peer(ip_addr, token,
-                                               CSettingsManager::Instance().login(), CSettingsManager::Instance().password(),
+                                               CHubController::Instance().current_email(), CSettingsManager::Instance().password(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error);
         kill_me = false;
