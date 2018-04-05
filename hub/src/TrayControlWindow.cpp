@@ -588,12 +588,14 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   static QIcon unhealthy_icon(":/hub/BAD.png");
   static QIcon healthy_icon(":/hub/GOOD.png");
   static QIcon modification_icon(":/hub/OK.png");
+  static QString deteted_string("DELETED");
 
   UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
   m_hub_menu->clear();
 
   std::map<QString, std::vector<QString> > tbl_envs;
+  std::map<QString, int> new_envs;
 
   if (CHubController::Instance().lst_environments().empty()) {
     QAction* empty_action = new QAction("Empty", this);
@@ -608,6 +610,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     environments_table[env_id] = *env;
     QString env_name = env->name();
     QAction* env_start = m_hub_menu->addAction(env->name());
+    new_envs[env_name] = 1;
     env_start->setIcon(env->status() == "HEALTHY" ? healthy_icon :
                           env->status() == "UNHEALTHY" ? unhealthy_icon : modification_icon);
 
@@ -656,6 +659,12 @@ void TrayControlWindow::environments_updated_sl(int rr) {
                   .arg(it->first);
           CNotificationObserver::Instance()->Info(str_notifications, DlgNotification::N_NO_ACTION);
       }
+  }
+
+  for (std::map<QString, CEnvironment>::iterator it = environments_table.begin();
+       it != environments_table.end(); it++){
+      if(new_envs[it->second.name()] == 0)
+          it->second.set_status(deteted_string);
   }
 }
 
@@ -1002,6 +1011,7 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name){
 
 /* p2p status updater*/
 void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status){
+    p2p_current_status=status;
     // need to put static icons
     static QIcon p2p_running(":/hub/running.png");
     static QIcon p2p_waiting(":/hub/waiting");
@@ -1012,7 +1022,6 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
     if(P2PStatus_checker::Instance().get_status() == P2PStatus_checker::P2P_INSTALLING){
         m_act_p2p_status->setText("P2P is installing");
         m_act_p2p_status->setIcon(p2p_loading);
-        p2p_current_status=status;
         return;
     }
     switch(status){
@@ -1040,7 +1049,6 @@ void TrayControlWindow::update_p2p_status_sl(P2PStatus_checker::P2P_STATUS statu
             m_act_p2p_status->setIcon(p2p_loading);
             break;
     }
-    p2p_current_status=status;
 }
 //////////////////////////////////////
 
