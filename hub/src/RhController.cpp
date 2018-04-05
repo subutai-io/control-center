@@ -4,6 +4,7 @@
 #include "SystemCallWrapper.h"
 #include <QPushButton>
 #include "NotificationObserver.h"
+#include "PeerController.h"
 
 
 CRhController::CRhController(QObject *parent) :
@@ -88,5 +89,3 @@ void CRhController::ssh_to_rh(const QString &peer_fingerprint) {
   emit ssh_to_rh_finished(peer_fingerprint, res.result(), *exit_code);
   delete exit_code;
 }
-
-////////////////////////////////////////////////////////////////////////////

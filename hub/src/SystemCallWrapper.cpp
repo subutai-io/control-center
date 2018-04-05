@@ -17,6 +17,7 @@
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
+#include "RestWorker.h"
 #include "SettingsManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
@@ -84,7 +85,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
         return res;
       }
   }
-      else{
+  else{
 
       if (!proc.waitForStarted(timeout_msec)) {
         if (log) {
@@ -274,6 +275,288 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 }
 
 //////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir, const QString &box){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "init";
+    if (box == "Debian Stretch")
+        args << "subutai/stretch";
+    else args << "subutai/xenial";
+
+
+    qDebug()
+            <<"Vagrant init ARGS: "
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Finished vagrant init:"
+            <<args
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+
+    return res.res;
+}
+
+QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
+    qDebug()
+            <<"Trying to get fingerprint of "<<ip;
+    QString finger = "";
+    if(CRestWorker::Instance()->get_peer_finger(ip, finger)){
+        return finger;
+    }
+    else return QString("");
+}
+
+QString CSystemCallWrapper::vagrant_status(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "status";
+
+    qDebug()
+            <<"Starting to get satus. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 20000);
+    QString status("broken");
+    qDebug()
+            <<"Got status of peer:"
+            <<"exit code: "<<res.exit_code
+            <<"result code: "<<res.res
+            <<"output: "<<res.out;
+    //the best part is parsing data
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return QString("broken");
+    }
+    QString st = "";
+    for(auto s : res.out){
+        st="";
+        for (int i=0; i < s.size(); i++){
+            if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
+                if(st == "running")
+                    return st;
+                if(st == "poweroff")
+                    return st;
+                st = "";
+            }
+            else
+                st += s[i];
+
+        }
+    }
+    return status;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "halt";
+
+    qDebug()
+            <<"Starting to halt peer. Args:"
+            <<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Halt finished:"
+            <<dir
+            <<res.res;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "reload";
+
+    qDebug()
+            <<"Starting to reload peer. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Reload finished:"
+            <<dir
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<< "set_working_directory"
+        << dir
+        << "destroy"
+        << "-f";
+
+    qDebug()
+            <<"Starting to destroy peer. Args:"<<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+    qDebug()<<"Destroying peer finished"
+            <<"Exit code:"<<res.exit_code
+            <<"Result:"<<res.res
+            <<"Output:"<<res.out;
+    if(res.exit_code !=0 || res.res != SCWE_SUCCESS)
+        return SCWE_CREATE_PROCESS;
+    QDir dir_path(dir);
+    if(dir_path.removeRecursively())
+        return SCWE_SUCCESS;
+    else return SCWE_CREATE_PROCESS;
+}
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "up";
+
+    qDebug()
+            <<"Vagrant up. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Finished vagrant up:"
+            <<dir
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return std::make_pair(res.res, res.out);
+}
+
+QString CSystemCallWrapper::vagrant_ip(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "subutai"
+        << "info ipaddr";
+
+    qDebug()
+            <<"Getting vagrant ip:"
+            <<args;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 20000);
+    qDebug()
+            <<"Finished vagrant ip:"
+            <<dir
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+
+    QString ip = "";
+
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.size() != 1)
+        return ip;
+    ip = res.out[0];
+    return ip;
+}
+//////////////////////////////////////////////////////////////////////
+QStringList CSystemCallWrapper::list_interfaces(){
+    /*#1 how to get bridged interfaces
+     * using command VBoxManage get list of all bridged interfaces
+     * */
+    qDebug("Getting list of bridged interfaces");
+    QString vb_version;
+    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+    QStringList interfaces;
+    if(vb_version == "undefined")
+        return interfaces;
+    QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+    QDir dir(path);
+    dir.cdUp();
+    path = dir.absolutePath();
+    path += "/VBoxManage";
+    QStringList args;
+    args << "list" << "bridgedifs";
+    qDebug()<<path<<args;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+    qDebug()<<"Listing interfaces result:"
+            <<"exit code:"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output:"<<res.out;
+    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+        return interfaces;
+    //time to parse data
+    QStringList parse_me = res.out;
+    QString flag;
+    QString value;
+    QString last_name;
+    bool reading_value = false;
+    for (auto s : parse_me){
+        flag = value = "";
+        reading_value = false;
+        for (int i=0; i < s.size(); i++){
+            if(s[i]=='\r')continue;
+            if(reading_value){
+                value += s[i];
+                continue;
+            }
+            if(s[i] == ':'){
+                flag = value;
+                value = "";
+                continue;
+            }
+            if(s[i] != ' '){
+                if(value == "" && !flag.isEmpty())
+                    reading_value = true;
+                value+=s[i];
+            }
+        }
+        if(flag == "Name")
+            last_name = value;
+        if(flag == "Status" && value == "Up")
+            interfaces.push_back(last_name);
+    }
+    return interfaces;
+}
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::check_peer_management_components(){
+    QString version;
+    vagrant_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("Before using vagrant. Install vagrant first"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    oracle_virtualbox_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    return true;
+}
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
@@ -679,7 +962,90 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
     const QString &key) {
    return run_sshkey_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
+//////////////////////////////////////////////////////////////////////////////
+template <class  OS>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir);
 
+template <>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> > (const QString &dir){
+
+    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += QString(" up");
+
+    QString cmd;
+
+    cmd = CSettingsManager::Instance().terminal_cmd();
+    QStringList args;
+    args << QString("-e");
+    qInfo("Launch command : %s",str_command.toStdString().c_str());
+
+    args << QString("Tell application \"%1\" to %2 \"%3\"")
+                .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+    return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
+                                              : SCWE_SSH_LAUNCH_FAILED;
+}
+
+template <>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
+    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += QString(" up");
+    QString cmd;
+    QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+    if (!cmd_file.exists()) {
+      system_call_wrapper_error_t tmp_res;
+      if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+          SCWE_SUCCESS) {
+        return tmp_res;
+      }
+    }
+    cmd = CSettingsManager::Instance().terminal_cmd();
+    QStringList args = CSettingsManager::Instance().terminal_arg().split(
+                         QRegularExpression("\\s"));
+    args << QString("%1;bash").arg(str_command);
+    return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
+                                              : SCWE_CREATE_PROCESS;
+}
+
+template <>
+system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_WIN> >(const QString &dir){
+UNUSED_ARG(dir);
+#ifdef RT_OS_WINDOWS
+  QString str_command = QString("cd %1 && \"%4\"")
+                            .arg(dir)
+                            .arg(CSettingsManager::Instance().vagrant_path());
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString cmd_args =
+      QString("\"%1\" /k \"%2\" up").arg(cmd).arg(str_command);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
+                          NULL, &si, &pi);
+  if (!cp) {
+    qCritical(
+        "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+        GetLastError());
+    return SCWE_CREATE_PROCESS;
+  }
+#endif
+  return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir){
+    return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir);
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
@@ -1564,6 +1930,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
@@ -1585,6 +1952,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
 system_call_wrapper_error_t
 CSystemCallWrapper::is_rh_management_update_available(bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
 
@@ -1665,6 +2033,7 @@ system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(
 QString CSystemCallWrapper::rh_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -1690,6 +2059,7 @@ QString CSystemCallWrapper::rh_version() {
 QString CSystemCallWrapper::rhm_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),

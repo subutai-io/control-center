@@ -60,7 +60,10 @@ SOURCES += \
     hub/src/DlgPeer.cpp \
     hub/src/TraySkinController.cpp \
     hub/src/HostMachineController.cpp \
-    hub/forms/DlgTransferFile.cpp
+    hub/forms/DlgTransferFile.cpp \
+    hub/src/DlgRegisterPeer.cpp \
+    DlgCreatePeer.cpp \
+    hub/src/PeerController.cpp
 
 
 
@@ -106,7 +109,10 @@ HEADERS  += \
     hub/include/DlgPeer.h \
     hub/include/TraySkinController.h \
     hub/include/HostMachineController.h \
-    hub/forms/DlgTransferFile.h
+    hub/forms/DlgTransferFile.h \
+    hub/include/DlgRegisterPeer.h \
+    DlgCreatePeer.h \
+    hub/include/PeerController.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -122,7 +128,9 @@ FORMS    += \
     hub/forms/DlgNotification.ui \
     hub/forms/DlgEnvironment.ui \
     hub/forms/DlgPeer.ui \
-    hub/forms/DlgTransferFile.ui
+    hub/forms/DlgTransferFile.ui \
+    hub/forms/DlgRegisterPeer.ui \
+    DlgCreatePeer.ui
 
 RESOURCES += \
     resources/resources.qrc \
@@ -141,7 +149,7 @@ DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_DEV
+GBV=BT_PROD
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
