@@ -130,7 +130,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
             stream << "SUBUTAI_ENV : " << "prod" << endl;
         else if (branch == "development")
              stream << "SUBUTAI_ENV : "<< "dev" << endl;
-        else stream << "SUBTUAI_ENV : "<< "master" << endl;
+        else stream << "SUBUTAI_ENV : "<< "master" << endl;
         stream << "DISK_SIZE : "<< disk << endl;
         stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
     }
