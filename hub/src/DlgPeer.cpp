@@ -517,8 +517,10 @@ void DlgPeer::destroyPeer(){
             CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
-        CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permissions"), DlgNotification::N_NO_ACTION);
-        enabled_peer_buttons(true);
+        else{
+            CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permissions"), DlgNotification::N_NO_ACTION);
+            enabled_peer_buttons(true);
+        }
         return;
     }
     DestroyPeer *thread_init = new DestroyPeer(this);
