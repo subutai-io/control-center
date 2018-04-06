@@ -9,7 +9,7 @@
 
 CPeerController::CPeerController(QObject *parent) :
     QObject(parent){
-        m_refresh_timer.setInterval(60*1000);
+        m_refresh_timer.setInterval(6*1000);
         number_threads = 0;
         connect(&m_refresh_timer, &QTimer::timeout,
               this, &CPeerController::refresh_timer_timeout);
