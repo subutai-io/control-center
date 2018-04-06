@@ -829,7 +829,7 @@ void TrayControlWindow::update_peer_menu() {
     }
     if(found_on_hub == false){
         if(local_peer->status() == "running"){
-            if(local_peer->ip() != "loading" && local_peer->ip() != "undefined"){
+            if(local_peer->ip() != "loading" && local_peer->ip() != "undefined" && !local_peer->ip().isEmpty()){
                 QAction *peer_start = m_hub_peer_menu->addAction(local_peer->name() + " - " + local_peer->ip());
                 peer_start->setIcon(local_network_icon);
                 std::vector<CLocalPeer> machine_peer_info;
