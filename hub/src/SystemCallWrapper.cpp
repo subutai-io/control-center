@@ -592,6 +592,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
         if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
             return plugin == installed_plugin.first;}) == plugins.end()){
             CNotificationObserver::Info(QObject::tr("Installing missing vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
+            vagrant_plugin_install(plugin);
         }
     }
     return true;
