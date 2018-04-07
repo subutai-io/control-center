@@ -171,17 +171,14 @@ unix:!macx {
 #////////////////////////////////////////////////////////////////////////////
 
 macx: {
-  DEFINES += RT_OS_DARWIN
+  DEFINES += RT_OS_DARWIN  
   DEFINES += CURRENT_OS=OS_MAC
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/cc_icon_mac.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
-  LIBS += -L$$PWD/libssh2/lib -lssh2
-  LIBS += -L$$PWD/libssh2/lib/mac -lssh2
-  LIBS += -L/usr/local/lib/ -lssh2
-#  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
+  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION
 #  LIBS += -L$$PWD/libssh2/lib -lssh2
 #  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11
