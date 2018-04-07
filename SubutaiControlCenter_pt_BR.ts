@@ -140,33 +140,14 @@
     </message>
 </context>
 <context>
-    <name>CRestWorker</name>
-    <message>
-        <location filename="hub/src/RestWorker.cpp" line="200"/>
-        <location filename="hub/src/RestWorker.cpp" line="352"/>
-        <source>getting token of %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/RestWorker.cpp" line="245"/>
-        <source>Unregister peer %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/RestWorker.cpp" line="273"/>
-        <source>Registering peer %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CSettingsManager</name>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="588"/>
+        <location filename="hub/src/SettingsManager.cpp" line="580"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/SettingsManager.cpp" line="589"/>
+        <location filename="hub/src/SettingsManager.cpp" line="581"/>
         <source>You changed language. Would you like to restart tray?</source>
         <translation>Língua modificada. Gostaria de reiniciar o tray?</translation>
     </message>
@@ -294,13 +275,13 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="173"/>
-        <location filename="hub/src/DlgAbout.cpp" line="282"/>
+        <location filename="hub/src/DlgAbout.cpp" line="283"/>
         <source>Update P2P</source>
         <translation>Atualizar P2P</translation>
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="193"/>
-        <location filename="hub/src/DlgAbout.cpp" line="308"/>
+        <location filename="hub/src/DlgAbout.cpp" line="309"/>
         <source>Update X2Go-Client</source>
         <translation type="unfinished"></translation>
     </message>
@@ -331,7 +312,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="265"/>
-        <location filename="hub/src/DlgAbout.cpp" line="315"/>
+        <location filename="hub/src/DlgAbout.cpp" line="316"/>
         <source>Update Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
@@ -355,187 +336,43 @@
         <translation>Atualizar Anfitrião de Recursos</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="244"/>
+        <location filename="hub/src/DlgAbout.cpp" line="245"/>
         <source>Couldn&apos;t update component %1</source>
         <translation>Não foi possível atualizar componente %1</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="280"/>
+        <location filename="hub/src/DlgAbout.cpp" line="281"/>
         <source>Install P2P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="307"/>
+        <location filename="hub/src/DlgAbout.cpp" line="308"/>
         <source>Install X2Go-Client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="314"/>
+        <location filename="hub/src/DlgAbout.cpp" line="315"/>
         <source>Install Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="321"/>
+        <location filename="hub/src/DlgAbout.cpp" line="322"/>
         <source>Install Oracle VirtualBox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="322"/>
+        <location filename="hub/src/DlgAbout.cpp" line="323"/>
         <source>Update Oracle VirtualBox</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgAbout.cpp" line="397"/>
+        <location filename="hub/src/DlgAbout.cpp" line="393"/>
+        <source>Installation of %1 failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgAbout.cpp" line="402"/>
         <source>Update %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DlgCreatePeer</name>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="20"/>
-        <source>CPU</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="27"/>
-        <source>RAM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="34"/>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="41"/>
-        <source>4096</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="48"/>
-        <source>Create</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="56"/>
-        <source>Debian Stretch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="61"/>
-        <source>Ubuntu Xenial</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="69"/>
-        <source>OS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="79"/>
-        <location filename="DlgCreatePeer.ui" line="86"/>
-        <source>1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="91"/>
-        <source>2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="96"/>
-        <source>3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="101"/>
-        <source>4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="106"/>
-        <source>5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="111"/>
-        <source>6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="116"/>
-        <source>7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="121"/>
-        <source>8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="129"/>
-        <source>Disk GB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="136"/>
-        <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="146"/>
-        <source>Bridge Interface</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="41"/>
-        <source>Name can&apos;t be empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="46"/>
-        <source>Name can&apos;t have space</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="51"/>
-        <source>Ram shold be integer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="56"/>
-        <source>Ram can&apos;t be empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="61"/>
-        <source>Ram should be more than 512 MB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="66"/>
-        <source>Disk size can&apos;t be empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="71"/>
-        <source>Disk size should be in integer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="77"/>
-        <source>Disk size can&apos;t be less than 100 GB</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.cpp" line="85"/>
-        <source>Name already exists</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -558,7 +395,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="53"/>
-        <location filename="hub/src/DlgEnvironment.cpp" line="56"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="52"/>
         <source>Transfer File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -589,7 +426,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgEnvironment.ui" line="46"/>
-        <location filename="hub/src/DlgEnvironment.cpp" line="76"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="70"/>
         <source>Remote Desktop</source>
         <oldsource>DESKTOP ALL</oldsource>
         <translation type="unfinished">DESKTOP TODOS</translation>
@@ -637,7 +474,7 @@
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="96"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="88"/>
         <source>SSH</source>
         <translation>SSH</translation>
     </message>
@@ -646,45 +483,45 @@
         <translation type="vanished">DESKTOP</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="43"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="41"/>
         <source>Loading..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="64"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="60"/>
         <source>Opening X2Go-Client..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="84"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="78"/>
         <source>Running ssh commands..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="177"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="164"/>
         <source>READY</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="184"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="171"/>
         <source>CONNECTING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="190"/>
-        <location filename="hub/src/DlgEnvironment.cpp" line="196"/>
-        <location filename="hub/src/DlgEnvironment.cpp" line="202"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="177"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="183"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="189"/>
         <source>FAILED</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="198"/>
+        <location filename="hub/src/DlgEnvironment.cpp" line="185"/>
         <source>Environment is not HEALTHY</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgEnvironment.cpp" line="204"/>
-        <source>P2P is not running</source>
+        <location filename="hub/src/DlgEnvironment.cpp" line="191"/>
+        <source>P2P is not installed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -750,81 +587,70 @@
         <translation type="vanished">Login (e-mail):</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="53"/>
+        <location filename="hub/forms/DlgLogin.ui" line="28"/>
         <source>Username (or email):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="63"/>
+        <location filename="hub/forms/DlgLogin.ui" line="38"/>
         <source>Password:</source>
         <translation>Senha:</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="107"/>
+        <location filename="hub/forms/DlgLogin.ui" line="69"/>
         <source>Show password when type</source>
         <translation>Mostre a senha enquanto é digitada</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="144"/>
+        <location filename="hub/forms/DlgLogin.ui" line="106"/>
         <source>Remember me</source>
         <translation>Lembre-se de mim</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="166"/>
-        <location filename="hub/src/DlgLogin.cpp" line="165"/>
-        <source>Resolve</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgLogin.ui" line="28"/>
+        <location filename="hub/forms/DlgLogin.ui" line="130"/>
         <source>Sign in</source>
         <translation>Entrar</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="35"/>
-        <location filename="hub/src/DlgLogin.cpp" line="20"/>
+        <location filename="hub/forms/DlgLogin.ui" line="137"/>
+        <location filename="hub/src/DlgLogin.cpp" line="18"/>
         <source>Register</source>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="42"/>
+        <location filename="hub/forms/DlgLogin.ui" line="144"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgLogin.ui" line="79"/>
+        <location filename="hub/forms/DlgLogin.ui" line="153"/>
         <source>lbl_status</source>
         <translation>lbl_status</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="80"/>
+        <location filename="hub/src/DlgLogin.cpp" line="74"/>
         <source>Wrong login or password. Try again!</source>
         <translation>Usuário ou senha incorretas. Tente novamente!</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="85"/>
+        <location filename="hub/src/DlgLogin.cpp" line="79"/>
         <source>HTTP error. Code</source>
         <translation>Erro de HTTP.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="90"/>
+        <location filename="hub/src/DlgLogin.cpp" line="84"/>
         <source>Timeout. Check internet connection, please!</source>
         <translation>Tempo excedido. Verifique a conexão com a internet.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="95"/>
+        <location filename="hub/src/DlgLogin.cpp" line="89"/>
         <source>Network error. Code</source>
         <translation>Erro de rede.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgLogin.cpp" line="102"/>
+        <location filename="hub/src/DlgLogin.cpp" line="95"/>
         <source>Unknown error. Code</source>
         <translation>Erro desconhecido.</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgLogin.cpp" line="161"/>
-        <source>Resolving...</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -870,22 +696,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgNotification.cpp" line="73"/>
+        <location filename="hub/src/DlgNotification.cpp" line="68"/>
         <source>Info</source>
         <translation>Informações</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgNotification.cpp" line="73"/>
+        <location filename="hub/src/DlgNotification.cpp" line="68"/>
         <source>Warning</source>
         <translation>Aviso</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgNotification.cpp" line="73"/>
+        <location filename="hub/src/DlgNotification.cpp" line="68"/>
         <source>Error</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgNotification.cpp" line="74"/>
+        <location filename="hub/src/DlgNotification.cpp" line="69"/>
         <source>Critical</source>
         <translation>Crítico</translation>
     </message>
@@ -952,12 +778,12 @@
         <translation>Diálogo</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="148"/>
+        <location filename="hub/forms/DlgPeer.ui" line="23"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="33"/>
+        <location filename="hub/forms/DlgPeer.ui" line="109"/>
         <source>Environment</source>
         <translation>Ambiente</translation>
     </message>
@@ -966,381 +792,48 @@
         <translation type="vanished">Peer no Hub</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="23"/>
+        <location filename="hub/forms/DlgPeer.ui" line="126"/>
         <source>Owner</source>
         <translation>Proprietário</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="158"/>
+        <location filename="hub/forms/DlgPeer.ui" line="136"/>
         <source>Launch  Subutai Console</source>
         <translation>Abrir Console Subutai</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="66"/>
+        <location filename="hub/forms/DlgPeer.ui" line="152"/>
         <source>Show SSH box</source>
         <translation>Mostrar máquina SSH</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="102"/>
+        <location filename="hub/forms/DlgPeer.ui" line="85"/>
         <source>User</source>
         <translation>Usuário</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="112"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;SSH into container&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="132"/>
+        <location filename="hub/forms/DlgPeer.ui" line="52"/>
         <source>IP</source>
         <translation>IP</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="172"/>
-        <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="185"/>
-        <source>Bridge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="198"/>
-        <source>Ram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="214"/>
-        <source>State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="221"/>
-        <location filename="hub/src/DlgPeer.cpp" line="555"/>
-        <source>Reload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="228"/>
-        <source>Disk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="243"/>
-        <location filename="hub/src/DlgPeer.cpp" line="494"/>
-        <source>Start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="250"/>
-        <location filename="hub/src/DlgPeer.cpp" line="468"/>
-        <source>Stop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="259"/>
-        <source>CPU</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="266"/>
-        <location filename="hub/src/DlgPeer.cpp" line="527"/>
-        <source>Destroy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="273"/>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="282"/>
-        <source>Register to Bazaar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="289"/>
-        <source>Unregister from Bazaar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="298"/>
-        <location filename="hub/src/DlgPeer.cpp" line="248"/>
-        <source>Locked configs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="305"/>
-        <source>Peer is running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="95"/>
+        <location filename="hub/forms/DlgPeer.ui" line="65"/>
         <source>Port</source>
         <translation>Porta</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="122"/>
+        <location filename="hub/forms/DlgPeer.ui" line="72"/>
         <source>Pass</source>
         <translation>Senha</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="115"/>
-        <location filename="hub/src/DlgPeer.cpp" line="366"/>
+        <location filename="hub/forms/DlgPeer.ui" line="92"/>
         <source>SSH into Peer</source>
         <translation>Entrar no Peer por SSH</translation>
     </message>
     <message>
-        <location filename="hub/forms/DlgPeer.ui" line="73"/>
+        <location filename="hub/forms/DlgPeer.ui" line="119"/>
         <source>Peer on Bazaar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="195"/>
-        <source>PROCESSING..</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="202"/>
-        <source>Peer is in your machine.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="208"/>
-        <source>Peer is runnning</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="215"/>
-        <source>Peer is broken.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="220"/>
-        <source>Peer is not ready.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="226"/>
-        <source>Peer is poweroff</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="248"/>
-        <source>Unlocked configs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="281"/>
-        <source>1024 GB is the minimum size for RAM. Increase your RAM size please</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="286"/>
-        <source>Number of CPU can&apos;t be less than 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="291"/>
-        <source>Sorry you can only increase disk size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="321"/>
-        <source>Failed to create new configuration file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="327"/>
-        <source>Configuration file was not set</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="375"/>
-        <source>Register peer: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="387"/>
-        <source>Unregister peer: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="435"/>
-        <source>This peer is not in your machine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="440"/>
-        <source>This peer doesn&apos;t have any &quot;Environments&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="453"/>
-        <source>Trying to stop peer...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="461"/>
-        <source>Peer &quot;%1&quot; succesfully stopped</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="466"/>
-        <location filename="hub/src/DlgPeer.cpp" line="492"/>
-        <source>Sorry, could not stop peer &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="480"/>
-        <source>Trying to launch peer...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="488"/>
-        <source>Starting process started. Don&apos;t close before it finished</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="504"/>
-        <source>Peer have been destroyed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="507"/>
-        <source>Failed to delete peer folder. Make sure you have permissions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="512"/>
-        <source>Trying to destroy peer...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="520"/>
-        <source>Peer is destroyed successfully %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="525"/>
-        <source>Sorry, could not destroy peer &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="541"/>
-        <source>Trying to reload peer...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="549"/>
-        <source>Peer reloading finished. Wait peer to start running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgPeer.cpp" line="553"/>
-        <source>Sorry, could not reload peer &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DlgRegisterPeer</name>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="20"/>
-        <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="26"/>
-        <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="38"/>
-        <source>Unregister</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="48"/>
-        <source>Register</source>
-        <translation type="unfinished">Registrar</translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="62"/>
-        <source>Console Password</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="75"/>
-        <source>Peer name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="85"/>
-        <source>Console Username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="92"/>
-        <source>Peer Scope</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="100"/>
-        <source>Public</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgRegisterPeer.ui" line="105"/>
-        <source>Private</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="61"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="99"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="161"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="196"/>
-        <source>Wrong login or password. Try again!</source>
-        <translation type="unfinished">Usuário ou senha incorretas. Tente novamente!</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="66"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="104"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="166"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="201"/>
-        <source>HTTP error. Code</source>
-        <translation type="unfinished">Erro de HTTP.</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="71"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="109"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="171"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="206"/>
-        <source>Timeout. Check internet connection, please!</source>
-        <translation type="unfinished">Tempo excedido. Verifique a conexão com a internet.</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="76"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="114"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="176"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="211"/>
-        <source>Network error. Code</source>
-        <translation type="unfinished">Erro de rede.</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="82"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="182"/>
-        <source>Unknown error. Code</source>
-        <translation type="unfinished">Erro desconhecido.</translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="120"/>
-        <source>Can&apos;t register peer.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="217"/>
-        <source>Can&apos;t unregister peer.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1798,7 +1291,7 @@
 <context>
     <name>P2PStatus_checker</name>
     <message>
-        <location filename="hub/include/P2PController.h" line="231"/>
+        <location filename="hub/include/P2PController.h" line="230"/>
         <source>P2P installation have started</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2005,156 +1498,155 @@
         <translation type="vanished">Usando a chave SSH %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="616"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1078"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1208"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1338"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1505"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1596"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="342"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="703"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="831"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="961"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1119"/>
         <source>Couldn&apos;t find gksu command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="625"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1087"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1217"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1347"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1514"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1605"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="351"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="712"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="840"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="970"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1128"/>
         <source>Couldn&apos;t find sh command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="634"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="360"/>
         <source>Couldn&apos;t find systemctl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="646"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="372"/>
         <source>gksu systemctl list-units call failed. ec = %1, res = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="655"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="381"/>
         <source>gksu systemctl list-units output is empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="667"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1096"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1226"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1356"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1523"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1614"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="393"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="721"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="849"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="979"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1137"/>
         <source>Couldn&apos;t get standard temporary location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="678"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="404"/>
         <source>Couldn&apos;t create reload script temp file. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="708"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="426"/>
         <source>Couldn&apos;t write restart script to temp file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="721"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1138"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1268"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1399"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1567"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1655"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="440"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="763"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="891"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1021"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1181"/>
         <source>Couldn&apos;t set exe permission to reload script file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="733"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="452"/>
         <source>Couldn&apos;t reload p2p.service. ec = %1, err = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1109"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1239"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1369"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1536"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1627"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="734"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="862"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="992"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1150"/>
         <source>Couldn&apos;t create install script temp file. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1123"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1253"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1384"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1552"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1640"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="748"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="876"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1006"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1166"/>
         <source>Couldn&apos;t write install script to temp file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1420"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="775"/>
+        <source>Couldn&apos;t install p2p err = %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1033"/>
         <source>Couldn&apos;t install vagrant err = %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1432"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1046"/>
         <source>Vagrant installed, setting additional plugins.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2299"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2369"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1819"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1889"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation>Não foi possível recuperar o diretório home</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2309"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1829"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation>Não foi possível criar o diretório de início automático, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2324"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1844"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation>Não foi possível deletar %1. %2</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2336"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1856"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation>Não foi possível criar o arquivo desktop de auto-início. Erro : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2348"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1868"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation>Não foi possível escrever no arquivo de auto-início.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2420"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1940"/>
         <source>Write plist file error</source>
         <translation>Erro ao gravar o arquivo plist</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2456"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1976"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation>Não foi possível criar a chave de registro, desculpe</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2468"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1988"/>
         <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2478"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1998"/>
         <source>Couldn&apos;t add program to autorun, sorry</source>
         <translation>Não foi possível adicionar o programa ao auto-início, desculpe.</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2486"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2006"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation>Não foi possível adicionar o programa para iniciar automaticamente devido a problemas de acesso. Tente rodar esse aplicativo como administrador. </translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2500"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2020"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation>Não foi possível remover o programa do auto-início, desculpe.</translation>
     </message>
@@ -2190,27 +1682,27 @@
         <translation type="vanished">Não foi possível operar sem o daemon p2p. Por favor mude o caminho nas Configurações, ou instale o daemon se ele ainda não foi instalado. Você pode obter a versão [production|dev|stage] href=&quot;%1&quot;&gt;aqui&lt;/a&gt;  </translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="685"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="669"/>
         <source>stage</source>
         <translation>stage</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="686"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="670"/>
         <source>development</source>
         <translation>development</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="687"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="671"/>
         <source>production</source>
         <translation>production</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="704"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="688"/>
         <source>-master</source>
         <translation>-master</translation>
     </message>
     <message>
-        <location filename="commons/src/OsBranchConsts.cpp" line="705"/>
+        <location filename="commons/src/OsBranchConsts.cpp" line="689"/>
         <source>-dev</source>
         <translation>-dev</translation>
     </message>
@@ -2229,33 +1721,33 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="515"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="507"/>
         <source>X2Go-Client is not launchable. Make sure x2go-client is istalled from &quot;About&quot; settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="554"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1038"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="546"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="822"/>
         <source>P2P is not installed. You can&apos;t connect to the environments without P2P.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="558"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="550"/>
         <source>P2P is not launched. Press start to launch P2P daemon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="562"/>
-        <source>P2P is running. Stop and start it, if you have troubles.</source>
+        <location filename="hub/src/TrayControlWindow.cpp" line="554"/>
+        <source>P2P is running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="565"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="557"/>
         <source>P2P daemon is loading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="568"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="560"/>
         <source>P2P is installing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2280,8 +1772,8 @@
         <translation type="vanished">Lançar</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="186"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1200"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="178"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="979"/>
         <source>Settings</source>
         <translation>Configurações</translation>
     </message>
@@ -2290,138 +1782,122 @@
         <translation type="vanished">Máquinas Virtuais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="191"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="251"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="183"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="239"/>
         <source>Environments</source>
         <translation>Ambientes</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="193"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="185"/>
         <source>Quit</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="198"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="190"/>
         <source>Go to Bazaar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="207"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="199"/>
         <source>About</source>
         <translation>Sobre</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="212"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="204"/>
         <source>SSH-keys management</source>
         <translation>Gerenciamento de chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="216"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="208"/>
         <source>Logout</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="220"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1238"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="212"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1001"/>
         <source>Notifications history</source>
         <translation>Histórico de notificações</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="226"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1044"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="218"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="828"/>
         <source>P2P is loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="230"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1217"/>
-        <source>Create peer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="254"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="242"/>
         <source>My Peers</source>
         <translation>Meus Peers</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="256"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="244"/>
         <source>Local Peers</source>
         <translation>Peers Locais</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="498"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="490"/>
         <source>This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="501"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="493"/>
         <source>Can&apos;t run terminal to ssh into peer. Error code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="528"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="520"/>
         <source>Update for %1 is available. Check &quot;About&quot; dialog</source>
         <translation>Atualizações para %1 estão disponíveis. Verifique em &quot;Sobre&quot;</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="537"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="529"/>
         <source>Failed to update %1. See details in error logs</source>
         <translation>Falha ao atualizar %1. Veja detalhes nos logs de erro</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="686"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="702"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="668"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="684"/>
         <source>&quot;%1&quot; is %2 </source>
         <translation>&quot;%1&quot; é %2 </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="693"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="709"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="675"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="691"/>
         <source>Status of your Peers: </source>
         <translation>Cтатус ваших пиров: </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1029"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="813"/>
         <source>P2P is not running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1033"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="817"/>
         <source>P2P is running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1040"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="824"/>
         <source>Can&apos;t launch P2P</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1048"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="832"/>
         <source>P2P is installing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1210"/>
-        <source>Install Vagrant to create Peers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1214"/>
-        <source>You don&apos;t have any hypervisor for Vagrant</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1222"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="985"/>
         <source>About Subutai Control Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1231"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="994"/>
         <source>SSH Key Manager</source>
         <translation>Gerenciador de Chaves SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1323"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1084"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
         <translation>Não foi possível entrar por Desktop no container. Erro: %1</translation>
     </message>
@@ -2434,12 +1910,12 @@
         <translation type="vanished">Falha ao lançar o site via navegador padrão</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="633"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="622"/>
         <source>Environment %1 became healthy</source>
         <translation>Ambiente %1 se tornou saudável</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="655"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="644"/>
         <source>Environment%1 %2 %3 %4</source>
         <translation>Ambiente %1 %2 %3 %4</translation>
     </message>
@@ -2456,8 +1932,8 @@
         <translation type="vanished">Falha ao rodar o console subutai via navegador padrão. Não foi possível iniciar o processo </translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1083"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1112"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="868"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="897"/>
         <source>Can&apos;t get RH IP address. Error : %1</source>
         <translation>Não foi possível conseguir o endereço de IP. Erro: %1</translation>
     </message>
@@ -2470,7 +1946,7 @@
         <translation type="vanished">Geração de chave SSH</translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1307"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1068"/>
         <source>Can&apos;t ssh to container. Err : %1</source>
         <translation>Não foi possível estabelecer conexão SSH com o container. Err : %1</translation>
     </message>
@@ -2491,18 +1967,13 @@
 <context>
     <name>update_system::CUpdaterComponentORACLE_VIRTUALBOX</name>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="249"/>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="248"/>
         <source>Running installation script.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="272"/>
-        <source>Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="273"/>
-        <source>Virtualbox has been installed. Congratulations!</source>
+        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="270"/>
+        <source>Oracle VirtualBox has been installed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2549,6 +2020,11 @@
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="215"/>
+        <source>P2P installation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="216"/>
         <source>P2P has been installed. Wait 15 seconds until it&apos;s started.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2599,12 +2075,7 @@
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="202"/>
-        <source>Vagrant installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/updater/IUpdaterComponent.cpp" line="203"/>
-        <source>Vagrant has been installed. Congratulations!</source>
+        <source>vagrant has been installed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2617,13 +2088,12 @@
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="132"/>
-        <source>X2Go-Client installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
+        <source>x2go-client installation failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="133"/>
-        <source>X2Go-Client has been installed. Congratulations!</source>
-        <oldsource>x2go-client has been installed.</oldsource>
+        <source>x2go-client has been installed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

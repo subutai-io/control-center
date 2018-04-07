@@ -18,11 +18,9 @@
 #include "HubController.h"
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
-#include "DlgCreatePeer.h"
 #include "RestContainers.h"
 
 #include "P2PController.h"
-#include "PeerController.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -54,8 +52,6 @@ private:
   Ui::TrayControlWindow *ui;
 
   std::vector<CMyPeerInfo> peers_connected;
-  std::vector<CLocalPeer> local_peers_connected;
-  std::map<QString, CLocalPeer> machine_peers_table;
 
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
@@ -68,7 +64,7 @@ private:
   QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
-  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>, std::vector<CLocalPeer> lp);
+  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>);
   static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
@@ -90,10 +86,9 @@ private:
   QAction *m_act_notifications_history;
 
   QSystemTrayIcon* m_sys_tray_icon;
-  QAction *m_act_create_peer;
   QMenu* m_tray_menu;
-  QAction *m_act_p2p_status; // p2p status
 
+  QAction *m_act_p2p_status; // p2p status
 
   std::map<QString, QDialog*> m_dct_active_dialogs;
 
@@ -114,7 +109,6 @@ public slots:
   void show_settings_dialog();
   void launch_Hub();
   void launch_ss();
-  void show_create_dialog();
 
   /*hub slots*/
   void show_notifications_triggered();
@@ -136,17 +130,7 @@ private slots:
   void environments_updated_sl(int rr);
   void balance_updated_sl();
   void my_peers_updated_sl();
-  void got_peer_info_sl(int type,
-                        QString name,
-                        QString dir,
-                        QString output);
   void update_peer_menu();
-
-  /*peer slots*/
-  void machine_peers_upd_finished();
-  void peer_deleted_sl(const QString& peer_name);
-  void peer_under_modification_sl(const QString& peer_name);
-  void peer_poweroff_sl(const QString& peer_name);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
@@ -168,9 +152,6 @@ private slots:
   void desktop_to_container_finished(const CEnvironment &env,
                                      const CHubContainer &cont,
                                      int result);
-
-//  void peer_create_finished(int result);
-//  void create_peer_triggered(int kkukala);
 
   /*updater*/
   void update_available(QString file_id);

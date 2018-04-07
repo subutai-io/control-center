@@ -35,7 +35,6 @@ class CSettingsManager : public QObject {
 
   static const QString SM_LOGS_STORAGE;
   static const QString SM_SSH_KEYS_STORAGE;
-  static const QString SM_PEERS_STORAGE;
 
   static const QString SM_TRAY_GUID;
 
@@ -96,7 +95,6 @@ class CSettingsManager : public QObject {
 
   QString m_logs_storage;
   QString m_ssh_keys_storage;
-  QString m_peers_storage;
   QString m_tray_guid;
 
   uint32_t m_p2p_update_freq;
@@ -204,7 +202,6 @@ class CSettingsManager : public QObject {
 
   const QString& logs_storage() const { return m_logs_storage; }
   const QString& ssh_keys_storage() const { return m_ssh_keys_storage; }
-  const QString& peer_storage() const { return m_peers_storage; }
   const QString& tray_guid() const { return m_tray_guid; }
 
   update_freq_t p2p_update_freq() const {
@@ -298,7 +295,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(rh_port, quint16)
   SET_FIELD_DECL(logs_storage, QString&)
   SET_FIELD_DECL(ssh_keys_storage, QString&)
-  SET_FIELD_DECL(peers_storage, QString&)
   SET_FIELD_DECL(p2p_autoupdate, bool)
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
