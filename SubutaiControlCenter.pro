@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets quick
+QT       += core gui network websockets
 CONFIG   += c++11
 
 
@@ -249,4 +249,3 @@ tests {
 } else {
     message(Normal build)
 }
-
