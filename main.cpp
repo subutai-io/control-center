@@ -25,7 +25,6 @@
 #include "Logger.h"
 #include "LanguageController.h"
 #include "P2PController.h"
-#include "PeerController.h"
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -66,6 +65,7 @@ main(int argc, char *argv[]) {
   QApplication::setApplicationName("SubutaiControlCenter");
   QApplication::setOrganizationName("subutai.io");
   QApplication app(argc, argv);
+
 
   Logger::Instance()->Init();
 

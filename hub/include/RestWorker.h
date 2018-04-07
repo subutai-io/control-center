@@ -52,12 +52,9 @@ private:
                                    const QByteArray &data,
                                    QNetworkRequest &req);
 
-  static QNetworkReply* delete_reply(QNetworkAccessManager* nam,
-                                    QNetworkRequest &req);
-
   QByteArray send_request(QNetworkAccessManager *nam,
       QNetworkRequest &req,
-      int get,
+      bool get,
       int& http_status_code,
       int& err_code,
       int &network_error,
@@ -111,37 +108,9 @@ public:
              int &err_code,
              int &network_error);
 
-  void register_peer(const QString& ip_addr,
-                     const QString& token,
-                     const QString& login,
-                     const QString& password,
-                     const QString& peer_name,
-                     const QString& peer_scope,
-                     int &err_code,
-                     int &http_code,
-                     int &network_error);
-
-  void unregister_peer(const QString& ip_addr,
-                       const QString& token,
-                       int &err_code,
-                       int &http_code,
-                       int &network_error);
-
-
-  void get_peer_token(const QString& ip_addr,
-                      const QString& login,
-                      const QString& password,
-                      QString& token,
-                      int &err_code,
-                      int &http_code,
-                      int &network_error);
-
   bool get_user_id(QString& user_id_str);
 
   bool get_user_email(QString& user_email_str);
-
-  bool get_peer_finger(const QString& ip_addr,
-                       QString& finger);
 
   void update_my_peers();
   void update_p2p_status();
