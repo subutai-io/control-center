@@ -317,18 +317,24 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "status";
-
-    qDebug()
-            <<"Starting to get satus. Args:"
-            <<args;
-
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 20000);
+    qDebug() << "get vagrant status of" << dir;
+    system_call_res_t res;
+    if(CURRENT_OS == OS_MAC){
+        QString cmd("osascript");
+        QStringList args;
+        args << "-e"
+             << QString("do shell script \"cd %1; vagrant status\"").arg(dir);
+        res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+    }
+    else{
+        QString cmd = CSettingsManager::Instance().vagrant_path();
+        QStringList args;
+        args
+            << "set_working_directory"
+            << dir
+            << "status";
+        res = ssystem_th(cmd, args, true, true, 20000);
+    }
     QString status("broken");
     qDebug()
             <<"Got status of peer:"
@@ -541,7 +547,31 @@ QStringList CSystemCallWrapper::list_interfaces(){
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
-
+void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins){
+    qDebug()
+            <<"get list of installed vagrant plugins";
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "plugin"
+         << "list";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    qDebug()
+            <<"List of vagrant plugins installed"
+            <<"exit  code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+    plugins.clear();
+    if(res.exit_code != 0 || res.res != 0)
+        return;
+    QStringList plugin;
+    for (auto s : res.out){
+        plugin.clear();
+        plugin = s.split(' ');
+        if(plugin.size() == 2){
+            plugins.push_back(std::make_pair(plugin[0], plugin[1]));
+        }
+    }
+}
 //////////////////////////////////////////////////////////////////////
 bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
@@ -554,6 +584,15 @@ bool CSystemCallWrapper::check_peer_management_components(){
     if(version == "undefined"){
         CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
         return false;
+    }
+    std::vector<std::pair<QString, QString> >plugins;
+    CSystemCallWrapper::vagrant_plugins_list(plugins);
+    static std::vector<QString> required_plugin = {"vagrant-subutai, vagrant-vbguest"};
+    for (auto  plugin : required_plugin){
+        if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
+            return plugin == installed_plugin.first;}) == plugins.end()){
+            CNotificationObserver::Info(QObject::tr("Installing missing vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
+        }
     }
     return true;
 }
