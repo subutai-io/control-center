@@ -4,21 +4,20 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets quick
+QT       += core gui network websockets
 CONFIG   += c++11
 
 
 
 greaterThan(QT_MAJOR_VERSION, 4) : QT += widgets
 
-TARGET = SubutaiControlCenter
+TARGET = SubutaiTray
 TEMPLATE = app
 
 INCLUDEPATH += commons/include
 INCLUDEPATH += hub/include
-INCLUDEPATH += hub/forms
+INCLUDEPATH += vbox/include
 INCLUDEPATH += libssh2/include
-
 
 SOURCES += \
     main.cpp \
@@ -49,20 +48,14 @@ SOURCES += \
     hub/src/RhController.cpp \
     hub/src/NotificationLogger.cpp \
     hub/src/DlgNotifications.cpp \
+    vbox/src/VBoxManager.cpp \
+    vbox/src/VirtualMachine.cpp \
     hub/src/NotificationObserver.cpp \
     hub/src/DlgNotificationsModel.cpp \
     hub/src/DlgNotification.cpp \
     commons/src/Logger.cpp \
     commons/src/LanguageController.cpp \
-    hub/src/DlgEnvironment.cpp \
-    hub/src/P2PController.cpp \
-    hub/src/X2GoClient.cpp \
-    hub/src/DlgPeer.cpp \
-    hub/src/TraySkinController.cpp \
-    hub/src/HostMachineController.cpp \
-    hub/forms/DlgTransferFile.cpp
-
-
+    hub/src/DlgEnvironment.cpp
 
 
 HEADERS  += \
@@ -95,22 +88,18 @@ HEADERS  += \
     hub/include/RhController.h \
     hub/include/NotificationLogger.h \
     hub/include/DlgNotifications.h \
+    vbox/include/VBoxManager.h \
+    vbox/include/VirtualMachine.h \
     hub/include/NotificationObserver.h \
     hub/include/DlgNotificationsModel.h \
     hub/include/DlgNotification.h \
     commons/include/Logger.h \
     commons/include/LanguageController.h \
-    hub/include/DlgEnvironment.h \
-    hub/include/P2PController.h \
-    hub/include/X2GoClient.h \
-    hub/include/DlgPeer.h \
-    hub/include/TraySkinController.h \
-    hub/include/HostMachineController.h \
-    hub/forms/DlgTransferFile.h
+    hub/include/DlgEnvironment.h
 
-TRANSLATIONS = SubutaiControlCenter_en_US.ts \
-               SubutaiControlCenter_ru_RU.ts \
-               SubutaiControlCenter_pt_BR.ts
+TRANSLATIONS = SubutaiTray_en_US.ts \
+               SubutaiTray_ru_RU.ts \
+               SubutaiTray_pt_BR.ts
 
 FORMS    += \
     hub/forms/DlgLogin.ui \
@@ -121,12 +110,9 @@ FORMS    += \
     hub/forms/DlgNotifications.ui \
     hub/forms/DlgNotification.ui \
     hub/forms/DlgEnvironment.ui \
-    hub/forms/DlgPeer.ui \
-    hub/forms/DlgTransferFile.ui
 
 RESOURCES += \
-    resources/resources.qrc \
-    skins/skins.qrc
+    resources/resources.qrc
 
 unix: {
   TRAY_VERSION = $$system(cat version)
@@ -157,14 +143,13 @@ equals(GIT_BRANCH_STR, "head") {
 equals(GIT_BRANCH_STR, "dev") {
   GBV=BT_DEV
 }
-
 DEFINES += CURRENT_BRANCH=$$GBV
 #////////////////////////////////////////////////////////////////////////////
 
 unix:!macx {
   QMAKE_CXXFLAGS += -fshort-wchar
   DEFINES += RT_OS_LINUX
-  DEFINES += CURRENT_OS=OS_LINUX
+  DEFINES += CURRENT_OS=OS_LINUX  
   LIBS += -ldl -lpthread -lssh2
   QMAKE_RPATHDIR += ../lib
 }
@@ -176,7 +161,7 @@ macx: {
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
-  ICON = $$PWD/resources/cc_icon_mac.icns
+  ICON = $$PWD/resources/tray_logo.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
   LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION
@@ -187,66 +172,11 @@ macx: {
 #////////////////////////////////////////////////////////////////////////////
 
 win32: {
-  CONFIG -= embed_manifest_exe
-
   DEFINES += CURRENT_OS=OS_WIN
   DEFINES += RT_OS_WINDOWS
   LIBS += -lws2_32 -L$$PWD/libssh2/lib/win32 -llibssh2
-  RC_FILE = control-center.rc
+  RC_FILE = tray.rc
 #  LIBS += -lpthread
 # QMAKE_LFLAGS += -static-libstdc++ -static-libgcc
 }
 #////////////////////////////////////////////////////////////////////////////
-
-tests {
-    message(Test build)
-    QT += testlib
-    TARGET = TestingTray
-
-    LIBS += -lgcov
-
-    #QMAKE_CXXFLAGS += --coverage
-    #QMAKE_LFLAGS += --coverage
-    QMAKE_CXXFLAGS += -g -fprofile-arcs -ftest-coverage -O0
-    QMAKE_LFLAGS += -g -fprofile-arcs -ftest-coverage  -O0
-
-    SOURCES -= main.cpp
-
-    HEADERS += tests/CCommonsTest.h \
-        tests/Tester.h \
-        tests/LanguageControllerTest.h \
-        tests/LoggerTest.h \
-        tests/OsBranchConstsTest.h \
-        tests/TrayWebSocketServerTest.h \
-        tests/SystemCallWrapperTest.h \
-        tests/DlgNotificationsModelTest.h \
-        tests/NotificationObserverTest.h \
-        tests/DlgSettingsTest.h \
-        tests/NotificationLoggerTest.h \
-        tests/SettingsManagerTest.h \
-        tests/RhControllerTest.h \
-        tests/HubControlllerTest.h \
-        tests/DownloadFileManagerTest.h \
-        tests/RestWorkerTest.h
-
-    SOURCES += tests/main.cpp \
-        tests/CCommonsTest.cpp \
-        tests/Tester.cpp \
-        tests/LanguageControllerTest.cpp \
-        tests/LoggerTest.cpp \
-        tests/OsBranchConstsTest.cpp \
-        tests/TrayWebSocketServerTest.cpp \
-        tests/SystemCallWrapperTest.cpp \
-        tests/DlgNotificationsModelTest.cpp \
-        tests/NotificationObserverTest.cpp \
-        tests/DlgSettingsTest.cpp \
-        tests/NotificationLoggerTest.cpp \
-        tests/SettingsManagerTest.cpp \
-        tests/RhControllerTest.cpp \
-        tests/HubControlllerTest.cpp \
-        tests/DownloadFileManagerTest.cpp \
-        tests/RestWorkerTest.cpp
-} else {
-    message(Normal build)
-}
-
