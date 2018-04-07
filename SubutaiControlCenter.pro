@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network websockets quick
+QT       += core gui network websockets
 CONFIG   += c++11
 
 
@@ -178,10 +178,7 @@ macx: {
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/cc_icon_mac.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
-  LIBS += -L$$PWD/libssh2/lib -lssh2
-  LIBS += -L$$PWD/libssh2/lib/mac -lssh2
-  LIBS += -L/usr/local/lib/ -lssh2
-#  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
+  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
 #  USE WITH CROSS COMPILATION
 #  LIBS += -L$$PWD/libssh2/lib -lssh2
 #  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11
@@ -252,4 +249,3 @@ tests {
 } else {
     message(Normal build)
 }
-
