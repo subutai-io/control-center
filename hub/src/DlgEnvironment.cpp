@@ -221,6 +221,9 @@ void DlgEnvironment::check_environment_status() {
   qDebug()
       << "Checking the status of environment " << env.name();
   static int state_all;
+  if(TrayControlWindow::Instance()->environments_table.find(env.id()) == TrayControlWindow::Instance()->environments_table.end()){
+      this->close();
+  }
   CEnvironment update_env = TrayControlWindow::Instance()->environments_table[env.id()];
   if(update_env.status() != env.status())
       this->close();

@@ -206,7 +206,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
     const QString &commands, const QString &key) {
 
   QString cmd
-      = CSettingsManager::Instance().ssh_path();
+      = QString("\"%1\"").arg(CSettingsManager::Instance().ssh_path());
   QStringList args;
   args
        << "-o" << "StrictHostKeyChecking=no"
@@ -239,12 +239,16 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << QString("-i \"%1\"").arg(ssh_info.second)
+      << "-i" << ssh_info.second
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  qDebug() << file_path << "finished:"
+           << "exit code:" <<res.exit_code
+           << "result code:" <<res.res
+           << "output: " <<res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
