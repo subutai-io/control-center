@@ -361,12 +361,16 @@ void TrayControlWindow::notification_received(
       << "Message is ignored: " << CSettingsManager::Instance().is_notification_ignored(msg);
 
   static std::map<DlgNotification::NOTIFICATION_ACTION_TYPE, bool>  no_ignore = {std::make_pair(DlgNotification::N_START_P2P, 1),
-                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1)};
+                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_STOP_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_ABOUT, 1),
+                                                                                std::make_pair(DlgNotification::N_SETTINGS)
+                                                                                };
 
-  if ((CSettingsManager::Instance().is_notification_ignored(msg)
-       && no_ignore[action_type] != 1)||
+  if (CSettingsManager::Instance().is_notification_ignored(msg)||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
-    return;
+      if(no_ignore[action_type] != 1)
+        return;
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
