@@ -297,18 +297,18 @@ CSettingsManager::CSettingsManager()
     m_tray_guid = QUuid::createUuid().toString();
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
   }
-
   // which using
   QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, nullptr};
+                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, &m_scp_path, nullptr};
   static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path(), default_x2goclient_path(), default_vagrant_path()};
+                                           default_p2p_path(), default_x2goclient_path(), default_vagrant_path(), scp_cmd_path()};
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
                                      "p2p",
                                      "x2goclient",
-                                     "vagrant"};
+                                     "vagrant",
+                                     "scp"};
 
 
   QString tmp;
@@ -331,8 +331,6 @@ CSettingsManager::CSettingsManager()
       *cmd_which[i] = tmp;
     }
   }
-
-
   //terminal and it's arguments
   if (m_terminal_cmd == default_terminal()) {
     QStringList terms = CCommons::DefaultTerminals();
@@ -344,7 +342,6 @@ CSettingsManager::CSettingsManager()
       break;
     }
   }
-
   CSystemCallWrapper::set_application_autostart(m_autostart);
   m_autostart = CSystemCallWrapper::application_autostart();  // second check %)
   init_password();
