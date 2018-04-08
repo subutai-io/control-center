@@ -364,7 +364,7 @@ void TrayControlWindow::notification_received(
                                                                                 std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
                                                                                 std::make_pair(DlgNotification::N_STOP_P2P, 1),
                                                                                 std::make_pair(DlgNotification::N_ABOUT, 1),
-                                                                                std::make_pair(DlgNotification::N_SETTINGS)
+                                                                                std::make_pair(DlgNotification::N_SETTINGS, 1)
                                                                                 };
 
   if (CSettingsManager::Instance().is_notification_ignored(msg)||
