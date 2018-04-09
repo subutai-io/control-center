@@ -159,8 +159,10 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     red_text->setColor(QPalette::Text, Qt::red);
     if(hub_peer != nullptr)
         addHubPeer(*hub_peer);
-    else
+    else{
+        ui->btn_peer_on_hub->setEnabled(false);
         hideEnvs();
+    }
     if(!local_peer.first.isEmpty())
         addLocalPeer(local_peer);
     if(!lp.empty())
@@ -212,16 +214,19 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->btn_start->setEnabled(false);
             ui->btn_reload->setEnabled(false);
             ui->btn_register->setEnabled(false);
+            ui->btn_unregister->setEnabled(false);
             ui->le_status->setText(tr("Peer is broken."));
         }
         if(peer_status == "not ready"){
             ui->btn_start->hide();
+            ui->btn_unregister->setEnabled(false);
             ui->btn_register->setEnabled(false);
             ui->le_status->setText(tr("Peer is not ready."));
         }
         if(peer_status == "poweroff"){
             ui->btn_stop->hide();
             ui->btn_register->setEnabled(false);
+            ui->btn_unregister->setEnabled(false);
             ui->btn_reload->setEnabled(false);
             ui->le_status->setText(tr("Peer is poweroff"));
         }
