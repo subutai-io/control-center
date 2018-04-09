@@ -932,18 +932,24 @@ void TrayControlWindow::got_peer_info_sl(int type,
         updater_peer = machine_peers_table[name];
     updater_peer.set_dir(dir);
     updater_peer.set_name(name);
-    static  QString new_updated = "new";
+    static QString new_updated = "new";
+    static QString undefined = "undefined";
     updater_peer.set_update(new_updated);
     switch (type) {
         case 0:
             updater_peer.set_status(output);
-            if(output == "broken" || output == "poweroff")
+            if(output == "broken" || output == "poweroff"){
+               updater_peer.set_fingerprint(undefined);
+               updater_peer.set_ip(undefined);
                CPeerController::Instance()->dec_number_threads();
+            }
             break;
         case 1:
             updater_peer.set_ip(output);
-            if(output == "undefined")
+            if(output == "undefined"){
+                updater_peer.set_fingerprint(output);
                 CPeerController::Instance()->dec_number_threads();
+            }
             break;
         case 2:
             updater_peer.set_fingerprint(output);
