@@ -51,9 +51,11 @@ private:
   virtual ~CPeerController();
 
   QTimer m_refresh_timer;
+  QTimer m_logs_timer;
 
 
   void search_local();
+  void check_logs();
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
   int number_threads; // to emit signal when all finished

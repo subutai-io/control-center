@@ -1056,9 +1056,10 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-
-    QString str_command = QString("cd %1; %2 ").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += command;
+    QString str_command = QString("cd %1; \"%2\" %3; echo $? > %4_%3; exit").arg(dir,
+                                                                             CSettingsManager::Instance().vagrant_path(),
+                                                                             command,
+                                                                             name);
 
     QString cmd;
 
@@ -1077,8 +1078,10 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
-    UNUSED_ARG(name);
-    QString str_command = QString("cd %1; \"%2\" %3; echo $? > last_%3_logs; exit").arg(dir, CSettingsManager::Instance().vagrant_path(), command);
+    QString str_command = QString("cd %1; \"%2\" %3; echo $? > %4_%3; exit").arg(dir,
+                                                                                 CSettingsManager::Instance().vagrant_path(),
+                                                                                 command,
+                                                                                 name);
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
@@ -1104,10 +1107,11 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 && \"%2\" %3 && echo \%errorlevel\% > last_%3_logs && exit")
+  QString str_command = QString("cd %1 && \"%2\" %3 && echo \%errorlevel\% > %4_%3 && exit")
                             .arg(dir)
                             .arg(CSettingsManager::Instance().vagrant_path())
-                            .arg(command);
+                            .arg(command)
+                            .arg(name);
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());

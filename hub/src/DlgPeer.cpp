@@ -545,7 +545,7 @@ void DlgPeer::destroyPeer(){
         }
         return;
     }
-    static QString delete_command = "destroy /f";
+    static QString delete_command = "destroy -f";
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_destroy->setText(tr("Trying to destroy peer..."));
     thread_init->init(peer_dir, delete_command, peer_name);
