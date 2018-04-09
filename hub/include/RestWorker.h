@@ -111,7 +111,7 @@ public:
              int &err_code,
              int &network_error);
 
-  void register_peer(const QString& ip_addr,
+  void register_peer(const QString& port,
                      const QString& token,
                      const QString& login,
                      const QString& password,
@@ -121,14 +121,14 @@ public:
                      int &http_code,
                      int &network_error);
 
-  void unregister_peer(const QString& ip_addr,
+  void unregister_peer(const QString& port,
                        const QString& token,
                        int &err_code,
                        int &http_code,
                        int &network_error);
 
 
-  void get_peer_token(const QString& ip_addr,
+  void get_peer_token(const QString& port,
                       const QString& login,
                       const QString& password,
                       QString& token,
@@ -140,7 +140,7 @@ public:
 
   bool get_user_email(QString& user_email_str);
 
-  bool get_peer_finger(const QString& ip_addr,
+  bool get_peer_finger(const QString& port,
                        QString& finger);
 
   void update_my_peers();

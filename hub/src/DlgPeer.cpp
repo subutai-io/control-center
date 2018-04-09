@@ -92,12 +92,13 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
     peer_name = peer.name();
     if(peer.fingerprint() != "loading" || peer.fingerprint() != "undefined")
         peer_fingerprint = peer.fingerprint();
-    if(peer.ip() != "loading" && peer.ip() != "undefined"){
+    if(peer.ip() != "loading" && peer.ip() != "undefined" && !peer.ip().isEmpty()){
         ssh_ip = peer.ip();
+        ui->label->setText(tr("Host port"));
         ssh_available = true;
         connect(ui->btn_launch_console, &QPushButton::clicked,
                 [peer](){
-            CHubController::Instance().launch_browser(QString("https://%1:8443").arg(peer.ip()));});
+            CHubController::Instance().launch_browser(QString("https://localhost:%1").arg(peer.ip()));});
         ui->btn_launch_console->setEnabled(true);
     }
     else if(peer_status == "running")
@@ -192,11 +193,15 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());
         CSettingsManager::Instance().set_rh_pass(peer_fingerprint, this->ui->le_pass->text());
         //slots
-        connect(ui->btn_ssh_peer, &QPushButton::clicked, [this]() {
-            this->ui->btn_ssh_peer->setEnabled(false);
-            this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
-            emit this->ssh_to_rh_sig(this->peer_fingerprint);
-        });
+        if(!advanced)
+            connect(ui->btn_ssh_peer, &QPushButton::clicked, [this]() {
+                this->ui->btn_ssh_peer->setEnabled(false);
+                this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
+                emit this->ssh_to_rh_sig(this->peer_fingerprint);
+            });
+        else{
+            connect(ui->btn_ssh_peer, &QPushButton::clicked, this, &DlgPeer::sshPeer);
+        }
     }
     else
         hideSSH();
@@ -479,8 +484,10 @@ void DlgPeer::startPeer(){
     static QString up_command = "up";
     enabled_peer_buttons(false);
     if(ui->change_confugre->isChecked()){
-        if(!change_configs())
+        if(!change_configs()){
+            enabled_peer_buttons(true);
             return;
+        }
     }
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
@@ -499,6 +506,27 @@ void DlgPeer::startPeer(){
              enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Start"));
         }
+    });
+}
+
+void DlgPeer::sshPeer(){
+    static QString up_command = "ssh";
+    enabled_peer_buttons(false);
+    CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
+    ui->btn_ssh_peer->setText(tr("Processing..."));
+    thread_init->init(peer_dir, up_command, peer_name);
+    thread_init->startWork();
+    connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            qDebug()<<"sshed to peer"<<peer_name;
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not ssh to peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+        }
+        enabled_peer_buttons(true);
+        ui->btn_ssh_peer->setText(tr("SSH into Peer"));
     });
 }
 
@@ -542,6 +570,12 @@ void DlgPeer::destroyPeer(){
 void DlgPeer::reloadPeer(){
     static QString reload_command = "reload";
     enabled_peer_buttons(false);
+    if(ui->change_confugre->isChecked()){
+        if(!change_configs()){
+            enabled_peer_buttons(true);
+            return;
+        }
+    }
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_reload->setText(tr("Trying to reload peer..."));
     thread_init->init(peer_dir, reload_command, peer_name);

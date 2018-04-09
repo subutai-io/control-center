@@ -164,6 +164,8 @@ class CSystemCallWrapper {
 
   static QString vagrant_ip(const QString &dir);
 
+  static QString vagrant_port(const QString &dir);
+
   static bool check_peer_management_components();
 
   static void vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins);

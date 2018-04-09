@@ -830,14 +830,14 @@ void TrayControlWindow::update_peer_menu() {
     if(found_on_hub == false){
         if(local_peer->status() == "running"){
             if(local_peer->ip() != "loading" && local_peer->ip() != "undefined" && !local_peer->ip().isEmpty()){
-                QAction *peer_start = m_hub_peer_menu->addAction(local_peer->name() + " - " + local_peer->ip());
+                QAction *peer_start = m_hub_peer_menu->addAction(local_peer->name());
                 peer_start->setIcon(local_network_icon);
                 std::vector<CLocalPeer> machine_peer_info;
                 machine_peer_info.push_back(*local_peer);
                 connect(peer_start, &QAction::triggered, [this, machine_peer_info]() {
                 this->generate_peer_dlg(NULL, std::make_pair("",""), machine_peer_info);
                 TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                             QString("Peer \"%1\" - %2").arg(machine_peer_info[0].name(),
+                                             QString("Peer \"%1\"").arg(machine_peer_info[0].name(),
                                                machine_peer_info[0].ip()));
             });
             }

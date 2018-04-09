@@ -319,22 +319,14 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
     system_call_res_t res;
-    if(CURRENT_OS == OS_MAC){
-        QString cmd("osascript");
-        QStringList args;
-        args << "-e"
-             << QString("do shell script \"cd %1; vagrant status\"").arg(dir);
-        res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
-    }
-    else{
-        QString cmd = CSettingsManager::Instance().vagrant_path();
-        QStringList args;
-        args
-            << "set_working_directory"
-            << dir
-            << "status";
-        res = ssystem_th(cmd, args, true, true, 20000);
-    }
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+
+    QStringList args;
+    args
+        << "global-status";
+
+    res = ssystem_th(cmd, args, true, true, 20000);
+
     QString status("broken");
     qDebug()
             <<"Got status of peer:"
@@ -350,10 +342,17 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
         st="";
         for (int i=0; i < s.size(); i++){
             if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
-                if(st == "running")
-                    return st;
-                if(st == "poweroff")
-                    return st;
+                if(st == "running"){
+                    status = st;
+                }
+                if(st == "poweroff"){
+                    status = st;
+                }
+                if(st == dir){
+                    qDebug()
+                            <<dir<<"status is"<<status;
+                    return status;
+                }
                 st = "";
             }
             else
@@ -361,6 +360,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
 
         }
     }
+    status = "broken";
     return status;
 }
 
@@ -486,6 +486,16 @@ QString CSystemCallWrapper::vagrant_ip(const QString &dir){
         return ip;
     ip = res.out[0];
     return ip;
+}
+
+QString CSystemCallWrapper::vagrant_port(const QString &dir){
+    QDir peer_dir(dir);
+    QString  port = "undefined";
+    if(peer_dir.cd(".vagrant")){
+        QFile configs(QString(peer_dir.absolutePath() + "generated.yml"));
+        QString file_name = configs.fileName();
+        qDebug("test mazafaka");
+    }
 }
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
