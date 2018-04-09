@@ -145,7 +145,7 @@ void
 DlgLogin::cb_show_pass_state_changed(int st)
 {
   ui->le_password->setEchoMode(st == Qt::Checked ?
-                                 QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);
+                                 QLineEdit::Normal : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
 

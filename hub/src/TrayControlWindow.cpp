@@ -361,12 +361,16 @@ void TrayControlWindow::notification_received(
       << "Message is ignored: " << CSettingsManager::Instance().is_notification_ignored(msg);
 
   static std::map<DlgNotification::NOTIFICATION_ACTION_TYPE, bool>  no_ignore = {std::make_pair(DlgNotification::N_START_P2P, 1),
-                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1)};
+                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_STOP_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_ABOUT, 1),
+                                                                                std::make_pair(DlgNotification::N_SETTINGS, 1)
+                                                                                };
 
-  if ((CSettingsManager::Instance().is_notification_ignored(msg)
-       && no_ignore[action_type] != 1)||
+  if (CSettingsManager::Instance().is_notification_ignored(msg)||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
-    return;
+      if(no_ignore[action_type] != 1)
+        return;
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
@@ -447,8 +451,18 @@ void TrayControlWindow::login_success() {
 
 void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
                                                       const CHubContainer* cont) {
+  if(env == nullptr || cont == nullptr){
+      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
+      return;
+  }
   //generate_transferfile_dlg();
   DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
+  Qt::WindowFlags flags = 0;
+  flags = Qt::Window;
+  flags |= Qt::WindowMinimizeButtonHint;
+  flags |= Qt::WindowMaximizeButtonHint;
+  flags |= Qt::WindowCloseButtonHint;
+  dlg_transfer_file->setWindowFlags(flags);
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
 
@@ -466,6 +480,10 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
 
 void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont) {
+  if(env == nullptr || cont == nullptr){
+      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
+      return;
+  }
   qDebug()
       << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
@@ -500,6 +518,10 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
 
 void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
                                                    const CHubContainer* cont) {
+  if(env == nullptr || cont == nullptr){
+      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
+      return;
+  }
   qDebug()
       << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
       << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
