@@ -57,7 +57,7 @@ void DlgCreatePeer::create_button_pressed(){
         ui->btn_create->setEnabled(true);
         return;
     }
-    if(ram.toInt() < 512 ){
+    if(ram.toInt() < 1024 ){
         CNotificationObserver::Error(tr("Ram should be more than 512 MB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
