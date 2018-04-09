@@ -130,7 +130,7 @@ public:
             res = QtConcurrent::run(CSystemCallWrapper::vagrant_status, arg);
             break;
         case 1:
-            res = QtConcurrent::run(CSystemCallWrapper::vagrant_ip, arg);
+            res = QtConcurrent::run(CSystemCallWrapper::vagrant_port, arg);
             break;
         case 2:
             res = QtConcurrent::run(CSystemCallWrapper::vagrant_fingerprint, arg);

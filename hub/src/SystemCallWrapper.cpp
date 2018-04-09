@@ -492,10 +492,43 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
     QDir peer_dir(dir);
     QString  port = "undefined";
     if(peer_dir.cd(".vagrant")){
-        QFile configs(QString(peer_dir.absolutePath() + "generated.yml"));
-        QString file_name = configs.fileName();
-        qDebug("test mazafaka");
+        QFile file(QString(peer_dir.absolutePath() + "/generated.yml"));
+        QString file_name = file.fileName();
+        if(file.exists()){
+            if (file.open(QIODevice::ReadWrite) ){
+                QTextStream stream( &file );
+                QString output = QString(stream.readAll());
+                QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
+                for (auto s : vagrant_info){
+                    QString flag, value;
+                    bool reading_value = false;
+                    flag = value = "";
+                    reading_value = false;
+                    for (int i=0; i < s.size(); i++){
+                        if(s[i]=='\r')continue;
+                        if(reading_value){
+                            value += s[i];
+                            continue;
+                        }
+                        if(s[i] == ':'){
+                            flag = value;
+                            value = "";
+                            continue;
+                        }
+                        if(s[i] != ' '){
+                            if(value == "" && !flag.isEmpty())
+                                reading_value = true;
+                            value+=s[i];
+                        }
+                    }
+                    if(flag == "_CONSOLE_PORT")
+                        port = value;
+                    }
+                }
+            file.close();
+        }
     }
+    return port;
 }
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
