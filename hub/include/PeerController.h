@@ -184,24 +184,28 @@ signals:
     void outputReceived(system_call_wrapper_error_t res);
 };
 
-class StartPeer : public QObject{
+class CommandPeerTerminal : public QObject{
     Q_OBJECT
     QString directory;
+    QString command;
+    QString name;
 public:
-    StartPeer(QObject *parent = nullptr) : QObject(parent){}
+    CommandPeerTerminal(QObject *parent = nullptr) : QObject(parent){}
 
-    void init (const QString &directory){
-        this->directory = directory;
+    void init (const QString &dir, const QString &command, const QString &name){
+        this->directory = dir;
+        this->command = command;
+        this->name = name;
     }
 
     void startWork() {
         QThread* thread = new QThread();
         connect(thread, &QThread::started,
-                this, &StartPeer::execute_remote_command);
-        connect(this, &StartPeer::outputReceived,
+                this, &CommandPeerTerminal::execute_remote_command);
+        connect(this, &CommandPeerTerminal::outputReceived,
                 thread, &QThread::quit);
         connect(thread, &QThread::finished,
-                this, &StartPeer::deleteLater);
+                this, &CommandPeerTerminal::deleteLater);
         connect(thread, &QThread::finished,
                 thread, &QThread::deleteLater);
         this->moveToThread(thread);
@@ -212,7 +216,7 @@ public:
         QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
         QFuture<system_call_wrapper_error_t>  res =
-            QtConcurrent::run(CSystemCallWrapper::run_vagrant_up_in_terminal, directory);
+            QtConcurrent::run(CSystemCallWrapper::vagrant_command_terminal, directory, command, name);
         watcher->setFuture(res);
         connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
           emit this->outputReceived(res);

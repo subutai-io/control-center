@@ -150,7 +150,9 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
-  static system_call_wrapper_error_t run_vagrant_up_in_terminal(const QString &dir);
+  static system_call_wrapper_error_t vagrant_command_terminal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
 
   static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
 

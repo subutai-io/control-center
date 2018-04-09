@@ -586,7 +586,7 @@ void CSettingsManager::set_locale(const int locale) {
 
     QMessageBox* msg_box =
        new QMessageBox(QMessageBox::Question, tr("Info"),
-                       tr("You changed language. Would you like to restart tray?"),
+                       tr("You changed language. Would you like to restart Control Center?"),
                        QMessageBox::Yes | QMessageBox::No);
     connect(msg_box, &QMessageBox::finished, msg_box,
             &QMessageBox::deleteLater);

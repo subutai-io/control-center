@@ -135,7 +135,8 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
     }
     file.close();
-    res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
+    static QString vagrant_up_string = "up";
+    res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string, ui->le_name->text());
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
     }

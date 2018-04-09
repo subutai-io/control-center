@@ -449,21 +449,17 @@ void DlgPeer::hideEnvs(){
 
 void DlgPeer::stopPeer(){
     enabled_peer_buttons(false);
-    if(!CSystemCallWrapper::check_peer_management_components()){
-        enabled_peer_buttons(true);
-        return;
-    }
-    StopPeer *thread_init = new StopPeer(this);
+    static QString stop_command = "halt";
+    CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_stop->setText(tr("Trying to stop peer..."));
-    thread_init->init(peer_dir);
+    thread_init->init(peer_dir, stop_command, peer_name);
     emit peer_modified(peer_name);
     thread_init->startWork();
-    connect(thread_init, &StopPeer::outputReceived, [this](system_call_wrapper_error_t res){
+    connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
             return;
         if(res == SCWE_SUCCESS){
-            CNotificationObserver::Instance()->Info(tr("Peer \"%1\" succesfully stopped").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
-            emit peer_stopped(this->peer_name);
+            CNotificationObserver::Instance()->Info(tr("Process to stop peer %1 started. Don't close terminal until it's finished").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
@@ -475,20 +471,17 @@ void DlgPeer::stopPeer(){
 }
 
 void DlgPeer::startPeer(){
+    static QString up_command = "up";
     enabled_peer_buttons(false);
-    if(!CSystemCallWrapper::check_peer_management_components()){
-        enabled_peer_buttons(true);
-        return;
-    }
     if(ui->change_confugre->isChecked()){
         if(!change_configs())
             return;
     }
-    StartPeer *thread_init = new StartPeer(this);
+    CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_stop->setText(tr("Trying to launch peer..."));
-    thread_init->init(peer_dir);
+    thread_init->init(peer_dir, up_command, peer_name);
     thread_init->startWork();
-    connect(thread_init, &StartPeer::outputReceived, [this](system_call_wrapper_error_t res){
+    connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
             return;
         if(res == SCWE_SUCCESS){
@@ -506,10 +499,6 @@ void DlgPeer::startPeer(){
 
 void DlgPeer::destroyPeer(){
     enabled_peer_buttons(false);
-    if(!CSystemCallWrapper::check_peer_management_components()){
-        enabled_peer_buttons(true);
-        return;
-    }
     if(peer_status == "broken"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
@@ -523,49 +512,41 @@ void DlgPeer::destroyPeer(){
         }
         return;
     }
-    DestroyPeer *thread_init = new DestroyPeer(this);
+    static QString delete_command = "destroy /f";
+    CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_destroy->setText(tr("Trying to destroy peer..."));
-    if(peer_status != "broken"){
-        thread_init->init(peer_dir);
-        thread_init->startWork();
-        connect(thread_init, &DestroyPeer::outputReceived, [this](system_call_wrapper_error_t res){
-            if(this == nullptr)
-                return;
-            if(res == SCWE_SUCCESS){
-                CNotificationObserver::Instance()->Info(tr("Peer is destroyed successfully %1").arg(peer_name), DlgNotification::N_NO_ACTION);
-                emit peer_deleted(this->peer_name);
-                this->close();
-            }
-            else{
-                CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
-                enabled_peer_buttons(true);
-                ui->btn_destroy->setText(tr("Destroy"));
-            }
-        });
-    }
+    thread_init->init(peer_dir, delete_command, peer_name);
+    thread_init->startWork();
+    connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
+        if(this == nullptr)
+            return;
+        if(res == SCWE_SUCCESS){
+            CNotificationObserver::Instance()->Info(tr("Process to destroy peer %1 started").arg(peer_name), DlgNotification::N_NO_ACTION);
+            emit peer_deleted(this->peer_name);
+            this->close();
+        }
+        else{
+            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
+            enabled_peer_buttons(true);
+            ui->btn_destroy->setText(tr("Destroy"));
+        }
+    });
     return;
 }
 
 void DlgPeer::reloadPeer(){
+    static QString reload_command = "reload";
     enabled_peer_buttons(false);
-    if(!CSystemCallWrapper::check_peer_management_components()){
-        enabled_peer_buttons(true);
-        return;
-    }
-    if(ui->change_confugre->isChecked()){
-        if(!change_configs())
-            return;
-    }
-    ReloadPeer *thread_init = new ReloadPeer(this);
+    CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
     ui->btn_reload->setText(tr("Trying to reload peer..."));
-    thread_init->init(peer_dir);
+    thread_init->init(peer_dir, reload_command, peer_name);
     thread_init->startWork();
     emit peer_modified(this->peer_name);
-    connect(thread_init, &ReloadPeer::outputReceived, [this](system_call_wrapper_error_t res){
+    connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(this == nullptr)
             return;
         if(res == SCWE_SUCCESS){
-            CNotificationObserver::Instance()->Info(tr("Peer reloading finished. Wait peer to start running"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("Peer reloading started. Don't close terminal until it's finished"), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{

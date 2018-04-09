@@ -1004,13 +1004,18 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
 }
 //////////////////////////////////////////////////////////////////////////////
 template <class  OS>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir);
+system_call_wrapper_error_t vagrant_command_terminal_internal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> > (const QString &dir){
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
+                                                                                 const QString &command,
+                                                                                 const QString &name){
+    UNUSED_ARG(name);
 
-    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");
+    QString str_command = QString("cd %1; %2 ").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += command;
 
     QString cmd;
 
@@ -1026,9 +1031,12 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> 
 }
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
-    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+    UNUSED_ARG(name);
+    QString str_command = QString("cd %1; %2 ").arg(dir, CSettingsManager::Instance().vagrant_path());
+    str_command += command;
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
@@ -1047,12 +1055,17 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX
 }
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_WIN> >(const QString &dir){
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+UNUSED_ARG(name);
 UNUSED_ARG(dir);
+UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 && \"%4\"")
+  QString str_command = QString("cd %1 && \"%2\" %3 && echo \%errorlevel\% > ./.vagrant/last_%3_logs.log && exit")
                             .arg(dir)
-                            .arg(CSettingsManager::Instance().vagrant_path());
+                            .arg(CSettingsManager::Instance().vagrant_path())
+                            .arg(command);
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
@@ -1068,7 +1081,7 @@ UNUSED_ARG(dir);
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2\" up").arg(cmd).arg(str_command);
+      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
@@ -1083,8 +1096,10 @@ UNUSED_ARG(dir);
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir){
-    return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir);
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const QString &dir,
+                                                                         const QString &command,
+                                                                         const QString &name){
+    return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
