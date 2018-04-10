@@ -163,7 +163,7 @@ equals(GIT_BRANCH_STR, "head") {
 }
 
 equals(GIT_BRANCH_STR, "dev") {
-  GBV=BT_DEV
+  GBV=BT_PROD
 }
 
 DEFINES += CURRENT_BRANCH=$$GBV
