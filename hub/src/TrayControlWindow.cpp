@@ -851,16 +851,16 @@ void TrayControlWindow::update_peer_menu() {
     }
     if(found_on_hub == false){
         if(local_peer->status() == "running"){
-            if(local_peer->ip() != "loading" && local_peer->ip() != "undefined"){
-                QAction *peer_start = m_hub_peer_menu->addAction(local_peer->name() + " - " + local_peer->ip());
+            if(local_peer->ip() != "loading" && local_peer->ip() != "undefined" && !local_peer->ip().isEmpty()
+                    && local_peer->fingerprint() != "loading" && local_peer->fingerprint() != "undefined" && !local_peer->fingerprint().isEmpty()){
+                QAction *peer_start = m_hub_peer_menu->addAction(local_peer->name());
                 peer_start->setIcon(local_network_icon);
                 std::vector<CLocalPeer> machine_peer_info;
                 machine_peer_info.push_back(*local_peer);
                 connect(peer_start, &QAction::triggered, [this, machine_peer_info]() {
                 this->generate_peer_dlg(NULL, std::make_pair("",""), machine_peer_info);
                 TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                             QString("Peer \"%1\" - %2").arg(machine_peer_info[0].name(),
-                                               machine_peer_info[0].ip()));
+                                             QString("Peer \"%1\"").arg(machine_peer_info[0].name()));
             });
             }
             else{
@@ -946,6 +946,10 @@ void TrayControlWindow::got_peer_info_sl(int type,
                                          QString name,
                                          QString dir,
                                          QString output){
+    if(type == 0 && name == "update" && dir == "peer" && output == "menu"){
+        machine_peers_upd_finished();
+        return;
+    }
     if(CPeerController::Instance()->get_number_threads() <= 0){
         return;
     }
@@ -954,18 +958,24 @@ void TrayControlWindow::got_peer_info_sl(int type,
         updater_peer = machine_peers_table[name];
     updater_peer.set_dir(dir);
     updater_peer.set_name(name);
-    static  QString new_updated = "new";
+    static QString new_updated = "new";
+    static QString undefined = "undefined";
     updater_peer.set_update(new_updated);
     switch (type) {
         case 0:
             updater_peer.set_status(output);
-            if(output == "broken" || output == "poweroff")
+            if(output == "broken" || output == "poweroff"){
+               updater_peer.set_fingerprint(undefined);
+               updater_peer.set_ip(undefined);
                CPeerController::Instance()->dec_number_threads();
+            }
             break;
         case 1:
             updater_peer.set_ip(output);
-            if(output == "undefined")
+            if(output == "undefined"){
+                updater_peer.set_fingerprint(output);
                 CPeerController::Instance()->dec_number_threads();
+            }
             break;
         case 2:
             updater_peer.set_fingerprint(output);

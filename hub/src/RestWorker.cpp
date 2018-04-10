@@ -193,13 +193,13 @@ void CRestWorker::login(const QString& login, const QString& password,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CRestWorker::get_peer_token(const QString &ip_addr,const QString &login, const QString &password,
+void CRestWorker::get_peer_token(const QString &port,const QString &login, const QString &password,
                                  QString &token, int &err_code,
                                  int &http_code, int &network_error){
     qInfo()
-            << tr("getting token of %1").arg(ip_addr);
+            << tr("getting token of %1").arg(port);
 
-    const QString str_url(QString("https://%1:8443/rest/v1/identity/gettoken").arg(ip_addr));
+    const QString str_url(QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
 
     QUrl url_login(str_url);
     QUrlQuery query_login;
@@ -239,12 +239,12 @@ void CRestWorker::get_peer_token(const QString &ip_addr,const QString &login, co
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CRestWorker::unregister_peer(const QString &ip_addr, const QString &token,
+void CRestWorker::unregister_peer(const QString &port, const QString &token,
                                   int &err_code, int &http_code, int &network_error){
     qInfo()
-            << tr("Unregister peer %1").arg(ip_addr);
+            << tr("Unregister peer %1").arg(port);
 
-    const QString str_url(QString("https://%1:8443/rest/v1/hub/unregister?sptoken=%2").arg(ip_addr,token));
+    const QString str_url(QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2").arg(port, token));
 
     QUrl url_login(str_url);
     QUrlQuery query_login;
@@ -264,15 +264,15 @@ void CRestWorker::unregister_peer(const QString &ip_addr, const QString &token,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CRestWorker::register_peer(const QString &ip_addr,
+void CRestWorker::register_peer(const QString &port,
                                 const QString &token, const QString &login,
                                 const QString &password, const QString &peer_name,
                                 const QString &peer_scope, int &err_code,
                                 int &http_code, int &network_error) {
     qInfo()
-            << tr("Registering peer %1").arg(ip_addr);
+            << tr("Registering peer %1").arg(port);
 
-    const QString str_url(QString("https://%1:8443/rest/v1/hub/register?sptoken=%2").arg(ip_addr,token));
+    const QString str_url(QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2").arg(port, token));
 
     QUrl url_login(str_url);
     QUrlQuery query_login;
@@ -347,10 +347,10 @@ bool CRestWorker::get_user_email(QString& user_email_str) {
   return true;
 }
 
-bool CRestWorker::get_peer_finger(const QString &ip_addr, QString &finger){
+bool CRestWorker::get_peer_finger(const QString &port, QString &finger){
     qInfo()
-            << tr("getting token of %1").arg(ip_addr);
-    const QString str_url(QString("https://%1:8443/rest/v1/security/keyman/getpublickeyfingerprint").arg(ip_addr));
+            << tr("getting token from %1").arg(port);
+    const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
     QUrl url_finger(str_url);
     QNetworkRequest request(url_finger);
     request.setHeader(QNetworkRequest::ContentTypeHeader,

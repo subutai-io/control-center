@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
+    <width>603</width>
     <height>510</height>
    </rect>
   </property>
@@ -17,66 +17,6 @@
    <enum>Qt::LeftToRight</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="2">
-    <widget class="QLabel" name="lbl_env_owner">
-     <property name="text">
-      <string>Owner</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="lbl_env">
-     <property name="text">
-      <string>Environment</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="Line" name="line_1">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="show_ssh">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Show SSH box</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="QPushButton" name="btn_peer_on_hub">
-     <property name="text">
-      <string>Peer on Bazaar</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <layout class="QVBoxLayout" name="env_owner"/>
-   </item>
    <item row="8" column="1" colspan="3">
     <widget class="QGroupBox" name="gr_ssh">
      <property name="title">
@@ -92,7 +32,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Port</string>
+         <string>SSH Port</string>
         </property>
        </widget>
       </item>
@@ -136,11 +76,15 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="1">
-    <layout class="QVBoxLayout" name="env_name"/>
-   </item>
-   <item row="3" column="3">
-    <layout class="QVBoxLayout" name="env_status"/>
+   <item row="1" column="1">
+    <widget class="QLabel" name="lbl_env">
+     <property name="text">
+      <string>Environment</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
    <item row="1" column="3">
     <widget class="QLabel" name="lbl_env_status">
@@ -152,24 +96,10 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
-    <widget class="QPushButton" name="btn_launch_console">
-     <property name="text">
-      <string>Launch  Subutai Console</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="3">
     <widget class="Line" name="line_3">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="show_peer_control">
-     <property name="text">
-      <string>Advanced settings</string>
      </property>
     </widget>
    </item>
@@ -179,61 +109,22 @@
       <string/>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="3" column="2">
-       <widget class="QLabel" name="lbl_bridge">
+      <item row="6" column="1">
+       <widget class="QPushButton" name="btn_destroy">
         <property name="text">
-         <string>Bridge</string>
+         <string>Destroy</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="le_disk"/>
+      <item row="1" column="3">
+       <widget class="QLabel" name="le_status">
+        <property name="text">
+         <string>Peer is running</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="3">
        <widget class="QLineEdit" name="le_ram"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="lbl_ram">
-        <property name="text">
-         <string>Ram</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="le_cpu"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="lbl_status">
-        <property name="minimumSize">
-         <size>
-          <width>44</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>State</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QPushButton" name="btn_reload">
-        <property name="text">
-         <string>Reload</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_disk">
-        <property name="text">
-         <string>Disk</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_name"/>
-      </item>
-      <item row="3" column="3">
-       <widget class="QComboBox" name="cmb_bridge"/>
       </item>
       <item row="5" column="1">
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -253,26 +144,22 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_cpu">
-        <property name="text">
-         <string>CPU</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QPushButton" name="btn_destroy">
-        <property name="text">
-         <string>Destroy</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="lbl_name">
         <property name="text">
          <string>Name</string>
         </property>
        </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QPushButton" name="btn_reload">
+        <property name="text">
+         <string>Reload</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QComboBox" name="cmb_bridge"/>
       </item>
       <item row="5" column="3">
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -292,6 +179,19 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="lbl_ram">
+        <property name="text">
+         <string>Ram</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="le_disk"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="le_cpu"/>
+      </item>
       <item row="4" column="1">
        <widget class="QCheckBox" name="change_confugre">
         <property name="text">
@@ -299,14 +199,114 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="le_status">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="le_name"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="lbl_cpu">
         <property name="text">
-         <string>Peer is running</string>
+         <string>CPU</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="lbl_status">
+        <property name="minimumSize">
+         <size>
+          <width>44</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>State</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="lbl_bridge">
+        <property name="text">
+         <string>Bridge</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_disk">
+        <property name="text">
+         <string>Disk</string>
         </property>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <layout class="QVBoxLayout" name="env_status"/>
+   </item>
+   <item row="3" column="2">
+    <layout class="QVBoxLayout" name="env_owner"/>
+   </item>
+   <item row="9" column="2" alignment="Qt::AlignHCenter">
+    <widget class="QCheckBox" name="show_peer_control">
+     <property name="text">
+      <string>Advanced settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <layout class="QVBoxLayout" name="env_name"/>
+   </item>
+   <item row="6" column="3">
+    <widget class="QPushButton" name="btn_launch_console">
+     <property name="text">
+      <string>Launch  Subutai Console</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QPushButton" name="btn_peer_on_hub">
+     <property name="text">
+      <string>Peer on Bazaar</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2" alignment="Qt::AlignHCenter">
+    <widget class="QCheckBox" name="show_ssh">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>Show SSH box</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="lbl_env_owner">
+     <property name="text">
+      <string>Owner</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="Line" name="line_1">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
     </widget>
    </item>
   </layout>

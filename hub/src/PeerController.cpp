@@ -9,11 +9,15 @@
 
 CPeerController::CPeerController(QObject *parent) :
     QObject(parent){
-        m_refresh_timer.setInterval(60*1000);
+        m_refresh_timer.setInterval(6*1000); // each 6 seconds update peer list
+        m_logs_timer.setInterval(3*1000); // 2 seconds update peer list
         number_threads = 0;
         connect(&m_refresh_timer, &QTimer::timeout,
               this, &CPeerController::refresh_timer_timeout);
+        connect(&m_logs_timer, &QTimer::timeout,
+                this, &CPeerController::check_logs);
         m_refresh_timer.start();
+        m_logs_timer.start();
 }
 
 CPeerController::~CPeerController() {
@@ -49,6 +53,73 @@ void CPeerController::search_local(){
     //start looking each subfolder
     for (QFileInfo fi : peers_dir.entryInfoList()) {
         get_peer_info(fi, peers_dir);
+    }
+    if(number_threads == 0){
+         emit got_peer_info(0, "update", "peer", "menu");
+    }
+}
+
+void CPeerController::check_logs(){
+    //get correct path;
+    QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QDir peers_dir;
+    QStringList::iterator stdDir = stdDirList.begin();
+    if(stdDir == stdDirList.end())
+      peers_dir.setCurrent("/");
+    else
+      peers_dir.setCurrent(*stdDir);
+    peers_dir.mkdir("Subutai-peers");
+    peers_dir.cd("Subutai-peers");
+
+    //start looking each subfolder
+    QStringList file_name;
+    QDir peer_dir;
+    QString peer_name;
+    int error_code;
+    bool deleted_flag = false;
+    for (QFileInfo fi : peers_dir.entryInfoList()) {
+        if(fi.isDir()){
+            if(fi.fileName() == "." || fi.fileName() == "..")
+                continue;
+            peer_dir = peers_dir;
+            peer_name = parse_name(fi.fileName());
+            if(peer_name.isEmpty())
+                continue;
+            deleted_flag = false;
+            peer_dir.cd(fi.fileName());
+            for (QFileInfo logs : peer_dir.entryInfoList()){
+                if(logs.isDir())
+                    continue;
+                file_name = logs.fileName().split('_');
+                if(file_name.size() == 2 && file_name[0] == peer_name){
+                    QFile log(logs.absoluteFilePath());
+                    if (log.open(QIODevice::ReadWrite) ){
+                        QTextStream stream(&log);
+                        error_code = QString(stream.readAll()).toInt();
+                        if(error_code != 0){
+                            CNotificationObserver::Error(tr("Peer %1 failed to %2").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);
+                        }
+                        else{
+                            CNotificationObserver::Info(tr("Peer %1 finished to %2 succesfully").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);
+                            if(file_name[1] == "destroy"){
+                                deleted_flag = true;
+                                log.remove();
+                                break;
+                            }
+                        }
+                    }
+                    finish_current_update();
+                    refresh();
+                    log.remove();
+                }
+            }
+            if(deleted_flag){
+                if(!peers_dir.removeRecursively())
+                    CNotificationObserver::Error(tr("Failed to clean peer path"), DlgNotification::N_NO_ACTION);
+                finish_current_update();
+                refresh();
+            }
+        }
     }
 }
 

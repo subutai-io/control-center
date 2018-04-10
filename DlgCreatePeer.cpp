@@ -57,7 +57,7 @@ void DlgCreatePeer::create_button_pressed(){
         ui->btn_create->setEnabled(true);
         return;
     }
-    if(ram.toInt() < 512 ){
+    if(ram.toInt() < 1024 ){
         CNotificationObserver::Error(tr("Ram should be more than 512 MB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
@@ -130,12 +130,13 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
             stream << "SUBUTAI_ENV : " << "prod" << endl;
         else if (branch == "development")
              stream << "SUBUTAI_ENV : "<< "dev" << endl;
-        else stream << "SUBTUAI_ENV : "<< "master" << endl;
+        else stream << "SUBUTAI_ENV : "<< "master" << endl;
         stream << "DISK_SIZE : "<< disk << endl;
         stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
     }
     file.close();
-    res = CSystemCallWrapper::run_vagrant_up_in_terminal(dir);
+    static QString vagrant_up_string = "up";
+    res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string, ui->le_name->text());
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
     }

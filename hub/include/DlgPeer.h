@@ -27,6 +27,7 @@ public:
   //peer management functions
   void stopPeer();
   void startPeer();
+  void sshPeer();
   void destroyPeer();
   void reloadPeer();
   void parse_yml();

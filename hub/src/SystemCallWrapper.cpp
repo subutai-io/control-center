@@ -321,18 +321,16 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
+    qDebug() << "get vagrant status of" << dir;
+    system_call_res_t res;
     QString cmd = CSettingsManager::Instance().vagrant_path();
+
     QStringList args;
     args
-        << "set_working_directory"
-        << dir
-        << "status";
+        << "global-status";
 
-    qDebug()
-            <<"Starting to get satus. Args:"
-            <<args;
+    res = ssystem_th(cmd, args, true, true, 20000);
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 20000);
     QString status("broken");
     qDebug()
             <<"Got status of peer:"
@@ -348,10 +346,17 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
         st="";
         for (int i=0; i < s.size(); i++){
             if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
-                if(st == "running")
-                    return st;
-                if(st == "poweroff")
-                    return st;
+                if(st == "running"){
+                    status = st;
+                }
+                if(st == "poweroff"){
+                    status = st;
+                }
+                if(st == dir){
+                    qDebug()
+                            <<dir<<"status is"<<status;
+                    return status;
+                }
                 st = "";
             }
             else
@@ -359,6 +364,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
 
         }
     }
+    status = "broken";
     return status;
 }
 
@@ -485,6 +491,49 @@ QString CSystemCallWrapper::vagrant_ip(const QString &dir){
     ip = res.out[0];
     return ip;
 }
+
+QString CSystemCallWrapper::vagrant_port(const QString &dir){
+    QDir peer_dir(dir);
+    QString  port = "undefined";
+    if(peer_dir.cd(".vagrant")){
+        QFile file(QString(peer_dir.absolutePath() + "/generated.yml"));
+        QString file_name = file.fileName();
+        if(file.exists()){
+            if (file.open(QIODevice::ReadWrite) ){
+                QTextStream stream( &file );
+                QString output = QString(stream.readAll());
+                QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
+                for (auto s : vagrant_info){
+                    QString flag, value;
+                    bool reading_value = false;
+                    flag = value = "";
+                    reading_value = false;
+                    for (int i=0; i < s.size(); i++){
+                        if(s[i]=='\r')continue;
+                        if(reading_value){
+                            value += s[i];
+                            continue;
+                        }
+                        if(s[i] == ':'){
+                            flag = value;
+                            value = "";
+                            continue;
+                        }
+                        if(s[i] != ' '){
+                            if(value == "" && !flag.isEmpty())
+                                reading_value = true;
+                            value+=s[i];
+                        }
+                    }
+                    if(flag == "_CONSOLE_PORT")
+                        port = value;
+                    }
+                }
+            file.close();
+        }
+    }
+    return port;
+}
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
@@ -545,7 +594,31 @@ QStringList CSystemCallWrapper::list_interfaces(){
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
-
+void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins){
+    qDebug()
+            <<"get list of installed vagrant plugins";
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "plugin"
+         << "list";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    qDebug()
+            <<"List of vagrant plugins installed"
+            <<"exit  code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+    plugins.clear();
+    if(res.exit_code != 0 || res.res != 0)
+        return;
+    QStringList plugin;
+    for (auto s : res.out){
+        plugin.clear();
+        plugin = s.split(' ');
+        if(plugin.size() == 2){
+            plugins.push_back(std::make_pair(plugin[0], plugin[1]));
+        }
+    }
+}
 //////////////////////////////////////////////////////////////////////
 bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
@@ -558,6 +631,16 @@ bool CSystemCallWrapper::check_peer_management_components(){
     if(version == "undefined"){
         CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
         return false;
+    }
+    std::vector<std::pair<QString, QString> >plugins;
+    CSystemCallWrapper::vagrant_plugins_list(plugins);
+    static std::vector<QString> required_plugin = {"vagrant-subutai, vagrant-vbguest"};
+    for (auto  plugin : required_plugin){
+        if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
+            return plugin == installed_plugin.first;}) == plugins.end()){
+            CNotificationObserver::Info(QObject::tr("Installing missing vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
+            vagrant_plugin_install(plugin);
+        }
     }
     return true;
 }
@@ -968,13 +1051,19 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
 }
 //////////////////////////////////////////////////////////////////////////////
 template <class  OS>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal(const QString &dir);
+system_call_wrapper_error_t vagrant_command_terminal_internal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> > (const QString &dir){
-
-    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
+                                                                                 const QString &command,
+                                                                                 const QString &name){
+    UNUSED_ARG(name);
+    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+                                                                             CSettingsManager::Instance().vagrant_path(),
+                                                                             command,
+                                                                             name, command);
 
     QString cmd;
 
@@ -986,13 +1075,17 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_MAC> 
     args << QString("Tell application \"%1\" to %2 \"%3\"")
                 .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
     return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
-                                              : SCWE_SSH_LAUNCH_FAILED;
+                                              : SCWE_CREATE_PROCESS;
 }
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir){
-    QString str_command = QString("cd %1; %2").arg(dir, CSettingsManager::Instance().vagrant_path());
-    str_command += QString(" up");
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+                                                                                 CSettingsManager::Instance().vagrant_path(),
+                                                                                 command,
+                                                                                 name, command);
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
@@ -1005,18 +1098,25 @@ system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_LINUX
     cmd = CSettingsManager::Instance().terminal_cmd();
     QStringList args = CSettingsManager::Instance().terminal_arg().split(
                          QRegularExpression("\\s"));
-    args << QString("%1;bash").arg(str_command);
+    args << QString("%1").arg(str_command);
     return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
 
 template <>
-system_call_wrapper_error_t run_vagrant_up_in_terminal_internal<Os2Type<OS_WIN> >(const QString &dir){
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+UNUSED_ARG(name);
 UNUSED_ARG(dir);
+UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 && \"%4\"")
+  QString str_command = QString("cd %1 & \"%2\" %3 & echo \%errorlevel\% > %4_%5 & exit")
                             .arg(dir)
-                            .arg(CSettingsManager::Instance().vagrant_path());
+                            .arg(CSettingsManager::Instance().vagrant_path())
+                            .arg(command)
+                            .arg(name)
+                            .arg(command);
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
@@ -1032,7 +1132,7 @@ UNUSED_ARG(dir);
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2\" up").arg(cmd).arg(str_command);
+      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
@@ -1047,8 +1147,10 @@ UNUSED_ARG(dir);
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::run_vagrant_up_in_terminal(const QString &dir){
-    return run_vagrant_up_in_terminal_internal<Os2Type<CURRENT_OS> >(dir);
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const QString &dir,
+                                                                         const QString &command,
+                                                                         const QString &name){
+    return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>

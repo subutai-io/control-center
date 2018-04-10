@@ -150,7 +150,9 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
-  static system_call_wrapper_error_t run_vagrant_up_in_terminal(const QString &dir);
+  static system_call_wrapper_error_t vagrant_command_terminal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
 
   static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
 
@@ -162,7 +164,11 @@ class CSystemCallWrapper {
 
   static QString vagrant_ip(const QString &dir);
 
+  static QString vagrant_port(const QString &dir);
+
   static bool check_peer_management_components();
+
+  static void vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins);
 
   static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
 
