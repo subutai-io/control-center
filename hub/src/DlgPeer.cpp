@@ -327,7 +327,7 @@ bool DlgPeer::change_configs(){
                 stream << "SUBUTAI_ENV : " << "prod" << endl;
             else if (branch == "development")
                  stream << "SUBUTAI_ENV : "<< "dev" << endl;
-            else stream << "SUBTUAI_ENV : "<< "master" << endl;
+            else stream << "SUBUTAI_ENV : "<< "master" << endl;
             stream << "DISK_SIZE : "<< peer_disk << endl;
             stream << "BRIDGE : "<< QString("\"%1\"").arg(peer_bridge)<<endl;
         }
