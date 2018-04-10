@@ -1498,8 +1498,15 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -f;"
-                                    "dpkg -i %1")
+                                    "dpkg -i %1;"
+                                    "if [$? -gt 0]\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %1;"
+                                    "else\n"
+                                    "rm %1\n"
+                                    "fi")
                                     .arg(file_info)
                                     .toUtf8();
 
@@ -1665,9 +1672,16 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -f;"
                                     "cd %1 dir;"
-                                    "dpkg -i %2")
+                                    "dpkg -i %2;"
+                                    "if [$? -gt 0]\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %2;"
+                                    "else\n"
+                                    "rm %2\n"
+                                    "fi")
                                     .arg(dir, file_name)
                                     .toUtf8();
 
