@@ -150,6 +150,34 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
+  static system_call_wrapper_error_t vagrant_command_terminal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
+
+  static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
+
+  static QString vagrant_fingerprint(const QString &ip);
+
+  static QString vagrant_status(const QString &dir);
+
+  static QString vagrant_ip(const QString &dir);
+
+  static QString vagrant_port(const QString &dir);
+
+  static bool check_peer_management_components();
+
+  static void vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins);
+
+  static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_halt(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_reload(const QString &dir);
+
+  static QStringList list_interfaces();
+
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_x2go(const QString &dir, const QString &file_name);
