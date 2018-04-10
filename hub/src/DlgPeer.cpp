@@ -386,7 +386,7 @@ void DlgPeer::registerPeer(){
     const QString ip_addr=ui->le_ip->text();
     dlg_register->setLocalAddr(ip_addr);
     dlg_register->setRegistrationMode();
-    dlg_register->setWindowTitle(tr("Register peer: %1").arg(ip_addr));
+    dlg_register->setWindowTitle(tr("Register peer: %1").arg(peer_name));
     dlg_register->show();
     registration_dialog = dlg_register;
     connect (dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
@@ -440,6 +440,7 @@ void DlgPeer::hidePeer(){
     ui->btn_stop->hide();
     ui->change_confugre->hide();
     ui->btn_reload->hide();
+    ui->btn_destroy->hide();
     ui->btn_register->hide();
     ui->btn_unregister->hide();
 
