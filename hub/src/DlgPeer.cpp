@@ -103,6 +103,10 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
     }
     else if(peer_status == "running")
             peer_status = "not ready";
+    if(peer_fingerprint == "loading" || peer_fingerprint == "undefined" || peer_fingerprint == ""){
+        if(peer_status == "running")
+            peer_status = "not ready";
+    }
     parse_yml();
 }
 

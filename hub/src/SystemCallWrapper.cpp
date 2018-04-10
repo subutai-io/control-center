@@ -1056,7 +1056,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; \"%2\" %3; echo $? > %4_%3; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%3; exit").arg(dir,
                                                                              CSettingsManager::Instance().vagrant_path(),
                                                                              command,
                                                                              name);
@@ -1071,14 +1071,14 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
     args << QString("Tell application \"%1\" to %2 \"%3\"")
                 .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
     return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
-                                              : SCWE_SSH_LAUNCH_FAILED;
+                                              : SCWE_CREATE_PROCESS;
 }
 
 template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
-    QString str_command = QString("cd %1; \"%2\" %3; echo $? > %4_%3; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%3; exit").arg(dir,
                                                                                  CSettingsManager::Instance().vagrant_path(),
                                                                                  command,
                                                                                  name);
@@ -1094,7 +1094,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
     cmd = CSettingsManager::Instance().terminal_cmd();
     QStringList args = CSettingsManager::Instance().terminal_arg().split(
                          QRegularExpression("\\s"));
-    args << QString("%1;bash").arg(str_command);
+    args << QString("%1").arg(str_command);
     return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
