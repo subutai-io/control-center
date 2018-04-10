@@ -207,7 +207,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
     const QString &commands, const QString &key) {
 
   QString cmd
-      = QString("\"%1\"").arg(CSettingsManager::Instance().ssh_path());
+      = QString("%1").arg(CSettingsManager::Instance().ssh_path());
   QStringList args;
   args
        << "-o" << "StrictHostKeyChecking=no"
@@ -266,7 +266,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-o StrictHostKeyChecking=no"
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << QString("-i \"%1\"").arg(ssh_info.second)
+       << "-i" << ssh_info.second
        << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
