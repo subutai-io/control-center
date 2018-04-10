@@ -43,6 +43,7 @@ const QString CSettingsManager::SM_RH_PORT("Rh_Port_%1");
 
 const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
+const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 
@@ -183,6 +184,7 @@ CSettingsManager::CSettingsManager()
 
       m_logs_storage(subutai_path()),
       m_ssh_keys_storage(QApplication::applicationDirPath()),
+      m_peers_storage(QString(QStandardPaths::HomeLocation)),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_rh_update_freq(UF_NEVER),
@@ -238,6 +240,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_rh_user, SM_RH_USER, qvar_to_str},
       {(void*)&m_logs_storage, SM_LOGS_STORAGE, qvar_to_str},
       {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
+      {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
@@ -457,6 +460,11 @@ void CSettingsManager::set_password(const QString& password) {
 void CSettingsManager::set_logs_storage(const QString& logs_storage) {
   m_logs_storage = logs_storage;
   m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
+}
+
+void CSettingsManager::set_peers_storage(const QString &peers_storage){
+    m_peers_storage = peers_storage;
+    m_settings.setValue(SM_PEERS_STORAGE, m_peers_storage);
 }
 ////////////////////////////////////////////////////////////////////////////
 
