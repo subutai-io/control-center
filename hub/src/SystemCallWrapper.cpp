@@ -1572,7 +1572,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
-    args<<"plugin"<<"install"<<plugin_name;
+    args<<"plugin"<<"update"<<plugin_name;
     qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
