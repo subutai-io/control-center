@@ -1,7 +1,5 @@
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
-
-
 git checkout -- .
 git checkout %APPVEYOR_REPO_BRANCH%
 git pull origin %APPVEYOR_REPO_BRANCH%
