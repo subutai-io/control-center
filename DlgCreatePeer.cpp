@@ -140,4 +140,5 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
     }
+    else this->close();
 }

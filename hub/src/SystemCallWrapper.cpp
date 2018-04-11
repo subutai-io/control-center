@@ -1060,7 +1060,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
                                                                              CSettingsManager::Instance().vagrant_path(),
                                                                              command,
                                                                              name, command);
@@ -1082,7 +1082,7 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
-    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
                                                                                  CSettingsManager::Instance().vagrant_path(),
                                                                                  command,
                                                                                  name, command);
@@ -1111,7 +1111,7 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 & \"%2\" %3 & echo \%errorlevel\% > %4_%5 & exit")
+  QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & exit")
                             .arg(dir)
                             .arg(CSettingsManager::Instance().vagrant_path())
                             .arg(command)
