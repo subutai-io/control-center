@@ -21,6 +21,7 @@ install:
   - nuget install secure-file -ExcludeVersion
   - secure-file\tools\secure-file -decrypt C:\SRC\control-center\subutai.gpg.enc -secret %decrypt_key%
 build_script:
+  - C:\msys64\usr\bin\bash -lc "wget -nv -O C/SRC/control-center/libs.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=libs.tar.gz && tar -xf libs.tar.gz
   - cmd: build_win.bat
 deploy_script:
   - C:\msys64\usr\bin\bash -lc "cd /C/SRC/control-center && gpg --allow-secret-key-import --import subutai.gpg && rm -f subutai.gpg"
