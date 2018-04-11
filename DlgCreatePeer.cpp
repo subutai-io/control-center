@@ -74,7 +74,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
 
     if(disk.toInt() < 40){
-        CNotificationObserver::Error(tr("Disk size can't be less than 100 GB"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Disk size can't be less than 40 GB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
