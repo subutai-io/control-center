@@ -75,7 +75,7 @@ void CPeerController::check_logs(){
     QStringList file_name;
     QDir peer_dir;
     QString peer_name;
-    int error_code;
+    QString error_code;
     bool deleted_flag = false;
     for (QFileInfo fi : peers_dir.entryInfoList()) {
         if(fi.isDir()){
@@ -95,9 +95,9 @@ void CPeerController::check_logs(){
                     QFile log(logs.absoluteFilePath());
                     if (log.open(QIODevice::ReadWrite) ){
                         QTextStream stream(&log);
-                        error_code = QString(stream.readAll()).toInt();
-                        if(error_code != 0){
-                            CNotificationObserver::Error(tr("Peer %1 failed to %2").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);
+                        error_code = QString(stream.readAll());
+                        if(!error_code.isEmpty()){
+                            CNotificationObserver::Error(tr("Peer %1 finished to %2 with errors: %3").arg(peer_name, file_name[1], error_code), DlgNotification::N_NO_ACTION);
                         }
                         else{
                             CNotificationObserver::Info(tr("Peer %1 finished to %2 succesfully").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);

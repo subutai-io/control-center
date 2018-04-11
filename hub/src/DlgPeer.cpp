@@ -39,7 +39,7 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->le_cpu->setEnabled(false);
 
     ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
-    ui->le_ram->setValidator(new QIntValidator(1, 20000, this));
+    ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 
     QStringList bridges = CSystemCallWrapper::list_interfaces();
@@ -291,8 +291,8 @@ bool DlgPeer::check_configs(){
     int ram = ui->le_ram->text().toInt(&bool_me, base);
     int cpu = ui->le_cpu->text().toInt(&bool_me, base);
     int disk = ui->le_disk->text().toInt(&bool_me, base);
-    if(ram < 1024){
-        CNotificationObserver::Error(tr("1024 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
+    if(ram < 4096){
+        CNotificationObserver::Error(tr("4096 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
         return false;
     }
 
