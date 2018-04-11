@@ -57,8 +57,8 @@ void DlgCreatePeer::create_button_pressed(){
         ui->btn_create->setEnabled(true);
         return;
     }
-    if(ram.toInt() < 1024 ){
-        CNotificationObserver::Error(tr("Ram should be more than 512 MB"), DlgNotification::N_NO_ACTION);
+    if(ram.toInt() < 4096 ){
+        CNotificationObserver::Error(tr("Ram should be more than 4096 MB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
     }
@@ -73,7 +73,7 @@ void DlgCreatePeer::create_button_pressed(){
         return;
     }
 
-    if(disk.toInt() < 100){
+    if(disk.toInt() < 40){
         CNotificationObserver::Error(tr("Disk size can't be less than 100 GB"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         return;
@@ -140,4 +140,5 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
     }
+    else this->close();
 }

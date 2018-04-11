@@ -1060,7 +1060,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
                                                                              CSettingsManager::Instance().vagrant_path(),
                                                                              command,
                                                                              name, command);
@@ -1082,7 +1082,7 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
-    QString str_command = QString("cd %1; %2 %3; echo $? > %4_%5; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
                                                                                  CSettingsManager::Instance().vagrant_path(),
                                                                                  command,
                                                                                  name, command);
@@ -1111,7 +1111,7 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 & \"%2\" %3 & echo \%errorlevel\% > %4_%5 & exit")
+  QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & exit")
                             .arg(dir)
                             .arg(CSettingsManager::Instance().vagrant_path())
                             .arg(command)
@@ -1566,6 +1566,12 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
            return res;
        res = vagrant_plugin_install(s);
    }
+   //update if already installed plugins
+   for (auto s : plugins){
+       if(res!=SCWE_SUCCESS)
+           return res;
+       res = vagrant_plugin_update(s);
+   }
    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1574,7 +1580,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
     QStringList args;
     args<<"plugin"<<"install"<<plugin_name;
     qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
     qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
@@ -1582,6 +1588,19 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
     return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<<"plugin"<<"update"<<plugin_name;
+    qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+    qDebug()<<QString("vagrant plugin %1 updte is finished").arg(plugin_name)
+           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
 template <>

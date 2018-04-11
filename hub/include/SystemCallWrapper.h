@@ -256,6 +256,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t vagrant_plugin_install(const QString &plugin_name);
 
+  static system_call_wrapper_error_t vagrant_plugin_update(const QString &plugin_name);
+
   struct container_ip_and_port {
     QString ip;
     QString port;
