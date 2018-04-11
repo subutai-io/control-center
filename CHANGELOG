@@ -1,7 +1,9 @@
 # Change Log
 
-## [6.8.1] 4/08/2018
+## [6.9.0] 4/11/2018
+* New feature: Peer control manager
 * Minor bugs fixed
+* Virtualbox  installation added
 
 ## [6.8.0] 3/19/2018
 * New feature: component installation
