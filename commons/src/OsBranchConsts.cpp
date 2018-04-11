@@ -5,6 +5,27 @@
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
 
+static std::map<QString, QString> virtual_package_codename = {
+    {"xenial", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"bionic", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"},
+    {"zesty", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
+    {"yakkety", "virtualbox-5.2_5.2.8-121009_Ubuntu_yakkety_amd64.deb"},
+    {"trusty", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"stretch", "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb"},
+    {"jessie", "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb"},
+    {"wheezy", "virtualbox-5.2_5.2.8-121009_Debian_wheezy_amd64.deb"},
+    {"artful", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
+    {"qiana", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"}, //compatible with 14.04
+    {"rebecca", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"rafaela", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"rosa", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"sarah", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"}, //compatible with 16.04
+    {"serena", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"sonya", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"sylvia", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"rara", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"} //compatible with 18.04
+};
+
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 
 #define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -72,22 +93,8 @@ oracle_virtualbox_kurjun_package_name() {
     if(info.size() < 2 || info[0].second != "Linux")
         return kurjun_file;
     QString codename = info[1].second;
-    if(codename == "bionic")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb";
-    else if(codename == "zesty")
-        kurjun_file = "";
-    else if(codename == "yakkety")
-        kurjun_file = "";
-    else if(codename == "xenial")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb";
-    else if(codename == "trusty")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb";
-    else if(codename == "stretch")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb";
-    else if(codename == "jessie")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb";
-    else if(codename == "wheezy")
-        kurjun_file = "";
+    if(virtual_package_codename.find(codename) != virtual_package_codename.end())
+        kurjun_file = virtual_package_codename[codename];
     return kurjun_file;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
