@@ -69,6 +69,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_refresh_timeout->setValue(
         CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
+  ui->le_virtualbox_command->setText(CSettingsManager::Instance().oracle_virtualbox_path());
   ui->le_vagrant_command->setText(CSettingsManager::Instance().vagrant_path());
   ui->sb_notification_delay->setMinimum(
         CSettingsManager::NOTIFICATION_DELAY_MIN);
@@ -101,6 +102,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->lbl_err_ssh_command->hide();
   ui->lbl_err_vagrant_command->hide();
   ui->lbl_err_ssh_keygen_command->hide();
+  ui->lbl_err_scp_command->hide();
   ui->lbl_err_terminal_arg->hide();
   ui->lbl_err_terminal_cmd->hide();
   ui->lbl_err_rhip_host->hide();
@@ -181,6 +183,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_scp_command, &QPushButton::released, this,
          &DlgSettings::btn_scp_command_released);
+  connect(ui->btn_virtualbox_command, &QPushButton::released, this,
+        &DlgSettings::btn_virtualbox_command_release);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
   connect(ui->btn_vagrant_command, &QPushButton::released, this,
@@ -315,6 +319,9 @@ void DlgSettings::btn_ok_released() {
     {ui->le_scp_command, ui->lbl_err_scp_command, can_launch_application, 1,
      can_launch_application_msg},
 
+    {ui->le_virtualbox_command, ui->lbl_err_virtualbox_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_virtualbox_command, ui->lbl_err_virtualbox_command, can_launch_application, 1, can_launch_application_msg},
+
     {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
      can_launch_application_msg},
@@ -390,14 +397,14 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
-  CSettingsManager::Instance().set_ssh_keys_storage(
-        ui->le_ssh_keys_storage->text());
+  CSettingsManager::Instance().set_ssh_keys_storage(ui->le_ssh_keys_storage->text());
+
   CSettingsManager::Instance().set_p2p_path(ui->le_p2p_command->text());
   CSettingsManager::Instance().set_vagrant_path(ui->le_vagrant_command->text());
   CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
-
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_scp_path(ui->le_scp_command->text());
+  CSettingsManager::Instance().set_oracle_virtualbox_path(ui->le_virtualbox_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
@@ -483,6 +490,14 @@ void DlgSettings::btn_ssh_command_released() {
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
   qDebug() << "Selected filename "<< fn;
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgSettings::btn_virtualbox_command_release() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("VirtualBox command"));
+  if (fn == "") return;
+  ui->le_virtualbox_command->setText(fn);
+  qDebug() << "Selected virtualbox path" << fn;
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -302,16 +302,18 @@ CSettingsManager::CSettingsManager()
   }
   // which using
   QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, &m_scp_path, nullptr};
+                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, &m_scp_path, &m_oracle_virtualbox_path, nullptr};
   static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path(), default_x2goclient_path(), default_vagrant_path(), scp_cmd_path()};
+                                           default_p2p_path(), default_x2goclient_path(),
+                                           default_vagrant_path(), scp_cmd_path(), default_oracle_virtualbox_path()};
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
                                      "p2p",
                                      "x2goclient",
                                      "vagrant",
-                                     "scp"};
+                                     "scp",
+                                     "virtualbox"};
 
 
   QString tmp;
