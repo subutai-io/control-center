@@ -56,7 +56,7 @@ private:
 
   void search_local();
   void check_logs();
-  QStringList get_error_messages(QDir peer_dir, QString command);
+  QString get_error_messages(QDir peer_dir, QString command);
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
   int number_threads; // to emit signal when all finished

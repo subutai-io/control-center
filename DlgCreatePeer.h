@@ -24,6 +24,7 @@ public:
 
 private:
   Ui::DlgCreatePeer *ui;
+  void hide_err_labels();
 
 public slots:
   void create_button_pressed();

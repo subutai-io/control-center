@@ -16,8 +16,11 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     ui->le_disk->setText("100");
     QStringList bridged_ifs = CSystemCallWrapper::list_interfaces();
     ui->cmb_bridge->addItems(bridged_ifs);
+    hide_err_labels();
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
+    ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
+    ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 }
 
 DlgCreatePeer::~DlgCreatePeer()
@@ -35,56 +38,52 @@ void DlgCreatePeer::create_button_pressed(){
     QString os = ui->cmb_os->currentText();
     QString disk = ui->le_disk->text();
 
-    QRegExp check_ram("\\d*");
+    bool errors_exist = false;
 
     if(ui->le_name->text().isEmpty()){
-        CNotificationObserver::Error(tr("Name can't be empty"), DlgNotification::N_NO_ACTION);
+        ui->lbl_err_name->setText(tr("Name can't be empty"));
+        ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_name->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
+    else
     if(name.contains(" ")){
-        CNotificationObserver::Error(tr("Name can't have space"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
+            ui->lbl_err_name->setText(tr("Name can have space"));
+            ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+            ui->lbl_err_name->show();
+            ui->btn_create->setEnabled(true);
+            errors_exist = true;
     }
-    if(!check_ram.exactMatch(ram)){
-        CNotificationObserver::Error(tr("Ram shold be integer"), DlgNotification::N_NO_ACTION);
+    else ui->lbl_err_name->hide();
+    if(ram.toInt() < 4096){
+        ui->lbl_err_ram->setText(tr("Ram can't be less than 4096 MB"));
+        ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_ram->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
-    if(ram.isEmpty()){
-        CNotificationObserver::Error(tr("Ram can't be empty"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(ram.toInt() < 4096 ){
-        CNotificationObserver::Error(tr("Ram should be more than 4096 MB"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(disk.isEmpty()){
-        CNotificationObserver::Error(tr("Disk size can't be empty"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(!check_ram.exactMatch(disk)){
-        CNotificationObserver::Error(tr("Disk size should be in integer"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-
+    else ui->lbl_err_ram->hide();
     if(disk.toInt() < 40){
-        CNotificationObserver::Error(tr("Disk size can't be less than 40 GB"), DlgNotification::N_NO_ACTION);
+        ui->lbl_err_disk->setText(tr("Disk can't be less than 40 GB"));
+        ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_disk->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
+    else ui->lbl_err_disk->hide();
+
+    if(errors_exist)
+        return;
 
     QString dir = create_dir(name);
 
     if(dir.isEmpty()){
-        CNotificationObserver::Error(tr("Name already exists"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(false);
-        return;
+        ui->lbl_err_name->setText(tr("Name already exists"));
+        ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_name->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
     }
 
     InitPeer *thread_init = new InitPeer(this);
@@ -93,6 +92,16 @@ void DlgCreatePeer::create_button_pressed(){
     connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, disk, this](system_call_wrapper_error_t res){
        this->init_completed(res, dir, ram, cpu, disk);
     });
+}
+
+void DlgCreatePeer::hide_err_labels(){
+    ui->lbl_err_cpu->hide();
+    ui->lbl_err_disk->hide();
+    ui->lbl_err_ifs->hide();
+    ui->lbl_err_name->hide();
+    ui->lbl_err_pass->hide();
+    ui->lbl_err_ram->hide();
+    ui->lbl_err_os->hide();
 }
 
 //for peers, empty if that peer dir exists
