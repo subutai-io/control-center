@@ -1060,7 +1060,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5; echo finished > %4_finished; exit").arg(dir,
                                                                              CSettingsManager::Instance().vagrant_path(),
                                                                              command,
                                                                              name, command);
