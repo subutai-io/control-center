@@ -2,6 +2,7 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include <QPushButton>
+#include <QMessageBox>
 #include "NotificationObserver.h"
 #include "RestContainers.h"
 #include "QStandardPaths"
@@ -91,26 +92,16 @@ void CPeerController::check_logs(){
                 if(logs.isDir())
                     continue;
                 file_name = logs.fileName().split('_');
-                if(file_name.size() == 2 && file_name[0] == peer_name){
+                if(file_name.size() == 2 && file_name[1] == "finished"){
                     QFile log(logs.absoluteFilePath());
                     if (log.open(QIODevice::ReadWrite) ){
                         QTextStream stream(&log);
                         error_code = QString(stream.readAll());
-                        if(!error_code.isEmpty()){
-                            CNotificationObserver::Error(tr("Peer %1 finished to %2 with errors: %3").arg(peer_name, file_name[1], error_code), DlgNotification::N_NO_ACTION);
-                        }
-                        else{
-                            CNotificationObserver::Info(tr("Peer %1 finished to %2 succesfully").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);
-                            if(file_name[1] == "destroy"){
-                                deleted_flag = true;
-                                log.remove();
-                                break;
-                            }
+                        if(error_code == "finished"){
+                            get_error_messages(peer_dir, file_name[0]);
+                           log.remove();
                         }
                     }
-                    finish_current_update();
-                    refresh();
-                    log.remove();
                 }
             }
             if(deleted_flag){
@@ -119,6 +110,28 @@ void CPeerController::check_logs(){
                 finish_current_update();
                 refresh();
             }
+        }
+    }
+}
+
+QStringList CPeerController::get_error_messages(QDir peer_dir, QString command){
+    qDebug()
+            <<"Get error messages of"<<peer_dir<<command;
+    QString error_list;
+    for (QFileInfo logs : peer_dir.entryInfoList()){
+        if(logs.isDir())
+            continue;
+        QStringList file_name = logs.fileName().split('_');
+        if(file_name.size() == 2 && file_name[1] == command){
+            QFile log(logs.absoluteFilePath());
+            if (log.open(QIODevice::ReadWrite) ){
+                QTextStream stream(&log);
+                error_list = QString(stream.readAll());
+                QMessageBox error_box;
+                error_box.setText(error_list);
+            }
+            log.remove();
+            break;
         }
     }
 }
