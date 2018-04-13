@@ -30,6 +30,17 @@ DlgCreatePeer::~DlgCreatePeer()
   delete ui;
 }
 
+int DlgCreatePeer::check_pass(QString pass){
+    if(pass.isEmpty())
+        return PASS_EMPTY; // empty error;
+    if(pass.size() < 7)
+        return PASS_SMALL;
+    if(pass.contains(QRegExp())){
+        return PASS_INVALID;
+    }
+    return PASS_FINE;
+}
+
 void DlgCreatePeer::create_button_pressed(){
     ui->btn_create->setEnabled(false);
 
@@ -43,6 +54,8 @@ void DlgCreatePeer::create_button_pressed(){
     QString password2 = ui->le_pass_confirm->text();
 
     bool errors_exist = false;
+
+    int pass_error = check_pass(password1);
 
     if(password1 != password2){
         ui->lbl_err_pass->setText(tr("Passwords don't match. Please check again"));
