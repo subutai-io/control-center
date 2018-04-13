@@ -19,6 +19,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     hide_err_labels();
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
+    ui->le_pass->setEchoMode(QLineEdit::Password);
+    ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 }
@@ -37,8 +39,19 @@ void DlgCreatePeer::create_button_pressed(){
     QString cpu = ui->cmb_cpu->currentText();
     QString os = ui->cmb_os->currentText();
     QString disk = ui->le_disk->text();
+    QString password1 = ui->le_pass->text();
+    QString password2 = ui->le_pass_confirm->text();
 
     bool errors_exist = false;
+
+    if(password1 != password2){
+        ui->lbl_err_pass->setText(tr("Passwords don't match. Please check again"));
+        ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_pass->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
+    }
+    else ui->lbl_err_pass->hide();
 
     if(ui->le_name->text().isEmpty()){
         ui->lbl_err_name->setText(tr("Name can't be empty"));
@@ -72,6 +85,8 @@ void DlgCreatePeer::create_button_pressed(){
         errors_exist = true;
     }
     else ui->lbl_err_disk->hide();
+
+
 
     if(errors_exist)
         return;
