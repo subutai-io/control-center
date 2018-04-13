@@ -142,7 +142,6 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         else stream << "SUBUTAI_ENV : "<< "master" << endl;
         stream << "DISK_SIZE : "<< disk << endl;
         stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
-        stream << "SUBUTAI_PASSWORD : erkin"<<endl;
     }
     file.close();
     static QString vagrant_up_string = "up";

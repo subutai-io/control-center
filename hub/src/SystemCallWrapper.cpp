@@ -1064,7 +1064,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                 command,
                                                                 name, command);
     if(command == "reload")
-        str_command += QString("%1 provision 2>> %2_%3").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
 
     str_command += QString("echo finished > %1_finished; exit").arg(command);
 
@@ -1090,7 +1090,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
                                                                 command,
                                                                 name, command);
     if(command == "reload")
-        str_command += QString("%1 provision 2>> %2_%3").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
     str_command += QString("echo finished > %1_finished; exit").arg(command);
 
     QString cmd;
