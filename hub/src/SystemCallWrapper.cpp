@@ -335,8 +335,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug()
             <<"Got status of peer:"
             <<"exit code: "<<res.exit_code
-            <<"result code: "<<res.res
-            <<"output: "<<res.out;
+            <<"result code: "<<res.res;
     //the best part is parsing data
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return QString("broken");
@@ -1061,9 +1060,9 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &name){
     UNUSED_ARG(name);
     QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
-                                                                             CSettingsManager::Instance().vagrant_path(),
-                                                                             command,
-                                                                             name, command);
+                                                                     CSettingsManager::Instance().vagrant_path(),
+                                                                     command,
+                                                                     name, command);
 
     QString cmd;
 
@@ -1083,9 +1082,9 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
                                                                                   const QString &command,
                                                                                   const QString &name){
     QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
-                                                                                 CSettingsManager::Instance().vagrant_path(),
-                                                                                 command,
-                                                                                 name, command);
+                                                                     CSettingsManager::Instance().vagrant_path(),
+                                                                     command,
+                                                                     name, command);
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
