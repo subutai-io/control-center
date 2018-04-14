@@ -192,8 +192,8 @@ void CRestWorker::login(const QString& login, const QString& password,
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
-void CRestWorker::get_peer_token(const QString &port,const QString &login, const QString &password,
+///////////////////////* console rest API */////////////////////////////////
+void CRestWorker::peer_token(const QString &port,const QString &login, const QString &password,
                                  QString &token, int &err_code,
                                  int &http_code, int &network_error){
     qInfo()
@@ -210,9 +210,9 @@ void CRestWorker::get_peer_token(const QString &port,const QString &login, const
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
-    QByteArray arr = send_request(
-        m_network_manager, request, false, http_code, err_code, network_error,
-        query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
+    QByteArray arr = send_request(m_network_manager, request, false,
+                                  http_code, err_code, network_error,
+                                  query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
 
     qDebug()
         << "Http code " << http_code
@@ -237,9 +237,8 @@ void CRestWorker::get_peer_token(const QString &port,const QString &login, const
     }
 }
 
-////////////////////////////////////////////////////////////////////////////
 
-void CRestWorker::unregister_peer(const QString &port, const QString &token,
+void CRestWorker::peer_unregister(const QString &port, const QString &token,
                                   int &err_code, int &http_code, int &network_error){
     qInfo()
             << tr("Unregister peer %1").arg(port);
@@ -247,51 +246,106 @@ void CRestWorker::unregister_peer(const QString &port, const QString &token,
     const QString str_url(QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2").arg(port, token));
 
     QUrl url_login(str_url);
-    QUrlQuery query_login;
     QNetworkRequest request(url_login);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QByteArray arr = send_request(
-        m_network_manager, request, 3, http_code, err_code, network_error,
-        QByteArray(), true);
-
+    QByteArray arr = send_request(m_network_manager, request, 3,
+                                  http_code, err_code, network_error,
+                                  QByteArray(), false);
+    UNUSED_ARG(arr);
     qDebug()
         << "Http code " << http_code
         << "Error code " << err_code
         << "Network Error " << network_error;
 }
 
-////////////////////////////////////////////////////////////////////////////
 
-void CRestWorker::register_peer(const QString &port,
+void CRestWorker::peer_register(const QString &port,
                                 const QString &token, const QString &login,
                                 const QString &password, const QString &peer_name,
                                 const QString &peer_scope, int &err_code,
-                                int &http_code, int &network_error) {
+                                int &http_code, int &network_error){
     qInfo()
             << tr("Registering peer %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2").arg(port, token));
-
     QUrl url_login(str_url);
-    QUrlQuery query_login;
+    QUrlQuery query;
 
-    query_login.addQueryItem("email", login);
-    query_login.addQueryItem("password", password);
-    query_login.addQueryItem("peerName",peer_name);
-    query_login.addQueryItem("peerScope",peer_scope);
+    query.addQueryItem("email", login);
+    query.addQueryItem("password", password);
+    query.addQueryItem("peerName",peer_name);
+    query.addQueryItem("peerScope",peer_scope);
 
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
-    QByteArray arr = send_request(
-        m_network_manager, request, false, http_code, err_code, network_error,
-        query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
+    QByteArray arr = send_request(m_network_manager, request, false,
+                                  http_code, err_code, network_error,
+                                  query.toString(QUrl::FullyEncoded).toUtf8(), false);
+    UNUSED_ARG(arr);
     qDebug()
         << "Http code " << http_code
         << "Error code " << err_code
         << "Network Error " << network_error;
+}
+
+
+bool CRestWorker::peer_finger(const QString &port, QString &finger){
+    qInfo()
+            << tr("getting finger from %1").arg(port);
+
+    const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
+    int http_code, err_code, network_error;
+    QUrl url_finger(str_url);
+    QByteArray nothing;
+    QNetworkRequest request(url_finger);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/x-www-form-urlencoded");
+    QByteArray arr = send_request(m_network_manager, request, 1,
+                                  http_code, err_code, network_error,
+                                  nothing, false);
+
+    qDebug()
+        << "Http code " << http_code
+        << "Error code " << err_code
+        << "Network Error " << network_error;
+
+    finger = QString(arr);
+    return true;
+}
+
+bool CRestWorker::peer_set_pass(const QString &port,
+                                const QString &username,
+                                const QString &old_pass,
+                                const QString &new_pass){
+    qInfo()<< tr("setting password for %1").arg(port);
+
+    const QString str_url(QString("https://localhost:%1/login").arg(port));
+    QUrl url_finger(str_url);
+    QUrlQuery query;
+    query.addQueryItem("username", username);
+    query.addQueryItem("password", old_pass);
+    query.addQueryItem("newpassword", new_pass);
+    QNetworkRequest request(url_finger);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,
+                      "application/x-www-form-urlencoded");
+    int http_code, err_code, network_error;
+
+    QByteArray arr = send_request(m_network_manager, request, false,
+                                  http_code, err_code, network_error,
+                                  query.toString(QUrl::FullyEncoded).toUtf8(), false);
+
+    UNUSED_ARG(arr);
+
+    qDebug()
+        << "Http code " << http_code
+        << "Error code " << err_code
+        << "Network Error " << network_error;
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -345,29 +399,6 @@ bool CRestWorker::get_user_email(QString& user_email_str) {
   if (obj.find("email") != obj.end())
     user_email_str = QString("%1").arg(obj["email"].toString());
   return true;
-}
-
-bool CRestWorker::get_peer_finger(const QString &port, QString &finger){
-    qInfo()
-            << tr("getting token from %1").arg(port);
-    const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
-    QUrl url_finger(str_url);
-    QNetworkRequest request(url_finger);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-    int http_code, err_code, network_error;
-    QByteArray nothing;
-    QByteArray arr = send_request(
-        m_network_manager, request, 1, http_code, err_code, network_error,
-        nothing, false);
-
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
-
-    finger=QString(arr);
-    return true;
 }
 ////////////////////////////////////////////////////////////////////////////
 void CRestWorker::update_my_peers() {
@@ -767,7 +798,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QEventLoop* loop = new QEventLoop;
   QTimer* timer = new QTimer;
   timer->setSingleShot(true);
-  timer->start(15000);
+  timer->start(20000);
 
   QNetworkReply* reply;
   switch (get) {

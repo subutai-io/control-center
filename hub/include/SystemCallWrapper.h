@@ -160,6 +160,11 @@ class CSystemCallWrapper {
 
   static QString vagrant_fingerprint(const QString &ip);
 
+  static bool vagrant_set_password(const QString &ip,
+                                   const QString &username,
+                                   const QString &old_pass,
+                                   const QString &new_pass);
+
   static QString vagrant_status(const QString &dir);
 
   static QString vagrant_ip(const QString &dir);

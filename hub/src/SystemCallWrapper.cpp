@@ -314,10 +314,19 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     qDebug()
             <<"Trying to get fingerprint of "<<ip;
     QString finger = "";
-    if(CRestWorker::Instance()->get_peer_finger(ip, finger)){
+    if(CRestWorker::Instance()->peer_finger(ip, finger)){
         return finger;
     }
     else return QString("");
+}
+
+bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
+                                              const QString &username,
+                                              const QString &old_pass,
+                                              const QString &new_pass){
+    qDebug()
+            <<"Trying to set new password of "<<ip;
+    return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
@@ -335,8 +344,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug()
             <<"Got status of peer:"
             <<"exit code: "<<res.exit_code
-            <<"result code: "<<res.res
-            <<"output: "<<res.out;
+            <<"result code: "<<res.res;
     //the best part is parsing data
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return QString("broken");
@@ -1060,10 +1068,14 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                                                                  const QString &command,
                                                                                  const QString &name){
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
-                                                                             CSettingsManager::Instance().vagrant_path(),
-                                                                             command,
-                                                                             name, command);
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, command);
+    if(command == "reload")
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+
+    str_command += QString("echo finished > %1_finished; exit").arg(command);
 
     QString cmd;
 
@@ -1082,10 +1094,14 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5; exit").arg(dir,
-                                                                                 CSettingsManager::Instance().vagrant_path(),
-                                                                                 command,
-                                                                                 name, command);
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, command);
+    if(command == "reload")
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+    str_command += QString("echo finished > %1_finished; exit").arg(command);
+
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
     if (!cmd_file.exists()) {
@@ -1111,7 +1127,7 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
-  QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & exit")
+  QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & echo finished > %3_finished; & exit")
                             .arg(dir)
                             .arg(CSettingsManager::Instance().vagrant_path())
                             .arg(command)
@@ -1594,7 +1610,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QStr
     args<<"plugin"<<"update"<<plugin_name;
     qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
-    qDebug()<<QString("vagrant plugin %1 updte is finished").arg(plugin_name)
+    qDebug()<<QString("vagrant plugin %1 update is finished").arg(plugin_name)
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;

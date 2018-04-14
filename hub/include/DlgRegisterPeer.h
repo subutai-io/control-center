@@ -13,15 +13,15 @@ class DlgRegisterPeer : public QDialog
 public:
     explicit DlgRegisterPeer(QWidget *parent = 0);
     ~DlgRegisterPeer();
-    void setLocalAddr(const QString local_ip){
-        ip_addr = local_ip;
-    }
+    void init(const QString local_ip,
+              const QString name);
     void setRegistrationMode();
     void setUnregistrationMode();
 
 private:
     Ui::DlgRegisterPeer *ui;
     QString ip_addr;
+    QString peer_name;
 
 private slots:
     void registerPeer();

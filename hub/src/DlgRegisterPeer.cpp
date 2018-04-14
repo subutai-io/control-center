@@ -38,7 +38,7 @@ void DlgRegisterPeer::registerPeer(){
     const QString password = ui->lne_password->text();
     QString token;
     static int err_code, http_code, network_error;
-    CRestWorker::Instance()->get_peer_token(ip_addr, login, password,
+    CRestWorker::Instance()->peer_token(ip_addr, login, password,
                                             token, err_code, http_code, network_error);
     const QString peer_name = ui->lne_peername->text();
     const QString peer_scope = ui->cmb_peer_scope->currentText();
@@ -84,7 +84,7 @@ void DlgRegisterPeer::registerPeer(){
         break;
     }
     if(kill_me){
-        CRestWorker::Instance()->register_peer(ip_addr, token,
+        CRestWorker::Instance()->peer_register(ip_addr, token,
                                                CHubController::Instance().current_email(), CSettingsManager::Instance().password(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error);
@@ -142,7 +142,7 @@ void DlgRegisterPeer::unregisterPeer(){
     ui->btn_cancel->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
 
-    CRestWorker::Instance()->get_peer_token(ip_addr, login, password,
+    CRestWorker::Instance()->peer_token(ip_addr, login, password,
                                             token, err_code, http_code, network_error);
     qDebug()
             << "Unregister peer: Get token errors: "
@@ -184,7 +184,7 @@ void DlgRegisterPeer::unregisterPeer(){
         break;
     }
     if(kill_me){
-        CRestWorker::Instance()->unregister_peer(ip_addr, token, err_code, http_code, network_error);
+        CRestWorker::Instance()->peer_unregister(ip_addr, token, err_code, http_code, network_error);
         kill_me = false;
         switch (err_code) {
           case RE_SUCCESS:
@@ -269,4 +269,11 @@ void DlgRegisterPeer::setRegistrationMode(){
 
     connect(ui->btn_register, &QPushButton::clicked,
             this, &DlgRegisterPeer::registerPeer);
+}
+
+void DlgRegisterPeer::init(const QString local_ip,
+                           const QString name){
+    ip_addr = local_ip;
+    peer_name = name;
+    ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
 }

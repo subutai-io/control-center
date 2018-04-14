@@ -111,7 +111,7 @@ public:
              int &err_code,
              int &network_error);
 
-  void register_peer(const QString& port,
+  void peer_register(const QString& port,
                      const QString& token,
                      const QString& login,
                      const QString& password,
@@ -121,27 +121,32 @@ public:
                      int &http_code,
                      int &network_error);
 
-  void unregister_peer(const QString& port,
+  void peer_unregister(const QString& port,
                        const QString& token,
                        int &err_code,
                        int &http_code,
                        int &network_error);
 
 
-  void get_peer_token(const QString& port,
-                      const QString& login,
-                      const QString& password,
-                      QString& token,
-                      int &err_code,
-                      int &http_code,
-                      int &network_error);
+  void peer_token(const QString& port,
+                  const QString& login,
+                  const QString& password,
+                  QString& token,
+                  int &err_code,
+                  int &http_code,
+                  int &network_error);
+
+  bool peer_finger(const QString& port,
+                   QString& finger);
+
+  bool peer_set_pass(const QString& port,
+                     const QString& username,
+                     const QString& old_pass,
+                     const QString& new_pass);
 
   bool get_user_id(QString& user_id_str);
 
   bool get_user_email(QString& user_email_str);
-
-  bool get_peer_finger(const QString& port,
-                       QString& finger);
 
   void update_my_peers();
   void update_p2p_status();
