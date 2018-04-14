@@ -320,6 +320,15 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     else return QString("");
 }
 
+bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
+                                              const QString &username,
+                                              const QString &old_pass,
+                                              const QString &new_pass){
+    qDebug()
+            <<"Trying to set new password of "<<ip;
+    return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
+}
+
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
     system_call_res_t res;

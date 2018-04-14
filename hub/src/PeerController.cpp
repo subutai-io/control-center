@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include "NotificationObserver.h"
 #include "RestContainers.h"
+#include "RestWorker.h"
 #include "QStandardPaths"
 
 
@@ -212,6 +213,11 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
             connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
+            static QString user_name = "admin";
+            CRestWorker::Instance()->peer_set_pass(output,
+                                                   user_name,
+                                                   CSettingsManager::Instance().peer_pass(),
+                                                   CSettingsManager::Instance().peer_pass(name));
         }
     }
     else if(type == 2){

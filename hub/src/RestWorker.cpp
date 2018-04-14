@@ -334,7 +334,7 @@ bool CRestWorker::peer_set_pass(const QString &port,
                       "application/x-www-form-urlencoded");
     int http_code, err_code, network_error;
 
-    QByteArray arr = send_request(m_network_manager, request, 1,
+    QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
                                   query.toString(QUrl::FullyEncoded).toUtf8(), false);
 

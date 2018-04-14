@@ -97,8 +97,8 @@ void DlgCreatePeer::create_button_pressed(){
         errors_exist = true;
     }
     else
-    if(name.contains(" ")){
-            ui->lbl_err_name->setText(tr("Name can have space"));
+    if(name.contains(QRegExp("\\W"))){
+            ui->lbl_err_name->setText(tr("Please don't use symbols"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             ui->btn_create->setEnabled(true);

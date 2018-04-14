@@ -270,3 +270,10 @@ void DlgRegisterPeer::setRegistrationMode(){
     connect(ui->btn_register, &QPushButton::clicked,
             this, &DlgRegisterPeer::registerPeer);
 }
+
+void DlgRegisterPeer::init(const QString local_ip,
+                           const QString name){
+    ip_addr = local_ip;
+    peer_name = name;
+    ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
+}
