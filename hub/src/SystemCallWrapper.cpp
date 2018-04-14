@@ -314,7 +314,7 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     qDebug()
             <<"Trying to get fingerprint of "<<ip;
     QString finger = "";
-    if(CRestWorker::Instance()->get_peer_finger(ip, finger)){
+    if(CRestWorker::Instance()->peer_finger(ip, finger)){
         return finger;
     }
     else return QString("");

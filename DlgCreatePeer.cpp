@@ -122,8 +122,6 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else ui->lbl_err_disk->hide();
 
-
-
     if(errors_exist)
         return;
 
@@ -137,12 +135,22 @@ void DlgCreatePeer::create_button_pressed(){
         errors_exist = true;
     }
 
+    set_enabled_buttons(false);
+
     InitPeer *thread_init = new InitPeer(this);
     thread_init->init(dir, os);
     thread_init->startWork();
     connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, disk, this](system_call_wrapper_error_t res){
        this->init_completed(res, dir, ram, cpu, disk);
     });
+}
+
+void DlgCreatePeer::set_enabled_buttons(bool state){
+    ui->le_disk->setEnabled(state);
+    ui->le_name->setEnabled(state);
+    ui->le_pass->setEnabled(state);
+    ui->le_pass_confirm->setEnabled(state);
+    ui->le_ram->setEnabled(state);
 }
 
 void DlgCreatePeer::hide_err_labels(){
@@ -196,9 +204,12 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     }
     file.close();
     static QString vagrant_up_string = "up";
+    QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
+    CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
     res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string, ui->le_name->text());
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
+        set_enabled_buttons(true);
     }
     else this->close();
 }

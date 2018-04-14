@@ -32,6 +32,7 @@ private:
   Ui::DlgCreatePeer *ui;
   void hide_err_labels();
   pass_err check_pass(QString pass);
+  void set_enabled_buttons(bool state);
 
 public slots:
   void create_button_pressed();
