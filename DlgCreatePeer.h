@@ -21,9 +21,18 @@ public:
   ~DlgCreatePeer();
   QString create_dir(const QString &name);
   void init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk);
+  enum pass_err{
+      PASS_EMPTY = 0, //when empty password
+      PASS_SMALL, //when too small
+      PASS_INVALID, //when contains invalid symbols
+      PASS_FINE
+  };
 
 private:
   Ui::DlgCreatePeer *ui;
+  void hide_err_labels();
+  pass_err check_pass(QString pass);
+  void set_enabled_buttons(bool state);
 
 public slots:
   void create_button_pressed();

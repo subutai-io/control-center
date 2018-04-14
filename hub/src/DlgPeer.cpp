@@ -384,7 +384,7 @@ void DlgPeer::registerPeer(){
     ui->btn_register->setEnabled(false);
     DlgRegisterPeer* dlg_register = new DlgRegisterPeer(this);
     const QString ip_addr=ui->le_ip->text();
-    dlg_register->setLocalAddr(ip_addr);
+    dlg_register->init(ip_addr, peer_name);
     dlg_register->setRegistrationMode();
     dlg_register->setWindowTitle(tr("Register peer: %1").arg(peer_name));
     dlg_register->show();
@@ -396,7 +396,7 @@ void DlgPeer::unregisterPeer(){
     ui->btn_unregister->setEnabled(false);
     DlgRegisterPeer* dlg_unregister = new DlgRegisterPeer(this);
     const QString ip_addr=ui->le_ip->text();
-    dlg_unregister->setLocalAddr(ip_addr);
+    dlg_unregister->init(ip_addr, peer_name);
     dlg_unregister->setUnregistrationMode();
     dlg_unregister->setWindowTitle(tr("Unregister peer: %1").arg(peer_name));
     dlg_unregister->show();

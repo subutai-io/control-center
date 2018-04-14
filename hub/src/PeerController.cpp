@@ -2,8 +2,10 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include <QPushButton>
+#include <QMessageBox>
 #include "NotificationObserver.h"
 #include "RestContainers.h"
+#include "RestWorker.h"
 #include "QStandardPaths"
 
 
@@ -75,7 +77,7 @@ void CPeerController::check_logs(){
     QStringList file_name;
     QDir peer_dir;
     QString peer_name;
-    QString error_code;
+//   / QString error_code;
     bool deleted_flag = false;
     for (QFileInfo fi : peers_dir.entryInfoList()) {
         if(fi.isDir()){
@@ -91,25 +93,19 @@ void CPeerController::check_logs(){
                 if(logs.isDir())
                     continue;
                 file_name = logs.fileName().split('_');
-                if(file_name.size() == 2 && file_name[0] == peer_name){
+                if(file_name.size() == 2 && file_name[1] == "finished"){
                     QFile log(logs.absoluteFilePath());
-                    if (log.open(QIODevice::ReadWrite) ){
-                        QTextStream stream(&log);
-                        error_code = QString(stream.readAll());
-                        if(!error_code.isEmpty()){
-                            CNotificationObserver::Error(tr("Peer %1 finished to %2 with errors: %3").arg(peer_name, file_name[1], error_code), DlgNotification::N_NO_ACTION);
+                    QString error_message = get_error_messages(peer_dir, file_name[0]);
+                    if(error_message.isEmpty()){
+                        if(file_name[0] == "destroy"){
+                            deleted_flag = true;
                         }
-                        else{
-                            CNotificationObserver::Info(tr("Peer %1 finished to %2 succesfully").arg(peer_name, file_name[1]), DlgNotification::N_NO_ACTION);
-                            if(file_name[1] == "destroy"){
-                                deleted_flag = true;
-                                log.remove();
-                                break;
-                            }
-                        }
+                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" succesfully")
+                                                    .arg(peer_name, file_name[0]), DlgNotification::N_NO_ACTION);
                     }
-                    finish_current_update();
-                    refresh();
+                    else
+                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" with following error:\n %3")
+                                                    .arg(peer_name, file_name[0], error_message), DlgNotification::N_NO_ACTION);
                     log.remove();
                 }
             }
@@ -121,6 +117,28 @@ void CPeerController::check_logs(){
             }
         }
     }
+}
+
+QString CPeerController::get_error_messages(QDir peer_dir, QString command){
+    qDebug()
+            <<"Get error messages of"<<peer_dir<<command;
+    QString error_message;
+    for (QFileInfo logs : peer_dir.entryInfoList()){
+        if(logs.isDir())
+            continue;
+        QStringList file_name = logs.fileName().split('_');
+        if(file_name.size() == 2 && file_name[1] == command){
+            QFile log(logs.absoluteFilePath());
+            if (log.open(QIODevice::ReadWrite) ){
+                QTextStream stream(&log);
+                error_message = QString(stream.readAll());
+                log.close();
+            }
+            log.remove();
+            break;
+        }
+    }
+    return error_message;
 }
 
 void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
@@ -195,6 +213,11 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
             connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
+            static QString user_name = "admin";
+            CRestWorker::Instance()->peer_set_pass(output,
+                                                   user_name,
+                                                   CSettingsManager::Instance().peer_pass(),
+                                                   CSettingsManager::Instance().peer_pass(name));
         }
     }
     else if(type == 2){

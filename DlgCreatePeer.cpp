@@ -16,13 +16,29 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     ui->le_disk->setText("100");
     QStringList bridged_ifs = CSystemCallWrapper::list_interfaces();
     ui->cmb_bridge->addItems(bridged_ifs);
+    hide_err_labels();
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
+    ui->le_pass->setEchoMode(QLineEdit::Password);
+    ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
+    ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
+    ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 }
 
 DlgCreatePeer::~DlgCreatePeer()
 {
   delete ui;
+}
+
+DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass){
+    QRegExp invalid_chars("\\W"); //any nonword character
+    if(pass.isEmpty())
+        return PASS_EMPTY; // empty error;
+    if(pass.size() < 7) // too short
+        return PASS_SMALL;
+    if(pass.contains(invalid_chars)) // should contain chars and digits
+        return PASS_INVALID;
+    return PASS_FINE;
 }
 
 void DlgCreatePeer::create_button_pressed(){
@@ -34,58 +50,92 @@ void DlgCreatePeer::create_button_pressed(){
     QString cpu = ui->cmb_cpu->currentText();
     QString os = ui->cmb_os->currentText();
     QString disk = ui->le_disk->text();
+    QString password1 = ui->le_pass->text();
+    QString password2 = ui->le_pass_confirm->text();
 
-    QRegExp check_ram("\\d*");
+    bool errors_exist = false;
+
+    pass_err pass_error = check_pass(password1);
+    qDebug() << "password" << pass_error;
+    if(pass_error != 3){
+        QString error_message = "";
+        switch (pass_error) {
+        case PASS_EMPTY:
+            error_message = tr("Password can't be empty");
+            break;
+        case PASS_SMALL:
+            error_message = tr("Password size should be more than 7");
+            break;
+        case PASS_INVALID:
+            error_message = tr("Password has invalid symbols");
+            break;
+        default:
+            error_message = tr("Unknown error");
+            break;
+        }
+        ui->lbl_err_pass->setText(error_message);
+        ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_pass->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
+    }
+    else
+    if(password1 != password2){
+        ui->lbl_err_pass->setText(tr("Passwords don't match. Please check again"));
+        ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_pass->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
+    }
+    else ui->lbl_err_pass->hide();
 
     if(ui->le_name->text().isEmpty()){
-        CNotificationObserver::Error(tr("Name can't be empty"), DlgNotification::N_NO_ACTION);
+        ui->lbl_err_name->setText(tr("Name can't be empty"));
+        ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_name->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
-    if(name.contains(" ")){
-        CNotificationObserver::Error(tr("Name can't have space"), DlgNotification::N_NO_ACTION);
+    else
+    if(name.contains(QRegExp("\\W"))){
+            ui->lbl_err_name->setText(tr("Please don't use symbols"));
+            ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+            ui->lbl_err_name->show();
+            ui->btn_create->setEnabled(true);
+            errors_exist = true;
+    }
+    else ui->lbl_err_name->hide();
+    if(ram.toInt() < 4096){
+        ui->lbl_err_ram->setText(tr("Ram can't be less than 4096 MB"));
+        ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_ram->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
-    if(!check_ram.exactMatch(ram)){
-        CNotificationObserver::Error(tr("Ram shold be integer"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(ram.isEmpty()){
-        CNotificationObserver::Error(tr("Ram can't be empty"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(ram.toInt() < 4096 ){
-        CNotificationObserver::Error(tr("Ram should be more than 4096 MB"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(disk.isEmpty()){
-        CNotificationObserver::Error(tr("Disk size can't be empty"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-    if(!check_ram.exactMatch(disk)){
-        CNotificationObserver::Error(tr("Disk size should be in integer"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(true);
-        return;
-    }
-
+    else ui->lbl_err_ram->hide();
     if(disk.toInt() < 40){
-        CNotificationObserver::Error(tr("Disk size can't be less than 40 GB"), DlgNotification::N_NO_ACTION);
+        ui->lbl_err_disk->setText(tr("Disk can't be less than 40 GB"));
+        ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_disk->show();
         ui->btn_create->setEnabled(true);
-        return;
+        errors_exist = true;
     }
+    else ui->lbl_err_disk->hide();
+
+    if(errors_exist)
+        return;
 
     QString dir = create_dir(name);
 
     if(dir.isEmpty()){
-        CNotificationObserver::Error(tr("Name already exists"), DlgNotification::N_NO_ACTION);
-        ui->btn_create->setEnabled(false);
-        return;
+        ui->lbl_err_name->setText(tr("Name already exists"));
+        ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_name->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
     }
+
+    set_enabled_buttons(false);
 
     InitPeer *thread_init = new InitPeer(this);
     thread_init->init(dir, os);
@@ -93,6 +143,24 @@ void DlgCreatePeer::create_button_pressed(){
     connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, disk, this](system_call_wrapper_error_t res){
        this->init_completed(res, dir, ram, cpu, disk);
     });
+}
+
+void DlgCreatePeer::set_enabled_buttons(bool state){
+    ui->le_disk->setEnabled(state);
+    ui->le_name->setEnabled(state);
+    ui->le_pass->setEnabled(state);
+    ui->le_pass_confirm->setEnabled(state);
+    ui->le_ram->setEnabled(state);
+}
+
+void DlgCreatePeer::hide_err_labels(){
+    ui->lbl_err_cpu->hide();
+    ui->lbl_err_disk->hide();
+    ui->lbl_err_ifs->hide();
+    ui->lbl_err_name->hide();
+    ui->lbl_err_pass->hide();
+    ui->lbl_err_ram->hide();
+    ui->lbl_err_os->hide();
 }
 
 //for peers, empty if that peer dir exists
@@ -136,9 +204,12 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     }
     file.close();
     static QString vagrant_up_string = "up";
+    QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
+    CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
     res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string, ui->le_name->text());
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry", DlgNotification::N_NO_ACTION);
+        set_enabled_buttons(true);
     }
     else this->close();
 }
