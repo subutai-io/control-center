@@ -30,14 +30,14 @@ DlgCreatePeer::~DlgCreatePeer()
   delete ui;
 }
 
-int DlgCreatePeer::check_pass(QString pass){
+DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass){
+    QRegExp invalid_chars("\\W"); //any nonword character
     if(pass.isEmpty())
         return PASS_EMPTY; // empty error;
-    if(pass.size() < 7)
+    if(pass.size() < 7) // too short
         return PASS_SMALL;
-    if(pass.contains(QRegExp())){
+    if(pass.contains(invalid_chars)) // should contain chars and digits
         return PASS_INVALID;
-    }
     return PASS_FINE;
 }
 
@@ -55,8 +55,31 @@ void DlgCreatePeer::create_button_pressed(){
 
     bool errors_exist = false;
 
-    int pass_error = check_pass(password1);
-
+    pass_err pass_error = check_pass(password1);
+    qDebug() << "password" << pass_error;
+    if(pass_error != 3){
+        QString error_message = "";
+        switch (pass_error) {
+        case PASS_EMPTY:
+            error_message = tr("Password can't be empty");
+            break;
+        case PASS_SMALL:
+            error_message = tr("Password size should be more than 7");
+            break;
+        case PASS_INVALID:
+            error_message = tr("Password has invalid symbols");
+            break;
+        default:
+            error_message = tr("Unknown error");
+            break;
+        }
+        ui->lbl_err_pass->setText(error_message);
+        ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
+        ui->lbl_err_pass->show();
+        ui->btn_create->setEnabled(true);
+        errors_exist = true;
+    }
+    else
     if(password1 != password2){
         ui->lbl_err_pass->setText(tr("Passwords don't match. Please check again"));
         ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
