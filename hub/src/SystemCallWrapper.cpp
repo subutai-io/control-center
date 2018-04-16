@@ -1139,15 +1139,20 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
+
   if(command.isEmpty()){
       return SCWE_CREATE_PROCESS;
   }
-  QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & echo finished > %3_finished; & exit")
-                            .arg(dir)
-                            .arg(CSettingsManager::Instance().vagrant_path())
-                            .arg(command)
-                            .arg(name)
-                            .arg(command);
+
+  QString str_command = QString("cd %1 & %2 %3 2> %4_%5 & ").arg(dir,
+                                                              CSettingsManager::Instance().vagrant_path(),
+                                                              command,
+                                                              name, *(command.split(" ").begin()));
+  if(command == "reload"){
+      str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  }
+
+  str_command += QString("echo finished > %1_finished & exit").arg(*(command.split(" ").begin()));
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
