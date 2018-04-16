@@ -41,9 +41,9 @@ private:
   std::vector <QCheckBox*> checkboxs;
 
 signals:
-    void ssh_to_container_sig(const CEnvironment*, const CHubContainer*);
-    void desktop_to_container_sig(const CEnvironment*, const CHubContainer*);
-    void upload_to_container_sig(const CEnvironment*, const CHubContainer*);
+    void ssh_to_container_sig(const CEnvironment, const CHubContainer);
+    void desktop_to_container_sig(const CEnvironment, const CHubContainer);
+    void upload_to_container_sig(const CEnvironment, const CHubContainer);
 };
 
 #endif // DLGENVIRONMENT_H
