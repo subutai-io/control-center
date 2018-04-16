@@ -152,7 +152,6 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
        return;
    number_threads++;
    dir.cd(fi.fileName());
-   emit got_peer_info(3, peer_name, dir.absolutePath(), QString(""));
    // get status of peer
    GetPeerInfo *thread_for_status = new GetPeerInfo(this);
    thread_for_status->init(dir.absolutePath(), status_type);

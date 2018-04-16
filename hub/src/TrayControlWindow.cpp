@@ -723,6 +723,8 @@ void TrayControlWindow::my_peers_updated_sl() {
 }
 
 void TrayControlWindow::update_peer_menu() {
+  QMutexLocker locker(&m_mutex_peer_menu);
+
   static QIcon online_icon(":/hub/GOOD.png");
   static QIcon offline_icon(":/hub/BAD.png");
   static QIcon unknown_icon(":/hub/OK.png");

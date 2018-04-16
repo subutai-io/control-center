@@ -108,6 +108,9 @@ private:
   /*tray icon end*/
 
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+
+  /* mutexes */
+  QMutex m_mutex_peer_menu;
 public slots:
   /*tray slots*/
   void show_about();
