@@ -105,7 +105,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else
     if(ui->le_name->text().contains(m_invalid_chars)){
-            ui->lbl_err_name->setText(tr("Please don't use symbols"));
+            ui->lbl_err_name->setText(tr("You can use only alphabetic characters and digits"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             ui->btn_create->setEnabled(true);
