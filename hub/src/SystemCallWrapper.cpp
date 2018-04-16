@@ -1067,15 +1067,20 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
                                                                                  const QString &name){
+    if(command.isEmpty()){
+        return SCWE_CREATE_PROCESS;
+    }
+
     UNUSED_ARG(name);
     QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
-                                                                command,
-                                                                name, command);
-    if(command == "reload")
+                                                                *(command.split(" ").begin()),
+                                                                name, *(command.split(" ").begin()));
+    if(command == "reload"){
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+    }
 
-    str_command += QString("echo finished > %1_finished; exit").arg(command);
+    str_command += QString("echo finished > %1_finished; exit").arg(*(command.split(" ").begin()));
 
     QString cmd;
 

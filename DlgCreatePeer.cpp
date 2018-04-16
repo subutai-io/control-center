@@ -17,12 +17,20 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     QStringList bridged_ifs = CSystemCallWrapper::list_interfaces();
     ui->cmb_bridge->addItems(bridged_ifs);
     hide_err_labels();
+    //slots
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
+
     ui->le_pass->setEchoMode(QLineEdit::Password);
     ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
+    ui->le_name->setMaxLength(20);
+
+    // validators
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
+    m_invalid_chars.setPattern("\\W");
+
+    this->adjustSize();
 }
 
 DlgCreatePeer::~DlgCreatePeer()
@@ -31,12 +39,11 @@ DlgCreatePeer::~DlgCreatePeer()
 }
 
 DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass){
-    QRegExp invalid_chars("\\W"); //any nonword character
     if(pass.isEmpty())
         return PASS_EMPTY; // empty error;
     if(pass.size() < 7) // too short
         return PASS_SMALL;
-    if(pass.contains(invalid_chars)) // should contain chars and digits
+    if(pass.contains(m_invalid_chars)) // should contain chars and digits
         return PASS_INVALID;
     return PASS_FINE;
 }
@@ -97,8 +104,8 @@ void DlgCreatePeer::create_button_pressed(){
         errors_exist = true;
     }
     else
-    if(name.contains(QRegExp("\\W"))){
-            ui->lbl_err_name->setText(tr("Please don't use symbols"));
+    if(ui->le_name->text().contains(m_invalid_chars)){
+            ui->lbl_err_name->setText(tr("You can use only alphabetic characters and digits"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             ui->btn_create->setEnabled(true);
