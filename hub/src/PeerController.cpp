@@ -110,7 +110,7 @@ void CPeerController::check_logs(){
                 }
             }
             if(deleted_flag){
-                if(!peers_dir.removeRecursively())
+                if(!peer_dir.removeRecursively())
                     CNotificationObserver::Error(tr("Failed to clean peer path"), DlgNotification::N_NO_ACTION);
                 finish_current_update();
                 refresh();
