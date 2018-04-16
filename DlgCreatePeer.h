@@ -34,6 +34,9 @@ private:
   pass_err check_pass(QString pass);
   void set_enabled_buttons(bool state);
 
+
+  QRegExp m_invalid_chars; //any nonword character
+
 public slots:
   void create_button_pressed();
 };
