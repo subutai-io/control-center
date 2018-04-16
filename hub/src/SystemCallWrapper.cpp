@@ -1074,7 +1074,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
     UNUSED_ARG(name);
     QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
-                                                                *(command.split(" ").begin()),
+                                                                command,
                                                                 name, *(command.split(" ").begin()));
     if(command == "reload"){
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
@@ -1099,13 +1099,20 @@ template <>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
+    if(command.isEmpty()){
+        return SCWE_CREATE_PROCESS;
+    }
+
+    UNUSED_ARG(name);
     QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
-                                                                name, command);
-    if(command == "reload")
+                                                                name, *(command.split(" ").begin()));
+    if(command == "reload"){
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
-    str_command += QString("echo finished > %1_finished; exit").arg(command);
+    }
+
+    str_command += QString("echo finished > %1_finished; exit").arg(*(command.split(" ").begin()));
 
     QString cmd;
     QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
@@ -1132,6 +1139,9 @@ UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
+  if(command.isEmpty()){
+      return SCWE_CREATE_PROCESS;
+  }
   QString str_command = QString("cd %1 & \"%2\" %3 2> %4_%5 & echo finished > %3_finished; & exit")
                             .arg(dir)
                             .arg(CSettingsManager::Instance().vagrant_path())
