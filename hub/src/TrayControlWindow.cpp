@@ -456,12 +456,8 @@ void TrayControlWindow::login_success() {
 ////////////////////////////////////////////////////////////////////////////
 #include "DlgTransferFile.h"
 
-void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
-                                                      const CHubContainer* cont) {
-  if(env == nullptr || cont == nullptr){
-      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
-      return;
-  }
+void TrayControlWindow::upload_to_container_triggered(const CEnvironment &env,
+                                                      const CHubContainer &cont) {
   //generate_transferfile_dlg();
   DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
   Qt::WindowFlags flags = 0;
@@ -471,9 +467,9 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
   flags |= Qt::WindowCloseButtonHint;
   dlg_transfer_file->setWindowFlags(flags);
   CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont.port(), cont.ip(), cont.rh_ip());
 
-  QString ssh_key = CHubController::Instance().get_env_key(env->id());
+  QString ssh_key = CHubController::Instance().get_env_key(env.id());
   QString ip = cip.ip;
   QString port = cip.port;
   QString username = CSettingsManager::Instance().ssh_user();
@@ -482,19 +478,15 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
   dlg_transfer_file->addSSHKey(ssh_key);
   dlg_transfer_file->addUser(username);
   m_last_generated_tranferfile_dlg = dlg_transfer_file;
-  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env->name() + "/" + cont->name());
+  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env.name() + "/" + cont.name());
 }
 
-void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont) {
-  if(env == nullptr || cont == nullptr){
-      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
-      return;
-  }
+void TrayControlWindow::ssh_to_container_triggered(const CEnvironment &env,
+                                                   const CHubContainer &cont) {
   qDebug()
-      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
-      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
-  CHubController::Instance().ssh_to_container_from_tray(*env, *cont);
+      << QString("Environment [name: %1, id: %2]").arg(env.name(), env.id())
+      << QString("Container [name: %1, id: %2]").arg(cont.name(), cont.id());
+  CHubController::Instance().ssh_to_container_from_tray(env, cont);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -523,22 +515,18 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont) {
-  if(env == nullptr || cont == nullptr){
-      CNotificationObserver::Instance()->Info(tr("Failed to parse from dialog box. Please close and open again environment dialog."), DlgNotification::N_NO_ACTION);
-      return;
-  }
+void TrayControlWindow::desktop_to_container_triggered(const CEnvironment &env,
+                                                   const CHubContainer &cont) {
   qDebug()
-      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
-      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
+      << QString("Environment [name: %1, id: %2]").arg(env.name(), env.id())
+      << QString("Container [name: %1, id: %2]").arg(cont.name(), cont.id())
       << QString("X2go is Launchable: %1").arg(CSystemCallWrapper::x2goclient_check());
   if (!CSystemCallWrapper::x2goclient_check()) {
-    CNotificationObserver::Error(QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is istalled from \"About\" settings.")
+    CNotificationObserver::Error(QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is installed from \"About\" settings.")
                                  .arg(x2goclient_url()), DlgNotification::N_ABOUT);
     return;
   }
-  CHubController::Instance().desktop_to_container_from_tray(*env, *cont);
+  CHubController::Instance().desktop_to_container_from_tray(env, cont);
 }
 
 
