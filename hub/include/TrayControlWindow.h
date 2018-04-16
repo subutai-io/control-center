@@ -108,6 +108,9 @@ private:
   /*tray icon end*/
 
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+
+  /* mutexes */
+  QMutex m_mutex_peer_menu;
 public slots:
   /*tray slots*/
   void show_about();
@@ -155,9 +158,9 @@ private slots:
   void ssh_to_rh_triggered(const QString &peer_fingerprint);
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
-  void upload_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
-  void ssh_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
-  void desktop_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
+  void upload_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
+  void ssh_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
+  void desktop_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
 
   void ssh_key_generate_triggered();
 
