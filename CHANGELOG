@@ -1,5 +1,10 @@
 # Change Log
 
+## [6.9.2] 4/16/2018
+* Set password for Subutai Console
+* Fixed bug with error logs after peer creation
+* Optimized update implementation
+
 ## [6.9.1] 4/12/2018
 * Fixed error with static libraries on linux
 
