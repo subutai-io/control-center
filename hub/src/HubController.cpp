@@ -171,10 +171,6 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
     } else {
       qInfo("Failed to re-login. %d - %d - %d",
                                            lhttp, lerr, lnet);
-      m_lst_healthy_environments.clear();
-      m_lst_environments.clear();
-      m_lst_environments_internal.clear();
-      emit environments_updated(rer_res);
       return;
     }
   }
@@ -184,10 +180,6 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         "Refresh environments failed. Err_code : %d, Net_err : %d", err_code,
         network_error);
     rer_res = RER_ERROR;
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
-    emit environments_updated(rer_res);
     return;
   }
 
@@ -197,20 +189,12 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
     rer_res = RER_ERROR;
-    emit environments_updated(rer_res);
     return;
   }
 
   if (network_error != 0) {
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
     rer_res = RER_ERROR;
-    emit environments_updated(rer_res);
     return;
   }
 
