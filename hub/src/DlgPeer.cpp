@@ -262,6 +262,8 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             static std::vector<QString> states = {tr("Locked configs"), tr("Unlocked configs")};
             ui->change_confugre->setText(states[checked]);
         });
+        ui->show_peer_control->toggle();
+        this->adjustSize();
     }
     else hidePeer();
 }
