@@ -49,14 +49,38 @@ public:
   QString default_peer_id() const {
     return m_default_peer_id;
   }
-  std::map<QString, CEnvironment> environments_table;
-private:
-  Ui::TrayControlWindow *ui;
+
+  struct my_peer_button{
+      // peer containers
+      CLocalPeer *m_local_peer;
+      CMyPeerInfo *m_hub_peer;
+      std::pair<QString, QString> *m_network_peer;
+      QAction *m_my_peers_item;
+
+      QString peer_id; //can be fingeprint or name of peer
+
+      my_peer_button(QString peer_id_){
+        peer_id = peer_id_;
+        m_local_peer = NULL;
+        m_hub_peer = NULL;
+        m_network_peer = NULL;
+        m_my_peers_item = NULL;
+      }
+
+      ~my_peer_button(){
+          delete m_local_peer;
+          delete m_hub_peer;
+          delete m_network_peer;
+          delete m_my_peers_item;
+      }
+  };
 
   std::vector<CMyPeerInfo> peers_connected;
-  std::vector<CLocalPeer> local_peers_connected;
+  std::map<QString, CEnvironment> environments_table;
   std::map<QString, CLocalPeer> machine_peers_table;
-
+  std::map<QString, my_peer_button*> my_peers_button_table;
+private:
+  Ui::TrayControlWindow *ui;
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
@@ -111,6 +135,16 @@ private:
 
   /* mutexes */
   QMutex m_mutex_peer_menu;
+
+  /* peer manager */
+  void update_peer_button(const QString &peer_id, const CLocalPeer &peer_info);
+  void update_peer_button(const QString &peer_id, CMyPeerInfo &peer_info);
+  void update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info);
+  void update_peer_icon(const QString &peer_id);
+  void delete_peer_button_info(const QString &peer_id, const CLocalPeer &peer_info);
+  void delete_peer_button_info(const QString &peer_id, const CMyPeerInfo &peer_info);
+  void delete_peer_button_info(const QString &peer_id, const std::pair<QString, QString> &peer_info);
+  void delete_peer_button(const QString &peer_id);
 public slots:
   /*tray slots*/
   void show_about();
@@ -138,14 +172,15 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+
+  /*peer management*/
   void my_peers_updated_sl();
+  void update_my_peers_menu();
+  void update_local_peers_menu();
   void got_peer_info_sl(int type,
                         QString name,
                         QString dir,
                         QString output);
-  void update_peer_menu();
-
-  /*peer slots*/
   void machine_peers_upd_finished();
   void peer_deleted_sl(const QString& peer_name);
   void peer_under_modification_sl(const QString& peer_name);
@@ -171,9 +206,6 @@ private slots:
   void desktop_to_container_finished(const CEnvironment &env,
                                      const CHubContainer &cont,
                                      int result);
-
-//  void peer_create_finished(int result);
-//  void create_peer_triggered(int kkukala);
 
   /*updater*/
   void update_available(QString file_id);

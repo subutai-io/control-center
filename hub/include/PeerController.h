@@ -41,6 +41,15 @@ public:
     void set_fingerprint(const QString &val){m_fingerprint = val;}
     void set_update(const QString &val){m_update = val;}
 
+    void operator =(const CLocalPeer &peer_second){
+        this->m_name = peer_second.name();
+        this->m_ip = peer_second.ip();
+        this->m_dir = peer_second.dir();
+        this->m_fingerprint = peer_second.fingerprint();
+        this->m_status = peer_second.status();
+        this->m_update = peer_second.update();
+    }
+
 };
 
 class CPeerController : public QObject {
