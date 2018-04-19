@@ -91,28 +91,20 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
           this, &DlgAbout::install_finished);
 
-  static bool p2p_in_progress = false;
-  static bool tray_in_progress = false;
-  static bool rh_in_progress = false;
-  static bool rhm_in_progress = false;
-  static bool x2go_in_progress = false;
-  static bool vagrant_in_progress = false;
-  static bool oracle_virtualbox_in_progress = false;
-
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p, ui->btn_p2p_update,
-                                       &p2p_in_progress, get_p2p_version};
+                                       get_p2p_version};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray, ui->btn_tray_update,
-                                        &tray_in_progress, NULL};
+                                        NULL};
   m_dct_fpb[IUpdaterComponent::RH] = {ui->lbl_rh_version_val, ui->pb_rh, ui->btn_rh_update,
-                                      &rh_in_progress, CSystemCallWrapper::rh_version};
+                                      CSystemCallWrapper::rh_version};
   m_dct_fpb[IUpdaterComponent::RHMANAGEMENT] = {ui->lbl_rhm_version_val, ui->pb_rhm, ui->btn_rhm_update,
-                                                &rhm_in_progress, CSystemCallWrapper::rhm_version};
+                                                CSystemCallWrapper::rhm_version};
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go, ui->btn_x2go_update,
-                                       &x2go_in_progress, get_x2go_version};
+                                        get_x2go_version};
   m_dct_fpb[IUpdaterComponent::VAGRANT] = {ui->lbl_vagrant_version_val, ui->pb_vagrant, ui->btn_vagrant_update,
-                                          &vagrant_in_progress, get_vagrant_version};
+                                           get_vagrant_version};
   m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
-                                          &oracle_virtualbox_in_progress, get_oracle_virtualbox_version};
+                                                     get_oracle_virtualbox_version};
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
   check_for_versions_and_updates();
@@ -155,7 +147,6 @@ void DlgAbout::check_for_versions_and_updates() {
 void
 DlgAbout::btn_tray_update_released() {
   ui->btn_tray_update->setEnabled(false);
-  *m_dct_fpb[IUpdaterComponent::TRAY].in_progress = true;
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -163,7 +154,6 @@ DlgAbout::btn_tray_update_released() {
 void
 DlgAbout::btn_p2p_update_released() {
   ui->btn_p2p_update->setEnabled(false);
-  *m_dct_fpb[IUpdaterComponent::P2P].in_progress = true;
   if(ui->lbl_p2p_version_val->text()=="undefined")
       CHubComponentsUpdater::Instance()->install(IUpdaterComponent::P2P);
   else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
@@ -175,7 +165,6 @@ DlgAbout::btn_rh_update_released() {
   ui->btn_rh_update->setEnabled(false);
   ui->pb_rh->setEnabled(false);
   ui->pb_rh->setRange(0, 0);
-  *m_dct_fpb[IUpdaterComponent::RH].in_progress = true;
   QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
                     IUpdaterComponent::RH);
 }
@@ -186,14 +175,12 @@ DlgAbout::btn_rhm_update_released() {
   ui->btn_rhm_update->setEnabled(false);
   ui->pb_rhm->setEnabled(false);
   ui->pb_rhm->setRange(0,0);
-  *m_dct_fpb[IUpdaterComponent::RHMANAGEMENT].in_progress = true;
   QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
                     IUpdaterComponent::RHMANAGEMENT);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_x2go_update_released() {
     ui->btn_x2go_update->setEnabled(false);
-    *m_dct_fpb[IUpdaterComponent::X2GO].in_progress = true;
     if(ui->lbl_x2go_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::X2GO);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::X2GO);
@@ -201,7 +188,6 @@ void DlgAbout::btn_x2go_update_released() {
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_vagrant_update_released(){
     ui->btn_vagrant_update->setEnabled(false);
-    *m_dct_fpb[IUpdaterComponent::VAGRANT].in_progress = true;
     if(ui->lbl_vagrant_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT);
@@ -209,7 +195,6 @@ void DlgAbout::btn_vagrant_update_released(){
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_oracle_virtualbox_update_released(){
     ui->btn_oracle_virtualbox_update->setEnabled(false);
-    *m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX].in_progress = true;
     if(ui->lbl_oracle_virtualbox_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::ORACLE_VIRTUALBOX);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::ORACLE_VIRTUALBOX);
@@ -232,8 +217,8 @@ DlgAbout::download_progress(const QString& file_id,
 void
 DlgAbout::update_available(const QString& file_id) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[file_id].pb->setEnabled(!(*m_dct_fpb[file_id].in_progress));
-  m_dct_fpb[file_id].pb->setEnabled(!(*m_dct_fpb[file_id].in_progress));
+  m_dct_fpb[file_id].pb->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(file_id)));
+  m_dct_fpb[file_id].btn->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(file_id)));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -250,7 +235,6 @@ DlgAbout::update_finished(const QString& file_id,
   m_dct_fpb[file_id].pb->setEnabled(false);
   m_dct_fpb[file_id].pb->setValue(0);
   m_dct_fpb[file_id].pb->setRange(0, 100);
-  *m_dct_fpb[file_id].in_progress = false;
   if (m_dct_fpb[file_id].pf_version) {
     m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
   }
@@ -323,12 +307,12 @@ void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
     ui->lbl_oracle_virtualbox_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::update_available_sl(const QString& component_id,
-                              bool available) {
-  auto item = m_dct_fpb.find(component_id);
-  if (item == m_dct_fpb.end()) return;
-  item->second.pb->setEnabled(!(*item->second.in_progress) && available);
-  item->second.btn->setEnabled(!(*item->second.in_progress) && available);
+void DlgAbout::update_available_sl(const QString& component_id, bool available) {
+    if(m_dct_fpb.find(component_id) == m_dct_fpb.end()){
+        return;
+    }
+    m_dct_fpb[component_id].pb->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) && available);
+    m_dct_fpb[component_id].btn->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) && available);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -393,7 +377,6 @@ void DlgAbout::install_finished(const QString &file_id, bool success){
     m_dct_fpb[file_id].pb->setEnabled(false);
     m_dct_fpb[file_id].pb->setValue(0);
     m_dct_fpb[file_id].pb->setRange(0, 100);
-    *m_dct_fpb[file_id].in_progress = false;
     m_dct_fpb[file_id].btn->setText(tr("Update %1").arg(CHubComponentsUpdater::Instance()->component_name(file_id)));
     if (m_dct_fpb[file_id].pf_version) {
       m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
