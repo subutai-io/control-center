@@ -723,7 +723,6 @@ void TrayControlWindow::my_peers_updated_sl() {
 }
 
 void TrayControlWindow::update_peer_menu() {
-  QMutexLocker locker(&m_mutex_peer_menu);
 
   static QIcon online_icon(":/hub/GOOD.png");
   static QIcon offline_icon(":/hub/BAD.png");
@@ -936,11 +935,14 @@ void TrayControlWindow::got_peer_info_sl(int type,
                                          QString name,
                                          QString dir,
                                          QString output){
+    m_mutex_peer_menu.lock();
     if(type == 0 && name == "update" && dir == "peer" && output == "menu"){
         machine_peers_upd_finished();
+        m_mutex_peer_menu.unlock();
         return;
     }
     if(CPeerController::Instance()->get_number_threads() <= 0){
+        m_mutex_peer_menu.unlock();
         return;
     }
     CLocalPeer updater_peer;
@@ -979,6 +981,7 @@ void TrayControlWindow::got_peer_info_sl(int type,
         machine_peers_upd_finished();
     }
     else update_peer_menu();
+    m_mutex_peer_menu.unlock();
 }
 
 void TrayControlWindow::machine_peers_upd_finished(){

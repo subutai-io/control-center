@@ -56,6 +56,10 @@ namespace update_system {
     static const QString VAGRANT;
     static const QString ORACLE_VIRTUALBOX;
 
+    bool is_in_progress(){
+        return m_in_progress;
+    }
+
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
 
@@ -73,13 +77,13 @@ namespace update_system {
 
     chue_t update() {
       if (m_in_progress) return CHUE_IN_PROGRESS;
-      atomic_locker al(&m_in_progress);
+      m_in_progress = true;
       return update_internal();
     }
 
     chue_t install() {
        if(m_in_progress) return CHUE_IN_PROGRESS;
-       atomic_locker al(&m_in_progress);
+       m_in_progress = true;
        return install_internal();
     }
 
@@ -88,11 +92,13 @@ namespace update_system {
   protected slots:
     void update_finished_sl(bool success) {
       update_post_action(success);
+      m_in_progress = false;
       emit update_finished(m_component_id, success);
     }
 
     void install_finished_sl(bool success){
         install_post_interntal(success);
+        m_in_progress = false;
         emit install_finished(m_component_id, success);
     }
 

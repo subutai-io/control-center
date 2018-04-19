@@ -122,6 +122,10 @@ namespace update_system {
     void install_x2go();
     QString component_name(const QString& component_id);
 
+    /* check for in progress each component
+    */
+    bool is_in_progress(const QString& component_id);
+
   private slots:
 
     void update_component_timer_timeout(const QString& component_id);

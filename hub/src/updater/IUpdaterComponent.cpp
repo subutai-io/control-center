@@ -40,7 +40,7 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {RHMANAGEMENT, "resource host management"},
     {X2GO, "X2Go-Client"},
     {VAGRANT, "Vagrant"},
-    {ORACLE_VIRTUALBOX, "Oralce Virtualbox"}
+    {ORACLE_VIRTUALBOX, "Oracle Virtualbox"}
   };
   static const QString def = "";
 

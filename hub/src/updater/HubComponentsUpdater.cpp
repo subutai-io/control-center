@@ -248,6 +248,13 @@ QString CHubComponentsUpdater::component_name(const QString &component_id){
         return "";
     return m_dct_components[component_id].Component()->component_id_to_user_view(component_id);
 }
+
+/////////////////////////////////////////////////////////////////////////////
+bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
+    if(m_dct_components.find(component_id) == m_dct_components.end())
+        return true;
+    else return m_dct_components[component_id].Component()->is_in_progress();
+}
 ///// experimentation permutation
 void SilentPackageInstallerVAGRANT::startWork(){
     QThread* thread = new QThread();
@@ -262,3 +269,4 @@ void SilentPackageInstallerVAGRANT::startWork(){
     this->moveToThread(thread);
     thread->start();
 }
+
