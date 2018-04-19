@@ -57,14 +57,25 @@ public:
       std::pair<QString, QString> *m_network_peer;
       QAction *m_my_peers_item;
 
-      QString peer_id; //can be fingeprint or name of peer
+      int m_network_peer_state;
+      int m_hub_peer_state;
+      int m_local_peer_state;
 
-      my_peer_button(QString peer_id_){
+      QString peer_id; //can be fingeprint or name of peer
+      QString peer_name; // peer name which will be displayed in button title
+
+      my_peer_button(QString peer_id_, QString peer_name_){
         peer_id = peer_id_;
+        peer_name = peer_name_;
+
         m_local_peer = NULL;
         m_hub_peer = NULL;
         m_network_peer = NULL;
         m_my_peers_item = NULL;
+
+        m_network_peer_state = 0;
+        m_hub_peer_state = 0;
+        m_local_peer_state = 0;
       }
 
       ~my_peer_button(){
@@ -134,17 +145,14 @@ private:
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 
   /* mutexes */
-  QMutex m_mutex_peer_menu;
+  std::atomic<bool> in_peer_slot;
 
   /* peer manager */
   void update_peer_button(const QString &peer_id, const CLocalPeer &peer_info);
-  void update_peer_button(const QString &peer_id, CMyPeerInfo &peer_info);
+  void update_peer_button(const QString &peer_id, const CMyPeerInfo &peer_info);
   void update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info);
   void update_peer_icon(const QString &peer_id);
-  void delete_peer_button_info(const QString &peer_id, const CLocalPeer &peer_info);
-  void delete_peer_button_info(const QString &peer_id, const CMyPeerInfo &peer_info);
-  void delete_peer_button_info(const QString &peer_id, const std::pair<QString, QString> &peer_info);
-  void delete_peer_button(const QString &peer_id);
+  void delete_peer_button_info(const QString &peer_id, int type);
 public slots:
   /*tray slots*/
   void show_about();

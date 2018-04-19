@@ -306,6 +306,7 @@ public:
       mypeerid = peer_id;
     }
   };
+  CMyPeerInfo(){}
 
 private:
   QString m_country;
