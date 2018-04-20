@@ -86,9 +86,10 @@ public:
       }
   };
 
-  std::vector<CMyPeerInfo> peers_connected;
   std::map<QString, CEnvironment> environments_table;
   std::map<QString, CLocalPeer> machine_peers_table;
+  std::map<QString, CMyPeerInfo> hub_peers_table;
+  std::map<QString, std::pair<QString, bool> > network_peers_table;
   std::map<QString, my_peer_button*> my_peers_button_table;
 private:
   Ui::TrayControlWindow *ui;

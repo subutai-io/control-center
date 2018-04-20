@@ -56,6 +56,10 @@ DlgPeer::DlgPeer(QWidget *parent) :
       this->ui->gr_peer_control->setVisible(checked);
       this->adjustSize();
     });
+    connect(ui->btn_launch_console, &QPushButton::clicked, [this](){
+        QString console_address = advanced ? "https://localhost:%1" : "https://%1:8443";
+        CHubController::Instance().launch_browser(QString(console_address).arg(this->ssh_ip));
+    });
     //vars
     registration_dialog = nullptr;
     ssh_available = false;
@@ -67,9 +71,6 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
     peer_fingerprint = peer.first;
     ssh_ip = peer.second;
     ssh_available = true;
-    connect(ui->btn_launch_console, &QPushButton::clicked,
-            [peer](){
-        CHubController::Instance().launch_browser(QString("https://%1:8443").arg(peer.second));});
     ui->btn_launch_console->setEnabled(true);
 }
 
@@ -96,10 +97,6 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         ssh_ip = peer.ip();
         ui->label->setText(tr("Host port"));
         ssh_available = true;
-        connect(ui->btn_launch_console, &QPushButton::clicked,
-                [peer](){
-            CHubController::Instance().launch_browser(QString("https://localhost:%1").arg(peer.ip()));});
-        ui->btn_launch_console->setEnabled(true);
     }
     else if(peer_status == "running")
             peer_status = "not ready";
