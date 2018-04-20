@@ -937,6 +937,9 @@ void TrayControlWindow::update_peer_button(const QString &peer_id, const std::pa
         my_peers_button_table[peer_id] = new_peer_button;
     }
     my_peer_button *peer_button = my_peers_button_table[peer_id];
+    if((peer_button->m_hub_peer_state || peer_button->m_local_peer_state) == 0){
+        peer_button->peer_name = peer_info.second;
+    }
     if(peer_button->m_network_peer == NULL){
         peer_button->m_network_peer = new std::pair<QString, QString>;
     }
