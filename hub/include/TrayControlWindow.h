@@ -128,6 +128,7 @@ private:
   QAction *m_act_create_peer;
   QMenu* m_tray_menu;
   QAction *m_act_p2p_status; // p2p status
+  QAction *m_empty_action;
 
 
   std::map<QString, QDialog*> m_dct_active_dialogs;
@@ -183,8 +184,6 @@ private slots:
 
   /*peer management*/
   void my_peers_updated_sl();
-  void update_my_peers_menu();
-  void update_local_peers_menu();
   void got_peer_info_sl(int type,
                         QString name,
                         QString dir,
@@ -193,6 +192,7 @@ private slots:
   void peer_deleted_sl(const QString& peer_name);
   void peer_under_modification_sl(const QString& peer_name);
   void peer_poweroff_sl(const QString& peer_name);
+  void my_peer_button_pressed_sl(const my_peer_button* peer_info);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
