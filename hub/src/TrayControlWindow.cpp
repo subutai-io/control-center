@@ -988,8 +988,10 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id){
             my_peers_button_table.erase(my_peers_button_table.find(peer_id));
         }else{
             peer_button->peer_name = peer_button->m_network_peer->second;
-            m_local_peer_menu->removeAction(m_empty_action);
-            m_local_peer_menu->addAction(peer_button->m_my_peers_item);
+            if(m_local_peer_menu->actions().indexOf(peer_button->m_my_peers_item) == -1){
+                m_local_peer_menu->addAction(peer_button->m_my_peers_item);
+                m_local_peer_menu->removeAction(m_empty_action);
+            }
         }
         return;
     }else{
@@ -997,8 +999,10 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id){
         if(m_local_peer_menu->actions().empty()){
             m_local_peer_menu->addAction(m_empty_action);
         }
-        m_hub_peer_menu->addAction(peer_button->m_my_peers_item);
-        m_hub_peer_menu->removeAction(m_empty_action);
+        if(m_hub_peer_menu->actions().indexOf(peer_button->m_my_peers_item) == -1){
+            m_hub_peer_menu->addAction(peer_button->m_my_peers_item);
+            m_hub_peer_menu->removeAction(m_empty_action);
+        }
     }
 }
 
