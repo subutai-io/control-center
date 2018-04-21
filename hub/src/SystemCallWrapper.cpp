@@ -1259,7 +1259,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "p2p_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -1389,7 +1389,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "x2go_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -1519,7 +1519,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "vagrant_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -1712,7 +1712,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "vb_installer.sh";
 
     qDebug() << tmpFilePath;
 
