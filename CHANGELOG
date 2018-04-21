@@ -1,5 +1,8 @@
 # Change Log
 
+## [6.9.3] 4/26/2018
+* Various bugs with tray menu fixed
+
 ## [6.9.2] 4/16/2018
 * Set password for Subutai Console
 * Fixed bug with error logs after peer creation
