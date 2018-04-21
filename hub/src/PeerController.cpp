@@ -112,6 +112,7 @@ void CPeerController::check_logs(){
             if(deleted_flag){
                 if(!peer_dir.removeRecursively())
                     CNotificationObserver::Error(tr("Failed to clean peer path"), DlgNotification::N_NO_ACTION);
+                else CSettingsManager::Instance().set_peer_finger(peer_name, "");
                 finish_current_update();
                 refresh();
             }
@@ -150,10 +151,10 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    static int status_type = 0;
    if(peer_name=="")
        return;
-   number_threads++;
    dir.cd(fi.fileName());
    // get status of peer
    GetPeerInfo *thread_for_status = new GetPeerInfo(this);
+   number_threads++;
    thread_for_status->init(dir.absolutePath(), status_type);
    thread_for_status->startWork();
    connect(thread_for_status, &GetPeerInfo::outputReceived, [dir, peer_name, this](int type, QString res){
@@ -196,6 +197,7 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
         else{
             int ip_type = 1;
             thread_for_ip->init(dir, ip_type);
+            number_threads++;
             thread_for_ip->startWork();
             connect(thread_for_ip, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
                this->parse_peer_info(type, name, dir, res);
@@ -208,6 +210,7 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
             GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
             int finger_type = 2;
             thread_for_finger->init(output, finger_type);
+            number_threads++;
             thread_for_finger->startWork();
             connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
                this->parse_peer_info(type, name, dir, res);

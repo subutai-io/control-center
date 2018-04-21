@@ -306,6 +306,7 @@ public:
       mypeerid = peer_id;
     }
   };
+  CMyPeerInfo(){}
 
 private:
   QString m_country;
@@ -318,6 +319,7 @@ private:
   int m_rh_count;
   QString m_scope;
   QString m_status;
+  bool m_updated;
   std::vector <env_info> m_lst_environments;
 
 public:
@@ -354,6 +356,8 @@ public:
   int rh_count() const { return m_rh_count; }
   const QString &scope() const { return m_scope; }
   const QString &status() const { return m_status; }
+  const bool &updated() const { return m_updated; }
+  void set_updated(bool val){ m_updated = val; }
 };
 
 class CP2Ppeer

@@ -104,7 +104,7 @@ void DlgCreatePeer::create_button_pressed(){
         errors_exist = true;
     }
     else
-    if(ui->le_name->text().contains(m_invalid_chars)){
+    if(ui->le_name->text().contains(m_invalid_chars) || ui->le_name->text().contains("_")){
             ui->lbl_err_name->setText(tr("You can use only alphabetic characters and digits"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
@@ -139,7 +139,7 @@ void DlgCreatePeer::create_button_pressed(){
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
         ui->btn_create->setEnabled(true);
-        errors_exist = true;
+        return;
     }
 
     set_enabled_buttons(false);
