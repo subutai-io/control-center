@@ -27,7 +27,6 @@ public:
       PASS_INVALID, //when contains invalid symbols
       PASS_FINE
   };
-
 private:
   Ui::DlgCreatePeer *ui;
   void hide_err_labels();
@@ -39,6 +38,7 @@ private:
 
 public slots:
   void create_button_pressed();
+
 };
 
 // init peer  executer

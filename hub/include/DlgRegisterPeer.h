@@ -17,7 +17,8 @@ public:
               const QString name);
     void setRegistrationMode();
     void setUnregistrationMode();
-
+signals:
+    void register_finished();
 private:
     Ui::DlgRegisterPeer *ui;
     QString ip_addr;

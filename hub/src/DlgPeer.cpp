@@ -56,6 +56,10 @@ DlgPeer::DlgPeer(QWidget *parent) :
       this->ui->gr_peer_control->setVisible(checked);
       this->adjustSize();
     });
+    connect(ui->btn_launch_console, &QPushButton::clicked, [this](){
+        QString console_address = advanced ? "https://localhost:%1" : "https://%1:8443";
+        CHubController::Instance().launch_browser(QString(console_address).arg(this->ssh_ip));
+    });
     //vars
     registration_dialog = nullptr;
     ssh_available = false;
@@ -67,9 +71,6 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
     peer_fingerprint = peer.first;
     ssh_ip = peer.second;
     ssh_available = true;
-    connect(ui->btn_launch_console, &QPushButton::clicked,
-            [peer](){
-        CHubController::Instance().launch_browser(QString("https://%1:8443").arg(peer.second));});
     ui->btn_launch_console->setEnabled(true);
 }
 
@@ -96,13 +97,11 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         ssh_ip = peer.ip();
         ui->label->setText(tr("Host port"));
         ssh_available = true;
-        connect(ui->btn_launch_console, &QPushButton::clicked,
-                [peer](){
-            CHubController::Instance().launch_browser(QString("https://localhost:%1").arg(peer.ip()));});
-        ui->btn_launch_console->setEnabled(true);
-    }
-    else if(peer_status == "running")
+    }else{
+        if(peer_status == "running")
             peer_status = "not ready";
+        else ssh_available = false;
+    }
     if(peer_fingerprint == "loading" || peer_fingerprint == "undefined" || peer_fingerprint == ""){
         if(peer_status == "running")
             peer_status = "not ready";
@@ -239,6 +238,9 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->btn_reload->setEnabled(false);
             ui->le_status->setText(tr("Peer is poweroff"));
         }
+        if(hub_available){
+            ui->btn_destroy->setEnabled(false);
+        }
         configs();
 
         connect(ui->btn_destroy, &QPushButton::clicked, [this](){this->destroyPeer();});
@@ -349,24 +351,21 @@ bool DlgPeer::change_configs(){
 void DlgPeer::enabled_peer_buttons(bool state){
     if(peer_status == "running"){
         ui->btn_stop->setEnabled(state);
-        ui->btn_destroy->setEnabled(state);
         ui->btn_reload->setEnabled(state);
         if(hub_available){
             ui->btn_unregister->setEnabled(state);
         }
         else ui->btn_register->setEnabled(state);
     }
-    if(peer_status == "broken"){
-        ui->btn_destroy->setEnabled(state);
-    }
     if(peer_status == "not ready"){
-        ui->btn_destroy->setEnabled(state);
         ui->btn_stop->setEnabled(state);
         ui->btn_reload->setEnabled(state);
     }
     if(peer_status == "poweroff"){
-        ui->btn_destroy->setEnabled(state);
         ui->btn_start->setEnabled(state);
+    }
+    if(hub_available){
+        ui->btn_destroy->setEnabled(state);
     }
 }
 
@@ -392,6 +391,7 @@ void DlgPeer::registerPeer(){
     dlg_register->show();
     registration_dialog = dlg_register;
     connect (dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+    connect (dlg_register, &DlgRegisterPeer::register_finished, [this](){this->close();});
 }
 
 void DlgPeer::unregisterPeer(){
@@ -404,6 +404,7 @@ void DlgPeer::unregisterPeer(){
     dlg_unregister->show();
     registration_dialog = dlg_unregister;
     connect (dlg_unregister, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+    connect (dlg_unregister, &DlgRegisterPeer::register_finished, [this](){this->close();});
 }
 
 void DlgPeer::regDlgClosed(){

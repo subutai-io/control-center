@@ -20,11 +20,11 @@ private:
     QString m_dir;
 public:
     CLocalPeer(){
-        m_name = "loading";
-        m_ip = "loading";
-        m_status = "loading";
-        m_dir = "loading";
-        m_fingerprint = "loading";
+        m_name = "undefined";
+        m_ip = "undefined";
+        m_status = "undefined";
+        m_dir = "undefined";
+        m_fingerprint = "undefined";
         m_update = "old";
     }
     const QString &ip() const { return m_ip; }
@@ -40,6 +40,15 @@ public:
     void set_dir(const QString &val){m_dir = val;}
     void set_fingerprint(const QString &val){m_fingerprint = val;}
     void set_update(const QString &val){m_update = val;}
+
+    void operator =(const CLocalPeer &peer_second){
+        this->m_name = peer_second.name();
+        this->m_ip = peer_second.ip();
+        this->m_dir = peer_second.dir();
+        this->m_fingerprint = peer_second.fingerprint();
+        this->m_status = peer_second.status();
+        this->m_update = peer_second.update();
+    }
 
 };
 

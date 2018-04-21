@@ -49,14 +49,41 @@ public:
   QString default_peer_id() const {
     return m_default_peer_id;
   }
+
+  struct my_peer_button{
+      // peer containers
+      CLocalPeer *m_local_peer;
+      CMyPeerInfo *m_hub_peer;
+      std::pair<QString, QString> *m_network_peer;
+      QAction *m_my_peers_item;
+      int m_network_peer_state, m_hub_peer_state, m_local_peer_state; //states of each peer class
+      QString peer_id, peer_name;
+      my_peer_button(const QString &peer_id_, const QString &peer_name_){
+        peer_id = peer_id_;
+        peer_name = peer_name_;
+        m_local_peer = NULL;
+        m_hub_peer = NULL;
+        m_network_peer = NULL;
+        m_my_peers_item = NULL;
+        m_network_peer_state = 0;
+        m_hub_peer_state = 0;
+        m_local_peer_state = 0;
+      }
+      ~my_peer_button(){
+          delete m_local_peer;
+          delete m_hub_peer;
+          delete m_network_peer;
+          delete m_my_peers_item;
+      }
+  };
+
   std::map<QString, CEnvironment> environments_table;
+  std::map<QString, CLocalPeer> machine_peers_table;
+  std::map<QString, CMyPeerInfo> hub_peers_table;
+  std::map<QString, std::pair<QString, bool> > network_peers_table;
+  std::map<QString, my_peer_button*> my_peers_button_table;
 private:
   Ui::TrayControlWindow *ui;
-
-  std::vector<CMyPeerInfo> peers_connected;
-  std::vector<CLocalPeer> local_peers_connected;
-  std::map<QString, CLocalPeer> machine_peers_table;
-
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
@@ -93,6 +120,7 @@ private:
   QAction *m_act_create_peer;
   QMenu* m_tray_menu;
   QAction *m_act_p2p_status; // p2p status
+  QAction *m_empty_action;
 
 
   std::map<QString, QDialog*> m_dct_active_dialogs;
@@ -110,7 +138,14 @@ private:
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
 
   /* mutexes */
-  QMutex m_mutex_peer_menu;
+  std::atomic<bool> in_peer_slot;
+
+  /* peer manager */
+  void update_peer_button(const QString &peer_id, const CLocalPeer &peer_info);
+  void update_peer_button(const QString &peer_id, const CMyPeerInfo &peer_info);
+  void update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info);
+  void update_peer_icon(const QString &peer_id);
+  void delete_peer_button_info(const QString &peer_id, int type);
 public slots:
   /*tray slots*/
   void show_about();
@@ -138,18 +173,18 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+
+  /*peer management*/
   void my_peers_updated_sl();
   void got_peer_info_sl(int type,
                         QString name,
                         QString dir,
                         QString output);
-  void update_peer_menu();
-
-  /*peer slots*/
   void machine_peers_upd_finished();
   void peer_deleted_sl(const QString& peer_name);
   void peer_under_modification_sl(const QString& peer_name);
   void peer_poweroff_sl(const QString& peer_name);
+  void my_peer_button_pressed_sl(const my_peer_button* peer_info);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
@@ -171,9 +206,6 @@ private slots:
   void desktop_to_container_finished(const CEnvironment &env,
                                      const CHubContainer &cont,
                                      int result);
-
-//  void peer_create_finished(int result);
-//  void create_peer_triggered(int kkukala);
 
   /*updater*/
   void update_available(QString file_id);
