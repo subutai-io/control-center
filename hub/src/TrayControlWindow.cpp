@@ -800,7 +800,8 @@ void TrayControlWindow::got_peer_info_sl(int type,
             updater_peer.set_ip(output);
             break;
         case 2:
-            if(output != "undefined" && !output.isEmpty()){
+            if(output != "undefined" && !output.isEmpty() && CSettingsManager::Instance().peer_finger(name) != output){
+                delete_peer_button_info(CSettingsManager::Instance().peer_finger(name), 0);
                 CSettingsManager::Instance().set_peer_finger(name, output);
             }
             updater_peer.set_fingerprint(output);
