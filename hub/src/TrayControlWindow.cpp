@@ -1005,7 +1005,9 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type
     switch (type) {
         case 0:
             if(peer_button->m_local_peer != NULL){
-                CSettingsManager::Instance().set_peer_finger(peer_button->m_local_peer->name(), "");
+                if(peer_button->peer_name != peer_id){
+                    CSettingsManager::Instance().set_peer_finger(peer_button->m_local_peer->name(), "");
+                }
                 delete peer_button->m_local_peer;
                 peer_button->m_local_peer = NULL;
             }
