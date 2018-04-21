@@ -56,28 +56,19 @@ public:
       CMyPeerInfo *m_hub_peer;
       std::pair<QString, QString> *m_network_peer;
       QAction *m_my_peers_item;
-
-      int m_network_peer_state;
-      int m_hub_peer_state;
-      int m_local_peer_state;
-
-      QString peer_id; //can be fingeprint or name of peer
-      QString peer_name; // peer name which will be displayed in button title
-
-      my_peer_button(QString peer_id_, QString peer_name_){
+      int m_network_peer_state, m_hub_peer_state, m_local_peer_state; //states of each peer class
+      QString peer_id, peer_name;
+      my_peer_button(const QString &peer_id_, const QString &peer_name_){
         peer_id = peer_id_;
         peer_name = peer_name_;
-
         m_local_peer = NULL;
         m_hub_peer = NULL;
         m_network_peer = NULL;
         m_my_peers_item = NULL;
-
         m_network_peer_state = 0;
         m_hub_peer_state = 0;
         m_local_peer_state = 0;
       }
-
       ~my_peer_button(){
           delete m_local_peer;
           delete m_hub_peer;

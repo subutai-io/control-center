@@ -20,11 +20,11 @@ private:
     QString m_dir;
 public:
     CLocalPeer(){
-        m_name = "loading";
-        m_ip = "loading";
-        m_status = "loading";
-        m_dir = "loading";
-        m_fingerprint = "loading";
+        m_name = "undefined";
+        m_ip = "undefined";
+        m_status = "undefined";
+        m_dir = "undefined";
+        m_fingerprint = "undefined";
         m_update = "old";
     }
     const QString &ip() const { return m_ip; }
