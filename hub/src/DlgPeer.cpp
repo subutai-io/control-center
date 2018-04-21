@@ -238,6 +238,9 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->btn_reload->setEnabled(false);
             ui->le_status->setText(tr("Peer is poweroff"));
         }
+        if(hub_available){
+            ui->btn_destroy->setEnabled(false);
+        }
         configs();
 
         connect(ui->btn_destroy, &QPushButton::clicked, [this](){this->destroyPeer();});
@@ -348,24 +351,21 @@ bool DlgPeer::change_configs(){
 void DlgPeer::enabled_peer_buttons(bool state){
     if(peer_status == "running"){
         ui->btn_stop->setEnabled(state);
-        ui->btn_destroy->setEnabled(state);
         ui->btn_reload->setEnabled(state);
         if(hub_available){
             ui->btn_unregister->setEnabled(state);
         }
         else ui->btn_register->setEnabled(state);
     }
-    if(peer_status == "broken"){
-        ui->btn_destroy->setEnabled(state);
-    }
     if(peer_status == "not ready"){
-        ui->btn_destroy->setEnabled(state);
         ui->btn_stop->setEnabled(state);
         ui->btn_reload->setEnabled(state);
     }
     if(peer_status == "poweroff"){
-        ui->btn_destroy->setEnabled(state);
         ui->btn_start->setEnabled(state);
+    }
+    if(hub_available){
+        ui->btn_destroy->setEnabled(state);
     }
 }
 
