@@ -673,6 +673,7 @@ void CSettingsManager::set_peer_pass(const QString &peer_name, const QString &pa
 void CSettingsManager::set_peer_finger(const QString &peer_name, const QString &finger){
     m_peer_fingers[peer_name] = finger;
     m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
+    qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
 }
 
 const QString& CSettingsManager::peer_pass(const QString &peer_name){

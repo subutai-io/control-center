@@ -93,16 +93,19 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
     peer_name = peer.name();
     if(peer.fingerprint() != "loading" || peer.fingerprint() != "undefined")
         peer_fingerprint = peer.fingerprint();
-    if(peer.ip() != "loading" && peer.ip() != "undefined" && !peer.ip().isEmpty()){
+    if(peer.ip() != "undefined" && !peer.ip().isEmpty()){
         ssh_ip = peer.ip();
         ui->label->setText(tr("Host port"));
+        ui->btn_launch_console->setEnabled(true);
         ssh_available = true;
     }else{
+        ui->btn_launch_console->setEnabled(false);
         if(peer_status == "running")
             peer_status = "not ready";
         else ssh_available = false;
     }
-    if(peer_fingerprint == "loading" || peer_fingerprint == "undefined" || peer_fingerprint == ""){
+    if(peer_fingerprint == "undefined" || peer_fingerprint == ""){
+        ui->btn_launch_console->setEnabled(false);
         if(peer_status == "running")
             peer_status = "not ready";
     }
