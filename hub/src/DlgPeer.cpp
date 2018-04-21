@@ -97,9 +97,11 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         ssh_ip = peer.ip();
         ui->label->setText(tr("Host port"));
         ssh_available = true;
-    }
-    else if(peer_status == "running")
+    }else{
+        if(peer_status == "running")
             peer_status = "not ready";
+        ssh_available = false;
+    }
     if(peer_fingerprint == "loading" || peer_fingerprint == "undefined" || peer_fingerprint == ""){
         if(peer_status == "running")
             peer_status = "not ready";
@@ -389,6 +391,7 @@ void DlgPeer::registerPeer(){
     dlg_register->show();
     registration_dialog = dlg_register;
     connect (dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+    connect (dlg_register, &DlgRegisterPeer::register_finished, [this](){this->close();});
 }
 
 void DlgPeer::unregisterPeer(){
@@ -401,6 +404,7 @@ void DlgPeer::unregisterPeer(){
     dlg_unregister->show();
     registration_dialog = dlg_unregister;
     connect (dlg_unregister, &QDialog::finished, this, &DlgPeer::regDlgClosed);
+    connect (dlg_unregister, &DlgRegisterPeer::register_finished, [this](){this->close();});
 }
 
 void DlgPeer::regDlgClosed(){

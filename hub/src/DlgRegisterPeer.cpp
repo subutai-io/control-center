@@ -123,6 +123,7 @@ void DlgRegisterPeer::registerPeer(){
         }
         if (kill_me){
             CHubController::Instance().force_refresh();
+            emit register_finished();
             this->close();
         }
     }
@@ -220,6 +221,7 @@ void DlgRegisterPeer::unregisterPeer(){
         }
         if (kill_me){
             CHubController::Instance().force_refresh();
+            emit register_finished();
             this->close();
         }
     }
