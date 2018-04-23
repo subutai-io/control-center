@@ -1319,7 +1319,10 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
-    return install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -1448,7 +1451,10 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name){
-   return install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -1612,6 +1618,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
+    installer_is_busy.lock();
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args<<"plugin"<<"install"<<plugin_name;
@@ -1621,6 +1628,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;
+    installer_is_busy.unlock();
     return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1778,7 +1786,10 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
-    return install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
