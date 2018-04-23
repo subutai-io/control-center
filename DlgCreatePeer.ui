@@ -297,6 +297,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>le_name</tabstop>
+  <tabstop>le_pass</tabstop>
+  <tabstop>le_pass_confirm</tabstop>
+  <tabstop>le_ram</tabstop>
+  <tabstop>le_disk</tabstop>
+  <tabstop>cmb_bridge</tabstop>
+  <tabstop>cmb_cpu</tabstop>
+  <tabstop>cmb_os</tabstop>
+  <tabstop>btn_create</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

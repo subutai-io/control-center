@@ -825,7 +825,7 @@ void TrayControlWindow::got_peer_info_sl(int type,
 }
 
 void TrayControlWindow::machine_peers_upd_finished(){
-    qDebug()<<"refresh of local machine peers finished";
+    qDebug()<<"refresh of local machine peers finished" << "number of total peers in table" << machine_peers_table.size();
     std::vector <QString> delete_me;
     for(auto it = machine_peers_table.begin(); it != machine_peers_table.end(); it++){
         if(it->second.update() == "old"){
@@ -1002,12 +1002,12 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type
         return;
     }
     my_peer_button *peer_button = my_peers_button_table[peer_id];
+    QString peer_backup_name, peer_local_backup_name; // we need keep them to delete fingerprint from configs
     switch (type) {
         case 0:
             if(peer_button->m_local_peer != NULL){
-                if(peer_button->peer_name != peer_id){
-                    CSettingsManager::Instance().set_peer_finger(peer_button->m_local_peer->name(), "");
-                }
+                peer_backup_name = peer_button->peer_name;
+                peer_local_backup_name = peer_button->m_local_peer->name();
                 delete peer_button->m_local_peer;
                 peer_button->m_local_peer = NULL;
             }
@@ -1029,6 +1029,9 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type
             break;
     }
     update_peer_icon(peer_id);
+    if(peer_backup_name != peer_id && type == 0){
+        CSettingsManager::Instance().set_peer_finger(peer_local_backup_name, "");
+    }
 }
 
 void TrayControlWindow::my_peer_button_pressed_sl(const my_peer_button *peer_info){

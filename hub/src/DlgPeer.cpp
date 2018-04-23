@@ -477,7 +477,7 @@ void DlgPeer::stopPeer(){
     emit peer_modified(peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
+        if(this == NULL)
             return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Process to stop peer %1 started. Don't close terminal until it's finished").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
@@ -546,7 +546,6 @@ void DlgPeer::destroyPeer(){
     if(peer_status == "broken"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
-            emit peer_deleted(this->peer_name);
             CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
@@ -566,7 +565,7 @@ void DlgPeer::destroyPeer(){
             return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Process to destroy peer %1 started").arg(peer_name), DlgNotification::N_NO_ACTION);
-            emit peer_deleted(this->peer_name);
+       //     emit peer_deleted(this->peer_name);
             this->close();
         }
         else{
