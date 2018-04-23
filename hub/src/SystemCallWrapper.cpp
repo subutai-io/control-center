@@ -1598,6 +1598,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
+   installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
    QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
    if(res == SCWE_SUCCESS){
@@ -1614,11 +1615,11 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
            return res;
        res = vagrant_plugin_update(s);
    }
+   installer_is_busy.unlock();
    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
-    installer_is_busy.lock();
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args<<"plugin"<<"install"<<plugin_name;
@@ -1628,7 +1629,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;
-    installer_is_busy.unlock();
     return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
