@@ -314,4 +314,51 @@ signals:
     void outputReceived(system_call_wrapper_error_t res);
 };
 
+class SetPasswordPeer : public QObject{
+    Q_OBJECT
+public:
+    SetPasswordPeer(QObject *parent = nullptr) : QObject(parent){}
+
+    void init(const QString &ip,
+              const QString &username,
+              const QString &old_pass,
+              const QString &new_pass){
+        this->ip = ip;
+        this->username = username;
+        this->old_pass = old_pass;
+        this->new_pass = new_pass;
+    }
+    void startWork(){
+        QThread* thread = new QThread();
+        connect(thread, &QThread::started,
+                this, &SetPasswordPeer::execute_remote_command);
+        connect(this, &SetPasswordPeer::outputReceived,
+                thread, &QThread::quit);
+        connect(thread, &QThread::finished,
+                this, &SetPasswordPeer::deleteLater);
+        connect(thread, &QThread::finished,
+                thread, &QThread::deleteLater);
+        this->moveToThread(thread);
+        thread->start();
+    }
+    void execute_remote_command() {
+        QFutureWatcher<bool> *watcher
+            = new QFutureWatcher<bool>(this);
+        QFuture<bool>  res =
+            QtConcurrent::run(CSystemCallWrapper::vagrant_set_password,
+                              ip, username, old_pass, new_pass);
+        watcher->setFuture(res);
+        connect(watcher, &QFutureWatcher<bool>::finished, [this, res](){
+          emit this->outputReceived(res);
+        });
+    }
+signals:
+    void outputReceived(bool res);
+private:
+    QString ip;
+    QString username;
+    QString old_pass;
+    QString new_pass;
+};
+
 #endif
