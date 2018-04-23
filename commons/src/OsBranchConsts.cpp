@@ -583,7 +583,7 @@ template<class OS> const QString& which_cmd_internal();
   }
 
 which_cmd_internal_def(OS_LINUX, "which")
-which_cmd_internal_def(OS_MAC, "which")
+which_cmd_internal_def(OS_MAC, "/usr/bin/which")
 which_cmd_internal_def(OS_WIN, "where")
 
 const QString &
