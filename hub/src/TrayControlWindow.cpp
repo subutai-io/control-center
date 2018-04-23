@@ -1005,9 +1005,6 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type
     switch (type) {
         case 0:
             if(peer_button->m_local_peer != NULL){
-                if(peer_button->peer_name != peer_id){
-                    CSettingsManager::Instance().set_peer_finger(peer_button->m_local_peer->name(), "");
-                }
                 delete peer_button->m_local_peer;
                 peer_button->m_local_peer = NULL;
             }
@@ -1029,6 +1026,9 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type
             break;
     }
     update_peer_icon(peer_id);
+    if(peer_button->peer_name != peer_id && type == 0){
+        CSettingsManager::Instance().set_peer_finger(peer_button->m_local_peer->name(), "");
+    }
 }
 
 void TrayControlWindow::my_peer_button_pressed_sl(const my_peer_button *peer_info){
