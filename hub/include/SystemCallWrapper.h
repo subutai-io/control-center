@@ -6,6 +6,7 @@
 #include <QString>
 #include <string>
 #include <vector>
+#include <QMutex>
 
 //give type for restart p2p
 enum restart_p2p_type{
@@ -55,6 +56,9 @@ struct system_call_res_t {
 enum restart_service_error_t { RSE_SUCCESS, RSE_MANUAL };
 ////////////////////////////////////////////////////////////////////////////
 
+static QMutex installer_is_busy;
+
+////////////////////////////////////////////////////////////////////////////
 class CSystemCallThreadWrapper : public QObject {
   Q_OBJECT
  private:
