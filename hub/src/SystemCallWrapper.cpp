@@ -2369,6 +2369,17 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
   qDebug()<<"requested which for"<<prog<<"exit code:"<<res.exit_code
          <<"result:"<<res.res<<"output:"<<res.out;
+  if(res.exit_code == 1 && cmd == "/usr/bin/which"){ //search in local bin (mac specific)
+      qDebug()<<"search again in local bin";
+      args.clear();
+      args << "/usr/local/bin/" + prog;
+      res = ssystem_th(cmd, args, true, true, 5000);
+      qDebug() << "finished which for"
+               << args
+               << "result : " << res.res
+               << "exit code :" << res.exit_code
+               << "output : " << res.out;
+  }
   if (res.res != SCWE_SUCCESS) return res.res;
 
   if (res.exit_code == success_ec && !res.out.empty()) {
