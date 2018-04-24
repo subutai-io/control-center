@@ -392,7 +392,7 @@ template<class OS> const QString& default_p2p_path_temp_internal();
 
 default_p2p_path_internal_def(OS_LINUX, "/opt/subutai/bin/p2p")
 default_p2p_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
-default_p2p_path_internal_def(OS_MAC, "/usr/local/share/subutai/bin/p2p")
+default_p2p_path_internal_def(OS_MAC, "/usr/local/bin/p2p")
 
 const QString &
 default_p2p_path() {
