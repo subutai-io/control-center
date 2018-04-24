@@ -205,7 +205,7 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
     }
     else if(type == 1){
         qDebug() << "Got ip of "<<name<<"ip:"<<output;
-        if(!output.isEmpty()){
+        if(!output.isEmpty() && output != "undefined"){
             GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
             int finger_type = 2;
             thread_for_finger->init(output, finger_type);
