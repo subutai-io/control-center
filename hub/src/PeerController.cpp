@@ -104,7 +104,7 @@ void CPeerController::check_logs(){
                                                     .arg(peer_name, file_name[0]), DlgNotification::N_NO_ACTION);
                     }
                     else
-                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" with following error:\n %3")
+                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" with following messages:\n %3")
                                                     .arg(peer_name, file_name[0], error_message), DlgNotification::N_NO_ACTION);
                     log.remove();
                 }
