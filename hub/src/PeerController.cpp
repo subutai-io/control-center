@@ -206,6 +206,7 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
     else if(type == 1){
         qDebug() << "Got ip of "<<name<<"ip:"<<output;
         if(!output.isEmpty() && output != "undefined"){
+            // get finger
             GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
             int finger_type = 2;
             thread_for_finger->init(output, finger_type);
@@ -214,11 +215,13 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
             connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
+            // set password
+            SetPasswordPeer *thread_for_pass = new SetPasswordPeer(this);
             static QString user_name = "admin";
-            CRestWorker::Instance()->peer_set_pass(output,
-                                                   user_name,
-                                                   CSettingsManager::Instance().peer_pass(),
-                                                   CSettingsManager::Instance().peer_pass(name));
+            thread_for_pass->init(output, user_name,
+                                  CSettingsManager::Instance().peer_pass(),
+                                  CSettingsManager::Instance().peer_pass(name));
+            thread_for_pass->startWork();
         }
     }
     else if(type == 2){
