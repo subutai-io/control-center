@@ -279,7 +279,7 @@ void CHubController::launch_browser(const QString &url) {
     args << "--new-window";
     args << url;
     if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch hub website with google chrome failed");
+      QString err_msg = tr("Launch bazaar website with google chrome failed");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
       return;
@@ -287,7 +287,7 @@ void CHubController::launch_browser(const QString &url) {
   } else {
     if (!QDesktopServices::openUrl(QUrl(url))) {
       QString err_msg =
-          tr("Launch hub website with default browser failed");
+          tr("Launch bazaar website with default browser failed");
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       qCritical("%s", err_msg.toStdString().c_str());
     }
