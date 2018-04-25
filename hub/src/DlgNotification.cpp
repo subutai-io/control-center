@@ -79,9 +79,12 @@ DlgNotification::DlgNotification(
 
   ui->lbl_icon->setPixmap(pixmap);
   ui->lbl_message->setText(msg);
-  ui->lbl_message->setTextFormat(Qt::RichText);
-  ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
-  ui->lbl_message->setOpenExternalLinks(true);
+ // ui->lbl_message->setTextFormat(Qt::RichText);
+ // ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
+//  ui->lbl_message->setOpenExternalLinks(true);
+  ui->lbl_message->setStyleSheet("* { background-color: rgba(0, 0, 0, 0); border: none }");
+  ui->lbl_message->setAlignment(Qt::AlignLeft);
+  ui->lbl_message->setAlignment(Qt::AlignTop);
   m_close_timer.setInterval(
       CSettingsManager::Instance().notification_delay_sec() * 1000);
   ui->chk_ignore->setChecked(
