@@ -389,7 +389,7 @@ void TrayControlWindow::notification_received(
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
 
-  dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+  dlg->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
 
   connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
