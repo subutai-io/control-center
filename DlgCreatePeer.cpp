@@ -14,7 +14,11 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->le_disk->setText("100");
-    QStringList bridged_ifs = CSystemCallWrapper::list_interfaces();
+    QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
+    if(bridged_ifs.size() == 0){
+        CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
+        this->close();
+    }
     ui->cmb_bridge->addItems(bridged_ifs);
     hide_err_labels();
     //slots

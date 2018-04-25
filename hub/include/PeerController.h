@@ -68,6 +68,8 @@ private:
   QString get_error_messages(QDir peer_dir, QString command);
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
+  QStringList bridged_interfaces; // list of current bridged interfaces
+  system_call_res_t vagrant_global_status; // list of current VMs
   int number_threads; // to emit signal when all finished
 
 public:
@@ -95,6 +97,13 @@ public:
 
   void finish_current_update(){
       number_threads = 0;
+  }
+
+  QStringList get_bridgedifs(){
+      return bridged_interfaces;
+  }
+  system_call_res_t get_global_status(){
+      return vagrant_global_status;
   }
 
 
@@ -359,6 +368,38 @@ private:
     QString username;
     QString old_pass;
     QString new_pass;
+};
+
+/////////////*this class updates information of bridged interfaces and global status of all VMs*////////////////////
+class UpdateVMInformation : public QObject{
+    Q_OBJECT
+public:
+    UpdateVMInformation(QObject *parent = nullptr) : QObject(parent){}
+    void startWork(){
+        QThread* thread = new QThread();
+        connect(thread, &QThread::started,
+                this, &UpdateVMInformation::execute_remote_command);
+        connect(this, &UpdateVMInformation::outputReceived,
+                thread, &QThread::quit);
+        connect(thread, &QThread::finished,
+                this, &UpdateVMInformation::deleteLater);
+        connect(thread, &QThread::finished,
+                thread, &QThread::deleteLater);
+        this->moveToThread(thread);
+        thread->start();
+    }
+    void execute_remote_command() {
+        QFutureWatcher<std::pair<QStringList, system_call_res_t> > *watcher
+            = new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
+        QFuture<std::pair<QStringList, system_call_res_t> >  res =
+            QtConcurrent::run(CSystemCallWrapper::vagrant_update_information);
+        watcher->setFuture(res);
+        connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished, [this, res](){
+          emit this->outputReceived(res);
+        });
+    }
+signals:
+    void outputReceived(std::pair<QStringList, system_call_res_t> res);
 };
 
 #endif

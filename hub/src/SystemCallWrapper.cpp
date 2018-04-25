@@ -350,25 +350,35 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
         return QString("broken");
     }
     QString st = "";
+    bool reading_path = false;
     for(auto s : res.out){
         st="";
+        reading_path = false;
+        status = "";
         for (int i=0; i < s.size(); i++){
-            if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
+            if (reading_path){
+                st += s[i];
+                if(st == dir){
+                    qDebug()
+                            <<dir<<"status is"<<status;
+                    return status;
+                }
+            }
+            else if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
                 if(st == "running"){
                     status = st;
                 }
                 if(st == "poweroff"){
                     status = st;
                 }
-                if(st == dir){
-                    qDebug()
-                            <<dir<<"status is"<<status;
-                    return status;
-                }
                 st = "";
             }
-            else
+            else{
+                if(!status.isEmpty()){
+                    reading_path = true;
+                }
                 st += s[i];
+            }
 
         }
     }
@@ -542,6 +552,19 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
     }
     return port;
 }
+
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
+    qDebug() << "Starting to update information related to peer management";
+    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "global-status"
+         << "--prune";
+
+    system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+
+    return std::make_pair(bridges, global_status);
+}
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
@@ -564,8 +587,7 @@ QStringList CSystemCallWrapper::list_interfaces(){
     system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
     qDebug()<<"Listing interfaces result:"
             <<"exit code:"<<res.exit_code
-            <<"result:"<<res.res
-            <<"output:"<<res.out;
+            <<"result:"<<res.res;
     if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
         return interfaces;
     //time to parse data
@@ -1735,10 +1757,11 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -y dkms build-essential linux-headers-$(uname -r);"
+                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`;"
                                     "if [$? -gt 0]\n"
-                                    "then apt-get install -y -f\n"
-                                    "apt-get install -y dkms build-essential linux-headers-$(uname -r)\n"
+                                    "then\n"
+                                    "apt-get install -y -f\n"
+                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
                                     "fi\n"
                                     "cd %1 dir;"
                                     "dpkg -i %2;"

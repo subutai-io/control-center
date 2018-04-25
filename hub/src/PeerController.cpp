@@ -31,8 +31,14 @@ void CPeerController::init() {
 
 void CPeerController::refresh() {
     if(number_threads != 0)
-        return;
-    search_local();
+        return; 
+    UpdateVMInformation *update_thread = new UpdateVMInformation(this);
+    update_thread->startWork();
+    connect(update_thread, &UpdateVMInformation::outputReceived, [this](std::pair<QStringList, system_call_res_t> res){
+        this->bridged_interfaces = res.first;
+        this->vagrant_global_status = res.second;
+        this->search_local();
+    });
 }
 
 
