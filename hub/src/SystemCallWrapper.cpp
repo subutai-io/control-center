@@ -350,25 +350,35 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
         return QString("broken");
     }
     QString st = "";
+    bool reading_path = false;
     for(auto s : res.out){
         st="";
+        reading_path = false;
+        status = "";
         for (int i=0; i < s.size(); i++){
-            if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
+            if (reading_path){
+                st += s[i];
+                if(st == dir){
+                    qDebug()
+                            <<dir<<"status is"<<status;
+                    return status;
+                }
+            }
+            else if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
                 if(st == "running"){
                     status = st;
                 }
                 if(st == "poweroff"){
                     status = st;
                 }
-                if(st == dir){
-                    qDebug()
-                            <<dir<<"status is"<<status;
-                    return status;
-                }
                 st = "";
             }
-            else
+            else{
+                if(!status.isEmpty()){
+                    reading_path = true;
+                }
                 st += s[i];
+            }
 
         }
     }
