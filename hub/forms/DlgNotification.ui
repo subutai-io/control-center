@@ -41,25 +41,6 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLabel" name="lbl_message">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>13</y>
-     <width>481</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Message label</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QCheckBox" name="chk_autohide">
    <property name="geometry">
     <rect>
@@ -110,6 +91,22 @@
    </property>
    <property name="text">
     <string>Update Resource Host</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="lbl_message">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>10</y>
+     <width>491</width>
+     <height>70</height>
+    </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="textInteractionFlags">
+    <set>Qt::TextSelectableByMouse</set>
    </property>
   </widget>
  </widget>
