@@ -93,14 +93,20 @@
     <string>Update Resource Host</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lbl_message">
+  <widget class="QTextEdit" name="lbl_message">
    <property name="geometry">
     <rect>
      <x>90</x>
      <y>10</y>
      <width>491</width>
-     <height>71</height>
+     <height>70</height>
     </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="textInteractionFlags">
+    <set>Qt::TextSelectableByMouse</set>
    </property>
   </widget>
  </widget>
