@@ -42,7 +42,7 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 
-    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    QStringList bridges = CPeerController::Instance()->get_bridgedifs();
     ui->cmb_bridge->addItems(bridges);
 
     //slots
@@ -477,8 +477,6 @@ void DlgPeer::stopPeer(){
     emit peer_modified(peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == NULL)
-            return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Process to stop peer %1 started. Don't close terminal until it's finished").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             this->close();
@@ -505,8 +503,6 @@ void DlgPeer::startPeer(){
     thread_init->init(peer_dir, up_command, peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
-            return;
         if(res == SCWE_SUCCESS){
             emit peer_modified(this->peer_name);
             CNotificationObserver::Instance()->Info(tr("Starting process started. Don't close before it finished"), DlgNotification::N_NO_ACTION);
@@ -528,8 +524,6 @@ void DlgPeer::sshPeer(){
     thread_init->init(peer_dir, up_command, peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
-            return;
         if(res == SCWE_SUCCESS){
             qDebug()<<"sshed to peer"<<peer_name;
         }
@@ -561,8 +555,6 @@ void DlgPeer::destroyPeer(){
     thread_init->init(peer_dir, delete_command, peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
-            return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Process to destroy peer %1 started").arg(peer_name), DlgNotification::N_NO_ACTION);
        //     emit peer_deleted(this->peer_name);
@@ -592,8 +584,6 @@ void DlgPeer::reloadPeer(){
     thread_init->startWork();
     emit peer_modified(this->peer_name);
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
-        if(this == nullptr)
-            return;
         if(res == SCWE_SUCCESS){
             CNotificationObserver::Instance()->Info(tr("Peer reloading started. Don't close terminal until it's finished"), DlgNotification::N_NO_ACTION);
             this->close();
