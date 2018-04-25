@@ -542,6 +542,19 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
     }
     return port;
 }
+
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
+    qDebug() << "Starting to update information related to peer management";
+    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "global-status"
+         << "--prune";
+
+    system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+
+    return std::make_pair(bridges, global_status);
+}
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
@@ -564,8 +577,7 @@ QStringList CSystemCallWrapper::list_interfaces(){
     system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
     qDebug()<<"Listing interfaces result:"
             <<"exit code:"<<res.exit_code
-            <<"result:"<<res.res
-            <<"output:"<<res.out;
+            <<"result:"<<res.res;
     if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
         return interfaces;
     //time to parse data
