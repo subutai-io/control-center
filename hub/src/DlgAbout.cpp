@@ -47,6 +47,12 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
+  ui->lbl_tray_version_val->setText(TRAY_VERSION + branch_name_str());
+  current_browser = CSettingsManager::Instance().default_browser();
+
+  set_visible_chrome("Chrome" == current_browser);
+  set_visible_firefox("Firefox" == current_browser);
+
 
   this->setMinimumWidth(700);
 
@@ -108,6 +114,22 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
   check_for_versions_and_updates();
+}
+
+void DlgAbout::set_visible_chrome(bool value){
+    ui->btn_chrome->setVisible(value);
+    ui->lbl_chrome_version->setVisible(value);
+    ui->lbl_chrome_version_val->setVisible(value);
+    ui->pb_chrome->setVisible(value);
+    this->adjustSize();
+}
+void DlgAbout::set_visible_firefox(bool value){
+    ui->btn_firefox->setVisible(value);
+    ui->pb_firefox->setVisible(value);
+    ui->lbl_firefox->setVisible(value);
+    ui->lbl_firefox_version_val->setVisible(value);
+    ui->pb_firefox->setVisible(value);
+    this->adjustSize();
 }
 
 DlgAbout::~DlgAbout() {

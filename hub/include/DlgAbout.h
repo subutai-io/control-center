@@ -74,6 +74,10 @@ private:
   std::map<QString, progress_item_t> m_dct_fpb;
 
   void check_for_versions_and_updates();
+  //hide some soft
+  void set_visible_chrome(bool value);
+  void set_visible_firefox(bool value);
+  QString current_browser;
 
 private slots:
   void btn_tray_update_released();

@@ -12,6 +12,7 @@
 #include "DlgSettings.h"
 #include "NotificationObserver.h"
 #include "RhController.h"
+#include "OsBranchConsts.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 #include "ui_DlgSettings.h"
@@ -173,6 +174,16 @@ DlgSettings::DlgSettings(QWidget* parent)
         CSettingsManager::Instance().use_animations());
   ui->chk_autostart->setChecked(CSettingsManager::Instance().autostart());
 
+  QStringList supported_browsers_list = supported_browsers();
+  current_browser = CSettingsManager::Instance().default_browser();
+  ui->cb_browser->addItems(supported_browsers_list);
+  for (int i = 0; i < supported_browsers_list.size(); i++){
+      if(supported_browsers_list[i] == current_browser){
+          ui->cb_browser->setCurrentIndex(i);
+      }
+  }
+
+
   rebuild_rh_list_model();
 
   connect(ui->btn_ok, &QPushButton::released, this,
@@ -279,6 +290,8 @@ void DlgSettings::btn_ok_released() {
   static const QString path_invalid_validator_msg = tr("Invalid path");
   static const QString can_launch_application_msg =
       tr("Can't launch application");
+
+  CSettingsManager::Instance().set_default_browser(ui->cb_browser->currentText());
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
                      ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command, ui->le_scp_command};

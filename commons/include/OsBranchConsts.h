@@ -17,6 +17,13 @@ enum os_t {
   OS_MAC_LIN = 3
 };
 
+enum browser_t {
+    BR_CHROME = 0,
+    BR_SAFARI,
+    BR_FIREFOX,
+    BR_EDGE
+};
+
 /**
  * @brief branch_t enum to type struct for template specification
  */
@@ -36,6 +43,11 @@ template<os_t v> struct Os2Type {
  */
 template<int v> struct Int2Type {
   enum {val = v};
+};
+
+template<browser_t v> struct Browser2Type
+{
+    enum {val = v};
 };
 ////////////////////////////////////////////////////////////////////////////
 

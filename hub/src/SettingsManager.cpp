@@ -577,6 +577,11 @@ void CSettingsManager::set_vagrant_path(QString vagrant_path) {
   m_settings.setValue(SM_VAGRANT_PATH, m_vagrant_path);
 }
 
+void CSettingsManager::set_default_browser(QString fr){
+    m_default_browser = fr;
+    m_settings.setValue(SM_DEFAULT_BROWSER, m_default_browser);
+}
+
 void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
     QString sl = QFile::symLinkTarget(virtualbox_path);
     m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
@@ -714,7 +719,6 @@ SET_FIELD_DEF(ssh_user, SM_SSH_USER, QString&)
 SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
 SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
 SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
-SET_FIELD_DEF(default_browser, SM_DEFAULT_BROWSER, QString&)
 SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
 SET_FIELD_DEF(peer_pass, SM_PEER_PASS, QString&)
 SET_FIELD_DEF(peer_finger, SM_PEER_FINGER, QString&)

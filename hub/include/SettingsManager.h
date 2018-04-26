@@ -315,7 +315,6 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(rh_pass, QString&)
   SET_FIELD_DECL(rh_host, QString&)
   SET_FIELD_DECL(rh_port, quint16)
-  SET_FIELD_DECL(default_browser, QString&)
   SET_FIELD_DECL(peer_pass, QString&)
   SET_FIELD_DECL(peer_finger, QString&)
   SET_FIELD_DECL(logs_storage, QString&)

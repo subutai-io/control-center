@@ -54,12 +54,12 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="7" column="2">
-            <widget class="QComboBox" name="comboBox"/>
+            <widget class="QComboBox" name="cb_browser"/>
            </item>
            <item row="7" column="0">
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="lbl_browser">
              <property name="text">
-              <string>Default browser :</string>
+              <string>CC Browser :</string>
              </property>
             </widget>
            </item>
@@ -311,7 +311,7 @@
            <item row="8" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
-              <string>Peer hypervisor :</string>
+              <string>Peer Hypervisor :</string>
              </property>
             </widget>
            </item>
