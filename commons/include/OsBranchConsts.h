@@ -66,6 +66,7 @@ const QString& default_x2goclient_path();
 const QString& default_term_arg();
 const QString& default_oracle_virtualbox_path();
 const QString& default_default_browser();
+const QStringList& supported_browsers();
 
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();

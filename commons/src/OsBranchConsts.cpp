@@ -315,6 +315,25 @@ hub_billing_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QStringList& supported_browsers_internal();
+
+#define supported_browsers_internal_def(OS_TYPE, STRING) \
+    template <> \
+    const QStringList& supported_browsers_internal<Os2Type <OS_TYPE> >() { \
+        static QString st(STRING); \
+        static QStringList res = st.split(" "); \
+        return res; \
+    }
+
+supported_browsers_internal_def(OS_WIN, "chrome") // add edge, mozilla
+supported_browsers_internal_def(OS_LINUX, "chrome") // add mozilla
+supported_browsers_internal_def(OS_MAC, "chrome safari mozilla") // add safari , mozilla
+
+const QStringList& supported_browsers(){
+    return supported_browsers_internal<Os2Type <CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
