@@ -770,3 +770,10 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v){
         break;
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////
+const QString& default_default_browser(){
+    static QString res("chrome");
+    return res;
+}
