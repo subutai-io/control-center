@@ -47,13 +47,13 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui(new Ui::DlgAbout)
 {
   ui->setupUi(this);
-  ui->lbl_tray_version_val->setText(TRAY_VERSION + branch_name_str());
 
   this->setMinimumWidth(700);
 
   ui->gridLayout->setSizeConstraint(QLayout::SetMinimumSize);
   ui->gridLayout_2->setSizeConstraint(QLayout::SetMinimumSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetMinimumSize);
+
 
   QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
