@@ -1839,6 +1839,109 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
              << "Output messages" << res.out;
     return res.res;
 }
+template<>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "chrome_installer.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "dpkg -i %1;"
+                                    "if test $? -gt 0\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %1;"
+                                    "else\n"
+                                    "rm %1\n"
+                                    "fi")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+                QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+
+    qDebug()<<"Chrome installation started"
+            <<"gksu_path:"<<gksu_path
+            <<"args2:"<<args2;
+
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    qDebug()<<"Chrome installation finished:"
+            <<"exit code:"<<cr2.exit_code
+            <<"result code:"<<cr2.res
+            <<"output:"<<cr2.out;
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+      qCritical() << err_msg;
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
 system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
