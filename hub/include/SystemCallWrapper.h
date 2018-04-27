@@ -197,6 +197,10 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_error_t install_e2e_chrome();
+
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();

@@ -146,6 +146,20 @@ vagrant_kurjun_package_name(){
     return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS> const QString& chrome_kurjun_package_name_internal();
+#define chrome_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& chrome_kurjun_package_name_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+chrome_kurjun_package_name_def(OS_MAC, "googlechrome.dmg")
+chrome_kurjun_package_name_def(OS_LINUX, "vagrant.pkg")
+chrome_kurjun_package_name_def(OS_WIN, "vagrant.pkg")
+const QString& chrome_kurjun_package_name(){
+    return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
 #define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \

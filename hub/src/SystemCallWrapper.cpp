@@ -1356,7 +1356,8 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
   QStringList args;
   QString file_path  = dir + "/" + file_name;
   args << "-e"
-       << QString("do shell script \"hdiutil attach %1; cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
+       << QString("do shell script \"hdiutil attach %1; "
+                  "cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   return res.res;
 }
@@ -1816,6 +1817,31 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    installer_is_busy.unlock();
+    return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name){
+    qInfo() << "CC started to install google chrome";
+    QString cmd("osascript");
+    QStringList args;
+    QString file_path  = dir + "/" + file_name;
+    args << "-e"
+         << QString("do shell script \"hdiutil attach %1; "
+                    "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+    qDebug() << "Installation of chrome finished"
+             << "Result code: " << res.res
+             << "Exit code: " << res.exit_code
+             << "Output messages" << res.out;
+    return res.res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
     installer_is_busy.unlock();
     return res;
 }
@@ -2479,11 +2505,21 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC> >(
 template <>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
-  version = "Couldn't get version on Win, sorry";
-#if defined(RT_OS_WINDOWS)
-  // todo implement  with reading registry value
-#endif
-  return SCWE_SUCCESS;
+  version = "undefined";
+  QString cmd("wmic");
+  QStringList args;
+  args << "datafile where name="
+       << CSettingsManager::Instance().chrome_path()
+       << "get Version /value";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    version = res.out[0];
+  }
+
+  int index;
+  if ((index = version.indexOf('\n')) != -1) version.replace(index, 1, " ");
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::chrome_version(

@@ -87,6 +87,7 @@ private slots:
   void btn_x2go_update_released();
   void btn_vagrant_update_released();
   void btn_oracle_virtualbox_update_released();
+  void btn_chrome_update_release();
   void btn_recheck_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);

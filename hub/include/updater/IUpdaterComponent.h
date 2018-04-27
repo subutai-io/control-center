@@ -55,6 +55,7 @@ namespace update_system {
     static const QString X2GO;
     static const QString VAGRANT;
     static const QString ORACLE_VIRTUALBOX;
+    static const QString CHROME;
 
     bool is_in_progress(){
         return m_in_progress;
@@ -169,6 +170,25 @@ namespace update_system {
       virtual void install_post_interntal(bool success);
     private:
       QString download_oracle_virtualbox_path();
+    };
+    /**
+     * @brief The CUpdaterComponentCHROME class implements IUpdaterComponent. Works with chrome
+     */
+    class CUpdaterComponentCHROME : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentCHROME();
+      virtual ~CUpdaterComponentCHROME();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_chrome_path();
     };
 }
 
