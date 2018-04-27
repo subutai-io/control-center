@@ -327,7 +327,7 @@ template<class OS> const QStringList& supported_browsers_internal();
 
 supported_browsers_internal_def(OS_WIN, "Chrome") // add edge, mozilla
 supported_browsers_internal_def(OS_LINUX, "Chrome") // add mozilla
-supported_browsers_internal_def(OS_MAC, "Chrome Safari Firefox") // add safari , mozilla
+supported_browsers_internal_def(OS_MAC, "Chrome") // add safari , mozilla
 
 const QStringList& supported_browsers(){
     return supported_browsers_internal<Os2Type <CURRENT_OS> >();
