@@ -1942,6 +1942,29 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
     return SCWE_SUCCESS;
 }
+
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(dir+"/"+file_name);
+    QStringList args0;
+    args0 << "/install";
+
+    qDebug()
+            <<"Installing package chrome:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
+    qDebug()
+            <<"Installing package chrome finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);

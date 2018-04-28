@@ -155,7 +155,7 @@ template <class OS> const QString& chrome_kurjun_package_name_internal();
   }
 chrome_kurjun_package_name_def(OS_MAC, "googlechrome.dmg")
 chrome_kurjun_package_name_def(OS_LINUX, "google-chrome-stable_current_amd64.deb")
-chrome_kurjun_package_name_def(OS_WIN, "vagrant.pkg")
+chrome_kurjun_package_name_def(OS_WIN, "ChromeSetup.exe")
 const QString& chrome_kurjun_package_name(){
     return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
 }
