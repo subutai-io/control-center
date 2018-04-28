@@ -810,3 +810,10 @@ const QString& default_default_browser(){
     static QString res("Chrome");
     return res;
 }
+////////////////////////////////////////////////////////////////////////////
+const QString& subutai_e2e_id(const QString& current_browser){
+    if(current_browser == "Chrome"){
+        static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
+        return res;
+    }
+}

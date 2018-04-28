@@ -99,4 +99,6 @@ const QString& current_branch_name();
 const QString& branch_name_str();
 const QString& base_interface_name();
 void current_os_info(std::vector<std::pair<QString, QString> >& v);
+
+const QString& subutai_e2e_id(const QString& current_browser);
 #endif // OSBRANCHCONSTS_H

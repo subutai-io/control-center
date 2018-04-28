@@ -2503,6 +2503,33 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QStrin
     return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        QString cmd("ls");
+        QString ex_id = subutai_e2e_id(current_browser);
+        QStringList args;
+        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").args(homePath.first().split(QDir::separator()).last(), ex_id);
+        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
+            version = res.out[0];
+            return SCWE_SUCCESS;
+        }
+    }
+    return SCWE_CREATE_PROCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
+    version = "undefined";
+    return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();

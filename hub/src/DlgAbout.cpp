@@ -38,6 +38,7 @@ QString get_vagrant_version(){
 QString get_oracle_virtualbox_version(){
     QString version = "";
     CSystemCallWrapper::oracle_virtualbox_version(version);
+    CSystemCallWrapper::subutai_e2e_version(version);
     return version;
 }
 
@@ -45,6 +46,13 @@ QString get_chrome_version(){
     QString version = "";
     CSystemCallWrapper::chrome_version(version);
     return version;
+}
+
+QString get_e2e_version(){
+    QString version = "";
+    CSystemCallWrapper::subutai_e2e_version(version);
+    return version;
+
 }
 ////////////////////////////////////////////////////////////////////////////
 
