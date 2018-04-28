@@ -2516,7 +2516,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QStr
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
-        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").args(homePath.first().split(QDir::separator()).last(), ex_id);
+        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").arg(homePath.first().split(QDir::separator()).last(), ex_id);
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
             version = res.out[0];
