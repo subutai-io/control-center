@@ -2659,19 +2659,31 @@ template <>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
   version = "undefined";
-  QString cmd("wmic");
+  QString cmd("REG");
   QStringList args;
-  args << "datafile where name="
-       << CSettingsManager::Instance().chrome_path()
-       << "get Version /value";
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"
+    << "/v"
+    << "DisplayVersion";
+  qDebug()<<args;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
-
+  qDebug()<<"got chrome version"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    version = res.out[0];
+      for (QString s : res.out){
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          qDebug() << "look me please ->" << s << buf.size();
+          if(buf.size() == 3){
+              version = buf[2];
+              break;
+          }
+      }
   }
-
-  int index;
-  if ((index = version.indexOf('\n')) != -1) version.replace(index, 1, " ");
   return res.res;
 }
 
