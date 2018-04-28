@@ -18,7 +18,8 @@ enum cc_component{
     CC_X2GO,
     CC_VAGRANT,
     CC_VB,
-    CC_CHROME
+    CC_CHROME,
+    CC_E2E
 };
 namespace update_system {
   /**

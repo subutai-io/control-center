@@ -1971,6 +1971,16 @@ system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &di
     installer_is_busy.unlock();
     return res;
 }
+
+template<class OS>
+system_call_wrapper_error_t install_e2e_chrome_internal();
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
+    // osascript -e 'do shell script "sudo --user \"${USER}\" mkdir -p ~/Library/Application\\ Support/Google/Chrome/External\\ Extensions; cp -p nano ~/Library/Application\\ Support/Google/Chrome/External\\ Extensions/ffddnlbamkjlbngpekmdpnoccckapcnh.json"'
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
+    return install_e2e_chrome_internal<Os2Type<CURRENT_OS> > ();
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     QString gksu_path;
