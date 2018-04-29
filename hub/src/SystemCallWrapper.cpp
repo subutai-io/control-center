@@ -1976,10 +1976,57 @@ template<class OS>
 system_call_wrapper_error_t install_e2e_chrome_internal();
 template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
-    // osascript -e 'do shell script "sudo --user \"${USER}\" mkdir -p ~/Library/Application\\ Support/Google/Chrome/External\\ Extensions; cp -p nano ~/Library/Application\\ Support/Google/Chrome/External\\ Extensions/ffddnlbamkjlbngpekmdpnoccckapcnh.json"'
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + "/Library/Application Support/Google/Chrome/External Extensions" + "/ffddnlbamkjlbngpekmdpnoccckapcnh.json";
+
+    qDebug() << tmpFilePath;
+    QJsonDocument preference_json(json);
+    QFile preference_file(tmpFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    QString cmd("osascript");
+    QStringList args;
+    args << "-e"
+         << "tell application \"Google Chrome\" to quit";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    static QString plugin_link = "https://chrome.google.com/webstore/detail/subutai-e2e-plugin/ffddnlbamkjlbngpekmdpnoccckapcnh";
+    args.clear();
+    args << "-e"
+         << "tell application \"Google Chrome\" to activate";
+    CHubController::Instance().launch_browser(plugin_link);
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
-    return install_e2e_chrome_internal<Os2Type<CURRENT_OS> > ();
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_e2e_chrome_internal<Os2Type<CURRENT_OS> > ();
+    installer_is_busy.unlock();
+    return res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    if(current_browser == "Chrome"){
+        return install_e2e_chrome();
+    }
+    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){

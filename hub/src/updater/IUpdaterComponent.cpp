@@ -31,6 +31,7 @@ const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::CHROME = "Chrome";
+const QString IUpdaterComponent::E2E = "e2e";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -42,7 +43,8 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {X2GO, "X2Go-Client"},
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
-    {CHROME, "Google Chrome"}
+    {CHROME, "Google Chrome"},
+    {E2E, "Subutai E2E"}
   };
   static const QString def = "";
 
@@ -319,4 +321,44 @@ void CUpdaterComponentCHROME::update_post_action(bool success){
 void CUpdaterComponentCHROME::install_post_interntal(bool success){if(!success)
         CNotificationObserver::Instance()->Error(tr("Google Chrome installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+}
+
+
+//////////////////////////*E2E*///////////////////////////////////////
+
+CUpdaterComponentE2E::CUpdaterComponentE2E() {
+  m_component_id = E2E;
+}
+CUpdaterComponentE2E::~CUpdaterComponentE2E() {
+}
+QString CUpdaterComponentE2E::download_e2e_path(){
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
+}
+bool CUpdaterComponentE2E::update_available_internal(){
+    QString version;
+    CSystemCallWrapper::subutai_e2e_version(version);
+    return version == "undefined";
+}
+chue_t CUpdaterComponentE2E::install_internal(){
+    qDebug()
+            << "Starting install subutai e2e";
+    static QString empty_stings = "";
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(empty_stings, empty_stings, CC_E2E);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentE2E::install_finished_sl);
+    silent_installer->startWork();
+    return CHUE_SUCCESS;
+}
+chue_t CUpdaterComponentE2E::update_internal(){
+    update_finished_sl(true);
+    return CHUE_SUCCESS;
+}
+void CUpdaterComponentE2E::update_post_action(bool success){
+    UNUSED_ARG(success);
+}
+void CUpdaterComponentE2E::install_post_interntal(bool success){if(!success)
+        CNotificationObserver::Instance()->Error(tr("Subutai E2E installation failed. Please try to install manually"), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Subutai E2E  has been installed. Please approve installation from your browser"), DlgNotification::N_NO_ACTION);
 }

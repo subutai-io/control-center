@@ -38,7 +38,6 @@ QString get_vagrant_version(){
 QString get_oracle_virtualbox_version(){
     QString version = "";
     CSystemCallWrapper::oracle_virtualbox_version(version);
-    CSystemCallWrapper::subutai_e2e_version(version);
     return version;
 }
 
@@ -83,6 +82,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
                     this->ui->lbl_x2go_version_val,
                     this->ui->lbl_vagrant_version_val,
                     this->ui->lbl_chrome_version_val,
+                    this->ui->lbl_subutai_e2e_val,
                     nullptr };
 
   for (QLabel **i = lbls; *i; ++i) {
@@ -103,6 +103,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_vagrant_update, &QPushButton::released, this, &DlgAbout::btn_vagrant_update_released);
   connect(ui->btn_oracle_virtualbox_update, &QPushButton::released, this, &DlgAbout::btn_oracle_virtualbox_update_released);
   connect(ui->btn_chrome, &QPushButton::released, this, &DlgAbout::btn_chrome_update_release);
+  connect(ui->btn_subutai_e2e, &QPushButton::released, this, &DlgAbout::btn_e2e_update_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -131,8 +132,22 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val, ui->pb_chrome, ui->btn_chrome,
                                          get_chrome_version};
 
+  m_dct_fpb[IUpdaterComponent::E2E] = {ui->lbl_subutai_e2e_val, ui->pb_e2e, ui->btn_subutai_e2e,
+                                       get_e2e_version};
+
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
   check_for_versions_and_updates();
+
+  /*currently we are not using them, but we might need them */
+  ui->lbl_rhm_version->hide();
+  ui->lbl_rhm_version_val->hide();
+  ui->lbl_rh_version->hide();
+  ui->lbl_rh_version_val->hide();
+  ui->btn_rhm_update->hide();
+  ui->btn_rh_update->hide();
+  ui->pb_rh->hide();
+  ui->pb_rhm->hide();
+  this->adjustSize();
 }
 
 void DlgAbout::set_visible_chrome(bool value){
@@ -176,6 +191,8 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::got_vagrant_version_sl);
   connect(di, &DlgAboutInitializer::got_oracle_virtualbox_version,
           this, &DlgAbout::got_oracle_virtualbox_version_sl);
+  connect(di, &DlgAboutInitializer::got_e2e_version,
+          this, &DlgAbout::got_e2e_version_sl);
   connect(di, &DlgAboutInitializer::update_available,
           this, &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress,
@@ -245,6 +262,14 @@ void DlgAbout::btn_chrome_update_release(){
     if(ui->lbl_chrome_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::CHROME);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::CHROME);
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::btn_e2e_update_released(){
+    ui->btn_subutai_e2e->setEnabled(false);
+    if(ui->lbl_subutai_e2e_val->text() == "undefined"){
+        CHubComponentsUpdater::Instance()->install(IUpdaterComponent::E2E);
+    }
+    else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::E2E);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
@@ -326,6 +351,16 @@ DlgAbout::got_chrome_version_sl(QString version) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+void DlgAbout::got_e2e_version_sl(QString version){
+    ui->lbl_subutai_e2e_val->setText(version);
+    if(version == "undefined"){
+        ui->btn_subutai_e2e->setText(tr("Install Subutai E2E"));
+    }
+    else{
+        ui->btn_subutai_e2e->setText(tr("Install Subutai E2E"));
+    }
+}
+////////////////////////////////////////////////////////////////////////////
 
 void
 DlgAbout::got_rh_version_sl(QString version) {
@@ -376,17 +411,17 @@ void
 DlgAboutInitializer::do_initialization() {
   try {
     int initialized_component_count = 0;
+
     QString p2p_version = get_p2p_version();
     emit got_p2p_version(p2p_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString chrome_version;
     CSystemCallWrapper::chrome_version(chrome_version);
-
     emit got_chrome_version(chrome_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-
+/*currently not used but we might need *
     QString rh_version = CSystemCallWrapper::rh_version();
     emit got_rh_version(rh_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -394,7 +429,7 @@ DlgAboutInitializer::do_initialization() {
     QString rhm_version = CSystemCallWrapper::rhm_version();
     emit got_rh_management_version(rhm_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
+*/
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -407,10 +442,15 @@ DlgAboutInitializer::do_initialization() {
     emit got_oracle_virtualbox_version(oracle_virtualbox_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    QString subutai_e2e_version = get_e2e_version();
+    emit got_e2e_version(subutai_e2e_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
     QString uas[] = {
       IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
-      IUpdaterComponent::RH, IUpdaterComponent::RHMANAGEMENT, IUpdaterComponent::X2GO,
-      IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX, IUpdaterComponent::CHROME, ""};
+      IUpdaterComponent::X2GO, IUpdaterComponent::E2E,
+      IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX,
+      IUpdaterComponent::CHROME, ""};
 
     for (int i = 0; uas[i] != ""; ++i) {
       bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
