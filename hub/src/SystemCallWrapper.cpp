@@ -2578,6 +2578,14 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QStr
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     if (current_browser == "Chrome"){
         /*
+         * check if chrome installed first
+         */
+        CSystemCallWrapper::chrome_version(version);
+        if(version == "undefined"){
+            version = QObject::tr("Install Google Chrome first");
+            return SCWE_SUCCESS;
+        }
+        /*
          * to get version of chrome extension just check path
          * */
         QString cmd("ls");
