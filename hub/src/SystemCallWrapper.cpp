@@ -1831,13 +1831,16 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
     QStringList args;
     QString file_path  = dir + "/" + file_name;
     args << "-e"
-         << QString("do shell script \"hdiutil attach %1; "
+         << QString("do shell script \"hdiutil attach -nobrowse %1; "
                     "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
     qDebug() << "Installation of chrome finished"
              << "Result code: " << res.res
              << "Exit code: " << res.exit_code
              << "Output messages" << res.out;
+    if(res.exit_code != 0){
+        res.res = SCWE_CREATE_PROCESS;
+    }
     return res.res;
 }
 template<>
