@@ -2588,6 +2588,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QStr
         /*
          * to get version of chrome extension just check path
          * */
+        version = "undefined";
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
