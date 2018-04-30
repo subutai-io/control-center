@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QMessageBox>
 
 #include "HubController.h"
 #include "NotificationObserver.h"
@@ -1987,8 +1988,9 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
       return SCWE_CREATE_PROCESS;
     }
 
-    QString tmpFilePath =
-        lst_temp[0] + "/Library/Application Support/Google/Chrome/External Extensions" + "/ffddnlbamkjlbngpekmdpnoccckapcnh.json";
+    QString tmpFilePath = QString("%1%2/%3.json").arg(lst_temp[0],
+                                                      default_chrome_extensions_path(),
+                                                      subutai_e2e_id(CSettingsManager::Instance().default_browser()));
 
     qDebug() << tmpFilePath;
     QJsonDocument preference_json(json);
@@ -2004,7 +2006,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
     if(res.res != SCWE_SUCCESS && res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
-    static QString plugin_link = "https://chrome.google.com/webstore/detail/subutai-e2e-plugin/ffddnlbamkjlbngpekmdpnoccckapcnh";
+    static QString plugin_link = "https://chrome.google.com/webstore/detail/subutai-e2e-plugin/" + subutai_e2e_id(CSettingsManager::Instance().default_browser());
     args.clear();
     args << "-e"
          << "tell application \"Google Chrome\" to activate";

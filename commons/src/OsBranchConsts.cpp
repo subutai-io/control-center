@@ -770,7 +770,24 @@ base_interface_name() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_chrome_extensions_path_internal();
 
+#define default_chrome_extensions_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_chrome_extensions_path_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_chrome_extensions_path_internal_def(OS_WIN, "windowsinterface")
+default_chrome_extensions_path_internal_def(OS_MAC, "/Library/Application Support/Google/Chrome/External Extensions")
+default_chrome_extensions_path_internal_def(OS_LINUX, "vptp")
+
+const QString&
+default_chrome_extensions_path() {
+    return default_chrome_extensions_path_internal< Os2Type<CURRENT_OS> >();
+}
+///////////////////////////////////////////////////////////////////////////////
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
     v.clear();
     QString flag, st;

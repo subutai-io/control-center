@@ -1,16 +1,18 @@
+#include <map>
+
+#include <QStandardPaths>
+#include <QApplication>
+#include <QMessageBox>
+
 #include "updater/IUpdaterComponent.h"
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotification.h"
 #include "SettingsManager.h"
 #include "Commons.h"
 #include "NotificationObserver.h"
-#include <QStandardPaths>
-#include <QApplication>
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "DownloadFileManager.h"
-
-#include <map>
 
 using namespace update_system;
 
@@ -343,6 +345,17 @@ bool CUpdaterComponentE2E::update_available_internal(){
 chue_t CUpdaterComponentE2E::install_internal(){
     qDebug()
             << "Starting install subutai e2e";
+    if(CSettingsManager::Instance().default_browser() == "Chrome"){
+        QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                                               QObject::tr("Control Center will restart your Chrome. Make sure you saved all your work.\n"
+                                                           "After installation make sure you will approve extension"),
+                                               QMessageBox::Yes | QMessageBox::No);
+        QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+        if (msg_box->exec() != QMessageBox::Yes) {
+            install_finished_sl(false);
+            return CHUE_SUCCESS;
+        }
+    }
     static QString empty_stings = "";
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(empty_stings, empty_stings, CC_E2E);
