@@ -2582,7 +2582,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QStr
          */
         CSystemCallWrapper::chrome_version(version);
         if(version == "undefined"){
-            version = QObject::tr("Install Google Chrome first");
+            version = QObject::tr("Any supporting browser available");
             return SCWE_SUCCESS;
         }
         /*
