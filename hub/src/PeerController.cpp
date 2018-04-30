@@ -10,22 +10,20 @@
 
 
 CPeerController::CPeerController(QObject *parent) :
-    QObject(parent){
-        m_refresh_timer.setInterval(6*1000); // each 6 seconds update peer list
-        m_logs_timer.setInterval(3*1000); // 2 seconds update peer list
-        number_threads = 0;
-        connect(&m_refresh_timer, &QTimer::timeout,
-              this, &CPeerController::refresh_timer_timeout);
-        connect(&m_logs_timer, &QTimer::timeout,
-                this, &CPeerController::check_logs);
-        m_refresh_timer.start();
-        m_logs_timer.start();
-}
+    QObject(parent){}
 
-CPeerController::~CPeerController() {
-}
+CPeerController::~CPeerController() {}
 
 void CPeerController::init() {
+    m_refresh_timer.setInterval(6*1000); // each 6 seconds update peer list
+    m_logs_timer.setInterval(3*1000); // 2 seconds update peer list
+    number_threads = 0;
+    connect(&m_refresh_timer, &QTimer::timeout,
+          this, &CPeerController::refresh_timer_timeout);
+    connect(&m_logs_timer, &QTimer::timeout,
+            this, &CPeerController::check_logs);
+    m_refresh_timer.start();
+    m_logs_timer.start();
     refresh();
 }
 

@@ -1979,6 +1979,35 @@ system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &di
 template<class OS>
 system_call_wrapper_error_t install_e2e_chrome_internal();
 template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_WIN> >(){
+    //cretate key in registry
+    QString cmd("REG");
+    QStringList args;
+    QString ex_id = subutai_e2e_id(CSettingsManager::Instance().default_browser());
+    args << "ADD"<< QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id)
+         << "/v" << "update_url"
+         << "/t" << "REG_SZ"
+         << "/d" << "https://clients2.google.com/service/update2/crx"
+         << "/f";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "failed to install e2e on chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    //close chrome
+    cmd = "taskkill";
+    args.clear();
+    args << "/F" << "/IM" << "chrome.exe" << "/T";
+    res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+        qCritical() << "failed to close chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    return SCWE_SUCCESS;
+}
+template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
     QJsonObject json;
     json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
@@ -2573,18 +2602,33 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QStrin
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
 template<>
-system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
     QString current_browser = CSettingsManager::Instance().default_browser();
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     if (current_browser == "Chrome"){
         /*
-         * check if chrome installed first
-         */
-        CSystemCallWrapper::chrome_version(version);
-        if(version == "undefined"){
-            version = QObject::tr("Any supporting browser available");
-            return SCWE_SUCCESS;
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString extension_path = QString("%1%3\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path());
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[2];
+            }
         }
+    }
+    return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
         /*
          * to get version of chrome extension just check path
          * */
@@ -2602,6 +2646,14 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QStr
     return SCWE_CREATE_PROCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
+    /*
+     * check if chrome installed first
+     */
+    CSystemCallWrapper::chrome_version(version);
+    if(version == "undefined"){
+        version = QObject::tr("Any supporting browser available");
+        return SCWE_SUCCESS;
+    }
     version = "undefined";
     return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
 }
@@ -2753,7 +2805,6 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
           s = s.trimmed();
           if(s.isEmpty()) continue;
           QStringList buf = s.split(" ", QString::SkipEmptyParts);
-          qDebug() << "look me please ->" << s << buf.size();
           if(buf.size() == 3){
               version = buf[2];
               break;
