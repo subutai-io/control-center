@@ -1993,29 +1993,34 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
                                                       subutai_e2e_id(CSettingsManager::Instance().default_browser()));
 
     qDebug() << tmpFilePath;
-    QJsonDocument preference_json(json);
-    QFile preference_file(tmpFilePath);
-    preference_file.open(QFile::WriteOnly);
-    preference_file.write(preference_json.toJson());
-    preference_file.close();
     QString cmd("osascript");
     QStringList args;
     args << "-e"
          << "tell application \"Google Chrome\" to quit";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    if(res.res != SCWE_SUCCESS && res.exit_code != 0){
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
+    args.clear();
+    args << "-e"
+         << "do shell script \"mkdir -p ~/Library/Application\\\\ Support/Google/Chrome/External\\\\ Extensions\"";
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    QJsonDocument preference_json(json);
+    QFile preference_file(tmpFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
     static QString plugin_link = "https://chrome.google.com/webstore/detail/subutai-e2e-plugin/" + subutai_e2e_id(CSettingsManager::Instance().default_browser());
     args.clear();
     args << "-e"
          << "tell application \"Google Chrome\" to activate";
     CHubController::Instance().launch_browser(plugin_link);
     res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    if(res.res != SCWE_SUCCESS && res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return SCWE_SUCCESS;
+    // exit code returning 1 but process is working, need investigate something wrong here
+    return res.res;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
     installer_is_busy.lock();
