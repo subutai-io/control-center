@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QMessageBox>
 
 #include "HubController.h"
 #include "NotificationObserver.h"
@@ -1356,7 +1357,8 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
   QStringList args;
   QString file_path  = dir + "/" + file_name;
   args << "-e"
-       << QString("do shell script \"hdiutil attach %1; cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
+       << QString("do shell script \"hdiutil attach %1; "
+                  "cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   return res.res;
 }
@@ -1818,6 +1820,294 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
     system_call_wrapper_error_t res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
     installer_is_busy.unlock();
     return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name){
+    qInfo() << "CC started to install google chrome";
+    QString cmd("osascript");
+    QStringList args;
+    QString file_path  = dir + "/" + file_name;
+    args << "-e"
+         << QString("do shell script \"hdiutil attach -nobrowse %1; "
+                    "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+    qDebug() << "Installation of chrome finished"
+             << "Result code: " << res.res
+             << "Exit code: " << res.exit_code
+             << "Output messages" << res.out;
+    if(res.exit_code != 0){
+        res.res = SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+template<>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "chrome_installer.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "dpkg -i %1;"
+                                    "if test $? -gt 0\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %1;"
+                                    "else\n"
+                                    "rm %1\n"
+                                    "fi")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+                QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+
+    qDebug()<<"Chrome installation started"
+            <<"gksu_path:"<<gksu_path
+            <<"args2:"<<args2;
+
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    qDebug()<<"Chrome installation finished:"
+            <<"exit code:"<<cr2.exit_code
+            <<"result code:"<<cr2.res
+            <<"output:"<<cr2.out;
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+      qCritical() << err_msg;
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(dir+"/"+file_name);
+    QStringList args0;
+    args0 << "/install";
+
+    qDebug()
+            <<"Installing package chrome:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
+    qDebug()
+            <<"Installing package chrome finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+    installer_is_busy.unlock();
+    return res;
+}
+
+template<class OS>
+system_call_wrapper_error_t install_e2e_chrome_internal();
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath = QString("%1/%2.json")
+            .arg(lst_temp[0],
+            subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+
+    qDebug() << tmpFilePath;
+    QJsonDocument preference_json(json);
+    QFile preference_file(tmpFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    QString cmd("pkill");
+    QStringList args;
+    args << "--oldest"
+         << "chrome";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS){
+        qCritical() << "Failed to close chrome"
+                    << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    args.clear();
+    cmd = "gksu";
+    args << "--message"
+         << "Allow Control Center to install Subutai E2E plugin"
+         << "--"
+         << "bash"
+         << "-c"
+         << QString("mkdir -p /opt/google/chrome/extensions; "
+            "cp -p %1 /opt/google/chrome/extensions/").arg(tmpFilePath);
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to install e2e"
+                    << res.exit_code
+                    << res.out;
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_WIN> >(){
+    //cretate key in registry
+    QString cmd("REG");
+    QStringList args;
+    QString ex_id = subutai_e2e_id(CSettingsManager::Instance().default_browser());
+    args << "ADD"<< QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id)
+         << "/v" << "update_url"
+         << "/t" << "REG_SZ"
+         << "/d" << "https://clients2.google.com/service/update2/crx"
+         << "/f";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "failed to install e2e on chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    //close chrome
+    cmd = "taskkill";
+    args.clear();
+    args << "/F" << "/IM" << "chrome.exe" << "/T";
+    res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+        qCritical() << "failed to close chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+    if (home_path.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard home location");
+      qCritical() << err_msg;
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString jsonFilePath = QString("%1/Library/Application Support/Google/Chrome/External Extensions/%2.json").arg(home_path[0], subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+    QString cmd("osascript");
+    QStringList args;
+    args << "-e"
+         << "tell application \"Google Chrome\" to quit";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to close Chrome"
+                    << "Exit code: " << res.exit_code
+                    << "Output: " << res.out;
+        return SCWE_CREATE_PROCESS;
+    }
+    args.clear();
+    args << "-e"
+         << "do shell script \"mkdir -p ~/Library/Application\\\\ Support/Google/Chrome/External\\\\ Extensions\"";
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    QJsonDocument preference_json(json);
+    QFile preference_file(jsonFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    return res.res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_e2e_chrome_internal<Os2Type<CURRENT_OS> > ();
+    installer_is_busy.unlock();
+    return res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    if(current_browser == "Chrome"){
+        return install_e2e_chrome();
+    }
+    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
@@ -2351,6 +2641,88 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QStrin
     return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString cmd("ls");
+        QString ex_id = subutai_e2e_id(current_browser);
+        QStringList args;
+        args << QString("%1%3/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path());
+        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
+            version = res.out[res.out.size() - 1];
+        }
+    }
+    return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
+    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString cmd("ls");
+        QString ex_id = subutai_e2e_id(current_browser);
+        QStringList args;
+        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").arg(homePath.first().split(QDir::separator()).last(), ex_id);
+        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
+            version = res.out[res.out.size() - 1];
+        }
+    }
+    return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString extension_path = QString("%1%3\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path());
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[extension_entry_list.size() - 1];
+            }
+        }
+    }
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
+    /*
+     * check if chrome installed first
+     */
+    CSystemCallWrapper::chrome_version(version);
+    if(version == "undefined"){
+        version = QObject::tr("No supporting browser is available");
+        return SCWE_SUCCESS;
+    }
+    version = "undefined";
+    return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
@@ -2479,11 +2851,32 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC> >(
 template <>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
-  version = "Couldn't get version on Win, sorry";
-#if defined(RT_OS_WINDOWS)
-  // todo implement  with reading registry value
-#endif
-  return SCWE_SUCCESS;
+  version = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"
+    << "/v"
+    << "DisplayVersion";
+  qDebug()<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got chrome version"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+      for (QString s : res.out){
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          if(buf.size() == 3){
+              version = buf[2];
+              break;
+          }
+      }
+  }
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::chrome_version(

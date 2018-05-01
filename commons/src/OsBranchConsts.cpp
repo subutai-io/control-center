@@ -146,6 +146,20 @@ vagrant_kurjun_package_name(){
     return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS> const QString& chrome_kurjun_package_name_internal();
+#define chrome_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& chrome_kurjun_package_name_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+chrome_kurjun_package_name_def(OS_MAC, "googlechrome.dmg")
+chrome_kurjun_package_name_def(OS_LINUX, "google-chrome-stable_current_amd64.deb")
+chrome_kurjun_package_name_def(OS_WIN, "ChromeSetup.exe")
+const QString& chrome_kurjun_package_name(){
+    return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
 #define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -312,6 +326,25 @@ hub_billing_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/%1"
 const QString &
 hub_billing_url() {
   return hub_billing_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QStringList& supported_browsers_internal();
+
+#define supported_browsers_internal_def(OS_TYPE, STRING) \
+    template <> \
+    const QStringList& supported_browsers_internal<Os2Type <OS_TYPE> >() { \
+        static QString st(STRING); \
+        static QStringList res = st.split(" "); \
+        return res; \
+    }
+
+supported_browsers_internal_def(OS_WIN, "Chrome") // add edge, mozilla
+supported_browsers_internal_def(OS_LINUX, "Chrome") // add mozilla
+supported_browsers_internal_def(OS_MAC, "Chrome") // add safari , mozilla
+
+const QStringList& supported_browsers(){
+    return supported_browsers_internal<Os2Type <CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -737,7 +770,24 @@ base_interface_name() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_chrome_extensions_path_internal();
 
+#define default_chrome_extensions_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_chrome_extensions_path_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_chrome_extensions_path_internal_def(OS_WIN, "/AppData/Local/Google/Chrome/User Data/Default/Extensions")
+default_chrome_extensions_path_internal_def(OS_MAC, "/Library/Application Support/Google/Chrome/External Extensions")
+default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/Default/Extensions")
+
+const QString&
+default_chrome_extensions_path() {
+    return default_chrome_extensions_path_internal< Os2Type<CURRENT_OS> >();
+}
+///////////////////////////////////////////////////////////////////////////////
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
     v.clear();
     QString flag, st;
@@ -768,5 +818,19 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v){
         break;
     default:
         break;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+const QString& default_default_browser(){
+    static QString res("Chrome");
+    return res;
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& subutai_e2e_id(const QString& current_browser){
+    if(current_browser == "Chrome"){
+        static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
+        return res;
     }
 }

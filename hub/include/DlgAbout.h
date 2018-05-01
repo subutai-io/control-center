@@ -17,7 +17,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 public:
     DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
-  static const int COMPONENTS_COUNT = 14;
+  static const int COMPONENTS_COUNT = 13;
 public:
   void do_initialization();
   void abort();
@@ -44,6 +44,7 @@ signals:
   void got_x2go_version(QString version);
   void got_vagrant_version(QString version);
   void got_oracle_virtualbox_version(QString version);
+  void got_e2e_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -74,6 +75,10 @@ private:
   std::map<QString, progress_item_t> m_dct_fpb;
 
   void check_for_versions_and_updates();
+  //hide some soft
+  void set_visible_chrome(bool value);
+  void set_visible_firefox(bool value);
+  QString current_browser;
 
 private slots:
   void btn_tray_update_released();
@@ -83,6 +88,8 @@ private slots:
   void btn_x2go_update_released();
   void btn_vagrant_update_released();
   void btn_oracle_virtualbox_update_released();
+  void btn_chrome_update_release();
+  void btn_e2e_update_released();
   void btn_recheck_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
@@ -100,6 +107,7 @@ private slots:
   void got_x2go_version_sl(QString version);
   void got_vagrant_version_sl(QString version);
   void got_oracle_virtualbox_version_sl(QString version);
+  void got_e2e_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 
