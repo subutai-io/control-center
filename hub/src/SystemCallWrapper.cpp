@@ -2660,9 +2660,10 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
             version = res.out[res.out.size() - 1];
+            return SCWE_SUCCESS;
         }
     }
-    return SCWE_SUCCESS;
+    return SCWE_CREATE_PROCESS;
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
@@ -2690,10 +2691,11 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
             qDebug() << "extension entry" << extension_entry_list;
             if(!extension_entry_list.isEmpty()){
                 version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
             }
         }
     }
-    return SCWE_SUCCESS;
+    return SCWE_CREATE_PROCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
     /*

@@ -130,6 +130,9 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
+  if(!is_e2e_avaibale()){
+      CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's recommended to install it"), DlgNotification::N_ABOUT);
+  }
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -1352,6 +1355,10 @@ void TrayControlWindow::ssh_to_container_finished(
 }
 
 ////////////////////////////////////////////////////////////////////////////
+bool TrayControlWindow::is_e2e_avaibale(){
+    QString version_e2e;
+    return CSystemCallWrapper::subutai_e2e_version(version_e2e) == SCWE_SUCCESS;
+}
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::desktop_to_container_finished(
     const CEnvironment &env,
