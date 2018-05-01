@@ -224,9 +224,6 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   if(twi_operation_status == nullptr)
       return;
 
-  if(&file_to_transfer == nullptr)
-        return;
-
   //refresh_local_file_system();
   //refresh_remote_file_system();
 

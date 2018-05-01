@@ -29,6 +29,7 @@ const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
+const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -174,6 +175,7 @@ CSettingsManager::CSettingsManager()
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
+      m_default_browser(default_default_browser()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -255,6 +257,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
+      {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
 
       // bool
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -572,6 +575,11 @@ void CSettingsManager::set_vagrant_path(QString vagrant_path) {
   QString sl = QFile::symLinkTarget(vagrant_path);
   m_vagrant_path = sl == "" ? vagrant_path : sl;
   m_settings.setValue(SM_VAGRANT_PATH, m_vagrant_path);
+}
+
+void CSettingsManager::set_default_browser(QString fr){
+    m_default_browser = fr;
+    m_settings.setValue(SM_DEFAULT_BROWSER, m_default_browser);
 }
 
 void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
