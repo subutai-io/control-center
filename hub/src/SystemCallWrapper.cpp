@@ -2062,26 +2062,24 @@ template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
     QJsonObject json;
     json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
-    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
-    if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+    if (home_path.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard home location");
       qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
     }
 
-    QString tmpFilePath = QString("%1%2/%3.json").arg(lst_temp[0],
-                                                      default_chrome_extensions_path(),
-                                                      subutai_e2e_id(CSettingsManager::Instance().default_browser()));
-
-    qDebug() << tmpFilePath;
+    QString jsonFilePath = QString("%1/Library/Application Support/Google/Chrome/External Extensions/%2.json").arg(home_path[0], subutai_e2e_id(CSettingsManager::Instance().default_browser()));
     QString cmd("osascript");
     QStringList args;
     args << "-e"
          << "tell application \"Google Chrome\" to quit";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to close Chrome"
+                    << "Exit code: " << res.exit_code
+                    << "Output: " << res.out;
         return SCWE_CREATE_PROCESS;
     }
     args.clear();
@@ -2092,7 +2090,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
         return SCWE_CREATE_PROCESS;
     }
     QJsonDocument preference_json(json);
-    QFile preference_file(tmpFilePath);
+    QFile preference_file(jsonFilePath);
     preference_file.open(QFile::WriteOnly);
     preference_file.write(preference_json.toJson());
     preference_file.close();
@@ -2671,7 +2669,23 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QS
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
-    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString cmd("ls");
+        QString ex_id = subutai_e2e_id(current_browser);
+        QStringList args;
+        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").arg(homePath.first().split(QDir::separator()).last(), ex_id);
+        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
+            version = res.out[res.out.size() - 1];
+        }
+    }
+    return SCWE_SUCCESS;
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
@@ -2702,7 +2716,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
      */
     CSystemCallWrapper::chrome_version(version);
     if(version == "undefined"){
-        version = QObject::tr("Any supporting browser available");
+        version = QObject::tr("No supporting browser is available");
         return SCWE_SUCCESS;
     }
     version = "undefined";
