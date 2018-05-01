@@ -779,9 +779,9 @@ template<class OS> const QString& default_chrome_extensions_path_internal();
     return res; \
   }
 
-default_chrome_extensions_path_internal_def(OS_WIN, "/AppData/Local/Google/Chrome/User Data/Default/Extensions")
-default_chrome_extensions_path_internal_def(OS_MAC, "/Library/Application Support/Google/Chrome/External Extensions")
-default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/Default/Extensions")
+default_chrome_extensions_path_internal_def(OS_WIN, "/AppData/Local/Google/Chrome/User Data/")
+default_chrome_extensions_path_internal_def(OS_MAC, "/Library/Application Support/Google/Chrome/")
+default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/")
 
 const QString&
 default_chrome_extensions_path() {

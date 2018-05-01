@@ -209,6 +209,8 @@ class CSystemCallWrapper {
 
   static QStringList lsb_release();
 
+  static bool chrome_last_section();
+
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,

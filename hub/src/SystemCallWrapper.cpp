@@ -2655,13 +2655,15 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
-        args << QString("%1%3/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path());
+        QString chrome_profile = "Default";
+        args << QString("%1%3%4/Extensions/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path(), chrome_profile);
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
             version = res.out[res.out.size() - 1];
+            return SCWE_SUCCESS;
         }
     }
-    return SCWE_SUCCESS;
+    return SCWE_CREATE_PROCESS;
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
@@ -2669,23 +2671,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QS
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
-    QString current_browser = CSettingsManager::Instance().default_browser();
-    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    if (current_browser == "Chrome"){
-        /*
-         * to get version of chrome extension just check path
-         * */
-        version = "undefined";
-        QString cmd("ls");
-        QString ex_id = subutai_e2e_id(current_browser);
-        QStringList args;
-        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").arg(homePath.first().split(QDir::separator()).last(), ex_id);
-        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
-            version = res.out[res.out.size() - 1];
-        }
-    }
-    return SCWE_SUCCESS;
+    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
@@ -2697,7 +2683,8 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
          * */
         version = "undefined";
         QString ex_id = subutai_e2e_id(current_browser);
-        QString extension_path = QString("%1%3\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path());
+        QString chrome_profile = "Default";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
         QDir extension_dir(extension_path);
         if(extension_dir.exists()){
             extension_dir.setFilter(QDir::Dirs);
@@ -2705,10 +2692,30 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
             qDebug() << "extension entry" << extension_entry_list;
             if(!extension_entry_list.isEmpty()){
                 version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
             }
         }
     }
-    return SCWE_SUCCESS;
+    if(current_browser == "Chrome" && version == "undefined"){
+        /* get the extension version from secondary profile
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString chrome_profile = "Profile 3";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
+            }
+        }
+    }
+    return SCWE_CREATE_PROCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
     /*
@@ -2884,6 +2891,14 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
   return chrome_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 
+////////////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::chrome_last_section(){
+    QString cmd = CSettingsManager::Instance().chrome_path();
+    QStringList args;
+    args << "--restore-last-session";
+    return QProcess::startDetached(cmd, args);
+
+}
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(

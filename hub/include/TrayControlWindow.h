@@ -82,6 +82,7 @@ public:
   std::map<QString, CMyPeerInfo> hub_peers_table;
   std::map<QString, std::pair<QString, bool> > network_peers_table;
   std::map<QString, my_peer_button*> my_peers_button_table;
+  bool is_e2e_avaibale();
 private:
   Ui::TrayControlWindow *ui;
   static QDialog *last_generated_env_dlg(QWidget *p);
