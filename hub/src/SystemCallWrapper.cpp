@@ -2696,6 +2696,25 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
             }
         }
     }
+    if(current_browser == "Chrome" && version == "undefined"){
+        /* get the extension version from secondary profile
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString chrome_profile = "Profile 3";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
+            }
+        }
+    }
     return SCWE_CREATE_PROCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){

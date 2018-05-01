@@ -271,27 +271,25 @@ void CHubController::force_refresh() {
 
 
 void CHubController::launch_browser(const QString &url) {
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  qDebug() << "Trying to launch the browser with url: " << url;
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if(current_browser == "Chrome"){
+      QString chrome_path = CSettingsManager::Instance().chrome_path();
+      qDebug() << "Trying to launch the browser with url: " << url;
 
-  if (CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << url;
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch bazaar website with google chrome failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(QUrl(url))) {
-      QString err_msg =
-          tr("Launch bazaar website with default browser failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+      if (CCommons::IsApplicationLaunchable(chrome_path)) {
+        QStringList args;
+        args << "--new-window";
+        args << url;
+        if (!QProcess::startDetached(chrome_path, args)) {
+          QString err_msg = tr("Launch bazaar website with google chrome failed");
+          CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+          qCritical("%s", err_msg.toStdString().c_str());
+        }
+      }
+      else {
+          CNotificationObserver::Error(tr("Please install Google Chrome first. You can install it from \"About\" section"), DlgNotification::N_ABOUT);
+        }
+      }
 }
 
 void CHubController::launch_balance_page() {
