@@ -2655,7 +2655,8 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
-        args << QString("%1%3/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path());
+        QString chrome_profile = "Default";
+        args << QString("%1%3%4/Extensions/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path(), chrome_profile);
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
             version = res.out[res.out.size() - 1];
@@ -2669,23 +2670,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QS
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
-    QString current_browser = CSettingsManager::Instance().default_browser();
-    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    if (current_browser == "Chrome"){
-        /*
-         * to get version of chrome extension just check path
-         * */
-        version = "undefined";
-        QString cmd("ls");
-        QString ex_id = subutai_e2e_id(current_browser);
-        QStringList args;
-        args << QString("/Users/%1/Library/Application Support/Google/Chrome/Default/Extensions/%2/").arg(homePath.first().split(QDir::separator()).last(), ex_id);
-        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
-            version = res.out[res.out.size() - 1];
-        }
-    }
-    return SCWE_SUCCESS;
+    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
 }
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
