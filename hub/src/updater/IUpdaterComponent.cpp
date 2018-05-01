@@ -8,6 +8,7 @@
 #include "updater/HubComponentsUpdater.h"
 #include "DlgNotification.h"
 #include "SettingsManager.h"
+#include "HubController.h"
 #include "Commons.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -371,7 +372,18 @@ chue_t CUpdaterComponentE2E::update_internal(){
 void CUpdaterComponentE2E::update_post_action(bool success){
     UNUSED_ARG(success);
 }
-void CUpdaterComponentE2E::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Subutai E2E installation failed. Please try to install manually"), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Subutai E2E  has been installed. Please approve installation from your browser"), DlgNotification::N_NO_ACTION);
+void CUpdaterComponentE2E::install_post_interntal(bool success){
+    if(!success){
+        CNotificationObserver::Instance()->Info(tr("Subutai E2E failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        return;
+    }
+    QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                                           QObject::tr("Subutai E2E have been installed to your browser\n"
+                                                       "Make sure you will approve installation from chrome://extensions. Otherwise E2E might not work\n"),
+                                           QMessageBox::Ok);
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    static QString post_install_link = "https://subutai.io/";
+    if(msg_box->exec() == QMessageBox::Ok){
+        CHubController::Instance().launch_browser(post_install_link);
+    }
 }
