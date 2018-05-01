@@ -2683,7 +2683,8 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
          * */
         version = "undefined";
         QString ex_id = subutai_e2e_id(current_browser);
-        QString extension_path = QString("%1%3\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path());
+        QString chrome_profile = "Default";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
         QDir extension_dir(extension_path);
         if(extension_dir.exists()){
             extension_dir.setFilter(QDir::Dirs);
