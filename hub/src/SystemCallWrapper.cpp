@@ -1980,7 +1980,54 @@ template<class OS>
 system_call_wrapper_error_t install_e2e_chrome_internal();
 template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
-    CNotificationObserver::Instance()->Info("hello mazafaka", DlgNotification::N_NO_ACTION);
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath = QString("%1/%2.json")
+            .arg(lst_temp[0],
+            subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+
+    qDebug() << tmpFilePath;
+    QJsonDocument preference_json(json);
+    QFile preference_file(tmpFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    QString cmd("pkill");
+    QStringList args;
+    args << "--oldest"
+         << "chrome";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS){
+        qCritical() << "Failed to close chrome"
+                    << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    args.clear();
+    cmd = "gksu";
+    args << "--message"
+         << "Allow Control Center to install Subutai E2E plugin"
+         << "--"
+         << "bash"
+         << "-c"
+         << QString("mkdir -p /opt/google/chrome/extensions; "
+            "cp -p %1 /opt/google/chrome/extensions/").arg(tmpFilePath);
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to install e2e"
+                    << res.exit_code
+                    << res.out;
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
 }
 template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_WIN> >(){
