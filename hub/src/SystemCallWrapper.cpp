@@ -1979,6 +1979,10 @@ system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &di
 template<class OS>
 system_call_wrapper_error_t install_e2e_chrome_internal();
 template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
+    CNotificationObserver::Instance()->Info("hello mazafaka", DlgNotification::N_NO_ACTION);
+}
+template<>
 system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_WIN> >(){
     //cretate key in registry
     QString cmd("REG");
@@ -2045,13 +2049,6 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
     preference_file.open(QFile::WriteOnly);
     preference_file.write(preference_json.toJson());
     preference_file.close();
-    static QString plugin_link = "https://chrome.google.com/webstore/detail/subutai-e2e-plugin/" + subutai_e2e_id(CSettingsManager::Instance().default_browser());
-    args.clear();
-    args << "-e"
-         << "tell application \"Google Chrome\" to activate";
-    CHubController::Instance().launch_browser(plugin_link);
-    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    // exit code returning 1 but process is working, need investigate something wrong here
     return res.res;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
@@ -2601,6 +2598,9 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QStrin
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
+}
 template<>
 system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
     QString current_browser = CSettingsManager::Instance().default_browser();
