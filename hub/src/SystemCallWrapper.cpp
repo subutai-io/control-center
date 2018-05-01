@@ -2870,6 +2870,14 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
 }
 
 ////////////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::chrome_last_section(){
+    QString cmd = CSettingsManager::Instance().chrome_path();
+    QStringList args;
+    args << "--restore-last-session";
+    return QProcess::startDetached(cmd, args);
+
+}
+////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(
     system_call_wrapper_error_t err) {

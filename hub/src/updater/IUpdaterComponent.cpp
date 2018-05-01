@@ -379,11 +379,15 @@ void CUpdaterComponentE2E::install_post_interntal(bool success){
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
                                            QObject::tr("Subutai E2E have been installed to your browser\n"
-                                                       "Make sure you will approve installation from chrome://extensions. Otherwise E2E might not work\n"),
-                                           QMessageBox::Ok);
+                                                       "If E2E is not appeared, please approve installation from chrome://extensions.\n"
+                                                       "Do you want to learn more about Subutai E2E ?"),
+                                           QMessageBox::Yes | QMessageBox::No);
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-    static QString post_install_link = "https://subutai.io/";
-    if(msg_box->exec() == QMessageBox::Ok){
+    static QString post_install_link = "https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html";
+    if(msg_box->exec() == QMessageBox::Yes){
         CHubController::Instance().launch_browser(post_install_link);
+    }
+    else{
+        CSystemCallWrapper::chrome_last_section();
     }
 }
