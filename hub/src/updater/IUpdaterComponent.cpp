@@ -378,8 +378,8 @@ void CUpdaterComponentE2E::install_post_interntal(bool success){
         return;
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
-                                           QObject::tr("<br>Subutai E2E have been installed to your browser</br>"
-                                                       "<br>If E2E is not appeared, please approve installation from chrome://extensions.\n\t</br>"
+                                           QObject::tr("<br>Subutai E2E has been installed to your browser</br>"
+                                                       "<br>If E2E does not appear, please approve installation from chrome://extensions.\n\t</br>"
                                                        "<br><a href='https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html'>"
                                                        "Learn more about Subutai E2E."
                                                        "</a></br>"),
