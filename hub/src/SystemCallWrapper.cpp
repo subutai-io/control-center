@@ -2895,7 +2895,8 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
 bool CSystemCallWrapper::chrome_last_section(){
     QString cmd = CSettingsManager::Instance().chrome_path();
     QStringList args;
-    args << "--restore-last-session";
+    args << "--restore-last-session"
+         << "--profile-directory=Default";
     return QProcess::startDetached(cmd, args);
 
 }
