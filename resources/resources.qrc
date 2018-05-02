@@ -63,6 +63,6 @@
         <file>cc_splash.png</file>
         <file>cc_icon.png</file>
         <file>cc_icon_mac.icns</file>
+        <file>cc_icon_win_whitebg.png</file>
     </qresource>
-    <qresource prefix="/"/>
 </RCC>
