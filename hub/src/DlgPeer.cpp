@@ -540,7 +540,7 @@ void DlgPeer::destroyPeer(){
     if(peer_status == "broken"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
-            CNotificationObserver::Instance()->Info(tr("Peer have been destroyed."), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("Peer has been destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{

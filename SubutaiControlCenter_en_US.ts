@@ -1208,7 +1208,8 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="543"/>
-        <source>Peer have been destroyed.</source>
+        <source>Peer has been destroyed.</source>
+        <oldsource>Peer have been destroyed.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2264,8 +2265,10 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="381"/>
-        <source>&lt;br&gt;Subutai E2E have been installed to your browser&lt;/br&gt;&lt;br&gt;If E2E is not appeared, please approve installation from chrome://extensions.
+        <source>&lt;br&gt;Subutai E2E has been installed to your browser&lt;/br&gt;&lt;br&gt;If E2E does not appear, please approve installation from chrome://extensions.
 	&lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</source>
+        <oldsource>&lt;br&gt;Subutai E2E have been installed to your browser&lt;/br&gt;&lt;br&gt;If E2E is not appeared, please approve installation from chrome://extensions.
+	&lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
