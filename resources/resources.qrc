@@ -64,5 +64,7 @@
         <file>cc_icon.png</file>
         <file>cc_icon_mac.icns</file>
         <file>cc_icon_win_whitebg.png</file>
+        <file>cc_icon_outline.png</file>
+        <file>cc_icon_last.png</file>
     </qresource>
 </RCC>
