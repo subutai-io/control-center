@@ -1009,12 +1009,11 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
   QString cmd;
   cmd = CSettingsManager::Instance().terminal_cmd();
   QStringList args;
-  args << QString("-e");
-  qInfo("Launch command : %s",
-                                       str_command.toStdString().c_str());
-
-  args << QString("Tell application \"%1\" to %2 \"%3\"")
-              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  qInfo("Launch command : %s",str_command.toStdString().c_str());
+  args << "-e" << QString("Tell application \"%1\"").arg(cmd)
+       << "-e" << QString("%1 \"%2\"").arg(CSettingsManager::Instance().terminal_arg(), str_command)
+       << "-e" << "activate"
+       << "-e" << "end tell";
   return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
