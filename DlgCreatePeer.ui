@@ -229,11 +229,6 @@
        <string>Debian Stretch</string>
       </property>
      </item>
-     <item>
-      <property name="text">
-       <string>Ubuntu Xenial</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="15" column="1">
