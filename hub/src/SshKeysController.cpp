@@ -23,7 +23,6 @@ CSshKeysController::CSshKeysController()
   m_refresh_files_timer->setInterval(5000);
 
   refresh_key_files();
-  rebuild_bit_matrix();
 
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &CSshKeysController::environments_updated);
