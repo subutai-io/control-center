@@ -279,7 +279,8 @@ void CHubController::launch_browser(const QString &url) {
       if (CCommons::IsApplicationLaunchable(chrome_path)) {
         QStringList args;
         args << "--new-window";
-        args << url;
+        args << url
+             << "--profile-directory=Default";
         if (!QProcess::startDetached(chrome_path, args)) {
           QString err_msg = tr("Launch bazaar website with google chrome failed");
           CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
