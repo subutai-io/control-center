@@ -21,6 +21,7 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "SettingsManager.h"
+#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "libssh2/include/LibsshController.h"
@@ -89,6 +90,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
   CPeerController::Instance()->init();
+  CSshKeysController::Instance();
 
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
           this, &TrayControlWindow::notification_received);
