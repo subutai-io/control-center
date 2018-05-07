@@ -282,8 +282,9 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_logout);
   m_act_logout->tr("Sign out from your account");
 
-  m_tray_menu->addAction(m_act_quit);
+
   m_act_quit->tr("Your application will quit");
+  m_tray_menu->addAction(m_act_quit);
 
   m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon.png"));
 }
@@ -876,7 +877,6 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name){
     }
     CPeerController::Instance()->finish_current_update();
 }
-
 void TrayControlWindow::update_peer_button(const QString &peer_id, const CLocalPeer &peer_info){
     qDebug() << "update peer button information wih local peer";
     if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
