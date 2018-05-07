@@ -236,8 +236,6 @@ void TrayControlWindow::create_tray_actions() {
   m_empty_action->setEnabled(false);
 }
 ////////////////////////////////////////////////////////////////////////////
-
-
 void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
@@ -259,20 +257,36 @@ void TrayControlWindow::create_tray_icon() {
   m_hub_peer_menu->addAction(m_empty_action);
   m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
                                      tr("Local Peers"));
+
   m_local_peer_menu->addAction(m_empty_action);
+
   m_tray_menu->addAction(m_act_create_peer);
+  m_act_create_peer->tr("You can creweeate  your peers");
+
   m_tray_menu->addSeparator();
+
   m_tray_menu->addAction(m_act_settings);
+  m_act_settings->tr("Here you can see their settings");
+
   m_tray_menu->addAction(m_act_ssh_keys_management);
+  m_act_ssh_keys_management->setToolTip("You can generate SSH keys");
+
   m_tray_menu->addAction(m_act_notifications_history);
+  m_act_notifications_history->setToolTip("Notification aboutt all components ");
+
   m_tray_menu->addSeparator();
+
   m_tray_menu->addAction(m_act_about);
+  m_act_about->tr("Information about CC");
+
   m_tray_menu->addAction(m_act_logout);
+  m_act_logout->tr("Sign out from your account");
+
   m_tray_menu->addAction(m_act_quit);
+  m_act_quit->tr("Your application will quit");
 
   m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon.png"));
 }
-
 void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
     int& src_x, int& src_y, int& dst_x, int& dst_y, int dlg_w, int dlg_h,
     bool use_cursor_position) {
@@ -299,7 +313,6 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
       icon_y = coords[pc * 2 + 1];
     }
   }
-
   int dx, dy;
   dy = QApplication::desktop()->availableGeometry().y();
   dx = QApplication::desktop()->availableGeometry().x();
@@ -327,7 +340,6 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
     m_sys_tray_icon->contextMenu()->exec(QPoint(QCursor::pos().x() ,QCursor::pos().y()));
   }
 }
-
 ////////////////////////////////////////////////////////////////////////////
 
 static QPoint lastNotificationPos(0, 0);
