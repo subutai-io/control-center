@@ -47,11 +47,11 @@ void DlgEnvironment::upload_selected() {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
-      emit upload_to_container_sig(&env, &cont);
+      emit upload_to_container_sig(env, cont);
     }
   }
 
-  QTimer::singleShot(2000, [this](){
+  QTimer::singleShot(2000, this, [this](){
     this->ui->btn_upload_selected->setEnabled(true);
     this->ui->btn_upload_selected->setText(tr("Transfer File"));
   });
@@ -68,10 +68,10 @@ void DlgEnvironment::desktop_selected() {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
-      emit desktop_to_container_sig(&env, &cont);
+      emit desktop_to_container_sig(env, cont);
     }
   }
-  QTimer::singleShot(2000, [this](){
+  QTimer::singleShot(2000, this, [this](){
     this->ui->btn_desktop_selected->setEnabled(true);
     this->ui->btn_desktop_selected->setText(tr("Remote Desktop"));
   });
@@ -88,10 +88,10 @@ void DlgEnvironment::ssh_selected() {
     QCheckBox *current_check_box = selected_conts[cont.id()];
     if (current_check_box->isChecked())
     {
-      emit ssh_to_container_sig(&env, &cont);
+      emit ssh_to_container_sig(env, cont);
     }
   }
-  QTimer::singleShot(2000, [this](){
+  QTimer::singleShot(2000, this, [this](){
     this->ui->btn_ssh_selected->setEnabled(true);
     this->ui->btn_ssh_selected->setText(tr("SSH"));
   });
@@ -221,6 +221,9 @@ void DlgEnvironment::check_environment_status() {
   qDebug()
       << "Checking the status of environment " << env.name();
   static int state_all;
+  if(TrayControlWindow::Instance()->environments_table.find(env.id()) == TrayControlWindow::Instance()->environments_table.end()){
+      this->close();
+  }
   CEnvironment update_env = TrayControlWindow::Instance()->environments_table[env.id()];
   if(update_env.status() != env.status())
       this->close();

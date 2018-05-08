@@ -55,6 +55,7 @@ private:
 
   QTimer m_refresh_rh_list_timer;
   int m_refresh_rh_list_progress_val;
+  QString current_browser;
   void rebuild_rh_list_model();
 
 private slots:
@@ -64,6 +65,7 @@ private slots:
   void btn_p2p_file_dialog_released();
   void btn_scp_command_released();
   void btn_ssh_command_released();
+  void btn_virtualbox_command_release();
   void btn_x2goclient_command_released();
   void btn_ssh_keygen_command_released();
   void btn_logs_storage_released();

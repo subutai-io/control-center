@@ -93,16 +93,16 @@ chue_t CUpdaterComponentP2P::install_internal(){
                                                         str_p2p_downloaded_path,
                                                         item->size());
 
-    SilentPackageInstallerP2P *silent_installer = new SilentPackageInstallerP2P(this);
-    silent_installer->init(file_dir, file_name);
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(file_dir, file_name, CC_P2P);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](){
         silent_installer->startWork();
     });
-    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
+    connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentP2P::install_finished_sl);
-    connect(silent_installer, &SilentPackageInstallerP2P::outputReceived,
+    connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;
@@ -211,7 +211,18 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 }
 
 void CUpdaterComponentP2P::install_post_interntal(bool success){
-    if(success)
-        CNotificationObserver::Instance()->Info(tr("P2P has been installed. Wait 15 seconds until it's started."), DlgNotification::N_NO_ACTION);
+    if(success){
+        CNotificationObserver::Instance()->Info(tr("P2P has been installed."), DlgNotification::N_NO_ACTION);
+        QMessageBox* msg_box =
+           new QMessageBox(QMessageBox::Question, tr("Info"),
+                           tr("You installed P2P. Better to restart Control Center for correct work"),
+                           QMessageBox::Yes | QMessageBox::No);
+        connect(msg_box, &QMessageBox::finished, msg_box,
+                &QMessageBox::deleteLater);
+        if (msg_box->exec() == QMessageBox::Yes) {
+            CCommons::RestartTray();
+        }
+        msg_box->exec();
+    }
 }
 ////////////////////////////////////////////////////////////////////////////

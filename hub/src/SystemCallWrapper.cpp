@@ -13,10 +13,12 @@
 #include <QObject>
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QMessageBox>
 
 #include "HubController.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
+#include "RestWorker.h"
 #include "SettingsManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
@@ -84,7 +86,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
         return res;
       }
   }
-      else{
+  else{
 
       if (!proc.waitForStarted(timeout_msec)) {
         if (log) {
@@ -206,7 +208,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
     const QString &commands, const QString &key) {
 
   QString cmd
-      = CSettingsManager::Instance().ssh_path();
+      = QString("%1").arg(CSettingsManager::Instance().ssh_path());
   QStringList args;
   args
        << "-o" << "StrictHostKeyChecking=no"
@@ -239,12 +241,16 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << QString("-i \"%1\"").arg(ssh_info.second)
+      << "-i" << ssh_info.second
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  qDebug() << file_path << "finished:"
+           << "exit code:" <<res.exit_code
+           << "result code:" <<res.res
+           << "output: " <<res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code != 0) {
     return std::make_pair(SCWE_CREATE_PROCESS, res.out);
   }
@@ -261,7 +267,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-o StrictHostKeyChecking=no"
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << QString("-i \"%1\"").arg(ssh_info.second)
+       << "-i" << ssh_info.second
        << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
        << local_destination;
   qDebug() << "ARGS=" << args;
@@ -274,6 +280,401 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 }
 
 //////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir, const QString &box){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "init";
+    if (box == "Debian Stretch")
+        CURRENT_BRANCH == BT_MASTER ? args << "subutai/stretch-master" : args << "subutai/stretch";
+    else args << "subutai/xenial";
+
+
+    qDebug()
+            <<"Vagrant init ARGS: "
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+
+    qDebug()
+            <<"Finished vagrant init:"
+            <<args
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+
+    return res.res;
+}
+
+QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
+    qDebug()
+            <<"Trying to get fingerprint of "<<ip;
+    QString finger = "";
+    if(CRestWorker::Instance()->peer_finger(ip, finger)){
+        return finger.toUpper();
+    }
+    else return QString("");
+}
+
+bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
+                                              const QString &username,
+                                              const QString &old_pass,
+                                              const QString &new_pass){
+    qDebug()
+            <<"Trying to set new password of "<<ip;
+    return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
+}
+
+QString CSystemCallWrapper::vagrant_status(const QString &dir){
+    qDebug() << "get vagrant status of" << dir;
+    system_call_res_t res;
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+
+    QStringList args;
+    args
+        << "global-status";
+
+    res = ssystem_th(cmd, args, true, true, 20000);
+
+    QString status("broken");
+    qDebug()
+            <<"Got status of peer:"
+            <<"exit code: "<<res.exit_code
+            <<"result code: "<<res.res;
+    //the best part is parsing data
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return QString("broken");
+    }
+    QString st = "";
+    bool reading_path = false;
+    for(auto s : res.out){
+        st="";
+        reading_path = false;
+        status = "";
+        for (int i=0; i < s.size(); i++){
+            if (reading_path){
+                st += s[i];
+                if(st == dir){
+                    qDebug()
+                            <<dir<<"status is"<<status;
+                    return status;
+                }
+            }
+            else if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
+                if(st == "running"){
+                    status = st;
+                }
+                if(st == "poweroff"){
+                    status = st;
+                }
+                st = "";
+            }
+            else{
+                if(!status.isEmpty()){
+                    reading_path = true;
+                }
+                st += s[i];
+            }
+
+        }
+    }
+    status = "broken";
+    return status;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "halt";
+
+    qDebug()
+            <<"Starting to halt peer. Args:"
+            <<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Halt finished:"
+            <<dir
+            <<res.res;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "reload";
+
+    qDebug()
+            <<"Starting to reload peer. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Reload finished:"
+            <<dir
+            <<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<< "set_working_directory"
+        << dir
+        << "destroy"
+        << "-f";
+
+    qDebug()
+            <<"Starting to destroy peer. Args:"<<args;
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+    qDebug()<<"Destroying peer finished"
+            <<"Exit code:"<<res.exit_code
+            <<"Result:"<<res.res
+            <<"Output:"<<res.out;
+    if(res.exit_code !=0 || res.res != SCWE_SUCCESS)
+        return SCWE_CREATE_PROCESS;
+    QDir dir_path(dir);
+    if(dir_path.removeRecursively())
+        return SCWE_SUCCESS;
+    else return SCWE_CREATE_PROCESS;
+}
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "up";
+
+    qDebug()
+            <<"Vagrant up. Args:"
+            <<args;
+
+    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+    qDebug()
+            <<"Finished vagrant up:"
+            <<dir
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res;
+
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return std::make_pair(res.res, res.out);
+}
+
+QString CSystemCallWrapper::vagrant_ip(const QString &dir){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args
+        << "set_working_directory"
+        << dir
+        << "subutai"
+        << "info ipaddr";
+
+    qDebug()
+            <<"Getting vagrant ip:"
+            <<args;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 20000);
+    qDebug()
+            <<"Finished vagrant ip:"
+            <<dir
+            <<"exit code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+
+    QString ip = "";
+
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.size() != 1)
+        return ip;
+    ip = res.out[0];
+    return ip;
+}
+
+QString CSystemCallWrapper::vagrant_port(const QString &dir){
+    QDir peer_dir(dir);
+    QString  port = "undefined";
+    if(peer_dir.cd(".vagrant")){
+        QFile file(QString(peer_dir.absolutePath() + "/generated.yml"));
+        QString file_name = file.fileName();
+        if(file.exists()){
+            if (file.open(QIODevice::ReadWrite) ){
+                QTextStream stream( &file );
+                QString output = QString(stream.readAll());
+                QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
+                for (auto s : vagrant_info){
+                    QString flag, value;
+                    bool reading_value = false;
+                    flag = value = "";
+                    reading_value = false;
+                    for (int i=0; i < s.size(); i++){
+                        if(s[i]=='\r')continue;
+                        if(reading_value){
+                            value += s[i];
+                            continue;
+                        }
+                        if(s[i] == ':'){
+                            flag = value;
+                            value = "";
+                            continue;
+                        }
+                        if(s[i] != ' '){
+                            if(value == "" && !flag.isEmpty())
+                                reading_value = true;
+                            value+=s[i];
+                        }
+                    }
+                    if(flag == "_CONSOLE_PORT")
+                        port = value;
+                    }
+                }
+            file.close();
+        }
+    }
+    return port;
+}
+
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
+    qDebug() << "Starting to update information related to peer management";
+    QStringList bridges = CSystemCallWrapper::list_interfaces();
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "global-status"
+         << "--prune";
+
+    system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+
+    return std::make_pair(bridges, global_status);
+}
+//////////////////////////////////////////////////////////////////////
+QStringList CSystemCallWrapper::list_interfaces(){
+    /*#1 how to get bridged interfaces
+     * using command VBoxManage get list of all bridged interfaces
+     * */
+    qDebug("Getting list of bridged interfaces");
+    QString vb_version;
+    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+    QStringList interfaces;
+    if(vb_version == "undefined")
+        return interfaces;
+    QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+    QDir dir(path);
+    dir.cdUp();
+    path = dir.absolutePath();
+    path += "/VBoxManage";
+    QStringList args;
+    args << "list" << "bridgedifs";
+    qDebug()<<path<<args;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+    qDebug()<<"Listing interfaces result:"
+            <<"exit code:"<<res.exit_code
+            <<"result:"<<res.res;
+    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+        return interfaces;
+    //time to parse data
+    QStringList parse_me = res.out;
+    QString flag;
+    QString value;
+    QString last_name;
+    bool reading_value = false;
+    for (auto s : parse_me){
+        flag = value = "";
+        reading_value = false;
+        for (int i=0; i < s.size(); i++){
+            if(s[i]=='\r')continue;
+            if(reading_value){
+                value += s[i];
+                continue;
+            }
+            if(s[i] == ':'){
+                flag = value;
+                value = "";
+                continue;
+            }
+            if(s[i] != ' '){
+                if(value == "" && !flag.isEmpty())
+                    reading_value = true;
+                value+=s[i];
+            }
+        }
+        if(flag == "Name")
+            last_name = value;
+        if(flag == "Status" && value == "Up")
+            interfaces.push_back(last_name);
+    }
+    return interfaces;
+}
+//////////////////////////////////////////////////////////////////////
+void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins){
+    qDebug()
+            <<"get list of installed vagrant plugins";
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "plugin"
+         << "list";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    qDebug()
+            <<"List of vagrant plugins installed"
+            <<"exit  code:"<<res.exit_code
+            <<"result code:"<<res.res
+            <<"output"<<res.out;
+    plugins.clear();
+    if(res.exit_code != 0 || res.res != 0)
+        return;
+    QStringList plugin;
+    for (auto s : res.out){
+        plugin.clear();
+        plugin = s.split(' ');
+        if(plugin.size() == 2){
+            plugins.push_back(std::make_pair(plugin[0], plugin[1]));
+        }
+    }
+}
+//////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::check_peer_management_components(){
+    QString version;
+    vagrant_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("Before using vagrant. Install vagrant first"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    oracle_virtualbox_version(version);
+    if(version == "undefined"){
+        CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
+        return false;
+    }
+    std::vector<std::pair<QString, QString> >plugins;
+    CSystemCallWrapper::vagrant_plugins_list(plugins);
+    static std::vector<QString> required_plugin = {"vagrant-subutai, vagrant-vbguest"};
+    for (auto  plugin : required_plugin){
+        if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
+            return plugin == installed_plugin.first;}) == plugins.end()){
+            CNotificationObserver::Info(QObject::tr("Installing missing vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
+            vagrant_plugin_install(plugin);
+        }
+    }
+    return true;
+}
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
@@ -608,12 +1009,11 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
   QString cmd;
   cmd = CSettingsManager::Instance().terminal_cmd();
   QStringList args;
-  args << QString("-e");
-  qInfo("Launch command : %s",
-                                       str_command.toStdString().c_str());
-
-  args << QString("Tell application \"%1\" to %2 \"%3\"")
-              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  qInfo("Launch command : %s",str_command.toStdString().c_str());
+  args << "-e" << QString("Tell application \"%1\"").arg(cmd)
+       << "-e" << QString("%1 \"%2\"").arg(CSettingsManager::Instance().terminal_arg(), str_command)
+       << "-e" << "activate"
+       << "-e" << "end tell";
   return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
@@ -679,7 +1079,137 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
     const QString &key) {
    return run_sshkey_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
+//////////////////////////////////////////////////////////////////////////////
+template <class  OS>
+system_call_wrapper_error_t vagrant_command_terminal_internal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
 
+template <>
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
+                                                                                 const QString &command,
+                                                                                 const QString &name){
+    if(command.isEmpty()){
+        return SCWE_CREATE_PROCESS;
+    }
+
+    UNUSED_ARG(name);
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+    if(command == "reload"){
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+    }
+
+    str_command += QString("echo finished > %1_finished; exit").arg(*(command.split(" ").begin()));
+
+    QString cmd;
+
+    cmd = CSettingsManager::Instance().terminal_cmd();
+    QStringList args;
+    args << QString("-e");
+    qInfo("Launch command : %s",str_command.toStdString().c_str());
+
+    args << QString("Tell application \"%1\" to %2 \"%3\"")
+                .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+    return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
+                                              : SCWE_CREATE_PROCESS;
+}
+
+template <>
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+    if(command.isEmpty()){
+        return SCWE_CREATE_PROCESS;
+    }
+
+    UNUSED_ARG(name);
+    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+    if(command == "reload"){
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+    }
+
+    str_command += QString("echo finished > %1_finished; exit").arg(*(command.split(" ").begin()));
+
+    QString cmd;
+    QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+    if (!cmd_file.exists()) {
+      system_call_wrapper_error_t tmp_res;
+      if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+          SCWE_SUCCESS) {
+        return tmp_res;
+      }
+    }
+    cmd = CSettingsManager::Instance().terminal_cmd();
+    QStringList args = CSettingsManager::Instance().terminal_arg().split(
+                         QRegularExpression("\\s"));
+    args << QString("%1").arg(str_command);
+    return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
+                                              : SCWE_CREATE_PROCESS;
+}
+
+template <>
+system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
+                                                                                  const QString &command,
+                                                                                  const QString &name){
+UNUSED_ARG(name);
+UNUSED_ARG(dir);
+UNUSED_ARG(command);
+#ifdef RT_OS_WINDOWS
+
+  if(command.isEmpty()){
+      return SCWE_CREATE_PROCESS;
+  }
+
+  QString str_command = QString("cd %1 & %2 %3 2> %4_%5 & ").arg(dir,
+                                                              CSettingsManager::Instance().vagrant_path(),
+                                                              command,
+                                                              name, *(command.split(" ").begin()));
+  if(command == "reload"){
+      str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  }
+
+  str_command += QString("echo finished > %1_finished & exit").arg(*(command.split(" ").begin()));
+
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      return tmp_res;
+    }
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+
+  STARTUPINFO si = {0};
+  PROCESS_INFORMATION pi = {0};
+  QString cmd_args =
+      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
+  LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
+  si.cb = sizeof(si);
+  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
+                          NULL, &si, &pi);
+  if (!cp) {
+    qCritical(
+        "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
+        GetLastError());
+    return SCWE_CREATE_PROCESS;
+  }
+#endif
+  return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const QString &dir,
+                                                                         const QString &command,
+                                                                         const QString &name){
+    return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
@@ -751,7 +1281,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "p2p_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -811,7 +1341,10 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
-    return install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -823,7 +1356,8 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
   QStringList args;
   QString file_path  = dir + "/" + file_name;
   args << "-e"
-       << QString("do shell script \"hdiutil attach %1; cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
+       << QString("do shell script \"hdiutil attach %1; "
+                  "cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   return res.res;
 }
@@ -881,7 +1415,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "x2go_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -940,7 +1474,10 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name){
-   return install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -1011,7 +1548,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "vagrant_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -1026,8 +1563,15 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -f;"
-                                    "dpkg -i %1")
+                                    "dpkg -i %1;"
+                                    "if [$? -gt 0]\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %1;"
+                                    "else\n"
+                                    "rm %1\n"
+                                    "fi")
                                     .arg(file_info)
                                     .toUtf8();
 
@@ -1077,6 +1621,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
+   installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
    QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
    if(res == SCWE_SUCCESS){
@@ -1087,6 +1632,13 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
            return res;
        res = vagrant_plugin_install(s);
    }
+   //update if already installed plugins
+   for (auto s : plugins){
+       if(res!=SCWE_SUCCESS)
+           return res;
+       res = vagrant_plugin_update(s);
+   }
+   installer_is_busy.unlock();
    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1095,7 +1647,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
     QStringList args;
     args<<"plugin"<<"install"<<plugin_name;
     qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
     qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
            <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
@@ -1103,6 +1655,19 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
     return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args<<"plugin"<<"update"<<plugin_name;
+    qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+    qDebug()<<QString("vagrant plugin %1 update is finished").arg(plugin_name)
+           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
+    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
 template <>
@@ -1178,7 +1743,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     }
 
     QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "CC_generated_script.sh";
+        lst_temp[0] + QDir::separator() + "vb_installer.sh";
 
     qDebug() << tmpFilePath;
 
@@ -1193,9 +1758,22 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -f;"
+                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`;"
+                                    "if [$? -gt 0]\n"
+                                    "then\n"
+                                    "apt-get install -y -f\n"
+                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
+                                    "fi\n"
                                     "cd %1 dir;"
-                                    "dpkg -i %2")
+                                    "dpkg -i %2;"
+                                    "if [$? -gt 0]\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f\n"
+                                    "dpkg -i %2\n"
+                                    "else\n"
+                                    "rm %2\n"
+                                    "fi")
                                     .arg(dir, file_name)
                                     .toUtf8();
 
@@ -1237,7 +1815,298 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
-    return install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    installer_is_busy.unlock();
+    return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name){
+    qInfo() << "CC started to install google chrome";
+    QString cmd("osascript");
+    QStringList args;
+    QString file_path  = dir + "/" + file_name;
+    args << "-e"
+         << QString("do shell script \"hdiutil attach -nobrowse %1; "
+                    "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+    qDebug() << "Installation of chrome finished"
+             << "Result code: " << res.res
+             << "Exit code: " << res.exit_code
+             << "Output messages" << res.out;
+    if(res.exit_code != 0){
+        res.res = SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+template<>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
+    QString file_info = dir + "/" + file_name;
+    QString gksu_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QString sh_path;
+    scr = CSystemCallWrapper::which("sh", sh_path);
+    if (scr != SCWE_SUCCESS) {
+        QString err_msg = QObject::tr ("Couldn't find sh command");
+        qCritical() << err_msg;
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        return SCWE_WHICH_CALL_FAILED;
+    }
+
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath =
+        lst_temp[0] + QDir::separator() + "chrome_installer.sh";
+
+    qDebug() << tmpFilePath;
+
+    QFile tmpFile(tmpFilePath);
+    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+                        .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QByteArray install_script = QString(
+                                    "#!/bin/bash\n"
+                                    "dpkg -i %1;"
+                                    "if test $? -gt 0\n"
+                                    "then\n"
+                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "apt-get install -y -f;\n"
+                                    "dpkg -i %1;"
+                                    "else\n"
+                                    "rm %1\n"
+                                    "fi")
+                                    .arg(file_info)
+                                    .toUtf8();
+
+    if (tmpFile.write(install_script) != install_script.size()) {
+      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+                               .arg(tmpFile.errorString());
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    tmpFile.close();  // save
+
+    if (!QFile::setPermissions(
+            tmpFilePath,
+                QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    system_call_res_t cr2;
+    QStringList args2;
+    args2 << sh_path << tmpFilePath;
+
+    qDebug()<<"Chrome installation started"
+            <<"gksu_path:"<<gksu_path
+            <<"args2:"<<args2;
+
+    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    qDebug()<<"Chrome installation finished:"
+            <<"exit code:"<<cr2.exit_code
+            <<"result code:"<<cr2.res
+            <<"output:"<<cr2.out;
+    tmpFile.remove();
+    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+                               .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+      qCritical() << err_msg;
+      return SCWE_CREATE_PROCESS;
+    }
+
+    return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+    QString cmd(dir+"/"+file_name);
+    QStringList args0;
+    args0 << "/install";
+
+    qDebug()
+            <<"Installing package chrome:"
+            <<args0;
+
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  97);
+    qDebug()
+            <<"Installing package chrome finished"
+            <<"cmd:"<<cmd
+            <<"exit code"<<res.exit_code
+            <<"result:"<<res.res
+            <<"output"<<res.out;
+    if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+        res.res = SCWE_CREATE_PROCESS;
+    return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+    installer_is_busy.unlock();
+    return res;
+}
+
+template<class OS>
+system_call_wrapper_error_t install_e2e_chrome_internal();
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+    if (lst_temp.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      qCritical() << err_msg;
+      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString tmpFilePath = QString("%1/%2.json")
+            .arg(lst_temp[0],
+            subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+
+    qDebug() << tmpFilePath;
+    QJsonDocument preference_json(json);
+    QFile preference_file(tmpFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    QString cmd("pkill");
+    QStringList args;
+    args << "--oldest"
+         << "chrome";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS){
+        qCritical() << "Failed to close chrome"
+                    << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    args.clear();
+    cmd = "gksu";
+    args << "--message"
+         << "Allow Control Center to install Subutai E2E plugin"
+         << "--"
+         << "bash"
+         << "-c"
+         << QString("mkdir -p /opt/google/chrome/extensions; "
+            "cp -p %1 /opt/google/chrome/extensions/").arg(tmpFilePath);
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to install e2e"
+                    << res.exit_code
+                    << res.out;
+        return SCWE_CREATE_PROCESS;
+    }
+    return res.res;
+}
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_WIN> >(){
+    //cretate key in registry
+    QString cmd("REG");
+    QStringList args;
+    QString ex_id = subutai_e2e_id(CSettingsManager::Instance().default_browser());
+    args << "ADD"<< QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id)
+         << "/v" << "update_url"
+         << "/t" << "REG_SZ"
+         << "/d" << "https://clients2.google.com/service/update2/crx"
+         << "/f";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "failed to install e2e on chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    //close chrome
+    cmd = "taskkill";
+    args.clear();
+    args << "/F" << "/IM" << "chrome.exe" << "/T";
+    res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+        qCritical() << "failed to close chrome"
+                    << "exit code" << res.exit_code;
+        return SCWE_CREATE_PROCESS;
+    }
+    return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
+    QJsonObject json;
+    json["external_update_url"] = "https://clients2.google.com/service/update2/crx";
+    QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+    if (home_path.empty()) {
+      QString err_msg = QObject::tr ("Couldn't get standard home location");
+      qCritical() << err_msg;
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QString jsonFilePath = QString("%1/Library/Application Support/Google/Chrome/External Extensions/%2.json").arg(home_path[0], subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+    QString cmd("osascript");
+    QStringList args;
+    args << "-e"
+         << "tell application \"Google Chrome\" to quit";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        qCritical() << "Failed to close Chrome"
+                    << "Exit code: " << res.exit_code
+                    << "Output: " << res.out;
+        return SCWE_CREATE_PROCESS;
+    }
+    args.clear();
+    args << "-e"
+         << "do shell script \"mkdir -p ~/Library/Application\\\\ Support/Google/Chrome/External\\\\ Extensions\"";
+    res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    QJsonDocument preference_json(json);
+    QFile preference_file(jsonFilePath);
+    preference_file.open(QFile::WriteOnly);
+    preference_file.write(preference_json.toJson());
+    preference_file.close();
+    return res.res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
+    installer_is_busy.lock();
+    system_call_wrapper_error_t res = install_e2e_chrome_internal<Os2Type<CURRENT_OS> > ();
+    installer_is_busy.unlock();
+    return res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    if(current_browser == "Chrome"){
+        return install_e2e_chrome();
+    }
+    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
@@ -1564,6 +2433,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_peer_available(const QString 
 system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
     bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
@@ -1585,6 +2455,7 @@ system_call_wrapper_error_t CSystemCallWrapper::is_rh_update_available(
 system_call_wrapper_error_t
 CSystemCallWrapper::is_rh_management_update_available(bool &available) {
   available = false;
+  return SCWE_SUCCESS;
   int exit_code = 0;
   std::vector<std::string> lst_out;
 
@@ -1665,6 +2536,7 @@ system_call_wrapper_error_t CSystemCallWrapper::get_rh_ip_via_libssh2(
 QString CSystemCallWrapper::rh_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -1690,6 +2562,7 @@ QString CSystemCallWrapper::rh_version() {
 QString CSystemCallWrapper::rhm_version() {
   int exit_code;
   std::string version = "undefined";
+  return QString::fromStdString(version);
   std::vector<std::string> lst_out;
   system_call_wrapper_error_t res = run_libssh2_command(
       CSettingsManager::Instance().rh_host().toStdString().c_str(),
@@ -1767,6 +2640,95 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QStrin
     return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString cmd("ls");
+        QString ex_id = subutai_e2e_id(current_browser);
+        QStringList args;
+        QString chrome_profile = "Default";
+        args << QString("%1%3%4/Extensions/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path(), chrome_profile);
+        system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+        if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
+            version = res.out[res.out.size() - 1];
+            return SCWE_SUCCESS;
+        }
+    }
+    return SCWE_CREATE_PROCESS;
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
+    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
+    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+}
+template<>
+system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
+    QString current_browser = CSettingsManager::Instance().default_browser();
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if (current_browser == "Chrome"){
+        /*
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString chrome_profile = "Default";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
+            }
+        }
+    }
+    if(current_browser == "Chrome" && version == "undefined"){
+        /* get the extension version from secondary profile
+         * to get version of chrome extension just check path
+         * */
+        version = "undefined";
+        QString ex_id = subutai_e2e_id(current_browser);
+        QString chrome_profile = "Profile 3";
+        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
+        QDir extension_dir(extension_path);
+        if(extension_dir.exists()){
+            extension_dir.setFilter(QDir::Dirs);
+            QStringList extension_entry_list = extension_dir.entryList();
+            qDebug() << "extension entry" << extension_entry_list;
+            if(!extension_entry_list.isEmpty()){
+                version = extension_entry_list[extension_entry_list.size() - 1];
+                return SCWE_SUCCESS;
+            }
+        }
+    }
+    return SCWE_CREATE_PROCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
+    /*
+     * check if chrome installed first
+     */
+    CSystemCallWrapper::chrome_version(version);
+    if(version == "undefined"){
+        version = QObject::tr("No supported browser is available");
+        return SCWE_SUCCESS;
+    }
+    version = "undefined";
+    return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
@@ -1813,6 +2775,17 @@ system_call_wrapper_error_t CSystemCallWrapper::which(const QString &prog,
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
   qDebug()<<"requested which for"<<prog<<"exit code:"<<res.exit_code
          <<"result:"<<res.res<<"output:"<<res.out;
+  if(res.exit_code == 1 && cmd == "/usr/bin/which"){ //search in local bin (mac specific)
+      qDebug()<<"search again in local bin";
+      args.clear();
+      args << "/usr/local/bin/" + prog;
+      res = ssystem_th(cmd, args, true, true, 5000);
+      qDebug() << "finished which for"
+               << args
+               << "result : " << res.res
+               << "exit code :" << res.exit_code
+               << "output : " << res.out;
+  }
   if (res.res != SCWE_SUCCESS) return res.res;
 
   if (res.exit_code == success_ec && !res.out.empty()) {
@@ -1884,11 +2857,32 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC> >(
 template <>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
-  version = "Couldn't get version on Win, sorry";
-#if defined(RT_OS_WINDOWS)
-  // todo implement  with reading registry value
-#endif
-  return SCWE_SUCCESS;
+  version = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"
+    << "/v"
+    << "DisplayVersion";
+  qDebug()<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got chrome version"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+      for (QString s : res.out){
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          if(buf.size() == 3){
+              version = buf[2];
+              break;
+          }
+      }
+  }
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
@@ -1896,6 +2890,15 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
   return chrome_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 
+////////////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::chrome_last_section(){
+    QString cmd = CSettingsManager::Instance().chrome_path();
+    QStringList args;
+    args << "--restore-last-session"
+         << "--profile-directory=Default";
+    return QProcess::startDetached(cmd, args);
+
+}
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(

@@ -6,6 +6,7 @@
 #include <QString>
 #include <string>
 #include <vector>
+#include <QMutex>
 
 //give type for restart p2p
 enum restart_p2p_type{
@@ -55,6 +56,9 @@ struct system_call_res_t {
 enum restart_service_error_t { RSE_SUCCESS, RSE_MANUAL };
 ////////////////////////////////////////////////////////////////////////////
 
+static QMutex installer_is_busy;
+
+////////////////////////////////////////////////////////////////////////////
 class CSystemCallThreadWrapper : public QObject {
   Q_OBJECT
  private:
@@ -150,6 +154,41 @@ class CSystemCallWrapper {
                                                          const QString &port,
                                                          const QString &key);
 
+  static system_call_wrapper_error_t vagrant_command_terminal(const QString &dir,
+                                                              const QString &command,
+                                                              const QString &name);
+
+  static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
+
+  static QString vagrant_fingerprint(const QString &ip);
+
+  static bool vagrant_set_password(const QString &ip,
+                                   const QString &username,
+                                   const QString &old_pass,
+                                   const QString &new_pass);
+
+  static QString vagrant_status(const QString &dir);
+
+  static QString vagrant_ip(const QString &dir);
+
+  static QString vagrant_port(const QString &dir);
+
+  static std::pair<QStringList, system_call_res_t> vagrant_update_information();
+
+  static bool check_peer_management_components();
+
+  static void vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins);
+
+  static std::pair<system_call_wrapper_error_t, QStringList> vagrant_up(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_halt(const QString &dir);
+
+  static system_call_wrapper_error_t vagrant_reload(const QString &dir);
+
+  static QStringList list_interfaces();
+
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_x2go(const QString &dir, const QString &file_name);
@@ -158,11 +197,21 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_error_t install_e2e();
+
+  static system_call_wrapper_error_t install_e2e_chrome();
+
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();
 
   static QStringList lsb_release();
+
+  static bool chrome_last_section();
+
+ // static system_call_res_t chrome_open_link();
 
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
                                                          const QString &ip,
@@ -210,6 +259,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t x2go_version(QString &version);
   static system_call_wrapper_error_t vagrant_version(QString &version);
   static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
+  static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
@@ -227,6 +277,8 @@ class CSystemCallWrapper {
   static bool application_autostart();
 
   static system_call_wrapper_error_t vagrant_plugin_install(const QString &plugin_name);
+
+  static system_call_wrapper_error_t vagrant_plugin_update(const QString &plugin_name);
 
   struct container_ip_and_port {
     QString ip;

@@ -13,7 +13,11 @@ git checkout $BRANCH
 git pull origin $BRANCH
 
 mkdir -p /usr/local/opt/libssh2/lib/
+mkdir -p /usr/local/lib/
+mkdir -p /usr/local/lib/pkgconfig/
 cp /Users/travis/build/subutai-io/control-center/libssh2/lib/mac/libssh2.1.dylib /usr/local/opt/libssh2/lib/libssh2.1.dylib
+cp /Users/travis/build/subutai-io/control-center/libssh2/lib/mac/* /usr/local/lib/
+cp /Users/travis/build/subutai-io/control-center/libssh2/lib/mac/libssh2.pc /usr/local/lib/pkgconfig/libssh2.pc
 build="subutai_control_center_bin"
 
 if [ -d "$build" ]; then 

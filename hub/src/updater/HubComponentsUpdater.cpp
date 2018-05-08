@@ -18,7 +18,7 @@
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
@@ -26,7 +26,9 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_x2go = new CUpdaterComponentX2GO;
   uc_vagrant = new CUpdaterComponentVAGRANT;
   uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, uc_oracle_virtualbox, NULL};
+  uc_chrome = new CUpdaterComponentCHROME;
+  uc_e2e = new CUpdaterComponentE2E;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, uc_oracle_virtualbox, uc_chrome, uc_e2e, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -35,6 +37,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::X2GO] = CUpdaterComponentItem(uc_x2go);
   m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
+  m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
+  m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -248,17 +252,61 @@ QString CHubComponentsUpdater::component_name(const QString &component_id){
         return "";
     return m_dct_components[component_id].Component()->component_id_to_user_view(component_id);
 }
-///// experimentation permutation
-void SilentPackageInstallerVAGRANT::startWork(){
+
+/////////////////////////////////////////////////////////////////////////////
+bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
+    if(m_dct_components.find(component_id) == m_dct_components.end())
+        return true;
+    else return m_dct_components[component_id].Component()->is_in_progress();
+}
+
+void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type){
+    m_dir = dir;
+    m_file_name = file_name;
+    m_type = type;
+}
+
+void SilentInstaller::startWork(){
     QThread* thread = new QThread();
     connect(thread, &QThread::started,
-            this, &SilentPackageInstallerVAGRANT::execute_remote_command);
-    connect(this, &SilentPackageInstallerVAGRANT::outputReceived,
+            this, &SilentInstaller::silentInstallation);
+    connect(this, &SilentInstaller::outputReceived,
             thread, &QThread::quit);
     connect(thread, &QThread::finished,
-            this, &SilentPackageInstallerVAGRANT::deleteLater);
+            this, &SilentInstaller::deleteLater);
     connect(thread, &QThread::finished,
             thread, &QThread::deleteLater);
     this->moveToThread(thread);
     thread->start();
+}
+
+void SilentInstaller::silentInstallation(){
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    QFuture<system_call_wrapper_error_t>  res;
+    switch (m_type) {
+    case CC_P2P:
+        res = QtConcurrent::run(CSystemCallWrapper::install_p2p, m_dir, m_file_name);
+        break;
+    case CC_CHROME:
+        res = QtConcurrent::run(CSystemCallWrapper::install_chrome, m_dir, m_file_name);
+        break;
+    case CC_VAGRANT:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant, m_dir, m_file_name);
+        break;
+    case CC_VB:
+        res = QtConcurrent::run(CSystemCallWrapper::install_oracle_virtualbox, m_dir, m_file_name);
+        break;
+    case CC_X2GO:
+        res = QtConcurrent::run(CSystemCallWrapper::install_x2go, m_dir, m_file_name);
+        break;
+    case CC_E2E:
+        res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+    default:
+        break;
+    }
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
 }

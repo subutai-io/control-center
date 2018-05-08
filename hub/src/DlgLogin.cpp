@@ -94,7 +94,8 @@ DlgLogin::login() {
       ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
                               arg(tr("Network error. Code")).
                               arg(CCommons::NetworkErrorToString(network_err)));
-      solve_libssl();
+      if(CCommons::NetworkErrorToString(network_err) == "Unknown Network Error")
+        solve_libssl();
       break;
     default:
       ui->lbl_status->setVisible(true);
@@ -145,7 +146,7 @@ void
 DlgLogin::cb_show_pass_state_changed(int st)
 {
   ui->le_password->setEchoMode(st == Qt::Checked ?
-                                 QLineEdit::PasswordEchoOnEdit : QLineEdit::Password);
+                                 QLineEdit::Normal : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
 

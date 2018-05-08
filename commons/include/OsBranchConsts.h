@@ -17,6 +17,13 @@ enum os_t {
   OS_MAC_LIN = 3
 };
 
+enum browser_t {
+    BR_CHROME = 0,
+    BR_SAFARI,
+    BR_FIREFOX,
+    BR_EDGE
+};
+
 /**
  * @brief branch_t enum to type struct for template specification
  */
@@ -37,6 +44,11 @@ template<os_t v> struct Os2Type {
 template<int v> struct Int2Type {
   enum {val = v};
 };
+
+template<browser_t v> struct Browser2Type
+{
+    enum {val = v};
+};
 ////////////////////////////////////////////////////////////////////////////
 
 const QString& tray_kurjun_file_name();
@@ -45,6 +57,7 @@ const QString& p2p_kurjun_package_name();
 const QString& x2go_kurjun_package_name();
 const QString& vagrant_kurjun_package_name();
 const QString& oracle_virtualbox_kurjun_package_name();
+const QString& chrome_kurjun_package_name();
 const QString& p2p_dht_arg();
 const QString& p2p_rest_url();
 
@@ -65,6 +78,9 @@ const QString& default_terminal();
 const QString& default_x2goclient_path();
 const QString& default_term_arg();
 const QString& default_oracle_virtualbox_path();
+const QString& default_default_browser();
+const QString& default_chrome_extensions_path();
+const QStringList& supported_browsers();
 
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();
@@ -84,4 +100,6 @@ const QString& current_branch_name();
 const QString& branch_name_str();
 const QString& base_interface_name();
 void current_os_info(std::vector<std::pair<QString, QString> >& v);
+
+const QString& subutai_e2e_id(const QString& current_browser);
 #endif // OSBRANCHCONSTS_H

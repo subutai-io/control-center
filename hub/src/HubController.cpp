@@ -171,10 +171,6 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
     } else {
       qInfo("Failed to re-login. %d - %d - %d",
                                            lhttp, lerr, lnet);
-      m_lst_healthy_environments.clear();
-      m_lst_environments.clear();
-      m_lst_environments_internal.clear();
-      emit environments_updated(rer_res);
       return;
     }
   }
@@ -184,10 +180,6 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         "Refresh environments failed. Err_code : %d, Net_err : %d", err_code,
         network_error);
     rer_res = RER_ERROR;
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
-    emit environments_updated(rer_res);
     return;
   }
 
@@ -197,20 +189,12 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
         tr("Refresh environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
     rer_res = RER_ERROR;
-    emit environments_updated(rer_res);
     return;
   }
 
   if (network_error != 0) {
-    m_lst_healthy_environments.clear();
-    m_lst_environments.clear();
-    m_lst_environments_internal.clear();
     rer_res = RER_ERROR;
-    emit environments_updated(rer_res);
     return;
   }
 
@@ -287,27 +271,26 @@ void CHubController::force_refresh() {
 
 
 void CHubController::launch_browser(const QString &url) {
-  QString chrome_path = CSettingsManager::Instance().chrome_path();
-  qDebug() << "Trying to launch the browser with url: " << url;
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if(current_browser == "Chrome"){
+      QString chrome_path = CSettingsManager::Instance().chrome_path();
+      qDebug() << "Trying to launch the browser with url: " << url;
 
-  if (CCommons::IsApplicationLaunchable(chrome_path)) {
-    QStringList args;
-    args << "--new-window";
-    args << url;
-    if (!QProcess::startDetached(chrome_path, args)) {
-      QString err_msg = tr("Launch hub website with google chrome failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-      return;
-    }
-  } else {
-    if (!QDesktopServices::openUrl(QUrl(url))) {
-      QString err_msg =
-          tr("Launch hub website with default browser failed");
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      qCritical("%s", err_msg.toStdString().c_str());
-    }
-  }
+      if (CCommons::IsApplicationLaunchable(chrome_path)) {
+        QStringList args;
+        args << "--new-window";
+        args << url
+             << "--profile-directory=Default";
+        if (!QProcess::startDetached(chrome_path, args)) {
+          QString err_msg = tr("Launch bazaar website with google chrome failed");
+          CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+          qCritical("%s", err_msg.toStdString().c_str());
+        }
+      }
+      else {
+          CNotificationObserver::Error(tr("Please install Google Chrome first. You can install it from \"About\" section"), DlgNotification::N_ABOUT);
+        }
+      }
 }
 
 void CHubController::launch_balance_page() {

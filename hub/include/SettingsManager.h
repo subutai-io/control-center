@@ -27,14 +27,19 @@ class CSettingsManager : public QObject {
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
+  static const QString SM_DEFAULT_BROWSER;
 
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
   static const QString SM_RH_HOST;
   static const QString SM_RH_PORT;
 
+  static const QString SM_PEER_PASS;
+  static const QString SM_PEER_FINGER;
+
   static const QString SM_LOGS_STORAGE;
   static const QString SM_SSH_KEYS_STORAGE;
+  static const QString SM_PEERS_STORAGE;
 
   static const QString SM_TRAY_GUID;
 
@@ -80,6 +85,7 @@ class CSettingsManager : public QObject {
   QString m_p2p_path;
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
+  QString m_default_browser;
 
   uint32_t m_notification_delay_sec;
 
@@ -93,8 +99,12 @@ class CSettingsManager : public QObject {
   QString m_rh_pass;
   quint16 m_rh_port;
 
+  QString m_peer_pass;
+  QString m_peer_finger;
+
   QString m_logs_storage;
   QString m_ssh_keys_storage;
+  QString m_peers_storage;
   QString m_tray_guid;
 
   uint32_t m_p2p_update_freq;
@@ -115,6 +125,8 @@ class CSettingsManager : public QObject {
   std::map <QString, QString> m_rh_users;
   std::map <QString, QString> m_rh_passes;
 
+  std::map <QString, QString> m_peer_passes;
+  std::map <QString, QString> m_peer_fingers;
 
 
 
@@ -189,6 +201,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
+  const QString& default_browser() const { return m_default_browser; }
 
   const QString& rh_user(const QString &id);
   const QString& rh_pass(const QString &id);
@@ -200,8 +213,15 @@ class CSettingsManager : public QObject {
   const QString& rh_host() const { return m_rh_host; }
   quint16 rh_port() const { return m_rh_port; }
 
+  const QString& peer_pass(const QString &peer_name);
+  const QString& peer_finger(const QString &peer_name);
+
+  const QString& peer_pass() const { return m_peer_pass; }
+  const QString& peer_finger() const { return m_peer_finger; }
+
   const QString& logs_storage() const { return m_logs_storage; }
   const QString& ssh_keys_storage() const { return m_ssh_keys_storage; }
+  const QString& peer_storage() const { return m_peers_storage; }
   const QString& tray_guid() const { return m_tray_guid; }
 
   update_freq_t p2p_update_freq() const {
@@ -263,12 +283,14 @@ class CSettingsManager : public QObject {
   void set_vagrant_path(QString fr);
   void set_x2goclient_path(QString fr);
   void set_oracle_virtualbox_path(QString fr);
+  void set_default_browser(QString fr);
   void set_rh_pass(const QString &id, const QString &pass);
   void set_rh_user(const QString &id, const QString &user);
   void set_rh_host(const QString &id, const QString &host);
   void set_rh_port(const QString &id, const qint16 &port);
 
-
+  void set_peer_pass(const QString &peer_name, const QString &pass);
+  void set_peer_finger(const QString &peer_name, const QString &finger);
 
 
   /**********************/
@@ -293,8 +315,11 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(rh_pass, QString&)
   SET_FIELD_DECL(rh_host, QString&)
   SET_FIELD_DECL(rh_port, quint16)
+  SET_FIELD_DECL(peer_pass, QString&)
+  SET_FIELD_DECL(peer_finger, QString&)
   SET_FIELD_DECL(logs_storage, QString&)
   SET_FIELD_DECL(ssh_keys_storage, QString&)
+  SET_FIELD_DECL(peers_storage, QString&)
   SET_FIELD_DECL(p2p_autoupdate, bool)
   SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)

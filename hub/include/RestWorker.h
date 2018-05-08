@@ -52,9 +52,12 @@ private:
                                    const QByteArray &data,
                                    QNetworkRequest &req);
 
+  static QNetworkReply* delete_reply(QNetworkAccessManager* nam,
+                                    QNetworkRequest &req);
+
   QByteArray send_request(QNetworkAccessManager *nam,
       QNetworkRequest &req,
-      bool get,
+      int get,
       int& http_status_code,
       int& err_code,
       int &network_error,
@@ -107,6 +110,39 @@ public:
              int &http_code,
              int &err_code,
              int &network_error);
+
+  void peer_register(const QString& port,
+                     const QString& token,
+                     const QString& login,
+                     const QString& password,
+                     const QString& peer_name,
+                     const QString& peer_scope,
+                     int &err_code,
+                     int &http_code,
+                     int &network_error);
+
+  void peer_unregister(const QString& port,
+                       const QString& token,
+                       int &err_code,
+                       int &http_code,
+                       int &network_error);
+
+
+  void peer_token(const QString& port,
+                  const QString& login,
+                  const QString& password,
+                  QString& token,
+                  int &err_code,
+                  int &http_code,
+                  int &network_error);
+
+  bool peer_finger(const QString& port,
+                   QString& finger);
+
+  bool peer_set_pass(const QString& port,
+                     const QString& username,
+                     const QString& old_pass,
+                     const QString& new_pass);
 
   bool get_user_id(QString& user_id_str);
 

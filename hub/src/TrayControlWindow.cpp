@@ -10,6 +10,7 @@
 
 #include "DlgAbout.h"
 #include "DlgGenerateSshKey.h"
+#include "DlgCreatePeer.h"
 #include "DlgLogin.h"
 #include "DlgNotification.h"
 #include "DlgNotifications.h"
@@ -20,6 +21,7 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "SettingsManager.h"
+#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "libssh2/include/LibsshController.h"
@@ -28,6 +30,7 @@
 #include "DlgEnvironment.h"
 #include "P2PController.h"
 #include "RhController.h"
+#include "PeerController.h"
 
 using namespace update_system;
 
@@ -74,16 +77,20 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
       m_act_about(NULL),
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
+      m_act_create_peer(NULL),
       m_tray_menu(NULL),
       m_act_p2p_status(NULL),
-      p2p_current_status(P2PStatus_checker::P2P_LOADING){
+      in_peer_slot(false){
+
   ui->setupUi(this);
 
   create_tray_actions();
   create_tray_icon();
   m_sys_tray_icon->show();
+  p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
-
+  CPeerController::Instance()->init();
+  CSshKeysController::Instance();
 
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
           this, &TrayControlWindow::notification_received);
@@ -115,6 +122,9 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &TrayControlWindow::ssh_to_rh_finished_sl);
 
+  connect(CPeerController::Instance(), &CPeerController::got_peer_info,
+          this, &TrayControlWindow::got_peer_info_sl);
+
   /*p2p status updater*/
   connect(&P2PStatus_checker::Instance(), &P2PStatus_checker::p2p_status, this,
           &TrayControlWindow::update_p2p_status_sl);
@@ -122,6 +132,9 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
+  if(!is_e2e_avaibale()){
+      CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's recommended to install it"), DlgNotification::N_ABOUT);
+  }
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -135,7 +148,8 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_about,
                      m_act_logout,
                      m_act_notifications_history,
-                     m_act_p2p_status};
+                     m_act_p2p_status,
+                     m_act_create_peer};
 
   for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu*); ++i) {
     if (menus[i] == nullptr) continue;
@@ -216,9 +230,15 @@ void TrayControlWindow::create_tray_actions() {
 
   /*p2p status*/
   m_act_p2p_status = new QAction(
-        QIcon(":hub/loading"), tr("P2P is loading..."), this);
+        QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
+
+  m_act_create_peer = new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
+  connect(m_act_create_peer, &QAction::triggered, this,
+          &TrayControlWindow::show_create_dialog);
+  m_empty_action = new QAction(tr("Empty"), this);
+  m_empty_action->setEnabled(false);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -241,12 +261,11 @@ void TrayControlWindow::create_tray_icon() {
   m_hub_menu->setStyleSheet(qApp->styleSheet());
   m_hub_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/tray.png"),
                                      tr("My Peers"));
+  m_hub_peer_menu->addAction(m_empty_action);
   m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
                                      tr("Local Peers"));
-
-
-
-
+  m_local_peer_menu->addAction(m_empty_action);
+  m_tray_menu->addAction(m_act_create_peer);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_settings);
   m_tray_menu->addAction(m_act_ssh_keys_management);
@@ -256,7 +275,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_quit);
 
-  m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon.png"));
+  m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon_last.png"));
 }
 
 void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
@@ -361,17 +380,21 @@ void TrayControlWindow::notification_received(
       << "Message is ignored: " << CSettingsManager::Instance().is_notification_ignored(msg);
 
   static std::map<DlgNotification::NOTIFICATION_ACTION_TYPE, bool>  no_ignore = {std::make_pair(DlgNotification::N_START_P2P, 1),
-                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1)};
+                                                                                std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_STOP_P2P, 1),
+                                                                                std::make_pair(DlgNotification::N_ABOUT, 1),
+                                                                                std::make_pair(DlgNotification::N_SETTINGS, 1)
+                                                                                };
 
-  if ((CSettingsManager::Instance().is_notification_ignored(msg)
-       && no_ignore[action_type] != 1)||
+  if (CSettingsManager::Instance().is_notification_ignored(msg)||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
-    return;
+      if(no_ignore[action_type] != 1)
+        return;
   }
 
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
 
-  dlg->setWindowFlags(dlg->windowFlags() | Qt::WindowStaysOnTopHint);
+  dlg->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
 
   connect(dlg, &QDialog::finished, dlg, &DlgNotification::deleteLater);
   int src_x, src_y, dst_x, dst_y;
@@ -445,14 +468,20 @@ void TrayControlWindow::login_success() {
 ////////////////////////////////////////////////////////////////////////////
 #include "DlgTransferFile.h"
 
-void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
-                                                      const CHubContainer* cont) {
+void TrayControlWindow::upload_to_container_triggered(const CEnvironment &env,
+                                                      const CHubContainer &cont) {
   //generate_transferfile_dlg();
   DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
+  Qt::WindowFlags flags = 0;
+  flags = Qt::Window;
+  flags |= Qt::WindowMinimizeButtonHint;
+  flags |= Qt::WindowMaximizeButtonHint;
+  flags |= Qt::WindowCloseButtonHint;
+  dlg_transfer_file->setWindowFlags(flags);
   CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont.port(), cont.ip(), cont.rh_ip());
 
-  QString ssh_key = CHubController::Instance().get_env_key(env->id());
+  QString ssh_key = CHubController::Instance().get_env_key(env.id());
   QString ip = cip.ip;
   QString port = cip.port;
   QString username = CSettingsManager::Instance().ssh_user();
@@ -461,15 +490,15 @@ void TrayControlWindow::upload_to_container_triggered(const CEnvironment* env,
   dlg_transfer_file->addSSHKey(ssh_key);
   dlg_transfer_file->addUser(username);
   m_last_generated_tranferfile_dlg = dlg_transfer_file;
-  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env->name() + "/" + cont->name());
+  show_dialog(last_generated_transferfile_dlg, "Transfer File " + env.name() + "/" + cont.name());
 }
 
-void TrayControlWindow::ssh_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont) {
+void TrayControlWindow::ssh_to_container_triggered(const CEnvironment &env,
+                                                   const CHubContainer &cont) {
   qDebug()
-      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
-      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id());
-  CHubController::Instance().ssh_to_container_from_tray(*env, *cont);
+      << QString("Environment [name: %1, id: %2]").arg(env.name(), env.id())
+      << QString("Container [name: %1, id: %2]").arg(cont.name(), cont.id());
+  CHubController::Instance().ssh_to_container_from_tray(env, cont);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -498,18 +527,18 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::desktop_to_container_triggered(const CEnvironment* env,
-                                                   const CHubContainer* cont) {
+void TrayControlWindow::desktop_to_container_triggered(const CEnvironment &env,
+                                                   const CHubContainer &cont) {
   qDebug()
-      << QString("Environment [name: %1, id: %2]").arg(env->name(), env->id())
-      << QString("Container [name: %1, id: %2]").arg(cont->name(), cont->id())
+      << QString("Environment [name: %1, id: %2]").arg(env.name(), env.id())
+      << QString("Container [name: %1, id: %2]").arg(cont.name(), cont.id())
       << QString("X2go is Launchable: %1").arg(CSystemCallWrapper::x2goclient_check());
   if (!CSystemCallWrapper::x2goclient_check()) {
-    CNotificationObserver::Error(QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is istalled from \"About\" settings.")
+    CNotificationObserver::Error(QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is installed from \"About\" settings.")
                                  .arg(x2goclient_url()), DlgNotification::N_ABOUT);
     return;
   }
-  CHubController::Instance().desktop_to_container_from_tray(*env, *cont);
+  CHubController::Instance().desktop_to_container_from_tray(env, cont);
 }
 
 
@@ -571,6 +600,12 @@ void TrayControlWindow::launch_p2p_installation(){
 
 //////////////////////////////////////
 
+void TrayControlWindow::balance_updated_sl() {
+  m_act_balance->setText(CHubController::Instance().balance());
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void TrayControlWindow::environments_updated_sl(int rr) {
   qDebug()
       << "Updating environments list"
@@ -627,7 +662,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         qInfo(
             "Environment %s became healthy", env->name().toStdString().c_str());
         lst_checked_unhealthy_env.erase(iter_found);
-      }      
+      }
       qInfo(
           "Environment %s is healthy", env->name().toStdString().c_str());
     }
@@ -664,143 +699,361 @@ void TrayControlWindow::environments_updated_sl(int rr) {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::my_peers_updated_sl() {
-
-  std::vector<CMyPeerInfo> my_current_peers = CHubController::Instance().lst_my_peers();
-  QString msgDisconnected = "";
-  QString msgConnected = "";
-
-  /// check if some peers were disconnected or deleted
-  for (CMyPeerInfo peer : peers_connected) {
-    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(my_current_peers.begin(), my_current_peers.end(),
-                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
-    if(found_peer == my_current_peers.end()) // it was disconnected or deleted
-      msgDisconnected +=
-          tr("\"%1\" is %2 ")
-            .arg(peer.name())
-            .arg("disconnected");
-  }
-
-  if (!msgDisconnected.isEmpty() && !msgDisconnected.isNull()) {
-    qDebug() << "Disconnected Peer Message: " << msgDisconnected;
-    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgDisconnected, DlgNotification::N_GO_TO_HUB);
-  }
-
-  /// check if some new peers were connected or changed status
-  for (CMyPeerInfo peer : my_current_peers) {
-    std::vector<CMyPeerInfo>::iterator found_peer = std::find_if(peers_connected.begin(), peers_connected.end(),
-                                                    [peer](const CMyPeerInfo &p){return peer.id() == p.id();});
-    if(found_peer == peers_connected.end() || found_peer->status() != peer.status()) { // new connected or changed status
-      msgConnected +=
-          tr("\"%1\" is %2 ")
-             .arg(peer.name())
-             .arg(peer.status());
+    in_peer_slot = true;
+    QString msgDisconnected = "", msgOnline = "", msgOffline = "";
+    //get peers list;
+    std::vector<CMyPeerInfo> hub_peers = CHubController::Instance().lst_my_peers();
+    std::vector<std::pair <QString, QString> > network_peers;
+    for (std::pair<QString, QString> local_peer : CRhController::Instance()->dct_resource_hosts()){
+        network_peers.push_back(std::make_pair(CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
     }
-  }
-  if (!msgConnected.isEmpty() && !msgConnected.isNull()) {
-    qDebug() << "Connected Peer Message: " << msgConnected;
-    CNotificationObserver::Instance()->Info(tr("Status of your Peers: ") + msgConnected, DlgNotification::N_GO_TO_HUB);
-  }
-  peers_connected = my_current_peers;
-  update_peer_menu();
-}
-
-void TrayControlWindow::update_peer_menu() {
-  static QIcon online_icon(":/hub/GOOD.png");
-  static QIcon offline_icon(":/hub/BAD.png");
-  static QIcon unknown_icon(":/hub/OK.png");
-  static QIcon local_hub(":/hub/local_hub.png");
-  static QIcon local_network_icon(":/hub/local-network.png");
-
-
-  m_hub_peer_menu->clear();
-  m_local_peer_menu->clear();
-
-
-  // migrate from dct_resource_hosts to found_local_peers by modifying uid to fingerprint
-  std::vector <std::pair<QString, QString>> found_local_peers;
-  for (std::pair<QString, QString> local_peer : CRhController::Instance()->dct_resource_hosts()) {
-    found_local_peers.push_back(std::make_pair(CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
-  }
-
-  // Find local&hub peers
-  for (std::pair<QString, QString> local_peer : found_local_peers) {
-    for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
-        int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
-        if (eq == 0) // found peer both local and registered on hub
-        {
-          QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name() + " - " + local_peer.second);
-          peer_start->setIcon(local_hub);
-
-          connect(peer_start, &QAction::triggered, [local_peer, hub_peer, this](){
-            this->generate_peer_dlg(&(*hub_peer), local_peer);
-            TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                           QString("Peer \"%1\" - %2(%3)").arg(hub_peer->name()).arg(local_peer.second).arg(hub_peer->status()));
-          });
-          break;
+    //update connected peers
+    for (auto peer_info : hub_peers){
+        if(hub_peers_table.find(peer_info.fingerprint()) == hub_peers_table.end()){
+            peer_info.status() == "ONLINE" ? msgOnline += ", " + peer_info.name() : msgOffline += ", " + peer_info.name();
+        }
+        else if(hub_peers_table[peer_info.fingerprint()].status() != peer_info.status()){
+            peer_info.status() == "ONLINE" ? msgOnline += ", " + peer_info.name() : msgOffline += ", " + peer_info.name();
+        }
+        peer_info.set_updated(true);
+        hub_peers_table[peer_info.fingerprint()] = peer_info;
+        update_peer_button(peer_info.fingerprint().toUpper(), peer_info);
+    }
+    for (auto peer_info : network_peers){
+        network_peers_table[peer_info.first] = std::make_pair(peer_info.second, true);
+        update_peer_button(peer_info.first.toUpper(), peer_info);
+    }
+    //delete disconnected peers
+    std::vector<QString> hub_disconnected_peers;
+    std::vector<QString> network_disconnected_peers;
+    for (auto peer_it = hub_peers_table.begin(); peer_it != hub_peers_table.end(); peer_it++){
+        if(!peer_it->second.updated()){
+            hub_disconnected_peers.push_back(peer_it->second.fingerprint());
+            msgDisconnected += ", " + peer_it->second.name();
+        }
+        else{
+            peer_it->second.set_updated(false);
         }
     }
-  }
-
-  // Find local peers
-  for (std::pair<QString, QString> local_peer : found_local_peers) {
-    bool found_on_hub = false;
-    for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
-      int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
-      if (eq == 0) // found peer on hub
-      {
-        found_on_hub = true;
-        break;
-      }
+    for (auto peer_it = network_peers_table.end(); peer_it != network_peers_table.end(); peer_it++){
+        if(!peer_it->second.second){
+            network_disconnected_peers.push_back(peer_it->first);
+        }
+        else{
+            peer_it->second.second = false;
+        }
     }
-
-    if (found_on_hub == false && local_peer.first != QString("current_setting")) {
-      QAction *peer_start = m_local_peer_menu->addAction(local_peer.second);
-      peer_start->setIcon(local_network_icon);
-      connect(peer_start, &QAction::triggered, [this, local_peer]() {
-        this->generate_peer_dlg(NULL, local_peer);
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                       QString("Peer \"%1\"").arg(local_peer.second));
-      });
+    for (auto del_me : hub_disconnected_peers){
+        hub_peers_table.erase(hub_peers_table.find(del_me));
+        delete_peer_button_info(del_me.toUpper(), 1);
     }
-  }
-
-  // Find hub peers
-  for (auto hub_peer = peers_connected.begin() ; hub_peer != peers_connected.end() ; hub_peer ++) {
-    bool found_on_local = false;
-    for (std::pair<QString, QString> local_peer : found_local_peers) {
-      int eq = QString::compare(local_peer.first, hub_peer->fingerprint(), Qt::CaseInsensitive);
-      if (eq == 0) // found peer on local
-      {
-        found_on_local = true;
-        break;
-      }
+    for (auto del_me : network_disconnected_peers){
+        network_peers_table.erase(network_peers_table.find(del_me));
+        delete_peer_button_info(del_me.toUpper(), 2);
     }
-    if (found_on_local == false) {
-      QAction *peer_start = m_hub_peer_menu->addAction(hub_peer->name());
-      peer_start->setIcon(hub_peer->status() == "ONLINE" ? online_icon :
-                            hub_peer->status() == "OFFLINE" ? offline_icon : unknown_icon);
-      connect(peer_start, &QAction::triggered, [hub_peer, this](){
-        this->generate_peer_dlg(&(*hub_peer), std::make_pair("",""));
-        TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
-                                       QString("Peer \"%1\"(%2)").arg(hub_peer->name()).arg(hub_peer->status()));
-      });
+    //show notifications
+    if(!msgOnline.isEmpty()){
+        msgOnline.remove(0,2);
+        CNotificationObserver::Instance()->Info(tr("%1 %2 online")
+                                                .arg(msgOnline, msgOnline.contains(", ") ? "are" : "is"), DlgNotification::N_GO_TO_HUB);
     }
-  }
-
-  if (m_hub_peer_menu->isEmpty()) {
-    m_hub_peer_menu->addAction("Empty")->setEnabled(false);
-  }
-  if (m_local_peer_menu->isEmpty()) {
-    m_local_peer_menu->addAction("Empty")->setEnabled(false);
-  }
+    if(!msgOffline.isEmpty()){
+        msgOffline.remove(0,2);
+        CNotificationObserver::Instance()->Info(tr("%1 %2 offline")
+                                                .arg(msgOffline, msgOffline.contains(", ") ? "are" : "is"), DlgNotification::N_GO_TO_HUB);
+    }
+    if(!msgDisconnected.isEmpty()){
+        msgDisconnected.remove(0,2);
+        CNotificationObserver::Instance()->Info(tr("%1 %2 disconnected")
+                                                .arg(msgDisconnected, msgDisconnected.contains(", ") ? "are" : "is"), DlgNotification::N_GO_TO_HUB);
+    }
+    in_peer_slot = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TrayControlWindow::balance_updated_sl() {
-  m_act_balance->setText(CHubController::Instance().balance());
+void TrayControlWindow::got_peer_info_sl(int type,
+                                         QString name,
+                                         QString dir,
+                                         QString output){
+    in_peer_slot = true;
+    static QString new_updated = "new";
+
+    if(type == 0 && name == "update" && dir == "peer" && output == "menu"){
+        machine_peers_upd_finished();
+        in_peer_slot = false;
+        return;
+    }
+    if(CPeerController::Instance()->get_number_threads() <= 0){
+        in_peer_slot = false;
+        return;
+    }
+    CPeerController::Instance()->dec_number_threads();
+    CLocalPeer updater_peer;
+    if(machine_peers_table.find(name) != machine_peers_table.end())
+        updater_peer = machine_peers_table[name];
+
+    updater_peer.set_dir(dir);
+    updater_peer.set_name(name);
+    updater_peer.set_update(new_updated);
+
+    switch (type) {
+        case 0:
+            updater_peer.set_status(output);
+            break;
+        case 1:
+            updater_peer.set_ip(output);
+            break;
+        case 2:
+            if(output != "undefined" && !output.isEmpty() && CSettingsManager::Instance().peer_finger(name) != output){
+                delete_peer_button_info(CSettingsManager::Instance().peer_finger(name), 0);
+                CSettingsManager::Instance().set_peer_finger(name, output);
+            }
+            updater_peer.set_fingerprint(output);
+            break;
+        default:
+            break;
+    }
+
+    machine_peers_table[name] = updater_peer;
+    if(!CSettingsManager::Instance().peer_finger(updater_peer.name()).isEmpty()){
+        delete_peer_button_info(updater_peer.name(), 0);
+        update_peer_button(CSettingsManager::Instance().peer_finger(updater_peer.name()), updater_peer);
+    }
+    else{
+        update_peer_button(updater_peer.name(), updater_peer);
+    }
+    if(CPeerController::Instance()->get_number_threads() == 0){
+        machine_peers_upd_finished();
+    }
+    in_peer_slot = false;
 }
 
+void TrayControlWindow::machine_peers_upd_finished(){
+    qDebug()<<"refresh of local machine peers finished" << "number of total peers in table" << machine_peers_table.size();
+    std::vector <QString> delete_me;
+    for(auto it = machine_peers_table.begin(); it != machine_peers_table.end(); it++){
+        if(it->second.update() == "old"){
+            delete_peer_button_info(CSettingsManager::Instance().peer_finger(it->second.name()), 0);
+            delete_peer_button_info(it->second.name(), 0);
+            delete_me.push_back(it->second.name());
+        }
+        else it->second.set_update("old");
+    }
+    for (auto del : delete_me){
+        machine_peers_table.erase(machine_peers_table.find(del));
+    }
+}
+
+void TrayControlWindow::peer_deleted_sl(const QString &peer_name){
+    machine_peers_table.erase(machine_peers_table.find(peer_name));
+    CPeerController::Instance()->finish_current_update();
+}
+
+void TrayControlWindow::peer_under_modification_sl(const QString &peer_name){
+    static QString running_string = "running";
+    static QString undefined_string = "undefined";
+    if(machine_peers_table.find(peer_name) != machine_peers_table.end()){
+        machine_peers_table[peer_name].set_status(running_string);
+        machine_peers_table[peer_name].set_ip(undefined_string);
+    }
+    CPeerController::Instance()->finish_current_update();
+}
+
+void TrayControlWindow::peer_poweroff_sl(const QString &peer_name){
+    static QString poweroff_string = "poweroff";
+    static QString undefined_string = "undefined";
+    if(machine_peers_table.find(peer_name) != machine_peers_table.end()){
+        machine_peers_table[peer_name].set_status(poweroff_string);
+        machine_peers_table[peer_name].set_ip(undefined_string);
+    }
+    CPeerController::Instance()->finish_current_update();
+}
+
+void TrayControlWindow::update_peer_button(const QString &peer_id, const CLocalPeer &peer_info){
+    qDebug() << "update peer button information wih local peer";
+    if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
+        my_peer_button *new_peer_button = new my_peer_button(peer_id, peer_info.name());
+        my_peers_button_table[peer_id] = new_peer_button;
+    }
+    my_peer_button *peer_button = my_peers_button_table[peer_id];
+    if(peer_button->m_local_peer == NULL){
+        peer_button->m_local_peer = new CLocalPeer;
+    }
+    if(peer_info.status() == "running"){
+        if(peer_info.ip() == "undefined" || peer_info.ip() == "loading" || peer_info.ip().isEmpty()){
+            peer_button->m_local_peer_state = 3;
+        }
+        else if(peer_info.fingerprint() == "undefined" || peer_info.fingerprint() == "loading" || peer_info.fingerprint().isEmpty()){
+            peer_button->m_local_peer_state = 3;
+        }
+        else{
+            peer_button->m_local_peer_state = 1;
+        }
+    }
+    else{
+        peer_button->m_local_peer_state = 2;
+    }
+    if(peer_button->m_hub_peer == NULL){
+        peer_button->peer_name = peer_info.name();
+    }
+    *(peer_button->m_local_peer) = peer_info;
+    update_peer_icon(peer_id);
+}
+
+void TrayControlWindow::update_peer_button(const QString &peer_id, const CMyPeerInfo &peer_info){
+    qDebug() << "update peer button information wih hub peer";
+    if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
+        my_peer_button *new_peer_button = new my_peer_button(peer_id, peer_info.name());
+        my_peers_button_table[peer_id] = new_peer_button;
+    }
+    my_peer_button *peer_button = my_peers_button_table[peer_id];
+    if(peer_button->m_hub_peer == NULL){
+        peer_button->m_hub_peer = new CMyPeerInfo;
+    }
+    if(peer_info.status() == "ONLINE" ){
+       peer_button->m_hub_peer_state = 1;
+    }
+    else{
+        peer_button->m_hub_peer_state = 2;
+    }
+    peer_button->peer_name = peer_info.name();
+    *(peer_button->m_hub_peer) = peer_info;
+    update_peer_icon(peer_id);
+}
+
+void TrayControlWindow::update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info){
+    qDebug() << "update peer button information wih network peer(rh)";
+    if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
+        my_peer_button *new_peer_button = new my_peer_button(peer_id, peer_info.second);
+        my_peers_button_table[peer_id] = new_peer_button;
+    }
+    my_peer_button *peer_button = my_peers_button_table[peer_id];
+    if((peer_button->m_hub_peer_state || peer_button->m_local_peer_state) == 0){
+        peer_button->peer_name = peer_info.second;
+    }
+    if(peer_button->m_network_peer == NULL){
+        peer_button->m_network_peer = new std::pair<QString, QString>;
+    }
+    *(peer_button->m_network_peer) = peer_info;
+    peer_button->m_network_peer_state = 1;
+    update_peer_icon(peer_id);
+}
+
+void TrayControlWindow::update_peer_icon(const QString &peer_id){
+    qDebug() << "update peer icon: " <<peer_id;
+    static QIcon online_icon(":/hub/GOOD.png");
+    static QIcon offline_icon(":/hub/BAD.png");
+    static QIcon unknown_icon(":/hub/OK.png");
+    static QIcon local_hub(":/hub/local_hub.png");
+    static QIcon local_network_icon(":/hub/local-network.png");
+    static QIcon local_machine_off_icon(":/hub/local_off.png");
+    static QIcon map_icons[2][3][4] = {
+        { // no network peer(rh)
+            {unknown_icon, local_network_icon, local_machine_off_icon, unknown_icon}, // no hub peer
+            {online_icon, local_hub, local_machine_off_icon, unknown_icon}, // online hub peer
+            {offline_icon, local_hub, local_machine_off_icon, unknown_icon}, // offline hub peer
+        },
+        { // found network peer(rh)
+            {local_network_icon, local_network_icon, local_machine_off_icon, unknown_icon},
+            {local_hub, local_hub, local_machine_off_icon, unknown_icon},
+            {local_hub, local_network_icon, local_machine_off_icon}
+        }
+    };
+    my_peer_button *peer_button = my_peers_button_table[peer_id];
+    if(peer_button == NULL){
+        return;
+    }
+    if(peer_button->m_my_peers_item == NULL){
+        peer_button->m_my_peers_item = new QAction;
+        connect(peer_button->m_my_peers_item, &QAction::triggered, [this, peer_button](){
+            this->my_peer_button_pressed_sl(peer_button);
+        });
+    }
+    peer_button->m_my_peers_item->setText(peer_button->peer_name);
+    peer_button->m_my_peers_item->setIcon(map_icons[peer_button->m_network_peer_state][peer_button->m_hub_peer_state][peer_button->m_local_peer_state]);
+    if( (peer_button->m_local_peer_state || peer_button->m_hub_peer_state ) == 0){ // no information about hub and local peers
+        if(peer_button->m_my_peers_item != NULL){
+            m_hub_peer_menu->removeAction(peer_button->m_my_peers_item);
+            if(m_hub_peer_menu->actions().isEmpty()){
+                m_hub_peer_menu->addAction(m_empty_action);
+            }
+        }
+        if(peer_button->m_network_peer_state == 0){
+            my_peers_button_table.erase(my_peers_button_table.find(peer_id));
+        }else{
+            peer_button->peer_name = peer_button->m_network_peer->second;
+            peer_button->m_my_peers_item->setText(peer_button->peer_name);
+            if(m_local_peer_menu->actions().indexOf(peer_button->m_my_peers_item) == -1){
+                m_local_peer_menu->addAction(peer_button->m_my_peers_item);
+                m_local_peer_menu->removeAction(m_empty_action);
+            }
+        }
+        return;
+    }else{
+        m_local_peer_menu->removeAction(peer_button->m_my_peers_item);
+        if(m_local_peer_menu->actions().empty()){
+            m_local_peer_menu->addAction(m_empty_action);
+        }
+        if(m_hub_peer_menu->actions().indexOf(peer_button->m_my_peers_item) == -1){
+            m_hub_peer_menu->addAction(peer_button->m_my_peers_item);
+            m_hub_peer_menu->removeAction(m_empty_action);
+        }
+    }
+}
+
+void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type){
+    if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
+        return;
+    }
+    my_peer_button *peer_button = my_peers_button_table[peer_id];
+    QString peer_backup_name, peer_local_backup_name; // we need keep them to delete fingerprint from configs
+    switch (type) {
+        case 0:
+            if(peer_button->m_local_peer != NULL){
+                peer_backup_name = peer_button->peer_name;
+                peer_local_backup_name = peer_button->m_local_peer->name();
+                delete peer_button->m_local_peer;
+                peer_button->m_local_peer = NULL;
+            }
+            peer_button->m_local_peer_state = 0;
+            break;
+        case 1:
+            if(peer_button->m_hub_peer != NULL){
+                delete peer_button->m_hub_peer;
+                peer_button->m_hub_peer = NULL;
+            }
+            peer_button->m_hub_peer_state = 0;
+            break;
+        case 2:
+            if(peer_button->m_network_peer != NULL){
+                delete peer_button->m_network_peer;
+                peer_button->m_network_peer = NULL;
+            }
+            peer_button->m_network_peer_state = 0;
+            break;
+    }
+    update_peer_icon(peer_id);
+    if(peer_backup_name != peer_id && type == 0){
+        CSettingsManager::Instance().set_peer_finger(peer_local_backup_name, "");
+    }
+}
+
+void TrayControlWindow::my_peer_button_pressed_sl(const my_peer_button *peer_info){
+    if(peer_info == NULL){
+        return;
+    }
+    static std::pair<QString, QString> empty_network_peer = std::make_pair("","");
+    std::vector<CLocalPeer> local_peer_info;
+    if(peer_info->m_local_peer != NULL){
+        local_peer_info.push_back(*(peer_info->m_local_peer));
+    }
+    this->generate_peer_dlg(peer_info->m_hub_peer,
+                            peer_info->m_network_peer == NULL ? empty_network_peer : *(peer_info->m_network_peer),
+                            local_peer_info);
+    TrayControlWindow::show_dialog(TrayControlWindow::last_generated_peer_dlg,
+                                   QString("Peer \"%1\"").arg(peer_info->peer_name));
+}
 ////////////////////////////////////////////////////////////////////////////
 
 /* p2p status updater*/
@@ -995,6 +1248,22 @@ void TrayControlWindow::show_settings_dialog() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QDialog* create_create_peer_dialog(QWidget* p){ return new DlgCreatePeer(p); }
+void TrayControlWindow::show_create_dialog() {
+    QString vg_version, vb_version;
+    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+    CSystemCallWrapper::vagrant_version(vg_version);
+    if(vg_version == "undefined"){
+        CNotificationObserver::Instance()->Error(tr("Install Vagrant to create Peers"), DlgNotification::N_ABOUT);
+        return;
+    }
+    if(vb_version == "undefined"){
+        CNotificationObserver::Instance()->Error(tr("You don't have any hypervisor for Vagrant"), DlgNotification::N_ABOUT);
+        return;
+    }
+    show_dialog(create_create_peer_dialog, tr("Create peer"));
+}
+////////////////////////////////////////////////////////////////////////////
 QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
   show_dialog(create_about_dialog, tr("About Subutai Control Center"));
@@ -1063,10 +1332,12 @@ QDialog* TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
   return m_last_generated_peer_dlg;
 }
 
-void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer){ // local_peer -> pair of fingerprint and local ip
+void TrayControlWindow::generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp){ // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer();
-  dlg_peer->addPeer(peer , local_peer);
+  dlg_peer->addPeer(peer , local_peer, lp);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this, &TrayControlWindow::ssh_to_rh_triggered);
+  connect(dlg_peer, &DlgPeer::peer_deleted, this, &TrayControlWindow::peer_deleted_sl);
+  connect(dlg_peer, &DlgPeer::peer_modified, this, &TrayControlWindow::peer_under_modification_sl);
   m_last_generated_peer_dlg = dlg_peer;
 }
 
@@ -1086,7 +1357,11 @@ void TrayControlWindow::ssh_to_container_finished(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
+bool TrayControlWindow::is_e2e_avaibale(){
+    QString version_e2e;
+    return CSystemCallWrapper::subutai_e2e_version(version_e2e) == SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::desktop_to_container_finished(
     const CEnvironment &env,
     const CHubContainer &cont,

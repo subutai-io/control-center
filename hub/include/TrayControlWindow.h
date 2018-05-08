@@ -18,9 +18,11 @@
 #include "HubController.h"
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
+#include "DlgCreatePeer.h"
 #include "RestContainers.h"
 
 #include "P2PController.h"
+#include "PeerController.h"
 
 namespace Ui {
   class TrayControlWindow;
@@ -47,12 +49,42 @@ public:
   QString default_peer_id() const {
     return m_default_peer_id;
   }
+
+  struct my_peer_button{
+      // peer containers
+      CLocalPeer *m_local_peer;
+      CMyPeerInfo *m_hub_peer;
+      std::pair<QString, QString> *m_network_peer;
+      QAction *m_my_peers_item;
+      int m_network_peer_state, m_hub_peer_state, m_local_peer_state; //states of each peer class
+      QString peer_id, peer_name;
+      my_peer_button(const QString &peer_id_, const QString &peer_name_){
+        peer_id = peer_id_;
+        peer_name = peer_name_;
+        m_local_peer = NULL;
+        m_hub_peer = NULL;
+        m_network_peer = NULL;
+        m_my_peers_item = NULL;
+        m_network_peer_state = 0;
+        m_hub_peer_state = 0;
+        m_local_peer_state = 0;
+      }
+      ~my_peer_button(){
+          delete m_local_peer;
+          delete m_hub_peer;
+          delete m_network_peer;
+          delete m_my_peers_item;
+      }
+  };
+
   std::map<QString, CEnvironment> environments_table;
+  std::map<QString, CLocalPeer> machine_peers_table;
+  std::map<QString, CMyPeerInfo> hub_peers_table;
+  std::map<QString, std::pair<QString, bool> > network_peers_table;
+  std::map<QString, my_peer_button*> my_peers_button_table;
+  bool is_e2e_avaibale();
 private:
   Ui::TrayControlWindow *ui;
-
-  std::vector<CMyPeerInfo> peers_connected;
-
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
@@ -64,7 +96,7 @@ private:
   QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
-  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>);
+  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>, std::vector<CLocalPeer> lp);
   static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
@@ -86,9 +118,11 @@ private:
   QAction *m_act_notifications_history;
 
   QSystemTrayIcon* m_sys_tray_icon;
+  QAction *m_act_create_peer;
   QMenu* m_tray_menu;
-
   QAction *m_act_p2p_status; // p2p status
+  QAction *m_empty_action;
+
 
   std::map<QString, QDialog*> m_dct_active_dialogs;
 
@@ -103,12 +137,23 @@ private:
   /*tray icon end*/
 
   void show_dialog(QDialog* (*pf_dlg_create)(QWidget*), const QString &title);
+
+  /* mutexes */
+  std::atomic<bool> in_peer_slot;
+
+  /* peer manager */
+  void update_peer_button(const QString &peer_id, const CLocalPeer &peer_info);
+  void update_peer_button(const QString &peer_id, const CMyPeerInfo &peer_info);
+  void update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info);
+  void update_peer_icon(const QString &peer_id);
+  void delete_peer_button_info(const QString &peer_id, int type);
 public slots:
   /*tray slots*/
   void show_about();
   void show_settings_dialog();
   void launch_Hub();
   void launch_ss();
+  void show_create_dialog();
 
   /*hub slots*/
   void show_notifications_triggered();
@@ -129,8 +174,18 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+
+  /*peer management*/
   void my_peers_updated_sl();
-  void update_peer_menu();
+  void got_peer_info_sl(int type,
+                        QString name,
+                        QString dir,
+                        QString output);
+  void machine_peers_upd_finished();
+  void peer_deleted_sl(const QString& peer_name);
+  void peer_under_modification_sl(const QString& peer_name);
+  void peer_poweroff_sl(const QString& peer_name);
+  void my_peer_button_pressed_sl(const my_peer_button* peer_info);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
@@ -139,9 +194,9 @@ private slots:
   void ssh_to_rh_triggered(const QString &peer_fingerprint);
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
-  void upload_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
-  void ssh_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
-  void desktop_to_container_triggered(const CEnvironment *env, const CHubContainer *cont);
+  void upload_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
+  void ssh_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
+  void desktop_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
 
   void ssh_key_generate_triggered();
 

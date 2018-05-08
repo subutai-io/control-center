@@ -55,6 +55,12 @@ namespace update_system {
     static const QString X2GO;
     static const QString VAGRANT;
     static const QString ORACLE_VIRTUALBOX;
+    static const QString CHROME;
+    static const QString E2E;
+
+    bool is_in_progress(){
+        return m_in_progress;
+    }
 
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
@@ -73,13 +79,13 @@ namespace update_system {
 
     chue_t update() {
       if (m_in_progress) return CHUE_IN_PROGRESS;
-      atomic_locker al(&m_in_progress);
+      m_in_progress = true;
       return update_internal();
     }
 
     chue_t install() {
        if(m_in_progress) return CHUE_IN_PROGRESS;
-       atomic_locker al(&m_in_progress);
+       m_in_progress = true;
        return install_internal();
     }
 
@@ -88,11 +94,13 @@ namespace update_system {
   protected slots:
     void update_finished_sl(bool success) {
       update_post_action(success);
+      m_in_progress = false;
       emit update_finished(m_component_id, success);
     }
 
     void install_finished_sl(bool success){
         install_post_interntal(success);
+        m_in_progress = false;
         emit install_finished(m_component_id, success);
     }
 
@@ -163,6 +171,44 @@ namespace update_system {
       virtual void install_post_interntal(bool success);
     private:
       QString download_oracle_virtualbox_path();
+    };
+    /**
+     * @brief The CUpdaterComponentCHROME class implements IUpdaterComponent. Works with chrome
+     */
+    class CUpdaterComponentCHROME : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentCHROME();
+      virtual ~CUpdaterComponentCHROME();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_chrome_path();
+    };
+    /**
+     * @brief The CUpdaterComponentE2E class implements IUpdaterComponent. Works with subutai e2e plugin
+     */
+    class CUpdaterComponentE2E : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentE2E();
+      virtual ~CUpdaterComponentE2E();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_e2e_path();
     };
 }
 

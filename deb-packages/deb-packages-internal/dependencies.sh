@@ -23,9 +23,4 @@ if [ -e "$libinput" ]; then
   cp "$libinput" "$2"
 fi
 
-libssl=$(find /usr/lib . -name 'libssl.so.1.0.0')
-if [ -e "$libssl" ]; then
-  cp "$libssl" "$2"
-fi
-
 echo "Done!"

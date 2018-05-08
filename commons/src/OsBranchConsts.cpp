@@ -5,6 +5,27 @@
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
 
+static std::map<QString, QString> virtual_package_codename = {
+    {"xenial", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"bionic", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"},
+    {"zesty", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
+    {"yakkety", "virtualbox-5.2_5.2.8-121009_Ubuntu_yakkety_amd64.deb"},
+    {"trusty", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"stretch", "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb"},
+    {"jessie", "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb"},
+    {"wheezy", "virtualbox-5.2_5.2.8-121009_Debian_wheezy_amd64.deb"},
+    {"artful", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
+    {"qiana", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"}, //compatible with 14.04
+    {"rebecca", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"rafaela", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"rosa", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
+    {"sarah", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"}, //compatible with 16.04
+    {"serena", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"sonya", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"sylvia", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
+    {"rara", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"} //compatible with 18.04
+};
+
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 
 #define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -72,22 +93,8 @@ oracle_virtualbox_kurjun_package_name() {
     if(info.size() < 2 || info[0].second != "Linux")
         return kurjun_file;
     QString codename = info[1].second;
-    if(codename == "bionic")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb";
-    else if(codename == "zesty")
-        kurjun_file = "";
-    else if(codename == "yakkety")
-        kurjun_file = "";
-    else if(codename == "xenial")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb";
-    else if(codename == "trusty")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb";
-    else if(codename == "stretch")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb";
-    else if(codename == "jessie")
-        kurjun_file = "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb";
-    else if(codename == "wheezy")
-        kurjun_file = "";
+    if(virtual_package_codename.find(codename) != virtual_package_codename.end())
+        kurjun_file = virtual_package_codename[codename];
     return kurjun_file;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -137,6 +144,20 @@ vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64
 const QString &
 vagrant_kurjun_package_name(){
     return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+template <class OS> const QString& chrome_kurjun_package_name_internal();
+#define chrome_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& chrome_kurjun_package_name_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+chrome_kurjun_package_name_def(OS_MAC, "googlechrome.dmg")
+chrome_kurjun_package_name_def(OS_LINUX, "google-chrome-stable_current_amd64.deb")
+chrome_kurjun_package_name_def(OS_WIN, "ChromeSetup.exe")
+const QString& chrome_kurjun_package_name(){
+    return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
@@ -308,6 +329,25 @@ hub_billing_url() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QStringList& supported_browsers_internal();
+
+#define supported_browsers_internal_def(OS_TYPE, STRING) \
+    template <> \
+    const QStringList& supported_browsers_internal<Os2Type <OS_TYPE> >() { \
+        static QString st(STRING); \
+        static QStringList res = st.split(" "); \
+        return res; \
+    }
+
+supported_browsers_internal_def(OS_WIN, "Chrome") // add edge, mozilla
+supported_browsers_internal_def(OS_LINUX, "Chrome") // add mozilla
+supported_browsers_internal_def(OS_MAC, "Chrome") // add safari , mozilla
+
+const QStringList& supported_browsers(){
+    return supported_browsers_internal<Os2Type <CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -385,7 +425,7 @@ template<class OS> const QString& default_p2p_path_temp_internal();
 
 default_p2p_path_internal_def(OS_LINUX, "/opt/subutai/bin/p2p")
 default_p2p_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
-default_p2p_path_internal_def(OS_MAC, "/usr/local/share/subutai/bin/p2p")
+default_p2p_path_internal_def(OS_MAC, "/usr/local/bin/p2p")
 
 const QString &
 default_p2p_path() {
@@ -576,7 +616,7 @@ template<class OS> const QString& which_cmd_internal();
   }
 
 which_cmd_internal_def(OS_LINUX, "which")
-which_cmd_internal_def(OS_MAC, "which")
+which_cmd_internal_def(OS_MAC, "/usr/bin/which")
 which_cmd_internal_def(OS_WIN, "where")
 
 const QString &
@@ -730,7 +770,24 @@ base_interface_name() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_chrome_extensions_path_internal();
 
+#define default_chrome_extensions_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_chrome_extensions_path_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_chrome_extensions_path_internal_def(OS_WIN, "/AppData/Local/Google/Chrome/User Data/")
+default_chrome_extensions_path_internal_def(OS_MAC, "/Library/Application Support/Google/Chrome/")
+default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/")
+
+const QString&
+default_chrome_extensions_path() {
+    return default_chrome_extensions_path_internal< Os2Type<CURRENT_OS> >();
+}
+///////////////////////////////////////////////////////////////////////////////
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
     v.clear();
     QString flag, st;
@@ -761,5 +818,19 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v){
         break;
     default:
         break;
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+const QString& default_default_browser(){
+    static QString res("Chrome");
+    return res;
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& subutai_e2e_id(const QString& current_browser){
+    if(current_browser == "Chrome"){
+        static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
+        return res;
     }
 }

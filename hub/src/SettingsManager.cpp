@@ -29,6 +29,7 @@ const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
+const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -41,8 +42,12 @@ const QString CSettingsManager::SM_RH_PASS("Rh_Pass_%1");
 const QString CSettingsManager::SM_RH_HOST("Rh_Host_%1");
 const QString CSettingsManager::SM_RH_PORT("Rh_Port_%1");
 
+const QString CSettingsManager::SM_PEER_PASS("Peer_Pass_%1");
+const QString CSettingsManager::SM_PEER_FINGER("Peer_Finger_%1");
+
 const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
+const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 
@@ -170,6 +175,7 @@ CSettingsManager::CSettingsManager()
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
+      m_default_browser(default_default_browser()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -181,8 +187,12 @@ CSettingsManager::CSettingsManager()
       m_rh_pass("ubuntai"),
       m_rh_port(4567),
 
+      m_peer_pass("secret"), //default pass for all consoles
+      m_peer_finger("undefined"),
+
       m_logs_storage(subutai_path()),
       m_ssh_keys_storage(QApplication::applicationDirPath()),
+      m_peers_storage(QString(QStandardPaths::HomeLocation)),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_rh_update_freq(UF_NEVER),
@@ -236,14 +246,18 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
       {(void*)&m_rh_pass, SM_RH_PASS, qvar_to_str},
       {(void*)&m_rh_user, SM_RH_USER, qvar_to_str},
+      {(void*)&m_peer_pass, SM_PEER_PASS, qvar_to_str},
+      {(void*)&m_peer_finger, SM_PEER_FINGER, qvar_to_str},
       {(void*)&m_logs_storage, SM_LOGS_STORAGE, qvar_to_str},
       {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
+      {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
+      {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
 
       // bool
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -297,18 +311,20 @@ CSettingsManager::CSettingsManager()
     m_tray_guid = QUuid::createUuid().toString();
     m_settings.setValue(SM_TRAY_GUID, m_tray_guid);
   }
-
   // which using
   QString* cmd_which[] = {&m_ssh_keygen_cmd, &m_ssh_path,
-                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, nullptr};
+                          &m_p2p_path, &m_x2goclient, &m_vagrant_path, &m_scp_path, &m_oracle_virtualbox_path, nullptr};
   static const QString default_values[] = {ssh_keygen_cmd_path(), ssh_cmd_path(),
-                                           default_p2p_path(), default_x2goclient_path(), default_vagrant_path()};
+                                           default_p2p_path(), default_x2goclient_path(),
+                                           default_vagrant_path(), scp_cmd_path(), default_oracle_virtualbox_path()};
   static const QString commands_name[] =
                                     {"ssh-keygen",
                                      "ssh",
                                      "p2p",
                                      "x2goclient",
-                                     "vagrant"};
+                                     "vagrant",
+                                     "scp",
+                                     "virtualbox"};
 
 
   QString tmp;
@@ -331,8 +347,6 @@ CSettingsManager::CSettingsManager()
       *cmd_which[i] = tmp;
     }
   }
-
-
   //terminal and it's arguments
   if (m_terminal_cmd == default_terminal()) {
     QStringList terms = CCommons::DefaultTerminals();
@@ -344,7 +358,6 @@ CSettingsManager::CSettingsManager()
       break;
     }
   }
-
   CSystemCallWrapper::set_application_autostart(m_autostart);
   m_autostart = CSystemCallWrapper::application_autostart();  // second check %)
   init_password();
@@ -461,6 +474,11 @@ void CSettingsManager::set_logs_storage(const QString& logs_storage) {
   m_logs_storage = logs_storage;
   m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
 }
+
+void CSettingsManager::set_peers_storage(const QString &peers_storage){
+    m_peers_storage = peers_storage;
+    m_settings.setValue(SM_PEERS_STORAGE, m_peers_storage);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void CSettingsManager::set_p2p_update_freq(int fr) {
@@ -559,6 +577,11 @@ void CSettingsManager::set_vagrant_path(QString vagrant_path) {
   m_settings.setValue(SM_VAGRANT_PATH, m_vagrant_path);
 }
 
+void CSettingsManager::set_default_browser(QString fr){
+    m_default_browser = fr;
+    m_settings.setValue(SM_DEFAULT_BROWSER, m_default_browser);
+}
+
 void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
     QString sl = QFile::symLinkTarget(virtualbox_path);
     m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
@@ -578,7 +601,7 @@ void CSettingsManager::set_locale(const int locale) {
 
     QMessageBox* msg_box =
        new QMessageBox(QMessageBox::Question, tr("Info"),
-                       tr("You changed language. Would you like to restart tray?"),
+                       tr("You changed language. Would you like to restart Control Center?"),
                        QMessageBox::Yes | QMessageBox::No);
     connect(msg_box, &QMessageBox::finished, msg_box,
             &QMessageBox::deleteLater);
@@ -611,7 +634,6 @@ void CSettingsManager::set_rh_port(const QString &id, const qint16 &port) {
   m_rh_ports[id] = port;
   m_settings.setValue(SM_RH_PORT.arg(id), port);
 }
-
 
 const QString& CSettingsManager::rh_user(const QString &id)  {
   if (m_rh_users.find(id) == m_rh_users.end()) {
@@ -650,6 +672,36 @@ quint16 CSettingsManager::rh_port(const QString &id)  {
   return m_rh_ports[id];
 }
 
+
+void CSettingsManager::set_peer_pass(const QString &peer_name, const QString &pass){
+    m_peer_passes[peer_name] = pass;
+    m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
+}
+
+void CSettingsManager::set_peer_finger(const QString &peer_name, const QString &finger){
+    m_peer_fingers[peer_name] = finger;
+    m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
+    qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
+}
+
+const QString& CSettingsManager::peer_pass(const QString &peer_name){
+    if(m_peer_passes.find(peer_name) == m_peer_passes.end()){
+        if(m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
+            return EMPTY_STRING;
+        m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
+    }
+    return m_peer_passes[peer_name];
+}
+
+const QString& CSettingsManager::peer_finger(const QString &peer_name){
+    if(m_peer_fingers.find(peer_name) == m_peer_fingers.end()){
+        if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
+            return EMPTY_STRING;
+        m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
+    }
+    return m_peer_fingers[peer_name];
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 #define SET_FIELD_DEF(f, fn, t)               \
@@ -668,6 +720,8 @@ SET_FIELD_DEF(rh_user, SM_RH_USER, QString&)
 SET_FIELD_DEF(rh_pass, SM_RH_PASS, QString&)
 SET_FIELD_DEF(rh_host, SM_RH_HOST, QString&)
 SET_FIELD_DEF(rh_port, SM_RH_PORT, quint16)
+SET_FIELD_DEF(peer_pass, SM_PEER_PASS, QString&)
+SET_FIELD_DEF(peer_finger, SM_PEER_FINGER, QString&)
 SET_FIELD_DEF(ssh_keys_storage, SM_SSH_KEYS_STORAGE, QString&)
 SET_FIELD_DEF(terminal_cmd, SM_TERMINAL_CMD, QString&)
 SET_FIELD_DEF(terminal_arg, SM_TERMINAL_ARG, QString&)

@@ -1,5 +1,28 @@
 # Change Log
 
+## [7.0.0] 5/3/2018
+
+## [6.10.0] 5/2/2018
+* New Feature: Plugin E2E installation and browsers management
+* Allow users to choose which browser to use on CC (Chrome added)
+* Allow users to install Subutai E2E plugin for the current browser
+
+## [6.9.3] 4/24/2018
+* Various bugs with menu fixed
+
+## [6.9.2] 4/16/2018
+* Set password for Subutai Console
+* Fixed bug with error logs after peer creation
+* Optimized update implementation
+
+## [6.9.1] 4/12/2018
+* Fixed error with static libraries on linux
+
+## [6.9.0] 4/11/2018
+* New feature: Peer control manager
+* Minor bugs fixed
+* Virtualbox  installation added
+
 ## [6.8.0] 3/19/2018
 * New feature: component installation
 * X2GoClient installation added

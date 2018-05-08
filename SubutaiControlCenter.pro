@@ -60,7 +60,10 @@ SOURCES += \
     hub/src/DlgPeer.cpp \
     hub/src/TraySkinController.cpp \
     hub/src/HostMachineController.cpp \
-    hub/forms/DlgTransferFile.cpp
+    hub/forms/DlgTransferFile.cpp \
+    hub/src/DlgRegisterPeer.cpp \
+    DlgCreatePeer.cpp \
+    hub/src/PeerController.cpp
 
 
 
@@ -106,7 +109,10 @@ HEADERS  += \
     hub/include/DlgPeer.h \
     hub/include/TraySkinController.h \
     hub/include/HostMachineController.h \
-    hub/forms/DlgTransferFile.h
+    hub/forms/DlgTransferFile.h \
+    hub/include/DlgRegisterPeer.h \
+    DlgCreatePeer.h \
+    hub/include/PeerController.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -122,7 +128,9 @@ FORMS    += \
     hub/forms/DlgNotification.ui \
     hub/forms/DlgEnvironment.ui \
     hub/forms/DlgPeer.ui \
-    hub/forms/DlgTransferFile.ui
+    hub/forms/DlgTransferFile.ui \
+    hub/forms/DlgRegisterPeer.ui \
+    DlgCreatePeer.ui
 
 RESOURCES += \
     resources/resources.qrc \
@@ -171,15 +179,14 @@ unix:!macx {
 #////////////////////////////////////////////////////////////////////////////
 
 macx: {
-  DEFINES += RT_OS_DARWIN
+  DEFINES += RT_OS_DARWIN  
   DEFINES += CURRENT_OS=OS_MAC
   QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
   LIBS += -framework CoreFoundation
   LIBS += -ldl -lpthread
   ICON = $$PWD/resources/cc_icon_mac.icns
   QMAKE_INFO_PLIST = $$PWD/Info.plist
-  LIBS += -L$$PWD/libssh2/lib -lssh2
-#  LIBS += -L/tmp/tray-static -L/usr/local/lib/ -lssh2
+  LIBS += -L/usr/local/lib -lssh2
 #  USE WITH CROSS COMPILATION
 #  LIBS += -L$$PWD/libssh2/lib -lssh2
 #  QMAKE_CXXFLAGS += -fshort-wchar -stdlib=libc++ -std=c++11
@@ -250,4 +257,3 @@ tests {
 } else {
     message(Normal build)
 }
-
