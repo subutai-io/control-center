@@ -22,19 +22,16 @@ QString get_p2p_version() {
 
   return p2p_version;
 }
-
 QString get_x2go_version(){
     QString x2go_version = "";
     CSystemCallWrapper::x2go_version(x2go_version);
     return x2go_version;
 }
-
 QString get_vagrant_version(){
     QString vagrant_version = "";
     CSystemCallWrapper::vagrant_version(vagrant_version);
     return vagrant_version;
 }
-
 QString get_oracle_virtualbox_version(){
     QString version = "";
     CSystemCallWrapper::oracle_virtualbox_version(version);
@@ -42,7 +39,7 @@ QString get_oracle_virtualbox_version(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-DlgAbout::DlgAbout(QWidget *parent) :
+DlgAbout::DlgAbout(QWidget *parent):
   QDialog(parent),
   ui(new Ui::DlgAbout)
 {
