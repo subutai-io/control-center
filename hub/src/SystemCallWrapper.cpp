@@ -2597,8 +2597,12 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   args << "-v";
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
 
-  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty())
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()){
     version = res.out[0];
+  }
+  else{
+      res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
