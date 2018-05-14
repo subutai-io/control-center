@@ -132,9 +132,7 @@ TrayControlWindow::TrayControlWindow(QWidget* parent)
   InitTrayIconTriggerHandler(m_sys_tray_icon, this);
   CHubController::Instance().force_refresh();
   login_success();
-  if(!is_e2e_avaibale()){
-      CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's recommended to install it"), DlgNotification::N_ABOUT);
-  }
+  check_components();
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -174,11 +172,15 @@ TrayControlWindow::~TrayControlWindow() {
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
-
-
-
+void TrayControlWindow::check_components(){
+    if(!is_e2e_avaibale()){
+        CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's recommended to install it"), DlgNotification::N_ABOUT);
+    }
+    if(!is_p2p_avaibale()){
+        CNotificationObserver::Error(tr("P2P is not installed. You can't manage your cloud environments without P2P."), DlgNotification::N_ABOUT);
+    }
+}
 ////////////////////////////////////////////////////////////////////////////
-
 void TrayControlWindow::application_quit() {
   qDebug() << "Quitting the tray";
   m_sys_tray_icon->hide();
@@ -574,7 +576,7 @@ void TrayControlWindow::launch_p2p(){
     switch (p2p_current_status) {
         case P2PStatus_checker::P2P_FAIL :
             CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
-                                         DlgNotification::N_INSTALL_P2P);
+                                         DlgNotification::N_ABOUT); // need to reimplement n_install_p2p because it's has some bugs
             break;
         case P2PStatus_checker::P2P_READY :
             CNotificationObserver::Info(QObject::tr("P2P is not launched. "
@@ -1360,6 +1362,10 @@ void TrayControlWindow::ssh_to_container_finished(
 bool TrayControlWindow::is_e2e_avaibale(){
     QString version_e2e;
     return CSystemCallWrapper::subutai_e2e_version(version_e2e) == SCWE_SUCCESS;
+}
+bool TrayControlWindow::is_p2p_avaibale(){
+    QString version_p2p;
+    return CSystemCallWrapper::p2p_version(version_p2p) == SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::desktop_to_container_finished(

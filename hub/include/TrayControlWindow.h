@@ -83,6 +83,7 @@ public:
   std::map<QString, std::pair<QString, bool> > network_peers_table;
   std::map<QString, my_peer_button*> my_peers_button_table;
   bool is_e2e_avaibale();
+  bool is_p2p_avaibale();
 private:
   Ui::TrayControlWindow *ui;
   static QDialog *last_generated_env_dlg(QWidget *p);
@@ -147,6 +148,8 @@ private:
   void update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info);
   void update_peer_icon(const QString &peer_id);
   void delete_peer_button_info(const QString &peer_id, int type);
+  /* components manager */
+  void check_components();
 public slots:
   /*tray slots*/
   void show_about();

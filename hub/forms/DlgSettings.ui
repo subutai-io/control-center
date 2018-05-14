@@ -818,7 +818,7 @@
            <item row="1" column="2">
             <widget class="QCheckBox" name="chk_tray_autoupdate">
              <property name="text">
-              <string>Automatic tray update</string>
+              <string>Automatic CC update</string>
              </property>
             </widget>
            </item>
