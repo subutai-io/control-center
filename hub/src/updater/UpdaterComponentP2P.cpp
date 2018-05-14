@@ -212,17 +212,10 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 
 void CUpdaterComponentP2P::install_post_interntal(bool success){
     if(success){
-        CNotificationObserver::Instance()->Info(tr("P2P has been installed."), DlgNotification::N_NO_ACTION);
-        QMessageBox* msg_box =
-           new QMessageBox(QMessageBox::Question, tr("Info"),
-                           tr("You installed P2P. Better to restart Control Center for correct work"),
-                           QMessageBox::Yes | QMessageBox::No);
-        connect(msg_box, &QMessageBox::finished, msg_box,
-                &QMessageBox::deleteLater);
-        if (msg_box->exec() == QMessageBox::Yes) {
-            CCommons::RestartTray();
-        }
-        msg_box->exec();
+        CNotificationObserver::Info(tr("P2P has been installed. P2P daemon will start running within 10-15 seconds."), DlgNotification::N_NO_ACTION);
+    }
+    else{
+        CNotificationObserver::Error(tr("P2P has failed to install, we are sorry. Please try to install it manually."), DlgNotification::N_NO_ACTION);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
