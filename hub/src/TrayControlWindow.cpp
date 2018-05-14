@@ -177,7 +177,7 @@ void TrayControlWindow::check_components(){
         CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's recommended to install it"), DlgNotification::N_ABOUT);
     }
     if(!is_p2p_avaibale()){
-        CNotificationObserver::Error(tr("P2P is not installed. You can't manage your cloud environments without P2P."), DlgNotification::N_INSTALL_P2P);
+        CNotificationObserver::Error(tr("P2P is not installed. You can't manage your cloud environments without P2P."), DlgNotification::N_ABOUT);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -576,7 +576,7 @@ void TrayControlWindow::launch_p2p(){
     switch (p2p_current_status) {
         case P2PStatus_checker::P2P_FAIL :
             CNotificationObserver::Error(QObject::tr("P2P is not installed. You can't connect to the environments without P2P."),
-                                         DlgNotification::N_INSTALL_P2P);
+                                         DlgNotification::N_ABOUT); // need to reimplement n_install_p2p because it's has some bugs
             break;
         case P2PStatus_checker::P2P_READY :
             CNotificationObserver::Info(QObject::tr("P2P is not launched. "
