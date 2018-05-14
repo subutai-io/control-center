@@ -42,6 +42,18 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
 
+//======================toolTips for Peer Management===============================
+
+    ui->le_name->tr("Enter your name");
+    ui->le_cpu->tr("That is Cpu");
+    ui->le_ram->tr("It is your ram");
+    ui->le_disk->tr("Hard Disk");
+    ui->cmb_bridge->tr("");
+    ui->le_pass->tr("Enter your password");
+
+    //ui->gr_ssh->tr("");
+
+//======================================================
     QStringList bridges = CPeerController::Instance()->get_bridgedifs();
     ui->cmb_bridge->addItems(bridges);
 

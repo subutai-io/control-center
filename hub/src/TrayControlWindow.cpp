@@ -64,7 +64,6 @@ void InitTrayIconTriggerHandler(QSystemTrayIcon *icon,
   InitTrayIconTriggerHandler_internal<Os2Type<CURRENT_OS> >(icon, win);
 }
 
-
 TrayControlWindow::TrayControlWindow(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::TrayControlWindow),
@@ -174,9 +173,6 @@ TrayControlWindow::~TrayControlWindow() {
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
-
-
-
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::application_quit() {
@@ -241,18 +237,22 @@ void TrayControlWindow::create_tray_actions() {
   m_empty_action->setEnabled(false);
 }
 ////////////////////////////////////////////////////////////////////////////
-
-
 void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
+
   /*p2p status icon*/
   m_tray_menu->addAction(m_act_p2p_status);
+  m_act_p2p_status = new QAction(tr("Here is your status.Green: active, orange: not active"),this);
+
   m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
+  m_act_launch_Hub = new QAction(tr("You can go to Bazaar"),this);
+
   m_tray_menu->addAction(m_act_balance);
+  m_act_balance = new QAction(tr("GoodWill"),this);
 
   m_tray_menu->addSeparator();
 
@@ -264,20 +264,36 @@ void TrayControlWindow::create_tray_icon() {
   m_hub_peer_menu->addAction(m_empty_action);
   m_local_peer_menu = m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"),
                                      tr("Local Peers"));
+
   m_local_peer_menu->addAction(m_empty_action);
+  m_act_create_peer->tr("You can create your peers");
+
   m_tray_menu->addAction(m_act_create_peer);
+
   m_tray_menu->addSeparator();
+
+  m_act_settings = new QAction(tr("Here you can see components"),this);
   m_tray_menu->addAction(m_act_settings);
+
   m_tray_menu->addAction(m_act_ssh_keys_management);
+  m_act_ssh_keys_management = new QAction(tr("You can generate SSH keys"),this);
+
   m_tray_menu->addAction(m_act_notifications_history);
+  m_act_notifications_history = new QAction(tr("Notification about all components"),this);
+
   m_tray_menu->addSeparator();
+
   m_tray_menu->addAction(m_act_about);
+  m_act_about = new QAction(tr("Information about CC"),this);
+
   m_tray_menu->addAction(m_act_logout);
+  m_act_logout->tr("Sign out from your account");
+
   m_tray_menu->addAction(m_act_quit);
+  m_act_quit = new QAction(tr("Your application will quit"),this);
 
   m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon_last.png"));
 }
-
 void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
     int& src_x, int& src_y, int& dst_x, int& dst_y, int dlg_w, int dlg_h,
     bool use_cursor_position) {
@@ -304,7 +320,6 @@ void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
       icon_y = coords[pc * 2 + 1];
     }
   }
-
   int dx, dy;
   dy = QApplication::desktop()->availableGeometry().y();
   dx = QApplication::desktop()->availableGeometry().x();
@@ -332,7 +347,6 @@ void TrayControlWindow::tray_icon_is_activated_sl(QSystemTrayIcon::ActivationRea
     m_sys_tray_icon->contextMenu()->exec(QPoint(QCursor::pos().x() ,QCursor::pos().y()));
   }
 }
-
 ////////////////////////////////////////////////////////////////////////////
 
 static QPoint lastNotificationPos(0, 0);
@@ -368,7 +382,6 @@ void shift_notification_dialog_positions(int &src_y, int &dst_y, int shift_value
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
 void TrayControlWindow::notification_received(
     CNotificationObserver::notification_level_t level, const QString& msg,
     DlgNotification::NOTIFICATION_ACTION_TYPE action_type) {
@@ -383,15 +396,13 @@ void TrayControlWindow::notification_received(
                                                                                 std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
                                                                                 std::make_pair(DlgNotification::N_STOP_P2P, 1),
                                                                                 std::make_pair(DlgNotification::N_ABOUT, 1),
-                                                                                std::make_pair(DlgNotification::N_SETTINGS, 1)
+                                                                             std::make_pair(DlgNotification::N_SETTINGS, 1)
                                                                                 };
-
   if (CSettingsManager::Instance().is_notification_ignored(msg)||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
       if(no_ignore[action_type] != 1)
         return;
   }
-
   QDialog* dlg = new DlgNotification(level, msg, this, action_type);
 
   dlg->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
@@ -869,7 +880,6 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name){
     }
     CPeerController::Instance()->finish_current_update();
 }
-
 void TrayControlWindow::update_peer_button(const QString &peer_id, const CLocalPeer &peer_info){
     qDebug() << "update peer button information wih local peer";
     if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
@@ -921,7 +931,6 @@ void TrayControlWindow::update_peer_button(const QString &peer_id, const CMyPeer
     *(peer_button->m_hub_peer) = peer_info;
     update_peer_icon(peer_id);
 }
-
 void TrayControlWindow::update_peer_button(const QString &peer_id, const std::pair<QString, QString> &peer_info){
     qDebug() << "update peer button information wih network peer(rh)";
     if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
@@ -1001,7 +1010,6 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id){
         }
     }
 }
-
 void TrayControlWindow::delete_peer_button_info(const QString &peer_id, int type){
     if(my_peers_button_table.find(peer_id) == my_peers_button_table.end()){
         return;
@@ -1261,7 +1269,7 @@ void TrayControlWindow::show_create_dialog() {
         CNotificationObserver::Instance()->Error(tr("You don't have any hypervisor for Vagrant"), DlgNotification::N_ABOUT);
         return;
     }
-    show_dialog(create_create_peer_dialog, tr("Create peer"));
+    show_dialog(create_create_peer_dialog,tr("Create peer"));
 }
 ////////////////////////////////////////////////////////////////////////////
 QDialog* create_about_dialog(QWidget* p) { return new DlgAbout(p); }
