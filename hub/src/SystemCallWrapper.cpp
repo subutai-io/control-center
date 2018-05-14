@@ -315,10 +315,13 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     qDebug()
             <<"Trying to get fingerprint of "<<ip;
     QString finger = "";
-    if(CRestWorker::Instance()->peer_finger(ip, finger)){
+    if(CRestWorker::Instance()->peer_finger(ip, finger) && !finger.isEmpty()){
         return finger.toUpper();
     }
-    else return QString("");
+    else{
+        finger = "undefined";
+        return finger;
+    }
 }
 
 bool CSystemCallWrapper::vagrant_set_password(const QString &ip,

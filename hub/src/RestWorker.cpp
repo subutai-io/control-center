@@ -312,8 +312,12 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
         << "Http code " << http_code
         << "Error code " << err_code
         << "Network Error " << network_error;
-
-    finger = QString(arr);
+    try {
+     finger = QString(arr);
+    } catch(...){
+        qCritical() << "failed to get finger of " << port;
+        finger = "";
+    }
     return true;
 }
 
