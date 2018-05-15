@@ -35,6 +35,8 @@ const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::CHROME = "Chrome";
 const QString IUpdaterComponent::E2E = "e2e";
+const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
+const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -47,7 +49,9 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
     {CHROME, "Google Chrome"},
-    {E2E, "Subutai E2E"}
+    {E2E, "Subutai E2E"},
+    {VAGRANT_SUBUTAI, "Vagrant Subutai plugin"},
+    {VAGRANT_VBGUEST, "Vagrant Virtualbox plugin"}
   };
   static const QString def = "";
 
@@ -65,7 +69,9 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
     {X2GO, DlgNotification::N_ABOUT},
     {VAGRANT, DlgNotification::N_ABOUT},
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},
-    {CHROME, DlgNotification::N_ABOUT}
+    {CHROME, DlgNotification::N_ABOUT},
+    {VAGRANT_SUBUTAI, DlgNotification::N_ABOUT},
+    {VAGRANT_VBGUEST, DlgNotification::N_ABOUT}
   };
   return dct.at(id);
 }
@@ -388,5 +394,48 @@ void CUpdaterComponentE2E::install_post_interntal(bool success){
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     if(msg_box->exec() == QMessageBox::Ok){
         CSystemCallWrapper::chrome_last_section();
+    }
+}
+
+
+//////////////////////////*VAGRANT-SUBUTAI*///////////////////////////////////////
+
+CUpdaterComponentVAGRANT_SUBUTAI::CUpdaterComponentVAGRANT_SUBUTAI() {
+  m_component_id = VAGRANT_SUBUTAI;
+}
+
+CUpdaterComponentVAGRANT_SUBUTAI::~CUpdaterComponentVAGRANT_SUBUTAI() {
+}
+
+bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
+    QString version;
+    CSystemCallWrapper::vagrant_subutai_version(version);
+    return version == "undefined";
+}
+chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
+    qDebug()
+            << "Starting install vagrant subutai";
+    update_progress_sl(50, 100); // imitation of progress bar :D, todo implement
+    static QString empty_string = "";
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentVAGRANT_SUBUTAI::install_finished_sl);
+    silent_installer->startWork();
+    return CHUE_SUCCESS;
+}
+chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
+    update_finished_sl(true);
+    return CHUE_SUCCESS;
+}
+void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
+    UNUSED_ARG(success);
+}
+void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
+    if(!success){
+        CNotificationObserver::Instance()->Info(tr("Subutai E2E failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+    }
+    else{
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
     }
 }

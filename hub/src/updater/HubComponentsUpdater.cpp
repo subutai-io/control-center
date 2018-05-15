@@ -18,7 +18,7 @@
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e, *uc_vagrant_subutai;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
@@ -28,7 +28,10 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
   uc_chrome = new CUpdaterComponentCHROME;
   uc_e2e = new CUpdaterComponentE2E;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, uc_oracle_virtualbox, uc_chrome, uc_e2e, NULL};
+  uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm,
+                              uc_x2go, uc_vagrant, uc_oracle_virtualbox,
+                              uc_chrome, uc_e2e, uc_vagrant_subutai, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -39,6 +42,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
+  m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -302,6 +306,13 @@ void SilentInstaller::silentInstallation(){
         break;
     case CC_E2E:
         res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+        break;
+    case CC_VAGRANT_SUBUTAI:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_subutai);
+        break;
+    case CC_VAGRANT_VBGUEST:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_vbguest);
+        break;
     default:
         break;
     }

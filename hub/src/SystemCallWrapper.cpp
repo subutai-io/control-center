@@ -1626,21 +1626,6 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
-   QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
-   if(res == SCWE_SUCCESS){
-       CNotificationObserver::Instance()->Info(QObject::tr ("Vagrant installed, setting additional plugins."), DlgNotification::N_NO_ACTION);
-   }
-   for (auto s : plugins){
-       if(res!=SCWE_SUCCESS)
-           return res;
-       res = vagrant_plugin_install(s);
-   }
-   //update if already installed plugins
-   for (auto s : plugins){
-       if(res!=SCWE_SUCCESS)
-           return res;
-       res = vagrant_plugin_update(s);
-   }
    installer_is_busy.unlock();
    return res;
 }
@@ -2110,6 +2095,15 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
         return install_e2e_chrome();
     }
     return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_subutai(){
+    QString vagrant_subutai = "vagrant-subutai";
+    return vagrant_plugin_install(vagrant_subutai);
+}
+system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
+    QString vagrant_vbguest = "vagrant-vbguest";
+    return vagrant_plugin_install(vagrant_vbguest);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
@@ -2734,6 +2728,60 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
     }
     version = "undefined";
     return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
+//* get vagrant plugin list and find there required plugin version *//
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString &version){
+    qDebug() << "getting version of vagrant subutai plugin";
+    vagrant_version(version);
+    QString subutai_plugin = "vagrant-subutai";
+    if (version == "undefined"){
+        version = QObject::tr("Install Vagrant first");
+        return SCWE_CREATE_PROCESS;
+    }
+    version = "undefined";
+    std::vector<std::pair<QString, QString> > plugin_list;
+    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
+    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [subutai_plugin](const std::pair<QString, QString>& plugin){
+        return subutai_plugin == plugin.first;
+    });
+    if(it == plugin_list.end()){
+        return SCWE_CREATE_PROCESS;
+    }
+    else{
+        version = it->second;
+        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
+            version.remove(0, 1);
+            version.remove(version.size() - 1, 1);
+        }
+    }
+    return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_vbguest_version(QString &version){
+    qDebug() << "getting version of vagrant vbguest plugin";
+    vagrant_version(version);
+    QString vbguest_plugin = "vagrant-vbguest";
+    if (version == "undefined"){
+        version = QObject::tr("Install Vagrant first");
+        return SCWE_CREATE_PROCESS;
+    }
+    version = "undefined";
+    std::vector<std::pair<QString, QString> > plugin_list;
+    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
+    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [vbguest_plugin](const std::pair<QString, QString>& plugin){
+        return vbguest_plugin == plugin.first;
+    });
+    if(it == plugin_list.end()){
+        return SCWE_CREATE_PROCESS;
+    }
+    else{
+        version = it->second;
+        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
+            version.remove(0, 1);
+            version.remove(version.size() - 1, 1);
+        }
+    }
+    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
