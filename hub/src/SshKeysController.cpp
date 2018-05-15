@@ -90,6 +90,7 @@ void CSshKeysController::refresh_key_files() {
 
 static SynchroPrimitives::CriticalSection csRbm;
 void CSshKeysController::rebuild_bit_matrix() {
+  qDebug("Starting to rebild ssh keys bitMatrix");
   key_environment_matrix tmpMatrix;
   uint32_t rows, cols;
 
@@ -122,7 +123,7 @@ void CSshKeysController::rebuild_bit_matrix() {
     m_lst_all_selected.reserve(m_cols);
     m_lst_all_selected.resize(m_cols);
   }
-
+  qDebug("Finished rebuilding ssh keys bitMatrix");
   emit matrix_updated();
 }
 ////////////////////////////////////////////////////////////////////////////

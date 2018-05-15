@@ -312,8 +312,12 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
         << "Http code " << http_code
         << "Error code " << err_code
         << "Network Error " << network_error;
-
-    finger = QString(arr);
+    try {
+     finger = QString(arr);
+    } catch(...){
+        qCritical() << "failed to get finger of " << port;
+        finger = "";
+    }
     return true;
 }
 
@@ -612,6 +616,7 @@ const QString& CRestWorker::rest_err_to_str(rest_error_t err) {
 
 std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
     const QStringList& keys, const QString& env) {
+  qDebug() << "checking keys in " << env;
   static const QString str_url(hub_post_url().arg("environments/check-key"));
   std::vector<uint8_t> lst_res;
   QJsonObject obj;
@@ -638,7 +643,7 @@ std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
   QJsonArray json_arr = res_doc.array();
   for (auto i = json_arr.begin(); i != json_arr.end(); ++i)
     lst_res.push_back(i->toBool() ? 1 : 0);
-
+  qDebug() << "checking keys in" << env << "finished";
   return lst_res;
 }
 ////////////////////////////////////////////////////////////////////////////
