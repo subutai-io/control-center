@@ -315,10 +315,13 @@ QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
     qDebug()
             <<"Trying to get fingerprint of "<<ip;
     QString finger = "";
-    if(CRestWorker::Instance()->peer_finger(ip, finger)){
+    if(CRestWorker::Instance()->peer_finger(ip, finger) && !finger.isEmpty()){
         return finger.toUpper();
     }
-    else return QString("");
+    else{
+        finger = "undefined";
+        return finger;
+    }
 }
 
 bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
@@ -2597,8 +2600,12 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   args << "-v";
   system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
 
-  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty())
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()){
     version = res.out[0];
+  }
+  else{
+      res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
