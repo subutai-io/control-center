@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>398</height>
+    <width>553</width>
+    <height>466</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,28 +49,14 @@
       </layout>
      </item>
      <item row="1" column="0">
-      <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0">
-       <item row="6" column="3">
-        <widget class="QPushButton" name="btn_subutai_e2e">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Update Subutai E2E</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0">
+       <item row="4" column="1">
+        <widget class="QLabel" name="lbl_rh_version_val">
          <property name="text">
           <string>undefined</string>
          </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="lbl_subutai_e2e_val">
-         <property name="text">
-          <string>undefined</string>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -81,39 +67,6 @@
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="lbl_x2go_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QProgressBar" name="pb_x2go">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QPushButton" name="btn_rh_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Update RH</string>
          </property>
         </widget>
        </item>
@@ -133,38 +86,35 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="lbl_vagrant_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QProgressBar" name="pb_p2p">
+       <item row="8" column="2">
+        <widget class="QProgressBar" name="pb_chrome">
          <property name="enabled">
           <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
          </property>
          <property name="value">
           <number>0</number>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="lbl_rhm_version">
-         <property name="text">
-          <string>Management version:</string>
+       <item row="11" column="2">
+        <widget class="QProgressBar" name="pb_firefox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QProgressBar" name="pb_vagrant">
+       <item row="10" column="1">
+        <widget class="QLabel" name="lbl_vbguest_plugin_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="2">
+        <widget class="QProgressBar" name="pb_vbguest_plugin">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -183,6 +133,77 @@
          </property>
         </widget>
        </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="lbl_subutai_plugin_version">
+         <property name="text">
+          <string>Vagrant Subutai plugin</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QProgressBar" name="pb_tray">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="lbl_p2p_version">
+         <property name="text">
+          <string>P2P version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="lbl_vbguest_plugin_version">
+         <property name="text">
+          <string>Vagrant Virtualbox plugin</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_tray_version">
+         <property name="text">
+          <string>Control Center version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QProgressBar" name="pb_oracle_virtualbox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="3">
+        <widget class="QPushButton" name="btn_chrome">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Update Chrome</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QLabel" name="lbl_subutai_plugin_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="lbl_vagrant_version">
          <property name="text">
@@ -192,6 +213,183 @@
        </item>
        <item row="6" column="2">
         <widget class="QProgressBar" name="pb_e2e">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QProgressBar" name="pb_rh">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="lbl_subutai_e2e">
+         <property name="text">
+          <string>Subutai E2E</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="lbl_rhm_version">
+         <property name="text">
+          <string>Management version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="btn_rh_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Update RH</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="3">
+        <widget class="QPushButton" name="btn_subutai_e2e">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Update Subutai E2E</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="lbl_vagrant_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="lbl_subutai_e2e_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <widget class="QLabel" name="lbl_firefox_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="lbl_chrome_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="3">
+        <widget class="QPushButton" name="btn_subutai_plugin_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Update Subutai plugin</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="3">
+        <widget class="QPushButton" name="btn_rhm_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Update Management</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QProgressBar" name="pb_x2go">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="3">
+        <widget class="QPushButton" name="btn_vagrant_update">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Update Vagrant</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="lbl_rh_version">
+         <property name="text">
+          <string>RH version:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="3">
+        <widget class="QPushButton" name="btn_firefox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Update Firefox</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="lbl_rhm_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QProgressBar" name="pb_vagrant">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -216,27 +414,50 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="lbl_rh_version">
-         <property name="text">
-          <string>RH version:</string>
+       <item row="1" column="2">
+        <widget class="QProgressBar" name="pb_p2p">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="lbl_rh_version_val">
+       <item row="11" column="0">
+        <widget class="QLabel" name="lbl_firefox">
+         <property name="text">
+          <string>Mozilla Firefox</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="lbl_oracle_virtualbox_version">
+         <property name="text">
+          <string>Oracle VirtualBox</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="lbl_chrome_version">
+         <property name="text">
+          <string>Google Chrome</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="lbl_tray_version_val">
          <property name="text">
           <string>undefined</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lbl_x2go_version">
-         <property name="text">
-          <string>X2Go-Client</string>
          </property>
         </widget>
        </item>
@@ -256,75 +477,17 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QProgressBar" name="pb_tray">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="2">
-        <widget class="QProgressBar" name="pb_oracle_virtualbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="3">
-        <widget class="QPushButton" name="btn_rhm_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+       <item row="3" column="1">
+        <widget class="QLabel" name="lbl_x2go_version_val">
          <property name="text">
-          <string>Update Management</string>
+          <string>undefined</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QPushButton" name="btn_vagrant_update">
+       <item row="9" column="2">
+        <widget class="QProgressBar" name="pb_subutai_plugin">
          <property name="enabled">
           <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Update Vagrant</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="lbl_subutai_e2e">
-         <property name="text">
-          <string>Subutai E2E</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QProgressBar" name="pb_rh">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
          </property>
          <property name="value">
           <number>0</number>
@@ -341,115 +504,20 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lbl_p2p_version">
-         <property name="text">
-          <string>P2P version:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="lbl_tray_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLabel" name="lbl_rhm_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="lbl_oracle_virtualbox_version">
-         <property name="text">
-          <string>Oracle VirtualBox</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="lbl_chrome_version">
-         <property name="text">
-          <string>Google Chrome</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QLabel" name="lbl_chrome_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="2">
-        <widget class="QProgressBar" name="pb_chrome">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="lbl_firefox">
-         <property name="text">
-          <string>Mozilla Firefox</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="QLabel" name="lbl_firefox_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="2">
-        <widget class="QProgressBar" name="pb_firefox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="3">
-        <widget class="QPushButton" name="btn_chrome">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Update Chrome</string>
-         </property>
-        </widget>
-       </item>
        <item row="10" column="3">
-        <widget class="QPushButton" name="btn_firefox">
+        <widget class="QPushButton" name="btn_vbguest_plugin_update">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Update Firefox</string>
+          <string>Update Virtualbox plugin</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_tray_version">
+       <item row="3" column="0">
+        <widget class="QLabel" name="lbl_x2go_version">
          <property name="text">
-          <string>Control Center version:</string>
+          <string>X2Go-Client</string>
          </property>
         </widget>
        </item>
