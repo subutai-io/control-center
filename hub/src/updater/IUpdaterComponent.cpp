@@ -50,8 +50,8 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
     {CHROME, "Google Chrome"},
     {E2E, "Subutai E2E"},
-    {VAGRANT_SUBUTAI, "Vagrant Subutai plugin"},
-    {VAGRANT_VBGUEST, "Vagrant Virtualbox plugin"}
+    {VAGRANT_SUBUTAI, "Subutai plugin"},
+    {VAGRANT_VBGUEST, "VirtualBox plugin"}
   };
   static const QString def = "";
 

@@ -59,6 +59,12 @@ QString get_vagrant_subutai_version(){
     CSystemCallWrapper::vagrant_subutai_version(version);
     return version;
 }
+
+QString get_vagrant_vbguest_version(){
+    QString version = "";
+    CSystemCallWrapper::vagrant_vbguest_version(version);
+    return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 DlgAbout::DlgAbout(QWidget *parent) :
@@ -113,6 +119,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_chrome, &QPushButton::released, this, &DlgAbout::btn_chrome_update_release);
   connect(ui->btn_subutai_e2e, &QPushButton::released, this, &DlgAbout::btn_e2e_update_released);
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgAbout::btn_subutai_plugin_update_released);
+  connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -146,6 +153,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   m_dct_fpb[IUpdaterComponent::VAGRANT_SUBUTAI] = {ui->lbl_subutai_plugin_version_val, ui->pb_subutai_plugin, ui->btn_subutai_plugin_update,
                                                   get_vagrant_subutai_version};
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin, ui->btn_vbguest_plugin_update,
+                                                  get_vagrant_vbguest_version};
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
@@ -208,6 +218,8 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::got_e2e_version_sl);
   connect(di, &DlgAboutInitializer::got_subutai_plugin_version,
           this, &DlgAbout::got_subutai_plugin_version_sl);
+  connect(di, &DlgAboutInitializer::got_vbguest_plugin_version,
+          this, &DlgAbout::got_vbguest_plugin_version_sl);
   connect(di, &DlgAboutInitializer::update_available,
           this, &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress,
@@ -293,6 +305,14 @@ void DlgAbout::btn_subutai_plugin_update_released(){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_SUBUTAI);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_SUBUTAI);
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::btn_vbguest_plugin_update_released(){
+    ui->btn_vbguest_plugin_update->setEnabled(false);
+    if(ui->lbl_vbguest_plugin_version_val->text() == "undefined"){
+        CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_VBGUEST);
+    }
+    else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_VBGUEST);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
@@ -420,9 +440,16 @@ void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_subutai_plugin_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_subutai_plugin_update->setText(tr("Install Subutai Plugin"));
-    else ui->btn_subutai_plugin_update->setText(tr("Update Subutai Plugin"));
+        ui->btn_subutai_plugin_update->setText(tr("Install Subutai plugin"));
+    else ui->btn_subutai_plugin_update->setText(tr("Update Subutai plugin"));
     ui->lbl_subutai_plugin_version_val->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::got_vbguest_plugin_version_sl(QString version){
+    if(version == "undefined")
+        ui->btn_vbguest_plugin_update->setText(tr("Install VirtualBox plugin"));
+    else ui->btn_vbguest_plugin_update->setText(tr("Update VirtualBox plugin"));
+    ui->lbl_vbguest_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::update_available_sl(const QString& component_id, bool available) {
@@ -480,11 +507,15 @@ DlgAboutInitializer::do_initialization() {
     emit got_subutai_plugin_version(subutai_plugin_versin);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    QString vbguest_plugin_versin = get_vagrant_vbguest_version();
+    emit got_vbguest_plugin_version(vbguest_plugin_versin);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
     QString uas[] = {
       IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
       IUpdaterComponent::X2GO, IUpdaterComponent::E2E,
       IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX,
-      IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, ""};
+      IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, IUpdaterComponent::VAGRANT_VBGUEST,""};
 
     for (int i = 0; uas[i] != ""; ++i) {
       bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
