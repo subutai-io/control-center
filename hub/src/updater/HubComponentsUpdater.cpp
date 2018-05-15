@@ -42,7 +42,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
-  m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentVAGRANT_SUBUTAI(uc_vagrant_subutai);
+  m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,

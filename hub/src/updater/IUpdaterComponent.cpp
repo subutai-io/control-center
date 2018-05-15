@@ -415,6 +415,13 @@ bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     qDebug()
             << "Starting install vagrant subutai";
+    update_progress_sl(50, 100); // imitation of progress bar :D, todo implement
+    static QString empty_string = "";
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentVAGRANT_SUBUTAI::install_finished_sl);
+    silent_installer->startWork();
     return CHUE_SUCCESS;
 }
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
