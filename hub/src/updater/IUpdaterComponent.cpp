@@ -451,8 +451,15 @@ CUpdaterComponentVAGRANT_VBGUEST::~CUpdaterComponentVAGRANT_VBGUEST() {
 
 bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
     QString version;
-    CSystemCallWrapper::vagrant_vbguest_version(version);
-    return version == "undefined";
+    QString subutai_plugin = "vagrant-subutai";
+    system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_vbguest_version(version);
+    std::vector<CGorjunFileInfo> fi =
+        CRestWorker::Instance()->get_vagrant_plugin_cloud_version(subutai_plugin);
+    if (fi.empty()) return false;
+    if (res != SCWE_SUCCESS) return true;
+    if (version == "undefined") return true;
+    QString cloud_version = fi[0].md5_sum();
+    return md5_current != md5_kurjun;
 }
 chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
     qDebug()
