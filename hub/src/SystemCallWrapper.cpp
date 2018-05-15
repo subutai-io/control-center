@@ -1626,21 +1626,6 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
-   QString plugins [] = {"vagrant-vbguest", "vagrant-subutai"};
-   if(res == SCWE_SUCCESS){
-       CNotificationObserver::Instance()->Info(QObject::tr ("Vagrant installed, setting additional plugins."), DlgNotification::N_NO_ACTION);
-   }
-   for (auto s : plugins){
-       if(res!=SCWE_SUCCESS)
-           return res;
-       res = vagrant_plugin_install(s);
-   }
-   //update if already installed plugins
-   for (auto s : plugins){
-       if(res!=SCWE_SUCCESS)
-           return res;
-       res = vagrant_plugin_update(s);
-   }
    installer_is_busy.unlock();
    return res;
 }
