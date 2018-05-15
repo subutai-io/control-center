@@ -2749,12 +2749,27 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString &version){
     qDebug() << "getting version of vagrant subutai plugin";
     vagrant_version(version);
+    QString subutai_plugin = "vagrant-subutai";
     if (version == "undefined"){
         version = QObject::tr("Install Vagrant first");
         return SCWE_CREATE_PROCESS;
     }
-    std::vector<std::pair<QString, QString> >plugin_list;
+    version = "undefined";
+    std::vector<std::pair<QString, QString> > plugin_list;
     CSystemCallWrapper::vagrant_plugins_list(plugin_list);
+    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [subutai_plugin](const std::pair<QString, QString>& plugin){
+        return subutai_plugin == plugin.first;
+    });
+    if(it == plugin_list.end()){
+        return SCWE_CREATE_PROCESS;
+    }
+    else{
+        version = it->second;
+        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
+            version.remove(0, 1);
+            version.remove(version.size() - 1, 1);
+        }
+    }
     return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_vbguest_version(QString &version){
