@@ -302,6 +302,10 @@ void SilentInstaller::silentInstallation(){
         break;
     case CC_E2E:
         res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+    case CC_VAGRANT_SUBUTAI:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_subutai);
+    case CC_VAGRANT_VBGUEST:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_vbguest);
     default:
         break;
     }
