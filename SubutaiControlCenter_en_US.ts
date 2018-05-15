@@ -5,7 +5,7 @@
     <name>CDownloadFileManager</name>
     <message>
         <location filename="hub/src/DownloadFileManager.cpp" line="55"/>
-        <source>Download file error. %1</source>
+        <source>File Download error. %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14,7 +14,7 @@
     <message>
         <location filename="hub/src/HubController.cpp" line="345"/>
         <location filename="hub/src/HubController.cpp" line="417"/>
-        <source>Run SSH failed. Error code : %1</source>
+        <source>Process of running SSH has failed. Error code : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -24,17 +24,17 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="189"/>
-        <source>Refresh environments error : %1</source>
+        <source>Refreshing environments error : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="284"/>
-        <source>Launch bazaar website with google chrome failed</source>
+        <source>Process of launching Bazaar website using Google Chrome has failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="290"/>
-        <source>Please install Google Chrome first. You can install it from &quot;About&quot; section</source>
+        <source>Please install Google Chrome for this action: &quot;About&quot; section</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -44,12 +44,12 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="464"/>
-        <source>Environment not found</source>
+        <source>Environment is not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="465"/>
-        <source>Container not found</source>
+        <source>Container is not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -59,7 +59,7 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="467"/>
-        <source>Join to p2p swarm failed</source>
+        <source>Process of joining P2P community has failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -77,7 +77,7 @@
     <name>CNotificationObserver</name>
     <message>
         <location filename="hub/src/NotificationObserver.cpp" line="11"/>
-        <source>Info</source>
+        <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -144,7 +144,7 @@
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="244"/>
-        <source>Unregister peer %1</source>
+        <source>Unregistering peer %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -154,12 +154,12 @@
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="297"/>
-        <source>getting finger from %1</source>
+        <source>Getting finger from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="324"/>
-        <source>setting password for %1</source>
+        <source>Setting password for %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -167,12 +167,12 @@
     <name>CSettingsManager</name>
     <message>
         <location filename="hub/src/SettingsManager.cpp" line="603"/>
-        <source>Info</source>
+        <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/SettingsManager.cpp" line="604"/>
-        <source>You changed language. Would you like to restart Control Center?</source>
+        <source>You have changed language. Would you like to restart Control Center?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -354,7 +354,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgAbout.cpp" line="346"/>
-        <source>Install Chrome</source>
+        <source>Install Google Chrome</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -504,7 +504,7 @@
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="19"/>
-        <source>Peer manager is not ready yet, try again later</source>
+        <source>Peer manager is not ready yet. Try again later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -529,17 +529,17 @@
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="95"/>
-        <source>Passwords don&apos;t match. Please check again</source>
+        <source>Passwords do not match. Please check again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="104"/>
-        <source>Name can&apos;t be empty</source>
+        <source>Name cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="112"/>
-        <source>You can use only alphabetic characters and digits</source>
+        <source>You can use only letters and numbers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -651,7 +651,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgEnvironment.cpp" line="84"/>
-        <source>Running ssh commands..</source>
+        <source>Running SSH commands..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -724,7 +724,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
-        <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
+        <source>You don&apos;t have administrative rights to ssh-keys directory. Please add rights or change ssh-keys storage in settings.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -738,7 +738,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgLogin.ui" line="53"/>
-        <source>Username (or email):</source>
+        <source>Username (or e-mail):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -748,7 +748,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgLogin.ui" line="107"/>
-        <source>Show password when type</source>
+        <source>Show password while typing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
