@@ -18,7 +18,8 @@
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e, *uc_vagrant_subutai;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go,
+          *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e, *uc_vagrant_subutai, *uc_vagrant_vbguest;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
@@ -29,9 +30,10 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_chrome = new CUpdaterComponentCHROME;
   uc_e2e = new CUpdaterComponentE2E;
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
+  uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
-                              uc_chrome, uc_e2e, uc_vagrant_subutai, NULL};
+                              uc_chrome, uc_e2e, uc_vagrant_subutai, uc_vagrant_vbguest, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -43,6 +45,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
   m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
+  m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
