@@ -433,9 +433,51 @@ void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Subutai E2E failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
     }
     else{
         CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+    }
+}
+
+//////////////////////////*VAGRANT-VBGUEST*///////////////////////////////////////
+
+CUpdaterComponentVAGRANT_VBGUEST::CUpdaterComponentVAGRANT_VBGUEST() {
+  m_component_id = VAGRANT_VBGUEST;
+}
+
+CUpdaterComponentVAGRANT_VBGUEST::~CUpdaterComponentVAGRANT_VBGUEST() {
+}
+
+bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
+    QString version;
+    CSystemCallWrapper::vagrant_vbguest_version(version);
+    return version == "undefined";
+}
+chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
+    qDebug()
+            << "Starting install vagrant vbguest";
+    update_progress_sl(50, 100);
+    static QString empty_string = "";
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(empty_string, empty_string, CC_VAGRANT_VBGUEST);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentVAGRANT_VBGUEST::install_finished_sl);
+    silent_installer->startWork();
+    return CHUE_SUCCESS;
+}
+chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal(){
+    update_finished_sl(true);
+    return CHUE_SUCCESS;
+}
+void CUpdaterComponentVAGRANT_VBGUEST::update_post_action(bool success){
+    UNUSED_ARG(success);
+}
+void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success){
+    if(!success){
+        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+    }
+    else{
+        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
     }
 }
