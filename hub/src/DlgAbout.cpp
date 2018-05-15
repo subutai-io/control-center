@@ -112,7 +112,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_oracle_virtualbox_update, &QPushButton::released, this, &DlgAbout::btn_oracle_virtualbox_update_released);
   connect(ui->btn_chrome, &QPushButton::released, this, &DlgAbout::btn_chrome_update_release);
   connect(ui->btn_subutai_e2e, &QPushButton::released, this, &DlgAbout::btn_e2e_update_released);
-  //connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgA)
+  connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgAbout::btn_subutai_plugin_update_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
