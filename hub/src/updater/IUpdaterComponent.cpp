@@ -202,7 +202,7 @@ void CUpdaterComponentVAGRANT::update_post_action(bool success){
 }
 void CUpdaterComponentVAGRANT::install_post_interntal(bool success){if(!success)
         CNotificationObserver::Instance()->Error(tr("Vagrant installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. Congratulations! Don't forget to install vagrant plugins."), DlgNotification::N_NO_ACTION);
 }
 
 ///////////////////////////*VIRTUALBOX*///////////////////////////////////////
@@ -409,8 +409,14 @@ CUpdaterComponentVAGRANT_SUBUTAI::~CUpdaterComponentVAGRANT_SUBUTAI() {
 
 bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
     QString version;
-    CSystemCallWrapper::vagrant_subutai_version(version);
-    return version == "undefined";
+    QString subutai_plugin = "vagrant-subutai";
+    system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_subutai_version(version);
+    QString cloud_version =
+        CRestWorker::Instance()->get_vagrant_plugin_cloud_version(subutai_plugin);
+    if (version == "undefined") return true;
+    if (res != SCWE_SUCCESS) return false;
+    if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
+    return cloud_version != version;
 }
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     qDebug()
@@ -425,11 +431,22 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     return CHUE_SUCCESS;
 }
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
-    update_finished_sl(true);
+    update_progress_sl(50, 100);
+    static QString empty_string = "";
+    SilentUpdater *silent_updater = new SilentUpdater(this);
+    silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+    connect(silent_updater, &SilentUpdater::outputReceived,
+            this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
+    silent_updater->startWork();
     return CHUE_SUCCESS;
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
-    UNUSED_ARG(success);
+    if(!success){
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin failed to update, we are sorry"), DlgNotification::N_NO_ACTION);
+    }
+    else{
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been updated successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+    }
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
     if(!success){
@@ -451,8 +468,14 @@ CUpdaterComponentVAGRANT_VBGUEST::~CUpdaterComponentVAGRANT_VBGUEST() {
 
 bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
     QString version;
-    CSystemCallWrapper::vagrant_vbguest_version(version);
-    return version == "undefined";
+    QString subutai_plugin = "vagrant-vbguest";
+    system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_vbguest_version(version);
+    QString cloud_version =
+        CRestWorker::Instance()->get_vagrant_plugin_cloud_version(subutai_plugin);
+    if (version == "undefined") return true;
+    if (res != SCWE_SUCCESS) return false;
+    if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
+    return cloud_version != version;
 }
 chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
     qDebug()
