@@ -184,52 +184,63 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
+  m_act_settings->setToolTip(tr(""));
 
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
+  m_act_hub->setToolTip(tr("menu"));
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this,
           &TrayControlWindow::application_quit);
+  m_act_quit->setToolTip(tr("Close control cente"));
 
   m_act_launch_Hub =
       new QAction(QIcon(":/hub/Hub-07.png"), tr("Go to Bazaar"), this);
   connect(m_act_launch_Hub, &QAction::triggered, this,
           &TrayControlWindow::launch_Hub);
+  m_act_launch_Hub->setToolTip(tr("Opens websait in your browser."));
 
   m_act_balance = new QAction(QIcon(":/hub/Balance-07.png"),
                               CHubController::Instance().balance(), this);
   connect(m_act_balance, &QAction::triggered,
           [] { CHubController::Instance().launch_balance_page(); });
+  m_act_balance->setToolTip(tr("GoodWill"));
 
   m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
   connect(m_act_about, &QAction::triggered, this,
           &TrayControlWindow::show_about);
+  m_act_about->setToolTip(tr("Data about CC components"));
 
   m_act_ssh_keys_management =
       new QAction(QIcon(":/hub/ssh-keys.png"), tr("SSH-keys management"), this);
   connect(m_act_ssh_keys_management, &QAction::triggered, this,
           &TrayControlWindow::ssh_key_generate_triggered);
+  m_act_ssh_keys_management->setToolTip(tr("Generate Key Pairs"));
 
   m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
   connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
+  m_act_logout->setToolTip("Sign out");
 
   m_act_notifications_history = new QAction(
       QIcon(":hub/notifications_history.png"), tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
+  m_act_notifications_history->setToolTip(tr("Whole made last actions"));
 
   /*p2p status*/
   m_act_p2p_status = new QAction(
         QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
+  m_act_p2p_status->setToolTip(tr("P2P connection"));
 
   m_act_create_peer = new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
   connect(m_act_create_peer, &QAction::triggered, this,
           &TrayControlWindow::show_create_dialog);
   m_empty_action = new QAction(tr("Empty"), this);
   m_empty_action->setEnabled(false);
+  m_empty_action->setToolTip(tr("You will create your Peer."));
 }
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::create_tray_icon() {
@@ -244,7 +255,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_launch_Hub);
-  m_act_launch_Hub = new QAction(tr("You can go to Bazaar"),this);
+  m_act_launch_Hub = new QAction(tr("You will go to Bazaar"),this);
 
   m_tray_menu->addAction(m_act_balance);
   m_act_balance = new QAction(tr("GoodWill"),this);
