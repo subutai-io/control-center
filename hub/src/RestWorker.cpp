@@ -553,7 +553,7 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
   QUrl url_gorjun_fi(QString("https://rubygems.org/api/v1/versions/%1/latest.json").arg(plugin_name));
   QNetworkRequest request(url_gorjun_fi);
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
-                                err_code, network_error, QByteArray(), true);
+                                err_code, network_error, QByteArray(), false);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
 
   qDebug()
