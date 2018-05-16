@@ -8,7 +8,7 @@
 const QString &
 CNotificationObserver::notification_level_to_str(notification_level_t nt) {
   static QString nt_str[] = {
-    tr("Info"), tr("Warning"),
+    tr("Information"), tr("Warning"),
     tr("Error"), tr("Critical error")
   };
   return nt_str[nt];

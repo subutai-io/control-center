@@ -52,7 +52,7 @@ CDownloadFileManager::reply_finished() {
 
   if (m_network_reply->error() != QNetworkReply::NoError) {
     CNotificationObserver::Instance()->Error(
-          tr("Download file error. %1").arg(m_network_reply->errorString()), DlgNotification::N_NO_ACTION);
+          tr("File Download Error. %1").arg(m_network_reply->err    orString()), DlgNotification::N_NO_ACTION);
     qCritical("Download file error : %s",
                                           m_network_reply->errorString().toStdString().c_str());
   } else {
