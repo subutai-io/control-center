@@ -569,7 +569,7 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
     QJsonArray json_arr = doc.array();
     return json_arr.first().toString();
   } else if (doc.isObject()) {
-      return doc["version"].toString();
+      return doc.object()["version"].toString();
   }
   return QString("undefined");
 }
