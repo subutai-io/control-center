@@ -555,11 +555,11 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), true);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
+
   qDebug()
       << "Requested plugin version: " << plugin_name
       << "Json file: " << doc;
 
-  std::vector<CGorjunFileInfo> lst_res;
   if (doc.isNull()) {
     err_code = RE_NOT_JSON_DOC;
     return QString("undefined");
@@ -567,10 +567,7 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
 
   if (doc.isArray()) {
     QJsonArray json_arr = doc.array();
-    for (auto i = json_arr.begin(); i != json_arr.end(); ++i) {
-      if (i->isNull() || !i->isObject()) continue;
-      return i->toString();
-    }
+    return json_arr.first().toString();
   } else if (doc.isObject()) {
       return doc["version"].toString();
   }
