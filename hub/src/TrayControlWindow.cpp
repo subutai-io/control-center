@@ -272,7 +272,6 @@ void TrayControlWindow::create_tray_icon() {
                                      tr("Local Peers"));
 
   m_local_peer_menu->addAction(m_empty_action);
-<<<<<<< HEAD
   m_act_create_peer->tr("You can create your peers");
 
   m_tray_menu->addAction(m_act_create_peer);
@@ -287,40 +286,15 @@ void TrayControlWindow::create_tray_icon() {
 
   m_tray_menu->addAction(m_act_notifications_history);
   m_act_notifications_history = new QAction(tr("Notification about all components"),this);
-=======
-
-  m_tray_menu->addAction(m_act_create_peer);
-  m_act_create_peer->tr("You can creweeate  your peers");
-
-  m_tray_menu->addSeparator();
-
-  m_tray_menu->addAction(m_act_settings);
-  m_act_settings->tr("Here you can see their settings");
-
-  m_tray_menu->addAction(m_act_ssh_keys_management);
-  m_act_ssh_keys_management->setToolTip("You can generate SSH keys");
-
-  m_tray_menu->addAction(m_act_notifications_history);
-  m_act_notifications_history->setToolTip("Notification aboutt all components ");
->>>>>>> ad8fd5a2b2f53836e827cfce2d283b802df553be
 
   m_tray_menu->addSeparator();
 
   m_tray_menu->addAction(m_act_about);
-<<<<<<< HEAD
   m_act_about = new QAction(tr("Information about CC"),this);
-=======
-  m_act_about->tr("Information about CC");
->>>>>>> ad8fd5a2b2f53836e827cfce2d283b802df553be
 
   m_tray_menu->addAction(m_act_logout);
   m_act_logout->tr("Sign out from your account");
 
-<<<<<<< HEAD
-=======
-
-  m_act_quit->tr("Your application will quit");
->>>>>>> ad8fd5a2b2f53836e827cfce2d283b802df553be
   m_tray_menu->addAction(m_act_quit);
   m_act_quit = new QAction(tr("Your application will quit"),this);
 
