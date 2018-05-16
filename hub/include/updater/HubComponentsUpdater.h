@@ -164,4 +164,19 @@ private:
 signals:
     void outputReceived(bool success);
 };
+/////* class updates cc components in silent mode *///////////////
+class SilentUpdater : public QObject{
+    Q_OBJECT
+public:
+    SilentUpdater(QObject *parent = nullptr) : QObject (parent){}
+    void init(const QString& dir, const QString &file_name, cc_component type);
+    void startWork();
+    void silentUpdate();
+private:
+    QString m_dir;
+    QString m_file_name;
+    cc_component m_type;
+signals:
+    void outputReceived(bool success);
+};
 #endif // HUBCOMPONENTSUPDATER_H
