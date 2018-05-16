@@ -241,7 +241,7 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
 void CRestWorker::peer_unregister(const QString &port, const QString &token,
                                   int &err_code, int &http_code, int &network_error){
     qInfo()
-            << tr("Unregister peer %1").arg(port);
+            << tr("Unregistering peer %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2").arg(port, token));
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>477</width>
-    <height>196</height>
+    <height>207</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,7 +50,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="lbl_login">
          <property name="text">
-          <string>Username (or email):</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Username (or e-mail):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -104,7 +104,7 @@
        <item row="0" column="1">
         <widget class="QCheckBox" name="cb_show_pass">
          <property name="text">
-          <string>Show password when type</string>
+          <string>Show password while typing</string>
          </property>
         </widget>
        </item>

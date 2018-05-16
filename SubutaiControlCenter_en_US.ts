@@ -54,7 +54,7 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="466"/>
-        <source>Container isn&apos;t ready</source>
+        <source>Container is not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
