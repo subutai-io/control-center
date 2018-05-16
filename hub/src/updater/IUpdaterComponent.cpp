@@ -431,11 +431,22 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     return CHUE_SUCCESS;
 }
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
-    update_finished_sl(true);
+    update_progress_sl(50, 100);
+    static QString empty_string = "";
+    SilentUpdater *silent_updater = new SilentUpdater(this);
+    silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+    connect(silent_updater, &SilentUpdater::outputReceived,
+            this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
+    silent_updater->startWork();
     return CHUE_SUCCESS;
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
-    UNUSED_ARG(success);
+    if(!success){
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin failed to update, we are sorry"), DlgNotification::N_NO_ACTION);
+    }
+    else{
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been updated successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+    }
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
     if(!success){
