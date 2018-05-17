@@ -19,7 +19,9 @@ enum cc_component{
     CC_VAGRANT,
     CC_VB,
     CC_CHROME,
-    CC_E2E
+    CC_E2E,
+    CC_VAGRANT_SUBUTAI,
+    CC_VAGRANT_VBGUEST
 };
 namespace update_system {
   /**
@@ -155,6 +157,21 @@ public:
     void init(const QString& dir, const QString &file_name, cc_component type);
     void startWork();
     void silentInstallation();
+private:
+    QString m_dir;
+    QString m_file_name;
+    cc_component m_type;
+signals:
+    void outputReceived(bool success);
+};
+/////* class updates cc components in silent mode *///////////////
+class SilentUpdater : public QObject{
+    Q_OBJECT
+public:
+    SilentUpdater(QObject *parent = nullptr) : QObject (parent){}
+    void init(const QString& dir, const QString &file_name, cc_component type);
+    void startWork();
+    void silentUpdate();
 private:
     QString m_dir;
     QString m_file_name;

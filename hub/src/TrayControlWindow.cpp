@@ -1263,6 +1263,15 @@ void TrayControlWindow::show_create_dialog() {
         CNotificationObserver::Instance()->Error(tr("You don't have any hypervisor for Vagrant"), DlgNotification::N_ABOUT);
         return;
     }
+    // check required vagrant plugins are updated
+    if(CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_VBGUEST)){
+        CNotificationObserver::Instance()->Error(tr("Vagrant Virtualbox plugin is not ready. You can install or update it from About"), DlgNotification::N_ABOUT);
+        return;
+    }
+    if(CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI)){
+        CNotificationObserver::Instance()->Error(tr("Vagrant Subutai plugin is not ready. You can install or update it from About"), DlgNotification::N_ABOUT);
+        return;
+    }
     show_dialog(create_create_peer_dialog, tr("Create peer"));
 }
 ////////////////////////////////////////////////////////////////////////////

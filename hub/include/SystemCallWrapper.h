@@ -203,6 +203,10 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_e2e_chrome();
 
+  static system_call_wrapper_error_t install_vagrant_subutai();
+
+  static system_call_wrapper_error_t install_vagrant_vbguest();
+
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();
@@ -260,6 +264,8 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_version(QString &version);
   static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
+  static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
+  static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 

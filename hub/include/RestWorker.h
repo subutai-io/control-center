@@ -156,6 +156,9 @@ public:
 
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
 
+
+  QString get_vagrant_plugin_cloud_version(const QString& plugin_name);
+
   void check_if_ss_console_is_ready(const QString& url);
 
   void send_health_request(const QString &p2p_version,

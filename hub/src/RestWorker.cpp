@@ -548,6 +548,33 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
 }
 ////////////////////////////////////////////////////////////////////////////
 
+QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name){
+  int http_code, err_code, network_error;
+  QUrl url_gorjun_fi(QString("https://rubygems.org/api/v1/versions/%1/latest.json").arg(plugin_name));
+  QNetworkRequest request(url_gorjun_fi);
+  QByteArray arr = send_request(m_network_manager, request, true, http_code,
+                                err_code, network_error, QByteArray(), false);
+  QJsonDocument doc = QJsonDocument::fromJson(arr);
+
+  qDebug()
+      << "Requested plugin version: " << plugin_name
+      << "Json file: " << doc;
+
+  if (doc.isNull()) {
+    err_code = RE_NOT_JSON_DOC;
+    return QString("undefined");
+  }
+
+  if (doc.isArray()) {
+    QJsonArray json_arr = doc.array();
+    return json_arr.first().toString();
+  } else if (doc.isObject()) {
+      return doc.object()["version"].toString();
+  }
+  return QString("undefined");
+}
+////////////////////////////////////////////////////////////////////////////
+
 void CRestWorker::check_if_ss_console_is_ready(const QString& url) {
   QUrl req_url(url);
   QNetworkRequest req(req_url);
