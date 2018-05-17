@@ -16,7 +16,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     ui->le_disk->setText("100");
     QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
     if(bridged_ifs.size() == 0){
-        CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Peer manager is not ready yet. Try again later"), DlgNotification::N_NO_ACTION);
         this->close();
     }
     ui->cmb_bridge->addItems(bridged_ifs);
@@ -101,7 +101,7 @@ void DlgCreatePeer::create_button_pressed(){
     else ui->lbl_err_pass->hide();
 
     if(ui->le_name->text().isEmpty()){
-        ui->lbl_err_name->setText(tr("Name can't be empty"));
+        ui->lbl_err_name->setText(tr("Name can not be empty"));
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
         ui->btn_create->setEnabled(true);
@@ -109,7 +109,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else
     if(ui->le_name->text().contains(m_invalid_chars) || ui->le_name->text().contains("_")){
-            ui->lbl_err_name->setText(tr("You can use only alphabetic characters and digits"));
+            ui->lbl_err_name->setText(tr("You can use only letters and numbers"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             ui->btn_create->setEnabled(true);
