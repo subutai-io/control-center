@@ -74,7 +74,7 @@ CCommons::NetworkErrorToString(int err_code) {
     case QNetworkReply::ProtocolFailure: return QObject::tr("Protocol Failure");
 
       // Server side errors (401-499)
-    case QNetworkReply::InternalServerError: return QObject::tr("Error: Internal Server");
+    case QNetworkReply::InternalServerError: return QObject::tr("You cannot unregister peer from bazaar, because there are environments.");
     case QNetworkReply::OperationNotImplementedError: return QObject::tr("Error: Operation not implemented");
     case QNetworkReply::ServiceUnavailableError: return QObject::tr("Error: Service unavailable");
     case QNetworkReply::UnknownServerError: return QObject::tr("Error: Unknown server");

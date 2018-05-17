@@ -1936,7 +1936,7 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="77"/>
-        <source>Error: Internal Server</source>
+        <source>You cannot unregister peer from bazaar, because there are environments.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1976,7 +1976,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="658"/>
-        <source>Before using vagrant. Install vagrant first</source>
+        <source>Before using vagrant install it please</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2113,7 +2113,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="2963"/>
-        <source>Couldn&apos;t create autostart directory, sorry</source>
+        <source>Couldn&apos;t create autostart directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2143,7 +2143,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="3122"/>
-        <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
+        <source>Couldn&apos;t add program to autorun due to denied access. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2158,7 +2158,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="3154"/>
-        <source>Couldn&apos;t remove program from autorun, sorry</source>
+        <source>Couldn&apos;t remove program from autorun.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2234,7 +2234,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="586"/>
-        <source>P2P is running. Stop and start it, if you have troubles.</source>
+        <source>P2P is running. If you have troubles please restart it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2255,8 +2255,8 @@
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="351"/>
-        <source>Control Center will restart your Chrome. Make sure you saved all your work.
-After installation make sure you will approve extension</source>
+        <source>Control Center will restart your Chrome. Make sure you saved all of your work.\n"
+        "Don't forget to approve the extension after the installation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2352,7 +2352,7 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="525"/>
-        <source>Can&apos;t run terminal to ssh into peer. Error code: %1</source>
+        <source>Can&apos;t run terminal to SSH into peer. Error code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2453,7 +2453,7 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="1356"/>
-        <source>Can&apos;t ssh to container. Err : %1</source>
+        <source>Can&apos;t SSH to container. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2492,7 +2492,7 @@ After installation make sure you will approve extension</source>
     <name>update_system::CUpdaterComponentE2E</name>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="377"/>
-        <source>Subutai E2E failed to install, we are sorry</source>
+        <source>Subutai E2E has failed to install, we are sorry</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2505,7 +2505,7 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="263"/>
-        <source>Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
+        <source>Virtualbox installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2543,7 +2543,7 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="205"/>
-        <source>Attention! P2P update finished</source>
+        <source>Attention! P2P update has finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2558,7 +2558,7 @@ After installation make sure you will approve extension</source>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="218"/>
-        <source>P2P has failed to install, we are sorry. Please try to install it manually.</source>
+        <source>Control Center needs to restart the P2P installation to complete.</source>
         <oldsource>You installed P2P. Better to restart Control Center for correct work</oldsource>
         <translation type="unfinished"></translation>
     </message>
