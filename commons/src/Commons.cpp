@@ -69,12 +69,12 @@ CCommons::NetworkErrorToString(int err_code) {
     case QNetworkReply::UnknownContentError: return QObject::tr("Error: Unknown Content");
 
       // protocol errors
-    case QNetworkReply::ProtocolUnknownError: return QObject::tr("Error: Protocol Unknown ");
+    case QNetworkReply::ProtocolUnknownError: return QObject::tr("Error: Protocol Unknown");
     case QNetworkReply::ProtocolInvalidOperationError: return QObject::tr("Error: Protocol Invalid Operation Error");
     case QNetworkReply::ProtocolFailure: return QObject::tr("Protocol Failure");
 
       // Server side errors (401-499)
-    case QNetworkReply::InternalServerError: return QObject::tr("You cannot unregister peer from bazaar, because there are environments.");
+    case QNetworkReply::InternalServerError: return QObject::tr("Error: Unknown server");
     case QNetworkReply::OperationNotImplementedError: return QObject::tr("Error: Operation not implemented");
     case QNetworkReply::ServiceUnavailableError: return QObject::tr("Error: Service unavailable");
     case QNetworkReply::UnknownServerError: return QObject::tr("Error: Unknown server");

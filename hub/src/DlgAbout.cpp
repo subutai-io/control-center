@@ -386,10 +386,10 @@ void
 DlgAbout::got_chrome_version_sl(QString version) {
   ui->lbl_chrome_version_val->setText(version);
   if(version == "undefined"){
-      ui->btn_chrome->setText(tr("Install Google Chrome"));
+      ui->btn_chrome->setText(tr("Install Chrome"));
   }
   else{
-      ui->btn_chrome->setText(tr("Update Google Chrome"));
+      ui->btn_chrome->setText(tr("Update Chrome"));
   }
 }
 

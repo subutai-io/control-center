@@ -5,7 +5,7 @@
     <name>CDownloadFileManager</name>
     <message>
         <location filename="hub/src/DownloadFileManager.cpp" line="55"/>
-        <source>File Download Error. %1</source>
+        <source>Download file error. %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14,7 +14,7 @@
     <message>
         <location filename="hub/src/HubController.cpp" line="346"/>
         <location filename="hub/src/HubController.cpp" line="418"/>
-        <source>Process of Running SSH has Failed. Error code : %1</source>
+        <source>Run SSH failed. Error code : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -24,17 +24,17 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="189"/>
-        <source>Refreshing Environments error : %1</source>
+        <source>Refresh environments error : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="285"/>
-        <source>Process of launching Bazaar website using Google Chrome has failed</source>
+        <source>Launch bazaar website with google chrome failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="291"/>
-        <source>Please install Google Chrome for this action: &quot;About&quot; section</source>
+        <source>Please install Google Chrome first. You can install it from &quot;About&quot; section</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -44,27 +44,27 @@
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="465"/>
-        <source>Environment is not found</source>
+        <source>Environment not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="466"/>
-        <source>Container is not found</source>
+        <source>Container not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="467"/>
-        <source>Container is not ready</source>
+        <source>Container isn&apos;t ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="468"/>
-        <source>Process of joining P2P swarm has failed</source>
+        <source>Join to p2p swarm failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/HubController.cpp" line="469"/>
-        <source>System call has failed</source>
+        <source>System call failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -77,7 +77,7 @@
     <name>CNotificationObserver</name>
     <message>
         <location filename="hub/src/NotificationObserver.cpp" line="11"/>
-        <source>Information</source>
+        <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -139,12 +139,12 @@
     <name>CRestWorker</name>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="200"/>
-        <source>Getting token of %1</source>
+        <source>getting token of %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="244"/>
-        <source>Unregistering peer %1</source>
+        <source>Unregister peer %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -154,12 +154,12 @@
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="297"/>
-        <source>Getting finger from %1</source>
+        <source>getting finger from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="324"/>
-        <source>Setting password for %1</source>
+        <source>setting password for %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -167,12 +167,12 @@
     <name>CSettingsManager</name>
     <message>
         <location filename="hub/src/SettingsManager.cpp" line="603"/>
-        <source>Information</source>
+        <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/SettingsManager.cpp" line="604"/>
-        <source>You have changed language. Would you like to restart Control Center?</source>
+        <source>You changed language. Would you like to restart Control Center?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -180,7 +180,7 @@
     <name>CSshKeysController</name>
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="137"/>
-        <source>Generate new SSH key pair. Do not change directory, please</source>
+        <source>Generate new ssh key pair. Don&apos;t change directory, please</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -190,7 +190,7 @@
     </message>
     <message>
         <location filename="hub/src/SshKeysController.cpp" line="160"/>
-        <source>Cannot generate SSH-key. Error : %1</source>
+        <source>Can&apos;t generate ssh-key. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -203,7 +203,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayWebSocketServer.cpp" line="28"/>
-        <source>Cannot listen to websocket on port : %1 Reason : %2</source>
+        <source>Can&apos;t listen websocket on port : %1 Reason : %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -240,7 +240,7 @@
         <location filename="hub/forms/DlgAbout.ui" line="364"/>
         <location filename="hub/forms/DlgAbout.ui" line="388"/>
         <location filename="hub/forms/DlgAbout.ui" line="415"/>
-        <source>Undefined</source>
+        <source>undefined</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -298,7 +298,7 @@
     <message>
         <location filename="hub/forms/DlgAbout.ui" line="435"/>
         <location filename="hub/src/DlgAbout.cpp" line="349"/>
-        <source>Update Google Chrome</source>
+        <source>Update Chrome</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -354,7 +354,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgAbout.cpp" line="346"/>
-        <source>Install Google Chrome</source>
+        <source>Install Chrome</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -504,7 +504,7 @@
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="75"/>
-        <source>Password cannot be empty</source>
+        <source>Password can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -524,27 +524,27 @@
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="95"/>
-        <source>Passwords do not match. Please check again</source>
+        <source>Passwords don&apos;t match. Please check again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="104"/>
-        <source>Name cannot be empty</source>
+        <source>Name can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="112"/>
-        <source>You can use only letters and numbers</source>
+        <source>You can use only alphabetic characters and digits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="120"/>
-        <source>Ram cannot be less than 4096 MB</source>
+        <source>Ram can&apos;t be less than 4096 MB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.cpp" line="128"/>
-        <source>Disk cannot be less than 40 GB</source>
+        <source>Disk can&apos;t be less than 40 GB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -646,7 +646,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgEnvironment.cpp" line="84"/>
-        <source>Running SSH commands..</source>
+        <source>Running ssh commands..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -719,7 +719,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
-        <source>You don&apos;t have administrative rights to SSH-keys directory. Please add rights or change SSH-keys storage in settings.</source>
+        <source>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -733,7 +733,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgLogin.ui" line="53"/>
-        <source>Username (or e-mail):</source>
+        <source>Username (or email):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -743,7 +743,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgLogin.ui" line="107"/>
-        <source>Show password while typing</source>
+        <source>Show password when type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -780,7 +780,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgLogin.cpp" line="80"/>
-        <source>Wrong login or password. Try again</source>
+        <source>Wrong login or password. Try again!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -790,7 +790,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgLogin.cpp" line="90"/>
-        <source>Timeout. Check the internet connection</source>
+        <source>Timeout. Check internet connection, please!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1097,7 +1097,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="242"/>
-        <source>Peer is off</source>
+        <source>Peer is poweroff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1167,12 +1167,12 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="559"/>
-        <source>Process to destroy peer %1 has started</source>
+        <source>Process to destroy peer %1 started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="588"/>
-        <source>Peer reloading started. Don&apos;t close terminal until it is finished</source>
+        <source>Peer reloading started. Don&apos;t close terminal until it&apos;s finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1188,7 +1188,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="508"/>
-        <source>The process has started. Do not close terminal before it is finished</source>
+        <source>Starting process started. Don&apos;t close before it finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1198,7 +1198,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="531"/>
-        <source>Sorry, could not SSH to peer &quot;%1&quot;</source>
+        <source>Sorry, could not ssh to peer &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1209,7 +1209,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="547"/>
-        <source>Failed to delete peer folder. Make sure you have permission</source>
+        <source>Failed to delete peer folder. Make sure you have permissions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1325,12 +1325,12 @@
     </message>
     <message>
         <location filename="hub/src/DlgRegisterPeer.cpp" line="120"/>
-        <source>Cannot register peer.</source>
+        <source>Can&apos;t register peer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgRegisterPeer.cpp" line="218"/>
-        <source>Cannot unregister peer.</source>
+        <source>Can&apos;t unregister peer.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1514,12 +1514,12 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="808"/>
-        <source>The Frequency of checkups for Control Center Updates:</source>
+        <source>Control Center check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="544"/>
-        <source>SSH-keygen:</source>
+        <source>Ssh-keygen:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1534,7 +1534,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="627"/>
-        <source>Resource Host</source>
+        <source>RH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1559,7 +1559,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="801"/>
-        <source>The Frequency of checkups for RH Updates:</source>
+        <source>Resource Host check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1570,37 +1570,37 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="828"/>
-        <source>Automatic RH update</source>
+        <source>Automatic rh update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="835"/>
-        <source>The Frequency of checkups for P2P Updates:</source>
+        <source>P2P check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="845"/>
-        <source>Automatic P2P Update</source>
+        <source>Automatic p2p update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="852"/>
-        <source>The Frequency of checkups for MH Updates:</source>
+        <source>Management check for updates frequency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="862"/>
-        <source>Automatic MH Update</source>
+        <source>Automatic mh update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="287"/>
-        <source>Field cannot be empty</source>
+        <source>Field can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="289"/>
-        <source>Administrative rights are needed to open the folder</source>
+        <source>You don&apos;t have write permission to this folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1610,7 +1610,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="292"/>
-        <source>Cannot launch application</source>
+        <source>Can&apos;t launch application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1635,7 +1635,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="502"/>
-        <source>SSH command</source>
+        <source>Ssh command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1645,12 +1645,12 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="528"/>
-        <source>SSH-keygen command</source>
+        <source>Ssh-keygen command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="519"/>
-        <source>X2Go-Client command</source>
+        <source>x2goclient command</source>
         <oldsource>Vboxmanage command</oldsource>
         <translation type="unfinished"></translation>
     </message>
@@ -1684,7 +1684,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="111"/>
-        <source>Start Transfering files</source>
+        <source>Start to Transfer Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1704,22 +1704,22 @@
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="144"/>
-        <source>IP:</source>
+        <source>IP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="157"/>
-        <source>User:</source>
+        <source>User</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="164"/>
-        <source>Port:</source>
+        <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="177"/>
-        <source>Key:</source>
+        <source>Key </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1750,7 +1750,7 @@
     </message>
     <message>
         <location filename="commons/src/Logger.cpp" line="40"/>
-        <source>Information</source>
+        <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1778,7 +1778,7 @@
     <name>P2PStatus_checker</name>
     <message>
         <location filename="hub/include/P2PController.h" line="231"/>
-        <source>P2P installation has started</source>
+        <source>P2P installation have started</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1791,92 +1791,92 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="40"/>
-        <source>Error: Connection Refused</source>
+        <source>Connection Refused Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="41"/>
-        <source>Error: Remote Host Closed</source>
+        <source>Remote Host Closed Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="42"/>
-        <source>Error: Host Not Found</source>
+        <source>Host Not Found Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="43"/>
-        <source>Error: Timeout</source>
+        <source>Timeout Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="44"/>
-        <source>Error: Operation Canceled</source>
+        <source>Operation Canceled Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="45"/>
-        <source>Error: SSL Handshake Failed</source>
+        <source>Ssl Handshake Failed Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="46"/>
-        <source>Error: Temporary Network Failure</source>
+        <source>Temporary Network Failure Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="47"/>
-        <source>Error: Network Session Failed</source>
+        <source>Network Session Failed Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="48"/>
-        <source>Error: Background Request Not Allowed</source>
+        <source>Background Request Not Allowed Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="49"/>
-        <source>Error: Too Many Redirects</source>
+        <source>TooMany Redirects Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="50"/>
-        <source>Error: Insecure Redirect</source>
+        <source>Insecure Redirect Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="51"/>
-        <source>Error: Unknown Network</source>
+        <source>Unknown Network Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="54"/>
-        <source>Error: Proxy Connection Refused</source>
+        <source>Proxy Connection Refused Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="55"/>
-        <source>Error: Proxy Connection Closed</source>
+        <source>Proxy Connection Closed Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="56"/>
-        <source>Error: Proxy Not Found</source>
+        <source>Proxy Not Found Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="57"/>
-        <source>Error: Proxy Timeout</source>
+        <source>Proxy Timeout Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="58"/>
-        <source>Error: Proxy Authentication Required</source>
+        <source>Proxy Authentication Required Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="59"/>
-        <source>Error: Unknown Proxy</source>
+        <source>Unknown Proxy Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1886,47 +1886,47 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="63"/>
-        <source>Error: Content Operation Not Permitted</source>
+        <source>Content Operation Not Permitted Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="64"/>
-        <source>Error: Content Not Found</source>
+        <source>Content Not Found Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="65"/>
-        <source>Error: Authentication Required</source>
+        <source>Authentication Required Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="66"/>
-        <source>Error: Content Resend</source>
+        <source>Content Resend Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="67"/>
-        <source>Error: Content Conflict</source>
+        <source>Content Conflict Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="68"/>
-        <source>Error: Content Gone</source>
+        <source>Content Gone Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="69"/>
-        <source>Error: Unknown Content</source>
+        <source>Unknown Content Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="72"/>
-        <source>Error: Protocol Unknown</source>
+        <source>Protocol Unknown Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="73"/>
-        <source>Error: Protocol Invalid Operation</source>
+        <source>Protocol Invalid Operation Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1936,27 +1936,27 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="77"/>
-        <source>You cannot unregister peer from bazaar, because there are environments.</source>
+        <source>Internal Server Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="78"/>
-        <source>Error: Operation not implemented</source>
+        <source>Operation not implemented error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="79"/>
-        <source>Error: Service unavailable</source>
+        <source>Service unavailable error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="80"/>
-        <source>Error: Unknown server</source>
+        <source>Unknown server error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="82"/>
-        <source>Error: Unknown network</source>
+        <source>Unknown network error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1976,7 +1976,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="658"/>
-        <source>Before using vagrant install it please</source>
+        <source>Before using vagrant. Install vagrant first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2113,7 +2113,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="2963"/>
-        <source>Couldn&apos;t create autostart directory</source>
+        <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2143,7 +2143,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="3122"/>
-        <source>Couldn&apos;t add program to autorun due to denied access. Try to run this application as administrator</source>
+        <source>Couldn&apos;t add program to autorun due to access denied. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2158,7 +2158,7 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="3154"/>
-        <source>Couldn&apos;t remove program from autorun.</source>
+        <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2234,7 +2234,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="586"/>
-        <source>P2P is running. If you have troubles please restart it.</source>
+        <source>P2P is running. Stop and start it, if you have troubles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2255,16 +2255,16 @@
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="351"/>
-        <source>Control Center will restart your Chrome. Make sure you saved all of your work.\n"
-        "Don't forget to approve the extension after the installation</source>
+        <source>Control Center will restart your Chrome. Make sure you saved all your work.
+After installation make sure you will approve extension</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="381"/>
         <source>&lt;br&gt;Subutai E2E has been installed to your browser&lt;/br&gt;&lt;br&gt;If E2E does not appear, please approve installation from chrome://extensions.
-	&lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</source>
+        &lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</source>
         <oldsource>&lt;br&gt;Subutai E2E have been installed to your browser&lt;/br&gt;&lt;br&gt;If E2E is not appeared, please approve installation from chrome://extensions.
-	&lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</oldsource>
+        &lt;/br&gt;&lt;br&gt;&lt;a href=&apos;https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html&apos;&gt;Learn more about Subutai E2E.&lt;/a&gt;&lt;/br&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2352,7 +2352,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="525"/>
-        <source>Can&apos;t run terminal to SSH into peer. Error code: %1</source>
+        <source>Can&apos;t run terminal to ssh into peer. Error code: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2453,7 +2453,7 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="1356"/>
-        <source>Can&apos;t SSH to container. Err : %1</source>
+        <source>Can&apos;t ssh to container. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2492,7 +2492,7 @@
     <name>update_system::CUpdaterComponentE2E</name>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="377"/>
-        <source>Subutai E2E has failed to install, we are sorry</source>
+        <source>Subutai E2E failed to install, we are sorry</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2505,7 +2505,7 @@
     </message>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="263"/>
-        <source>Virtualbox installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
+        <source>Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2543,7 +2543,7 @@
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="205"/>
-        <source>Attention! P2P update has finished</source>
+        <source>Attention! P2P update finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2558,7 +2558,7 @@
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="218"/>
-        <source>Control Center needs to restart the P2P installation to complete.</source>
+        <source>P2P has failed to install, we are sorry. Please try to install it manually.</source>
         <oldsource>You installed P2P. Better to restart Control Center for correct work</oldsource>
         <translation type="unfinished"></translation>
     </message>
