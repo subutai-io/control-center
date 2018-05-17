@@ -1514,12 +1514,12 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="808"/>
-        <source>Control Center check for updates frequency:</source>
+        <source>The Frequency of checkups for Control Center Updates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="544"/>
-        <source>Ssh-keygen:</source>
+        <source>SSH-keygen:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1534,7 +1534,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="627"/>
-        <source>RH</source>
+        <source>Resource Host</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1559,7 +1559,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="801"/>
-        <source>Resource Host check for updates frequency:</source>
+        <source>The Frequency of checkups for RH Updates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1570,37 +1570,37 @@
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="828"/>
-        <source>Automatic rh update</source>
+        <source>Automatic RH update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="835"/>
-        <source>P2P check for updates frequency:</source>
+        <source>The Frequency of checkups for P2P Updates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="845"/>
-        <source>Automatic p2p update</source>
+        <source>Automatic P2P Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="852"/>
-        <source>Management check for updates frequency:</source>
+        <source>The Frequency of checkups for MH Updates:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgSettings.ui" line="862"/>
-        <source>Automatic mh update</source>
+        <source>Automatic MH Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="287"/>
-        <source>Field can&apos;t be empty</source>
+        <source>Field cannot be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="289"/>
-        <source>You don&apos;t have write permission to this folder</source>
+        <source>Administrative rights are needed to open the folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1610,7 +1610,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="292"/>
-        <source>Can&apos;t launch application</source>
+        <source>Cannot launch application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1635,7 +1635,7 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="502"/>
-        <source>Ssh command</source>
+        <source>SSH command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1645,12 +1645,12 @@
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="528"/>
-        <source>Ssh-keygen command</source>
+        <source>SSH-keygen command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/DlgSettings.cpp" line="519"/>
-        <source>x2goclient command</source>
+        <source>X2Go-Client command</source>
         <oldsource>Vboxmanage command</oldsource>
         <translation type="unfinished"></translation>
     </message>
@@ -1684,7 +1684,7 @@
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="111"/>
-        <source>Start to Transfer Files</source>
+        <source>Start Transfering files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1704,22 +1704,22 @@
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="144"/>
-        <source>IP</source>
+        <source>IP:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="157"/>
-        <source>User</source>
+        <source>User:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="164"/>
-        <source>Port</source>
+        <source>Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/forms/DlgTransferFile.ui" line="177"/>
-        <source>Key </source>
+        <source>Key:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1750,7 +1750,7 @@
     </message>
     <message>
         <location filename="commons/src/Logger.cpp" line="40"/>
-        <source>Info</source>
+        <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1778,7 +1778,7 @@
     <name>P2PStatus_checker</name>
     <message>
         <location filename="hub/include/P2PController.h" line="231"/>
-        <source>P2P installation have started</source>
+        <source>P2P installation has started</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1791,92 +1791,92 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="40"/>
-        <source>Connection Refused Error</source>
+        <source>Error: Connection Refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="41"/>
-        <source>Remote Host Closed Error</source>
+        <source>Error: Remote Host Closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="42"/>
-        <source>Host Not Found Error</source>
+        <source>Error: Host Not Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="43"/>
-        <source>Timeout Error</source>
+        <source>Error: Timeout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="44"/>
-        <source>Operation Canceled Error</source>
+        <source>Error: Operation Canceled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="45"/>
-        <source>Ssl Handshake Failed Error</source>
+        <source>Error: SSL Handshake Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="46"/>
-        <source>Temporary Network Failure Error</source>
+        <source>Error: Temporary Network Failure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="47"/>
-        <source>Network Session Failed Error</source>
+        <source>Error: Network Session Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="48"/>
-        <source>Background Request Not Allowed Error</source>
+        <source>Error: Background Request Not Allowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="49"/>
-        <source>TooMany Redirects Error</source>
+        <source>Error: Too Many Redirects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="50"/>
-        <source>Insecure Redirect Error</source>
+        <source>Error: Insecure Redirect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="51"/>
-        <source>Unknown Network Error</source>
+        <source>Error: Unknown Network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="54"/>
-        <source>Proxy Connection Refused Error</source>
+        <source>Error: Proxy Connection Refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="55"/>
-        <source>Proxy Connection Closed Error</source>
+        <source>Error: Proxy Connection Closed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="56"/>
-        <source>Proxy Not Found Error</source>
+        <source>Error: Proxy Not Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="57"/>
-        <source>Proxy Timeout Error</source>
+        <source>Error: Proxy Timeout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="58"/>
-        <source>Proxy Authentication Required Error</source>
+        <source>Error: Proxy Authentication Required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="59"/>
-        <source>Unknown Proxy Error</source>
+        <source>Error: Unknown Proxy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1886,47 +1886,47 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="63"/>
-        <source>Content Operation Not Permitted Error</source>
+        <source>Error: Content Operation Not Permitted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="64"/>
-        <source>Content Not Found Error</source>
+        <source>Error: Content Not Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="65"/>
-        <source>Authentication Required Error</source>
+        <source>Error: Authentication Required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="66"/>
-        <source>Content Resend Error</source>
+        <source>Error: Content Resend</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="67"/>
-        <source>Content Conflict Error</source>
+        <source>Error: Content Conflict</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="68"/>
-        <source>Content Gone Error</source>
+        <source>Error: Content Gone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="69"/>
-        <source>Unknown Content Error</source>
+        <source>Error: Unknown Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="72"/>
-        <source>Protocol Unknown Error</source>
+        <source>Error: Protocol Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="73"/>
-        <source>Protocol Invalid Operation Error</source>
+        <source>Error: Protocol Invalid Operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1936,27 +1936,27 @@
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="77"/>
-        <source>Internal Server Error</source>
+        <source>Error: Internal Server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="78"/>
-        <source>Operation not implemented error</source>
+        <source>Error: Operation not implemented</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="79"/>
-        <source>Service unavailable error</source>
+        <source>Error: Service unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="80"/>
-        <source>Unknown server error</source>
+        <source>Error: Unknown server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="commons/src/Commons.cpp" line="82"/>
-        <source>Unknown network error</source>
+        <source>Error: Unknown network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

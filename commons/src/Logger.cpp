@@ -37,7 +37,7 @@ Logger* Logger::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const QString& Logger::LogLevelToStr(LOG_LEVEL lt) {
-  static QString ll_str[] = {tr("Debug"), tr("Info"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Disabled")};
+  static QString ll_str[] = {tr("Debug"), tr("Information"), tr("Warning"), tr("Critical"), tr("Fatal"), tr("Disabled")};
   return ll_str[lt];
 }
 
