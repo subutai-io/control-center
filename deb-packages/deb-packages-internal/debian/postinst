@@ -75,9 +75,3 @@ fi
 
 echo "P2P_Path=$p2p_path" >> $settings_file
 
-bin_path=`which SubutaiControlCenter`
-if [ -z "$bin_path" ]; then
-  echo "Couldn't launch SubutaiControlCenter"
-else
-  $bin_path
-fi

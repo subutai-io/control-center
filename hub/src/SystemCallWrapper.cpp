@@ -2756,6 +2756,9 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString 
         version = it->second;
         if(version.size() >= 2){ //remove ( ) in the beginning and in the end
             version.remove(0, 1);
+            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
+                version.remove(version.size() - 1, 1);
+            }
             version.remove(version.size() - 1, 1);
         }
     }
@@ -2782,6 +2785,9 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_vbguest_version(QString 
         version = it->second;
         if(version.size() >= 2){ //remove ( ) in the beginning and in the end
             version.remove(0, 1);
+            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
+                version.remove(version.size() - 1, 1);
+            }
             version.remove(version.size() - 1, 1);
         }
     }
