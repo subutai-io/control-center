@@ -18,7 +18,8 @@
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go, *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e;
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go,
+          *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e, *uc_vagrant_subutai, *uc_vagrant_vbguest;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_rh   = new CUpdaterComponentRH;
@@ -28,7 +29,11 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
   uc_chrome = new CUpdaterComponentCHROME;
   uc_e2e = new CUpdaterComponentE2E;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm, uc_x2go, uc_vagrant, uc_oracle_virtualbox, uc_chrome, uc_e2e, NULL};
+  uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
+  uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm,
+                              uc_x2go, uc_vagrant, uc_oracle_virtualbox,
+                              uc_chrome, uc_e2e, uc_vagrant_subutai, uc_vagrant_vbguest, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -39,6 +44,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
+  m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
+  m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -259,7 +266,7 @@ bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
         return true;
     else return m_dct_components[component_id].Component()->is_in_progress();
 }
-
+///////* class installs cc components in silent mode *///////////
 void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type){
     m_dir = dir;
     m_file_name = file_name;
@@ -302,6 +309,56 @@ void SilentInstaller::silentInstallation(){
         break;
     case CC_E2E:
         res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+        break;
+    case CC_VAGRANT_SUBUTAI:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_subutai);
+        break;
+    case CC_VAGRANT_VBGUEST:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_vbguest);
+        break;
+    default:
+        break;
+    }
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    });
+}
+
+///////* class updates cc components in silent mode *///////////
+void SilentUpdater::init(const QString &dir, const QString &file_name, cc_component type){
+    m_dir = dir;
+    m_file_name = file_name;
+    m_type = type;
+}
+
+void SilentUpdater::startWork(){
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &SilentUpdater::silentUpdate);
+    connect(this, &SilentUpdater::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &SilentUpdater::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+}
+
+void SilentUpdater::silentUpdate(){
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    QFuture<system_call_wrapper_error_t>  res;
+    static QString subutai_plugin = "vagrant-subutai";
+    static QString vbguest_plugin = "vagrant-vbguest";
+    switch (m_type) {
+    case CC_VAGRANT_SUBUTAI:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin_update, subutai_plugin);
+        break;
+    case CC_VAGRANT_VBGUEST:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin_update, vbguest_plugin);
+        break;
     default:
         break;
     }

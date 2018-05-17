@@ -57,6 +57,8 @@ namespace update_system {
     static const QString ORACLE_VIRTUALBOX;
     static const QString CHROME;
     static const QString E2E;
+    static const QString VAGRANT_SUBUTAI;
+    static const QString VAGRANT_VBGUEST;
 
     bool is_in_progress(){
         return m_in_progress;
@@ -209,6 +211,42 @@ namespace update_system {
       virtual void install_post_interntal(bool success);
     private:
       QString download_e2e_path();
+    };
+
+    /**
+     * @brief The CUpdaterComponentVAGRANT_SUBUTAI class implements IUpdaterComponent. Works with subutai subutai plugin
+     */
+    class CUpdaterComponentVAGRANT_SUBUTAI : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentVAGRANT_SUBUTAI();
+      virtual ~CUpdaterComponentVAGRANT_SUBUTAI();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    };
+
+    /**
+     * @brief The CUpdaterComponentVAGRANT_VBGUEST class implements IUpdaterComponent. Works with vbguest plugin
+     */
+    class CUpdaterComponentVAGRANT_VBGUEST : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentVAGRANT_VBGUEST();
+      virtual ~CUpdaterComponentVAGRANT_VBGUEST();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
     };
 }
 
