@@ -108,7 +108,7 @@
    <item row="4" column="8">
     <widget class="QPushButton" name="btn_start_transfer">
      <property name="text">
-      <string>Start Transfering Files</string>
+      <string>Start to Transfer Files</string>
      </property>
     </widget>
    </item>
@@ -141,7 +141,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>IP:</string>
+         <string>IP</string>
         </property>
        </widget>
       </item>
@@ -154,14 +154,14 @@
       <item row="0" column="2">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>User:</string>
+         <string>User</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Port:</string>
+         <string>Port</string>
         </property>
        </widget>
       </item>
@@ -174,7 +174,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Key:</string>
+         <string>Key </string>
         </property>
        </widget>
       </item>

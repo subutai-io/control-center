@@ -44,7 +44,7 @@
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab_common">
         <attribute name="title">
@@ -541,7 +541,7 @@
            <item row="4" column="0">
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>SSH-keygen:</string>
+              <string>Ssh-keygen:</string>
              </property>
             </widget>
            </item>
@@ -591,7 +591,7 @@
            <item row="14" column="0">
             <widget class="QLabel" name="lbl_virtualbox_command">
              <property name="text">
-              <string>VirtualBox command</string>
+              <string>Virtualbox command</string>
              </property>
             </widget>
            </item>
@@ -624,7 +624,7 @@
        </widget>
        <widget class="QWidget" name="tab_rh_ip">
         <attribute name="title">
-         <string>Resource Host</string>
+         <string>RH</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
@@ -798,14 +798,14 @@
            <item row="2" column="0">
             <widget class="QLabel" name="lbl_rh_update">
              <property name="text">
-              <string>The Frequency of checkups for RH Updates:</string>
+              <string>Resource Host check for updates frequency:</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="lbl_tray_update">
              <property name="text">
-              <string>The Frequency of checkups for CC Updates:</string>
+              <string>Control Center check for updates frequency:</string>
              </property>
             </widget>
            </item>
@@ -818,21 +818,21 @@
            <item row="1" column="2">
             <widget class="QCheckBox" name="chk_tray_autoupdate">
              <property name="text">
-              <string>Automatic CC Update</string>
+              <string>Automatic CC update</string>
              </property>
             </widget>
            </item>
            <item row="2" column="2">
             <widget class="QCheckBox" name="chk_rh_autoupdate">
              <property name="text">
-              <string>Automatic RH Update</string>
+              <string>Automatic rh update</string>
              </property>
             </widget>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_p2p_update">
              <property name="text">
-              <string>The Frequency of checkups for P2P Updates:</string>
+              <string>P2P check for updates frequency:</string>
              </property>
             </widget>
            </item>
@@ -842,14 +842,14 @@
            <item row="0" column="2">
             <widget class="QCheckBox" name="chk_p2p_autoupdate">
              <property name="text">
-              <string>Automatic P2P Update</string>
+              <string>Automatic p2p update</string>
              </property>
             </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="lbl_rhm_update">
              <property name="text">
-              <string>The Frequency of checkups for MH Updates:</string>
+              <string>Management check for updates frequency:</string>
              </property>
             </widget>
            </item>
@@ -859,7 +859,7 @@
            <item row="3" column="2">
             <widget class="QCheckBox" name="chk_rhm_autoupdate">
              <property name="text">
-              <string>Automatic MH Update</string>
+              <string>Automatic mh update</string>
              </property>
             </widget>
            </item>

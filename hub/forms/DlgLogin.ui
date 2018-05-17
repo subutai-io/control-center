@@ -50,7 +50,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="lbl_login">
          <property name="text">
-          <string>Username (or e-mail):</string>
+          <string>Username (or email):</string>
          </property>
         </widget>
        </item>
@@ -104,7 +104,7 @@
        <item row="0" column="1">
         <widget class="QCheckBox" name="cb_show_pass">
          <property name="text">
-          <string>Show password while typing</string>
+          <string>Show password when type</string>
          </property>
         </widget>
        </item>
