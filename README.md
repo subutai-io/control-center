@@ -1,31 +1,84 @@
-Subutai Control Center Application
-===================
 
-This application allows non technical users to manage their containers and peers, a see information about their environments, peers, balance etc. Should be provided within subutai installers and can be launched in OS specific manner.
+<h1 align="center">
+  <br>
+  <a href="http://www.subutai.io/"><img src="https://github.com/subutai-io/control-center/blob/master/resources/cc_icon_last.png" alt="Subutai" width="500"></a>
+  <br>
+  Subutai Control Center
+  <br>
+</h1>
 
-Build requirenments 
--------------------
+<h4 align="center">Easy life for users of <a href="http://bazaar.subutai.io" target="_blank">Bazaar</a>.</h4>
+<!-- need to work on this
+<p align="center">
+  <a href="https://gitter.im/amitmerchant1990/electron-markdownify"><img src="https://badges.gitter.im/amitmerchant1990/electron-markdownify.svg"></a>
+  <a href="https://saythanks.io/to/amitmerchant1990">
+      <img src="https://img.shields.io/badge/SayThanks.io-%E2%98%BC-1EAEDB.svg">
+  </a>
+  <a href="https://www.paypal.me/AmitMerchant">
+    <img src="https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&amp;style=flat">
+  </a>
+</p> -->
 
-* Qt sdk
-* libssh2 (linux and osx)
-* libpthread (linux and osx)
-* cat/type commands should be available
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="#download">Download</a> •
+  <a href="#about-subutai">About Subutai</a> •
+  <a href="#license">License</a>
+</p>
 
-Development & branching model
--------------------
+<!-- ![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/img/markdownify.gif) -->
 
-Building
+## Key Features
 
-* If you want to build from IDE - use qt creator (SubutaiTray.pro project). If you want to build from command line, use commands listed below:
+* Bazaar account monitoring
+  - Informatin of user environments, peers, balance and etc
+* Managing cloud environemtns
+  - SSHing, File transfer, Key deployment
+* PeerOS manager
+  - Create your own virtual machine with PeerOS on it, register them to Bazaar, share your resources to the world
+* Software manager
+  - Install all 3rd party components with approve of user
+  - Vagrant, Virtualbox, Google Chrome, Subutai P2P, X2Go-Client are supported
+* Dark/Light skins
+* Fast and quick usage tray application
+* Cross platform
+  - Windows, Mac and Linux ready.
 
-__Modify PATH. Like this : `export PATH=path_to_qmake_bin:$PATH`__
+## How To Build
 
-For __LINUX__  run `./build_linux.sh`. You can modify this script, it is very simple.
+To clone and run this application, you'll need [Git](https://git-scm.com), [qmake](https://www.qt.io/download) are installed on your computer, and [Qt Creator](https://www.qt.io/download) if you want to build from IDE. You need C/C++ compilers [MinGW](http://www.mingw.org/wiki/linuxcrossmingw) for Linux, [clang](https://clang.llvm.org/get_started.html) for macOS and [MSVC++](http://landinghub.visualstudio.com/visual-cpp-build-tools) for Windows. From your command line:
 
-For __Mac OS__ do the same, but run `./build_mac.sh`
+Use ```git checkout $(cat version)``` on **unix** or ```git checkout $(type version)``` on **Windows** to switch to the latest released branch. After you can build from command line using these commands:
 
-For __WINDOWS__ run this : `build_win.bat "path_to libeay32.dll and ssleay32.dll"`
-### Branching Model 
+for **MacOS**
+```bash
+qmake SubutaiControlCenter.pro -r -spec macx-clang CONFIG+=x86_64
+make
+```
+for **Linux**
+```bash
+qmake SubutaiControlCenter.pro -r -spec linux-g++
+make -j
+```
 
-We are using [GITFLOW] (http://nvie.com/posts/a-successful-git-branching-model/).
+for **Windows**
+```bash
+qmake ..\SubutaiControlCenter.pro -r -spec win32-msvc
+jom
+```
+
+## Download
+
+You can [download](https://subutai.io/getting-started.html#Control-Center) latest installable version of Subutai Control Center for Windows, macOS and Linux.
+
+## About Subutai
+
+[Subutai](https://github.com/amitmerchant1990/markdownify-web) - Open Source Peer-to-Peer (P2P) Cloud Computing
+Internet of Things (IoT) and Cryptocurrency Mining for Everyone
+
+
+## License
+
+Apache License 2.0
 
