@@ -380,7 +380,7 @@ void CUpdaterComponentE2E::update_post_action(bool success){
 }
 void CUpdaterComponentE2E::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Subutai E2E hasfailed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Subutai E2E has failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
         return;
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),

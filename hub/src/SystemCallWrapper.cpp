@@ -749,18 +749,18 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
   do {
     QString gksu_path;
     system_call_wrapper_error_t scr =
-        CSystemCallWrapper::which("GKSU", gksu_path);
+        CSystemCallWrapper::which("gksu", gksu_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find GKSU command");
+      QString err_msg = QObject::tr("Couldn't find gksu command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
     }
 
     QString sh_path;
-    scr = CSystemCallWrapper::which("SH", sh_path);
+    scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find SH command");
+      QString err_msg = QObject::tr("Couldn't find sh command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -781,7 +781,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         CSystemCallWrapper::ssystem(gksu_path, args, true, true, 60000);
 
     if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("GKSU systemctl list-units call failed. ec = %1, res = %2")
+      QString err_msg = QObject::tr("gksu systemctl list-units call failed. ec = %1, res = %2")
                         .arg(cr.exit_code)
                         .arg(CSystemCallWrapper::scwe_error_to_str(cr.res));
       qCritical() << err_msg;
@@ -790,14 +790,14 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
 
     if (cr.out.isEmpty()) {
-      QString err_msg = QObject::tr("GKSU systemctl list-units output is empty");
+      QString err_msg = QObject::tr("gksu systemctl list-units output is empty");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       break;
     }
 
     for (QString str : cr.out) {
-      if (str.indexOf("P2P.service") == -1 && type != STOPPED_P2P) continue;
+      if (str.indexOf("p2p.service") == -1 && type != STOPPED_P2P) continue;
 
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);

@@ -94,7 +94,7 @@ CUpdaterComponentTray::update_post_action(bool success) {
   }
 
   QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, tr("Attention! Control Center update finished"),
-                      tr("Control Center application has been updated. Please restart it."),
+                      tr("Control Center application has been updated. Do you want to restart it now?"),
                       QMessageBox::Yes | QMessageBox::No);
   connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::No)
