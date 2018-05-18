@@ -81,7 +81,7 @@ void DlgEnvironment::desktop_selected() {
 
 void DlgEnvironment::ssh_selected() {
   ui->btn_ssh_selected->setEnabled(false);
-  ui->btn_ssh_selected->setText(tr("Running ssh commands.."));
+  ui->btn_ssh_selected->setText(tr("Running SSH commands.."));
   for (CHubContainer cont : env.containers()) {
     if(selected_conts.find(cont.id()) == selected_conts.end())
         continue;

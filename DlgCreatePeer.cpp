@@ -72,7 +72,7 @@ void DlgCreatePeer::create_button_pressed(){
         QString error_message = "";
         switch (pass_error) {
         case PASS_EMPTY:
-            error_message = tr("Password can't be empty");
+            error_message = tr("Password cannot be empty");
             break;
         case PASS_SMALL:
             error_message = tr("Password size should be more than 7");
@@ -92,7 +92,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else
     if(password1 != password2){
-        ui->lbl_err_pass->setText(tr("Passwords don't match. Please check again"));
+        ui->lbl_err_pass->setText(tr("Passwords do not match. Please check again"));
         ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_pass->show();
         ui->btn_create->setEnabled(true);
@@ -101,7 +101,7 @@ void DlgCreatePeer::create_button_pressed(){
     else ui->lbl_err_pass->hide();
 
     if(ui->le_name->text().isEmpty()){
-        ui->lbl_err_name->setText(tr("Name can't be empty"));
+        ui->lbl_err_name->setText(tr("Name cannot be empty"));
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
         ui->btn_create->setEnabled(true);
@@ -109,7 +109,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else
     if(ui->le_name->text().contains(m_invalid_chars) || ui->le_name->text().contains("_")){
-            ui->lbl_err_name->setText(tr("You can use only alphabetic characters and digits"));
+            ui->lbl_err_name->setText(tr("You can use only letters and digits"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             ui->btn_create->setEnabled(true);
@@ -117,7 +117,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else ui->lbl_err_name->hide();
     if(ram.toInt() < 4096){
-        ui->lbl_err_ram->setText(tr("Ram can't be less than 4096 MB"));
+        ui->lbl_err_ram->setText(tr("Ram cannot be less than 4096 MB"));
         ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_ram->show();
         ui->btn_create->setEnabled(true);
@@ -125,7 +125,7 @@ void DlgCreatePeer::create_button_pressed(){
     }
     else ui->lbl_err_ram->hide();
     if(disk.toInt() < 40){
-        ui->lbl_err_disk->setText(tr("Disk can't be less than 40 GB"));
+        ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB"));
         ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_disk->show();
         ui->btn_create->setEnabled(true);

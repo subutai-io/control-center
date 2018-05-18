@@ -186,7 +186,7 @@ CHubController::on_environments_updated_sl(std::vector<CEnvironment> lst_environ
   // that means that about network error notified RestWorker.
   if (err_code && err_code != RE_NETWORK_ERROR) {
     QString err_msg =
-        tr("Refresh environments error : %1")
+        tr("Refreshing Environments error : %1")
             .arg(CRestWorker::rest_err_to_str((rest_error_t)err_code));
     CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
     rer_res = RER_ERROR;
@@ -282,13 +282,13 @@ void CHubController::launch_browser(const QString &url) {
         args << url
              << "--profile-directory=Default";
         if (!QProcess::startDetached(chrome_path, args)) {
-          QString err_msg = tr("Launch bazaar website with google chrome failed");
+          QString err_msg = tr("Process of launching Bazaar website using Google Chrome has failed");
           CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
           qCritical("%s", err_msg.toStdString().c_str());
         }
       }
       else {
-          CNotificationObserver::Error(tr("Please install Google Chrome first. You can install it from \"About\" section"), DlgNotification::N_ABOUT);
+          CNotificationObserver::Error(tr("Please install Google Chrome for this action: \"About\" section"), DlgNotification::N_ABOUT);
         }
       }
 }
@@ -343,7 +343,7 @@ ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvi
   }
   system_call_wrapper_error_t run_in_terminal_status = ssh_to_container_in_terminal(cont, key);
   if (run_in_terminal_status != SCWE_SUCCESS) {
-    QString err_msg = tr("Run SSH failed. Error code : %1")
+    QString err_msg = tr("Process of Running SSH has Failed. Error code : %1")
                       .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
     qCritical() << err_msg;
     return SDLE_SYSTEM_CALL_FAILED;
@@ -415,7 +415,7 @@ ssh_desktop_launch_error_t CHubController::desktop_to_container_internal(const C
       run_in_terminal_status = desktop_to_container_in_x2go(cont, key);
 
   if (run_in_terminal_status != SCWE_SUCCESS) {
-    QString err_msg = tr("Run SSH failed. Error code : %1")
+    QString err_msg = tr("Process of Running SSH has Failed. Error code : %1")
                       .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
     qCritical() << err_msg;
     return SDLE_SYSTEM_CALL_FAILED;
@@ -462,11 +462,11 @@ void CHubController::desktop_to_container_from_hub(const QString &env_id, const 
 
 const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
   static QString lst_err_str[SDLE_LAST_ERR] = {tr("Success"),
-                                              tr("Environment not found"),
-                                              tr("Container not found"),
-                                              tr("Container isn't ready"),
-                                              tr("Join to p2p swarm failed"),
-                                              tr("System call failed"),
+                                              tr("Environment is not found"),
+                                              tr("Container is not found"),
+                                              tr("Container is not ready"),
+                                              tr("Process of joining P2P swarm has failed"),
+                                              tr("System call has failed"),
                                               tr("No key deployed")};
   return lst_err_str[err %  SDLE_LAST_ERR];
 }
