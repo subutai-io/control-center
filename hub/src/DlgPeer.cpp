@@ -544,7 +544,7 @@ void DlgPeer::destroyPeer(){
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Failed to delete peer folder. Make sure you have permission"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to delete peer directory. Make sure you have permission"), DlgNotification::N_NO_ACTION);
             enabled_peer_buttons(true);
         }
         return;

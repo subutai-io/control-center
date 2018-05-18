@@ -775,8 +775,8 @@
     </message>
     <message>
         <location filename="hub/src/DlgGenerateSshKey.cpp" line="126"/>
-        <source>You don&apos;t have administrative rights to SSH-keys directory. Please add rights or change SSH-keys storage in settings.</source>
-        <oldsource>You don&apos;t have write permission to ssh-keys directory. Please add write permission or change ssh-keys storage in settings. Thanks</oldsource>
+        <source>You don&apos;t have administrator privileges to write into SSH directory. Please add rights or change SSH-keys storage in settings.</source>
+        <oldsource>You don&apos;t have administrative rights to SSH-keys directory. Please add rights or change SSH-keys storage in settings.</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1273,8 +1273,8 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="547"/>
-        <source>Failed to delete peer folder. Make sure you have permission</source>
-        <oldsource>Failed to delete peer folder. Make sure you have permissions</oldsource>
+        <source>Failed to delete peer directory. Make sure you have permission</source>
+        <oldsource>Failed to delete peer folder. Make sure you have permission</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
