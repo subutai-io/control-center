@@ -96,7 +96,6 @@ void DlgEnvironment::ssh_selected() {
     this->ui->btn_ssh_selected->setText(tr("SSH"));
   });
 }
-
 /////////////////////////////////////////////////////////////////////////
 
 void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
