@@ -284,12 +284,12 @@ bool can_launch_terminal(const QLineEdit* le) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ok_released() {
-  static const QString empty_validator_msg = tr("Field can't be empty");
+  static const QString empty_validator_msg = tr("Field cannot be empty");
   static const QString folder_permission_validator_msg =
-      tr("You don't have write permission to this folder");
+      tr("Administrative rights are needed to open the folder");
   static const QString path_invalid_validator_msg = tr("Invalid path");
   static const QString can_launch_application_msg =
-      tr("Can't launch application");
+      tr("Cannot launch application");
 
   CSettingsManager::Instance().set_default_browser(ui->cb_browser->currentText());
 
@@ -499,7 +499,7 @@ void DlgSettings::btn_scp_command_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgSettings::btn_ssh_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh command"));
+  QString fn = QFileDialog::getOpenFileName(this, tr("SSH command"));
   if (fn == "") return;
   ui->le_ssh_command->setText(fn);
   qDebug() << "Selected filename "<< fn;
@@ -516,7 +516,7 @@ void DlgSettings::btn_virtualbox_command_release() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_x2goclient_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("x2goclient command"));
+  QString fn = QFileDialog::getOpenFileName(this, tr("X2Go-Client command"));
   if (fn == "") return;
   ui->le_x2goclient_command->setText(fn);
   qDebug() << "Selected filename " << fn;
@@ -525,7 +525,7 @@ void DlgSettings::btn_x2goclient_command_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::btn_ssh_keygen_command_released() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("Ssh-keygen command"));
+  QString fn = QFileDialog::getOpenFileName(this, tr("SSH-keygen command"));
   if (fn == "") return;
   ui->le_ssh_keygen_command->setText(fn);
   qDebug() << "Selected filename" << fn;

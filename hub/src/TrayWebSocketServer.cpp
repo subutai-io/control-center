@@ -25,7 +25,7 @@ CTrayServer::CTrayServer(quint16 port,
 
 
   } else {
-    QString err_msg = tr("Can't listen websocket on port : %1 Reason : %2").
+    QString err_msg = tr("Cannot listen to websocket on port : %1 Reason : %2").
                       arg(port).arg(m_web_socket_server->errorString());
     CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
     qCritical("%s", err_msg.toStdString().c_str());

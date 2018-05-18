@@ -522,7 +522,7 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint, s
       CNotificationObserver::Info(tr("This Peer is not accessible with provided credentials. Please check and verify. Error SSH code: %1").arg(CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)libbssh_exit_code)),
                                   DlgNotification::N_NO_ACTION);
     else
-      CNotificationObserver::Info(tr("Can't run terminal to ssh into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
+      CNotificationObserver::Info(tr("Can't run terminal to SSH into peer. Error code: %1").arg(CSystemCallWrapper::scwe_error_to_str(res)),
                                   DlgNotification::N_NO_ACTION);
   }
 }
@@ -583,7 +583,7 @@ void TrayControlWindow::launch_p2p(){
                                                  "Press start to launch P2P daemon"), DlgNotification::N_START_P2P);
             break;
         case P2PStatus_checker::P2P_RUNNING :
-            CNotificationObserver::Info(QObject::tr("P2P is running. Stop and start it, if you have troubles."), DlgNotification::N_STOP_P2P);
+            CNotificationObserver::Info(QObject::tr("P2P is running. If you have troubles please restart it."), DlgNotification::N_STOP_P2P);
             break;
         case P2PStatus_checker::P2P_LOADING :
             CNotificationObserver::Info(QObject::tr("P2P daemon is loading"), DlgNotification::N_NO_ACTION);
@@ -1362,7 +1362,7 @@ void TrayControlWindow::ssh_to_container_finished(
   UNUSED_ARG(cont);
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
-        tr("Can't ssh to container. Err : %1")
+        tr("Can't SSH to container. Err : %1")
             .arg(CHubController::ssh_desktop_launch_err_to_str(result)), DlgNotification::N_NO_ACTION);
   }
 }

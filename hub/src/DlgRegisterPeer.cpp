@@ -117,7 +117,7 @@ void DlgRegisterPeer::registerPeer(){
           default:
             ui->lbl_info->setVisible(true);
             ui->lbl_info->setText(QString("<font color='red'>%1</font>").
-                                    arg(tr("Can't register peer.")).
+                                    arg(tr("Cannot register peer.")).
                                     arg(err_code));
             break;
         }
@@ -215,7 +215,7 @@ void DlgRegisterPeer::unregisterPeer(){
           default:
             ui->lbl_info->setVisible(true);
             ui->lbl_info->setText(QString("<font color='red'>%1</font>").
-                                    arg(tr("Can't unregister peer.")).
+                                    arg(tr("Cannot unregister peer.")).
                                     arg(err_code));
             break;
         }

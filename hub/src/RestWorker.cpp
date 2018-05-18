@@ -197,7 +197,7 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
                                  QString &token, int &err_code,
                                  int &http_code, int &network_error){
     qInfo()
-            << tr("getting token of %1").arg(port);
+            << tr("Getting token of %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
 
@@ -241,7 +241,7 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
 void CRestWorker::peer_unregister(const QString &port, const QString &token,
                                   int &err_code, int &http_code, int &network_error){
     qInfo()
-            << tr("Unregister peer %1").arg(port);
+            << tr("Unregistering peer %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2").arg(port, token));
 
@@ -294,7 +294,7 @@ void CRestWorker::peer_register(const QString &port,
 
 bool CRestWorker::peer_finger(const QString &port, QString &finger){
     qInfo()
-            << tr("getting finger from %1").arg(port);
+            << tr("Getting finger from %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
     int http_code, err_code, network_error;
@@ -325,7 +325,7 @@ bool CRestWorker::peer_set_pass(const QString &port,
                                 const QString &username,
                                 const QString &old_pass,
                                 const QString &new_pass){
-    qInfo()<< tr("setting password for %1").arg(port);
+    qInfo()<< tr("Setting password for %1").arg(port);
 
     const QString str_url(QString("https://localhost:%1/login").arg(port));
     QUrl url_finger(str_url);
