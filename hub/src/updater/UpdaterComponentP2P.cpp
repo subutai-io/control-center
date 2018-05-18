@@ -215,7 +215,7 @@ void CUpdaterComponentP2P::install_post_interntal(bool success){
         CNotificationObserver::Info(tr("P2P has been installed. P2P daemon will start running within 10-15 seconds."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Error(tr("Control Center needs to restart the P2P installation to complete."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("P2P has failed to install, we are sorry."), DlgNotification::N_NO_ACTION);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
