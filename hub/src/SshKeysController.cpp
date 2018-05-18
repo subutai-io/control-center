@@ -135,7 +135,7 @@ void CSshKeysController::reset_matrix_current() {
 
 void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   QString str_file = QFileDialog::getSaveFileName(
-      parent, tr("Generate new ssh key pair. Don't change directory, please"),
+      parent, tr("Generate new SSH key pair. Do not change directory, please"),
       CSettingsManager::Instance().ssh_keys_storage(),
       tr("Ssh keys (*.pub);; All files (*.*)"));
   if (str_file.isEmpty()) return;
@@ -158,7 +158,7 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
       CHubController::Instance().current_user(), str_private);
   if (scwe != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error(
-        tr("Can't generate ssh-key. Err : %1")
+        tr("Cannot generate SSH-key. Error : %1")
             .arg(CSystemCallWrapper::scwe_error_to_str(scwe)), DlgNotification::N_NO_ACTION);
     return;
   }

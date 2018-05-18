@@ -228,7 +228,7 @@ signals:
 private slots:
      void install_started(const QString &file_id){
          if(file_id == "P2P"){
-            CNotificationObserver::Instance()->Info(tr("P2P installation have started"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("P2P installation has started"), DlgNotification::N_NO_ACTION);
             m_status = P2P_INSTALLING;
             emit p2p_status(P2P_INSTALLING);
          }
