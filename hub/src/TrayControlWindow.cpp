@@ -195,7 +195,7 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
-  m_act_settings->setToolTip(tr("Here are components of CC"));
+  m_act_settings->setToolTip(tr("CC settings"));
 
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
@@ -242,14 +242,14 @@ void TrayControlWindow::create_tray_actions() {
       QIcon(":hub/notifications_history.png"), tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
-  m_act_notifications_history->setToolTip(tr("List of last made actions"));
+  m_act_notifications_history->setToolTip(tr("Show notification history"));
 
   /*p2p status*/
   m_act_p2p_status = new QAction(
         QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
   connect(m_act_p2p_status, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
-  m_act_p2p_status->setToolTip(tr("P2P connection"));
+  m_act_p2p_status->setToolTip(tr("P2P status"));
 
 //====create new Peer
   m_act_create_peer = new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
