@@ -266,7 +266,7 @@ void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success){
 }
 void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
     if(!success)
-            CNotificationObserver::Instance()->Error(tr("Virtualbox installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Virtualbox installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
 
@@ -328,7 +328,7 @@ void CUpdaterComponentCHROME::update_post_action(bool success){
     UNUSED_ARG(success);
 }
 void CUpdaterComponentCHROME::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Google Chrome installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Google Chrome installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
 }
 
@@ -354,8 +354,8 @@ chue_t CUpdaterComponentE2E::install_internal(){
             << "Starting install subutai e2e";
     if(CSettingsManager::Instance().default_browser() == "Chrome"){
         QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
-                                               QObject::tr("Control Center will restart your Chrome. Make sure you saved all your work.\n"
-                                                           "After installation make sure you will approve extension"),
+                                               QObject::tr("Control Center will restart your Chrome. Make sure you saved all of your work.\n"
+                                                           "Don't forget to approve the extension after the installation"),
                                                QMessageBox::Yes | QMessageBox::No);
         QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
         if (msg_box->exec() != QMessageBox::Yes) {
@@ -380,7 +380,7 @@ void CUpdaterComponentE2E::update_post_action(bool success){
 }
 void CUpdaterComponentE2E::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Subutai E2E failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Subutai E2E has failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
         return;
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),

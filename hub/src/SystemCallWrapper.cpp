@@ -658,7 +658,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
     vagrant_version(version);
     if(version == "undefined"){
-        CNotificationObserver::Error(QObject::tr("Before using vagrant. Install vagrant first"), DlgNotification::N_ABOUT);
+        CNotificationObserver::Error(QObject::tr("Before using vagrant install it please"), DlgNotification::N_ABOUT);
         return false;
     }
     oracle_virtualbox_version(version);
@@ -3011,7 +3011,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Error(QObject::tr("Couldn't get home directory"), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -3181,7 +3181,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
 
       if (cr == ERROR_ACCESS_DENIED) {
         CNotificationObserver::Error(QObject::tr(
-            "Couldn't add program to autorun due to access denied. Try to run "
+            "Couldn't add program to autorun due to denied access. Try to run "
             "this application as administrator"), DlgNotification::N_NO_ACTION);
         result = false;
         break;
@@ -3190,7 +3190,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr != ERROR_SUCCESS) {
         qCritical("RegSetKeyValue err : %d, %d", cr,
                                               GetLastError());
-        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun, sorry"),  DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun."),  DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
