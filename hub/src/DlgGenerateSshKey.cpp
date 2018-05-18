@@ -123,7 +123,7 @@ void DlgGenerateSshKey::btn_generate_released() {
   QFileInfo fi(CSettingsManager::Instance().ssh_keys_storage());
   if (!fi.isDir() || !fi.isWritable()) {
     CNotificationObserver::Instance()->Info(
-          tr("You don't have administrative rights to SSH-keys directory. "
+          tr("You don't have administrator privileges to write into SSH directory. "
           "Please add rights or change SSH-keys storage in settings."), DlgNotification::N_SETTINGS);
     return;
   }
