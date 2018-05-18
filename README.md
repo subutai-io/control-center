@@ -27,8 +27,6 @@
   <a href="#license">License</a>
 </p>
 
-<!-- ![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/img/markdownify.gif) -->
-
 ## Key Features
 
 * Bazaar account monitoring
