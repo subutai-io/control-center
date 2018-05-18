@@ -74,7 +74,7 @@ You can [download](https://subutai.io/getting-started.html#Control-Center) lates
 
 ## About Subutai
 
-[Subutai](https://github.com/amitmerchant1990/markdownify-web) - Open Source Peer-to-Peer (P2P) Cloud Computing
+[Subutai](https://subutai.io) - Open Source Peer-to-Peer (P2P) Cloud Computing
 Internet of Things (IoT) and Cryptocurrency Mining for Everyone
 
 
