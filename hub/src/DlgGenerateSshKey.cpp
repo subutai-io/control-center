@@ -137,6 +137,7 @@ void
 DlgGenerateSshKey::btn_send_to_hub_released() {
   ui->btn_send_to_hub->setEnabled(false);
   ui->pb_send_to_hub->setVisible(true);
+  ui->pb_send_to_hub->setValue(1);
   QtConcurrent::run(&CSshKeysController::Instance(),
                     &CSshKeysController::send_data_to_hub);
 }
@@ -164,7 +165,9 @@ DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
 
 void
 DlgGenerateSshKey::ssh_key_send_finished_sl() {
-  ui->pb_send_to_hub->setValue(ui->pb_send_to_hub->maximum());
+  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  ui->pb_send_to_hub->setValue(0);
+  ui->pb_send_to_hub->setMaximum(100);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +183,7 @@ void
 DlgGenerateSshKey::matrix_updated_slot() {
   rebuild_environments_model();
   set_environments_checked_flag();
-  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed() && (ui->pb_send_to_hub->maximum() - ui->pb_send_to_hub->value()) % ui->pb_send_to_hub->maximum() == 0);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -195,7 +198,7 @@ void
 DlgGenerateSshKey::environments_item_changed(QStandardItem *item) {
   CSshKeysController::Instance().set_key_environments_bit(item->index().row(),
       item->checkState() == Qt::Checked);
-  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed() && (ui->pb_send_to_hub->maximum() - ui->pb_send_to_hub->value()) % ui->pb_send_to_hub->maximum() == 0);
   m_change_everything_on_all_select = false;
   ui->chk_select_all->setChecked(CSshKeysController::Instance().current_key_is_allselected());
   m_change_everything_on_all_select = true;
