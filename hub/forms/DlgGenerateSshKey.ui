@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>668</width>
-    <height>328</height>
+    <height>338</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -144,7 +144,7 @@
      <item row="3" column="0" colspan="3">
       <widget class="QProgressBar" name="pb_send_to_hub">
        <property name="value">
-        <number>24</number>
+        <number>0</number>
        </property>
       </widget>
      </item>
