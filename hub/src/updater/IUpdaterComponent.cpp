@@ -59,6 +59,27 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
   return dct.at(id);
 }
 
+const QString &
+IUpdaterComponent::component_id_changelog(const QString& id) {
+  static std::map<QString, QString> dct_changelog = {
+    {P2P, "https://github.com/subutai-io/p2p/releases/latest"},
+    {TRAY, "https://github.com/subutai-io/control-center/releases/latest"},
+    {RH, ""},
+    {RHMANAGEMENT, ""},
+    {X2GO, "https://wiki.x2go.org/doku.php/news:start"},
+    {VAGRANT, "https://github.com/hashicorp/vagrant/blob/master/CHANGELOG.md"},
+    {ORACLE_VIRTUALBOX, "https://www.virtualbox.org/wiki/Changelog"},
+    {CHROME, "https://chromereleases.googleblog.com/"},
+    {E2E, "https://github.com/subutai-io/browser-plugins/releases/latest"},
+    {VAGRANT_SUBUTAI, "https://github.com/subutai-io/vagrant/blob/master/CHANGELOG.md"},
+    {VAGRANT_VBGUEST, "https://github.com/dotless-de/vagrant-vbguest/blob/master/CHANGELOG.md"}
+  };
+  static const QString def = "";
+
+  if (dct_changelog.find(id) == dct_changelog.end()) return def;
+  return dct_changelog.at(id);
+}
+
 DlgNotification::NOTIFICATION_ACTION_TYPE
 IUpdaterComponent::component_id_to_notification_action(const QString& id) {
   static std::map<QString, DlgNotification::NOTIFICATION_ACTION_TYPE> dct = {
