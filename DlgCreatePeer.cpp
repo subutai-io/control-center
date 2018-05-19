@@ -64,6 +64,15 @@ void DlgCreatePeer::create_button_pressed(){
     QString password1 = ui->le_pass->text();
     QString password2 = ui->le_pass_confirm->text();
 
+    ui->le_name->setToolTip(tr("Please enter your name"));
+    ui->le_ram->setToolTip(tr("RAM"));
+    ui->cmb_cpu->setToolTip(tr("CPU"));
+    ui->cmb_os->setToolTip(tr("OS"));
+    ui->le_disk->setToolTip(tr("Hard Disk"));
+    ui->le_pass->setToolTip(tr("Enter your password"));
+    ui->le_pass_confirm->setToolTip(tr("Confirm your password"));
+    ui->lbl_bridge->setToolTip(tr("Connects virtual machine to network"));
+
     bool errors_exist = false;
 
     pass_err pass_error = check_pass(password1);
