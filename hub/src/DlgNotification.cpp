@@ -78,10 +78,10 @@ DlgNotification::DlgNotification(
       icons[level].pixmap(ui->lbl_icon->width(), ui->lbl_icon->height());
 
   ui->lbl_icon->setPixmap(pixmap);
+  ui->lbl_message->acceptRichText();
+  ui->lbl_message->setOpenExternalLinks(true);
+  ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_message->setText(msg);
- // ui->lbl_message->setTextFormat(Qt::RichText);
- // ui->lbl_message->setTextInteractionFlags(Qt::TextBrowserInteraction);
-//  ui->lbl_message->setOpenExternalLinks(true);
   ui->lbl_message->setStyleSheet("* { background-color: rgba(0, 0, 0, 0); border: none }");
   ui->lbl_message->setAlignment(Qt::AlignLeft);
   ui->lbl_message->setAlignment(Qt::AlignTop);
