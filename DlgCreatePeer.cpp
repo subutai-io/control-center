@@ -130,7 +130,6 @@ void DlgCreatePeer::create_button_pressed(){
         ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_ram->show();
         ui->btn_create->setEnabled(true);
-
         errors_exist = true;
     }
     else ui->lbl_err_ram->hide();
