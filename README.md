@@ -21,7 +21,7 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="#how-to-use">How To Build</a> •
   <a href="#download">Download</a> •
   <a href="#about-subutai">About Subutai</a> •
   <a href="#license">License</a>
@@ -38,7 +38,7 @@
 * Software manager
   - Install all 3rd party components with approve of user
   - Vagrant, Virtualbox, Google Chrome, Subutai P2P, X2Go-Client are supported
-* Dark/Light skins
+* Dark/Light themes
 * Fast and quick usage tray application
 * Cross platform
   - Windows, Mac and Linux ready.
@@ -57,7 +57,7 @@ make
 for **Linux**
 ```bash
 qmake SubutaiControlCenter.pro -r -spec linux-g++
-make -j$core_number
+make -j
 ```
 
 for **Windows**
