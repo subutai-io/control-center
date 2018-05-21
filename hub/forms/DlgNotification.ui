@@ -93,7 +93,7 @@
     <string>Update Resource Host</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="lbl_message">
+  <widget class="QTextBrowser" name="lbl_message">
    <property name="geometry">
     <rect>
      <x>90</x>

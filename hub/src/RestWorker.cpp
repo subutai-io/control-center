@@ -1,5 +1,6 @@
 #include <QEventLoop>
 #include <QTimer>
+#include <QNetworkProxy>
 
 #include "Locker.h"
 #include "NotificationObserver.h"
@@ -7,7 +8,7 @@
 #include "RestWorker.h"
 #include "DlgNotification.h"
 
-CRestWorker::CRestWorker() { m_network_manager = create_network_manager(); }
+CRestWorker::CRestWorker() { m_network_manager = create_network_manager(); m_network_manager->setProxy(QNetworkProxy::NoProxy); }
 
 CRestWorker::~CRestWorker() { free_network_manager(m_network_manager); }
 ////////////////////////////////////////////////////////////////////////////

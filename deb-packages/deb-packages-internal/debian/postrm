@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 if which update-icon-caches >/dev/null 2>&1 ; then
-    update-icon-caches /usr/share/icons/Tray_icon_set-07.png
+    update-icon-caches /usr/share/icons/cc_icon.png
 fi
 
 if [ -d /opt/subutai/lib ]; then
