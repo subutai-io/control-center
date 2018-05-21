@@ -398,6 +398,10 @@ void DlgPeer::registerPeer(){
 }
 
 void DlgPeer::unregisterPeer(){
+    if(envs_available){
+        CNotificationObserver::Error(tr("You can't unregister Peer until it has environments"), DlgNotification::N_GO_TO_HUB);
+        return;
+    }
     ui->btn_unregister->setEnabled(false);
     DlgRegisterPeer* dlg_unregister = new DlgRegisterPeer(this);
     const QString ip_addr=ui->le_ip->text();
@@ -619,11 +623,11 @@ void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs)
         ui->env_owner->addWidget(env_owner);
         ui->env_status->addWidget(env_status);
       }
-      ui->btn_register->setEnabled(false);
+      envs_available = true;
       this->adjustSize();
     }
     else{
-        ui->btn_register->setEnabled(true);
+        envs_available = false;
         hideEnvs();
     }
 }
