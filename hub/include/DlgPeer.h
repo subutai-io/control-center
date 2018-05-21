@@ -48,6 +48,7 @@ private:
   QString peer_fingerprint;
   //parameters for hub
   bool hub_available;
+  bool envs_available;
   //parameters for ssh section
   QString ssh_port;
   QString ssh_ip;
