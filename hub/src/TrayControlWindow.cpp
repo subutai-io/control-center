@@ -1285,6 +1285,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
     flags |= Qt::WindowMaximizeButtonHint;
     flags |= Qt::WindowCloseButtonHint;
     dlg->setWindowFlags(flags);
+    dlg->setWindowIcon(QIcon(":/hub/cc_icon_resized.png"));
     m_dct_active_dialogs[dlg->windowTitle()] = dlg;
 
     int src_x, src_y, dst_x, dst_y;

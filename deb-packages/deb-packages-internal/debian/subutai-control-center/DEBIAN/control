@@ -1,0 +1,10 @@
+Package: subutai-control-center
+Version: 7.0.0-0ubuntu1~trusty
+Architecture: all
+Maintainer: Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+Installed-Size: 14134
+Depends: gksu, libssh2-1, libssl1.0.2 | libssl1.0.1 | libssl1.0.0 | libssl1.0 | libssl1.0-dev | libssl1.0-dev (<< 1.1), libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-randr0, libxcb-render-util0, libxcb-xinerama0, libxcb-xkb1
+Section: net
+Priority: optional
+Homepage: https://subutai.io/
+Description: Subutai Control Center Application

@@ -1,0 +1,41 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Format: 1.8
+Date: Thu, 03 May 2018 00:00:00 +0600
+Source: subutai-control-center
+Binary: subutai-control-center
+Architecture: source all
+Version: 7.0.0-0ubuntu1~trusty
+Distribution: trusty
+Urgency: medium
+Maintainer: Adilet Zholdoshbekov (azholdoshbekov@optimal-dynamics.com)
+Changed-By: Adilet Zholdoshbekov (Comment) <azholdoshbekov@optimal-dynamics.com>
+Description:
+ subutai-control-center - Subutai Control Center Application
+Changes:
+ subutai-control-center (7.0.0-0ubuntu1~trusty) trusty; urgency=medium
+Checksums-Sha1:
+ 0009ca407aa254692dabb171dc69bc863b57fa10 1232 subutai-control-center_7.0.0-0ubuntu1~trusty.dsc
+ c5dfcb604182e38ca9407a89c752f1391d39976e 28535692 subutai-control-center_7.0.0-0ubuntu1~trusty.tar.gz
+ acebe128c7bc4f948eeea8a7d6c81410478442b2 14124326 subutai-control-center_7.0.0-0ubuntu1~trusty_all.deb
+Checksums-Sha256:
+ facb8d570d8519dcd43847c64ea0fa721e95829ae717df9ed878d5e706f4d8a8 1232 subutai-control-center_7.0.0-0ubuntu1~trusty.dsc
+ 3cab96ae1d7e112919ac3c34940c118793adc95b5a6e5800fa6fba54c9519682 28535692 subutai-control-center_7.0.0-0ubuntu1~trusty.tar.gz
+ e6d46e39d75a32fcc3dddc60da5eef3b7800ad73d8d3f3b7865a65c0a2fd5199 14124326 subutai-control-center_7.0.0-0ubuntu1~trusty_all.deb
+Files:
+ 5070e0e277b725e6b27b0ebc0ecef5f7 1232 net optional subutai-control-center_7.0.0-0ubuntu1~trusty.dsc
+ 5ab5a931e8a8dc4a42e6de217c525e6d 28535692 net optional subutai-control-center_7.0.0-0ubuntu1~trusty.tar.gz
+ 0fd297a68ebcd6f358787b1c23daf8b9 14124326 net optional subutai-control-center_7.0.0-0ubuntu1~trusty_all.deb
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQEcBAEBAgAGBQJbA68pAAoJEExkycfkgNLBV6IIALbRzQ7OADWt82xcaBUO/Jtc
+CX8n4rBN16NK4GtMPte6tjPZNdWv19Ohe6yBUcyJG8QuUgq9/py9P9ahYMgHLB9G
+z5SbGlVZ7bmsiTg2wA3n02Oa7Iv8J5+MVG9P9S4AKAE4OASjDnV39ftiv+sJk/nq
+Z4XuVinP0PKe0kwwx+J8IRw4vCEf9HH8XqJm6EBGo7QEtBJ56a+IkM9y9GPaLvjv
+dJPJC3VGCNddxSGb0Y85HZgm5WTcpJjMW6zj8IXy0/jyx8Bl0XUbPfgQiT444R76
+kKFMU4L26RZDPIzPvqn15418nYdefftTYH9i87aPcLnUQvrs4zQiCnRgtyPBtKw=
+=DuFS
+-----END PGP SIGNATURE-----
