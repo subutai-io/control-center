@@ -66,5 +66,6 @@
         <file>cc_icon_win_whitebg.png</file>
         <file>cc_icon_outline.png</file>
         <file>cc_icon_last.png</file>
+        <file>cc_icon_resized.png</file>
     </qresource>
 </RCC>
