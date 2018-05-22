@@ -1,6 +1,8 @@
 *.pro.user
 *.sdf
 *.suo
+*.save
+*.autosave
 *.swp
 bin/*
 subutai_tray_bin/
