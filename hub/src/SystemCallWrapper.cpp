@@ -3389,11 +3389,17 @@ int CProcessHandler::start_proc(QProcess &proc){
 }
 void CProcessHandler::end_proc(const int &hash){
     m_proc_table.erase( m_proc_table.find(hash) );
+    m_proc_table[hash] = nullptr;
 }
 void CProcessHandler::clear_proc(){
     auto it = m_proc_table.begin();
     while (it != m_proc_table.end()){
-        it->second->kill();
+        if (it->second != nullptr) {
+            it->second->terminate();
+#ifdef RT_OS_WINDOWS
+            it->second->kill();
+#endif
+        }
         it++;
     }
 }
