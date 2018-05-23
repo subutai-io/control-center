@@ -1644,11 +1644,14 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
+    installer_is_busy.lock();
     qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
 
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
-    args<<"plugin"<<"update"<<plugin_name;
+    args << "plugin"
+         << "update"
+         << plugin_name;
 
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
 
@@ -1657,6 +1660,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QStr
 
     if(res.res == SCWE_SUCCESS && res.exit_code != 0)
         res.res = SCWE_CREATE_PROCESS;
+    installer_is_busy.unlock();
     return res.res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2102,12 +2106,18 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_subutai(){
+    installer_is_busy.lock();
     QString vagrant_subutai = "vagrant-subutai";
-    return vagrant_plugin_install(vagrant_subutai);
+    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
+    installer_is_busy.unlock();
+    return res;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
-    QString vagrant_vbguest = "vagrant-vbguest";
-    return vagrant_plugin_install(vagrant_vbguest);
+    installer_is_busy.lock();
+    QString vagrant_subutai = "vagrant-vbguest";
+    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
+    installer_is_busy.unlock();
+    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
