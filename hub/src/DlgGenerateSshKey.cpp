@@ -166,8 +166,8 @@ DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
 void
 DlgGenerateSshKey::ssh_key_send_finished_sl() {
   ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
-  ui->pb_send_to_hub->setValue(0);
   ui->pb_send_to_hub->setMaximum(100);
+  ui->pb_send_to_hub->setValue(ui->pb_send_to_hub->maximum());
 }
 ////////////////////////////////////////////////////////////////////////////
 

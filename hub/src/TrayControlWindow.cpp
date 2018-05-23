@@ -108,10 +108,6 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
 
   connect(CRestWorker::Instance(), &CRestWorker::on_got_ss_console_readiness,
           this, &TrayControlWindow::got_ss_console_readiness_sl);
-
-  connect(CHubComponentsUpdater::Instance(),
-          &CHubComponentsUpdater::updating_finished, this,
-          &TrayControlWindow::update_finished);
   connect(CHubComponentsUpdater::Instance(),
           &CHubComponentsUpdater::update_available, this,
           &TrayControlWindow::update_available);
