@@ -3376,8 +3376,7 @@ QStringList CSystemCallWrapper::lsb_release(){
 }
 ////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
-    //ez method i will rewrite better algo after testing
-    while(m_proc_table[(m_hash_counter) % 10000] != NULL) { m_hash_counter++; }
+    while(m_proc_table[(m_hash_counter) % 1000] != NULL) { m_hash_counter++; }
     return m_hash_counter;
 }
 int CProcessHandler::sum_proc(){
