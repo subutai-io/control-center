@@ -178,8 +178,21 @@ void TrayControlWindow::check_components() {
   }
 }
 ////////////////////////////////////////////////////////////////////////////
+/// \brief close all opened dialogs, terminate all started processes.
+///
 void TrayControlWindow::application_quit() {
   qDebug() << "Quitting the tray";
+  std::vector<QDialog *> lstActiveDialogs(m_dct_active_dialogs.size());
+  int i = 0;
+  // this extra copy because on dialog finish we are removing it from
+  // m_dct_active_dialogs
+  for (auto j = m_dct_active_dialogs.begin(); j != m_dct_active_dialogs.end();
+       ++j, ++i)
+    lstActiveDialogs[i] = j->second;
+  // close active dialogs
+  while (i--) lstActiveDialogs[i]->close();
+  // close active processes
+  CProcessHandler::Instance()->clear_proc();
   m_sys_tray_icon->hide();
   QApplication::quit();
 }

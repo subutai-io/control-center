@@ -32,6 +32,18 @@
 #pragma comment(lib, "Advapi32.lib")
 #endif
 
+
+struct proc_controller{
+    int proc_hash;
+    QProcess *proc;
+    proc_controller(QProcess &proc){
+        proc_hash = CProcessHandler::Instance()->start_proc(proc);
+    }
+    ~proc_controller(){
+        CProcessHandler::Instance()->end_proc(proc_hash);
+    }
+};
+
 static QString error_strings[] = {"Success",
                                   "Shell error",
                                   "Pipe error",
@@ -67,6 +79,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
   proc.start(cmd, args);
+  proc_controller started_proc(proc);
   if(timeout_msec == 97){
 
       if (!proc.waitForStarted(-1)) {
@@ -3372,3 +3385,27 @@ QStringList CSystemCallWrapper::lsb_release(){
     return output;
 }
 ////////////////////////////////////////////////////////////////////////////
+int CProcessHandler::generate_hash(){
+    while(m_proc_table[(m_hash_counter) % 1000] != NULL) { m_hash_counter++; }
+    return m_hash_counter;
+}
+int CProcessHandler::sum_proc(){
+    return m_proc_table.size();
+}
+int CProcessHandler::start_proc(QProcess &proc){
+    int hash = generate_hash();
+    m_proc_table[hash] = &proc;
+    return hash;
+}
+void CProcessHandler::end_proc(const int &hash){
+    m_proc_table.erase( m_proc_table.find(hash) );
+}
+void CProcessHandler::clear_proc(){
+    auto it = m_proc_table.begin();
+    while (it != m_proc_table.end()){
+        it->second->kill();
+        it++;
+    }
+}
+////////////////////////////////////////////////////////////////////////////
+
