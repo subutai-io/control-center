@@ -3393,7 +3393,7 @@ void CProcessHandler::end_proc(const int &hash){
 void CProcessHandler::clear_proc(){
     auto it = m_proc_table.begin();
     while (it != m_proc_table.end()){
-        it->second->terminate();
+        it->second->kill();
         it++;
     }
 }
