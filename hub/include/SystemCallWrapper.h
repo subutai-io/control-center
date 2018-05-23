@@ -6,6 +6,7 @@
 #include <QString>
 #include <string>
 #include <vector>
+#include <QProcess>
 #include <QMutex>
 
 //give type for restart p2p
@@ -294,6 +295,28 @@ class CSystemCallWrapper {
 
   static container_ip_and_port container_ip_from_ifconfig_analog(
       const QString &port, const QString &cont_ip, const QString &rh_ip);
+};
+/*
+CProcessHandler saves running processes
+When CC is about to quit , it terminates them
+*/
+class CProcessHandler : public QObject{
+    Q_OBJECT
+public:
+    CProcessHandler(QObject *parent = nullptr) : QObject (parent), m_hash_counter(0) {}
+    ~CProcessHandler() { m_proc_table.clear(); }
+    static CProcessHandler *Instance(){
+        static CProcessHandler inst;
+        return &inst;
+    }
+    int start_proc(QProcess &proc);
+    void end_proc(const int &hash);
+    void clear_proc();
+    int sum_proc();
+    int generate_hash();
+private:
+    std::map <int, QProcess*> m_proc_table;
+    int m_hash_counter;
 };
 
 #endif  // SYSTEMCALLWRAPPER_H
