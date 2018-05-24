@@ -3373,10 +3373,8 @@ int CProcessHandler::start_proc(QProcess &proc){
 }
 void CProcessHandler::end_proc(const int &hash){
     m_proc_mutex.lock();
-    if ( m_proc_table.find(hash) != m_proc_table.end() ) {
+    if ( m_proc_table.find(hash) != m_proc_table.end() )
         m_proc_table.erase( m_proc_table.find(hash) );
-        m_proc_table[hash] = nullptr;
-    }
     m_proc_mutex.unlock();
 }
 void CProcessHandler::clear_proc(){
