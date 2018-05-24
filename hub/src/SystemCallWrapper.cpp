@@ -1997,10 +1997,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
     }
     args.clear();
     cmd = "pkexec";
-    args << "--message"
-         << "Allow Control Center to install Subutai E2E plugin"
-         << "--"
-         << "bash"
+    args << "bash"
          << "-c"
          << QString("mkdir -p /opt/google/chrome/extensions; "
             "cp -p %1 /opt/google/chrome/extensions/").arg(tmpFilePath);
