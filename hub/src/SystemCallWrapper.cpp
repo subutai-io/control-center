@@ -816,9 +816,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
           case UPDATED_P2P:
               restart_script = QString(
                                         "#!/bin/bash\n"
-                                        "%1 disable p2p.service\n"
                                         "%1 stop p2p.service\n"
-                                        "%1 enable p2p.service\n"
                                         "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
               break;
           case STOPPED_P2P:
@@ -830,7 +828,6 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
           case STARTED_P2P:
               restart_script = QString(
                                         "#!/bin/bash\n"
-                                        "%1 disable p2p.service\n"
                                         "%1 stop p2p.service\n").arg(systemctl_path).toUtf8();
               break;
       }
