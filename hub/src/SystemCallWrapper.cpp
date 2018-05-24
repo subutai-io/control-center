@@ -3356,7 +3356,7 @@ QStringList CSystemCallWrapper::lsb_release(){
 }
 ////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
-    while(m_proc_table[(m_hash_counter) % 1000] != NULL) { m_hash_counter++; }
+    while(m_proc_table[(m_hash_counter) % 1000] != nullptr) { m_hash_counter++; }
     return m_hash_counter;
 }
 int CProcessHandler::sum_proc(){
@@ -3364,11 +3364,14 @@ int CProcessHandler::sum_proc(){
 }
 int CProcessHandler::start_proc(QProcess &proc){
     int hash = generate_hash();
+    qDebug () << "Started a new proc with hash:" << hash;
+    qDebug () << "Total number of procs: " << m_proc_table.size();
     m_proc_table[hash] = &proc;
     return hash;
 }
 void CProcessHandler::end_proc(const int &hash){
-    m_proc_table.erase( m_proc_table.find(hash) );
+    if ( m_proc_table.find(hash) != m_proc_table.end() )
+        m_proc_table.erase( m_proc_table.find(hash) );
     m_proc_table[hash] = nullptr;
 }
 void CProcessHandler::clear_proc(){
