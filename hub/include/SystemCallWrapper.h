@@ -317,6 +317,7 @@ public:
 private:
     std::map <int, QProcess*> m_proc_table;
     int m_hash_counter;
+    QMutex m_proc_mutex; // use when updating proc table
 };
 
 #endif  // SYSTEMCALLWRAPPER_H

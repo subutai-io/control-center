@@ -2001,10 +2001,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
     }
     args.clear();
     cmd = "pkexec";
-    args << "--message"
-         << "Allow Control Center to install Subutai E2E plugin"
-         << "--"
-         << "bash"
+    args << "bash"
          << "-c"
          << QString("mkdir -p /opt/google/chrome/extensions; "
             "cp -p %1 /opt/google/chrome/extensions/").arg(tmpFilePath);
@@ -3373,18 +3370,22 @@ int CProcessHandler::sum_proc(){
     return m_proc_table.size();
 }
 int CProcessHandler::start_proc(QProcess &proc){
+    m_proc_mutex.lock();
     int hash = generate_hash();
     qDebug () << "Started a new proc with hash:" << hash;
     qDebug () << "Total number of procs: " << m_proc_table.size();
     m_proc_table[hash] = &proc;
+    m_proc_mutex.unlock();
     return hash;
 }
 void CProcessHandler::end_proc(const int &hash){
+    m_proc_mutex.lock();
     if ( m_proc_table.find(hash) != m_proc_table.end() )
         m_proc_table.erase( m_proc_table.find(hash) );
-    m_proc_table[hash] = nullptr;
+    m_proc_mutex.unlock();
 }
 void CProcessHandler::clear_proc(){
+    m_proc_mutex.lock();
     auto it = m_proc_table.begin();
     while (it != m_proc_table.end()){
         if (it->second != nullptr) {
@@ -3395,6 +3396,7 @@ void CProcessHandler::clear_proc(){
         }
         it++;
     }
+    m_proc_mutex.unlock();
 }
 ////////////////////////////////////////////////////////////////////////////
 
