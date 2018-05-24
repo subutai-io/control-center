@@ -760,11 +760,11 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
   *res_code = RSE_MANUAL;
 
   do {
-    QString gksu_path;
+    QString pkexec_path;
     system_call_wrapper_error_t scr =
-        CSystemCallWrapper::which("gksu", gksu_path);
+        CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find gksu command");
+      QString err_msg = QObject::tr("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -789,29 +789,8 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
 
     QStringList args;
-    args << QString("%1 list-units --all").arg(systemctl_path);
-    system_call_res_t cr =
-        CSystemCallWrapper::ssystem(gksu_path, args, true, true, 60000);
-
-    if (cr.exit_code != 0 || cr.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("gksu systemctl list-units call failed. ec = %1, res = %2")
-                        .arg(cr.exit_code)
-                        .arg(CSystemCallWrapper::scwe_error_to_str(cr.res));
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      break;
-    }
-
-    if (cr.out.isEmpty()) {
-      QString err_msg = QObject::tr("gksu systemctl list-units output is empty");
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      break;
-    }
-
-    for (QString str : cr.out) {
-      if (str.indexOf("p2p.service") == -1 && type != STOPPED_P2P) continue;
-
+    args << systemctl_path;
+    system_call_res_t cr;
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
       if (lst_temp.empty()) {
@@ -865,7 +844,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
 
       if (!QFile::setPermissions(
               tmpFilePath,
-              QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+                  QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
                   QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                   QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                   QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
@@ -877,8 +856,11 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
 
       system_call_res_t cr2;
       QStringList args2;
-      args2 << sh_path << tmpFilePath;
-      cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+      args2 << "--user"
+            << qgetenv("USER")
+            << sh_path
+            << tmpFilePath;
+      cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
         QString err_msg = QObject::tr ("Couldn't reload p2p.service. ec = %1, err = %2")
@@ -888,9 +870,6 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
         break;
       }
       *res_code = RSE_SUCCESS;
-      break;  // for
-    }         // for
-
   } while (0);
 
   return SCWE_SUCCESS;
@@ -1269,10 +1248,10 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
 template <>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1340,11 +1319,12 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
 
     system_call_res_t cr2;
     QStringList args2;
-    args2 << sh_path << tmpFilePath;
+    args2 << sh_path
+          << tmpFilePath;
     qDebug()
             <<"Installation of p2p started:"
             <<"args: "<<args2;
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 97);
+    cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 97);
     qDebug()
             <<"Installation of p2p finished:"
             <<"error code: "<<cr2.exit_code
@@ -1403,10 +1383,10 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 template <>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1475,7 +1455,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     system_call_res_t cr2;
     QStringList args2;
     args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, false, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem(QString("pkexec"), args2, false, true, 60000);
     tmpFile.remove();
 
     qDebug()
@@ -1536,10 +1516,10 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QS
 template <>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1618,10 +1598,10 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     args2 << sh_path << tmpFilePath;
 
     qDebug()<<"Vagrant installation started"
-            <<"gksu_path:"<<gksu_path
+            <<"pkexec_path:"<<pkexec_path
             <<"args2:"<<args2;
 
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 60000);
     qDebug()<<"Vagrant installation finished:"
             <<"exit code:"<<cr2.exit_code
             <<"result code:"<<cr2.res
@@ -1720,10 +1700,10 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> 
 template <>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1807,7 +1787,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     system_call_res_t cr2;
     QStringList args2;
     args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem_th(gksu_path, args2, true, true, 97);
+    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
     qDebug()
             <<"virtualbox oracle installation finished"
             <<"error code:"<<cr2.exit_code
@@ -1850,10 +1830,10 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
 template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1932,10 +1912,10 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
     args2 << sh_path << tmpFilePath;
 
     qDebug()<<"Chrome installation started"
-            <<"gksu_path:"<<gksu_path
+            <<"pkexec_path:"<<pkexec_path
             <<"args2:"<<args2;
 
-    cr2 = CSystemCallWrapper::ssystem(gksu_path, args2, true, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 60000);
     qDebug()<<"Chrome installation finished:"
             <<"exit code:"<<cr2.exit_code
             <<"result code:"<<cr2.res
@@ -2016,7 +1996,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
         return SCWE_CREATE_PROCESS;
     }
     args.clear();
-    cmd = "gksu";
+    cmd = "pkexec";
     args << "--message"
          << "Allow Control Center to install Subutai E2E plugin"
          << "--"
@@ -2124,10 +2104,10 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
-    QString gksu_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("gksu", gksu_path);
+    QString pkexec_path;
+    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find gksu command");
+      QString err_msg = QObject::tr ("Couldn't find pkexec command");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -2195,7 +2175,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     system_call_res_t cr2;
     QStringList args2;
     args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem_th(gksu_path, args2, true, true, 97);
+    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
     qDebug()
             <<"libssl1.0 installation finished"
             <<"error code:"<<cr2.exit_code
