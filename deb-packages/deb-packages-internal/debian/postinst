@@ -36,15 +36,15 @@ echo "[Desktop Entry]" > $desktop_file
 echo "Version=1.0" >> $desktop_file
 echo "Name=Subutai Control Center" >> $desktop_file
 echo "Comment=Subutai Control Center Application" >> $desktop_file
-echo "Keywords=Internet" >> $desktop_file
+echo "Keywords=Internet;" >> $desktop_file
 echo "Exec=/usr/bin/SubutaiControlCenter" >> $desktop_file
 echo "Terminal=false" >> $desktop_file
 echo "Type=Application" >> $desktop_file
 echo "Icon=/usr/share/icons/cc_icon_resized.png" >> $desktop_file
-echo "Categories=GNOME;Network" >> $desktop_file
+echo "Categories=GUI;Network;" >> $desktop_file
 echo "StartupNotify=true" >> $desktop_file
 
-desktop-file-install $desktop_file
+cp $desktop_file /usr/share/applications/
 ldconfig
 
 which_res=$(which p2p)
