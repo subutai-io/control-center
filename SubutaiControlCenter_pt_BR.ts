@@ -2775,7 +2775,6 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="262"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1408"/>
         <source>Create peer</source>
         <translation>Criar Peer</translation>
     </message>
@@ -2796,8 +2795,9 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="286"/>
-        <source>Local Peers</source>
-        <translation>Peers Locais</translation>
+        <source>LAN Peers</source>
+        <oldsource>Local Peers</oldsource>
+        <translation type="unfinished">Peers Locais</translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="551"/>
