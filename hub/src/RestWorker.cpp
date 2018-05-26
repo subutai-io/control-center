@@ -300,11 +300,9 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
     int http_code, err_code, network_error;
     QUrl url_finger(str_url);
+    url_finger.setPort(port.toInt());
     QByteArray nothing;
     QNetworkRequest request(url_finger);
-
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
     QByteArray arr = send_request(m_network_manager, request, 1,
                                   http_code, err_code, network_error,
                                   nothing, false);
@@ -330,6 +328,7 @@ bool CRestWorker::peer_set_pass(const QString &port,
 
     const QString str_url(QString("https://localhost:%1/login").arg(port));
     QUrl url_finger(str_url);
+    url_finger.setPort(port.toInt());
     QUrlQuery query;
     query.addQueryItem("username", username);
     query.addQueryItem("password", old_pass);
