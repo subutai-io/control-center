@@ -212,9 +212,6 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
-    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
                                   query_login.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
