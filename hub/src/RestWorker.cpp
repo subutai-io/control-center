@@ -313,7 +313,7 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     url_finger.setPort(port.toInt());
     QByteArray nothing;
     QNetworkRequest request(url_finger);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
     sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     request.setSslConfiguration(sslConf);
