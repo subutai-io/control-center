@@ -304,6 +304,9 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     url_finger.setPort(port.toInt());
     QByteArray nothing;
     QNetworkRequest request(url_finger);
+    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, 1,
                                   http_code, err_code, network_error,
                                   nothing, false);
