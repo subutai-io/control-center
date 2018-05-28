@@ -1,6 +1,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QNetworkProxy>
+#include <QApplication>
 
 #include "Locker.h"
 #include "NotificationObserver.h"
@@ -211,6 +212,9 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
+    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
                                   query_login.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
@@ -250,6 +254,9 @@ void CRestWorker::peer_unregister(const QString &port, const QString &token,
     QNetworkRequest request(url_login);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(sslConf);
 
     QByteArray arr = send_request(m_network_manager, request, 3,
                                   http_code, err_code, network_error,
@@ -282,6 +289,9 @@ void CRestWorker::peer_register(const QString &port,
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
+    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
                                   query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
@@ -303,6 +313,7 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     url_finger.setPort(port.toInt());
     QByteArray nothing;
     QNetworkRequest request(url_finger);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
     sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     request.setSslConfiguration(sslConf);
@@ -339,6 +350,9 @@ bool CRestWorker::peer_set_pass(const QString &port,
     QNetworkRequest request(url_finger);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
+    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(sslConf);
     int http_code, err_code, network_error;
 
     QByteArray arr = send_request(m_network_manager, request, false,
@@ -855,6 +869,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, loop, &QEventLoop::quit);
 
   reply->ignoreSslErrors();
 
