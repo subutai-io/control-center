@@ -254,9 +254,6 @@ void CRestWorker::peer_unregister(const QString &port, const QString &token,
     QNetworkRequest request(url_login);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConf);
 
     QByteArray arr = send_request(m_network_manager, request, 3,
                                   http_code, err_code, network_error,
@@ -289,9 +286,6 @@ void CRestWorker::peer_register(const QString &port,
     QNetworkRequest request(url_login);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
-    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
                                   query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
@@ -307,21 +301,12 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     qInfo()
             << tr("Getting finger from %1").arg(port);
 
-    //const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
+    const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
     int http_code, err_code, network_error;
-    //QUrl url_finger(str_url);
-    QUrl url_finger;
-    url_finger.setHost("localhost");
-    url_finger.setPath("/rest/v1/security/keyman/getpublickeyfingerprint/");
-    url_finger.setScheme("https");
-    url_finger.setPort(port.toInt());
+    QUrl url_finger(str_url);
     QByteArray nothing;
     QNetworkRequest request(url_finger);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setSslConfiguration(sslConf);
     QByteArray arr = send_request(m_network_manager, request, 1,
                                   http_code, err_code, network_error,
                                   nothing, false);
@@ -355,9 +340,6 @@ bool CRestWorker::peer_set_pass(const QString &port,
     QNetworkRequest request(url_finger);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/x-www-form-urlencoded");
-    QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
-    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(sslConf);
     int http_code, err_code, network_error;
 
     QByteArray arr = send_request(m_network_manager, request, false,
