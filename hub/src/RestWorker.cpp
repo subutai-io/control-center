@@ -213,7 +213,7 @@ void CRestWorker::peer_token(const QString &port,const QString &login, const QSt
                       "application/x-www-form-urlencoded");
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
-                                  query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
+                                  query_login.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
 
     qDebug()
         << "Http code " << http_code
@@ -253,7 +253,7 @@ void CRestWorker::peer_unregister(const QString &port, const QString &token,
 
     QByteArray arr = send_request(m_network_manager, request, 3,
                                   http_code, err_code, network_error,
-                                  QByteArray(), false);
+                                  QByteArray(), false, 60000);
     UNUSED_ARG(arr);
     qDebug()
         << "Http code " << http_code
@@ -284,7 +284,7 @@ void CRestWorker::peer_register(const QString &port,
                       "application/x-www-form-urlencoded");
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
-                                  query.toString(QUrl::FullyEncoded).toUtf8(), false);
+                                  query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
     UNUSED_ARG(arr);
     qDebug()
         << "Http code " << http_code
@@ -340,7 +340,7 @@ bool CRestWorker::peer_set_pass(const QString &port,
 
     QByteArray arr = send_request(m_network_manager, request, false,
                                   http_code, err_code, network_error,
-                                  query.toString(QUrl::FullyEncoded).toUtf8(), false);
+                                  query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
 
     UNUSED_ARG(arr);
 
@@ -814,7 +814,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
                                      QNetworkRequest& req, int get,
                                      int& http_status_code, int& err_code,
                                      int& network_error, QByteArray data,
-                                     bool show_network_err_msg) {
+                                     bool show_network_err_msg, uint timeout_time) {
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
@@ -830,7 +830,12 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QEventLoop* loop = new QEventLoop;
   QTimer* timer = new QTimer;
   timer->setSingleShot(true);
-  timer->start(20000);
+  if(timeout_time == 0 || timeout_time == 30000){
+    timer->start(30000);
+  }
+  else {
+      timer->start(timeout_time);
+  }
 
   QNetworkReply* reply;
   switch (get) {
