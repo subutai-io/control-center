@@ -1740,22 +1740,22 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`;"
-                                    "if [$? -gt 0]\n"
+                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
+                                    "if [ $? -gt 0 ]\n"
                                     "then\n"
                                     "apt-get install -y -f\n"
                                     "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
                                     "fi\n"
-                                    "cd %1 dir;"
-                                    "dpkg -i %2;"
-                                    "if [$? -gt 0]\n"
+                                    "cd %1\n"
+                                    "dpkg -i %2\n"
+                                    "if [ $? -gt 0 ]\n"
                                     "then\n"
                                     "dpkg --remove --force-remove-reinstreq %2\n"
                                     "apt-get install -y -f\n"
                                     "dpkg -i %2\n"
                                     "else\n"
                                     "rm %2\n"
-                                    "fi")
+                                    "fi\n")
                                     .arg(dir, file_name)
                                     .toUtf8();
 
