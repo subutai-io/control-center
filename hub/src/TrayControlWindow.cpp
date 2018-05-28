@@ -279,7 +279,7 @@ void TrayControlWindow::create_tray_icon() {
       m_tray_menu->addMenu(QIcon(":/hub/tray.png"), tr("My Peers"));
   m_hub_peer_menu->addAction(m_empty_action);
   m_local_peer_menu =
-      m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"), tr("Local Peers"));
+      m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"), tr("LAN Peers"));
   m_local_peer_menu->addAction(m_empty_action);
   m_tray_menu->addAction(m_act_create_peer);
   m_tray_menu->addSeparator();
@@ -1401,7 +1401,7 @@ void TrayControlWindow::show_create_dialog() {
         DlgNotification::N_ABOUT);
     return;
   }
-  show_dialog(create_create_peer_dialog, tr("Create peer"));
+  show_dialog(create_create_peer_dialog, tr("Create Peer"));
 }
 ////////////////////////////////////////////////////////////////////////////
 QDialog *create_about_dialog(QWidget *p) { return new DlgAbout(p); }
