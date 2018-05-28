@@ -62,7 +62,8 @@ private:
       int& err_code,
       int &network_error,
       QByteArray data,
-      bool show_network_err_msg);
+      bool show_network_err_msg,
+      uint timeout_time = 0);
 
   CRestWorker();
   ~CRestWorker(void);
