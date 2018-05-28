@@ -1,6 +1,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QNetworkProxy>
+#include <QApplication>
 
 #include "Locker.h"
 #include "NotificationObserver.h"
@@ -300,9 +301,9 @@ bool CRestWorker::peer_finger(const QString &port, QString &finger){
     const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
     int http_code, err_code, network_error;
     QUrl url_finger(str_url);
-    url_finger.setPort(port.toInt());
     QByteArray nothing;
     QNetworkRequest request(url_finger);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QByteArray arr = send_request(m_network_manager, request, 1,
                                   http_code, err_code, network_error,
                                   nothing, false);
@@ -852,6 +853,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, loop, &QEventLoop::quit);
 
   reply->ignoreSslErrors();
 
