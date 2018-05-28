@@ -1,6 +1,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QNetworkProxy>
+#include <QApplication>
 
 #include "Locker.h"
 #include "NotificationObserver.h"
@@ -852,6 +853,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, loop, &QEventLoop::quit);
 
   reply->ignoreSslErrors();
 
