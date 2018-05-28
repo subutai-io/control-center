@@ -1556,12 +1556,12 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "dpkg -i %1;"
-                                    "if [$? -gt 0]\n"
+                                    "dpkg -i %1\n"
+                                    "if [ $? -gt 0 ]\n"
                                     "then\n"
                                     "dpkg --remove --force-remove-reinstreq %2\n"
-                                    "apt-get install -y -f;\n"
-                                    "dpkg -i %1;"
+                                    "apt-get install -y -f\n"
+                                    "dpkg -i %1\n"
                                     "else\n"
                                     "rm %1\n"
                                     "fi")
