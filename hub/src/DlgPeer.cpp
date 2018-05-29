@@ -242,9 +242,6 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->le_status->setText(tr("Peer is off"));
         }
         ui->le_status->setToolTip(CPeerController::Instance()->status_description(peer_status));
-        if(hub_available){
-            ui->btn_destroy->setEnabled(false);
-        }
         configs();
 
         connect(ui->btn_destroy, &QPushButton::clicked, [this](){this->destroyPeer();});
@@ -367,9 +364,6 @@ void DlgPeer::enabled_peer_buttons(bool state){
     }
     if(peer_status == "poweroff"){
         ui->btn_start->setEnabled(state);
-    }
-    if(hub_available){
-        ui->btn_destroy->setEnabled(state);
     }
 }
 
@@ -541,6 +535,11 @@ void DlgPeer::sshPeer(){
 }
 
 void DlgPeer::destroyPeer(){
+    if(hub_available){
+        CNotificationObserver::Error(tr("You can't destroy the Peer until it's registered to the the Bazaar. "
+                                        "Please run 'unregister' to unregister it from the Bazaar"), DlgNotification::N_NO_ACTION);
+        return;
+    }
     enabled_peer_buttons(false);
     if(peer_status == "broken"){
         QDir  del_me(peer_dir);

@@ -60,7 +60,7 @@ const QString& CPeerController::status_description(const QString &status){
         {"broken", tr ("The VM for the Peer is not created yet. Please wait installation process "
                        "if you have started.")},
 
-        {"not_ready", tr ("The Peer is not ready. This means Peer management is loading, you have to "
+        {"not ready", tr ("The Peer is not ready. This means Peer management is loading, you have to "
                           "wait to sometime until loads. You can run 'reload' to reload the Peer")},
 
         {"not_created", tr ("The environment has not yet been created. Run `vagrant up` to "
