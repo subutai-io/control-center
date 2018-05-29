@@ -298,8 +298,8 @@ bool DlgPeer::check_configs(){
     int ram = ui->le_ram->text().toInt(&bool_me, base);
     int cpu = ui->le_cpu->text().toInt(&bool_me, base);
     int disk = ui->le_disk->text().toInt(&bool_me, base);
-    if(ram < 4096){
-        CNotificationObserver::Error(tr("4096 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
+    if(ram < 2048){
+        CNotificationObserver::Error(tr("2048 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
         return false;
     }
 
