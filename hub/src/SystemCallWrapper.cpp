@@ -1166,7 +1166,9 @@ UNUSED_ARG(command);
       str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
   }
 
-  str_command += QString("echo finished > %1_finished & exit").arg(*(command.split(" ").begin()));
+  str_command += QString("echo finished > %1_finished & echo Peer finished to %1 with following messages: "
+                         "& type %2_%1 &"
+                         "& set /p DUMMY=Hit ENTER to finish... & exit").arg(*(command.split(" ").begin()), name);
 
   QString cmd;
   QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
