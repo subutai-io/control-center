@@ -1094,7 +1094,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
     }
 
-    str_command += QString("echo finished > %1_finished; exit").arg(*(command.split(" ").begin()));
+    str_command += QString("echo finished > %1_finished; echo 'Peer finished to %1 with following errors:'; cat %2_%1; echo 'Press any key to finish:'; read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
 
     QString cmd;
 
