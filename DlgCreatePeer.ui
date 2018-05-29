@@ -204,7 +204,7 @@
    <item row="7" column="0">
     <widget class="QLabel" name="lbl_disk">
      <property name="toolTip">
-      <string>Disk size for your Peer..</string>
+      <string>Disk size for your Peer</string>
      </property>
      <property name="text">
       <string>Disk GB</string>
