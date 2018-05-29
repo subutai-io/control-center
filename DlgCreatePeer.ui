@@ -16,6 +16,9 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="0">
     <widget class="QLabel" name="lbl_pass_confirm">
+     <property name="toolTip">
+      <string>Confirm your password</string>
+     </property>
      <property name="text">
       <string>Confirm password</string>
      </property>
@@ -23,6 +26,9 @@
    </item>
    <item row="11" column="0">
     <widget class="QLabel" name="lbl_cpu">
+     <property name="toolTip">
+      <string>Number of CPU cores for your Peer</string>
+     </property>
      <property name="text">
       <string>CPU</string>
      </property>
@@ -32,6 +38,9 @@
     <widget class="QPushButton" name="btn_cancel">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string>Cancel</string>
      </property>
      <property name="text">
       <string>Cancel</string>
@@ -106,6 +115,9 @@
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="lbl_ram">
+     <property name="toolTip">
+      <string>RAM for your Peer</string>
+     </property>
      <property name="text">
       <string>RAM MB</string>
      </property>
@@ -113,6 +125,9 @@
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="lbl_pass">
+     <property name="toolTip">
+      <string>Password for your Subutai Console. Use only letters and digits</string>
+     </property>
      <property name="text">
       <string>Set password</string>
      </property>
@@ -120,6 +135,9 @@
    </item>
    <item row="9" column="0">
     <widget class="QLabel" name="lbl_bridge">
+     <property name="toolTip">
+      <string>Bridged interface to connect your Peer to the network</string>
+     </property>
      <property name="text">
       <string>Bridge Interface</string>
      </property>
@@ -159,6 +177,9 @@
    </item>
    <item row="13" column="0">
     <widget class="QLabel" name="lbl_os">
+     <property name="toolTip">
+      <string>VM for Peer to run on it.</string>
+     </property>
      <property name="text">
       <string>OS</string>
      </property>
@@ -182,6 +203,9 @@
    </item>
    <item row="7" column="0">
     <widget class="QLabel" name="lbl_disk">
+     <property name="toolTip">
+      <string>Disk size for your Peer..</string>
+     </property>
      <property name="text">
       <string>Disk GB</string>
      </property>
@@ -233,6 +257,9 @@
    </item>
    <item row="15" column="1">
     <widget class="QPushButton" name="btn_create">
+     <property name="toolTip">
+      <string>Start building your Peer</string>
+     </property>
      <property name="text">
       <string>Create</string>
      </property>
@@ -269,6 +296,9 @@
    </item>
    <item row="0" column="0">
     <widget class="QLabel" name="lbl_name">
+     <property name="toolTip">
+      <string>Name for your Peer. Use only digits and letters.</string>
+     </property>
      <property name="text">
       <string>Name</string>
      </property>
