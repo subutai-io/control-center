@@ -218,7 +218,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         ui->le_name->setText(peer_name);
         if(peer_status == "running"){
             ui->btn_start->hide();
-            ui->le_status->setText(tr("Peer is runnning"));
+            ui->le_status->setText(tr("Peer is running"));
         }
         if(peer_status == "broken"){
             ui->btn_stop->hide();
@@ -241,6 +241,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->btn_reload->setEnabled(false);
             ui->le_status->setText(tr("Peer is off"));
         }
+        ui->le_status->setToolTip(CPeerController::Instance()->status_description(peer_status));
         if(hub_available){
             ui->btn_destroy->setEnabled(false);
         }
