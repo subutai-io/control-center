@@ -125,8 +125,8 @@ void DlgCreatePeer::create_button_pressed(){
             errors_exist = true;
     }
     else ui->lbl_err_name->hide();
-    if(ram.toInt() < 4096){
-        ui->lbl_err_ram->setText(tr("Ram cannot be less than 4096 MB"));
+    if(ram.toInt() < 2048){
+        ui->lbl_err_ram->setText(tr("Ram cannot be less than 2048 MB"));
         ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_ram->show();
         ui->btn_create->setEnabled(true);
