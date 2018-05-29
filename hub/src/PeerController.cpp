@@ -39,6 +39,72 @@ void CPeerController::refresh() {
     });
 }
 
+const QString& CPeerController::status_description(const QString &status){
+    static std::map<QString, QString> dct_desp = {
+
+        {"aborted", tr ("The Peer is in an aborted state. This means that it was abruptly "
+                        "stopped without properly closing the session. Run `start` "
+                        "to resume this virtual machine. If any problems persist, you may "
+                        "have to destroy and restart the virtual machine.")},
+
+        {"gurumeditation", tr ("The Peer is in the \"guru meditation\" state. This is a rare case which means "
+                               "that an internal error in VirtualBox caused the Peer to fail. This is always "
+                               "the sign of a bug in VirtualBox. You can try to bring your VM back online "
+                               "with a `start`.")},
+
+        {"running", tr ("The Peer is running. To stop this Peer, you can run `stop` to "
+                        "shut it down.")},
+
+        {"poweroff", tr ("The Peer is powered off. To restart the Peer, simply run 'start'")},
+
+        {"broken", tr ("The VM for the Peer is not created yet. Please wait installation process "
+                       "if you have started.")},
+
+        {"not_ready", tr ("The Peer is not ready. This means Peer management is loading, you have to "
+                          "wait to sometime until loads. You can run 'reload' to reload the Peer")},
+
+        {"not_created", tr ("The environment has not yet been created. Run `vagrant up` to "
+                            "create the environment. If a machine is not created, only the "
+                            "default provider will be shown. So if a provider is not listed, "
+                            "then the machine is not created for that environment.")},
+
+        {"inaccessible", tr ("The Peer is inaccessible! This is a rare case which means that VirtualBox "
+                             "can't find your Peer configuration. This usually happens when upgrading "
+                             "VirtualBox, moving to a new computer, etc. Please consult VirtualBox "
+                             "for how to handle this issue.")},
+
+        {"paused", tr ("The Peer is paused. This Peer may have been paused via the VirtualBox "
+                       "GUI or the VBoxManage command line interface. To unpause, please "
+                       "use the VirtualBox GUI and/or VBoxManage command line interface so "
+                       "that vagrant would be able to control the Peer again.")},
+
+        {"stopping", tr ("The Peer is stopping.")},
+
+        {"saving", tr ("The Peer is currently saving its state. In a few moments this state "
+                       "should transition to \"saved.\"")},
+
+        {"saved", tr ("To resume this Peer, simply run start.")},
+
+        {"stuck", tr ("The Peer is \"stuck!\" This is a very rare state which means that "
+                      "VirtualBox is unable to recover the current state of the Peer. "
+                      "The only known solution to this problem is to restart your "
+                      "machine, sorry. ")},
+
+        {"listing", tr ("This environment represents multiple VMs. The VMs are all listed "
+                        "above with their current state. For more information about a specific "
+                        "VM, run `vagrant status NAME`.")},
+
+        {"undefined", ""}
+    };
+
+    if (dct_desp.find(status) == dct_desp.end()){
+        return dct_desp["undefined"];
+    }
+    else{
+        return dct_desp[status];
+    }
+}
+
 
 void CPeerController::refresh_timer_timeout() {
     refresh();
