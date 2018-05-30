@@ -161,7 +161,8 @@
     <name>CPeerController</name>
     <message>
         <location filename="hub/src/PeerController.cpp" line="45"/>
-        <source>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Run `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</source>
+        <source>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Press `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</source>
+        <oldsource>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Run `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -171,22 +172,23 @@
     </message>
     <message>
         <location filename="hub/src/PeerController.cpp" line="55"/>
-        <source>The Peer is running. To stop this Peer, you can run `stop` to shut it down.</source>
+        <source>The Peer is running. To stop this Peer, you can press `stop`</source>
+        <oldsource>The Peer is running. To stop this Peer, you can run `stop` to shut it down.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="58"/>
-        <source>The Peer is powered off. To restart the Peer, simply run &apos;start&apos;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/PeerController.cpp" line="60"/>
+        <location filename="hub/src/PeerController.cpp" line="59"/>
         <source>The VM for the Peer is not created yet. Please wait installation process if you have started.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="63"/>
-        <source>The Peer is not ready. This means Peer management is loading, you have to wait to sometime until loads. You can run &apos;reload&apos; to reload the Peer</source>
+        <location filename="hub/src/PeerController.cpp" line="57"/>
+        <source>The Peer is powered off. To restart the Peer, simply press &apos;start&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/PeerController.cpp" line="62"/>
+        <source>The Peer is not ready. This means Peer management is loading, which usually takes 30-60 seconds to be ready. You can press &apos;reload&apos; to reload the Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -216,7 +218,8 @@
     </message>
     <message>
         <location filename="hub/src/PeerController.cpp" line="86"/>
-        <source>To resume this Peer, simply run start.</source>
+        <source>To resume this Peer, simply press &apos;start&apos;.</source>
+        <oldsource>To resume this Peer, simply run start.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1302,7 +1305,8 @@
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="286"/>
-        <source>Disk size in GB of the Peer</source>
+        <source>Disk size of the Peer in GB</source>
+        <oldsource>Disk size in GB of the Peer</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1379,6 +1383,11 @@
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="42"/>
         <source>User for ssh (Only for the LAN Peers)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/forms/DlgPeer.ui" line="55"/>
+        <source>SSH into the Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1545,13 +1554,6 @@
         <location filename="hub/src/DlgPeer.cpp" line="215"/>
         <source>Peer is in your machine.</source>
         <translation>Peer está em sua máquina</translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="140"/>
-        <location filename="hub/src/DlgPeer.cpp" line="221"/>
-        <source>Peer is running</source>
-        <oldsource>Peer is runnning</oldsource>
-        <translation type="unfinished">Peer está rodando</translation>
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="229"/>
