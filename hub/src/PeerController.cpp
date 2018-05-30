@@ -42,26 +42,24 @@ void CPeerController::refresh() {
 const QString& CPeerController::status_description(const QString &status){
     static std::map<QString, QString> dct_desp = {
 
-        {"aborted", tr ("The Peer is in an aborted state. This means that it was abruptly "
-                        "stopped without properly closing the session. Press `start` "
-                        "to resume this virtual machine. If any problems persist, you may "
-                        "have to destroy and restart the virtual machine.")},
+        {"aborted", tr ("The Peer is aborted because it was abruptly stopped. "
+                        "Press start to resume the virtual machine. "
+                        "If you still would be facing the problem, "
+                        "you can destroy and restart it")},
 
         {"gurumeditation", tr ("The Peer is in the \"guru meditation\" state. This is a rare case which means "
                                "that an internal error in VirtualBox caused the Peer to fail. This is always "
                                "the sign of a bug in VirtualBox. You can try to bring your VM back online "
                                "with a `start`.")},
 
-        {"running", tr ("The Peer is running. To stop this Peer, you can press `stop`")},
+        {"running", tr ("The Peer is running. You can press `stop` to shut it down")},
 
         {"poweroff", tr ("The Peer is powered off. To restart the Peer, simply press 'start'")},
 
-        {"broken", tr ("The VM for the Peer is not created yet. Please wait installation process "
-                       "if you have started.")},
+        {"broken", tr ("The VM for the Peer is not created yet. "
+                       "If you have started, please wait for installation process.")},
 
-        {"not ready", tr ("The Peer is not ready. This means Peer management is loading, "
-                          "which usually takes 30-60 seconds to be ready. "
-                          "You can press 'reload' to reload the Peer")},
+        {"not ready", tr ("The Peer is not ready, because Peer management is loading.")},
 
         {"not_created", tr ("The environment has not yet been created. Run `vagrant up` to "
                             "create the environment. If a machine is not created, only the "

@@ -302,7 +302,7 @@ bool DlgPeer::check_configs(){
     }
 
     if(cpu < 1){
-        CNotificationObserver::Error(tr("Number of CPU can't be less than 1"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Quantity of CPU can't be less than 1"), DlgNotification::N_NO_ACTION);
         return false;
     }
 
@@ -536,7 +536,7 @@ void DlgPeer::sshPeer(){
 
 void DlgPeer::destroyPeer(){
     if(hub_available){
-        CNotificationObserver::Error(tr("You can't destroy the Peer until it's registered to the the Bazaar. "
+        CNotificationObserver::Error(tr("You can't destroy the Peer until it's registered to the Bazaar. "
                                         "Please run 'unregister' to unregister it from the Bazaar"), DlgNotification::N_NO_ACTION);
         return;
     }

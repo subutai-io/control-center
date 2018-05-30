@@ -628,7 +628,7 @@ void TrayControlWindow::launch_p2p() {
     case P2PStatus_checker::P2P_RUNNING:
       CNotificationObserver::Info(
           QObject::tr(
-              "P2P is running. If you have troubles please restart it."),
+              "P2P is running. If you have troubles, please restart it."),
           DlgNotification::N_STOP_P2P);
       break;
     case P2PStatus_checker::P2P_LOADING:
