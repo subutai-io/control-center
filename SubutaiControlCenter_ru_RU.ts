@@ -1268,6 +1268,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="hub/forms/DlgPeer.ui" line="55"/>
+        <source>SSH into the Peer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="hub/forms/DlgPeer.ui" line="65"/>
         <source>Password for ssh (Only for the LAN Peers)</source>
         <translation type="unfinished"></translation>
@@ -1349,7 +1354,8 @@
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="286"/>
-        <source>Disk size in GB of the Peer</source>
+        <source>Disk size of the Peer in GB</source>
+        <oldsource>Disk size in GB of the Peer</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1509,13 +1515,6 @@
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="215"/>
         <source>Peer is in your machine.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/forms/DlgPeer.ui" line="140"/>
-        <location filename="hub/src/DlgPeer.cpp" line="221"/>
-        <source>Peer is running</source>
-        <oldsource>Peer is runnning</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
