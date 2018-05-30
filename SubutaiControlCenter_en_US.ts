@@ -130,91 +130,90 @@
     <name>CPeerController</name>
     <message>
         <location filename="hub/src/PeerController.cpp" line="45"/>
-        <source>The Peer is aborted because it was abruptly stopped. Press start to resume the virtual machine. If you still would be facing the problem, you can destroy and restart it</source>
-        <oldsource>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Press `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</oldsource>
+        <source>The Peer is aborted because it was abruptly stopped. Press start to resume the virtual machine. If you still face the problem, you can destroy and restart it</source>
+        <oldsource>The Peer is aborted because it was abruptly stopped. Press start to resume the virtual machine. If you still would be facing the problem, you can destroy and restart it</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="50"/>
+        <location filename="hub/src/PeerController.cpp" line="49"/>
         <source>The Peer is in the &quot;guru meditation&quot; state. This is a rare case which means that an internal error in VirtualBox caused the Peer to fail. This is always the sign of a bug in VirtualBox. You can try to bring your VM back online with a `start`.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="55"/>
+        <location filename="hub/src/PeerController.cpp" line="54"/>
         <source>The Peer is running. You can press `stop` to shut it down</source>
         <oldsource>The Peer is running. To stop this Peer, you can press `stop`</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="59"/>
-        <source>The VM for the Peer is not created yet. If you have started, please wait for installation process.</source>
-        <oldsource>The VM for the Peer is not created yet. Please wait installation process if you have started.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/PeerController.cpp" line="57"/>
+        <location filename="hub/src/PeerController.cpp" line="56"/>
         <source>The Peer is powered off. To restart the Peer, simply press &apos;start&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="62"/>
-        <source>The Peer is not ready, because Peer management is loading.</source>
+        <location filename="hub/src/PeerController.cpp" line="58"/>
+        <source>The VM for the Peer is not created yet. If you have started the installation process, please wait for it to finish</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="64"/>
+        <location filename="hub/src/PeerController.cpp" line="61"/>
+        <source>Peer’s management is loading, this might take some time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/PeerController.cpp" line="63"/>
         <source>The environment has not yet been created. Run `vagrant up` to create the environment. If a machine is not created, only the default provider will be shown. So if a provider is not listed, then the machine is not created for that environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="69"/>
+        <location filename="hub/src/PeerController.cpp" line="68"/>
         <source>The Peer is inaccessible! This is a rare case which means that VirtualBox can&apos;t find your Peer configuration. This usually happens when upgrading VirtualBox, moving to a new computer, etc. Please consult VirtualBox for how to handle this issue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="74"/>
+        <location filename="hub/src/PeerController.cpp" line="73"/>
         <source>The Peer is paused. This Peer may have been paused via the VirtualBox GUI or the VBoxManage command line interface. To unpause, please use the VirtualBox GUI and/or VBoxManage command line interface so that vagrant would be able to control the Peer again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="79"/>
+        <location filename="hub/src/PeerController.cpp" line="78"/>
         <source>The Peer is stopping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="81"/>
+        <location filename="hub/src/PeerController.cpp" line="80"/>
         <source>The Peer is currently saving its state. In a few moments this state should transition to &quot;saved.&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="84"/>
+        <location filename="hub/src/PeerController.cpp" line="83"/>
         <source>To resume this Peer, simply press &apos;start&apos;.</source>
         <oldsource>To resume this Peer, simply run start.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="86"/>
+        <location filename="hub/src/PeerController.cpp" line="85"/>
         <source>The Peer is &quot;stuck!&quot; This is a very rare state which means that VirtualBox is unable to recover the current state of the Peer. The only known solution to this problem is to restart your machine, sorry. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="91"/>
+        <location filename="hub/src/PeerController.cpp" line="90"/>
         <source>This environment represents multiple VMs. The VMs are all listed above with their current state. For more information about a specific VM, run `vagrant status NAME`.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="171"/>
+        <location filename="hub/src/PeerController.cpp" line="170"/>
         <source>Peer %1 is finished to &quot;%2&quot; succesfully</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="175"/>
+        <location filename="hub/src/PeerController.cpp" line="174"/>
         <source>Peer %1 is finished to &quot;%2&quot; with following messages:
  %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="182"/>
+        <location filename="hub/src/PeerController.cpp" line="181"/>
         <source>Failed to clean peer path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2302,9 +2301,9 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1262"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1397"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1530"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1714"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1844"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2115"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1718"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1848"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2125"/>
         <source>Couldn&apos;t find sh command</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2318,10 +2317,10 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1271"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1406"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1539"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1723"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1853"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1971"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2124"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1727"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1857"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1975"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2134"/>
         <source>Couldn&apos;t get standard temporary location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2340,9 +2339,9 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1313"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1448"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1589"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1780"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1903"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2165"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1784"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1907"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2175"/>
         <source>Couldn&apos;t set exe permission to reload script file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2355,9 +2354,9 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1284"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1419"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1552"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1736"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1866"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2137"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1740"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1870"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2147"/>
         <source>Couldn&apos;t create install script temp file. %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2365,45 +2364,45 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1298"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1433"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1574"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1765"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1888"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2150"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1769"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1892"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2160"/>
         <source>Couldn&apos;t write install script to temp file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1610"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1924"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1928"/>
         <source>Couldn&apos;t install vagrant err = %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3172"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3182"/>
         <source>Couldn&apos;t add program to autorun due to denied access. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3182"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3192"/>
         <source>Couldn&apos;t add program to autorun.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2048"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2052"/>
         <source>Couldn&apos;t get standard home location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2719"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2729"/>
         <source>No supported browser is available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3073"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3083"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3013"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3023"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2417,55 +2416,55 @@
         <location filename="hub/src/SystemCallWrapper.cpp" line="1253"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1388"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1521"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1705"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1835"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2106"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1709"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1839"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2116"/>
         <source>Couldn&apos;t find pkexec command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2732"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2761"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2742"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2771"/>
         <source>Install Vagrant first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3003"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3013"/>
         <source>Couldn&apos;t get home directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3028"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3038"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3040"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3050"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3052"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3062"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3124"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3134"/>
         <source>Write plist file error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3160"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3170"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3190"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3200"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3204"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3214"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation type="unfinished"></translation>
     </message>
