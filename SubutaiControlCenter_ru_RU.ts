@@ -1342,7 +1342,8 @@
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="250"/>
-        <source>Number of CPU of the Peer</source>
+        <source>Number of CPU cores of the Peer</source>
+        <oldsource>Number of CPU of the Peer</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
