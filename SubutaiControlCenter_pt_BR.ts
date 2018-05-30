@@ -161,8 +161,8 @@
     <name>CPeerController</name>
     <message>
         <location filename="hub/src/PeerController.cpp" line="45"/>
-        <source>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Press `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</source>
-        <oldsource>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Run `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</oldsource>
+        <source>The Peer is aborted because it was abruptly stopped. Press start to resume the virtual machine. If you still would be facing the problem, you can destroy and restart it</source>
+        <oldsource>The Peer is in an aborted state. This means that it was abruptly stopped without properly closing the session. Press `start` to resume this virtual machine. If any problems persist, you may have to destroy and restart the virtual machine.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -172,13 +172,14 @@
     </message>
     <message>
         <location filename="hub/src/PeerController.cpp" line="55"/>
-        <source>The Peer is running. To stop this Peer, you can press `stop`</source>
-        <oldsource>The Peer is running. To stop this Peer, you can run `stop` to shut it down.</oldsource>
+        <source>The Peer is running. You can press `stop` to shut it down</source>
+        <oldsource>The Peer is running. To stop this Peer, you can press `stop`</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/PeerController.cpp" line="59"/>
-        <source>The VM for the Peer is not created yet. Please wait installation process if you have started.</source>
+        <source>The VM for the Peer is not created yet. If you have started, please wait for installation process.</source>
+        <oldsource>The VM for the Peer is not created yet. Please wait installation process if you have started.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -188,63 +189,63 @@
     </message>
     <message>
         <location filename="hub/src/PeerController.cpp" line="62"/>
-        <source>The Peer is not ready. This means Peer management is loading, which usually takes 30-60 seconds to be ready. You can press &apos;reload&apos; to reload the Peer</source>
+        <source>The Peer is not ready, because Peer management is loading.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="66"/>
+        <location filename="hub/src/PeerController.cpp" line="64"/>
         <source>The environment has not yet been created. Run `vagrant up` to create the environment. If a machine is not created, only the default provider will be shown. So if a provider is not listed, then the machine is not created for that environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="71"/>
+        <location filename="hub/src/PeerController.cpp" line="69"/>
         <source>The Peer is inaccessible! This is a rare case which means that VirtualBox can&apos;t find your Peer configuration. This usually happens when upgrading VirtualBox, moving to a new computer, etc. Please consult VirtualBox for how to handle this issue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="76"/>
+        <location filename="hub/src/PeerController.cpp" line="74"/>
         <source>The Peer is paused. This Peer may have been paused via the VirtualBox GUI or the VBoxManage command line interface. To unpause, please use the VirtualBox GUI and/or VBoxManage command line interface so that vagrant would be able to control the Peer again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="81"/>
+        <location filename="hub/src/PeerController.cpp" line="79"/>
         <source>The Peer is stopping.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="83"/>
+        <location filename="hub/src/PeerController.cpp" line="81"/>
         <source>The Peer is currently saving its state. In a few moments this state should transition to &quot;saved.&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="86"/>
+        <location filename="hub/src/PeerController.cpp" line="84"/>
         <source>To resume this Peer, simply press &apos;start&apos;.</source>
         <oldsource>To resume this Peer, simply run start.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="88"/>
+        <location filename="hub/src/PeerController.cpp" line="86"/>
         <source>The Peer is &quot;stuck!&quot; This is a very rare state which means that VirtualBox is unable to recover the current state of the Peer. The only known solution to this problem is to restart your machine, sorry. </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="93"/>
+        <location filename="hub/src/PeerController.cpp" line="91"/>
         <source>This environment represents multiple VMs. The VMs are all listed above with their current state. For more information about a specific VM, run `vagrant status NAME`.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="173"/>
+        <location filename="hub/src/PeerController.cpp" line="171"/>
         <source>Peer %1 is finished to &quot;%2&quot; succesfully</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="177"/>
+        <location filename="hub/src/PeerController.cpp" line="175"/>
         <source>Peer %1 is finished to &quot;%2&quot; with following messages:
  %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/PeerController.cpp" line="184"/>
+        <location filename="hub/src/PeerController.cpp" line="182"/>
         <source>Failed to clean peer path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1305,8 +1306,8 @@
     </message>
     <message>
         <location filename="hub/forms/DlgPeer.ui" line="286"/>
-        <source>Disk size of the Peer in GB</source>
-        <oldsource>Disk size in GB of the Peer</oldsource>
+        <source>Peer&apos;s disk size in GB</source>
+        <oldsource>Disk size of the Peer in GB</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1619,8 +1620,9 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="305"/>
-        <source>Number of CPU can&apos;t be less than 1</source>
-        <translation>Número de CPUs não pode ser menos de 1</translation>
+        <source>Quantity of CPU can&apos;t be less than 1</source>
+        <oldsource>Number of CPU can&apos;t be less than 1</oldsource>
+        <translation type="unfinished">Número de CPUs não pode ser menos de 1</translation>
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="340"/>
@@ -1691,7 +1693,8 @@
     </message>
     <message>
         <location filename="hub/src/DlgPeer.cpp" line="539"/>
-        <source>You can&apos;t destroy the Peer until it&apos;s registered to the the Bazaar. Please run &apos;unregister&apos; to unregister it from the Bazaar</source>
+        <source>You can&apos;t destroy the Peer until it&apos;s registered to the Bazaar. Please run &apos;unregister&apos; to unregister it from the Bazaar</source>
+        <oldsource>You can&apos;t destroy the Peer until it&apos;s registered to the the Bazaar. Please run &apos;unregister&apos; to unregister it from the Bazaar</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2819,8 +2822,8 @@
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="630"/>
-        <source>P2P is running. If you have troubles please restart it.</source>
-        <oldsource>P2P is running. Stop and start it, if you have troubles.</oldsource>
+        <source>P2P is running. If you have troubles, please restart it.</source>
+        <oldsource>P2P is running. If you have troubles please restart it.</oldsource>
         <translation type="unfinished">P2P está rodando. Pare e inicie novamente, se tiver problemas.</translation>
     </message>
     <message>
