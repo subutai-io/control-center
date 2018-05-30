@@ -1,5 +1,20 @@
 # Change Log
 
+## [7.0.2] 5/30/2018
+# IMPROVEMENTS:
+* Support KDE Desktop
+* Support Ubuntu 18.04 and Debian 10 (not released)
+* Replace gksu with PolicyKit
+* Added tooltips and improved messages in peer management
+* Show peer management error messages in both terminal and CC
+* P2P can work when Bazaar is down
+* Show release notes when update available
+* Optimized CC functions
+# BUG FIXES:
+* Fixed crash of CC when Bazaar is down
+* Fixed bug when CC can't exit when child proccesses are running
+* Fixed wrong installation scripts for vagrant and vb on linux
+
 ## [7.0.1] 5/18/2018
 * New Feature: Vagrant plugin installation (vagrant-subutai and vagrant-vbguest added)
 * Various bugs fixed
