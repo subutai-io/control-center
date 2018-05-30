@@ -44,8 +44,7 @@ const QString& CPeerController::status_description(const QString &status){
 
         {"aborted", tr ("The Peer is aborted because it was abruptly stopped. "
                         "Press start to resume the virtual machine. "
-                        "If you still would be facing the problem, "
-                        "you can destroy and restart it")},
+                        "If you still face the problem, you can destroy and restart it")},
 
         {"gurumeditation", tr ("The Peer is in the \"guru meditation\" state. This is a rare case which means "
                                "that an internal error in VirtualBox caused the Peer to fail. This is always "
@@ -57,9 +56,9 @@ const QString& CPeerController::status_description(const QString &status){
         {"poweroff", tr ("The Peer is powered off. To restart the Peer, simply press 'start'")},
 
         {"broken", tr ("The VM for the Peer is not created yet. "
-                       "If you have started, please wait for installation process.")},
+                       "If you have started the installation process, please wait for it to finish")},
 
-        {"not ready", tr ("The Peer is not ready, because Peer management is loading.")},
+        {"not ready", tr ("Peer’s management is loading, this might take some time.")},
 
         {"not_created", tr ("The environment has not yet been created. Run `vagrant up` to "
                             "create the environment. If a machine is not created, only the "
