@@ -7,13 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>358</width>
-    <height>475</height>
+    <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="15" column="0" rowspan="2" colspan="2">
+    <widget class="QLabel" name="lbl_err_os">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0">
     <widget class="QLabel" name="lbl_pass_confirm">
      <property name="toolTip">
@@ -34,7 +41,7 @@
      </property>
     </widget>
    </item>
-   <item row="15" column="0">
+   <item row="17" column="0">
     <widget class="QPushButton" name="btn_cancel">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
@@ -133,6 +140,9 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="le_name"/>
+   </item>
    <item row="9" column="0">
     <widget class="QLabel" name="lbl_bridge">
      <property name="toolTip">
@@ -159,8 +169,11 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="le_name"/>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="le_pass"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="le_pass_confirm"/>
    </item>
    <item row="5" column="1">
     <widget class="QLineEdit" name="le_ram">
@@ -168,12 +181,6 @@
       <string>4096</string>
      </property>
     </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="le_pass"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="le_pass_confirm"/>
    </item>
    <item row="13" column="0">
     <widget class="QLabel" name="lbl_os">
@@ -211,20 +218,16 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="2">
-    <widget class="QLabel" name="lbl_err_os">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="le_disk"/>
+   </item>
+   <item row="13" column="1">
+    <widget class="QComboBox" name="cmb_os">
+     <item>
+      <property name="text">
+       <string>Debian Stretch</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -243,19 +246,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="le_disk"/>
-   </item>
-   <item row="13" column="1">
-    <widget class="QComboBox" name="cmb_os">
-     <item>
-      <property name="text">
-       <string>Debian Stretch</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="15" column="1">
+   <item row="17" column="1">
     <widget class="QPushButton" name="btn_create">
      <property name="toolTip">
       <string>Start building your Peer</string>
@@ -317,6 +308,16 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0" colspan="2">
+    <widget class="QProgressBar" name="pb_peer">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="value">
+      <number>0</number>
      </property>
     </widget>
    </item>

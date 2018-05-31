@@ -1094,7 +1094,11 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
     }
 
-    str_command += QString("echo finished > %1_finished; echo 'Peer finished to %1 with following errors:'; cat %2_%1; echo 'Press any key to finish:'; read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
+    str_command += QString("echo finished > %1_finished; "
+                           "echo 'Peer finished to %1 with following errors:'; "
+                           "cat %2_%1; "
+                           "echo 'Press any key to finish:'; "
+                           "read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
 
     QString cmd;
 
@@ -1203,6 +1207,26 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const Q
                                                                          const QString &command,
                                                                          const QString &name){
     return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider){
+    qDebug() << "updating vagrant box: " << box << "provider:" << provider;
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "box"
+         << "update"
+         << "--box"
+         << box
+         << "--provider"
+         << provider;
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+    qDebug() << "updating vagrant box: " << box << "provider:" << provider
+             << "finished with" << "exit code: " << res.exit_code
+             << "output" << res.out;
+    if (res.exit_code != 0){
+        res.res = SCWE_CREATE_PROCESS;
+    }
+    return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>

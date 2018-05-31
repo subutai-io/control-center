@@ -11,6 +11,21 @@
 namespace Ui {
   class DlgCreatePeer;
 }
+// This structure 'requirement' needed to check requirements for peer creataion
+// how to use:
+// name = 'virtualbox'
+// status message = 'Checking the VirtualBox'
+// notification message = 'VirtualBox is not installed please install it from about'
+// notification type:
+// error: virtualbox is not istalled
+//
+struct requirement
+{
+    QString name;
+    QString error_message;
+    bool (*checker_function);
+    requirement() {}
+};
 
 class DlgCreatePeer : public QDialog
 {
@@ -32,6 +47,8 @@ private:
   void hide_err_labels();
   pass_err check_pass(QString pass);
   void set_enabled_buttons(bool state);
+  bool check_configurations();
+  bool check_machine();
 
 
   QRegExp m_invalid_chars; //any nonword character
@@ -47,9 +64,7 @@ class InitPeer : public QObject{
     QString directory;
     QString OS;
 public:
-    InitPeer(QObject *parent = nullptr) : QObject(parent){
-
-    }
+    InitPeer(QObject *parent = nullptr) : QObject(parent){}
     void init (const QString &directory, const QString &OS){
         this->directory = directory;
         this->OS = OS;
