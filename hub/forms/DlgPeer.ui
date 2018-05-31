@@ -247,7 +247,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="lbl_cpu">
         <property name="toolTip">
-         <string>Number of CPU of the Peer</string>
+         <string>Number of CPU cores of the Peer</string>
         </property>
         <property name="text">
          <string>CPU</string>
@@ -283,7 +283,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="lbl_disk">
         <property name="toolTip">
-         <string>Disk size in GB of the Peer</string>
+         <string>Peer's disk size in GB</string>
         </property>
         <property name="text">
          <string>Disk</string>
