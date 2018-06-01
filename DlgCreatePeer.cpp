@@ -22,17 +22,27 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
     //requirements
+    requirement virtualbox(tr ("VirtualBox is not ready"),
+                           tr ("Checking VirtualBox..."),
+                           tr ("VirtualBox is not ready. You can install or update it from About"),
+                           DlgNotification::N_ABOUT,
+                           [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::ORACLE_VIRTUALBOX);});
+    requirement vagrant(tr ("Vagrant is not ready"),
+                        tr ("Checking Vagrant..."),
+                        tr ("Vagrant is not ready. You can install or update it from About"""),
+                        DlgNotification::N_ABOUT,
+                        [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT);});
     requirement subutai_plugin(tr ("Subutai plugin is not ready"),
-                               tr ("Checking Subutai plugin..."), tr ("Vagrant Subutai plugin is not ready. You can install or update it "
-                                                                      "from About"),
+                               tr ("Checking Subutai plugin..."),
+                               tr ("Vagrant Subutai plugin is not ready. You can install or update it from About"),
                                DlgNotification::N_ABOUT,
                                [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI);});
     requirement vbguest_plugin(tr ("VirtualBox plugin is not ready"),
-                               tr ("Checking VirtualBox plugin..."), tr ("Vagrant VirtualBox plugin is not ready. You can install or update it "
-                                                                         "from About"),
+                               tr ("Checking VirtualBox plugin..."),
+                               tr ("Vagrant VirtualBox plugin is not ready. You can install or update it from About"),
                                DlgNotification::N_ABOUT,
                                [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_VBGUEST);});
-    m_requirements_ls = std::vector <requirement> {subutai_plugin, vbguest_plugin};
+    m_requirements_ls = std::vector <requirement> {vagrant, virtualbox, subutai_plugin, vbguest_plugin};
     //format
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
@@ -215,7 +225,6 @@ QString DlgCreatePeer::create_dir(const QString &name){
 }
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk){
-    ui->pb_peer->setValue(3);
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if all software is installed correctly", DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
