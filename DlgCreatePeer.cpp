@@ -12,29 +12,45 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgCreatePeer)
 {
+    //ui
     ui->setupUi(this);
     ui->le_disk->setText("100");
-    QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
-    if(bridged_ifs.size() == 0){
-        CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
-        this->close();
-    }
-    ui->cmb_bridge->addItems(bridged_ifs);
+    ui->cmb_bridge->addItems(CPeerController::Instance()->get_bridgedifs());
     hide_err_labels();
+    this->adjustSize();
     //slots
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
-
+    //requirements
+    requirement virtualbox(tr ("VirtualBox is not ready"),
+                           tr ("Checking VirtualBox..."),
+                           tr ("VirtualBox is not ready. You can install or update it from About"),
+                           DlgNotification::N_ABOUT,
+                           [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::ORACLE_VIRTUALBOX);});
+    requirement vagrant(tr ("Vagrant is not ready"),
+                        tr ("Checking Vagrant..."),
+                        tr ("Vagrant is not ready. You can install or update it from About"""),
+                        DlgNotification::N_ABOUT,
+                        [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT);});
+    requirement subutai_plugin(tr ("Subutai plugin is not ready"),
+                               tr ("Checking Subutai plugin..."),
+                               tr ("Vagrant Subutai plugin is not ready. You can install or update it from About"),
+                               DlgNotification::N_ABOUT,
+                               [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI);});
+    requirement vbguest_plugin(tr ("VirtualBox plugin is not ready"),
+                               tr ("Checking VirtualBox plugin..."),
+                               tr ("Vagrant VirtualBox plugin is not ready. You can install or update it from About"),
+                               DlgNotification::N_ABOUT,
+                               [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_VBGUEST);});
+    m_requirements_ls = std::vector <requirement> {vagrant, virtualbox, subutai_plugin, vbguest_plugin};
+    //format
+    ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
+    ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
     ui->le_pass->setEchoMode(QLineEdit::Password);
     ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
     ui->le_name->setMaxLength(20);
-
-    // validators
-    ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
-    ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
+    ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
     m_invalid_chars.setPattern("\\W");
-
-    this->adjustSize();
 }
 
 DlgCreatePeer::~DlgCreatePeer()
@@ -52,22 +68,14 @@ DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass){
     return PASS_FINE;
 }
 
-void DlgCreatePeer::create_button_pressed(){
-    ui->btn_create->setEnabled(false);
-
-    QString name = "subutai-peer_";
-    name += ui->le_name->text();
+bool DlgCreatePeer::check_configurations(){
     QString ram = ui->le_ram->text();
-    QString cpu = ui->cmb_cpu->currentText();
-    QString os = ui->cmb_os->currentText();
     QString disk = ui->le_disk->text();
     QString password1 = ui->le_pass->text();
     QString password2 = ui->le_pass_confirm->text();
-
     bool errors_exist = false;
-
+//password
     pass_err pass_error = check_pass(password1);
-    qDebug() << "password" << pass_error;
     if(pass_error != 3){
         QString error_message = "";
         switch (pass_error) {
@@ -87,7 +95,6 @@ void DlgCreatePeer::create_button_pressed(){
         ui->lbl_err_pass->setText(error_message);
         ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_pass->show();
-        ui->btn_create->setEnabled(true);
         errors_exist = true;
     }
     else
@@ -95,16 +102,14 @@ void DlgCreatePeer::create_button_pressed(){
         ui->lbl_err_pass->setText(tr("Passwords do not match. Please check again"));
         ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_pass->show();
-        ui->btn_create->setEnabled(true);
         errors_exist = true;
     }
     else ui->lbl_err_pass->hide();
-
+//name
     if(ui->le_name->text().isEmpty()){
         ui->lbl_err_name->setText(tr("Name cannot be empty"));
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
-        ui->btn_create->setEnabled(true);
         errors_exist = true;
     }
     else
@@ -112,48 +117,74 @@ void DlgCreatePeer::create_button_pressed(){
             ui->lbl_err_name->setText(tr("You can use only letters and digits"));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
-            ui->btn_create->setEnabled(true);
             errors_exist = true;
     }
     else ui->lbl_err_name->hide();
+//ram
     if(ram.toInt() < 2048){
         ui->lbl_err_ram->setText(tr("Ram cannot be less than 2048 MB"));
         ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_ram->show();
-        ui->btn_create->setEnabled(true);
         errors_exist = true;
     }
     else ui->lbl_err_ram->hide();
+//disk
     if(disk.toInt() < 40){
         ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB"));
         ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_disk->show();
-        ui->btn_create->setEnabled(true);
         errors_exist = true;
     }
     else ui->lbl_err_disk->hide();
+    return errors_exist;
+}
 
-    if(errors_exist)
-        return;
-
-    QString dir = create_dir(name);
-
+void DlgCreatePeer::create_button_pressed(){
+    if(check_configurations()) return;
+    QString dir = create_dir("subutai-peer_" + ui->le_name->text());
     if(dir.isEmpty()){
         ui->lbl_err_name->setText(tr("Name already exists"));
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
-        ui->btn_create->setEnabled(true);
         return;
     }
-
+    hide_err_labels();
     set_enabled_buttons(false);
-
+    if ( !check_machine() ){
+        ui->btn_create->setEnabled(true);
+        ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
+        ui->pb_peer->setValue(0);
+        ui->pb_peer->setEnabled(false);
+        set_enabled_buttons(true);
+        QDir directory_delete(dir);
+        directory_delete.removeRecursively();
+        return;
+    }
+    ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
+    ui->lbl_err_os->setText("Initalializing environment...");
     InitPeer *thread_init = new InitPeer(this);
-    thread_init->init(dir, os);
+    thread_init->init(dir, ui->cmb_os->currentText());
     thread_init->startWork();
-    connect(thread_init, &InitPeer::outputReceived, [dir, ram, cpu, disk, this](system_call_wrapper_error_t res){
-       this->init_completed(res, dir, ram, cpu, disk);
+    connect(thread_init, &InitPeer::outputReceived, [dir, this](system_call_wrapper_error_t res){
+       this->init_completed(res, dir, this->ui->le_ram->text(), this->ui->cmb_cpu->currentText(), this->ui->le_disk->text());
     });
+}
+
+bool DlgCreatePeer::check_machine(){
+    ui->lbl_err_os->show();
+    ui->pb_peer->setEnabled(true);
+    ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
+    static size_t i;
+    for (i = 0; i < m_requirements_ls.size(); i++){
+        ui->pb_peer->setValue(i + 1);
+        ui->lbl_err_os->setText (m_requirements_ls[i].status_label);
+        if (!m_requirements_ls[i].checker_function()){
+            ui->lbl_err_os->setText (m_requirements_ls[i].error_label);
+            CNotificationObserver::Error(m_requirements_ls[i].error_notification, m_requirements_ls[i].notification_type);
+            break;
+        }
+    }
+    return i == m_requirements_ls.size();
 }
 
 void DlgCreatePeer::set_enabled_buttons(bool state){
@@ -162,6 +193,8 @@ void DlgCreatePeer::set_enabled_buttons(bool state){
     ui->le_pass->setEnabled(state);
     ui->le_pass_confirm->setEnabled(state);
     ui->le_ram->setEnabled(state);
+    ui->btn_create->setEnabled(state);
+    ui->btn_cancel->setEnabled(state);
 }
 
 void DlgCreatePeer::hide_err_labels(){
@@ -192,9 +225,16 @@ QString DlgCreatePeer::create_dir(const QString &name){
 }
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk){
-    ui->btn_create->setEnabled(true);
     if(res != SCWE_SUCCESS){
         CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if all software is installed correctly", DlgNotification::N_NO_ACTION);
+        ui->btn_create->setEnabled(true);
+        set_enabled_buttons(true);
+        ui->pb_peer->setValue(0);
+        ui->pb_peer->setEnabled(false);
+        ui->lbl_err_os->setText(tr("Failed to initialize environment"));
+        ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+        QDir dir(dir);
+        dir.removeRecursively();
         return;
     }
     CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);

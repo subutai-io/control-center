@@ -255,7 +255,7 @@ void TrayControlWindow::create_tray_actions() {
   m_act_p2p_status->setToolTip(tr("P2P status"));
 
   m_act_create_peer =
-      new QAction(QIcon(":hub/add.png"), tr("Create peer"), this);
+      new QAction(QIcon(":hub/add.png"), tr("Create Peer"), this);
   connect(m_act_create_peer, &QAction::triggered, this,
           &TrayControlWindow::show_create_dialog);
   m_empty_action = new QAction(tr("Empty"), this);
@@ -1373,6 +1373,11 @@ void TrayControlWindow::show_create_dialog() {
   QString vg_version, vb_version;
   CSystemCallWrapper::oracle_virtualbox_version(vb_version);
   CSystemCallWrapper::vagrant_version(vg_version);
+  QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
+  if(bridged_ifs.size() == 0){
+      CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
+      return;
+  }
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
         tr("Install Vagrant to create Peers"), DlgNotification::N_ABOUT);
@@ -1381,23 +1386,6 @@ void TrayControlWindow::show_create_dialog() {
   if (vb_version == "undefined") {
     CNotificationObserver::Instance()->Error(
         tr("You don't have any hypervisor for Vagrant"),
-        DlgNotification::N_ABOUT);
-    return;
-  }
-  // check required vagrant plugins are updated
-  if (CHubComponentsUpdater::Instance()->is_update_available(
-          IUpdaterComponent::VAGRANT_VBGUEST)) {
-    CNotificationObserver::Instance()->Error(
-        tr("Vagrant Virtualbox plugin is not ready. You can install or update "
-           "it from About"),
-        DlgNotification::N_ABOUT);
-    return;
-  }
-  if (CHubComponentsUpdater::Instance()->is_update_available(
-          IUpdaterComponent::VAGRANT_SUBUTAI)) {
-    CNotificationObserver::Instance()->Error(
-        tr("Vagrant Subutai plugin is not ready. You can install or update it "
-           "from About"),
         DlgNotification::N_ABOUT);
     return;
   }
