@@ -519,210 +519,285 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="33"/>
+        <location filename="DlgCreatePeer.ui" line="40"/>
         <source>CPU</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="261"/>
+        <location filename="DlgCreatePeer.ui" line="252"/>
         <source>Start building your Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="300"/>
+        <location filename="DlgCreatePeer.ui" line="291"/>
         <source>Name for your Peer. Use only digits and letters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="303"/>
+        <location filename="DlgCreatePeer.ui" line="294"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="168"/>
+        <location filename="DlgCreatePeer.ui" line="181"/>
         <source>4096</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="264"/>
+        <location filename="DlgCreatePeer.ui" line="255"/>
         <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="253"/>
+        <location filename="DlgCreatePeer.ui" line="228"/>
         <source>Debian Stretch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="184"/>
+        <location filename="DlgCreatePeer.ui" line="191"/>
         <source>OS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="23"/>
+        <location filename="DlgCreatePeer.ui" line="30"/>
         <source>Confirm password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="30"/>
+        <location filename="DlgCreatePeer.ui" line="37"/>
         <source>Number of CPU cores for your Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="53"/>
         <location filename="DlgCreatePeer.ui" line="60"/>
+        <location filename="DlgCreatePeer.ui" line="67"/>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="65"/>
+        <location filename="DlgCreatePeer.ui" line="72"/>
         <source>2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="70"/>
+        <location filename="DlgCreatePeer.ui" line="77"/>
         <source>3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="75"/>
+        <location filename="DlgCreatePeer.ui" line="82"/>
         <source>4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="80"/>
+        <location filename="DlgCreatePeer.ui" line="87"/>
         <source>5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="85"/>
+        <location filename="DlgCreatePeer.ui" line="92"/>
         <source>6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="90"/>
+        <location filename="DlgCreatePeer.ui" line="97"/>
         <source>7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="95"/>
+        <location filename="DlgCreatePeer.ui" line="102"/>
         <source>8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="119"/>
+        <location filename="DlgCreatePeer.ui" line="126"/>
         <source>RAM for your Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="122"/>
+        <location filename="DlgCreatePeer.ui" line="129"/>
         <source>RAM MB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="129"/>
+        <location filename="DlgCreatePeer.ui" line="136"/>
         <source>Password for your Subutai Console. Use only letters and digits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="132"/>
+        <location filename="DlgCreatePeer.ui" line="139"/>
         <source>Set password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="139"/>
+        <location filename="DlgCreatePeer.ui" line="149"/>
         <source>Bridged interface to connect your Peer to the network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="181"/>
+        <location filename="DlgCreatePeer.ui" line="188"/>
         <source>VM for Peer to run on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="207"/>
+        <location filename="DlgCreatePeer.ui" line="214"/>
         <source>Disk size for your Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="210"/>
+        <location filename="DlgCreatePeer.ui" line="217"/>
         <source>Disk GB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="43"/>
-        <location filename="DlgCreatePeer.ui" line="46"/>
+        <location filename="DlgCreatePeer.ui" line="50"/>
+        <location filename="DlgCreatePeer.ui" line="53"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.ui" line="142"/>
+        <location filename="DlgCreatePeer.ui" line="152"/>
         <source>Bridge Interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="19"/>
-        <source>Peer manager is not ready yet, try again later</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="DlgCreatePeer.ui" line="20"/>
+        <location filename="DlgCreatePeer.ui" line="27"/>
         <source>Confirm your password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="75"/>
+        <location filename="DlgCreatePeer.cpp" line="25"/>
+        <source>VirtualBox is not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="26"/>
+        <source>Checking VirtualBox...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="27"/>
+        <source>VirtualBox is not ready. You can install or update it from About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="30"/>
+        <source>Vagrant is not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="31"/>
+        <source>Checking Vagrant...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="32"/>
+        <source>Vagrant is not ready. You can install or update it from About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="35"/>
+        <source>Subutai plugin is not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="36"/>
+        <source>Checking Subutai plugin...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="37"/>
+        <source>Vagrant Subutai plugin is not ready. You can install or update it from About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="40"/>
+        <source>VirtualBox plugin is not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="41"/>
+        <source>Checking VirtualBox plugin...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="42"/>
+        <source>Vagrant VirtualBox plugin is not ready. You can install or update it from About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="83"/>
         <source>Password cannot be empty</source>
         <oldsource>Password can&apos;t be empty</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="78"/>
+        <location filename="DlgCreatePeer.cpp" line="86"/>
         <source>Password size should be more than 7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="81"/>
+        <location filename="DlgCreatePeer.cpp" line="89"/>
         <source>Password has invalid symbols</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="84"/>
+        <location filename="DlgCreatePeer.cpp" line="92"/>
         <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="95"/>
+        <location filename="DlgCreatePeer.cpp" line="102"/>
         <source>Passwords do not match. Please check again</source>
         <oldsource>Passwords don&apos;t match. Please check again</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="104"/>
+        <location filename="DlgCreatePeer.cpp" line="110"/>
         <source>Name cannot be empty</source>
         <oldsource>Name can&apos;t be empty</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="112"/>
+        <location filename="DlgCreatePeer.cpp" line="117"/>
         <source>You can use only letters and digits</source>
         <oldsource>You can use only alphabetic characters and digits</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="120"/>
+        <location filename="DlgCreatePeer.cpp" line="125"/>
         <source>Ram cannot be less than 2048 MB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="128"/>
+        <location filename="DlgCreatePeer.cpp" line="133"/>
         <source>Disk cannot be less than 40 GB</source>
         <oldsource>Disk can&apos;t be less than 40 GB</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="DlgCreatePeer.cpp" line="142"/>
+        <location filename="DlgCreatePeer.cpp" line="146"/>
         <source>Name already exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="164"/>
+        <source>Initalializing environment...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="229"/>
+        <source>Coudn&apos;t create peer, sorry. Check if all software is installed correctly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="234"/>
+        <source>Failed to initialize environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="DlgCreatePeer.cpp" line="240"/>
+        <source>Initialization is completed. Installing peer... Don&apos;t close terminal until installation is finished.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2298,12 +2373,12 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="776"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1262"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1397"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1530"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1718"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1848"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2125"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1286"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1421"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1554"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1742"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1872"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2149"/>
         <source>Couldn&apos;t find sh command</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2314,13 +2389,13 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="797"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1271"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1406"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1539"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1727"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1857"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1975"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2134"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1295"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1430"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1563"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1751"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1881"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1999"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2158"/>
         <source>Couldn&apos;t get standard temporary location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2336,12 +2411,12 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="848"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1313"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1448"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1589"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1784"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1907"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2175"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1337"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1472"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1613"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1808"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1931"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2199"/>
         <source>Couldn&apos;t set exe permission to reload script file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2351,58 +2426,58 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1284"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1419"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1552"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1740"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1870"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2147"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1308"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1443"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1576"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1764"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1894"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2171"/>
         <source>Couldn&apos;t create install script temp file. %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1298"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1433"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1574"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1769"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1892"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2160"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1322"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1457"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1598"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1793"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1916"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2184"/>
         <source>Couldn&apos;t write install script to temp file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1610"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1928"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1634"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1952"/>
         <source>Couldn&apos;t install vagrant err = %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3182"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3206"/>
         <source>Couldn&apos;t add program to autorun due to denied access. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3192"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3216"/>
         <source>Couldn&apos;t add program to autorun.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2052"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2076"/>
         <source>Couldn&apos;t get standard home location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2729"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2753"/>
         <source>No supported browser is available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3083"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3107"/>
         <source>Couldn&apos;t get home directory, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3023"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3047"/>
         <source>Couldn&apos;t create autostart directory, sorry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2413,58 +2488,58 @@
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="767"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1253"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1388"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1521"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1709"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1839"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2116"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1277"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1412"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1545"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1733"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1863"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2140"/>
         <source>Couldn&apos;t find pkexec command</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2742"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2771"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2766"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2795"/>
         <source>Install Vagrant first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3013"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3037"/>
         <source>Couldn&apos;t get home directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3038"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3062"/>
         <source>Couldn&apos;t delete %1. %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3050"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3074"/>
         <source>Couldn&apos;t create autostart desktop file. Error : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3062"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3086"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3134"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3158"/>
         <source>Write plist file error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3170"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3194"/>
         <source>Couldn&apos;t create registry key, sorry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3200"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3224"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3214"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3238"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2655,7 +2730,7 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="250"/>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1429"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1417"/>
         <source>Notifications history</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2677,7 +2752,9 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="262"/>
-        <source>Create peer</source>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1396"/>
+        <source>Create Peer</source>
+        <oldsource>Create peer</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2744,46 +2821,42 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="1382"/>
-        <source>Install Vagrant to create Peers</source>
+        <source>Peer manager is not ready yet, try again later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/TrayControlWindow.cpp" line="1387"/>
+        <source>Install Vagrant to create Peers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1392"/>
         <source>You don&apos;t have any hypervisor for Vagrant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1395"/>
-        <source>Vagrant Virtualbox plugin is not ready. You can install or update it from About</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1403"/>
-        <source>Vagrant Subutai plugin is not ready. You can install or update it from About</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1408"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="262"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1396"/>
         <source>Create Peer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1413"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1401"/>
         <source>About Subutai Control Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1422"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1410"/>
         <source>SSH Key Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1504"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1492"/>
         <source>Can&apos;t SSH to container. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/TrayControlWindow.cpp" line="1528"/>
+        <location filename="hub/src/TrayControlWindow.cpp" line="1516"/>
         <source>Can&apos;t desktop to container. Err : %1</source>
         <translation type="unfinished"></translation>
     </message>

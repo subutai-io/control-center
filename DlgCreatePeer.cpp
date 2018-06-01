@@ -161,7 +161,7 @@ void DlgCreatePeer::create_button_pressed(){
         return;
     }
     ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
-    ui->lbl_err_os->setText("Initalializing environment...");
+    ui->lbl_err_os->setText(tr("Initalializing environment..."));
     InitPeer *thread_init = new InitPeer(this);
     thread_init->init(dir, ui->cmb_os->currentText());
     thread_init->startWork();
@@ -226,7 +226,7 @@ QString DlgCreatePeer::create_dir(const QString &name){
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir, QString ram, QString cpu, QString disk){
     if(res != SCWE_SUCCESS){
-        CNotificationObserver::Instance()->Error("Coudn't create peer, sorry. Check if all software is installed correctly", DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Coudn't create peer, sorry. Check if all software is installed correctly"), DlgNotification::N_NO_ACTION);
         ui->btn_create->setEnabled(true);
         set_enabled_buttons(true);
         ui->pb_peer->setValue(0);
@@ -237,7 +237,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         dir.removeRecursively();
         return;
     }
-    CNotificationObserver::Instance()->Info("Initialization completed. Installing peer... Don't close terminal until instalation is compeleted", DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Instance()->Info(tr("Initialization is completed. Installing peer... Don't close terminal until installation is finished."), DlgNotification::N_NO_ACTION);
     QString filename = QString("%1/vagrant-subutai.yml").arg(dir);
     QFile file(filename);
     if ( file.open(QIODevice::ReadWrite) ){
