@@ -21,12 +21,25 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     //slots
     connect(ui->btn_cancel, &QPushButton::clicked, [this]() { this->close(); });
     connect(ui->btn_create, &QPushButton::clicked, this, &DlgCreatePeer::create_button_pressed);
+    //requirements
+    requirement subutai_plugin(tr ("Subutai plugin is not ready"),
+                               tr ("Checking Subutai plugin..."), tr ("Vagrant Subutai plugin is not ready. You can install or update it "
+                                                                      "from About"),
+                               DlgNotification::N_ABOUT,
+                               [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI);});
+    requirement vbguest_plugin(tr ("VirtualBox plugin is not ready"),
+                               tr ("Checking VirtualBox plugin..."), tr ("Vagrant VirtualBox plugin is not ready. You can install or update it "
+                                                                         "from About"),
+                               DlgNotification::N_ABOUT,
+                               [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_VBGUEST);});
+    m_requirements_ls = std::vector <requirement> {subutai_plugin, vbguest_plugin};
     //format
     ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
     ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
     ui->le_pass->setEchoMode(QLineEdit::Password);
     ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
     ui->le_name->setMaxLength(20);
+    ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
     m_invalid_chars.setPattern("\\W");
 }
 
@@ -129,9 +142,10 @@ void DlgCreatePeer::create_button_pressed(){
     set_enabled_buttons(false);
     if ( !check_machine() ){
         ui->btn_create->setEnabled(true);
-        set_enabled_buttons(true);
+        ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
         ui->pb_peer->setValue(0);
         ui->pb_peer->setEnabled(false);
+        set_enabled_buttons(true);
         QDir directory_delete(dir);
         directory_delete.removeRecursively();
         return;
@@ -147,39 +161,20 @@ void DlgCreatePeer::create_button_pressed(){
 }
 
 bool DlgCreatePeer::check_machine(){
-    int checks_number = 3;
-    int progress_number = 0;
     ui->lbl_err_os->show();
     ui->pb_peer->setEnabled(true);
-    ui->pb_peer->setMaximum(checks_number);
-    ui->pb_peer->setValue(++progress_number);
-    // check required vagrant plugins are updated
     ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
-    ui->lbl_err_os->setText(tr("Checking VirtualBox plugin..."));
-    if (CHubComponentsUpdater::Instance()->is_update_available(
-            IUpdaterComponent::VAGRANT_VBGUEST)) {
-      CNotificationObserver::Instance()->Error(
-          tr("Vagrant Virtualbox plugin is not ready. You can install or update "
-             "it from About"),
-          DlgNotification::N_ABOUT);
-      ui->lbl_err_os->setText(tr("VirtualBox plugin is not the latest version"));
-      ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
-      return false;
+    static size_t i;
+    for (i = 0; i < m_requirements_ls.size(); i++){
+        ui->pb_peer->setValue(i + 1);
+        ui->lbl_err_os->setText (m_requirements_ls[i].status_label);
+        if (!m_requirements_ls[i].checker_function()){
+            ui->lbl_err_os->setText (m_requirements_ls[i].error_label);
+            CNotificationObserver::Error(m_requirements_ls[i].error_notification, m_requirements_ls[i].notification_type);
+            break;
+        }
     }
-    ui->pb_peer->setValue(++progress_number);
-    ui->lbl_err_os->setText(tr("Checking Subutai plugin..."));
-    if (CHubComponentsUpdater::Instance()->is_update_available(
-            IUpdaterComponent::VAGRANT_SUBUTAI)) {
-      CNotificationObserver::Instance()->Error(
-          tr("Vagrant Subutai plugin is not ready. You can install or update it "
-             "from About"),
-          DlgNotification::N_ABOUT);
-      ui->lbl_err_os->setText(tr("Subutai plugin is not the latest version"));
-      ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
-      return false;
-    }
-    ui->pb_peer->setValue(++progress_number);
-    return true;
+    return i == m_requirements_ls.size();
 }
 
 void DlgCreatePeer::set_enabled_buttons(bool state){
