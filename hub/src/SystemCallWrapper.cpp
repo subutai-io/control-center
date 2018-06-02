@@ -345,61 +345,51 @@ bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
             <<"Trying to set new password of "<<ip;
     return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
 }
+// parse into args line of vagrant global-status
+// algo: just seperate string into 5 and parse
+void parse_status_line(QString status_line,
+                       QString &id,
+                       QString &name,
+                       QString &provider,
+                       QString &state,
+                       QString &directory){
+    QStringList seperated = status_line.split(" ", QString::SkipEmptyParts);
+    if(seperated.size() < 5) return;
+    QString *args[] {&id, &name, &provider, &state};
+    for (size_t i = 0; i < 4; i++){
+        *args[i] = seperated[0];
+        seperated.erase(seperated.begin());
+    }
+    directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+        directory.remove(directory.size() -1 , 1);
+    }
+    return;
+}
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
     system_call_res_t res;
     QString cmd = CSettingsManager::Instance().vagrant_path();
-
     QStringList args;
-    args
-        << "global-status";
+    QString status("not_created");
 
+    args << "global-status";
     res = ssystem_th(cmd, args, true, true, 20000);
-
-    QString status("broken");
-    qDebug()
-            <<"Got status of peer:"
-            <<"exit code: "<<res.exit_code
-            <<"result code: "<<res.res;
-    //the best part is parsing data
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
-        return QString("broken");
+        return status;
     }
-    QString st = "";
-    bool reading_path = false;
+    QString p_name, p_id, p_state, p_provider, p_dir;
     for(auto s : res.out){
-        st="";
-        reading_path = false;
-        status = "";
-        for (int i=0; i < s.size(); i++){
-            if (reading_path){
-                st += s[i];
-                if(st == dir){
-                    qDebug()
-                            <<dir<<"status is"<<status;
-                    return status;
-                }
-            }
-            else if(s[i] == ' ' || s[i] == '\r' || s[i] == '\t'){
-                if(st == "running"){
-                    status = st;
-                }
-                if(st == "poweroff"){
-                    status = st;
-                }
-                st = "";
-            }
-            else{
-                if(!status.isEmpty()){
-                    reading_path = true;
-                }
-                st += s[i];
-            }
-
+        parse_status_line(s, p_id, p_name, p_provider, p_state, p_dir);
+        qDebug() << "I'm comparing two strings why they are not same"
+                 << "s1: " << p_dir
+                 << "s2: " << dir
+                 << "s1 == s2 : " << (p_dir == dir);
+        if(p_dir == dir){
+            return p_state;
         }
     }
-    status = "broken";
     return status;
 }
 
