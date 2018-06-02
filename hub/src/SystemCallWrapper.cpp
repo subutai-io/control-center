@@ -382,10 +382,6 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     QString p_name, p_id, p_state, p_provider, p_dir;
     for(auto s : res.out){
         parse_status_line(s, p_id, p_name, p_provider, p_state, p_dir);
-        qDebug() << "I'm comparing two strings why they are not same"
-                 << "s1: " << p_dir
-                 << "s2: " << dir
-                 << "s1 == s2 : " << (p_dir == dir);
         if(p_dir == dir){
             return p_state;
         }
