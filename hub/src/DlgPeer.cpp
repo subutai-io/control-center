@@ -220,26 +220,26 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             ui->btn_start->hide();
             ui->le_status->setText(tr("Peer is running"));
         }
-        if(peer_status == "broken"){
-            ui->btn_stop->hide();
-            ui->btn_start->setEnabled(false);
-            ui->btn_reload->setEnabled(false);
-            ui->btn_register->setEnabled(false);
-            ui->btn_unregister->setEnabled(false);
-            ui->le_status->setText(tr("Peer is broken."));
+        else if(peer_status == "not ready"){
+                ui->btn_start->hide();
+                ui->btn_unregister->setEnabled(false);
+                ui->btn_register->setEnabled(false);
+                ui->le_status->setText(tr("Peer is not ready."));
         }
-        if(peer_status == "not ready"){
-            ui->btn_start->hide();
-            ui->btn_unregister->setEnabled(false);
-            ui->btn_register->setEnabled(false);
-            ui->le_status->setText(tr("Peer is not ready."));
+        else if(peer_status == "not_created"){
+                ui->btn_stop->hide();
+                ui->btn_start->setEnabled(false);
+                ui->btn_reload->setEnabled(false);
+                ui->btn_register->setEnabled(false);
+                ui->btn_unregister->setEnabled(false);
+                ui->le_status->setText(tr("Peer is not created"));
         }
-        if(peer_status == "poweroff"){
+        else{
             ui->btn_stop->hide();
             ui->btn_register->setEnabled(false);
             ui->btn_unregister->setEnabled(false);
             ui->btn_reload->setEnabled(false);
-            ui->le_status->setText(tr("Peer is off"));
+            ui->le_status->setText(tr("Peer is ") + peer_status);
         }
         ui->le_status->setToolTip(CPeerController::Instance()->status_description(peer_status));
         configs();
@@ -358,11 +358,11 @@ void DlgPeer::enabled_peer_buttons(bool state){
         }
         else ui->btn_register->setEnabled(state);
     }
-    if(peer_status == "not ready"){
-        ui->btn_stop->setEnabled(state);
-        ui->btn_reload->setEnabled(state);
+    else if(peer_status == "not ready"){
+            ui->btn_stop->setEnabled(state);
+            ui->btn_reload->setEnabled(state);
     }
-    if(peer_status == "poweroff"){
+    else {
         ui->btn_start->setEnabled(state);
     }
 }
@@ -541,7 +541,7 @@ void DlgPeer::destroyPeer(){
         return;
     }
     enabled_peer_buttons(false);
-    if(peer_status == "broken"){
+    if(peer_status == "not_created"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
             CNotificationObserver::Instance()->Info(tr("Peer has been destroyed."), DlgNotification::N_NO_ACTION);

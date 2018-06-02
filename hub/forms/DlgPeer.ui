@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>636</width>
-    <height>510</height>
+    <height>541</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -118,181 +118,6 @@
      </property>
     </widget>
    </item>
-   <item row="10" column="1" colspan="3">
-    <widget class="QGroupBox" name="gr_peer_control">
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="6" column="1">
-       <widget class="QPushButton" name="btn_destroy">
-        <property name="toolTip">
-         <string>Destroy the Peer from your machine</string>
-        </property>
-        <property name="text">
-         <string>Destroy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="le_status">
-        <property name="text">
-         <string>Peer is running</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="le_ram"/>
-      </item>
-      <item row="5" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QPushButton" name="btn_start">
-          <property name="toolTip">
-           <string>Start the Peer</string>
-          </property>
-          <property name="text">
-           <string>Start</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_stop">
-          <property name="toolTip">
-           <string>Shut down the Peer</string>
-          </property>
-          <property name="text">
-           <string>Stop</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="lbl_name">
-        <property name="toolTip">
-         <string>Name of the Peer</string>
-        </property>
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QPushButton" name="btn_reload">
-        <property name="toolTip">
-         <string>Restart the Peer</string>
-        </property>
-        <property name="text">
-         <string>Reload</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QComboBox" name="cmb_bridge"/>
-      </item>
-      <item row="5" column="3">
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QPushButton" name="btn_register">
-          <property name="toolTip">
-           <string>Register Peer to your Bazaar account</string>
-          </property>
-          <property name="text">
-           <string>Register to Bazaar</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_unregister">
-          <property name="toolTip">
-           <string>Unregister Peer from your Bazaar account</string>
-          </property>
-          <property name="text">
-           <string>Unregister from Bazaar</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="lbl_ram">
-        <property name="toolTip">
-         <string>RAM size of the Peer in MB</string>
-        </property>
-        <property name="text">
-         <string>RAM</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="le_disk"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="le_cpu"/>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="change_confugre">
-        <property name="toolTip">
-         <string>Unlock to change your Peer configurations</string>
-        </property>
-        <property name="text">
-         <string>Locked configs</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_name"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="lbl_cpu">
-        <property name="toolTip">
-         <string>Number of CPU cores of the Peer</string>
-        </property>
-        <property name="text">
-         <string>CPU</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="lbl_status">
-        <property name="minimumSize">
-         <size>
-          <width>44</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>State of the Peer</string>
-        </property>
-        <property name="text">
-         <string>State</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="lbl_bridge">
-        <property name="toolTip">
-         <string>Bridged interface of the Peer</string>
-        </property>
-        <property name="text">
-         <string>Bridge</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_disk">
-        <property name="toolTip">
-         <string>Peer's disk size in GB</string>
-        </property>
-        <property name="text">
-         <string>Disk</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="2" column="2">
     <widget class="Line" name="line_2">
      <property name="orientation">
@@ -376,6 +201,181 @@
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
+    </widget>
+   </item>
+   <item row="10" column="1" colspan="3">
+    <widget class="QGroupBox" name="gr_peer_control">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="le_name"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="lbl_status">
+        <property name="minimumSize">
+         <size>
+          <width>44</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>State of the Peer</string>
+        </property>
+        <property name="text">
+         <string>State</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QPushButton" name="btn_destroy">
+        <property name="toolTip">
+         <string>Destroy the Peer from your machine</string>
+        </property>
+        <property name="text">
+         <string>Destroy</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QPushButton" name="btn_reload">
+        <property name="toolTip">
+         <string>Restart the Peer</string>
+        </property>
+        <property name="text">
+         <string>Reload</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QPushButton" name="btn_register">
+          <property name="toolTip">
+           <string>Register Peer to your Bazaar account</string>
+          </property>
+          <property name="text">
+           <string>Register to Bazaar</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_unregister">
+          <property name="toolTip">
+           <string>Unregister Peer from your Bazaar account</string>
+          </property>
+          <property name="text">
+           <string>Unregister from Bazaar</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_disk">
+        <property name="toolTip">
+         <string>Peer's disk size in GB</string>
+        </property>
+        <property name="text">
+         <string>Disk</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="lbl_cpu">
+        <property name="toolTip">
+         <string>Number of CPU cores of the Peer</string>
+        </property>
+        <property name="text">
+         <string>CPU</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="btn_start">
+          <property name="toolTip">
+           <string>Start the Peer</string>
+          </property>
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_stop">
+          <property name="toolTip">
+           <string>Shut down the Peer</string>
+          </property>
+          <property name="text">
+           <string>Stop</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="change_confugre">
+        <property name="toolTip">
+         <string>Unlock to change your Peer configurations</string>
+        </property>
+        <property name="text">
+         <string>Locked configs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="le_ram"/>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="lbl_bridge">
+        <property name="toolTip">
+         <string>Bridged interface of the Peer</string>
+        </property>
+        <property name="text">
+         <string>Bridge</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="le_disk"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="le_cpu"/>
+      </item>
+      <item row="3" column="3">
+       <widget class="QComboBox" name="cmb_bridge"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="lbl_name">
+        <property name="toolTip">
+         <string>Name of the Peer</string>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="lbl_ram">
+        <property name="toolTip">
+         <string>RAM size of the Peer in MB</string>
+        </property>
+        <property name="text">
+         <string>RAM</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="le_status">
+        <property name="text">
+         <string>Peer is running</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
