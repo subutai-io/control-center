@@ -55,15 +55,10 @@ const QString& CPeerController::status_description(const QString &status){
 
         {"poweroff", tr ("The Peer is powered off. To restart the Peer, simply press 'start'")},
 
-        {"broken", tr ("The VM for the Peer is not created yet. "
-                       "If you have started the installation process, please wait for it to finish")},
+        {"not_created", tr ("The VM for the Peer is not created yet. \n"
+                            "If you have started the installation process, please wait for it to finish")},
 
         {"not ready", tr ("Peer’s management is loading, this might take some time.")},
-
-        {"not_created", tr ("The environment has not yet been created. Run `vagrant up` to "
-                            "create the environment. If a machine is not created, only the "
-                            "default provider will be shown. So if a provider is not listed, "
-                            "then the machine is not created for that environment.")},
 
         {"inaccessible", tr ("The Peer is inaccessible! This is a rare case which means that VirtualBox "
                              "can't find your Peer configuration. This usually happens when upgrading "
@@ -257,7 +252,7 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
     if(type == 0){
         qDebug() << "Got status of "<<name<<"status:"<<output;
         GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
-        if(output == "poweroff" || output == "broken"){
+        if(output != "running"){
             qCritical()<<"not working peer"<<name;
         }
         else{

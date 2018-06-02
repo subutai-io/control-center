@@ -346,8 +346,6 @@ bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
     return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
 }
 // parse into args line of vagrant global-status
-// vagrant promises to not give space in their states,
-// however the last section directory might have commas because specifics of each os
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
                        QString &id,
@@ -363,6 +361,9 @@ void parse_status_line(QString status_line,
         seperated.erase(seperated.begin());
     }
     directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+        directory.remove(directory.size() -1 , 1);
+    }
     return;
 }
 
@@ -373,8 +374,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     QStringList args;
     QString status("not_created");
 
-    args
-        << "global-status";
+    args << "global-status";
     res = ssystem_th(cmd, args, true, true, 20000);
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return status;
@@ -382,6 +382,10 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     QString p_name, p_id, p_state, p_provider, p_dir;
     for(auto s : res.out){
         parse_status_line(s, p_id, p_name, p_provider, p_state, p_dir);
+        qDebug() << "I'm comparing two strings why they are not same"
+                 << "s1: " << p_dir
+                 << "s2: " << dir
+                 << "s1 == s2 : " << (p_dir == dir);
         if(p_dir == dir){
             return p_state;
         }
