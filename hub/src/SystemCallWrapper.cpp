@@ -2997,7 +2997,7 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-static const QString APP_AUTOSTART_KEY = "subutai-tray";
+static const QString APP_AUTOSTART_KEY = "subutai-control";
 
 template <class OS>
 bool set_application_autostart_internal(bool start);
@@ -3007,11 +3007,11 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   static const QString desktop_file_content_template =
       "[Desktop Entry]\n"
       "Type=Application\n"
-      "Name=subutai-tray\n"
+      "Name=SubutaiControlCenter\n"
       "Exec=%1\n"
       "Hidden=false\n"
       "NoDisplay=false\n"
-      "Comment=subutai software\n"
+      "Comment=Subutai Control Center Application\n"
       "X-GNOME-Autostart-enabled=true\n";
 
   QStringList lst_standard_locations =
