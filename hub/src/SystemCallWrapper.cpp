@@ -653,6 +653,30 @@ void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QSt
     }
 }
 //////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const QString &box,
+                                                                           const QString &provider,
+                                                                           QString &version){
+    qDebug() << "get the latest box version of " << box << "provider: " << provider;
+    version = "undefined";
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "box" << "list";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+    qDebug() << "current list of all boxes"
+             << res.out;
+    if (res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    QStringList box_info;
+    for (auto s : res.out){
+        s.remove(QRegExp("[(,)]"));
+        box_info = s.split(" ", QString::SkipEmptyParts);
+        if(box_info.size() < 3) continue;
+        if(box_info[0] == box && box_info[1] == provider)
+            version = box_info[2];
+    }
+}
+//////////////////////////////////////////////////////////////////////
 bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
     vagrant_version(version);

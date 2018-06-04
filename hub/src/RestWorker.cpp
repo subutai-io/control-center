@@ -628,8 +628,12 @@ QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 QNetworkReply* CRestWorker::download_file(const QUrl& url) {
-  QNetworkRequest request(url);
-  return m_network_manager->get(request);
+  QNetworkRequest req(url);
+  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+                   QNetworkRequest::AlwaysNetwork);
+  QNetworkReply* reply = m_network_manager->get(req);
+  reply->ignoreSslErrors();
+  return m_network_manager->get(req);
 }
 ////////////////////////////////////////////////////////////////////////////
 
