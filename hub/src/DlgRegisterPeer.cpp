@@ -30,9 +30,19 @@ void DlgRegisterPeer::registerPeer(){
     qInfo()
             << "Register button pressed: "
             << ip_addr;
+    ui->lbl_info->setVisible(false);
+    if (ui->lne_peername->text().isEmpty()){
+        ui->lbl_info->setVisible(true);
+        ui->lbl_info->setText(QString("<font color='red'>%1</font>").
+                                arg(tr("Peer name can't be empty")));
+        return;
+    }
 
     ui->btn_register->setEnabled(false);
     ui->btn_cancel->setEnabled(false);
+    ui->lne_password->setEnabled(false);
+    ui->lne_peername->setEnabled(false);
+    ui->lne_username->setEnabled(false);
 
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
@@ -129,6 +139,10 @@ void DlgRegisterPeer::registerPeer(){
     }
     ui->btn_cancel->setEnabled(true);
     ui->btn_register->setEnabled(true);
+    ui->lne_password->setEnabled(true);
+    ui->lne_peername->setEnabled(true);
+    ui->lne_username->setEnabled(true);
+
 }
 
 void DlgRegisterPeer::unregisterPeer(){
@@ -142,6 +156,8 @@ void DlgRegisterPeer::unregisterPeer(){
     static int err_code, http_code, network_error;
     ui->btn_cancel->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
+    ui->lne_password->setEnabled(false);
+    ui->lne_username->setEnabled(false);
 
     CRestWorker::Instance()->peer_token(ip_addr, login, password,
                                             token, err_code, http_code, network_error);
@@ -227,6 +243,8 @@ void DlgRegisterPeer::unregisterPeer(){
     }
     ui->btn_cancel->setEnabled(true);
     ui->btn_unregister->setEnabled(true);
+    ui->lne_password->setEnabled(true);
+    ui->lne_username->setEnabled(true);
 }
 
 void DlgRegisterPeer::setUnregistrationMode(){
