@@ -128,7 +128,7 @@ static QString settings_file_path() {
       }
     }
 
-    QFileInfo fi(dir_path);
+    QFileInfo fi(dir_path + QDir::separator() + settings_file);
     if (!fi.isWritable()) {
       //todo log this
       break;
