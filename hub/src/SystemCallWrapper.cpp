@@ -3051,8 +3051,17 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
     return false;  // removed or not . who cares?
   }
 
-  QString desktop_file_content = QString(desktop_file_content_template)
-                                     .arg(QApplication::applicationFilePath());
+  QString desktop_file_content, cc_path;
+
+  system_call_wrapper_error_t scr;
+  scr = CSystemCallWrapper::which("SubutaiControlCenter", cc_path);
+  desktop_file_content = QString(desktop_file_content_template)
+                                       .arg(cc_path);
+  if (scr != SCWE_SUCCESS) {
+      desktop_file_content = QString(desktop_file_content_template)
+                                           .arg(QApplication::applicationFilePath());
+  }
+
   if (!desktop_file.open(QFile::Truncate | QFile::WriteOnly)) {
     qCritical(
         "Couldn't open desktop file for write");
