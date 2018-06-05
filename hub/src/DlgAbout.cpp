@@ -65,6 +65,13 @@ QString get_vagrant_vbguest_version(){
     CSystemCallWrapper::vagrant_vbguest_version(version);
     return version;
 }
+
+QString get_subutai_box_version(){
+    QString version = "";
+    QString provider = "virtualbox", box = "subutai/stretch";
+    CSystemCallWrapper::vagrant_latest_box_version(box, provider, version);
+    return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 DlgAbout::DlgAbout(QWidget *parent) :
@@ -97,10 +104,11 @@ DlgAbout::DlgAbout(QWidget *parent) :
                     this->ui->lbl_subutai_e2e_val,
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,
+                    this->ui->lbl_subutai_box_version,
                     nullptr };
 
   for (QLabel **i = lbls; *i; ++i) {
-    (*i)->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     (*i)->setWordWrap(true);
   }
   bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
@@ -120,6 +128,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_subutai_e2e, &QPushButton::released, this, &DlgAbout::btn_e2e_update_released);
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgAbout::btn_subutai_plugin_update_released);
   connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
+  connect(ui->btn_subutai_box, &QPushButton::released, this, &DlgAbout::btn_subutai_box_update_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -220,6 +229,8 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::got_subutai_plugin_version_sl);
   connect(di, &DlgAboutInitializer::got_vbguest_plugin_version,
           this, &DlgAbout::got_vbguest_plugin_version_sl);
+  connect(di, &DlgAboutInitializer::got_subutai_box_version,
+          this, &DlgAbout::got_subutai_box_version_sl);
   connect(di, &DlgAboutInitializer::update_available,
           this, &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress,
@@ -313,6 +324,15 @@ void DlgAbout::btn_vbguest_plugin_update_released(){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_VBGUEST);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_VBGUEST);
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::btn_subutai_box_update_released(){
+    ui->btn_subutai_box->setEnabled(false);
+    if(ui->lbl_subutai_box->text() == "undefined"){
+    // to install
+        ;
+    }
+    // update
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
@@ -447,6 +467,13 @@ void DlgAbout::got_vbguest_plugin_version_sl(QString version){
     ui->lbl_vbguest_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
+void DlgAbout::got_subutai_box_version_sl(QString version){
+    if(version == "undefined")
+        ui->btn_subutai_box->setText(tr("Install Subutai box"));
+    else ui->btn_subutai_box->setText(tr("Update Subutai box"));
+    ui->lbl_subutai_box_version->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgAbout::update_available_sl(const QString& component_id, bool available) {
     if(m_dct_fpb.find(component_id) == m_dct_fpb.end()){
         return;
@@ -504,6 +531,10 @@ DlgAboutInitializer::do_initialization() {
 
     QString vbguest_plugin_versin = get_vagrant_vbguest_version();
     emit got_vbguest_plugin_version(vbguest_plugin_versin);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString subutai_box_version = get_subutai_box_version();
+    emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString uas[] = {

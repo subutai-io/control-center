@@ -677,6 +677,13 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
     }
 }
 //////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &box,
+                                                                const QString &provider,
+                                                                const QString &box_dir){
+    CNotificationObserver::Instance()->Info("Hello mazafaka", DlgNotification::N_NO_ACTION);
+    return SCWE_SUCCESS;
+}
+//////////////////////////////////////////////////////////////////////
 bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
     vagrant_version(version);
