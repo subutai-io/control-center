@@ -137,9 +137,14 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     silent_installer->init(file_dir, file_name, CC_X2GO);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentX2GO::install_finished_sl);
@@ -203,8 +208,13 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentVAGRANT::install_finished_sl);
@@ -266,9 +276,14 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     silent_installer->init(file_dir, file_name, CC_VB);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation script."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](){\
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentORACLE_VIRTUALBOX::install_finished_sl);
@@ -330,8 +345,13 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentCHROME::install_finished_sl);
