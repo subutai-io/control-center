@@ -46,32 +46,3 @@ echo "StartupNotify=true" >> $desktop_file
 
 cp $desktop_file /usr/share/applications/
 ldconfig
-
-which_res=$(which p2p)
-which_res_code=$?
-settings_file=~/.config/subutai/subutai_control.ini
-mkdir -p ~/.config/subutai/
-default_snap_files=(/snap/subutai-dev/current/bin/p2p /snap/subutai/current/bin/p2p /snap/subutai-master/current/bin/p2p /opt/subutai/bin/p2p)
-p2p_path="/opt/subutai/bin/p2p"
-
-if [ $which_res_code -eq 0 ]; then
-	p2p_path=$which_res
-else
-	for df in ${default_snap_files[@]}; do
-		if [ -e $df ]; then
-		  $df debug
-		  rc=$?
-		  if [ $rc -eq 0 ]; then
-			  p2p_path=$df
-			  break
-		  fi
-		fi
-	done
-fi
-
-if [ ! -e $settings_file ]; then
-	echo "[General]" > $settings_file
-fi
-
-echo "P2P_Path=$p2p_path" >> $settings_file
-
