@@ -160,6 +160,9 @@ public:
 
   QString get_vagrant_plugin_cloud_version(const QString& plugin_name);
 
+  QString get_vagrant_box_cloud_version(const QString& box_name,
+                                        const QString& box_provider);
+
   void check_if_ss_console_is_ready(const QString& url);
 
   void send_health_request(const QString &p2p_version,
