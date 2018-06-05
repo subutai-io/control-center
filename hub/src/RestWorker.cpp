@@ -574,6 +574,42 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
   }
   return QString("undefined");
 }
+
+QString CRestWorker::get_vagrant_box_cloud_version(const QString &box_name, const QString &box_provider){
+  QStringList parsed_name = box_name.split("/");
+  if(parsed_name.size() != 2){
+      return QString("undefined");
+  }
+  int http_code, err_code, network_error;
+  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/subutai/stretch").arg(parsed_name[0], parsed_name[1]));
+  QNetworkRequest request(url_gorjun_fi);
+  QByteArray arr = send_request(m_network_manager, request, true, http_code,
+                                err_code, network_error, QByteArray(), false);
+  QJsonDocument doc = QJsonDocument::fromJson(arr);
+
+  qDebug()
+      << "Requested box version: " << box_name
+      << "Json file: " << doc;
+
+  if (doc.isNull()) {
+    err_code = RE_NOT_JSON_DOC;
+    return QString("undefined");
+  }
+  if(doc.isObject()){
+      QJsonArray all_versions = doc["versions"].toArray();
+      for (QJsonArray::iterator it1 = all_versions.begin(); it1 != all_versions.end(); it1++){
+          QJsonObject version = it1->toObject();
+          QJsonArray providers = version["providers"].toArray();
+          for (QJsonArray::iterator it2 = providers.begin(); it2 != providers.end(); it2++ ){
+              QJsonObject provider = it2->toObject();
+              if(provider["name"].toString() == box_provider){
+                  return version["version"].toString();
+              }
+          }
+      }
+  }
+  return QString("undefined");
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::check_if_ss_console_is_ready(const QString& url) {
