@@ -207,7 +207,7 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
     silent_installer->init(file_dir, file_name, CC_VAGRANT);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
         if(!success){
             silent_installer->outputReceived(success);
         }
@@ -276,7 +276,7 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     silent_installer->init(file_dir, file_name, CC_VB);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){\
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){\
         if(!success){
             silent_installer->outputReceived(success);
         }
@@ -344,7 +344,7 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     silent_installer->init(file_dir, file_name, CC_CHROME);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
         if(!success){
             silent_installer->outputReceived(success);
         }
