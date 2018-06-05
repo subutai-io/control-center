@@ -81,9 +81,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   this->setMinimumWidth(700);
 
-  ui->gridLayout->setSizeConstraint(QLayout::SetMinimumSize);
-  ui->gridLayout_2->setSizeConstraint(QLayout::SetMinimumSize);
-  ui->gridLayout_3->setSizeConstraint(QLayout::SetMinimumSize);
+  ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
+  ui->gridLayout_2->setSizeConstraint(QLayout::SetFixedSize);
+  ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
 
 
   QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
