@@ -123,16 +123,24 @@ static QString settings_file_path() {
     QDir dir_config(dir_path);
     if (!dir_config.exists()) {
       if (!dir_config.mkdir(dir_path)) {
-        //todo log this
+        qCritical() << QString("Can't create %1 directory.").arg(dir_path);
         break;
       }
     }
 
+    QFile conf_file(dir_path + QDir::separator() + settings_file);
+
+    if (!conf_file.exists()) {
+        conf_file.open(QFile::Truncate | QFile::WriteOnly);
+        conf_file.close();
+    }
+
     QFileInfo fi(dir_path + QDir::separator() + settings_file);
     if (!fi.isWritable()) {
-      //todo log this
+      qCritical() << QString("No write access %1 file").arg(fi.absoluteFilePath());
       break;
     }
+
     return dir_path + QDir::separator() + settings_file;
   } while (false);
 
