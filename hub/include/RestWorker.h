@@ -145,9 +145,7 @@ public:
                      const QString& old_pass,
                      const QString& new_pass);
 
-  bool get_user_id(QString& user_id_str);
-
-  bool get_user_email(QString& user_email_str);
+  bool get_user_info(QString user_info_type, QString& user_info_str);
 
   void update_my_peers();
   void update_p2p_status();
