@@ -194,6 +194,10 @@ class CSystemCallWrapper {
                                                                 const QString &provider,
                                                                 QString& version);
 
+  static system_call_wrapper_error_t vagrant_add_box(const QString &box,
+                                                     const QString &provider,
+                                                     const QString &box_dir);
+
   static QStringList list_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
@@ -213,6 +217,8 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_vagrant_subutai();
 
   static system_call_wrapper_error_t install_vagrant_vbguest();
+
+  static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
 
   static void run_linux_script(QStringList args);
 

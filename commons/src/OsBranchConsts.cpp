@@ -184,7 +184,19 @@ tray_kurjun_file_name() {
   return tray_kurjun_file_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
-
+const QString& subutai_box_kurjun_package_name(const QString &provider){
+    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware.box"},
+                                                   {"parallels", "vagrant-subutai-stretch-parallels.box"},
+                                                   {"hyperv", "vagrant-subutai-stretch-hyperv.box"},
+                                                   {"libvirt", "vagrant-subutai-stretch-libvirt.box"},
+                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox.box"},
+                                                   {"undefined", "undefined"}};
+    if(box_names.find(provider) == box_names.end()){
+        return box_names["undefined"];
+    }
+    return box_names[provider];
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR> const QString& hub_post_url_temp_internal();
 
 #define hub_post_url_temp_internal_def(BT_TYPE, STRING) \
@@ -829,8 +841,8 @@ const QString& default_default_browser(){
 }
 ////////////////////////////////////////////////////////////////////////////
 const QString& subutai_e2e_id(const QString& current_browser){
-    if(current_browser == "Chrome"){
-        static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
+    static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
+    if(current_browser == "Chrome")
         return res;
-    }
+    return res;
 }
