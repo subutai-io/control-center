@@ -65,7 +65,9 @@ DlgNotification::DlgNotification(
    if (action_type == N_INSTALL_P2P ||
        action_type == N_START_P2P ||
        action_type == N_STOP_P2P ||
-       action_type == N_UPDATE_P2P) {
+       action_type == N_UPDATE_P2P ||
+       action_type == N_SETTINGS ||
+       action_type == N_ABOUT) {
        ui->chk_ignore->hide();
    }
   }
