@@ -644,8 +644,8 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success){
 }
 void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Error(tr("Google Chrome installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);}
+        CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box installation has failed."), DlgNotification::N_NO_ACTION);}
     else{
-        CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
     }
 }
