@@ -599,7 +599,7 @@ QString CRestWorker::get_vagrant_box_cloud_version(const QString &box_name, cons
     return QString("undefined");
   }
   if(doc.isObject()){
-      QJsonArray all_versions = doc["versions"].toArray();
+      QJsonArray all_versions = doc.object()["versions"].toArray();
       for (QJsonArray::iterator it1 = all_versions.begin(); it1 != all_versions.end(); it1++){
           QJsonObject version = it1->toObject();
           QJsonArray providers = version["providers"].toArray();
