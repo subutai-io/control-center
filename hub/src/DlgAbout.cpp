@@ -166,7 +166,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin, ui->btn_vbguest_plugin_update,
                                                   get_vagrant_vbguest_version};
 
-  m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {ui->lbl_subutai_box, ui->pb_subutai_box, ui->btn_subutai_box,
+  m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->btn_subutai_box,
                                               get_subutai_box_version};
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
@@ -331,7 +331,7 @@ void DlgAbout::btn_vbguest_plugin_update_released(){
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_subutai_box_update_released(){
     ui->btn_subutai_box->setEnabled(false);
-    if(ui->lbl_subutai_box->text() == "undefined"){
+    if(ui->lbl_subutai_box_version->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::SUBUTAI_BOX);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::SUBUTAI_BOX);

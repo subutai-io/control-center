@@ -129,6 +129,7 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -199,6 +200,7 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -268,6 +270,7 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -336,6 +339,7 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -585,8 +589,46 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
     return cloud_version != version;
 }
 chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
-    CNotificationObserver::Instance()->Info("salam aleikum uf uf", DlgNotification::N_NO_ACTION);
-    update_progress_sl(100,100);
+    qDebug()
+            << "Starting install new version of subutai box";
+    QString subutai_provider = "virtualbox";
+    QString file_name = subutai_box_kurjun_package_name(subutai_provider);
+    QString file_dir = download_subutai_box_path();
+    QString str_downloaded_path = file_dir + "/" + file_name;
+
+    std::vector<CGorjunFileInfo> fi =
+        CRestWorker::Instance()->get_gorjun_file_info(file_name,
+                                                      "https://cdn.subutai.io:8338/kurjun/rest/raw/info");
+    if (fi.empty()) {
+      qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
+      return CHUE_NOT_ON_KURJUN;
+    }
+    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                        str_downloaded_path,
+                                                        item->size());
+    dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(file_dir, file_name, CC_SUBUTAI_BOX);
+    connect(dm, &CDownloadFileManager::download_progress_sig,
+            [this](qint64 rec, qint64 total){
+        update_progress_sl(rec, total+(total/5));});
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
+    });
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            dm, &CDownloadFileManager::deleteLater);
+    dm->start_download();
     return CHUE_SUCCESS;
 }
 chue_t CUpdaterComponentSUBUTAI_BOX::update_internal(){

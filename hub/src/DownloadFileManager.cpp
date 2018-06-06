@@ -9,7 +9,8 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
   m_network_reply(NULL),
-  m_dst_file(NULL)
+  m_dst_file(NULL),
+  m_link("")
 {
   m_dst_file = new QFile(m_dst_file_path);
   m_dst_file->open(QIODevice::WriteOnly);
@@ -66,7 +67,7 @@ CDownloadFileManager::reply_finished() {
 void
 CDownloadFileManager::start_download() {
   if (m_network_reply != NULL) return;
-  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_id);
+  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_id, m_link);
   connect(m_network_reply, &QNetworkReply::downloadProgress,
           this, &CDownloadFileManager::download_progress);
   connect(m_network_reply, &QNetworkReply::readyRead,
@@ -80,5 +81,9 @@ void
 CDownloadFileManager::interrupt_download() {
   m_network_reply->abort();
   reply_finished();
+}
+////////////////////////////////////////////////////////////////////////////
+void CDownloadFileManager::set_link(QString val){
+    m_link = val;
 }
 ////////////////////////////////////////////////////////////////////////////
