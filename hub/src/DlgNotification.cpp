@@ -60,6 +60,16 @@ DlgNotification::DlgNotification(
    connect(ui->btn_action, &QPushButton::released,
             [action_type, this](){action_handler[action_type].call_func();this->btn_close_released();});
    ui->btn_action->setText(action_handler[action_type].btn_message);
+
+   // remove ignore checkbox on p2p action
+   if (action_type == N_INSTALL_P2P ||
+       action_type == N_START_P2P ||
+       action_type == N_STOP_P2P ||
+       action_type == N_UPDATE_P2P ||
+       action_type == N_SETTINGS ||
+       action_type == N_ABOUT) {
+       ui->chk_ignore->hide();
+   }
   }
 
   ui->lbl_icon->setAlignment(Qt::AlignCenter);
