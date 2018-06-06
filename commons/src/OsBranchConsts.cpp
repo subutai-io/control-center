@@ -184,7 +184,9 @@ tray_kurjun_file_name() {
   return tray_kurjun_file_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
-const QString& subutai_box_kurjun_package_name(const QString &provider){
+template<class BR> const QString& subutai_box_kurjun_package_name_internal(const QString& provider);
+template<>
+const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_PROD> >(const QString& provider){
     static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware.box"},
                                                    {"parallels", "vagrant-subutai-stretch-parallels.box"},
                                                    {"hyperv", "vagrant-subutai-stretch-hyperv.box"},
@@ -195,6 +197,53 @@ const QString& subutai_box_kurjun_package_name(const QString &provider){
         return box_names["undefined"];
     }
     return box_names[provider];
+}
+template<>
+const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_MASTER> >(const QString& provider){
+    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware-master.box"},
+                                                   {"parallels", "vagrant-subutai-stretch-parallels-master.box"},
+                                                   {"hyperv", "vagrant-subutai-stretch-hyperv-master.box"},
+                                                   {"libvirt", "vagrant-subutai-stretch-libvirt-master.box"},
+                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox-master.box"},
+                                                   {"undefined", "undefined"}};
+    if(box_names.find(provider) == box_names.end()){
+        return box_names["undefined"];
+    }
+    return box_names[provider];
+}
+template<>
+const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_DEV> >(const QString& provider){
+    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware.box"},
+                                                   {"parallels", "vagrant-subutai-stretch-parallels.box"},
+                                                   {"hyperv", "vagrant-subutai-stretch-hyperv.box"},
+                                                   {"libvirt", "vagrant-subutai-stretch-libvirt.box"},
+                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox.box"},
+                                                   {"undefined", "undefined"}};
+    if(box_names.find(provider) == box_names.end()){
+        return box_names["undefined"];
+    }
+    return box_names[provider];
+}
+const QString& subutai_box_kurjun_package_name(const QString& provider){
+    return subutai_box_kurjun_package_name_internal<Branch2Type<CURRENT_BRANCH> >(provider);
+}
+////////////////////////////////////////////////////////////////////////////
+template<class BR> const QString& subutai_box_name_internal();
+
+#define subutai_box_name_internal_def(BT_TYPE, STRING) \
+  template<> \
+  const QString& subutai_box_name_internal<Branch2Type<BT_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+subutai_box_name_internal_def(BT_PROD,   "subutai/stretch")
+subutai_box_name_internal_def(BT_MASTER, "subutai/stretch-master")
+subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
+
+const QString &
+subutai_box_name() {
+  return subutai_box_name_internal<Branch2Type<CURRENT_BRANCH> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class BR> const QString& hub_post_url_temp_internal();

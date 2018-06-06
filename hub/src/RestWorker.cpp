@@ -581,7 +581,7 @@ QString CRestWorker::get_vagrant_box_cloud_version(const QString &box_name, cons
       return QString("undefined");
   }
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/subutai/stretch").arg(parsed_name[0], parsed_name[1]));
+  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/%1/%2").arg(parsed_name[0], parsed_name[1]));
   QNetworkRequest request(url_gorjun_fi);
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), false);

@@ -573,7 +573,7 @@ QString CUpdaterComponentSUBUTAI_BOX::download_subutai_box_path(){
 }
 bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
     QString version;
-    QString subutai_box = "subutai/stretch";
+    QString subutai_box = subutai_box_name();
     QString subutai_provider = "virtualbox";
     system_call_wrapper_error_t res =
         CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);

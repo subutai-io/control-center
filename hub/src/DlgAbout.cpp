@@ -68,7 +68,7 @@ QString get_vagrant_vbguest_version(){
 
 QString get_subutai_box_version(){
     QString version = "";
-    QString provider = "virtualbox", box = "subutai/stretch";
+    QString provider = "virtualbox", box = subutai_box_name();
     CSystemCallWrapper::vagrant_latest_box_version(box, provider, version);
     return version;
 }
@@ -570,7 +570,6 @@ void DlgAbout::install_finished(const QString &file_id, bool success){
     if (m_dct_fpb[file_id].pf_version) {
       m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
     }
-
 }
 ////////////////////////////////////////////////////////////////////////////
 void
