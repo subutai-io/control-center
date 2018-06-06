@@ -59,6 +59,7 @@ namespace update_system {
     static const QString E2E;
     static const QString VAGRANT_SUBUTAI;
     static const QString VAGRANT_VBGUEST;
+    static const QString SUBUTAI_BOX;
 
     bool is_in_progress(){
         return m_in_progress;

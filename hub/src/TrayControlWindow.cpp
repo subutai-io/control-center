@@ -415,8 +415,7 @@ void TrayControlWindow::notification_received(
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
   if (DlgNotification::NOTIFICATIONS_COUNT > 1 &&
-      DlgNotification::NOTIFICATIONS_COUNT <
-          4) {  // shift dialog if there is more than one dialogs
+      DlgNotification::NOTIFICATIONS_COUNT < 4) {  // shift dialog if there is more than one dialogs
     shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
   }
   if (CSettingsManager::Instance().use_animations()) {

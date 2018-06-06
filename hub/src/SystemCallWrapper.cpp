@@ -662,8 +662,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
     QStringList args;
     args << "box" << "list";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    qDebug() << "current list of all boxes"
-             << res.out;
     if (res.res != SCWE_SUCCESS || res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
@@ -2148,6 +2146,16 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
     system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
     installer_is_busy.unlock();
     return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
+    installer_is_busy.lock();
+    CNotificationObserver::Instance()->Info("salam aleikym uf uf", DlgNotification::N_NO_ACTION);
+    /*QString subutai_box = "stretch";
+    QString subutai_provider = "virtualbox";
+    system_call_wrapper_error_t res = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);*/
+    installer_is_busy.unlock();
+    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){

@@ -166,6 +166,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin, ui->btn_vbguest_plugin_update,
                                                   get_vagrant_vbguest_version};
 
+  m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {ui->lbl_subutai_box, ui->pb_subutai_box, ui->btn_subutai_box,
+                                              get_subutai_box_version};
+
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
   /*currently we are not using them, but we might need them */
@@ -329,10 +332,9 @@ void DlgAbout::btn_vbguest_plugin_update_released(){
 void DlgAbout::btn_subutai_box_update_released(){
     ui->btn_subutai_box->setEnabled(false);
     if(ui->lbl_subutai_box->text() == "undefined"){
-    // to install
-        ;
+        CHubComponentsUpdater::Instance()->install(IUpdaterComponent::SUBUTAI_BOX);
     }
-    // update
+    else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::SUBUTAI_BOX);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
@@ -360,6 +362,7 @@ DlgAbout::update_available(const QString& file_id) {
 void
 DlgAbout::update_finished(const QString& file_id,
                           bool success) {
+  UNUSED_ARG(success);
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
   m_dct_fpb[file_id].btn->setEnabled(false);
   m_dct_fpb[file_id].pb->setEnabled(false);
@@ -541,7 +544,8 @@ DlgAboutInitializer::do_initialization() {
       IUpdaterComponent::P2P, IUpdaterComponent::TRAY,
       IUpdaterComponent::X2GO, IUpdaterComponent::E2E,
       IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX,
-      IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, IUpdaterComponent::VAGRANT_VBGUEST,""};
+      IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, IUpdaterComponent::VAGRANT_VBGUEST,
+      IUpdaterComponent::SUBUTAI_BOX, ""};
 
     for (int i = 0; uas[i] != ""; ++i) {
       bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
