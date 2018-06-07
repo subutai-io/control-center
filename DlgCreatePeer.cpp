@@ -29,7 +29,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
                            [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::ORACLE_VIRTUALBOX);});
     requirement vagrant(tr ("Vagrant is not ready"),
                         tr ("Checking Vagrant..."),
-                        tr ("Vagrant is not ready. You should install or update it from About"""),
+                        tr ("Vagrant is not ready. You should install or update it from About"),
                         DlgNotification::N_ABOUT,
                         [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT);});
     requirement subutai_plugin(tr ("Subutai plugin is not ready"),
