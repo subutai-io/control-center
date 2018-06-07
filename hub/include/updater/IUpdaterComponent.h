@@ -59,6 +59,7 @@ namespace update_system {
     static const QString E2E;
     static const QString VAGRANT_SUBUTAI;
     static const QString VAGRANT_VBGUEST;
+    static const QString SUBUTAI_BOX;
 
     bool is_in_progress(){
         return m_in_progress;
@@ -248,6 +249,25 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+    };
+    /**
+     * @brief The CUpdaterComponentSUBUTAI_BOX class implements IUpdaterComponent. Works with vagrant subutai box
+     */
+    class CUpdaterComponentSUBUTAI_BOX : public IUpdaterComponent {
+      // IUpdaterComponent interface
+    public:
+      CUpdaterComponentSUBUTAI_BOX();
+      virtual ~CUpdaterComponentSUBUTAI_BOX();
+
+      // IUpdaterComponent interface
+    protected:
+      virtual bool update_available_internal();
+      virtual chue_t update_internal();
+      virtual void update_post_action(bool success);
+      virtual chue_t install_internal();
+      virtual void install_post_interntal(bool success);
+    private:
+      QString download_subutai_box_path();
     };
 }
 

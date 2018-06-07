@@ -70,6 +70,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
       m_act_settings(NULL),
       m_act_balance(NULL),
       m_act_hub(NULL),
+      m_act_user_name(NULL),
       m_act_launch_Hub(NULL),
       m_act_about(NULL),
       m_act_logout(NULL),
@@ -135,6 +136,7 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_settings,
                      m_act_balance,
                      m_act_hub,
+                     m_act_user_name,
                      m_act_launch_Hub,
                      m_act_about,
                      m_act_logout,
@@ -209,6 +211,15 @@ void TrayControlWindow::create_tray_actions() {
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
+  QString user_name = "";
+  CRestWorker::Instance()->get_user_info("name", user_name);
+
+  m_act_user_name =
+      new QAction(QIcon(":/hub/User_Name-07.png"), tr(user_name.toStdString().c_str()), this);
+  connect(m_act_user_name, &QAction::triggered,
+            [] { CHubController::Instance().launch_balance_page(); });
+  m_act_user_name->setToolTip(tr("Name"));
+
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this,
           &TrayControlWindow::application_quit);
@@ -270,6 +281,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_p2p_status);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_launch_Hub);
+  m_tray_menu->addAction(m_act_user_name);
   m_tray_menu->addAction(m_act_balance);
   m_tray_menu->addSeparator();
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
@@ -401,16 +413,9 @@ void TrayControlWindow::notification_received(
            << CSettingsManager::Instance().notifications_level()
            << "Message is ignored: "
            << CSettingsManager::Instance().is_notification_ignored(msg);
-
-  static std::map<DlgNotification::NOTIFICATION_ACTION_TYPE, bool> no_ignore = {
-      std::make_pair(DlgNotification::N_START_P2P, 1),
-      std::make_pair(DlgNotification::N_INSTALL_P2P, 1),
-      std::make_pair(DlgNotification::N_STOP_P2P, 1),
-      std::make_pair(DlgNotification::N_ABOUT, 1),
-      std::make_pair(DlgNotification::N_SETTINGS, 1)};
   if (CSettingsManager::Instance().is_notification_ignored(msg) ||
       (uint32_t)level < CSettingsManager::Instance().notifications_level()) {
-    if (no_ignore[action_type] != 1) return;
+      return;
   }
   QDialog *dlg = new DlgNotification(level, msg, this, action_type);
 
@@ -422,8 +427,7 @@ void TrayControlWindow::notification_received(
   get_sys_tray_icon_coordinates_for_dialog(src_x, src_y, dst_x, dst_y,
                                            dlg->width(), dlg->height(), false);
   if (DlgNotification::NOTIFICATIONS_COUNT > 1 &&
-      DlgNotification::NOTIFICATIONS_COUNT <
-          4) {  // shift dialog if there is more than one dialogs
+      DlgNotification::NOTIFICATIONS_COUNT < 4) {  // shift dialog if there is more than one dialogs
     shift_notification_dialog_positions(src_y, dst_y, dlg->height() + 20);
   }
   if (CSettingsManager::Instance().use_animations()) {
@@ -602,6 +606,7 @@ void TrayControlWindow::update_finished(QString file_id, bool success) {
 void TrayControlWindow::launch_Hub() {
   CHubController::Instance().launch_browser(hub_site());
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 /*p2p status */

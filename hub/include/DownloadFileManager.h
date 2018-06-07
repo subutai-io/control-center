@@ -25,12 +25,14 @@ private:
   int m_expected_size;
   QNetworkReply* m_network_reply;
   QFile* m_dst_file;
+  QString m_link;
 
 public:
   CDownloadFileManager(const QString& kurjun_file_id,
                        const QString& dst_file,
                        int expected_size);
   ~CDownloadFileManager();
+  void set_link(QString val);
 
 private slots:
 

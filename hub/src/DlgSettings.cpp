@@ -219,6 +219,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
   this->setMinimumWidth(this->width());
+  this->adjustSize();
 }
 
 DlgSettings::~DlgSettings() {

@@ -355,9 +355,9 @@ bool CRestWorker::peer_set_pass(const QString &port,
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool CRestWorker::get_user_id(QString& user_id_str) {
+bool CRestWorker::get_user_info(QString user_info_type, QString& user_info_str) {
   int http_code, err_code, network_error;
-  user_id_str = "";
+  user_info_str = "";
   static const QString str_url(hub_get_url().arg("user-info"));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
@@ -369,43 +369,21 @@ bool CRestWorker::get_user_id(QString& user_id_str) {
   qDebug()
       << "Json file: " << doc;
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical("Get user id failed. URL : %s",
+    qCritical("Get user %s failed. URL : %s", user_info_type.toStdString().c_str(),
                                           str_url.toStdString().c_str());
     return false;
   }
 
   QJsonObject obj = doc.object();
-  if (obj.find("id") != obj.end())
-    user_id_str = QString("%1").arg(obj["id"].toInt());
+  if (obj.find(user_info_type) != obj.end())
+    if (user_info_type == "id")
+      user_info_str = QString("%1").arg(obj[user_info_type].toInt());
+    else
+      user_info_str = QString("%1").arg(obj[user_info_type].toString());
   return true;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CRestWorker::get_user_email(QString& user_email_str) {
-  int http_code, err_code, network_error;
-  user_email_str = "";
-  static const QString str_url(hub_get_url().arg("user-info"));
-  QUrl url_login(str_url);
-  QNetworkRequest request(url_login);
-  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, true, http_code,
-                                err_code, network_error, QByteArray(), true);
-
-  QJsonDocument doc = QJsonDocument::fromJson(arr);
-  qDebug()
-      << "Json file: " << doc;
-  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical("Get user id failed. URL : %s",
-                                          str_url.toStdString().c_str());
-    return false;
-  }
-
-  QJsonObject obj = doc.object();
-  if (obj.find("email") != obj.end())
-    user_email_str = QString("%1").arg(obj["email"].toString());
-  return true;
-}
-////////////////////////////////////////////////////////////////////////////
 void CRestWorker::update_my_peers() {
   QUrl url_env(hub_get_url().arg("my-peers"));
   QNetworkRequest req(url_env);
@@ -513,10 +491,13 @@ void CRestWorker::update_balance() {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
-    const QString& file_name) {
+    const QString& file_name, QString link) {
   static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(hub_gorjun_url().arg(str_fi));
+  if(link.isEmpty()){
+    link = hub_gorjun_url().arg(str_fi);
+  }
+  QUrl url_gorjun_fi(link);
   QUrlQuery query_gorjun_fi;
   query_gorjun_fi.addQueryItem("name", file_name);
   url_gorjun_fi.setQuery(query_gorjun_fi);
@@ -574,6 +555,42 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
   }
   return QString("undefined");
 }
+
+QString CRestWorker::get_vagrant_box_cloud_version(const QString &box_name, const QString &box_provider){
+  QStringList parsed_name = box_name.split("/");
+  if(parsed_name.size() != 2){
+      return QString("undefined");
+  }
+  int http_code, err_code, network_error;
+  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/%1/%2").arg(parsed_name[0], parsed_name[1]));
+  QNetworkRequest request(url_gorjun_fi);
+  QByteArray arr = send_request(m_network_manager, request, true, http_code,
+                                err_code, network_error, QByteArray(), false);
+  QJsonDocument doc = QJsonDocument::fromJson(arr);
+
+  qDebug()
+      << "Requested box version: " << box_name
+      << "Json file: " << doc;
+
+  if (doc.isNull()) {
+    err_code = RE_NOT_JSON_DOC;
+    return QString("undefined");
+  }
+  if(doc.isObject()){
+      QJsonArray all_versions = doc.object()["versions"].toArray();
+      for (QJsonArray::iterator it1 = all_versions.begin(); it1 != all_versions.end(); it1++){
+          QJsonObject version = it1->toObject();
+          QJsonArray providers = version["providers"].toArray();
+          for (QJsonArray::iterator it2 = providers.begin(); it2 != providers.end(); it2++ ){
+              QJsonObject provider = it2->toObject();
+              if(provider["name"].toString() == box_provider){
+                  return version["version"].toString();
+              }
+          }
+      }
+  }
+  return QString("undefined");
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void CRestWorker::check_if_ss_console_is_ready(const QString& url) {
@@ -617,9 +634,11 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id) {
+QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id, QString link) {
   static const QString str_file_url("raw/download");
-  QUrl url(hub_gorjun_url().arg(str_file_url));
+  if(link.isEmpty())
+      link = hub_gorjun_url().arg(str_file_url);
+  QUrl url(link);
   QUrlQuery query;
   query.addQueryItem("id", file_id);
   url.setQuery(query);

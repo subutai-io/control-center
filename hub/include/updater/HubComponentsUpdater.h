@@ -21,7 +21,8 @@ enum cc_component{
     CC_CHROME,
     CC_E2E,
     CC_VAGRANT_SUBUTAI,
-    CC_VAGRANT_VBGUEST
+    CC_VAGRANT_VBGUEST,
+    CC_SUBUTAI_BOX
 };
 namespace update_system {
   /**

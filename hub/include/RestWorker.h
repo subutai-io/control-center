@@ -145,9 +145,7 @@ public:
                      const QString& old_pass,
                      const QString& new_pass);
 
-  bool get_user_id(QString& user_id_str);
-
-  bool get_user_email(QString& user_email_str);
+  bool get_user_info(QString user_info_type, QString& user_info_str);
 
   void update_my_peers();
   void update_p2p_status();
@@ -155,17 +153,20 @@ public:
   void update_environments();
   void update_balance();
 
-  std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name);
+  std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name, QString link = "");
 
 
   QString get_vagrant_plugin_cloud_version(const QString& plugin_name);
+
+  QString get_vagrant_box_cloud_version(const QString& box_name,
+                                        const QString& box_provider);
 
   void check_if_ss_console_is_ready(const QString& url);
 
   void send_health_request(const QString &p2p_version,
                            const QString &p2p_status);
 
-  QNetworkReply* download_gorjun_file(const QString& file_id);
+  QNetworkReply* download_gorjun_file(const QString& file_id, QString link = "");
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);

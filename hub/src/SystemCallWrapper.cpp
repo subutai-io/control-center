@@ -662,8 +662,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
     QStringList args;
     args << "box" << "list";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    qDebug() << "current list of all boxes"
-             << res.out;
     if (res.res != SCWE_SUCCESS || res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
@@ -675,6 +673,30 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
         if(box_info[0] == box && box_info[1] == provider)
             version = box_info[2];
     }
+    return SCWE_SUCCESS;
+}
+//////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &box,
+                                                                const QString &provider,
+                                                                const QString &box_dir){
+    qDebug() << "adding vagrant box:" << box << "for provider:" << provider
+             << "box dir:" << box_dir;
+    QString cmd = CSettingsManager::Instance().vagrant_path();
+    QStringList args;
+    args << "box"
+         << "add" << box
+         << "--provider" << provider
+         << box_dir
+         << "--force";
+    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+    qDebug () << "finished addding box:" << box
+              << "result code: " << res.res
+              << "exit code: " << res.exit_code
+              << "error message: " << res.out;
+    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
+        return SCWE_CREATE_PROCESS;
+    }
+    return SCWE_SUCCESS;
 }
 //////////////////////////////////////////////////////////////////////
 bool CSystemCallWrapper::check_peer_management_components(){
@@ -2139,6 +2161,60 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
     installer_is_busy.lock();
     QString vagrant_subutai = "vagrant-vbguest";
     system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
+    installer_is_busy.unlock();
+    return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
+    installer_is_busy.lock();
+    QString subutai_box = subutai_box_name();
+    QString subutai_provider = "virtualbox";
+    system_call_wrapper_error_t res = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);
+    if(res == SCWE_SUCCESS){
+        QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+        if(lst_home.isEmpty()){
+            qCritical() << "Failed to get home directory";
+            installer_is_busy.unlock();
+            return SCWE_CREATE_PROCESS;
+        }
+        QDir boxes_path(lst_home[0] + QDir::separator() + ".vagrant.d" + QDir::separator() + "boxes");
+        if(!boxes_path.exists()){
+            qCritical() << "Vagrant is not installed correctly";
+            installer_is_busy.unlock();
+            return SCWE_CREATE_PROCESS;
+        }
+        QStringList parsed_box = subutai_box.split("/");
+        QDir new_box_path(boxes_path.absolutePath() + QDir::separator() +
+                          parsed_box[0] + "-VAGRANTSLASH-" + parsed_box[1] +
+                          QDir::separator() + "0" + QDir::separator() + subutai_provider);
+        if(!new_box_path.exists()){
+            qCritical() << "vagrant box is not correctly installed";
+            installer_is_busy.unlock();
+            return SCWE_CREATE_PROCESS;
+        }
+        QString cloud_version = CRestWorker::Instance()->get_vagrant_box_cloud_version(subutai_box, subutai_provider);
+        if(cloud_version == "undefined"){
+            qCritical() << "couldn't get box cloud version";
+            installer_is_busy.unlock();
+            return SCWE_CREATE_PROCESS;
+        }
+        QDir cloud_box_path(boxes_path.absolutePath() + QDir::separator() +
+                          parsed_box[0] + "-VAGRANTSLASH-" + parsed_box[1] +
+                          QDir::separator() + cloud_version);
+        if(!cloud_box_path.exists()){
+            if(!cloud_box_path.mkdir(cloud_box_path.absolutePath())){
+                qCritical() << "Failed to create directory for the new installed box";
+                installer_is_busy.unlock();
+                return SCWE_CREATE_PROCESS;
+            }
+        }
+        QDir move;
+        if(!move.rename(new_box_path.absolutePath(), cloud_box_path.absolutePath() + QDir::separator() + subutai_provider)){
+            qCritical() << "failed to move" << new_box_path.absolutePath()
+                        << "to" << cloud_box_path.absolutePath();
+            res = SCWE_CREATE_PROCESS;
+        }
+    }
     installer_is_busy.unlock();
     return res;
 }

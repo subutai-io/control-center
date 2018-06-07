@@ -37,6 +37,7 @@ const QString IUpdaterComponent::CHROME = "Chrome";
 const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
 const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
+const QString IUpdaterComponent::SUBUTAI_BOX = "subutai_box";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -51,7 +52,8 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {CHROME, "Google Chrome"},
     {E2E, "Subutai E2E"},
     {VAGRANT_SUBUTAI, "Subutai plugin"},
-    {VAGRANT_VBGUEST, "VirtualBox plugin"}
+    {VAGRANT_VBGUEST, "VirtualBox plugin"},
+    {SUBUTAI_BOX, "Subutai box"}
   };
   static const QString def = "";
 
@@ -72,7 +74,8 @@ IUpdaterComponent::component_id_changelog(const QString& id) {
     {CHROME, "https://chromereleases.googleblog.com/"},
     {E2E, "https://github.com/subutai-io/browser-plugins/releases/latest"},
     {VAGRANT_SUBUTAI, "https://github.com/subutai-io/vagrant/blob/master/CHANGELOG.md"},
-    {VAGRANT_VBGUEST, "https://github.com/dotless-de/vagrant-vbguest/blob/master/CHANGELOG.md"}
+    {VAGRANT_VBGUEST, "https://github.com/dotless-de/vagrant-vbguest/blob/master/CHANGELOG.md"},
+    {SUBUTAI_BOX, "https://app.vagrantup.com/subutai/boxes/stretch"}
   };
   static const QString def = "";
 
@@ -92,7 +95,8 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},
     {CHROME, DlgNotification::N_ABOUT},
     {VAGRANT_SUBUTAI, DlgNotification::N_ABOUT},
-    {VAGRANT_VBGUEST, DlgNotification::N_ABOUT}
+    {VAGRANT_VBGUEST, DlgNotification::N_ABOUT},
+    {SUBUTAI_BOX, DlgNotification::N_ABOUT}
   };
   return dct.at(id);
 }
@@ -125,6 +129,7 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -137,9 +142,14 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     silent_installer->init(file_dir, file_name, CC_X2GO);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentX2GO::install_finished_sl);
@@ -190,6 +200,7 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -202,9 +213,14 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
     silent_installer->init(file_dir, file_name, CC_VAGRANT);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentVAGRANT::install_finished_sl);
@@ -254,6 +270,7 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -266,9 +283,14 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     silent_installer->init(file_dir, file_name, CC_VB);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation script."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){\
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentORACLE_VIRTUALBOX::install_finished_sl);
@@ -317,6 +339,7 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -329,9 +352,14 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     silent_installer->init(file_dir, file_name, CC_CHROME);
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
-        silent_installer->startWork();
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentCHROME::install_finished_sl);
@@ -534,5 +562,90 @@ void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success){
     }
     else{
         CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+    }
+}
+
+//////////////////////////*SUBUTAI-BOX*///////////////////////////////////////
+
+CUpdaterComponentSUBUTAI_BOX::CUpdaterComponentSUBUTAI_BOX() {
+  m_component_id = SUBUTAI_BOX;
+}
+CUpdaterComponentSUBUTAI_BOX::~CUpdaterComponentSUBUTAI_BOX() {}
+QString CUpdaterComponentSUBUTAI_BOX::download_subutai_box_path(){
+    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
+}
+bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
+    QString version;
+    QString subutai_box = subutai_box_name();
+    QString subutai_provider = "virtualbox";
+    system_call_wrapper_error_t res =
+        CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
+    QString cloud_version =
+        CRestWorker::Instance()->get_vagrant_box_cloud_version(subutai_box, subutai_provider);
+    if (version == "undefined") return true;
+    if (res != SCWE_SUCCESS) return false;
+    if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
+    return cloud_version != version;
+}
+chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
+    qDebug()
+            << "Starting install new version of subutai box";
+    QString subutai_provider = "virtualbox";
+    QString file_name = subutai_box_kurjun_package_name(subutai_provider);
+    QString file_dir = download_subutai_box_path();
+    QString str_downloaded_path = file_dir + "/" + file_name;
+
+    std::vector<CGorjunFileInfo> fi =
+        CRestWorker::Instance()->get_gorjun_file_info(file_name,
+                                                      "https://cdn.subutai.io:8338/kurjun/rest/raw/info");
+    if (fi.empty()) {
+      qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+      install_finished_sl(false);
+      return CHUE_NOT_ON_KURJUN;
+    }
+    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                        str_downloaded_path,
+                                                        item->size());
+    dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
+    SilentInstaller *silent_installer = new SilentInstaller(this);
+    silent_installer->init(file_dir, file_name, CC_SUBUTAI_BOX);
+    connect(dm, &CDownloadFileManager::download_progress_sig,
+            [this](qint64 rec, qint64 total){
+        update_progress_sl(rec, total+(total/5));});
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+        if(!success){
+            silent_installer->outputReceived(success);
+        }
+        else{
+            CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
+            silent_installer->startWork();
+        }
+    });
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            dm, &CDownloadFileManager::deleteLater);
+    dm->start_download();
+    return CHUE_SUCCESS;
+}
+chue_t CUpdaterComponentSUBUTAI_BOX::update_internal(){
+    return install_internal();
+}
+void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success){
+    if(!success){
+        CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box failed to update"), DlgNotification::N_ABOUT);
+    }
+    else{
+        CNotificationObserver::Instance()->Info(tr("Succesfully updated Vagrant Subutai box, congratulations!"), DlgNotification::N_ABOUT);
+    }
+}
+void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success){
+    if(!success){
+        CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box installation has failed."), DlgNotification::N_NO_ACTION);}
+    else{
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
     }
 }
