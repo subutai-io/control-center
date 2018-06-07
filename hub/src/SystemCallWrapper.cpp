@@ -2208,7 +2208,12 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
                 return SCWE_CREATE_PROCESS;
             }
         }
-        res = CSystemCallWrapper::cli_move_recursive(new_box_path.absolutePath(), cloud_box_path.absolutePath());
+        QDir move;
+        if(!move.rename(new_box_path.absolutePath(), cloud_box_path.absolutePath() + QDir::separator() + subutai_provider)){
+            qCritical() << "failed to move" << new_box_path.absolutePath()
+                        << "to" << cloud_box_path.absolutePath();
+            res = SCWE_CREATE_PROCESS;
+        }
     }
     installer_is_busy.unlock();
     return res;
