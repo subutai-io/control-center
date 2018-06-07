@@ -62,10 +62,10 @@ DlgLogin::login() {
   QString email = "";
   switch (err_code) {
     case RE_SUCCESS:
-      if (CRestWorker::Instance()->get_user_id(id))
+      if (CRestWorker::Instance()->get_user_info("id", id))
         CHubController::Instance().set_current_user_id(id);
 
-      if (CRestWorker::Instance()->get_user_email(email))
+      if (CRestWorker::Instance()->get_user_info("email", email))
           CHubController::Instance().set_current_email(email);
 
       ui->lbl_status->setText("");

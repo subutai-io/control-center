@@ -112,6 +112,7 @@ private:
   QAction *m_act_settings;
   QAction *m_act_balance;
   QAction *m_act_hub;
+  QAction *m_act_user_name;
   QAction *m_act_launch;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;

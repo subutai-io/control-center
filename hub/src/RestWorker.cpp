@@ -355,9 +355,9 @@ bool CRestWorker::peer_set_pass(const QString &port,
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool CRestWorker::get_user_id(QString& user_id_str) {
+bool CRestWorker::get_user_info(QString user_info_type, QString& user_info_str) {
   int http_code, err_code, network_error;
-  user_id_str = "";
+  user_info_str = "";
   static const QString str_url(hub_get_url().arg("user-info"));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
@@ -369,43 +369,21 @@ bool CRestWorker::get_user_id(QString& user_id_str) {
   qDebug()
       << "Json file: " << doc;
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical("Get user id failed. URL : %s",
+    qCritical("Get user %s failed. URL : %s", user_info_type.toStdString().c_str(),
                                           str_url.toStdString().c_str());
     return false;
   }
 
   QJsonObject obj = doc.object();
-  if (obj.find("id") != obj.end())
-    user_id_str = QString("%1").arg(obj["id"].toInt());
+  if (obj.find(user_info_type) != obj.end())
+    if (user_info_type == "id")
+      user_info_str = QString("%1").arg(obj[user_info_type].toInt());
+    else
+      user_info_str = QString("%1").arg(obj[user_info_type].toString());
   return true;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool CRestWorker::get_user_email(QString& user_email_str) {
-  int http_code, err_code, network_error;
-  user_email_str = "";
-  static const QString str_url(hub_get_url().arg("user-info"));
-  QUrl url_login(str_url);
-  QNetworkRequest request(url_login);
-  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, true, http_code,
-                                err_code, network_error, QByteArray(), true);
-
-  QJsonDocument doc = QJsonDocument::fromJson(arr);
-  qDebug()
-      << "Json file: " << doc;
-  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical("Get user id failed. URL : %s",
-                                          str_url.toStdString().c_str());
-    return false;
-  }
-
-  QJsonObject obj = doc.object();
-  if (obj.find("email") != obj.end())
-    user_email_str = QString("%1").arg(obj["email"].toString());
-  return true;
-}
-////////////////////////////////////////////////////////////////////////////
 void CRestWorker::update_my_peers() {
   QUrl url_env(hub_get_url().arg("my-peers"));
   QNetworkRequest req(url_env);
