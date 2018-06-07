@@ -231,7 +231,10 @@ void DlgEnvironment::check_environment_status() {
       this->close();
   env = update_env;
 
-  if(!env.healthy())
+  if(env.under_modification())
+    state_all = 1;
+
+  else if(!env.healthy())
      state_all = 3;
 
   else if(TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING)

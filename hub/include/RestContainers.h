@@ -160,6 +160,7 @@ public:
   const QString& status_description() const {return m_status_descr;}
   const int& base_interface_id() const {return m_base_interface_id;}
   bool healthy() const {return m_status == QString("HEALTHY");}
+  bool under_modification() const {return m_status == QString("UNDER_MODIFICATION");}
 
   void set_base_interface_id(int base_interface_id) {
     m_base_interface_id = base_interface_id;
