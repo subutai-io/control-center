@@ -1,11 +1,21 @@
-Dim FSO, OFProgramFiles, fullpath, objshell, objSysEnv
+Dim fileSystemObject, objectShell, objectSystemEnvironment, folderToAdd, pathToAdd, variablePath
 
-Set FSO = CreateObject("Scripting.FileSystemObject")
+Set fileSystemObject = CreateObject("Scripting.FileSystemObject")
 
-Set objshell= CreateObject("Wscript.Shell")
+Set objectShell = CreateObject("Wscript.Shell")
 
-Set OFProgramFiles= FSO. GetFolder("C:\Program Files (x86)\ssh")
+Set objectSystemEnvironment = objectShell.Environment("SYSTEM")
 
-fullpath= OFProgramFiles.path
-Set objSysEnv= objshell.Environment("SYSTEM")
-objSysEnv("Path")=objSysEnv("PATH") & ";" & fullpath
+Set folderToAdd = fileSystemObject.GetFolder("C:\Program Files (x86)\ssh")
+
+pathToAdd = folderToAdd.path
+
+variablePath = objectShell.ExpandEnvironmentStrings("%Path%")
+
+If InStr(variablePath, pathToAdd) = 0 Then
+    objectSystemEnvironment("Path") = variablePath & ";" & pathToAdd
+
+    'Wscript.Echo "Added to PATH"
+Else
+    'Wscript.Echo "Already in PATH"
+End If
