@@ -217,7 +217,7 @@ void TrayControlWindow::create_tray_actions() {
   m_act_user_name =
       new QAction(QIcon(":/hub/User_Name-07.png"), tr(user_name.toStdString().c_str()), this);
   connect(m_act_user_name, &QAction::triggered,
-            [] { CHubController::Instance().launch_user_page(); });
+            [] { CHubController::Instance().launch_balance_page(); });
   m_act_user_name->setToolTip(tr("Name"));
 
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
