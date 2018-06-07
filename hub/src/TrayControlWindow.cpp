@@ -287,6 +287,7 @@ void TrayControlWindow::create_tray_icon() {
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
                                     tr("Environments"));
   m_hub_menu->setStyleSheet(qApp->styleSheet());
+  m_hub_menu->addAction(m_empty_action);
   m_hub_peer_menu =
       m_tray_menu->addMenu(QIcon(":/hub/tray.png"), tr("My Peers"));
   m_hub_peer_menu->addAction(m_empty_action);
@@ -666,33 +667,49 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   static QIcon healthy_icon(":/hub/GOOD.png");
   static QIcon modification_icon(":/hub/OK.png");
   static QString deteted_string("DELETED");
-
-  UNUSED_ARG(rr);
   static std::vector<QString> lst_checked_unhealthy_env;
-  m_hub_menu->clear();
 
   std::map<QString, std::vector<QString> > tbl_envs;
   std::map<QString, int> new_envs;
-
-  if (CHubController::Instance().lst_environments().empty()) {
-    QAction *empty_action = new QAction("Empty", this);
-    empty_action->setEnabled(false);
-    m_hub_menu->addAction(empty_action);
-    return;
-  }
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
        env != CHubController::Instance().lst_environments().cend(); ++env) {
     QString env_id = env->id();
     environments_table[env_id] = *env;
     QString env_name = env->name();
-    QAction *env_start = m_hub_menu->addAction(env->name());
+    //mark that env still exist
     new_envs[env_name] = 1;
+    //update action button, create if does not exist
+    QAction *env_start;
+    if(my_envs_button_table.find(env_id) == my_envs_button_table.end()){
+        env_start = new QAction;
+        m_hub_menu->addAction(env_start);
+        m_hub_menu->removeAction(m_empty_action);
+        connect(env_start, &QAction::triggered, [env_id, this]() {
+          if(environments_table.find(env_id) == environments_table.end()){
+            CNotificationObserver::Instance()->Error(tr("This environment credentials does not exist. "
+                                                        "Please restart Control Center to refresh menu."),
+                                                     DlgNotification::N_NO_ACTION);
+            return;
+          }
+          CEnvironment env = environments_table[env_id];
+          this->generate_env_dlg(&env);
+          TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
+                                         QString("Environment \"%1\" (%2)")
+                                             .arg(env.name())
+                                             .arg(env.status()));
+        });
+        my_envs_button_table[env_id] = env_start;
+    }
+    else{
+        env_start = my_envs_button_table[env_id];
+    }
+    env_start->setText(env_name);
     env_start->setIcon(env->status() == "HEALTHY"
                            ? healthy_icon
                            : env->status() == "UNHEALTHY" ? unhealthy_icon
                                                           : modification_icon);
-
+    //mark envs that changed their status
     std::vector<QString>::iterator iter_found =
         std::find(lst_checked_unhealthy_env.begin(),
                   lst_checked_unhealthy_env.end(), env->id());
@@ -717,15 +734,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       }
       qInfo("Environment %s is healthy", env->name().toStdString().c_str());
     }
-    connect(env_start, &QAction::triggered, [env, this]() {
-      this->generate_env_dlg(&(*env));
-      TrayControlWindow::show_dialog(TrayControlWindow::last_generated_env_dlg,
-                                     QString("Environment \"%1\" (%2)")
-                                         .arg(env->name())
-                                         .arg(env->status()));
-    });
   }
-
+// show notification about environment changed their status
   for (std::map<QString, std::vector<QString> >::iterator it = tbl_envs.begin();
        it != tbl_envs.end(); it++) {
     if (!it->second.empty()) {
@@ -742,11 +752,17 @@ void TrayControlWindow::environments_updated_sl(int rr) {
                                               DlgNotification::N_NO_ACTION);
     }
   }
-
+// mark deleted environments
   for (std::map<QString, CEnvironment>::iterator it =
            environments_table.begin();
        it != environments_table.end(); it++) {
-    if (new_envs[it->second.name()] == 0) it->second.set_status(deteted_string);
+    if (new_envs[it->second.name()] == 0){
+        it->second.set_status(deteted_string);
+        if(my_envs_button_table.find(it->second.id()) == my_envs_button_table.end()) continue;
+        m_hub_menu->removeAction(my_envs_button_table[it->second.id()]);
+        if(m_hub_menu->isEmpty())
+            m_hub_menu->addAction(m_empty_action);
+    }
   }
 }
 

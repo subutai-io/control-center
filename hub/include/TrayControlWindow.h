@@ -78,6 +78,7 @@ public:
   };
 
   std::map<QString, CEnvironment> environments_table;
+  std::map<QString, QAction*> my_envs_button_table;
   std::map<QString, CLocalPeer> machine_peers_table;
   std::map<QString, CMyPeerInfo> hub_peers_table;
   std::map<QString, std::pair<QString, bool> > network_peers_table;
