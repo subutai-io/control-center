@@ -2219,57 +2219,6 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<class OS> system_call_wrapper_error_t cli_move_recursive_internal(const QString &initial_path,
-                                                                           const QString &final_path);
-template<>
-system_call_wrapper_error_t cli_move_recursive_internal<Os2Type<OS_WIN> >(const QString &initial_path,
-                                                                              const QString &final_path){
-    qDebug() << "move " << initial_path << " to " <<final_path;
-    QString cmd = "move";
-    QStringList args;
-    args << initial_path
-         << final_path;
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-    qDebug() << "finished to " << "move " << initial_path << " to " <<final_path
-             << "result code: " << res.res
-             << "exit code: " << res.exit_code;
-    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return SCWE_SUCCESS;
-}
-template<>
-system_call_wrapper_error_t cli_move_recursive_internal<Os2Type<OS_MAC_LIN> >(const QString &initial_path,
-                                                                              const QString &final_path){
-    qDebug() << "move " << initial_path << " to " <<final_path;
-    QString cmd = "mv";
-    QStringList args;
-    args << initial_path
-         << final_path;
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-    qDebug() << "finished to " << "move " << initial_path << " to " <<final_path
-             << "result code: " << res.res
-             << "exit code: " << res.exit_code;
-    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return SCWE_SUCCESS;
-}
-template<>
-system_call_wrapper_error_t cli_move_recursive_internal<Os2Type<OS_LINUX> >(const QString &initial_path,
-                                                                              const QString &final_path){
-    return cli_move_recursive_internal<Os2Type<OS_MAC_LIN> > (initial_path, final_path);
-}
-template<>
-system_call_wrapper_error_t cli_move_recursive_internal<Os2Type<OS_MAC> >(const QString &initial_path,
-                                                                              const QString &final_path){
-    return cli_move_recursive_internal<Os2Type<OS_MAC_LIN> > (initial_path, final_path);
-}
-system_call_wrapper_error_t CSystemCallWrapper::cli_move_recursive(const QString &inital_path,
-                                                                   const QString &final_path){
-    return cli_move_recursive_internal<Os2Type<CURRENT_OS> > (inital_path, final_path);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
