@@ -70,6 +70,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
       m_act_settings(NULL),
       m_act_balance(NULL),
       m_act_hub(NULL),
+      m_act_user_name(NULL),
       m_act_launch_Hub(NULL),
       m_act_about(NULL),
       m_act_logout(NULL),
@@ -135,6 +136,7 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_settings,
                      m_act_balance,
                      m_act_hub,
+                     m_act_user_name,
                      m_act_launch_Hub,
                      m_act_about,
                      m_act_logout,
@@ -209,6 +211,15 @@ void TrayControlWindow::create_tray_actions() {
   m_act_hub =
       new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
 
+  QString user_name = "";
+  CRestWorker::Instance()->get_user_info("name", user_name);
+
+  m_act_user_name =
+      new QAction(QIcon(":/hub/User_Name-07.png"), tr(user_name.toStdString().c_str()), this);
+  connect(m_act_user_name, &QAction::triggered,
+            [] { CHubController::Instance().launch_balance_page(); });
+  m_act_user_name->setToolTip(tr("Name"));
+
   m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this,
           &TrayControlWindow::application_quit);
@@ -270,6 +281,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_p2p_status);
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_launch_Hub);
+  m_tray_menu->addAction(m_act_user_name);
   m_tray_menu->addAction(m_act_balance);
   m_tray_menu->addSeparator();
   m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
@@ -594,6 +606,7 @@ void TrayControlWindow::update_finished(QString file_id, bool success) {
 void TrayControlWindow::launch_Hub() {
   CHubController::Instance().launch_browser(hub_site());
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 /*p2p status */

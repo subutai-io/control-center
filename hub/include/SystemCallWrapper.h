@@ -220,8 +220,6 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t cli_move_recursive(const QString &inital_path, const QString &final_path);
-
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();
