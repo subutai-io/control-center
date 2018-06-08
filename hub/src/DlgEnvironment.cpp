@@ -189,6 +189,12 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
     cont_checkbox->setToolTip(tr("Environment is UNDER_MODIFICATION"));
   }
+  else
+  if (status == 4) {
+    cont_checkbox->setText(tr("FAILED"));
+    cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+    cont_checkbox->setToolTip(tr("Environment is not HEALTHY"));
+  }
   else {
     if (!cont_checkbox->text().contains("TRYING TO CONNECT") && cont_checkbox->text() != "FAILED") {
       cont_checkbox->setText(tr("TRYING TO CONNECT"));
@@ -212,12 +218,6 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
       cont_checkbox->setText(tr("FAILED"));
       cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
       cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_JOIN_SWARM));
-    }
-    else
-    if (status == 4) {
-      cont_checkbox->setText(tr("FAILED"));
-      cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
-      cont_checkbox->setToolTip(tr("Environment is not HEALTHY"));
     }
     else
     if (status == 5) {
