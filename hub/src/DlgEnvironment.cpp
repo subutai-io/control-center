@@ -172,36 +172,59 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   if(selected_conts.find(cont->id()) == selected_conts.end())
       return;
   QCheckBox *cont_checkbox = selected_conts[cont->id()];
-  if (status == 0)
-  {
+  if (status == 0) {
     cont_checkbox->setText(tr("READY"));
     cont_checkbox->setStyleSheet("QCheckBox {color : green;}");
     cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CONNECTION_SUCCESS));
   }
   else
-  if (status == 1)
-  {
+  if (status == 1) {
     cont_checkbox->setText(tr("CONNECTING"));
     cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
     cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_CONNECT_CONT));
   }
   else
-  if (status == 2){
-    cont_checkbox->setText(tr("FAILED"));
-    cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
-    cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_JOIN_SWARM));
+  if (status == 2) {
+    cont_checkbox->setText(tr("WAITING"));
+    cont_checkbox->setStyleSheet("QCheckBox {color : blue;}");
+    cont_checkbox->setToolTip(tr("Environment is UNDER_MODIFICATION"));
   }
-  else
-  if (status == 3){
+  else {
+    if (!cont_checkbox->text().contains("TRYING TO CONNECT") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("TRYING TO CONNECT"));
+      cont_checkbox->setStyleSheet("QCheckBox {color : orange;}");
+      cont_checkbox->setToolTip(tr("Trying to reconnect"));
+    }
+    else
+    if (!cont_checkbox->text().contains("TRYING TO CONNECT.") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("TRYING TO CONNECT."));
+    }
+    else
+    if (!cont_checkbox->text().contains("TRYING TO CONNECT..") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("TRYING TO CONNECT.."));
+    }
+    else
+    if (!cont_checkbox->text().contains("TRYING TO CONNECT...") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("TRYING TO CONNECT..."));
+    }
+    else
+    if (status == 3) {
+      cont_checkbox->setText(tr("FAILED"));
+      cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
+      cont_checkbox->setToolTip(P2PController::p2p_connection_status_to_str(P2PController::CANT_JOIN_SWARM));
+    }
+    else
+    if (status == 4) {
       cont_checkbox->setText(tr("FAILED"));
       cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
       cont_checkbox->setToolTip(tr("Environment is not HEALTHY"));
-  }
-  else
-  if (status == 4){
+    }
+    else
+    if (status == 5) {
       cont_checkbox->setText(tr("FAILED"));
       cont_checkbox->setStyleSheet("QCheckBox {color : red;}");
       cont_checkbox->setToolTip(tr("P2P is not running"));
+    }
   }
 }
 
@@ -209,7 +232,7 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
 
 void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
-  P2PController::P2P_CONNETION_STATUS
+  P2PController::P2P_CONNECTION_STATUS
       cont_status = P2PController::Instance().is_ready(env, *cont);
   change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
   check_buttons();
@@ -231,31 +254,28 @@ void DlgEnvironment::check_environment_status() {
       this->close();
   env = update_env;
 
-  if(env.under_modification())
-    state_all = 1;
-
-  else if(!env.healthy())
-     state_all = 3;
-
-  else if(TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING)
-        state_all = 4;
-  else{
-
-      P2PController::P2P_CONNETION_STATUS
-          swarm_status = P2PController::Instance().is_swarm_connected(env);
-
-      bool connected_to_swarm = (swarm_status == P2PController::CONNECTION_SUCCESS);
-
-      if (connected_to_swarm){
-        for (auto cont : env.containers()){
-          if(desktops_info.find(cont.id()) == desktops_info.end())
-              return;
-          desktops_info[cont.id()]->setText(QString(cont.is_desktop() ? cont.desk_env().isEmpty() ? "MATE" :  cont.desk_env()  : "No Desktop"));
-          check_container_status(&cont);
-        }
-        return;
-      }
+  if (env.status() == "UNDER_MODIFICATION")
     state_all = 2;
+  else if(!env.healthy())
+    state_all = 4;
+  else if(TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING)
+    state_all = 5;
+  else {
+    P2PController::P2P_CONNECTION_STATUS
+      swarm_status = P2PController::Instance().is_swarm_connected(env);
+
+    bool connected_to_swarm = (swarm_status == P2PController::CONNECTION_SUCCESS);
+
+    if (connected_to_swarm) {
+      for (auto cont : env.containers()) {
+        if(desktops_info.find(cont.id()) == desktops_info.end())
+          return;
+        desktops_info[cont.id()]->setText(QString(cont.is_desktop() ? cont.desk_env().isEmpty() ? "MATE" :  cont.desk_env()  : "No Desktop"));
+        check_container_status(&cont);
+      }
+      return;
+    }
+    state_all = 3;
   }
   for (auto cont : env.containers())
     change_cont_status(&cont, state_all);
@@ -268,7 +288,7 @@ void DlgEnvironment::check_buttons() {
         << "Checking which button I can press" << env.name();
     bool not_empty = false;
     bool upload = true, ssh = true, desktop =  true;
-    P2PController::P2P_CONNETION_STATUS
+    P2PController::P2P_CONNECTION_STATUS
         swarm_status = P2PController::Instance().is_swarm_connected(env);
     bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
     if(connected_to_swarm){
