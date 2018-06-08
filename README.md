@@ -56,8 +56,8 @@ make
 ```
 for **Linux**
 ```bash
-qmake SubutaiControlCenter.pro -r -spec linux-g++
-make -j
+./configure
+make
 ```
 
 for **Windows**

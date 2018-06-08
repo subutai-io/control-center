@@ -14,7 +14,7 @@ git pull
 git checkout $BRANCH
 git pull origin $BRANCH
 
-./configure --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
+./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
 #./build_linux.sh "$QTBINPATH" "$BRANCH" "$TRAYDIR" "$MAINTAINER" "$MAINTAINER_EMAIL"
 
 nproc_count="$(nproc)"
