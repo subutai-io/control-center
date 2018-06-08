@@ -91,6 +91,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
     peer_status = peer.status();
     peer_dir = peer.dir();
     peer_name = peer.name();
+    peer_update_available = peer.update_available();
     if(peer.fingerprint() != "loading" || peer.fingerprint() != "undefined")
         peer_fingerprint = peer.fingerprint();
     if(peer.ip() != "undefined" && !peer.ip().isEmpty()){
@@ -108,6 +109,11 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         ui->btn_launch_console->setEnabled(false);
         if(peer_status == "running")
             peer_status = "not ready";
+    }
+    if(peer_update_available){
+        ui->btn_update_peer->setText("Update is available");
+        ui->btn_update_peer->setEnabled(true);
+        ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
     }
     parse_yml();
 }
@@ -448,6 +454,7 @@ void DlgPeer::hidePeer(){
     ui->btn_destroy->hide();
     ui->btn_register->hide();
     ui->btn_unregister->hide();
+    ui->btn_update_peer->hide();
 
     ui->show_peer_control->toggle(); //lifehack :D
     ui->show_peer_control->toggle();

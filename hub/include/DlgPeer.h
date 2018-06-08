@@ -57,6 +57,7 @@ private:
   bool ssh_available;
   //advanced parameters
   bool advanced;
+  bool peer_update_available;
   QString peer_dir;
   QString peer_disk;
   QString peer_os;

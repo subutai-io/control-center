@@ -18,6 +18,7 @@ private:
     QString m_status;
     QString m_update;
     QString m_dir;
+    bool m_update_available;
 public:
     CLocalPeer(){
         m_name = "undefined";
@@ -26,6 +27,7 @@ public:
         m_dir = "undefined";
         m_fingerprint = "undefined";
         m_update = "old";
+        m_update_available = 0;
     }
     const QString &ip() const { return m_ip; }
     const QString &name() const { return m_name; }
@@ -33,6 +35,7 @@ public:
     const QString &status() const { return m_status; }
     const QString &dir() const { return m_dir; }
     const QString &update() const { return m_update; }
+    const bool &update_available() const { return m_update_available; }
 
     void set_ip(const QString &val){m_ip = val;}
     void set_name(const QString &val){m_name = val;}
@@ -40,6 +43,7 @@ public:
     void set_dir(const QString &val){m_dir = val;}
     void set_fingerprint(const QString &val){m_fingerprint = val;}
     void set_update(const QString &val){m_update = val;}
+    void set_update_available(const bool &val){m_update_available = val;}
 
     void operator =(const CLocalPeer &peer_second){
         this->m_name = peer_second.name();
