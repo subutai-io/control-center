@@ -673,6 +673,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
         if(box_info[0] == box && box_info[1] == provider)
             version = box_info[2];
     }
+    while(!version[version.size() - 1].isLetterOrNumber()) version.remove(version.size() -1 , 1);
     return SCWE_SUCCESS;
 }
 //////////////////////////////////////////////////////////////////////
