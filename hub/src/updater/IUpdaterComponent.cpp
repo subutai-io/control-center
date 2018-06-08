@@ -583,6 +583,8 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
         CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
     QString cloud_version =
         CRestWorker::Instance()->get_vagrant_box_cloud_version(subutai_box, subutai_provider);
+    qDebug() << "subutai box version " << version << " vs "
+             << "subutai box cloud version " << cloud_version;
     if (version == "undefined") return true;
     if (res != SCWE_SUCCESS) return false;
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
