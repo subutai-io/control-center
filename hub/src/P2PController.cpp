@@ -299,7 +299,7 @@ void P2PController::p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_inst
   m_p2p_instances = new_p2p_instances;
 }
 
-P2PController::P2P_CONNETION_STATUS
+P2PController::P2P_CONNECTION_STATUS
 P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
   if(!connector->env_connected(env.hash()))
     return CANT_JOIN_SWARM;
@@ -310,7 +310,7 @@ P2PController::is_ready(const CEnvironment&env, const CHubContainer &cont) {
     return CONNECTION_SUCCESS;
 }
 
-P2PController::P2P_CONNETION_STATUS
+P2PController::P2P_CONNECTION_STATUS
 P2PController::is_swarm_connected(const CEnvironment&env) {
   if(!connector->env_connected(env.hash()))
     return CANT_JOIN_SWARM;
@@ -318,10 +318,9 @@ P2PController::is_swarm_connected(const CEnvironment&env) {
     return CONNECTION_SUCCESS;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-QString P2PController::p2p_connection_status_to_str(P2P_CONNETION_STATUS status) {
+QString P2PController::p2p_connection_status_to_str(P2P_CONNECTION_STATUS status) {
   static QString str [] = {"Successfully connected",
                            "Can't join to swarm with environment",
                            "Handshaking with container"
@@ -330,7 +329,7 @@ QString P2PController::p2p_connection_status_to_str(P2P_CONNETION_STATUS status)
 }
 
 ssh_desktop_launch_error_t P2PController::is_ready_sdle(const CEnvironment& env, const CHubContainer& cont) {
-  P2P_CONNETION_STATUS ret = is_ready(env, cont);
+  P2P_CONNECTION_STATUS ret = is_ready(env, cont);
   static ssh_desktop_launch_error_t res[] = {
     SDLE_SUCCESS,
     SDLE_JOIN_TO_SWARM_FAILED,
