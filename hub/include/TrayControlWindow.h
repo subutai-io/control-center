@@ -179,6 +179,7 @@ private slots:
   /*hub slots*/
   void environments_updated_sl(int rr);
   void balance_updated_sl();
+  void user_name_updated_sl();
 
   /*peer management*/
   void my_peers_updated_sl();
