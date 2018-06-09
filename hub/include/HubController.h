@@ -187,6 +187,7 @@ signals:
   void environments_updated(int);
   void my_peers_updated();
   void balance_updated();
+  void user_name_updated();
 };
 
 #endif // HUBCONTROLLER_H
