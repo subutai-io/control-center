@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>477</width>
-    <height>203</height>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/resources.qrc">
-    <normaloff>:/hub/cc_icon_last.png</normaloff>:/hub/cc_icon_last.png</iconset>
+    <normaloff>:/hub/cc_icon_resized.png</normaloff>:/hub/cc_icon_resized.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
