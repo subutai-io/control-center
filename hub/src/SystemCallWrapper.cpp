@@ -2215,6 +2215,20 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
                         << "to" << cloud_box_path.absolutePath();
             res = SCWE_CREATE_PROCESS;
         }
+        QString metada_url(boxes_path.absolutePath() + QDir::separator() +
+                           parsed_box[0] + "-VAGRANTSLASH-" + parsed_box[1] + QDir::separator() + "metadata_url");
+        QFileInfo file_info(metada_url);
+        if (!file_info.exists()) {
+            QFile file(metada_url);
+            if (file.open(QIODevice::ReadWrite)) {
+              QTextStream stream(&file);
+              stream << "https://vagrantcloud.com/" << parsed_box[0] << "/" << parsed_box[1];
+            } else {
+                qCritical() << "failed to created metadata_url file:" << file_info.absoluteFilePath();
+                installer_is_busy.unlock();
+                return SCWE_CREATE_PROCESS;
+            }
+        }
     }
     installer_is_busy.unlock();
     return res;
