@@ -145,11 +145,9 @@ public:
                      const QString& old_pass,
                      const QString& new_pass);
 
-  bool peer_update_available(const QString& port);
-
   bool peer_get_info(const QString& port,
                      QString peer_info_type,
-                     QString& peer_info_str);
+                     QJsonValue& peer_info_value);
 
   bool peer_login(const QString& port,
                   const QString& username,

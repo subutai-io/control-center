@@ -180,6 +180,8 @@ class CSystemCallWrapper {
 
   static std::pair<QStringList, system_call_res_t> vagrant_update_information();
 
+  static bool vagrant_is_peer_update_available(const QString &ip);
+
   static bool check_peer_management_components();
 
   static void vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins);

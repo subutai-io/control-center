@@ -341,10 +341,9 @@ bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
 }
 
 bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
-                                QString& peer_info_str) {
+                                QJsonValue& peer_info_value) {
   // create request
   int http_code, err_code, network_error;
-  peer_info_str = "";
   const QString str_url(
       QString("https://localhost:%1/rest/v1/system/management_updates")
           .arg(port));
@@ -362,10 +361,7 @@ bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   // get value from json file
   QJsonObject obj = doc.object();
   if (obj.find(peer_info_type) != obj.end()) {
-    if (obj[peer_info_str].isString())
-      peer_info_str = QString("%1").arg(obj[peer_info_type].toString());
-    else
-      peer_info_str = QString("%1").arg(obj[peer_info_type].toInt());
+    peer_info_value = obj[peer_info_type];
     return true;
   }
   return false;

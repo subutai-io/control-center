@@ -367,6 +367,20 @@ void parse_status_line(QString status_line,
     return;
 }
 
+bool CSystemCallWrapper::vagrant_is_peer_update_available(const QString &ip){
+    qDebug()
+            <<"Trying to get update of peer: "<<ip;
+    QJsonValue update_available;
+    if (!CRestWorker::Instance()->peer_get_info(ip,
+        "isUpdatesAvailable", update_available)) {
+      return false;
+    }
+    if(update_available.isBool()){
+      return update_available.toBool();
+    }
+    return false;
+}
+
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
     system_call_res_t res;
