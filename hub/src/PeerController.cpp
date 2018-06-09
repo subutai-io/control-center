@@ -284,10 +284,22 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
                                   CSettingsManager::Instance().peer_pass(),
                                   CSettingsManager::Instance().peer_pass(name));
             thread_for_pass->startWork();
+            // get update info
+            GetPeerInfo *thread_for_update = new GetPeerInfo(this);
+            int update_type = 3;
+            thread_for_update->init(output, update_type);
+            number_threads++;
+            thread_for_update->startWork();
+            connect(thread_for_update, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+               this->parse_peer_info(type, name, dir, res);
+            });
         }
     }
     else if(type == 2){
-        qDebug() << "Got finger of "<<name<<"finger:"<<output;
+      qDebug() << "Got finger of "<<name<<"finger:"<<output;
+    }
+    else if(type == 3){
+      qDebug() << "Got update of "<<name<<"update:"<<output;
     }
     static QString undefined_string = "undefined";
     if(output.isEmpty())

@@ -30,6 +30,7 @@ public:
   void sshPeer();
   void destroyPeer();
   void reloadPeer();
+  void updatePeer();
   void parse_yml();
   bool check_configs();
   void configs();
@@ -65,12 +66,14 @@ private:
   QString peer_ram;
   QString peer_bridge;
   QString peer_status;
+  QTimer *timer_refresh_machine_peer;
 
 signals:
   void ssh_to_rh_sig(const QString&);
   void peer_deleted(const QString&);
   void peer_modified(const QString&);
   void peer_stopped(const QString&);
+  void peer_update_peeros(const QString&);
 private slots:
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libbssh_exit_code);
   void registerPeer();

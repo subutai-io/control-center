@@ -91,7 +91,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
     peer_status = peer.status();
     peer_dir = peer.dir();
     peer_name = peer.name();
-    peer_update_available = peer.update_available();
+    peer_update_available = peer.update_available() == "true" ? true : false;
     if(peer.fingerprint() != "loading" || peer.fingerprint() != "undefined")
         peer_fingerprint = peer.fingerprint();
     if(peer.ip() != "undefined" && !peer.ip().isEmpty()){
@@ -115,6 +115,24 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         ui->btn_update_peer->setEnabled(true);
         ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
     }
+    timer_refresh_machine_peer = new QTimer(this);
+    timer_refresh_machine_peer->setInterval(7000);
+    connect(timer_refresh_machine_peer, &QTimer::timeout, this, [this](){
+      std::map<QString, CLocalPeer> local_peers = TrayControlWindow::Instance()->machine_peers_table;
+      auto it_peer = local_peers.find(this->peer_name);
+      if(it_peer == local_peers.end()){
+        this->close();
+        return;
+      }
+      CLocalPeer peer = it_peer->second;
+      this->peer_update_available = peer.update_available() == "true" ? true : false;
+      if(peer_update_available){
+          ui->btn_update_peer->setText("Update is available");
+          ui->btn_update_peer->setEnabled(true);
+          ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
+      }
+    });
+    timer_refresh_machine_peer->start();
     parse_yml();
 }
 
@@ -256,6 +274,7 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         connect(ui->btn_reload, &QPushButton::clicked, [this](){this->reloadPeer();});
         connect(ui->btn_register, &QPushButton::clicked, this, &DlgPeer::registerPeer);
         connect(ui->btn_unregister, &QPushButton::clicked, this, &DlgPeer::unregisterPeer);
+        connect(ui->btn_update_peer, &QPushButton::clicked, this, &DlgPeer::updatePeer);
         connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked){
             ui->le_cpu->setReadOnly(!checked);
             ui->le_ram->setReadOnly(!checked);
@@ -607,6 +626,10 @@ void DlgPeer::reloadPeer(){
     });
 }
 
+void DlgPeer::updatePeer(){
+  emit this->peer_update_peeros(peer_name);
+}
+
 void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs){
     if (!envs.empty()) {
       for (CMyPeerInfo::env_info env : envs) {
@@ -642,5 +665,6 @@ void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs)
 DlgPeer::~DlgPeer()
 {
   qDebug() << "Deleting DlgPeer";
+  timer_refresh_machine_peer->deleteLater();
   delete ui;
 }

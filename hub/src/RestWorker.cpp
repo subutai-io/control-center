@@ -344,9 +344,7 @@ bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
                                 QJsonValue& peer_info_value) {
   // create request
   int http_code, err_code, network_error;
-  const QString str_url(
-      QString("https://localhost:%1/rest/v1/system/management_updates")
-          .arg(port));
+  const QString str_url(QString("https://localhost:%1/rest/v1/system/management_updates").arg(port));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");

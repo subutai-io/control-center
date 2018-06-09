@@ -895,10 +895,12 @@ void TrayControlWindow::got_peer_info_sl(int type, QString name, QString dir,
       }
       updater_peer.set_fingerprint(output);
       break;
+    case 3:
+      updater_peer.set_update_available(output);
+      break;
     default:
       break;
   }
-
   machine_peers_table[name] = updater_peer;
   if (!CSettingsManager::Instance()
            .peer_finger(updater_peer.name())
@@ -959,6 +961,11 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name) {
   }
   CPeerController::Instance()->finish_current_update();
 }
+
+void TrayControlWindow::peer_update_peeros_sl(const QString &peer_name) {
+  CNotificationObserver::Instance()->Info("hello mazafaka", DlgNotification::N_NO_ACTION);
+}
+
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CLocalPeer &peer_info) {
   qDebug() << "update peer button information wih local peer";
@@ -1490,10 +1497,8 @@ void TrayControlWindow::generate_peer_dlg(
   dlg_peer->addPeer(peer, local_peer, lp);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this,
           &TrayControlWindow::ssh_to_rh_triggered);
-  connect(dlg_peer, &DlgPeer::peer_deleted, this,
-          &TrayControlWindow::peer_deleted_sl);
-  connect(dlg_peer, &DlgPeer::peer_modified, this,
-          &TrayControlWindow::peer_under_modification_sl);
+  connect(dlg_peer, &DlgPeer::peer_update_peeros, this,
+          &TrayControlWindow::peer_update_peeros_sl);
   m_last_generated_peer_dlg = dlg_peer;
 }
 

@@ -178,9 +178,12 @@ class CSystemCallWrapper {
 
   static QString vagrant_port(const QString &dir);
 
+  static void vagrant_update_peeros(const QString &port);
+
+  static QString vagrant_is_peer_update_available(const QString &ip);
+
   static std::pair<QStringList, system_call_res_t> vagrant_update_information();
 
-  static bool vagrant_is_peer_update_available(const QString &ip);
 
   static bool check_peer_management_components();
 

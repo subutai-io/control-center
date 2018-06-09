@@ -18,7 +18,7 @@ private:
     QString m_status;
     QString m_update;
     QString m_dir;
-    bool m_update_available;
+    QString m_update_available;
 public:
     CLocalPeer(){
         m_name = "undefined";
@@ -27,7 +27,7 @@ public:
         m_dir = "undefined";
         m_fingerprint = "undefined";
         m_update = "old";
-        m_update_available = 0;
+        m_update_available = "false";
     }
     const QString &ip() const { return m_ip; }
     const QString &name() const { return m_name; }
@@ -35,7 +35,7 @@ public:
     const QString &status() const { return m_status; }
     const QString &dir() const { return m_dir; }
     const QString &update() const { return m_update; }
-    const bool &update_available() const { return m_update_available; }
+    const QString &update_available() const { return m_update_available; }
 
     void set_ip(const QString &val){m_ip = val;}
     void set_name(const QString &val){m_name = val;}
@@ -43,7 +43,7 @@ public:
     void set_dir(const QString &val){m_dir = val;}
     void set_fingerprint(const QString &val){m_fingerprint = val;}
     void set_update(const QString &val){m_update = val;}
-    void set_update_available(const bool &val){m_update_available = val;}
+    void set_update_available(const QString &val){m_update_available = val;}
 
     void operator =(const CLocalPeer &peer_second){
         this->m_name = peer_second.name();
@@ -52,6 +52,7 @@ public:
         this->m_fingerprint = peer_second.fingerprint();
         this->m_status = peer_second.status();
         this->m_update = peer_second.update();
+        this->m_update_available = peer_second.update_available();
     }
 
 };
@@ -152,15 +153,18 @@ public:
             = new QFutureWatcher<QString>(this);
         QFuture<QString> res;
         switch (action) {
-        case 0:
-            res = QtConcurrent::run(CSystemCallWrapper::vagrant_status, arg);
-            break;
-        case 1:
-            res = QtConcurrent::run(CSystemCallWrapper::vagrant_port, arg);
-            break;
-        case 2:
-            res = QtConcurrent::run(CSystemCallWrapper::vagrant_fingerprint, arg);
-            break;
+          case 0:
+              res = QtConcurrent::run(CSystemCallWrapper::vagrant_status, arg);
+              break;
+          case 1:
+              res = QtConcurrent::run(CSystemCallWrapper::vagrant_port, arg);
+              break;
+          case 2:
+              res = QtConcurrent::run(CSystemCallWrapper::vagrant_fingerprint, arg);
+              break;
+          case 3:
+              res = QtConcurrent::run(CSystemCallWrapper::vagrant_is_peer_update_available, arg);
+              break;
         }
         watcher->setFuture(res);
         int lala = action;
@@ -407,4 +411,42 @@ signals:
     void outputReceived(std::pair<QStringList, system_call_res_t> res);
 };
 
+//updates rh and management of peer
+class UpdatePeerOS : public QObject{
+  Q_OBJECT
+public:
+  UpdatePeerOS(QObject *parent = nullptr) : QObject(parent){}
+  void startWork(){
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &UpdatePeerOS::execute_remote_command);
+    connect(this, &UpdatePeerOS::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &UpdatePeerOS::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+  void init(const QString &finger, const QString &port){
+    peer_finger = finger;
+    peer_port = port;
+  }
+  void execute_remote_command() {
+    QFutureWatcher<std::pair<QStringList, system_call_res_t> > *watcher
+        = new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
+    QFuture<std::pair<QStringList, system_call_res_t> >  res =
+        QtConcurrent::run(CSystemCallWrapper::vagrant_update_information);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished, [this, res](){
+      emit this->outputReceived(res);
+    });
+  }
+private:
+  QString peer_finger;
+  QString peer_port;
+signals:
+    void outputReceived(std::pair<QStringList, system_call_res_t> res);
+};
 #endif
