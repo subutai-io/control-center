@@ -665,6 +665,7 @@ void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs)
 DlgPeer::~DlgPeer()
 {
   qDebug() << "Deleting DlgPeer";
-  timer_refresh_machine_peer->deleteLater();
+  if (advanced && timer_refresh_machine_peer != nullptr)
+    timer_refresh_machine_peer->deleteLater();
   delete ui;
 }
