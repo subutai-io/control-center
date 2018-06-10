@@ -100,6 +100,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
           &CHubController::desktop_to_container_from_tray_finished, this,
           &TrayControlWindow::desktop_to_container_finished);
 
+  connect(&CHubController::Instance(), &CHubController::user_name_updated, this,
+          &TrayControlWindow::user_name_updated_sl);
   connect(&CHubController::Instance(), &CHubController::balance_updated, this,
           &TrayControlWindow::balance_updated_sl);
   connect(&CHubController::Instance(), &CHubController::environments_updated,
@@ -215,7 +217,7 @@ void TrayControlWindow::create_tray_actions() {
   CRestWorker::Instance()->get_user_info("name", user_name);
 
   m_act_user_name =
-      new QAction(QIcon(":/hub/User_Name-07.png"), tr(user_name.toStdString().c_str()), this);
+      new QAction(QIcon(":/hub/User_Name-07.png"), user_name.toStdString().c_str(), this);
   connect(m_act_user_name, &QAction::triggered,
             [] { CHubController::Instance().launch_balance_page(); });
   m_act_user_name->setToolTip(tr("Name"));
@@ -490,6 +492,7 @@ void TrayControlWindow::logout() {
 
 void TrayControlWindow::login_success() {
   CHubController::Instance().force_refresh();
+  emit user_name_updated_sl();
   m_sys_tray_icon->show();
 }
 
@@ -652,6 +655,14 @@ void TrayControlWindow::launch_p2p_installation() {
 }
 
 //////////////////////////////////////
+
+void TrayControlWindow::user_name_updated_sl() {
+  QString user_name = "";
+  CRestWorker::Instance()->get_user_info("name", user_name);
+  m_act_user_name->setText(user_name);
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::balance_updated_sl() {
   m_act_balance->setText(CHubController::Instance().balance());

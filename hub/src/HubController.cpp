@@ -247,6 +247,7 @@ void CHubController::logout() {
   m_balance = undefined_balance;
   emit environments_updated(RER_SUCCESS);
   emit balance_updated();
+  emit user_name_updated();
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -154,7 +154,7 @@ class P2PController : public QObject
   Q_OBJECT
 
 public:
-  enum P2P_CONNETION_STATUS{
+  enum P2P_CONNECTION_STATUS{
     CONNECTION_SUCCESS = 0,
     CANT_JOIN_SWARM,
     CANT_CONNECT_CONT,
@@ -170,9 +170,10 @@ public:
 
   void init(){/* need to call constructor */}
 
-  P2P_CONNETION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
-  P2P_CONNETION_STATUS is_swarm_connected(const CEnvironment&env);
-  static QString p2p_connection_status_to_str(P2P_CONNETION_STATUS status);
+  P2P_CONNECTION_STATUS is_ready(const CEnvironment&env, const CHubContainer &cont);
+  P2P_CONNECTION_STATUS is_swarm_connected(const CEnvironment&env);
+  P2P_CONNECTION_STATUS cont_status(const CEnvironment&env, const CHubContainer &cont);
+  static QString p2p_connection_status_to_str(P2P_CONNECTION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
   const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
 
@@ -202,7 +203,7 @@ public:
         return instance;
     }
     void update_status();
-     enum P2P_STATUS{
+    enum P2P_STATUS{
           P2P_READY = 0,
           P2P_RUNNING,
           P2P_FAIL,
