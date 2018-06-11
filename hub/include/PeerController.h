@@ -43,7 +43,17 @@ public:
     void set_dir(const QString &val){m_dir = val;}
     void set_fingerprint(const QString &val){m_fingerprint = val;}
     void set_update(const QString &val){m_update = val;}
-    void set_update_available(const QString &val){m_update_available = val;}
+    void set_update_available(const QString &val){
+      if (m_update_available == "updating") {
+        if (val == "finished") {
+          m_update_available = "false";
+        } else {
+          return;
+        }
+      } else {
+        m_update_available = val;
+      }
+    }
 
     void operator =(const CLocalPeer &peer_second){
         this->m_name = peer_second.name();
@@ -429,24 +439,24 @@ public:
     this->moveToThread(thread);
     thread->start();
   }
-  void init(const QString &finger, const QString &port){
-    peer_finger = finger;
-    peer_port = port;
+  void init(const QString name, const QString port){
+    m_peer_name = name;
+    m_peer_port = port;
   }
   void execute_remote_command() {
-    QFutureWatcher<std::pair<QStringList, system_call_res_t> > *watcher
-        = new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
-    QFuture<std::pair<QStringList, system_call_res_t> >  res =
-        QtConcurrent::run(CSystemCallWrapper::vagrant_update_information);
+    QFutureWatcher <system_call_wrapper_error_t > *watcher
+        = new QFutureWatcher <system_call_wrapper_error_t>(this);
+    QFuture <system_call_wrapper_error_t>  res =
+        QtConcurrent::run(CSystemCallWrapper::vagrant_update_peeros, m_peer_port, m_peer_name);
     watcher->setFuture(res);
-    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished, [this, res](){
+    connect(watcher, &QFutureWatcher <system_call_wrapper_error_t>::finished, [this, res](){
       emit this->outputReceived(res);
     });
   }
 private:
-  QString peer_finger;
-  QString peer_port;
+  QString m_peer_name;
+  QString m_peer_port;
 signals:
-    void outputReceived(std::pair<QStringList, system_call_res_t> res);
+    void outputReceived(system_call_wrapper_error_t res);
 };
 #endif

@@ -381,8 +381,9 @@ QString CSystemCallWrapper::vagrant_is_peer_update_available(const QString &ip){
     return QString("false");
 }
 
-void CSystemCallWrapper::vagrant_update_peeros(const QString &port){
-  CNotificationObserver::Instance()->Info("hello mazafaka", DlgNotification::N_NO_ACTION);
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
+  CNotificationObserver::Instance()->Info(QString("heelo %1").arg(peer_name), DlgNotification::N_NO_ACTION);
+  return SCWE_SUCCESS;
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){

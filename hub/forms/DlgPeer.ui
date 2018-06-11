@@ -397,7 +397,7 @@
          <string>No updates for PeerOS</string>
         </property>
         <property name="text">
-         <string>No updates avaialble</string>
+         <string>No updates available</string>
         </property>
        </widget>
       </item>

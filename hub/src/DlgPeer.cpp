@@ -111,9 +111,13 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
             peer_status = "not ready";
     }
     if(peer_update_available){
-        ui->btn_update_peer->setText("Update is available");
+        ui->btn_update_peer->setText(tr("Update is available"));
         ui->btn_update_peer->setEnabled(true);
         ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
+    } else {
+      if (peer.update_available() == "false"){
+
+      }
     }
     timer_refresh_machine_peer = new QTimer(this);
     timer_refresh_machine_peer->setInterval(7000);
@@ -627,7 +631,7 @@ void DlgPeer::reloadPeer(){
 }
 
 void DlgPeer::updatePeer(){
-  emit this->peer_update_peeros(peer_name);
+  emit this->peer_update_peeros(peer_fingerprint);
 }
 
 void DlgPeer::update_environments(const std::vector<CMyPeerInfo::env_info> envs){
