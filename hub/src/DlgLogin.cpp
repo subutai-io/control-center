@@ -77,7 +77,7 @@ DlgLogin::login() {
     case RE_LOGIN_OR_EMAIL:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>%1</font>").
-                              arg(tr("Wrong login or password. Try again")));
+                              arg(tr("Wrong username or password. Log in with your correct credentials.")));
       break;
     case RE_HTTP:
       ui->lbl_status->setVisible(true);
@@ -87,7 +87,7 @@ DlgLogin::login() {
     case RE_TIMEOUT:
       ui->lbl_status->setVisible(true);
       ui->lbl_status->setText(QString("<font color='red'>%1</font>").
-                              arg(tr("Timeout. Check the internet connection")));
+                              arg(tr("The session has timed out. Check your Internet connection, and then try again.")));
       break;
     case RE_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);

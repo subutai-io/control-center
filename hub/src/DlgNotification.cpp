@@ -39,7 +39,7 @@ DlgNotification::DlgNotification(
       int rse_err;
       CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STOPPED_P2P);
       if (rse_err == 0)
-          CNotificationObserver::Instance()->Info(tr("Trying to launch P2P, wait 15 seconds"), DlgNotification::N_NO_ACTION);
+          CNotificationObserver::Instance()->Info(tr("Please wait while P2P Daemon is being launched."), DlgNotification::N_NO_ACTION);
       else
           CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
                                                "Either change the path setting in Settings or install the daemon if it is not installed. "

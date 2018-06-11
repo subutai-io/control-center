@@ -704,12 +704,13 @@ bool CSystemCallWrapper::check_peer_management_components(){
     QString version;
     vagrant_version(version);
     if(version == "undefined"){
-        CNotificationObserver::Error(QObject::tr("Before using vagrant install it please"), DlgNotification::N_ABOUT);
+        CNotificationObserver::Error(QObject::tr("Cannot create a peer without Vagrant installed in your system. "
+                                                 "To install, go to the menu > About."), DlgNotification::N_ABOUT);
         return false;
     }
     oracle_virtualbox_version(version);
     if(version == "undefined"){
-        CNotificationObserver::Error(QObject::tr("You need at least one hypervisor installed to control peers"), DlgNotification::N_ABOUT);
+        CNotificationObserver::Error(QObject::tr("You must have at least one hypervisor installed, to control peers."), DlgNotification::N_ABOUT);
         return false;
     }
     std::vector<std::pair<QString, QString> >plugins;
@@ -718,7 +719,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
     for (auto  plugin : required_plugin){
         if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
             return plugin == installed_plugin.first;}) == plugins.end()){
-            CNotificationObserver::Info(QObject::tr("Installing missing vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Info(QObject::tr("Installing the vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
             vagrant_plugin_install(plugin);
         }
     }
@@ -797,7 +798,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     system_call_wrapper_error_t scr =
         CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -806,7 +807,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find sh command");
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -815,7 +816,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     QString systemctl_path;
     scr = CSystemCallWrapper::which("systemctl", systemctl_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't find systemctl");
+      QString err_msg = QObject::tr("Unable to find systemctl command. Make sure that the command exists on your system or reinstall Linux.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
@@ -827,7 +828,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       QStringList lst_temp =
           QStandardPaths::standardLocations(QStandardPaths::TempLocation);
       if (lst_temp.empty()) {
-        QString err_msg = QObject::tr("Couldn't get standard temporary location");
+        QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
         qCritical() << err_msg;
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
         break;
@@ -838,7 +839,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       qDebug() << tmpFilePath;
       QFile tmpFile(tmpFilePath);
       if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-        QString err_msg = QObject::tr("Couldn't create reload script temp file. %1")
+        QString err_msg = QObject::tr("Cannot create the reload script temporary file: %1. Try again after restarting the Control Center.")
                           .arg(tmpFile.errorString());
         qCritical() << err_msg;
         CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -865,7 +866,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
               break;
       }
       if (tmpFile.write(restart_script) != restart_script.size()) {
-        QString err_msg = QObject::tr("Couldn't write restart script to temp file")
+        QString err_msg = QObject::tr("Cannot write the restart script to the temporary file. Try again after restarting the Control Center.")
                                  .arg(tmpFile.errorString());
         qCritical() << err_msg;
         break;
@@ -878,7 +879,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
                   QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                   QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                   QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-        QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+        QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
         break;
@@ -893,7 +894,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
       cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 60000);
       tmpFile.remove();
       if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't reload p2p.service. ec = %1, err = %2")
+        QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
                                  .arg(cr.exit_code)
                                  .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
         qCritical() << err_msg;
@@ -1307,7 +1308,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1316,7 +1317,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -1325,7 +1326,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1338,7 +1339,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1352,7 +1353,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1367,7 +1368,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
                 QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1442,7 +1443,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1451,7 +1452,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -1460,7 +1461,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1473,7 +1474,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1487,7 +1488,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1575,7 +1576,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1584,7 +1585,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -1593,7 +1594,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1606,7 +1607,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1628,7 +1629,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1643,7 +1644,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
                 QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1664,7 +1665,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
             <<"output:"<<cr2.out;
     tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+      QString err_msg = QObject::tr("Couldn't install vagrant err = %1")
                                .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
       qCritical() << err_msg;
       return SCWE_CREATE_PROCESS;
@@ -1763,7 +1764,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1772,7 +1773,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -1781,7 +1782,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1794,7 +1795,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1823,7 +1824,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1838,7 +1839,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
                 QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1893,7 +1894,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -1902,7 +1903,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -1911,7 +1912,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1924,7 +1925,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1946,7 +1947,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -1961,7 +1962,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
                 QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -1982,7 +1983,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
             <<"output:"<<cr2.out;
     tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't install vagrant err = %1")
+      QString err_msg = QObject::tr("Couldn't install vagrant err = %1")
                                .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
       qCritical() << err_msg;
       return SCWE_CREATE_PROCESS;
@@ -2029,7 +2030,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_LINUX> >(){
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -2106,7 +2107,7 @@ system_call_wrapper_error_t install_e2e_chrome_internal<Os2Type<OS_MAC> >(){
     QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
 
     if (home_path.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard home location");
+      QString err_msg = QObject::tr("Couldn't get standard home location");
       qCritical() << err_msg;
       return SCWE_CREATE_PROCESS;
     }
@@ -2238,7 +2239,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr ("Couldn't find pkexec command");
+      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       return SCWE_WHICH_CALL_FAILED;
@@ -2247,7 +2248,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     QString sh_path;
     scr = CSystemCallWrapper::which("sh", sh_path);
     if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr ("Couldn't find sh command");
+        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
         qCritical() << err_msg;
         CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
         return SCWE_WHICH_CALL_FAILED;
@@ -2256,7 +2257,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
     if (lst_temp.empty()) {
-      QString err_msg = QObject::tr ("Couldn't get standard temporary location");
+      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -2269,7 +2270,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
 
     QFile tmpFile(tmpFilePath);
     if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr ("Couldn't create install script temp file. %1")
+      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                         .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -2282,7 +2283,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr ("Couldn't write install script to temp file")
+      QString err_msg = QObject::tr("Couldn't write install script to temp file")
                                .arg(tmpFile.errorString());
       qCritical() << err_msg;
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
@@ -2297,7 +2298,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
                 QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
                 QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
                 QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr ("Couldn't set exe permission to reload script file");
+      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
@@ -2851,7 +2852,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
      */
     CSystemCallWrapper::chrome_version(version);
     if(version == "undefined"){
-        version = QObject::tr("No supported browser is available");
+        version = QObject::tr("No supported browser is available in your system. You can install Google Chrome by going to the menu > About.");
         return SCWE_SUCCESS;
     }
     version = "undefined";
@@ -3135,7 +3136,8 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Error(QObject::tr("Unable to get the home directory. Make sure that you "
+                                             "have the required Administrative privileges."), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -3145,7 +3147,8 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   if (!dir.mkpath(directory_path)) {
     qCritical(
         "Couldn't create autostart directory");
-    CNotificationObserver::Error(QObject::tr("Couldn't create autostart directory, sorry"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Error(QObject::tr("Cannot create the autostart directory. Make sure that you "
+                                             "have the required Administrative privileges."), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -3160,7 +3163,8 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
     qCritical(
         "Couldn't delete file : %s",
         desktop_file.errorString().toStdString().c_str());
-    CNotificationObserver::Error(QObject::tr("Couldn't delete %1. %2")
+    CNotificationObserver::Error(QObject::tr("An error has occurred while deleting file %1. Review the error details to "
+                                             "fix the issue or try to delete the file manually. Details: %2")
                                      .arg(desktop_file_path)
                                      .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;  // removed or not . who cares?
@@ -3181,7 +3185,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
     qCritical(
         "Couldn't open desktop file for write");
     CNotificationObserver::Error(
-        QObject::tr("Couldn't create autostart desktop file. Error : %1")
+        QObject::tr("An error has occurred while creating the autostart desktop file: %1. Make sure that you have the required Administrative privileges.")
             .arg(desktop_file.errorString()), DlgNotification::N_NO_ACTION);
     return false;
   }
@@ -3214,7 +3218,8 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   if (lst_standard_locations.empty()) {
     qCritical(
         "Couldn't get standard locations. HOME");
-    CNotificationObserver::Error(QObject::tr("Couldn't get home directory, sorry"), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Error(QObject::tr("Unable to get the home directory. Make sure that you have "
+                                             "the required Administrative privileges."), DlgNotification::N_NO_ACTION);
     return false;
   }
 
@@ -3265,7 +3270,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
     if (item_file.write(content) != content.size()) {
       qCritical(
           "Didn't write whole content to plist file");
-      CNotificationObserver::Error(QObject::tr("Write plist file error"),  DlgNotification::N_NO_ACTION);
+      CNotificationObserver::Error(QObject::tr("An error has occured while writing to plist."),  DlgNotification::N_NO_ACTION);
       item_file.close();
       return false;
     }
@@ -3301,7 +3306,8 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
     if (cr != ERROR_SUCCESS || !rkey_run) {
       qCritical(
           "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
-      CNotificationObserver::Error(QObject::tr("Couldn't create registry key, sorry"),  DlgNotification::N_NO_ACTION);
+      CNotificationObserver::Error(QObject::tr("An error has occurred while creating the registry key. "
+                                               "Make sure that you have installed the Control Center correctly."),  DlgNotification::N_NO_ACTION);
       result = false;
       break;
     }
@@ -3323,7 +3329,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
       if (cr != ERROR_SUCCESS) {
         qCritical("RegSetKeyValue err : %d, %d", cr,
                                               GetLastError());
-        CNotificationObserver::Error(QObject::tr("Couldn't add program to autorun."),  DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(QObject::tr("An error has occurred while adding the program to autorun."),  DlgNotification::N_NO_ACTION);
         result = false;
         break;
       }
