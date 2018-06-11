@@ -773,6 +773,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         m_hub_menu->removeAction(my_envs_button_table[it->second.id()]);
         if(m_hub_menu->isEmpty())
             m_hub_menu->addAction(m_empty_action);
+        my_envs_button_table.erase(my_envs_button_table.find(it->second.id()));
     }
   }
 }
@@ -1406,10 +1407,6 @@ void TrayControlWindow::show_create_dialog() {
   CSystemCallWrapper::oracle_virtualbox_version(vb_version);
   CSystemCallWrapper::vagrant_version(vg_version);
   QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
-  if(bridged_ifs.size() == 0){
-      CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
-      return;
-  }
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
         tr("Install Vagrant to create Peers"), DlgNotification::N_ABOUT);
@@ -1420,6 +1417,10 @@ void TrayControlWindow::show_create_dialog() {
         tr("You don't have any hypervisor for Vagrant"),
         DlgNotification::N_ABOUT);
     return;
+  }
+  if(bridged_ifs.size() == 0){
+      CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
+      return;
   }
   show_dialog(create_create_peer_dialog, tr("Create Peer"));
 }

@@ -375,11 +375,12 @@ bool CRestWorker::get_user_info(QString user_info_type, QString& user_info_str) 
   }
 
   QJsonObject obj = doc.object();
-  if (obj.find(user_info_type) != obj.end())
+  if (obj.find(user_info_type) != obj.end()){
     if (user_info_type == "id")
       user_info_str = QString("%1").arg(obj[user_info_type].toInt());
     else
       user_info_str = QString("%1").arg(obj[user_info_type].toString());
+  }
   return true;
 }
 ////////////////////////////////////////////////////////////////////////////
