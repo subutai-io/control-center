@@ -3502,8 +3502,10 @@ QStringList CSystemCallWrapper::lsb_release(){
 }
 ////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
-    while(m_proc_table[(m_hash_counter) % 1000] != nullptr) { m_hash_counter++; }
-    return m_hash_counter;
+  while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
+    m_hash_counter++; m_hash_counter %= 1000;
+  }
+  return m_hash_counter;
 }
 int CProcessHandler::sum_proc(){
     return m_proc_table.size();
