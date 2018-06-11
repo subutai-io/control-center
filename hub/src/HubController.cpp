@@ -283,13 +283,15 @@ void CHubController::launch_browser(const QString &url) {
         args << url
              << "--profile-directory=Default";
         if (!QProcess::startDetached(chrome_path, args)) {
-          QString err_msg = tr("Process of launching Bazaar website using Google Chrome has failed");
+          QString err_msg = tr("Unable to redirect to Subutai Bazaar through a browser. Be sure that you have Google Chrome browser installed in your system, "
+                               "or you can install Google Chrome by going to the menu > About. ");
           CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
           qCritical("%s", err_msg.toStdString().c_str());
         }
       }
       else {
-          CNotificationObserver::Error(tr("Please install Google Chrome for this action: \"About\" section"), DlgNotification::N_ABOUT);
+          CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without a Google Chrome browser installed in your system. "
+                                          "You can install the Google Chrome browser by going to the menu > About."), DlgNotification::N_ABOUT);
         }
       }
 }
@@ -344,8 +346,8 @@ ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvi
   }
   system_call_wrapper_error_t run_in_terminal_status = ssh_to_container_in_terminal(cont, key);
   if (run_in_terminal_status != SCWE_SUCCESS) {
-    QString err_msg = tr("Process of Running SSH has Failed. Error code : %1")
-                      .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
+    QString err_msg = tr("Failed to SSH into the container. Check the Internet connection and the state of your environment in Bazaar. "
+                         "Error details: %1").arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
     qCritical() << err_msg;
     return SDLE_SYSTEM_CALL_FAILED;
   }
@@ -416,8 +418,8 @@ ssh_desktop_launch_error_t CHubController::desktop_to_container_internal(const C
       run_in_terminal_status = desktop_to_container_in_x2go(cont, key);
 
   if (run_in_terminal_status != SCWE_SUCCESS) {
-    QString err_msg = tr("Process of Running SSH has Failed. Error code : %1")
-                      .arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
+    QString err_msg = tr("Failed to SSH into the container. Check the Internet connection and the state of your environment in Bazaar. "
+                         "Error details: %1").arg(CSystemCallWrapper::scwe_error_to_str(run_in_terminal_status));
     qCritical() << err_msg;
     return SDLE_SYSTEM_CALL_FAILED;
   }
@@ -463,12 +465,19 @@ void CHubController::desktop_to_container_from_hub(const QString &env_id, const 
 
 const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
   static QString lst_err_str[SDLE_LAST_ERR] = {tr("Success"),
-                                              tr("Environment is not found"),
-                                              tr("Container is not found"),
-                                              tr("Container is not ready"),
-                                              tr("Process of joining P2P swarm has failed"),
-                                              tr("System call has failed"),
-                                              tr("No key deployed")};
+                                              tr("Unable to start SSH into the container because the environment cannot be found. "
+                                                 "Verify the state and setup of your environment in Bazaar."),
+                                              tr("Unable to start SSH into the container because the container cannot be found. "
+                                                 "Verify that you have an active container set up in your environment in Bazaar."),
+                                              tr("Unable to start SSH because the container is not ready. "
+                                                 "Try again after the container has been set up completely. "
+                                                 "To check the container's state, go to its environment in Bazaar."),
+                                              tr("Failed to join the swarm because a P2P network cannot be created. "
+                                                 "Check the Internet connection and make sure that P2P Daemon is set up and updated."),
+                                              tr("Unable to launch an SSH terminal due to a system call failure. "
+                                                 "Try restarting your device before relaunching an SSH terminal."),
+                                              tr("Cannot SSH to the environment without a deployed SSH key. "
+                                                 "To generate and deploy an SSH key, go to the menu > SSH-keys management.")};
   return lst_err_str[err %  SDLE_LAST_ERR];
 }
 

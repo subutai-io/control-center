@@ -118,7 +118,7 @@ CHubComponentsUpdater::update_component_timer_timeout(const QString &component_i
   if (m_dct_components[component_id].Component()->update_available()) {
     if (m_dct_components[component_id].autoupdate) {
       CNotificationObserver::Instance()->Info(
-            tr("%1 updating started").arg(IUpdaterComponent::component_id_to_user_view(component_id)),  DlgNotification::N_NO_ACTION);
+            tr("%1 updating started.").arg(IUpdaterComponent::component_id_to_user_view(component_id)),  DlgNotification::N_NO_ACTION);
       m_dct_components[component_id].Component()->update();
     } else {
       QString update_message = tr("New version of %1 is available! "

@@ -168,8 +168,9 @@ void CUpdaterComponentX2GO::update_post_action(bool success){
 }
 void CUpdaterComponentX2GO::install_post_interntal(bool success){
     if(!success)
-        CNotificationObserver::Instance()->Error(tr("X2Go-Client installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("X2Go-Client has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Failed to complete X2Go Client installation. Try again later, "
+                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("The X2Go-Client has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 //////////////////////////*VAGRANT*///////////////////////////////////////
@@ -238,8 +239,10 @@ void CUpdaterComponentVAGRANT::update_post_action(bool success){
     UNUSED_ARG(success);
 }
 void CUpdaterComponentVAGRANT::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Vagrant installation failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. Congratulations! Don't forget to install vagrant plugins."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Failed to complete Vagrant installation. Try again later, "
+                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. You may now install the Vagrant "
+                                                    "plugins to complete your setup."), DlgNotification::N_NO_ACTION);
 }
 
 ///////////////////////////*VIRTUALBOX*///////////////////////////////////////
@@ -309,8 +312,9 @@ void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success){
 }
 void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
     if(!success)
-            CNotificationObserver::Instance()->Error(tr("Virtualbox installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to complete VirtualBox installation. Try again later, "
+                                                        "or install it manually."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 //////////////////////////*CHROME*///////////////////////////////////////
@@ -377,8 +381,9 @@ void CUpdaterComponentCHROME::update_post_action(bool success){
     UNUSED_ARG(success);
 }
 void CUpdaterComponentCHROME::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Google Chrome installation has failed. It might be dependency problems. Install again, CC will solve them, or you can install it manualy."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome installation. Try again later, "
+                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
+    else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 
@@ -429,7 +434,9 @@ void CUpdaterComponentE2E::update_post_action(bool success){
 }
 void CUpdaterComponentE2E::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Subutai E2E has failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Failed to complete E2E plugin installation. You may try installing directly "
+                                                   "through the link under Getting Started or try again by restarting the Control "
+                                                   "Center first. <insert link: https://subutai.io/getting-started.html#E2E>"), DlgNotification::N_NO_ACTION);
         return;
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
@@ -491,18 +498,20 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin failed to update, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Failed to update the Vagrant Subutai plugin. You may try manually installing it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been updated successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been updated successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Failed to install the Vagrant Subutai plugin. You may try manually installing it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been installed successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 
@@ -550,18 +559,20 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal(){
 }
 void CUpdaterComponentVAGRANT_VBGUEST::update_post_action(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin failed to update, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Failed to update the Vagrant VirtualBox plugin. You may try manually installing it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been updated successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been updated successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success){
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin failed to install, we are sorry"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Failed to install the Vagrant VirtualBox plugin. You may try manually installing it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully, congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 

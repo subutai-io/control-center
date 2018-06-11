@@ -626,8 +626,7 @@ void TrayControlWindow::launch_p2p() {
       break;
     case P2PStatus_checker::P2P_READY:
       CNotificationObserver::Info(
-          QObject::tr("P2P is not launched. "
-                      "Press start to launch P2P daemon"),
+          QObject::tr("Click Start P2P to launch the P2P Daemon."),
           DlgNotification::N_START_P2P);
       break;
     case P2PStatus_checker::P2P_RUNNING:
@@ -1407,12 +1406,12 @@ void TrayControlWindow::show_create_dialog() {
   CSystemCallWrapper::vagrant_version(vg_version);
   QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
   if(bridged_ifs.size() == 0){
-      CNotificationObserver::Error(tr("Peer manager is not ready yet, try again later"), DlgNotification::N_NO_ACTION);
+      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
   }
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
-        tr("Install Vagrant to create Peers"), DlgNotification::N_ABOUT);
+        tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > About."), DlgNotification::N_ABOUT);
     return;
   }
   if (vb_version == "undefined") {

@@ -79,9 +79,9 @@ int main(int argc, char* argv[]) {
   if (is_first &&
       !QApplication::arguments().contains(CCommons::RESTARTED_ARG)) {
     QMessageBox* msg_box = new QMessageBox(
-        QMessageBox::Information, QObject::tr("Already running"),
+        QMessageBox::Information, QObject::tr("Subutai Control Center Alert"),
         QObject::tr(
-            "One instance of control center application is already running"),
+            "An instance of the Control Center is already running in your system."),
         QMessageBox::Ok);
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);

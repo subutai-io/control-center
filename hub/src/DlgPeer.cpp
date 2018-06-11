@@ -297,17 +297,17 @@ bool DlgPeer::check_configs(){
     int cpu = ui->le_cpu->text().toInt(&bool_me, base);
     int disk = ui->le_disk->text().toInt(&bool_me, base);
     if(ram < 2048){
-        CNotificationObserver::Error(tr("2048 GB is the minimum size for RAM. Increase your RAM size please"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("RAM size cannot be less than 2048 MB."), DlgNotification::N_NO_ACTION);
         return false;
     }
 
     if(cpu < 1){
-        CNotificationObserver::Error(tr("Quantity of CPU can't be less than 1"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("CPU cores quantity cannot be less than 1."), DlgNotification::N_NO_ACTION);
         return false;
     }
 
     if(disk < peer_disk.toInt(&bool_me, base)){
-        CNotificationObserver::Error(tr("Sorry you can only increase disk size"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Disk size cannot be less than 40 GB."), DlgNotification::N_NO_ACTION);
         return false;
     }
     return true;
@@ -337,13 +337,17 @@ bool DlgPeer::change_configs(){
             stream << "BRIDGE : "<< QString("\"%1\"").arg(peer_bridge)<<endl;
         }
         else{
-            CNotificationObserver::Error(tr("Failed to create new configuration file"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Error(tr("Failed to create a .yml configuration file for this peer. You may create one manually. "
+                                            "You may also try again by restarting the Control Center first or reloading the peer."),
+                                         DlgNotification::N_NO_ACTION);
             return false;
         }
         file.close();
     }
     else{
-        CNotificationObserver::Error(tr("Configuration file was not set"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Unable to find the .yml configuration file for this peer. You may create one manually. "
+                                        "You may also try again by restarting the Control Center first or reloading the peer."),
+                                     DlgNotification::N_NO_ACTION);
         return false;
     }
     return true;
@@ -394,7 +398,9 @@ void DlgPeer::registerPeer(){
 
 void DlgPeer::unregisterPeer(){
     if(envs_available){
-        CNotificationObserver::Error(tr("You can't unregister Peer until it has environments"), DlgNotification::N_GO_TO_HUB);
+        CNotificationObserver::Error(tr("Peers connected to environments cannot be unregistered. "
+                                        "Remove the peer from the environment first before unregistering it from Bazaar."),
+                                     DlgNotification::N_GO_TO_HUB);
         return;
     }
     ui->btn_unregister->setEnabled(false);
@@ -452,12 +458,13 @@ void DlgPeer::hidePeer(){
     ui->show_peer_control->toggle(); //lifehack :D
     ui->show_peer_control->toggle();
 
-    ui->gr_peer_control->setTitle(tr("This peer is not in your machine"));
+    ui->gr_peer_control->setTitle(tr("Unable to proceed because this peer is not in your machine. "
+                                     "Specific functions are available only for peers in your machine."));
     this->adjustSize();
 }
 
 void DlgPeer::hideEnvs(){
-    ui->gr_ssh->setTitle(tr("This peer doesn't have any \"Environments\""));
+    ui->gr_ssh->setTitle(tr("No \"environments\" on this peer."));
     ui->lbl_env->hide();
     ui->lbl_env_owner->hide();
     ui->lbl_env_status->hide();
@@ -471,17 +478,19 @@ void DlgPeer::stopPeer(){
     enabled_peer_buttons(false);
     static QString stop_command = "halt";
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-    ui->btn_stop->setText(tr("Trying to stop peer..."));
+    ui->btn_stop->setText(tr("Trying to stop this peer, please wait."));
     thread_init->init(peer_dir, stop_command, peer_name);
     emit peer_modified(peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(res == SCWE_SUCCESS){
-            CNotificationObserver::Instance()->Info(tr("Process to stop peer %1 started. Don't close terminal until it's finished").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("The process to stop peer %1 has started. Do not close this terminal until processing "
+                                                       "has completed.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to stop this peer \"%1\". Check the stability of your Internet connection first, "
+                                                        "before trying again.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Stop"));
         }
@@ -498,17 +507,19 @@ void DlgPeer::startPeer(){
         }
     }
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-    ui->btn_stop->setText(tr("Trying to launch peer..."));
+    ui->btn_stop->setText(tr("Trying to launch this peer, please wait."));
     thread_init->init(peer_dir, up_command, peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(res == SCWE_SUCCESS){
             emit peer_modified(this->peer_name);
-            CNotificationObserver::Instance()->Info(tr("The process has started. Do not close terminal before it is finished"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("The process to launch peer %1 has started. Do not close this terminal until processing "
+                                                       "has completed.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not stop peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to launch this peer \"%1\". Check the stability of your Internet connection first, "
+                                                        "before trying again.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
              enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Start"));
         }
@@ -527,7 +538,8 @@ void DlgPeer::sshPeer(){
             qDebug()<<"sshed to peer"<<peer_name;
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not SSH to peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to SSH to the peer \"%1\". Check the stability of your Internet connection first, "
+                                                        "before trying again.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
         }
         enabled_peer_buttons(true);
         ui->btn_ssh_peer->setText(tr("SSH into Peer"));
@@ -536,36 +548,39 @@ void DlgPeer::sshPeer(){
 
 void DlgPeer::destroyPeer(){
     if(hub_available){
-        CNotificationObserver::Error(tr("You can't destroy the Peer until it's registered to the Bazaar. "
-                                        "Please run 'unregister' to unregister it from the Bazaar"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Registered peers cannot be destroyed. "
+                                        "Before destroying this peer, you must unregister it first from Subutai Bazaar."), DlgNotification::N_NO_ACTION);
         return;
     }
     enabled_peer_buttons(false);
     if(peer_status == "not_created"){
         QDir  del_me(peer_dir);
         if(del_me.removeRecursively()){
-            CNotificationObserver::Instance()->Info(tr("Peer has been destroyed."), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("The peer is now destroyed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Failed to delete peer directory. Make sure you have permission"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to delete the peer directory. Make sure that you have the "
+                                                        "required Administrative privileges."), DlgNotification::N_NO_ACTION);
             enabled_peer_buttons(true);
         }
         return;
     }
     static QString delete_command = "destroy -f";
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-    ui->btn_destroy->setText(tr("Trying to destroy peer..."));
+    ui->btn_destroy->setText(tr("Trying to destroy this peer, please wait."));
     thread_init->init(peer_dir, delete_command, peer_name);
     thread_init->startWork();
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(res == SCWE_SUCCESS){
-            CNotificationObserver::Instance()->Info(tr("Process to destroy peer %1 has started").arg(peer_name), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("The process to destroy peer %1 has started. Do not close this terminal until "
+                                                       "processing has completed.").arg(peer_name), DlgNotification::N_NO_ACTION);
        //     emit peer_deleted(this->peer_name);
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not destroy peer \"%1\"").arg(peer_name), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to destroy peer \"%1\". Make sure that your Internet connection is stable and "
+                                                        "that you have the required administrative privileges.").arg(peer_name), DlgNotification::N_NO_ACTION);
             enabled_peer_buttons(true);
             ui->btn_destroy->setText(tr("Destroy"));
         }
@@ -583,17 +598,19 @@ void DlgPeer::reloadPeer(){
         }
     }
     CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-    ui->btn_reload->setText(tr("Trying to reload peer..."));
+    ui->btn_reload->setText(tr("Trying to reload this peer, please wait."));
     thread_init->init(peer_dir, reload_command, peer_name);
     thread_init->startWork();
     emit peer_modified(this->peer_name);
     connect(thread_init, &CommandPeerTerminal::outputReceived, [this](system_call_wrapper_error_t res){
         if(res == SCWE_SUCCESS){
-            CNotificationObserver::Instance()->Info(tr("Peer reloading has started. Don't close terminal until it is finished"), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Info(tr("The process to reload peer %1 has started. Do not close this terminal "
+                                                       "until processing has completed."), DlgNotification::N_NO_ACTION);
             this->close();
         }
         else{
-            CNotificationObserver::Instance()->Error(tr("Sorry, could not reload peer \"%1\"").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
+            CNotificationObserver::Instance()->Error(tr("Failed to reload peer \"%1\". Check the stability of your Internet connection first, "
+                                                        "before trying again.").arg(this->ui->le_name->text()), DlgNotification::N_NO_ACTION);
             enabled_peer_buttons(true);
             ui->btn_stop->setText(tr("Reload"));
         }
