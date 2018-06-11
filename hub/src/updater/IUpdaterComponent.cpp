@@ -168,7 +168,7 @@ void CUpdaterComponentX2GO::update_post_action(bool success){
 }
 void CUpdaterComponentX2GO::install_post_interntal(bool success){
     if(!success)
-        CNotificationObserver::Instance()->Error(tr("Failed to complete X2Go Client installation. Try again later, "
+        CNotificationObserver::Instance()->Error(tr("Failed to complete X2Go-Client installation. Try again later, "
                                                     "or install it manually."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("The X2Go-Client has been installed."), DlgNotification::N_NO_ACTION);
 }

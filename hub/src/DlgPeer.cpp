@@ -307,7 +307,7 @@ bool DlgPeer::check_configs(){
     }
 
     if(disk < peer_disk.toInt(&bool_me, base)){
-        CNotificationObserver::Error(tr("Disk size cannot be less than 40 GB."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("You can only increase disk size."), DlgNotification::N_NO_ACTION);
         return false;
     }
     return true;
@@ -458,7 +458,7 @@ void DlgPeer::hidePeer(){
     ui->show_peer_control->toggle(); //lifehack :D
     ui->show_peer_control->toggle();
 
-    ui->gr_peer_control->setTitle(tr("Unable to proceed because this peer is not in your machine. "
+    ui->gr_peer_control->setTitle(tr("This peer is not in your machine. "
                                      "Specific functions are available only for peers in your machine."));
     this->adjustSize();
 }
