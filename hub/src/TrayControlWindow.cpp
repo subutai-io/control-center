@@ -773,6 +773,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         m_hub_menu->removeAction(my_envs_button_table[it->second.id()]);
         if(m_hub_menu->isEmpty())
             m_hub_menu->addAction(m_empty_action);
+        my_envs_button_table.erase(my_envs_button_table.find(it->second.id()));
     }
   }
 }
