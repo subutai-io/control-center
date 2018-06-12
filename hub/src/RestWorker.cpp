@@ -729,13 +729,13 @@ void CRestWorker::add_sshkey_to_environments(
            << "error code" << err_code;
   if (err_code != RE_SUCCESS) {
     if (http_status_code == 500) {
-      CNotificationObserver::Instance()->Error(tr("Failed to deploy ssh key to the environments. "
-                                                  "Mostly it's because some of the environments already has ssh key with "
-                                                  "the same name or value. Try to change name of ssh key or generate a new one."),
+      CNotificationObserver::Instance()->Error(tr("Failed to deploy SSH key %1 to the environments. "
+                                                  "Mostly it's because some of the environments already has SSH key with "
+                                                  "the same name or value. Try to change name of ssh key or generate a new one.").arg(key_name),
                                                DlgNotification::N_NO_ACTION);
     } else {
-      CNotificationObserver::Instance()->Error(tr("Error occured during deploying ssh key to the environments."
-                                                  "Network error message: %1").arg(CCommons::NetworkErrorToString(network_error)),
+      CNotificationObserver::Instance()->Error(tr("Unable to deploy SSH key %2 to the environments."
+                                                  "Network error message: %1").arg(CCommons::NetworkErrorToString(network_error), key_name),
                                                DlgNotification::N_NO_ACTION);
     }
   }

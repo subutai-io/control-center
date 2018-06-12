@@ -286,12 +286,14 @@ If you have started the installation process, please wait for it to finish</sour
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="732"/>
-        <source>Failed to deploy ssh key to the environments. Mostly it&apos;s because some of the environments already has ssh key with the same name or value. Try to change name of ssh key or generate a new one.</source>
+        <source>Failed to deploy SSH key %1 to the environments. Mostly it&apos;s because some of the environments already has SSH key with the same name or value. Try to change name of ssh key or generate a new one.</source>
+        <oldsource>Failed to deploy ssh key to the environments. Mostly it&apos;s because some of the environments already has ssh key with the same name or value. Try to change name of ssh key or generate a new one.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/RestWorker.cpp" line="737"/>
-        <source>Error occured during deploying ssh key to the environments.Network error message: %1</source>
+        <source>Unable to deploy SSH key %2 to the environments.Network error message: %1</source>
+        <oldsource>Error occured during deploying ssh key to the environments.Network error message: %1</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
