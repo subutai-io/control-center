@@ -216,8 +216,8 @@ void CUpdaterComponentP2P::install_post_interntal(bool success){
         CNotificationObserver::Info(tr("The P2P Daemon has been installed and will start running in a few seconds."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Error(tr("Failed to install the P2P Daemon. You may try installing directly through the link "
-                                        "under Getting Started. <insert link: https://subutai.io/getting-started.html#P2P>"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Failed to install the P2P Daemon. You may try installing directly through the link under "
+                                        "<a href='https://subutai.io/getting-started.html#P2P'>Getting Started.</a>"), DlgNotification::N_NO_ACTION);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
