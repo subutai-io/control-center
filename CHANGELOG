@@ -1,5 +1,26 @@
 # Change Log
 
+## [7.0.3] 6/12/2018
+# IMPROVEMENTS:
+* Use name validators for the peer registration
+* Improved and corrected error messages
+* Rescaled size of various windows
+* Improved messages of P2P connection state
+* Corrected post install scripts in the Windows installers
+* Reduced number of CC crashes
+* Make login icon more recognizable
+* Changed path of configuration file to the standard path
+# BUG FIXES:
+* Reworked "my environments" menu to avoid remaining bugs with main menu
+* Fixed bug with failing to process SSH keys with whitespace characters in the end of file
+* Fixed bug with notification history, when user can't stop ignoring some notifications
+* Fixed bug on Windows, when CC does not load gif images
+* Corrected CC autostart scripts on Linux
+# FEATURES:
+* Added `userinfo` button to the main menu
+* Install and update of Vagrant subutai/strech box from "About" section
+* Check all required components inside of the peer creation dialog
+
 ## [7.0.2] 5/30/2018
 # IMPROVEMENTS:
 * Support KDE Desktop
