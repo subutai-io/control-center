@@ -2041,56 +2041,61 @@ If you have started the installation process, please wait for it to finish</sour
         <translation>Privado</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="39"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="41"/>
         <source>Peer name can&apos;t be empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="73"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="112"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="182"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="218"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="47"/>
+        <source>You can use only letters and numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="82"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="121"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="191"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="227"/>
         <source>Wrong login or password. Try again!</source>
         <translation>Usuário ou senha incorretos. Tente novamente!</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="78"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="117"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="187"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="223"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="87"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="126"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="196"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="232"/>
         <source>HTTP error. Code</source>
         <translation>Erro de HTTP.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="83"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="122"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="192"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="228"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="92"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="131"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="201"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="237"/>
         <source>Timeout. Check internet connection, please!</source>
         <translation>Tempo excedido. Verifique a conexão com a internet.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="88"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="127"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="197"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="233"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="97"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="136"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="206"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="242"/>
         <source>Network error. Code</source>
         <translation>Erro de rede.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="94"/>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="203"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="103"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="212"/>
         <source>Unknown error. Code</source>
         <translation>Erro desconhecido.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="133"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="142"/>
         <source>Cannot register peer.</source>
         <oldsource>Can&apos;t register peer.</oldsource>
         <translation type="unfinished">Não foi possível registrar Peer.</translation>
     </message>
     <message>
-        <location filename="hub/src/DlgRegisterPeer.cpp" line="239"/>
+        <location filename="hub/src/DlgRegisterPeer.cpp" line="248"/>
         <source>Cannot unregister peer.</source>
         <oldsource>Can&apos;t unregister peer.</oldsource>
         <translation type="unfinished">Não foi possível desregistrar Peer.</translation>
@@ -2919,7 +2924,7 @@ If you have started the installation process, please wait for it to finish</sour
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="2853"/>
-        <source>No supported browser is available in your system. You can install Google Chrome by going to the menu &gt; About.</source>
+        <source>No supported browser is available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
