@@ -3015,7 +3015,8 @@ Don&apos;t forget to approve the extension after the installation</source>
     <name>update_system::CUpdaterComponentE2E</name>
     <message>
         <location filename="hub/src/updater/IUpdaterComponent.cpp" line="437"/>
-        <source>Failed to complete E2E plugin installation. You may try installing directly through the link under Getting Started or try again by restarting the Control Center first. &lt;insert link: https://subutai.io/getting-started.html#E2E&gt;</source>
+        <source>Failed to complete E2E plugin installation. You may try installing directly through the link under &lt;a href=&apos;https://subutai.io/getting-started.html#E2E&apos;&gt;Getting Started&lt;/a&gt; or try again by restarting the Control Center first.</source>
+        <oldsource>Failed to complete E2E plugin installation. You may try installing directly through the link under Getting Started or try again by restarting the Control Center first. &lt;insert link: https://subutai.io/getting-started.html#E2E&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3076,7 +3077,8 @@ Don&apos;t forget to approve the extension after the installation</source>
     </message>
     <message>
         <location filename="hub/src/updater/UpdaterComponentP2P.cpp" line="219"/>
-        <source>Failed to install the P2P Daemon. You may try installing directly through the link under Getting Started. &lt;insert link: https://subutai.io/getting-started.html#P2P&gt;</source>
+        <source>Failed to install the P2P Daemon. You may try installing directly through the link under &lt;a href=&apos;https://subutai.io/getting-started.html#P2P&apos;&gt;Getting Started.&lt;/a&gt;</source>
+        <oldsource>Failed to install the P2P Daemon. You may try installing directly through the link under Getting Started. &lt;insert link: https://subutai.io/getting-started.html#P2P&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
