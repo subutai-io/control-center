@@ -162,18 +162,19 @@ void CPeerController::check_logs(){
                         if(file_name[0] == "destroy"){
                             deleted_flag = true;
                         }
-                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" succesfully")
+                        CNotificationObserver::Info(tr("Peer %1 has finished to \"%2\" successfully.")
                                                     .arg(peer_name, file_name[0]), DlgNotification::N_NO_ACTION);
                     }
                     else
-                        CNotificationObserver::Info(tr("Peer %1 is finished to \"%2\" with following messages:\n %3")
+                        CNotificationObserver::Info(tr("Peer %1 has finished to \"%2\" with following messages:\n %3")
                                                     .arg(peer_name, file_name[0], error_message), DlgNotification::N_NO_ACTION);
                     log.remove();
                 }
             }
             if(deleted_flag){
                 if(!peer_dir.removeRecursively())
-                    CNotificationObserver::Error(tr("Failed to clean peer path"), DlgNotification::N_NO_ACTION);
+                    CNotificationObserver::Error(tr("Failed to completely clear the peer's path while destroying the peer. "
+                                                    "You may manually delete the folder that contains the peer data."), DlgNotification::N_NO_ACTION);
                 finish_current_update();
                 refresh();
             }
@@ -246,8 +247,6 @@ QString CPeerController::parse_name(const QString &name){
 void CPeerController::parse_peer_info(int type, const QString &name, const QString &dir, const QString &output){
     if(number_threads == 0)
         return;
-    // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
-    // wait mazafaka
     // get ip of peer
     if(type == 0){
         qDebug() << "Got status of "<<name<<"status:"<<output;

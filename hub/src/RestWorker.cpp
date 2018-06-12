@@ -757,8 +757,25 @@ void CRestWorker::add_sshkey_to_environments(
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
   int http_status_code, err_code, network_error;
-  send_request(m_network_manager, req, false, http_status_code, err_code,
-               network_error, doc_serialized, true);
+  send_request(m_network_manager, req, false,
+               http_status_code, err_code, network_error, doc_serialized, false);
+  qDebug() << "finished to add ssh keys"
+           << "json doc: " << doc
+           << "http code" << http_status_code
+           << "network code" << network_error
+           << "error code" << err_code;
+  if (err_code != RE_SUCCESS) {
+    if (http_status_code == 500) {
+      CNotificationObserver::Instance()->Error(tr("Failed to deploy SSH key %1 to the environments. "
+                                                  "Mostly it's because some of the environments already has SSH key with "
+                                                  "the same name or value. Try to change name of SSH key or generate a new one.").arg(key_name),
+                                               DlgNotification::N_NO_ACTION);
+    } else {
+      CNotificationObserver::Instance()->Error(tr("Unable to deploy SSH key %2 to the environments."
+                                                  "Network error message: %1").arg(CCommons::NetworkErrorToString(network_error), key_name),
+                                               DlgNotification::N_NO_ACTION);
+    }
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

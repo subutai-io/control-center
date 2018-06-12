@@ -17,6 +17,7 @@ public:
               const QString name);
     void setRegistrationMode();
     void setUnregistrationMode();
+    QRegExp m_invalid_chars;
 signals:
     void register_finished();
 private:

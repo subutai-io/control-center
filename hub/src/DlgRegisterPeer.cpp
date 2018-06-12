@@ -20,6 +20,7 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     connect(ui->btn_cancel, &QPushButton::clicked,
             [this](){ this->close(); });
     ui->lne_username->setText("admin");
+    m_invalid_chars.setPattern("\\W");
 }
 
 DlgRegisterPeer::~DlgRegisterPeer()
@@ -28,15 +29,23 @@ DlgRegisterPeer::~DlgRegisterPeer()
     delete ui;
 }
 
-void DlgRegisterPeer::registerPeer(){
+void DlgRegisterPeer::registerPeer() {
     qInfo()
             << "Register button pressed: "
             << ip_addr;
     ui->lbl_info->setVisible(false);
-    if (ui->lne_peername->text().isEmpty()){
+    if (ui->lne_peername->text().isEmpty()) {
+        ui->lne_peername->setFocus();
         ui->lbl_info->setVisible(true);
         ui->lbl_info->setText(QString("<font color='red'>%1</font>").
                                 arg(tr("Peer name can't be empty")));
+        return;
+    } else if (ui->lne_peername->text().contains(m_invalid_chars) ||
+              ui->lne_peername->text().contains("_")) {
+        ui->lne_peername->setFocus();
+        ui->lbl_info->setVisible(true);
+        ui->lbl_info->setText(tr("You can use only letters and numbers"));
+        ui->lbl_info->setStyleSheet("QLabel {color : red}");
         return;
     }
 
