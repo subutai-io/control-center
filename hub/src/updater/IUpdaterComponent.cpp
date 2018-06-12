@@ -433,10 +433,10 @@ void CUpdaterComponentE2E::update_post_action(bool success){
     UNUSED_ARG(success);
 }
 void CUpdaterComponentE2E::install_post_interntal(bool success){
+  CNotificationObserver::Instance()->Info(tr("Failed to complete E2E plugin installation. You may try installing directly through the link under "
+                                             "<a href='https://subutai.io/getting-started.html#E2E'>Getting Started</a>"
+                                             " or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     if(!success){
-        CNotificationObserver::Instance()->Info(tr("Failed to complete E2E plugin installation. You may try installing directly "
-                                                   "through the link under Getting Started or try again by restarting the Control "
-                                                   "Center first. <insert link: https://subutai.io/getting-started.html#E2E>"), DlgNotification::N_NO_ACTION);
         return;
     }
     QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
