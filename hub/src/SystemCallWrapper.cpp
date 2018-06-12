@@ -2850,7 +2850,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
      */
     CSystemCallWrapper::chrome_version(version);
     if(version == "undefined"){
-        version = QObject::tr("No supported browser is available in your system. You can install Google Chrome by going to the menu > About.");
+        version = QObject::tr("No supported browser is available");
         return SCWE_SUCCESS;
     }
     version = "undefined";
