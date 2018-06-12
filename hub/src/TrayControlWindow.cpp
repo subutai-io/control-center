@@ -976,14 +976,14 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name) {
 void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
   static QString updating_str = "updating";
   static QString finished_str = "finished";
-  if (my_peers_button_table.find(peer_fingerprint) == my_peers_button_table.end()){
+  if (my_peers_button_table.find(peer_fingerprint) == my_peers_button_table.end()) {
     qCritical() << "tried to update deleted peer: " << peer_fingerprint;
     return;
   }
   my_peer_button *peer_instance = my_peers_button_table[peer_fingerprint];
   QString peer_name, peer_port;
   if (peer_instance->m_local_peer != nullptr){
-    if (peer_instance->m_local_peer->update_available() == "updating"){
+    if (peer_instance->m_local_peer->update_available() == "updating") {
       qCritical() << "tried to update updating peer: " << peer_fingerprint;
       return;
     }
@@ -1014,6 +1014,7 @@ void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
           peer_updater, &UpdatePeerOS::deleteLater);
   if (machine_peers_table.find(peer_name) != machine_peers_table.end()){
     machine_peers_table[peer_name].set_update_available(updating_str);
+    qDebug("stop here");
   }
   //peer_updater->startWork();
 }

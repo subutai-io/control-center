@@ -110,13 +110,18 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         if(peer_status == "running")
             peer_status = "not ready";
     }
-    if(peer_update_available){
+    if (peer_update_available) {
         ui->btn_update_peer->setText(tr("Update is available"));
         ui->btn_update_peer->setEnabled(true);
         ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
     } else {
-      if (peer.update_available() == "false"){
-
+      ui->btn_update_peer->setEnabled(false);
+      if (peer.update_available() == "false") {
+        ui->btn_update_peer->setText(tr("No updates available"));
+        ui->btn_update_peer->setToolTip(tr("No updates for the PeerOS"));
+      } else {
+        ui->btn_update_peer->setText(tr("Updating..."));
+        ui->btn_update_peer->setToolTip(tr("This peer is currently updating. Please wait"));
       }
     }
     timer_refresh_machine_peer = new QTimer(this);
@@ -130,10 +135,19 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
       }
       CLocalPeer peer = it_peer->second;
       this->peer_update_available = peer.update_available() == "true" ? true : false;
-      if(peer_update_available){
-          ui->btn_update_peer->setText("Update is available");
-          ui->btn_update_peer->setEnabled(true);
-          ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
+      if (peer_update_available) {
+        ui->btn_update_peer->setText("Update is available");
+        ui->btn_update_peer->setEnabled(true);
+        ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
+      }  else {
+        ui->btn_update_peer->setEnabled(false);
+        if (peer.update_available() == "false") {
+          ui->btn_update_peer->setText(tr("No updates available"));
+          ui->btn_update_peer->setToolTip(tr("No updates for the PeerOS"));
+        } else {
+          ui->btn_update_peer->setText(tr("Updating..."));
+          ui->btn_update_peer->setToolTip(tr("This peer is currently updating. Please wait"));
+        }
       }
     });
     timer_refresh_machine_peer->start();
@@ -648,6 +662,10 @@ void DlgPeer::reloadPeer(){
 }
 
 void DlgPeer::updatePeer(){
+  ui->btn_update_peer->setEnabled(false);
+  ui->btn_update_peer->setText(tr("Updating"));
+  ui->btn_update_peer->setToolTip(tr("This peer is currently updating. Please wait"));
+  timer_refresh_machine_peer->start();
   emit this->peer_update_peeros(peer_fingerprint);
 }
 
