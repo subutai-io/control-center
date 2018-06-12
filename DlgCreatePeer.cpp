@@ -34,7 +34,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
                         [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT);});
     requirement subutai_plugin(tr ("Subutai plugin is not ready"),
                                tr ("Checking Subutai plugin..."),
-                               tr ("Vagrant Subutai plugin is not ready. You should install or update it from About"),
+                               tr ("Unable to run the Vagrant Subutai plugin. Make sure that you have it "
+                                   "installed or updated successfully by going to the menu > About."),
                                DlgNotification::N_ABOUT,
                                [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI);});
     requirement vbguest_plugin(tr ("VirtualBox plugin is not ready"),
@@ -85,16 +86,16 @@ bool DlgCreatePeer::check_configurations(){
         QString error_message = "";
         switch (pass_error) {
         case PASS_EMPTY:
-            error_message = tr("Password cannot be empty");
+            error_message = tr("Password cannot be empty.");
             break;
         case PASS_SMALL:
-            error_message = tr("Password size should be more than 7");
+            error_message = tr("Password size should be more than 7.");
             break;
         case PASS_INVALID:
-            error_message = tr("Password has invalid symbols");
+            error_message = tr("Password has invalid symbols.");
             break;
         default:
-            error_message = tr("Unknown error");
+            error_message = tr("An unexpected error has occurred. Please try again later.");
             break;
         }
         ui->lbl_err_pass->setText(error_message);
@@ -104,7 +105,7 @@ bool DlgCreatePeer::check_configurations(){
     }
     else
     if(password1 != password2){
-        ui->lbl_err_pass->setText(tr("Passwords do not match. Please check again"));
+        ui->lbl_err_pass->setText(tr("Passwords do not match. Enter both passwords again."));
         ui->lbl_err_pass->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_pass->show();
         errors_exist = true;
@@ -112,14 +113,14 @@ bool DlgCreatePeer::check_configurations(){
     else ui->lbl_err_pass->hide();
 //name
     if(ui->le_name->text().isEmpty()){
-        ui->lbl_err_name->setText(tr("Name cannot be empty"));
+        ui->lbl_err_name->setText(tr("Name of the Peer cannot be empty"));
         ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_name->show();
         errors_exist = true;
     }
     else
     if(ui->le_name->text().contains(m_invalid_chars) || ui->le_name->text().contains("_")){
-            ui->lbl_err_name->setText(tr("You can use only letters and digits"));
+            ui->lbl_err_name->setText(tr("Use only letters and numbers."));
             ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
             ui->lbl_err_name->show();
             errors_exist = true;
@@ -127,7 +128,7 @@ bool DlgCreatePeer::check_configurations(){
     else ui->lbl_err_name->hide();
 //ram
     if(ram.toInt() < 2048){
-        ui->lbl_err_ram->setText(tr("Ram cannot be less than 2048 MB"));
+        ui->lbl_err_ram->setText(tr("Ram cannot be less than 2048 MB."));
         ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_ram->show();
         errors_exist = true;
@@ -135,7 +136,7 @@ bool DlgCreatePeer::check_configurations(){
     else ui->lbl_err_ram->hide();
 //disk
     if(disk.toInt() < 40){
-        ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB"));
+        ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB."));
         ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
         ui->lbl_err_disk->show();
         errors_exist = true;

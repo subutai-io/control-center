@@ -35,7 +35,8 @@ CUpdaterComponentP2P::p2p_path()
   } else {
     system_call_wrapper_error_t cr;
     if ((cr = CSystemCallWrapper::which(P2P, p2p_path)) != SCWE_SUCCESS) {
-      CNotificationObserver::Instance()->Error(tr("Can't find p2p in PATH. Err : %1").arg(
+      CNotificationObserver::Instance()->Error(tr("Unable to find the P2P Daemon: %1. Make sure that it is installed "
+                                                  "and PATH environment variable contains P2P's directory.").arg(
                                                             CSystemCallWrapper::scwe_error_to_str(cr)), DlgNotification::N_SETTINGS);
     }
   }
@@ -114,7 +115,7 @@ CUpdaterComponentP2P::update_internal() {
 
   QString str_p2p_path = p2p_path();
   if(str_p2p_path == "Not found"){
-      CNotificationObserver::Instance()->Error(tr("P2P is not installed. Please install P2P first"),DlgNotification::N_INSTALL_P2P);
+      CNotificationObserver::Instance()->Error(tr("To continue, you must install the P2P Daemon first."), DlgNotification::N_INSTALL_P2P);
       return CHUE_FAILED;
   }
   if (str_p2p_path.isNull() ||
@@ -183,7 +184,7 @@ CUpdaterComponentP2P::update_internal() {
 void
 CUpdaterComponentP2P::update_post_action(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Error(tr("P2P has not been updated. Most probably the permission is denied."), DlgNotification::N_SETTINGS);
+    CNotificationObserver::Instance()->Error(tr("Failed to update the P2P Daemon. Make sure that you have the required permissions."), DlgNotification::N_SETTINGS);
     return;
   }
 
@@ -202,8 +203,8 @@ CUpdaterComponentP2P::update_post_action(bool success) {
   }
 
   if (rse_err == RSE_MANUAL) {
-    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, tr("Attention! P2P update has finished"),
-                                           tr("P2P has been updated. Restart p2p daemon, please"),
+    QMessageBox *msg_box = new QMessageBox(QMessageBox::Question, tr("Successfully updated the P2P Daemon."),
+                                           tr("The P2P Daemon has been updated. Restart P2P Daemon, please."),
                                            QMessageBox::Ok);
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
@@ -212,10 +213,11 @@ CUpdaterComponentP2P::update_post_action(bool success) {
 
 void CUpdaterComponentP2P::install_post_interntal(bool success){
     if(success){
-        CNotificationObserver::Info(tr("P2P has been installed. P2P daemon will start running within 10-15 seconds."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Info(tr("The P2P Daemon has been installed and will start running in a few seconds."), DlgNotification::N_NO_ACTION);
     }
     else{
-        CNotificationObserver::Error(tr("P2P has failed to install, we are sorry."), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Error(tr("Failed to install the P2P Daemon. You may try installing directly through the link "
+                                        "under Getting Started. <insert link: https://subutai.io/getting-started.html#P2P>"), DlgNotification::N_NO_ACTION);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
