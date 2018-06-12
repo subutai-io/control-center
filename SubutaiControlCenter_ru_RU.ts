@@ -284,6 +284,16 @@ If you have started the installation process, please wait for it to finish</sour
         <source>Setting password for %1</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="hub/src/RestWorker.cpp" line="732"/>
+        <source>Failed to deploy ssh key to the environments. Mostly it&apos;s because some of the environments already has ssh key with the same name or value. Try to change name of ssh key or generate a new one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="hub/src/RestWorker.cpp" line="737"/>
+        <source>Error occured during deploying ssh key to the environments.Network error message: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CSSHKeysController</name>
@@ -2635,8 +2645,8 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1446"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1579"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1767"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1897"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2242"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1895"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2240"/>
         <source>Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2646,8 +2656,8 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1455"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1588"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1776"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1906"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2251"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1904"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2249"/>
         <source>Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2662,9 +2672,9 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1464"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1597"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1785"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1915"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2033"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2260"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1913"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2031"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2258"/>
         <source>Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2683,9 +2693,9 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1371"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1506"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1647"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1842"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1965"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2301"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1840"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1963"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2299"/>
         <source>Couldn&apos;t set exe permission to reload script file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2699,8 +2709,8 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1477"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1610"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1798"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1928"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2273"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1926"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2271"/>
         <source>Couldn&apos;t create install script temp file. %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2708,66 +2718,66 @@ If you have started the installation process, please wait for it to finish</sour
         <location filename="hub/src/SystemCallWrapper.cpp" line="1356"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1491"/>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1632"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1827"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1950"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2286"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1825"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1948"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2284"/>
         <source>Couldn&apos;t write install script to temp file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="hub/src/SystemCallWrapper.cpp" line="1668"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="1986"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="1984"/>
         <source>Couldn&apos;t install vagrant err = %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2855"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2853"/>
         <source>No supported browser is available in your system. You can install Google Chrome by going to the menu &gt; About.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3139"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3221"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3137"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3219"/>
         <source>Unable to get the home directory. Make sure that you have the required Administrative privileges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3150"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3148"/>
         <source>Cannot create the autostart directory. Make sure that you have the required Administrative privileges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3166"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3164"/>
         <source>An error has occurred while deleting file %1. Review the error details to fix the issue or try to delete the file manually. Details: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3188"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3186"/>
         <source>An error has occurred while creating the autostart desktop file: %1. Make sure that you have the required Administrative privileges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3273"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3271"/>
         <source>An error has occured while writing to plist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3309"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3307"/>
         <source>An error has occurred while creating the registry key. Make sure that you have installed the Control Center correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3322"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3320"/>
         <source>Couldn&apos;t add program to autorun due to denied access. Try to run this application as administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3332"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3330"/>
         <source>An error has occurred while adding the program to autorun.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2110"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2108"/>
         <source>Couldn&apos;t get standard home location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2780,8 +2790,8 @@ If you have started the installation process, please wait for it to finish</sour
         <translation type="vanished">Не удалось создать директорию автозапуска, извините</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2868"/>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="2897"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2866"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="2895"/>
         <source>Install Vagrant first</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2794,7 +2804,7 @@ If you have started the installation process, please wait for it to finish</sour
         <translation type="vanished">Не удалось создать файл автозагрузки. Ошибка : %1</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3200"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3198"/>
         <source>Couldn&apos;t write content to autostart desktop file</source>
         <translation>Не удалось записать содержимое в файл автозагрузки</translation>
     </message>
@@ -2815,12 +2825,12 @@ If you have started the installation process, please wait for it to finish</sour
         <translation type="vanished">Не удалось добавить программу в автозагрузку, извините</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3340"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3338"/>
         <source>Couldn&apos;t remove program from autorun due to access denied. Try to run this application as administrator</source>
         <translation>Не удалось удалить программу из автозагрузки. Не хватает прав. Попробуйте запустить приложение от имени администратора</translation>
     </message>
     <message>
-        <location filename="hub/src/SystemCallWrapper.cpp" line="3354"/>
+        <location filename="hub/src/SystemCallWrapper.cpp" line="3352"/>
         <source>Couldn&apos;t remove program from autorun, sorry</source>
         <translation>Не удалось удалить программу из автозагрузки, извините</translation>
     </message>
