@@ -721,7 +721,24 @@ void CRestWorker::add_sshkey_to_environments(
 
   int http_status_code, err_code, network_error;
   send_request(m_network_manager, req, false,
-               http_status_code, err_code, network_error, doc_serialized, true);
+               http_status_code, err_code, network_error, doc_serialized, false);
+  qDebug() << "finished to add ssh keys"
+           << "json doc: " << doc
+           << "http code" << http_status_code
+           << "network code" << network_error
+           << "error code" << err_code;
+  if(err_code != RE_SUCCESS){
+    if(http_status_code == 500){
+      CNotificationObserver::Instance()->Error(tr("Failed to deploy ssh keys to the environments. "
+                                                  "Mostly it's because you already deployed a key with the same name or value"),
+                                               DlgNotification::N_NO_ACTION);
+    }
+    else{
+      CNotificationObserver::Instance()->Error(tr("Error occured during ssh key deployming to the environments."
+                                                  "Network error message: %1").arg(CCommons::NetworkErrorToString(network_error)),
+                                               DlgNotification::N_NO_ACTION);
+    }
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

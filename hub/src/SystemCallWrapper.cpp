@@ -1817,8 +1817,6 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
                                     "dpkg --remove --force-remove-reinstreq %2\n"
                                     "apt-get install -y -f\n"
                                     "dpkg -i %2\n"
-                                    "else\n"
-                                    "rm %2\n"
                                     "fi\n")
                                     .arg(dir, file_name)
                                     .toUtf8();

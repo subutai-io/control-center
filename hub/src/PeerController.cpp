@@ -247,8 +247,6 @@ QString CPeerController::parse_name(const QString &name){
 void CPeerController::parse_peer_info(int type, const QString &name, const QString &dir, const QString &output){
     if(number_threads == 0)
         return;
-    // const QString &name, const QString &ip, const QString &fingerprint, const QString &status, const QString &dir
-    // wait mazafaka
     // get ip of peer
     if(type == 0){
         qDebug() << "Got status of "<<name<<"status:"<<output;
