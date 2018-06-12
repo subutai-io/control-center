@@ -65,7 +65,7 @@ void CSshKeysController::refresh_key_files() {
     lst_key_files.push_back(*i);
     QByteArray arr_content = key_file.readAll();
     arr_content.truncate(arr_content.size() - 1);  // hack for hub
-    lst_key_content.push_back(QString(arr_content));
+    lst_key_content.push_back(QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]")));
     key_file.close();
   }
 
