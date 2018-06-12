@@ -417,29 +417,29 @@ template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
     return STRING; \
   }
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 1, "urn:subutai-master:management:peer:1")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 1, "urn:subutai:management:peer:1")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   1,  "urn:subutai:management:peer:1")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    1,  "urn:subutai-dev:management:peer:1")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    1,  "urn:subutai:management:peer:1")
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 2, "urn:subutai-master:management:peer:2")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 2, "urn:subutai:management:peer:2")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   2,  "urn:subutai:management:peer:2")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    2,  "urn:subutai-dev:management:peer:2")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    2,  "urn:subutai:management:peer:2")
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 3, "urn:subutai-master:management:peer:3")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 3, "urn:subutai:management:peer:3")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   3,  "urn:subutai:management:peer:3")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    3,  "urn:subutai-dev:management:peer:3")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    3,  "urn:subutai:management:peer:3")
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 4, "urn:subutai-master:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 4, "urn:subutai:management:peer:4")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   4,  "urn:subutai:management:peer:4")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    4,  "urn:subutai-dev:management:peer:4")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    4,  "urn:subutai:management:peer:4")
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 5, "urn:subutai-master:management:peer:5")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 5, "urn:subutai:management:peer:5")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   5,  "urn:subutai:management:peer:5")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    5,  "urn:subutai-dev:management:peer:5")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    5,  "urn:subutai:management:peer:5")
 
-ssdp_rh_search_target_temp_internal_def(BT_MASTER, 6, "urn:subutai-master:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_MASTER, 6, "urn:subutai:management:peer:6")
 ssdp_rh_search_target_temp_internal_def(BT_PROD,   6,  "urn:subutai:management:peer:6")
-ssdp_rh_search_target_temp_internal_def(BT_DEV,    6,  "urn:subutai-dev:management:peer:6")
+ssdp_rh_search_target_temp_internal_def(BT_DEV,    6,  "urn:subutai:management:peer:6")
 
 const char **
 ssdp_rh_search_target_arr() {
@@ -714,9 +714,9 @@ template<class BR> const QString& subutai_command_internal();
     return res; \
   }
 
-subutai_command_internal_def(BT_PROD,   "/snap/bin/subutai")
-subutai_command_internal_def(BT_MASTER, "/snap/bin/subutai-master")
-subutai_command_internal_def(BT_DEV,    "/snap/bin/subutai-dev")
+subutai_command_internal_def(BT_PROD,   "/usr/bin/subutai")
+subutai_command_internal_def(BT_MASTER, "/usr/bin/subutai")
+subutai_command_internal_def(BT_DEV,    "/usr/bin/subutai")
 
 const QString &
 subutai_command() {
@@ -733,9 +733,9 @@ template<class BR> const QString& snap_p2p_path_internal();
     return res; \
   }
 
-snap_p2p_path_internal_def(BT_PROD,   "/snap/subutai/current/bin/p2p")
-snap_p2p_path_internal_def(BT_MASTER, "/snap/subutai-master/current/bin/p2p")
-snap_p2p_path_internal_def(BT_DEV,    "/snap/subutai-dev/current/bin/p2p")
+snap_p2p_path_internal_def(BT_PROD,   "/usr/bin/p2p")
+snap_p2p_path_internal_def(BT_MASTER, "/usr/bin/p2p")
+snap_p2p_path_internal_def(BT_DEV,    "/usr/bin/p2p")
 
 const QString &
 snap_p2p_path() {
