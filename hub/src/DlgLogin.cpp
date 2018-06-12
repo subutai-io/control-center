@@ -4,24 +4,33 @@
 #include "HubController.h"
 #include "RestWorker.h"
 #include <QSplashScreen>
+#include <QAction>
 #include "OsBranchConsts.h"
 #include "NotificationObserver.h"
 
 DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgLogin),
-  m_login_count(0)
+  m_login_count(0),
+  password_state(0)
 {
   ui->setupUi(this);
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
   ui->btn_resolve->hide();
 
-  ui->lbl_register_link->setText(QString("<a href=\"%1\">%2</a>").arg(hub_register_url()).arg(tr("Register")));
+  ui->lbl_register_link->setText(QString("<a href=\"%1\" style=\"color: inherit;\">%2</a>").arg(hub_register_url()).arg(tr("Register for Bazaar account")));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
   ui->lbl_register_link->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_register_link->setOpenExternalLinks(true);
-  ui->lbl_register_link->setAlignment(Qt::AlignCenter);
+
+  QIcon show_password_icon(":/hub/show_password.png");
+  QAction *show_password_action = ui->le_password->addAction(show_password_icon, QLineEdit::TrailingPosition);
+
+  connect(show_password_action, &QAction::triggered, [this]() {
+      this->password_state ^= 1; // xor
+      ui->le_password->setEchoMode(this->password_state ? QLineEdit::Normal : QLineEdit::Password);
+  });
 
   if (CSettingsManager::Instance().remember_me()) {
     ui->le_login->setText(CSettingsManager::Instance().login());
@@ -31,7 +40,6 @@ DlgLogin::DlgLogin(QWidget *parent) :
 
   connect(ui->btn_ok, &QPushButton::released, this, &DlgLogin::btn_ok_released);
   connect(ui->btn_cancel, &QPushButton::released, this, &DlgLogin::btn_cancel_released);
-  connect(ui->cb_show_pass, &QCheckBox::stateChanged, this, &DlgLogin::cb_show_pass_state_changed);
 }
 
 DlgLogin::~DlgLogin()
@@ -139,14 +147,6 @@ DlgLogin::btn_cancel_released()
 {
   this->setResult(QDialog::Rejected);
   QDialog::reject();
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgLogin::cb_show_pass_state_changed(int st)
-{
-  ui->le_password->setEchoMode(st == Qt::Checked ?
-                                 QLineEdit::Normal : QLineEdit::Password);
 }
 ////////////////////////////////////////////////////////////////////////////
 
