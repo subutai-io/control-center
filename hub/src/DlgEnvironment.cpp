@@ -196,22 +196,22 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
     cont_checkbox->setToolTip(tr("Environment is not HEALTHY"));
   }
   else {
-    if (!cont_checkbox->text().contains("TRYING TO CONNECT") && cont_checkbox->text() != "FAILED") {
-      cont_checkbox->setText(tr("TRYING TO CONNECT"));
+    if (!cont_checkbox->text().contains("INITIALIZING") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("INITIALIZING"));
       cont_checkbox->setStyleSheet("QCheckBox {color : orange;}");
-      cont_checkbox->setToolTip(tr("Trying to reconnect"));
+      cont_checkbox->setToolTip(tr("Trying to initialize a connection"));
     }
     else
-    if (!cont_checkbox->text().contains("TRYING TO CONNECT.") && cont_checkbox->text() != "FAILED") {
-      cont_checkbox->setText(tr("TRYING TO CONNECT."));
+    if (!cont_checkbox->text().contains("INITIALIZING.") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("INITIALIZING."));
     }
     else
-    if (!cont_checkbox->text().contains("TRYING TO CONNECT..") && cont_checkbox->text() != "FAILED") {
-      cont_checkbox->setText(tr("TRYING TO CONNECT.."));
+    if (!cont_checkbox->text().contains("INITIALIZING..") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("INITIALIZING.."));
     }
     else
-    if (!cont_checkbox->text().contains("TRYING TO CONNECT...") && cont_checkbox->text() != "FAILED") {
-      cont_checkbox->setText(tr("TRYING TO CONNECT..."));
+    if (!cont_checkbox->text().contains("INITIALIZING...") && cont_checkbox->text() != "FAILED") {
+      cont_checkbox->setText(tr("INITIALIZING..."));
     }
     else
     if (status == 3) {

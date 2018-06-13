@@ -367,6 +367,33 @@ void parse_status_line(QString status_line,
     return;
 }
 
+QString CSystemCallWrapper::vagrant_is_peer_update_available(const QString &ip){
+    qDebug()
+            <<"Trying to get update of peer: "<<ip;
+    QJsonValue update_available;
+    if (!CRestWorker::Instance()->peer_get_info(ip,
+        "isUpdatesAvailable", update_available)) {
+      return QString("false");
+    }
+    if(update_available.isBool()){
+      return update_available.toBool() ? QString("true") : QString("false");
+    }
+    return QString("false");
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
+  if (CRestWorker::Instance()->peer_update_management(port)) {
+    CNotificationObserver::Instance()->Info(QObject::tr("Successfully finished to update Peer %2")
+                                            .arg(peer_name), DlgNotification::N_NO_ACTION);
+  } else {
+    CNotificationObserver::Instance()->Error(QObject::tr("Failed to update Peer %2 with. Please make sure your Peer is running "
+                                                "and try to update from Subutai Console")
+                                             .arg(peer_name), DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  }
+  return SCWE_SUCCESS;
+}
+
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
     system_call_res_t res;
