@@ -235,6 +235,33 @@ void CRestWorker::peer_token(const QString& port, const QString& login,
   }
 }
 
+bool CRestWorker::peer_update_management(const QString &port){
+  qInfo() << "Request to update management %1" << port;
+
+  const QString str_url(
+      QString("https://localhost:%1/rest/v1/system/update_management").arg(port));
+
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
+
+  int http_code, err_code, network_error;
+
+  send_request(m_network_manager, request, false,
+              http_code, err_code, network_error,
+              QByteArray(), true, 24 * 3600000); // 24 hours for update
+
+  qDebug () << "Update peer management is finished with "
+            << "Error code: " << err_code
+            << "Network error" << network_error
+            << "Http code" << http_code;
+
+  if (err_code != RE_SUCCESS) {
+    if (http_code == 500) err_code = RE_FAILED_ERROR;
+    return false;
+  }
+  return true;
+}
+
 void CRestWorker::peer_unregister(const QString& port, const QString& token,
                                   int& err_code, int& http_code,
                                   int& network_error) {

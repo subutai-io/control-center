@@ -382,7 +382,15 @@ QString CSystemCallWrapper::vagrant_is_peer_update_available(const QString &ip){
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
-  CNotificationObserver::Instance()->Info(QString("heelo %1").arg(peer_name), DlgNotification::N_NO_ACTION);
+  if (CRestWorker::Instance()->peer_update_management(port)) {
+    CNotificationObserver::Instance()->Info(QObject::tr("Successfully finished to update Peer %2")
+                                            .arg(peer_name), DlgNotification::N_NO_ACTION);
+  } else {
+    CNotificationObserver::Instance()->Error(QObject::tr("Failed to update Peer %2 with. Please make sure your Peer is running "
+                                                "and try to update from Subutai Console")
+                                             .arg(peer_name), DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  }
   return SCWE_SUCCESS;
 }
 

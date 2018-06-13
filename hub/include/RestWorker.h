@@ -24,7 +24,9 @@ typedef enum rest_error {
   RE_TIMEOUT,
   RE_NOT_JSON_DOC,
   RE_NOT_JSON_OBJECT,
-  RE_NETWORK_ERROR
+  RE_NETWORK_ERROR,
+  RE_FAILED_ERROR,
+  RE_NO_UPDATES
 } rest_error_t;
 ////////////////////////////////////////////////////////////////////////////
 
@@ -152,6 +154,8 @@ public:
   bool peer_login(const QString& port,
                   const QString& username,
                   const QString& pass);
+
+  bool peer_update_management(const QString& port);
 
   bool get_user_info(QString user_info_type, QString& user_info_str);
 
