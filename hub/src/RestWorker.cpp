@@ -1,15 +1,18 @@
-#include <QEventLoop>
-#include <QTimer>
-#include <QNetworkProxy>
 #include <QApplication>
+#include <QEventLoop>
+#include <QNetworkProxy>
+#include <QTimer>
 
+#include "DlgNotification.h"
 #include "Locker.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
-#include "DlgNotification.h"
 
-CRestWorker::CRestWorker() { m_network_manager = create_network_manager(); m_network_manager->setProxy(QNetworkProxy::NoProxy); }
+CRestWorker::CRestWorker() {
+  m_network_manager = create_network_manager();
+  m_network_manager->setProxy(QNetworkProxy::NoProxy);
+}
 
 CRestWorker::~CRestWorker() { free_network_manager(m_network_manager); }
 ////////////////////////////////////////////////////////////////////////////
@@ -30,14 +33,13 @@ void CRestWorker::get_p2p_status_finished_sl() {
   std::vector<CP2PInstance> lst_res;
   QJsonObject obj = doc.object();
 
-  if (obj["code"].toInt() == 0){
+  if (obj["code"].toInt() == 0) {
     QJsonArray doc_arr = obj["instances"].toArray();
     for (auto i : doc_arr) {
       if (i.isNull() || !i.isObject()) continue;
       lst_res.push_back(CP2PInstance(i.toObject()));
     }
-  }
-  else {
+  } else {
     err_code = obj["code"].toInt();
   }
 
@@ -70,8 +72,7 @@ void CRestWorker::get_my_peers_finished_sl() {
 
 void CRestWorker::get_environments_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  qDebug()
-      << "Is reply null " << (reply == nullptr);
+  qDebug() << "Is reply null " << (reply == nullptr);
 
   if (reply == nullptr) {
     return;
@@ -98,8 +99,7 @@ void CRestWorker::get_environments_finished_sl() {
 
 void CRestWorker::get_balance_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  qDebug()
-      << "Is reply null " << (reply == nullptr);
+  qDebug() << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -123,8 +123,7 @@ void CRestWorker::get_balance_finished_sl() {
 
 void CRestWorker::check_if_ss_console_is_ready_finished_sl() {
   QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-  qDebug()
-      << "Is reply null " << (reply == nullptr);
+  qDebug() << "Is reply null " << (reply == nullptr);
   if (reply == nullptr) {
     return;
   }
@@ -175,10 +174,8 @@ void CRestWorker::login(const QString& login, const QString& password,
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
       query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
-  qDebug()
-      << "Http code " << http_code
-      << "Error code " << err_code
-      << "Network Error " << network_error;
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
 
   static QString str_ok = "\"OK\"";
 
@@ -195,167 +192,240 @@ void CRestWorker::login(const QString& login, const QString& password,
 
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////* console rest API */////////////////////////////////
-void CRestWorker::peer_token(const QString &port,const QString &login, const QString &password,
-                                 QString &token, int &err_code,
-                                 int &http_code, int &network_error){
-    qInfo()
-            << tr("Getting token of %1").arg(port);
+void CRestWorker::peer_token(const QString& port, const QString& login,
+                             const QString& password, QString& token,
+                             int& err_code, int& http_code,
+                             int& network_error) {
+  qInfo() << tr("Getting token of %1").arg(port);
 
-    const QString str_url(QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
+  const QString str_url(
+      QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
 
-    QUrl url_login(str_url);
-    QUrlQuery query_login;
+  QUrl url_login(str_url);
+  QUrlQuery query_login;
 
-    query_login.addQueryItem("username", login);
-    query_login.addQueryItem("password", password);
+  query_login.addQueryItem("username", login);
+  query_login.addQueryItem("password", password);
 
-    QNetworkRequest request(url_login);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-    QByteArray arr = send_request(m_network_manager, request, false,
-                                  http_code, err_code, network_error,
-                                  query_login.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  QNetworkRequest request(url_login);
+  request.setHeader(QNetworkRequest::ContentTypeHeader,
+                    "application/x-www-form-urlencoded");
+  QByteArray arr = send_request(
+      m_network_manager, request, false, http_code, err_code, network_error,
+      query_login.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
 
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
 
-    token=QString(arr);
-    static const QString str_acces_denied="Access Denied to the resource!";
-    if (err_code != RE_SUCCESS) {
-      if (http_code == 500) err_code = RE_LOGIN_OR_EMAIL;
-      return;
-    }
+  token = QString(arr);
+  static const QString str_acces_denied = "Access Denied to the resource!";
+  if (err_code != RE_SUCCESS) {
+    if (http_code == 500) err_code = RE_LOGIN_OR_EMAIL;
+    return;
+  }
 
-    if(QString(arr) == ""){
-        err_code = RE_NETWORK_ERROR;
-        return;
-    }
+  if (QString(arr) == "") {
+    err_code = RE_NETWORK_ERROR;
+    return;
+  }
 
-    if (QString(arr) == str_acces_denied) {
-      err_code = RE_LOGIN_OR_EMAIL;
-      return;
-    }
+  if (QString(arr) == str_acces_denied) {
+    err_code = RE_LOGIN_OR_EMAIL;
+    return;
+  }
 }
 
+bool CRestWorker::peer_update_management(const QString &port){
+  qInfo() << "Request to update management %1" << port;
 
-void CRestWorker::peer_unregister(const QString &port, const QString &token,
-                                  int &err_code, int &http_code, int &network_error){
-    qInfo()
-            << tr("Unregistering peer %1").arg(port);
+  const QString str_url(
+      QString("https://localhost:%1/rest/v1/system/update_management").arg(port));
 
-    const QString str_url(QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2").arg(port, token));
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
 
-    QUrl url_login(str_url);
-    QNetworkRequest request(url_login);
+  int http_code, err_code, network_error;
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  send_request(m_network_manager, request, false,
+              http_code, err_code, network_error,
+              QByteArray(), true, 24 * 3600000); // 24 hours for update
 
-    QByteArray arr = send_request(m_network_manager, request, 3,
-                                  http_code, err_code, network_error,
-                                  QByteArray(), false, 60000);
-    UNUSED_ARG(arr);
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
+  qDebug () << "Update peer management is finished with "
+            << "Error code: " << err_code
+            << "Network error" << network_error
+            << "Http code" << http_code;
+
+  if (err_code != RE_SUCCESS) {
+    if (http_code == 500) err_code = RE_FAILED_ERROR;
+    return false;
+  }
+  return true;
 }
 
+void CRestWorker::peer_unregister(const QString& port, const QString& token,
+                                  int& err_code, int& http_code,
+                                  int& network_error) {
+  qInfo() << tr("Unregistering peer %1").arg(port);
 
-void CRestWorker::peer_register(const QString &port,
-                                const QString &token, const QString &login,
-                                const QString &password, const QString &peer_name,
-                                const QString &peer_scope, int &err_code,
-                                int &http_code, int &network_error){
-    qInfo()
-            << tr("Registering peer %1").arg(port);
+  const QString str_url(
+      QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2")
+          .arg(port, token));
 
-    const QString str_url(QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2").arg(port, token));
-    QUrl url_login(str_url);
-    QUrlQuery query;
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
 
-    query.addQueryItem("email", login);
-    query.addQueryItem("password", password);
-    query.addQueryItem("peerName",peer_name);
-    query.addQueryItem("peerScope",peer_scope);
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QNetworkRequest request(url_login);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-    QByteArray arr = send_request(m_network_manager, request, false,
-                                  http_code, err_code, network_error,
-                                  query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
-    UNUSED_ARG(arr);
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
+  QByteArray arr =
+      send_request(m_network_manager, request, 3, http_code, err_code,
+                   network_error, QByteArray(), false, 60000);
+  UNUSED_ARG(arr);
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
 }
 
+void CRestWorker::peer_register(const QString& port, const QString& token,
+                                const QString& login, const QString& password,
+                                const QString& peer_name,
+                                const QString& peer_scope, int& err_code,
+                                int& http_code, int& network_error) {
+  qInfo() << tr("Registering peer %1").arg(port);
 
-bool CRestWorker::peer_finger(const QString &port, QString &finger){
-    qInfo()
-            << tr("Getting finger from %1").arg(port);
+  const QString str_url(
+      QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2")
+          .arg(port, token));
+  QUrl url_login(str_url);
+  QUrlQuery query;
 
-    const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/getpublickeyfingerprint").arg(port));
-    int http_code, err_code, network_error;
-    QUrl url_finger(str_url);
-    QByteArray nothing;
-    QNetworkRequest request(url_finger);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    QByteArray arr = send_request(m_network_manager, request, 1,
-                                  http_code, err_code, network_error,
-                                  nothing, false);
+  query.addQueryItem("email", login);
+  query.addQueryItem("password", password);
+  query.addQueryItem("peerName", peer_name);
+  query.addQueryItem("peerScope", peer_scope);
 
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
-    try {
-     finger = QString(arr);
-    } catch(...){
-        qCritical() << "failed to get finger of " << port;
-        finger = "";
-    }
+  QNetworkRequest request(url_login);
+  request.setHeader(QNetworkRequest::ContentTypeHeader,
+                    "application/x-www-form-urlencoded");
+  QByteArray arr = send_request(
+      m_network_manager, request, false, http_code, err_code, network_error,
+      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  UNUSED_ARG(arr);
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
+}
+
+bool CRestWorker::peer_finger(const QString& port, QString& finger) {
+  qInfo() << tr("Getting finger from %1").arg(port);
+
+  const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/"
+                                "getpublickeyfingerprint")
+                            .arg(port));
+  int http_code, err_code, network_error;
+  QUrl url_finger(str_url);
+  QByteArray nothing;
+  QNetworkRequest request(url_finger);
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QByteArray arr = send_request(m_network_manager, request, 1, http_code,
+                                err_code, network_error, nothing, false);
+
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
+  try {
+    finger = QString(arr);
+  } catch (...) {
+    qCritical() << "failed to get finger of " << port;
+    finger = "";
+  }
+  return true;
+}
+
+bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
+                                const QString& old_pass,
+                                const QString& new_pass) {
+  qInfo() << tr("Setting password for %1").arg(port);
+
+  const QString str_url(QString("https://localhost:%1/login").arg(port));
+  QUrl url_finger(str_url);
+  url_finger.setPort(port.toInt());
+  QUrlQuery query;
+  query.addQueryItem("username", username);
+  query.addQueryItem("password", old_pass);
+  query.addQueryItem("newpassword", new_pass);
+  QNetworkRequest request(url_finger);
+  request.setHeader(QNetworkRequest::ContentTypeHeader,
+                    "application/x-www-form-urlencoded");
+  int http_code, err_code, network_error;
+
+  QByteArray arr = send_request(
+      m_network_manager, request, false, http_code, err_code, network_error,
+      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+
+  UNUSED_ARG(arr);
+
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
+  // after change of password make authorization
+  return peer_login(port, username, new_pass);
+}
+
+bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
+                                QJsonValue& peer_info_value) {
+  // create request
+  int http_code, err_code, network_error;
+  const QString str_url(QString("https://localhost:%1/rest/v1/system/management_updates").arg(port));
+  QUrl url_login(str_url);
+  QNetworkRequest request(url_login);
+  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QByteArray arr = send_request(m_network_manager, request, true, http_code,
+                                err_code, network_error, QByteArray(), 0);
+  // get json file
+  QJsonDocument doc = QJsonDocument::fromJson(arr);
+  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+    qCritical() << "couldn't get json file from" << port;
+    return false;
+  }
+  // get value from json file
+  QJsonObject obj = doc.object();
+  if (obj.find(peer_info_type) != obj.end()) {
+    peer_info_value = obj[peer_info_type];
     return true;
+  }
+  return false;
 }
 
-bool CRestWorker::peer_set_pass(const QString &port,
-                                const QString &username,
-                                const QString &old_pass,
-                                const QString &new_pass){
-    qInfo()<< tr("Setting password for %1").arg(port);
+bool CRestWorker::peer_login(const QString &port,
+                             const QString &username,
+                             const QString &pass){
+  const QString str_url(QString("https://localhost:%1/login").arg(port));
+  QUrl url_finger(str_url);
+  url_finger.setPort(port.toInt());
+  QUrlQuery query;
+  query.addQueryItem("username", username);
+  query.addQueryItem("password", pass);
+  QNetworkRequest request(url_finger);
+  request.setHeader(QNetworkRequest::ContentTypeHeader,
+                    "application/x-www-form-urlencoded");
+  int http_code, err_code, network_error;
 
-    const QString str_url(QString("https://localhost:%1/login").arg(port));
-    QUrl url_finger(str_url);
-    url_finger.setPort(port.toInt());
-    QUrlQuery query;
-    query.addQueryItem("username", username);
-    query.addQueryItem("password", old_pass);
-    query.addQueryItem("newpassword", new_pass);
-    QNetworkRequest request(url_finger);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,
-                      "application/x-www-form-urlencoded");
-    int http_code, err_code, network_error;
+  QByteArray arr = send_request(
+      m_network_manager, request, false, http_code, err_code, network_error,
+      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
 
-    QByteArray arr = send_request(m_network_manager, request, false,
-                                  http_code, err_code, network_error,
-                                  query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  UNUSED_ARG(arr);
 
-    UNUSED_ARG(arr);
-
-    qDebug()
-        << "Http code " << http_code
-        << "Error code " << err_code
-        << "Network Error " << network_error;
-
+  qDebug() << "Http code " << http_code << "Error code " << err_code
+           << "Network Error " << network_error;
+  if (err_code != RE_SUCCESS) {
+    qCritical() << "Failed to login in local peer: " << port;
+    return false;
+  } else {
     return true;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool CRestWorker::get_user_info(QString user_info_type, QString& user_info_str) {
+bool CRestWorker::get_user_info(QString user_info_type,
+                                QString& user_info_str) {
   int http_code, err_code, network_error;
   user_info_str = "";
   static const QString str_url(hub_get_url().arg("user-info"));
@@ -366,11 +436,11 @@ bool CRestWorker::get_user_info(QString user_info_type, QString& user_info_str) 
                                 err_code, network_error, QByteArray(), true);
 
   QJsonDocument doc = QJsonDocument::fromJson(arr);
-  qDebug()
-      << "Json file: " << doc;
+  qDebug() << "Json file: " << doc;
   if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical("Get user %s failed. URL : %s", user_info_type.toStdString().c_str(),
-                                          str_url.toStdString().c_str());
+    qCritical("Get user %s failed. URL : %s",
+              user_info_type.toStdString().c_str(),
+              str_url.toStdString().c_str());
     return false;
   }
 
@@ -391,23 +461,21 @@ void CRestWorker::update_my_peers() {
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
-  QTimer *timer = new QTimer(this);
+  QTimer* timer = new QTimer(this);
   timer->setInterval(30000);
   timer->setSingleShot(true);
 
-  connect(timer, &QTimer::timeout, [reply](){
-    CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
-    if (reply)
-      reply->close();
+  connect(timer, &QTimer::timeout, [reply]() {
+    CNotificationObserver::Instance()->Info(
+        "Connection timeout, can't connect to bazaar",
+        DlgNotification::N_NO_ACTION);
+    if (reply) reply->close();
   });
 
   timer->start();
 
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::stop);
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, this,
           &CRestWorker::get_my_peers_finished_sl);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
@@ -434,27 +502,24 @@ void CRestWorker::update_environments() {
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
 
-  QTimer *timer = new QTimer(this);
+  QTimer* timer = new QTimer(this);
   timer->setInterval(30000);
   timer->setSingleShot(true);
 
-  connect(timer, &QTimer::timeout, [reply](){
-    CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
-    if (reply)
-      reply->close();
+  connect(timer, &QTimer::timeout, [reply]() {
+    CNotificationObserver::Instance()->Info(
+        "Connection timeout, can't connect to bazaar",
+        DlgNotification::N_NO_ACTION);
+    if (reply) reply->close();
   });
 
   timer->start();
 
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::stop);
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::deleteLater);
-  connect(reply, &QNetworkReply::finished,
-          this,  &CRestWorker::get_environments_finished_sl);
-  connect(reply, &QNetworkReply::finished,
-          reply, &QNetworkReply::deleteLater);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, this,
+          &CRestWorker::get_environments_finished_sl);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -466,27 +531,24 @@ void CRestWorker::update_balance() {
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
 
-  QTimer *timer = new QTimer(this);
+  QTimer* timer = new QTimer(this);
   timer->setInterval(30000);
   timer->setSingleShot(true);
 
-  connect(timer, &QTimer::timeout, [reply](){
-    CNotificationObserver::Instance()->
-        Info("Connection timeout, can't connect to bazaar", DlgNotification::N_NO_ACTION);
-    if (reply)
-      reply->close();
+  connect(timer, &QTimer::timeout, [reply]() {
+    CNotificationObserver::Instance()->Info(
+        "Connection timeout, can't connect to bazaar",
+        DlgNotification::N_NO_ACTION);
+    if (reply) reply->close();
   });
 
   timer->start();
 
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::stop);
-  connect(reply, &QNetworkReply::finished,
-          timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, this,
           &CRestWorker::get_balance_finished_sl);
-  connect(reply, &QNetworkReply::finished,
-          reply, &QNetworkReply::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -495,7 +557,7 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     const QString& file_name, QString link) {
   static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
-  if(link.isEmpty()){
+  if (link.isEmpty()) {
     link = hub_gorjun_url().arg(str_fi);
   }
   QUrl url_gorjun_fi(link);
@@ -507,9 +569,7 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), true);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
-  qDebug()
-      << "Requested filename: " << file_name
-      << "Json file: " << doc;
+  qDebug() << "Requested filename: " << file_name << "Json file: " << doc;
 
   std::vector<CGorjunFileInfo> lst_res;
   if (doc.isNull()) {
@@ -531,17 +591,19 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name){
+QString CRestWorker::get_vagrant_plugin_cloud_version(
+    const QString& plugin_name) {
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(QString("https://rubygems.org/api/v1/versions/%1/latest.json").arg(plugin_name));
+  QUrl url_gorjun_fi(
+      QString("https://rubygems.org/api/v1/versions/%1/latest.json")
+          .arg(plugin_name));
   QNetworkRequest request(url_gorjun_fi);
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), false);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
 
-  qDebug()
-      << "Requested plugin version: " << plugin_name
-      << "Json file: " << doc;
+  qDebug() << "Requested plugin version: " << plugin_name
+           << "Json file: " << doc;
 
   if (doc.isNull()) {
     err_code = RE_NOT_JSON_DOC;
@@ -552,43 +614,45 @@ QString CRestWorker::get_vagrant_plugin_cloud_version(const QString &plugin_name
     QJsonArray json_arr = doc.array();
     return json_arr.first().toString();
   } else if (doc.isObject()) {
-      return doc.object()["version"].toString();
+    return doc.object()["version"].toString();
   }
   return QString("undefined");
 }
 
-QString CRestWorker::get_vagrant_box_cloud_version(const QString &box_name, const QString &box_provider){
+QString CRestWorker::get_vagrant_box_cloud_version(
+    const QString& box_name, const QString& box_provider) {
   QStringList parsed_name = box_name.split("/");
-  if(parsed_name.size() != 2){
-      return QString("undefined");
+  if (parsed_name.size() != 2) {
+    return QString("undefined");
   }
   int http_code, err_code, network_error;
-  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/%1/%2").arg(parsed_name[0], parsed_name[1]));
+  QUrl url_gorjun_fi(QString("https://app.vagrantup.com/api/v1/box/%1/%2")
+                         .arg(parsed_name[0], parsed_name[1]));
   QNetworkRequest request(url_gorjun_fi);
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
                                 err_code, network_error, QByteArray(), false);
   QJsonDocument doc = QJsonDocument::fromJson(arr);
 
-  qDebug()
-      << "Requested box version: " << box_name
-      << "Json file: " << doc;
+  qDebug() << "Requested box version: " << box_name << "Json file: " << doc;
 
   if (doc.isNull()) {
     err_code = RE_NOT_JSON_DOC;
     return QString("undefined");
   }
-  if(doc.isObject()){
-      QJsonArray all_versions = doc.object()["versions"].toArray();
-      for (QJsonArray::iterator it1 = all_versions.begin(); it1 != all_versions.end(); it1++){
-          QJsonObject version = it1->toObject();
-          QJsonArray providers = version["providers"].toArray();
-          for (QJsonArray::iterator it2 = providers.begin(); it2 != providers.end(); it2++ ){
-              QJsonObject provider = it2->toObject();
-              if(provider["name"].toString() == box_provider){
-                  return version["version"].toString();
-              }
-          }
+  if (doc.isObject()) {
+    QJsonArray all_versions = doc.object()["versions"].toArray();
+    for (QJsonArray::iterator it1 = all_versions.begin();
+         it1 != all_versions.end(); it1++) {
+      QJsonObject version = it1->toObject();
+      QJsonArray providers = version["providers"].toArray();
+      for (QJsonArray::iterator it2 = providers.begin(); it2 != providers.end();
+           it2++) {
+        QJsonObject provider = it2->toObject();
+        if (provider["name"].toString() == box_provider) {
+          return version["version"].toString();
+        }
       }
+    }
   }
   return QString("undefined");
 }
@@ -635,10 +699,10 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id, QString link) {
+QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id,
+                                                 QString link) {
   static const QString str_file_url("raw/download");
-  if(link.isEmpty())
-      link = hub_gorjun_url().arg(str_file_url);
+  if (link.isEmpty()) link = hub_gorjun_url().arg(str_file_url);
   QUrl url(link);
   QUrlQuery query;
   query.addQueryItem("id", file_id);
@@ -762,8 +826,8 @@ void CRestWorker::remove_sshkey_from_environments(
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
   int http_status_code, err_code, network_error;
-  send_request(m_network_manager, req, false,
-               http_status_code, err_code, network_error, doc_serialized, true);
+  send_request(m_network_manager, req, false, http_status_code, err_code,
+               network_error, doc_serialized, true);
 }
 
 QNetworkAccessManager* CRestWorker::create_network_manager() {
@@ -786,9 +850,8 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
     err_code = RE_NETWORK_ERROR;
-    qCritical(
-        "Send request network error : %s",
-        reply->errorString().toStdString().c_str());
+    qCritical("Send request network error : %s",
+              reply->errorString().toStdString().c_str());
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -813,8 +876,7 @@ QNetworkReply* CRestWorker::get_reply(QNetworkAccessManager* nam,
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    qCritical("Network isn't accessible : %d",
-                                          (int)nam->networkAccessible());
+    qCritical("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
   QNetworkReply* reply = nam->get(req);
@@ -828,8 +890,7 @@ QNetworkReply* CRestWorker::post_reply(QNetworkAccessManager* nam,
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    qCritical("Network isn't accessible : %d",
-                                          (int)nam->networkAccessible());
+    qCritical("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
   QNetworkReply* reply = nam->post(req, data);
@@ -837,13 +898,12 @@ QNetworkReply* CRestWorker::post_reply(QNetworkAccessManager* nam,
   return reply;
 }
 
-QNetworkReply* CRestWorker::delete_reply(QNetworkAccessManager *nam,
-                                         QNetworkRequest &req) {
+QNetworkReply* CRestWorker::delete_reply(QNetworkAccessManager* nam,
+                                         QNetworkRequest& req) {
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    qCritical("Network isn't accessible : %d",
-                                          (int)nam->networkAccessible());
+    qCritical("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
   QNetworkReply* reply = nam->deleteResource(req);
@@ -856,12 +916,12 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
                                      QNetworkRequest& req, int get,
                                      int& http_status_code, int& err_code,
                                      int& network_error, QByteArray data,
-                                     bool show_network_err_msg, uint timeout_time) {
+                                     bool show_network_err_msg,
+                                     uint timeout_time) {
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
   if (nam->networkAccessible() != QNetworkAccessManager::Accessible) {
-    qCritical("Network isn't accessible : %d",
-                                          (int)nam->networkAccessible());
+    qCritical("Network isn't accessible : %d", (int)nam->networkAccessible());
     nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
   }
 
@@ -872,29 +932,29 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QEventLoop* loop = new QEventLoop;
   QTimer* timer = new QTimer;
   timer->setSingleShot(true);
-  if(timeout_time == 0 || timeout_time == 30000){
+  if (timeout_time == 0 || timeout_time == 30000) {
     timer->start(30000);
-  }
-  else {
-      timer->start(timeout_time);
+  } else {
+    timer->start(timeout_time);
   }
 
   QNetworkReply* reply;
   switch (get) {
     case 1:
-        reply = get_reply(nam, req);
-        break;
+      reply = get_reply(nam, req);
+      break;
     case 0:
-        reply = post_reply(nam, data, req);
-        break;
+      reply = post_reply(nam, data, req);
+      break;
     case 3:
-        reply = delete_reply(nam, req);
-        break;
+      reply = delete_reply(nam, req);
+      break;
   }
 
   QObject::connect(timer, &QTimer::timeout, loop, &QEventLoop::quit);
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
-  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+                   loop, &QEventLoop::quit);
 
   reply->ignoreSslErrors();
 
@@ -914,11 +974,12 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   timer->deleteLater();
   if (reply->error() != QNetworkReply::NoError) {
     network_error = reply->error();
-    qCritical(
-        "Send request network error : %s",
-        reply->errorString().toStdString().c_str());
+    qCritical("Send request network error : %s",
+              reply->errorString().toStdString().c_str());
     if (show_network_err_msg)
-      CNotificationObserver::Error(tr(reply->errorString().toStdString().c_str()), DlgNotification::N_NO_ACTION);
+      CNotificationObserver::Error(
+          tr(reply->errorString().toStdString().c_str()),
+          DlgNotification::N_NO_ACTION);
     err_code = RE_NETWORK_ERROR;
     bool parsed = false;
     http_status_code =

@@ -908,10 +908,12 @@ void TrayControlWindow::got_peer_info_sl(int type, QString name, QString dir,
       }
       updater_peer.set_fingerprint(output);
       break;
+    case 3:
+      updater_peer.set_update_available(output);
+      break;
     default:
       break;
   }
-
   machine_peers_table[name] = updater_peer;
   if (!CSettingsManager::Instance()
            .peer_finger(updater_peer.name())
@@ -972,6 +974,51 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name) {
   }
   CPeerController::Instance()->finish_current_update();
 }
+
+void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
+  QString updating_str = "updating";
+  QString finished_str = "finished";
+  if (my_peers_button_table.find(peer_fingerprint) == my_peers_button_table.end()) {
+    qCritical() << "tried to update deleted peer: " << peer_fingerprint;
+    return;
+  }
+  my_peer_button *peer_instance = my_peers_button_table[peer_fingerprint];
+  QString peer_name, peer_port, local_peer_name;
+  if (peer_instance->m_local_peer != nullptr){
+    if (peer_instance->m_local_peer->update_available() == "updating") {
+      qCritical() << "tried to update updating peer: " << peer_fingerprint;
+      return;
+    }
+    local_peer_name = peer_name = peer_instance->m_local_peer->name();
+    peer_port = peer_instance->m_local_peer->ip();
+  } else {
+    qCritical() << "tried to update deleted peer: " << peer_fingerprint;
+    return;
+  }
+  if (peer_instance->m_hub_peer != nullptr){
+    peer_name = peer_instance->m_hub_peer->name();
+  }
+  UpdatePeerOS *peer_updater = new UpdatePeerOS(this);
+  peer_updater->init(peer_name, peer_port);
+  connect(peer_updater, &UpdatePeerOS::outputReceived,
+          [this, local_peer_name, finished_str](system_call_wrapper_error_t res){
+    if (res == SCWE_SUCCESS) {
+      qDebug() << "update peeros for the " << local_peer_name << "finished with success error";
+    } else {
+      qCritical() << "update peeros for the" << local_peer_name << "finished with failed error";
+    }
+    if (machine_peers_table.find(local_peer_name) != machine_peers_table.end()){
+      machine_peers_table[local_peer_name].set_update_available(finished_str);
+    }
+  });
+  connect(peer_updater, &UpdatePeerOS::outputReceived,
+          peer_updater, &UpdatePeerOS::deleteLater);
+  if (machine_peers_table.find(local_peer_name) != machine_peers_table.end()){
+    machine_peers_table[local_peer_name].set_update_available(updating_str);
+  }
+  peer_updater->startWork();
+}
+
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CLocalPeer &peer_info) {
   qDebug() << "update peer button information wih local peer";
@@ -1503,10 +1550,8 @@ void TrayControlWindow::generate_peer_dlg(
   dlg_peer->addPeer(peer, local_peer, lp);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this,
           &TrayControlWindow::ssh_to_rh_triggered);
-  connect(dlg_peer, &DlgPeer::peer_deleted, this,
-          &TrayControlWindow::peer_deleted_sl);
-  connect(dlg_peer, &DlgPeer::peer_modified, this,
-          &TrayControlWindow::peer_under_modification_sl);
+  connect(dlg_peer, &DlgPeer::peer_update_peeros, this,
+          &TrayControlWindow::peer_update_peeros_sl);
   m_last_generated_peer_dlg = dlg_peer;
 }
 
