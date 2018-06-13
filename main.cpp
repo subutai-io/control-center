@@ -66,6 +66,32 @@ int main(int argc, char* argv[]) {
   QApplication::setOrganizationName("subutai.io");
   QApplication app(argc, argv);
 
+  QCommandLineParser cmd_parser;
+  cmd_parser.setApplicationDescription(QObject::tr(
+      "This Control Center application should help users to work with hub"));
+
+  cmd_parser.addHelpOption();
+
+  std::string tray_build_number_str = TRAY_BUILD_NUMBER;
+  QCoreApplication::setApplicationVersion(QString("version: %1 build: %2").arg(TRAY_VERSION, tray_build_number_str.substr(0, tray_build_number_str.size() - 9).c_str()));
+
+  cmd_parser.addVersionOption();
+/** NOT WORKING
+  QCommandLineOption log_level_opt("l");
+  log_level_opt.setDescription("Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO (4). Trace is most detailed logs.");
+  log_level_opt.setValueName("log_level");
+  log_level_opt.setDefaultValue("1");
+
+  cmd_parser.addOption(log_level_opt);
+**/
+  cmd_parser.process(app);
+
+  auto asd = cmd_parser.optionNames();
+
+  for (auto i: asd) {
+    std::cout << i.toStdString() << "\n";
+  }
+
   Logger::Instance()->Init();
 
   QTranslator translator;
@@ -86,26 +112,6 @@ int main(int argc, char* argv[]) {
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);
     msg_box->exec();
-    return 0;
-  }
-
-  QCommandLineParser cmd_parser;
-  cmd_parser.setApplicationDescription(QObject::tr(
-      "This Control Center application should help users to work with hub"));
-  QCommandLineOption log_level_opt(
-      "l",
-      "Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO "
-      "(4). Trace is most detailed logs.",
-      "log_level", "1");
-  QCommandLineOption version_opt("v", "Version", "Version");
-
-  cmd_parser.addOption(log_level_opt);
-  cmd_parser.addPositionalArgument("log_level",
-                                   "Log level to use in this application");
-  cmd_parser.addOption(version_opt);
-  cmd_parser.addHelpOption();
-  if (cmd_parser.isSet(version_opt)) {
-    std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
 
