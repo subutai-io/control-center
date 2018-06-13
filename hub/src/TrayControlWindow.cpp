@@ -974,20 +974,20 @@ void TrayControlWindow::peer_poweroff_sl(const QString &peer_name) {
 }
 
 void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
-  static QString updating_str = "updating";
-  static QString finished_str = "finished";
+  QString updating_str = "updating";
+  QString finished_str = "finished";
   if (my_peers_button_table.find(peer_fingerprint) == my_peers_button_table.end()) {
     qCritical() << "tried to update deleted peer: " << peer_fingerprint;
     return;
   }
   my_peer_button *peer_instance = my_peers_button_table[peer_fingerprint];
-  QString peer_name, peer_port;
+  QString peer_name, peer_port, local_peer_name;
   if (peer_instance->m_local_peer != nullptr){
     if (peer_instance->m_local_peer->update_available() == "updating") {
       qCritical() << "tried to update updating peer: " << peer_fingerprint;
       return;
     }
-    peer_name = peer_instance->m_local_peer->name();
+    local_peer_name = peer_name = peer_instance->m_local_peer->name();
     peer_port = peer_instance->m_local_peer->ip();
   } else {
     qCritical() << "tried to update deleted peer: " << peer_fingerprint;
@@ -999,24 +999,22 @@ void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
   UpdatePeerOS *peer_updater = new UpdatePeerOS(this);
   peer_updater->init(peer_name, peer_port);
   connect(peer_updater, &UpdatePeerOS::outputReceived,
-          this, [this, peer_name, finished_str](system_call_wrapper_error_t res){
-    CNotificationObserver::Instance()->Info("aladin mazafaka", DlgNotification::N_NO_ACTION);
+          [this, local_peer_name, finished_str](system_call_wrapper_error_t res){
     if (res == SCWE_SUCCESS) {
-      qDebug() << "update peeros for the " << peer_name << "finished with success error";
+      qDebug() << "update peeros for the " << local_peer_name << "finished with success error";
     } else {
-      qCritical() << "update peeros for the" << peer_name << "finished with failed error";
+      qCritical() << "update peeros for the" << local_peer_name << "finished with failed error";
     }
-    if (machine_peers_table.find(peer_name) != machine_peers_table.end()){
-      machine_peers_table[peer_name].set_update_available(finished_str);
+    if (machine_peers_table.find(local_peer_name) != machine_peers_table.end()){
+      machine_peers_table[local_peer_name].set_update_available(finished_str);
     }
   });
   connect(peer_updater, &UpdatePeerOS::outputReceived,
           peer_updater, &UpdatePeerOS::deleteLater);
-  if (machine_peers_table.find(peer_name) != machine_peers_table.end()){
-    machine_peers_table[peer_name].set_update_available(updating_str);
-    qDebug("stop here");
+  if (machine_peers_table.find(local_peer_name) != machine_peers_table.end()){
+    machine_peers_table[local_peer_name].set_update_available(updating_str);
   }
-  //peer_updater->startWork();
+  peer_updater->startWork();
 }
 
 void TrayControlWindow::update_peer_button(const QString &peer_id,
