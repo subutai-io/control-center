@@ -146,6 +146,10 @@ win32: {
 DEFINES += QT_MESSAGELOGCONTEXT
 
 DEFINES += TRAY_VERSION=\\\"$$TRAY_VERSION\\\"
+
+TRAY_BUILD_NUMBER = $$system(git describe)
+DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
+
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
