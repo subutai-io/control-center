@@ -1488,7 +1488,9 @@ void TrayControlWindow::ssh_key_generate_triggered() {
 }
 
 QDialog *create_notifications_dialog(QWidget *p) {
-  return new DlgNotifications(p);
+  QDialog *dlg = new DlgNotifications(p);
+  dlg->setFixedWidth(dlg->width());
+  return dlg;
 }
 void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));
