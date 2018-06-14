@@ -15,6 +15,7 @@ class DlgLogin : public QDialog
 
 private:
   Ui::DlgLogin *ui;
+  QAction *m_show_password_action;
   int m_login_count;
 
   bool login();
@@ -28,11 +29,11 @@ public:
    */
   void run_dialog(QSplashScreen *sc);
   void solve_libssl();
+  bool m_password_state;
 
 private slots:
   void btn_ok_released();
   void btn_cancel_released();
-  void cb_show_pass_state_changed(int st);
 
 signals:
   void login_success();
