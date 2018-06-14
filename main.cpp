@@ -86,9 +86,11 @@ int main(int argc, char* argv[]) {
 
   cmd_parser.process(app);
 
-  int a_logs_level = cmd_parser.value(log_level_opt).toInt();
+  bool ok = false;
+  int a_logs_level = cmd_parser.value(log_level_opt).toInt(&ok);
 
-  if (a_logs_level < 0 || a_logs_level > 4) {
+  if (a_logs_level < 0 || a_logs_level > 4 || !ok) {
+    std::cout << "Log level can only be a number [0, 4]. Proceeding with a default value '1'\n";
     a_logs_level = 1;
   }
 
