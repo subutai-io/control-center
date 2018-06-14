@@ -15,6 +15,7 @@ class DlgLogin : public QDialog
 
 private:
   Ui::DlgLogin *ui;
+  QAction *m_show_password_action;
   int m_login_count;
 
   bool login();

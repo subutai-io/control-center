@@ -25,6 +25,7 @@ private:
     Ui::DlgRegisterPeer *ui;
     QString ip_addr;
     QString peer_name;
+    QAction *m_show_password_action;
 
 private slots:
     void registerPeer();

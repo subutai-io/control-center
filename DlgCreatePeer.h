@@ -53,6 +53,8 @@ class DlgCreatePeer : public QDialog {
 
  private:
   Ui::DlgCreatePeer *ui;
+  QAction *m_show_confirm_password_action;
+  QAction *m_show_password_action;
   pass_err check_pass(QString pass);
   void hide_err_labels();
   void set_enabled_buttons(bool state);

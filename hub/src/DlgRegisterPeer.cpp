@@ -24,10 +24,11 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     m_invalid_chars.setPattern("\\W");
 
     // QLineEdit Show password action
-    QIcon show_password_icon(":/hub/show_password.png");
-    QAction *show_password_action = ui->lne_password->addAction(show_password_icon,
+    static QIcon show_password_icon(":/hub/show_password.png");
+    this->m_show_password_action = ui->lne_password->addAction(show_password_icon,
                                                                 QLineEdit::TrailingPosition);
-    connect(show_password_action, &QAction::triggered, [this]() {
+
+    connect(this->m_show_password_action, &QAction::triggered, [this]() {
        this->m_password_state ^= 1;
        ui->lne_password->setEchoMode(m_password_state ? QLineEdit::Normal : QLineEdit::Password);
     });
