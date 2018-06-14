@@ -46,9 +46,11 @@ DlgNotifications::rebuild_model() {
     ui->tv_notifications->setModel(m_notification_sort_proxy_model);
     if (m_notifications_model->rowCount(QModelIndex()) > 0) {
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Fixed);
+      ui->tv_notifications->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
       ui->tv_notifications->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-      ui->tv_notifications->resizeRowsToContents();
+      ui->tv_notifications->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+      ui->tv_notifications->setSelectionMode(QAbstractItemView::NoSelection);
+      ui->tv_notifications->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
       ui->tv_notifications->sortByColumn(0);
     }
     m_notification_sort_proxy_model->invalidate();
