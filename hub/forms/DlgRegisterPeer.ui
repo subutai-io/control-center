@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>298</width>
-    <height>184</height>
+    <height>225</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -58,6 +58,9 @@
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="1" column="0">
       <widget class="QLabel" name="lbl_password">
+       <property name="toolTip">
+        <string>Password of Subutai Console</string>
+       </property>
        <property name="text">
         <string>Console Password</string>
        </property>
@@ -71,6 +74,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="lbl_peer_name">
+       <property name="toolTip">
+        <string>Peer name for Bazaar</string>
+       </property>
        <property name="text">
         <string>Peer name</string>
        </property>
@@ -81,6 +87,9 @@
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="lbl_username">
+       <property name="toolTip">
+        <string>Username for Subutai Console.</string>
+       </property>
        <property name="text">
         <string>Console Username</string>
        </property>
@@ -88,6 +97,9 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="lbl_peer_scope">
+       <property name="toolTip">
+        <string>Peer scope</string>
+       </property>
        <property name="text">
         <string>Peer Scope</string>
        </property>
