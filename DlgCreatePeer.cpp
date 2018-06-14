@@ -10,6 +10,8 @@
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
   QDialog(parent),
+  m_password_state(0),
+  m_password_confirm_state(0),
   ui(new Ui::DlgCreatePeer)
 {
     //ui
@@ -57,6 +59,28 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     ui->le_name->setMaxLength(20);
     ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
     m_invalid_chars.setPattern("\\W");
+
+    // Password
+    QIcon show_password_icon(":/hub/show_password");
+    QAction *show_password_action = ui->le_pass->addAction(show_password_icon,
+                                                           QLineEdit::TrailingPosition);
+
+    // Password Confirm
+    QIcon show_password_confirm_icon(":/hub/show_password");
+    QAction *show_confirm_password_action = ui->le_pass_confirm->addAction(show_password_confirm_icon,
+                                                                           QLineEdit::TrailingPosition);
+
+    // QLineEdit password show
+    connect(show_password_action, &QAction::triggered, [this]() {
+        this->m_password_state ^= 1;
+        ui->le_pass->setEchoMode(this->m_password_state? QLineEdit::Normal : QLineEdit::Password);
+    });
+
+    // QLineEdit confirm password
+    connect(show_confirm_password_action, &QAction::triggered, [this]() {
+        this->m_password_confirm_state ^= 1;
+        ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state? QLineEdit::Normal : QLineEdit::Password);
+    });
 }
 
 DlgCreatePeer::~DlgCreatePeer()

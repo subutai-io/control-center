@@ -387,7 +387,7 @@ void DlgPeer::registerPeer(){
     ui->btn_register->setEnabled(false);
     DlgRegisterPeer* dlg_register = new DlgRegisterPeer(this);
     const QString ip_addr=ui->le_ip->text();
-    dlg_register->init(ip_addr, peer_name);
+    dlg_register->init(ip_addr, this->peer_name);
     dlg_register->setRegistrationMode();
     dlg_register->setWindowTitle(tr("Register peer: %1").arg(peer_name));
     dlg_register->show();

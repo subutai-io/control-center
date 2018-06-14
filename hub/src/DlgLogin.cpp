@@ -12,12 +12,13 @@ DlgLogin::DlgLogin(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgLogin),
   m_login_count(0),
-  password_state(0)
+  m_password_state(0)
 {
   ui->setupUi(this);
   ui->lbl_status->setText("");
   ui->lbl_status->setVisible(false);
   ui->btn_resolve->hide();
+  ui->btn_ok->setEnabled(true);
 
   ui->lbl_register_link->setText(QString("<a href=\"%1\" style=\"color: inherit;\">%2</a>").arg(hub_register_url()).arg(tr("Register for Bazaar account")));
   ui->lbl_register_link->setTextFormat(Qt::RichText);
@@ -28,8 +29,8 @@ DlgLogin::DlgLogin(QWidget *parent) :
   QAction *show_password_action = ui->le_password->addAction(show_password_icon, QLineEdit::TrailingPosition);
 
   connect(show_password_action, &QAction::triggered, [this]() {
-      this->password_state ^= 1; // xor
-      ui->le_password->setEchoMode(this->password_state ? QLineEdit::Normal : QLineEdit::Password);
+      this->m_password_state ^= 1; // xor
+      ui->le_password->setEchoMode(this->m_password_state ? QLineEdit::Normal : QLineEdit::Password);
   });
 
   if (CSettingsManager::Instance().remember_me()) {

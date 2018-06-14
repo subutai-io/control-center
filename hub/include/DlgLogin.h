@@ -28,7 +28,7 @@ public:
    */
   void run_dialog(QSplashScreen *sc);
   void solve_libssl();
-  bool password_state;
+  bool m_password_state;
 
 private slots:
   void btn_ok_released();

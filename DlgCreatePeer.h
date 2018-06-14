@@ -49,6 +49,7 @@ class DlgCreatePeer : public QDialog {
     PASS_INVALID,    // when contains invalid symbols
     PASS_FINE
   };
+  bool m_password_state, m_password_confirm_state;
 
  private:
   Ui::DlgCreatePeer *ui;

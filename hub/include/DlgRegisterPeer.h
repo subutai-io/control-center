@@ -18,6 +18,7 @@ public:
     void setRegistrationMode();
     void setUnregistrationMode();
     QRegExp m_invalid_chars;
+    bool m_password_state;
 signals:
     void register_finished();
 private:
