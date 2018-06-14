@@ -66,6 +66,55 @@ int main(int argc, char* argv[]) {
   QApplication::setOrganizationName("subutai.io");
   QApplication app(argc, argv);
 
+  QCommandLineParser cmd_parser;
+  cmd_parser.setApplicationDescription(QObject::tr(
+      "This Control Center application should help users to work with hub"));
+
+  cmd_parser.addHelpOption();
+
+  std::string tray_build_number_str = TRAY_BUILD_NUMBER;
+  QApplication::setApplicationVersion(QString("version: %1 build: %2").
+    arg(TRAY_VERSION,
+        tray_build_number_str.substr(0, tray_build_number_str.size() - 9).c_str()));
+
+  cmd_parser.addVersionOption();
+
+  QCommandLineOption log_level_opt("l");
+  log_level_opt.setDescription("Adjusts displayed logs' level. logs_level "
+                               "can be DEBUG (0), WARNING (1), CRITICAL (2), "
+                               "FATAL (3), INFO (4). Logs with lover level than "
+                               "logs_level will not be shown. Default value is '1'.");
+  log_level_opt.setValueName("logs_level");
+  log_level_opt.setDefaultValue("1");
+
+  cmd_parser.addOption(log_level_opt);
+
+  cmd_parser.process(app);
+
+  bool ok = false;
+  QString log_level_str = cmd_parser.value(log_level_opt);
+  int a_logs_level = log_level_str.toInt(&ok);
+
+  if (a_logs_level < 0 || a_logs_level > 4 || !ok) {
+    std::cout << QString("%1: invalid argument '%2' for '-l'").
+                 arg(QApplication::applicationName(), log_level_str).
+                 toStdString() << "\n";
+    std::cout <<"Valid arguments are:\n"
+                "  - '0'\n"
+                "  - '1'\n"
+                "  - '2'\n"
+                "  - '3'\n"
+                "  - '4'\n"
+                "Usage: SubutaiControlCenter -l <log_level>\n"
+                "Try 'SubutaiControlCenter --help' for more information.\n";
+    return 0;
+  } else {
+    std::cout << QString("%1: logs level set to '%2'.").
+      arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
+  }
+
+  CSettingsManager::Instance().set_logs_level(a_logs_level);
+
   Logger::Instance()->Init();
 
   QTranslator translator;
@@ -86,26 +135,6 @@ int main(int argc, char* argv[]) {
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);
     msg_box->exec();
-    return 0;
-  }
-
-  QCommandLineParser cmd_parser;
-  cmd_parser.setApplicationDescription(QObject::tr(
-      "This Control Center application should help users to work with hub"));
-  QCommandLineOption log_level_opt(
-      "l",
-      "Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO "
-      "(4). Trace is most detailed logs.",
-      "log_level", "1");
-  QCommandLineOption version_opt("v", "Version", "Version");
-
-  cmd_parser.addOption(log_level_opt);
-  cmd_parser.addPositionalArgument("log_level",
-                                   "Log level to use in this application");
-  cmd_parser.addOption(version_opt);
-  cmd_parser.addHelpOption();
-  if (cmd_parser.isSet(version_opt)) {
-    std::cout << TRAY_VERSION << std::endl;
     return 0;
   }
 

@@ -13,6 +13,7 @@ static int dialog_used [10000] = {0};
 
 DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     QDialog(parent),
+    m_password_state(0),
     ui(new Ui::DlgRegisterPeer){
 
     ui->setupUi(this);
@@ -21,6 +22,16 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
             [this](){ this->close(); });
     ui->lne_username->setText("admin");
     m_invalid_chars.setPattern("\\W");
+
+    // QLineEdit Show password action
+    static QIcon show_password_icon(":/hub/show_password.png");
+    this->m_show_password_action = ui->lne_password->addAction(show_password_icon,
+                                                                QLineEdit::TrailingPosition);
+
+    connect(this->m_show_password_action, &QAction::triggered, [this]() {
+       this->m_password_state ^= 1;
+       ui->lne_password->setEchoMode(m_password_state ? QLineEdit::Normal : QLineEdit::Password);
+    });
 }
 
 DlgRegisterPeer::~DlgRegisterPeer()
@@ -311,4 +322,5 @@ void DlgRegisterPeer::init(const QString local_ip,
     dialog_used[ip_addr.toInt() - 9999] = 1;
     peer_name = name;
     ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
+    ui->lne_peername->setText(this->peer_name);
 }

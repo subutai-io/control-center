@@ -192,6 +192,7 @@ private slots:
   void peer_under_modification_sl(const QString& peer_name);
   void peer_poweroff_sl(const QString& peer_name);
   void my_peer_button_pressed_sl(const my_peer_button* peer_info);
+  void peer_update_peeros_sl(const QString peer_fingerprint);
 
 
   void got_ss_console_readiness_sl(bool is_ready, QString err);
