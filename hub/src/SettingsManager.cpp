@@ -478,6 +478,11 @@ void CSettingsManager::set_password(const QString& password) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void CSettingsManager::set_logs_level(int logs_level) {
+  m_logs_level = logs_level;
+  m_settings.setValue(SM_LOGS_LEVEL, m_logs_level);
+}
+
 void CSettingsManager::set_logs_storage(const QString& logs_storage) {
   m_logs_storage = logs_storage;
   m_settings.setValue(SM_LOGS_STORAGE, m_logs_storage);
@@ -487,6 +492,7 @@ void CSettingsManager::set_peers_storage(const QString &peers_storage){
     m_peers_storage = peers_storage;
     m_settings.setValue(SM_PEERS_STORAGE, m_peers_storage);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CSettingsManager::set_p2p_update_freq(int fr) {
