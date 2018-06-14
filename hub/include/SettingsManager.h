@@ -274,6 +274,7 @@ class CSettingsManager : public QObject {
   }
   /**********************/
 
+  void set_logs_level(int logs_level);
   void set_p2p_update_freq(int fr);
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
