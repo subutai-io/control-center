@@ -2777,22 +2777,136 @@ system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
     return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_version(QString &version){
-    version = "undefined";
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    if(CCommons::IsApplicationLaunchable(cmd))
-        version = "Installed";
-    else return SCWE_CREATE_PROCESS;
-    return SCWE_SUCCESS;
+
+template <class OS>
+system_call_wrapper_error_t vagrant_version_internal(QString &version);
+
+/********************/
+template <>
+system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_MAC_LIN> >(
+    QString &version) {
+  version = "undefined";
+  QStringList args;
+  args << "--version";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      CSettingsManager::Instance().vagrant_path(), args, true, true, 5000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("[a-zA-Z ]*"));
+  }
+
+  return res.res;
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  return vagrant_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_MAC> >(
+    QString &version) {
+  return vagrant_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_WIN> >(
+    QString &version) {
+  version = "undefined";
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args
+    << "-v";
+  qDebug()<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got vagrant version"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("[a-zA-Z ]*"));
+  }
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_version(
+    QString &version) {
+  return vagrant_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(QString &version){
-    version = "undefined";
-    QString cmd = CSettingsManager::Instance().oracle_virtualbox_path();
-    if(CCommons::IsApplicationLaunchable(cmd))
-        version = "Installed";
-    else return SCWE_CREATE_PROCESS;
-    return SCWE_SUCCESS;
+template <class OS>
+system_call_wrapper_error_t oracle_virtualbox_version_internal(QString &version);
+
+/********************/
+template <>
+system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(
+    QString &version) {
+  version = "undefined";
+  QStringList args;
+  args << "--version";
+
+  QString vboxmanage_path = CSettingsManager::Instance().oracle_virtualbox_path();
+  vboxmanage_path.append(QString("Manage"));
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(vboxmanage_path,
+                                                         args, true, true, 5000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+  }
+
+  return res.res;
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  return oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC> >(
+    QString &version) {
+  return oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(version);
+}
+/********************/
+
+template <>
+system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_WIN> >(
+    QString &version) {
+  version = "undefined";
+  QString cmd = CSettingsManager::Instance().oracle_virtualbox_path();
+  cmd.remove("VirtualBox.exe").append("VBoxManage.exe");
+  QStringList args;
+  args
+    << "-v";
+  qDebug()<<args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got oracle virtualbox version"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+  }
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
+    QString &version) {
+  return oracle_virtualbox_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -3046,7 +3160,8 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC_LIN> >(
       CSettingsManager::Instance().chrome_path(), args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    version = res.out[0];
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("[a-zA-Z ]*"));
   }
 
   int index;
