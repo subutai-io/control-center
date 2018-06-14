@@ -76,21 +76,23 @@ int main(int argc, char* argv[]) {
   QCoreApplication::setApplicationVersion(QString("version: %1 build: %2").arg(TRAY_VERSION, tray_build_number_str.substr(0, tray_build_number_str.size() - 9).c_str()));
 
   cmd_parser.addVersionOption();
-/** NOT WORKING
+
   QCommandLineOption log_level_opt("l");
   log_level_opt.setDescription("Log level can be DEBUG (0), WARNING (1), CRITICAL (2), FATAL (3), INFO (4). Trace is most detailed logs.");
   log_level_opt.setValueName("log_level");
   log_level_opt.setDefaultValue("1");
 
   cmd_parser.addOption(log_level_opt);
-**/
+
   cmd_parser.process(app);
 
-  auto asd = cmd_parser.optionNames();
+  int a_logs_level = cmd_parser.value(log_level_opt).toInt();
 
-  for (auto i: asd) {
-    std::cout << i.toStdString() << "\n";
+  if (a_logs_level < 0 || a_logs_level > 4) {
+    a_logs_level = 1;
   }
+
+  CSettingsManager::Instance().set_logs_level(a_logs_level);
 
   Logger::Instance()->Init();
 
