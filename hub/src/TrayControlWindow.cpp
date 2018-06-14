@@ -47,8 +47,8 @@ inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_WIN> >(
 template <>
 inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_LINUX> >(
     QSystemTrayIcon *icon, TrayControlWindow *win) {
-  UNUSED_ARG(icon);
-  UNUSED_ARG(win);
+  QObject::connect(icon, &QSystemTrayIcon::activated, win,
+                   &TrayControlWindow::tray_icon_is_activated_sl);
 }
 
 template <>
