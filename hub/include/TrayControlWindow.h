@@ -107,6 +107,8 @@ private:
   QMenu *m_hub_menu;
   QMenu *m_hub_peer_menu;
   QMenu *m_local_peer_menu;
+  QMenu *m_tray_menu;
+  QMenu *m_p2p_menu;
 
   QAction *m_act_ssh_keys_management;
   QAction *m_act_quit;
@@ -122,10 +124,11 @@ private:
 
   QSystemTrayIcon* m_sys_tray_icon;
   QAction *m_act_create_peer;
-  QMenu* m_tray_menu;
-  QAction *m_act_p2p_status; // p2p status
   QAction *m_empty_action;
-
+  // p2p action
+  QAction *m_act_p2p_start;
+  QAction *m_act_p2p_stop;
+  QAction *m_act_p2p_install;
 
   std::map<QString, QDialog*> m_dct_active_dialogs;
 
@@ -165,6 +168,7 @@ public slots:
 
   /*p2p status slots*/
   void launch_p2p();
+  void stop_p2p();
   void launch_p2p_installation();
 
 private slots:
