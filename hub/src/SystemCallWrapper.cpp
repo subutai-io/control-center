@@ -2772,10 +2772,13 @@ system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LI
   QStringList args;
   args << "--version";
 
-  QString vboxmanage_path = CSettingsManager::Instance().oracle_virtualbox_path();
-  vboxmanage_path.append(QString("Manage"));
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  path = dir.absolutePath();
+  path += "/VBoxManage";
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(vboxmanage_path,
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(path,
                                                          args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
