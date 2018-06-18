@@ -11,9 +11,9 @@ enum {
 };
 
 static QColor colors_by_level[4] = {QColor::fromRgb(145,255,200),
-                          QColor::fromRgb(255,200,145),
-                          QColor::fromRgb(255,145,145),
-                          QColor::fromRgb(210,0,15)};
+                                    QColor::fromRgb(255,200,145),
+                                    QColor::fromRgb(255,145,145),
+                                    QColor::fromRgb(210,0,15)};
 
 ////////////////////////////////////////////////////////////////////////////
 

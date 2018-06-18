@@ -170,6 +170,7 @@ int main(int argc, char* argv[]) {
       QPixmap pm(":/hub/cc_splash.png");
       QSplashScreen sc(pm);
       sc.show();
+      sc.finish(&dlg);
 
       dlg.run_dialog(&sc);
       if (dlg.result() == QDialog::Rejected) break;

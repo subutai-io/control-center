@@ -47,8 +47,8 @@ inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_WIN> >(
 template <>
 inline void InitTrayIconTriggerHandler_internal<Os2Type<OS_LINUX> >(
     QSystemTrayIcon *icon, TrayControlWindow *win) {
-  UNUSED_ARG(icon);
-  UNUSED_ARG(win);
+  QObject::connect(icon, &QSystemTrayIcon::activated, win,
+                   &TrayControlWindow::tray_icon_is_activated_sl);
 }
 
 template <>
@@ -65,6 +65,7 @@ void InitTrayIconTriggerHandler(QSystemTrayIcon *icon, TrayControlWindow *win) {
 TrayControlWindow::TrayControlWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::TrayControlWindow),
+      m_tray_menu(NULL),
       m_act_ssh_keys_management(NULL),
       m_act_quit(NULL),
       m_act_settings(NULL),
@@ -76,8 +77,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
       m_act_create_peer(NULL),
-      m_tray_menu(NULL),
-      m_act_p2p_status(NULL),
+      m_act_p2p_start(NULL),
+      m_act_p2p_stop(NULL),
       in_peer_slot(false) {
   ui->setupUi(this);
 
@@ -132,7 +133,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
 
 TrayControlWindow::~TrayControlWindow() {
   QMenu *menus[] = {m_hub_menu, m_hub_peer_menu, m_local_peer_menu,
-                    m_tray_menu};
+                    m_tray_menu, m_p2p_menu};
   QAction *acts[] = {m_act_ssh_keys_management,
                      m_act_quit,
                      m_act_settings,
@@ -143,8 +144,10 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_about,
                      m_act_logout,
                      m_act_notifications_history,
-                     m_act_p2p_status,
-                     m_act_create_peer};
+                     m_act_p2p_start,
+                     m_act_p2p_stop,
+                     m_act_create_peer,
+                     m_act_p2p_install};
 
   for (size_t i = 0; i < sizeof(menus) / sizeof(QMenu *); ++i) {
     if (menus[i] == nullptr) continue;
@@ -261,12 +264,6 @@ void TrayControlWindow::create_tray_actions() {
           &TrayControlWindow::show_notifications_triggered);
   m_act_notifications_history->setToolTip(tr("Show notification history"));
 
-  m_act_p2p_status =
-      new QAction(QIcon(":hub/loading.png"), tr("P2P is loading..."), this);
-  connect(m_act_p2p_status, &QAction::triggered, this,
-          &TrayControlWindow::launch_p2p);
-  m_act_p2p_status->setToolTip(tr("P2P status"));
-
   m_act_create_peer =
       new QAction(QIcon(":hub/add.png"), tr("Create Peer"), this);
   connect(m_act_create_peer, &QAction::triggered, this,
@@ -274,13 +271,34 @@ void TrayControlWindow::create_tray_actions() {
   m_empty_action = new QAction(tr("Empty"), this);
   m_empty_action->setEnabled(false);
   m_act_create_peer->setToolTip(tr("Will create a new peer"));
+
+  // p2p action start
+  m_act_p2p_start =
+      new QAction(QIcon(""), tr("Start P2P"), this);
+  connect(m_act_p2p_start, &QAction::triggered, this,
+          &TrayControlWindow::launch_p2p);
+
+  // p2p action stop
+  m_act_p2p_stop =
+      new QAction(QIcon(""), tr("Stop P2P"), this);
+  connect(m_act_p2p_stop, &QAction::triggered, this,
+          &TrayControlWindow::stop_p2p);
+
+  // p2p action install
+  m_act_p2p_install =
+     new QAction(QIcon(""), tr("Install P2P"), this);
+  connect(m_act_p2p_install, &QAction::triggered, this,
+          &TrayControlWindow::launch_p2p_installation);
 }
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::create_tray_icon() {
   m_sys_tray_icon = new QSystemTrayIcon(this);
   m_tray_menu = new QMenu(this);
   m_sys_tray_icon->setContextMenu(m_tray_menu);
-  m_tray_menu->addAction(m_act_p2p_status);
+
+  // p2p menu
+  m_p2p_menu = m_tray_menu->addMenu(QIcon(":hub/loading.png"),
+                                    tr("P2P is loading..."));
   m_tray_menu->addSeparator();
   m_tray_menu->addAction(m_act_launch_Hub);
   m_tray_menu->addAction(m_act_user_name);
@@ -307,6 +325,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_quit);
   m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon_last.png"));
 }
+
 void TrayControlWindow::get_sys_tray_icon_coordinates_for_dialog(
     int &src_x, int &src_y, int &dst_x, int &dst_y, int dlg_w, int dlg_h,
     bool use_cursor_position) {
@@ -615,44 +634,31 @@ void TrayControlWindow::launch_Hub() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-/*p2p status */
+/* p2p start */
 void TrayControlWindow::launch_p2p() {
-  qDebug() << "p2p button is pressed";
-  switch (p2p_current_status) {
-    case P2PStatus_checker::P2P_FAIL:
-      CNotificationObserver::Error(
-          QObject::tr("P2P is not installed. You can't connect to the "
-                      "environments without P2P."),
-          DlgNotification::N_ABOUT);  // need to reimplement n_install_p2p
-                                      // because it's has some bugs
-      break;
-    case P2PStatus_checker::P2P_READY:
-      CNotificationObserver::Info(
-          QObject::tr("Click Start P2P to launch the P2P Daemon."),
-          DlgNotification::N_START_P2P);
-      break;
-    case P2PStatus_checker::P2P_RUNNING:
-      CNotificationObserver::Info(
-          QObject::tr(
-              "P2P is running. If you have troubles, please restart it."),
-          DlgNotification::N_STOP_P2P);
-      break;
-    case P2PStatus_checker::P2P_LOADING:
-      CNotificationObserver::Info(QObject::tr("P2P daemon is loading"),
-                                  DlgNotification::N_NO_ACTION);
-      break;
-    case P2PStatus_checker::P2P_INSTALLING:
-      CNotificationObserver::Info(QObject::tr("P2P is installing"),
-                                  DlgNotification::N_NO_ACTION);
-      break;
-  }
+  qDebug() << "p2p start is pressed";
+  int rse_err;
+  CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STOPPED_P2P);
+  if (rse_err == 0)
+      CNotificationObserver::Instance()->Info(tr("Please wait while P2P Daemon is being launched."), DlgNotification::N_NO_ACTION);
+  else
+      CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
+                                           "Either change the path setting in Settings or install the daemon if it is not installed. "
+                                           "You can get the %1 daemon from <a href=\"%2\">here</a>.").
+                                  arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+  emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
+}
+
+/* p2p stop */
+void TrayControlWindow::stop_p2p() {
+    int rse_err;
+    CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STARTED_P2P);
 }
 
 /*p2p installations */
 
 void TrayControlWindow::launch_p2p_installation() {
-  CHubController::Instance().launch_browser(
-      "https://subutai.io/install/index.html");
+  update_system::CHubComponentsUpdater::Instance()->install_p2p();
 }
 
 //////////////////////////////////////
@@ -1240,18 +1246,23 @@ void TrayControlWindow::update_p2p_status_sl(
   qDebug() << "p2p updater got signal and try to update status";
   if (P2PStatus_checker::Instance().get_status() ==
       P2PStatus_checker::P2P_INSTALLING) {
-    m_act_p2p_status->setText("P2P is installing");
-    m_act_p2p_status->setIcon(p2p_loading);
+    m_p2p_menu->setTitle(tr("P2P is installing"));
+    m_p2p_menu->setIcon(p2p_loading);
     return;
   }
   switch (status) {
     case P2PStatus_checker::P2P_READY:
-      m_act_p2p_status->setText(tr("P2P is not running"));
-      m_act_p2p_status->setIcon(p2p_waiting);
+      m_p2p_menu->setTitle(tr("P2P is not running"));
+      m_p2p_menu->setIcon(p2p_waiting);
+      m_p2p_menu->clear();
+      m_p2p_menu->addAction(m_act_p2p_start);
+
       break;
     case P2PStatus_checker::P2P_RUNNING:
-      m_act_p2p_status->setText(tr("P2P is running"));
-      m_act_p2p_status->setIcon(p2p_running);
+      m_p2p_menu->setTitle(tr("P2P is running"));
+      m_p2p_menu->setIcon(p2p_running);
+      m_p2p_menu->clear();
+      m_p2p_menu->addAction(m_act_p2p_stop);
       break;
     case P2PStatus_checker::P2P_FAIL:
       if (p2p_current_status == P2PStatus_checker::P2P_LOADING)
@@ -1259,16 +1270,18 @@ void TrayControlWindow::update_p2p_status_sl(
             QObject::tr("P2P is not installed. You can't connect to the "
                         "environments without P2P."),
             DlgNotification::N_INSTALL_P2P);
-      m_act_p2p_status->setText(tr("Can't launch P2P"));
-      m_act_p2p_status->setIcon(p2p_fail);
+      m_p2p_menu->setTitle(tr("Can't launch P2P"));
+      m_p2p_menu->setIcon(p2p_fail);
+      m_p2p_menu->clear();
+      m_p2p_menu->addAction(m_act_p2p_install);
       break;
     case P2PStatus_checker::P2P_LOADING:
-      m_act_p2p_status->setText(tr("P2P is loading..."));
-      m_act_p2p_status->setIcon(p2p_loading);
+      m_p2p_menu->setTitle(tr("P2P is loading..."));
+      m_p2p_menu->setIcon(p2p_loading);
       break;
     case P2PStatus_checker::P2P_INSTALLING:
-      m_act_p2p_status->setText(tr("P2P is installing"));
-      m_act_p2p_status->setIcon(p2p_loading);
+      m_p2p_menu->setTitle(tr("P2P is installing"));
+      m_p2p_menu->setIcon(p2p_loading);
       break;
   }
 }
@@ -1488,7 +1501,9 @@ void TrayControlWindow::ssh_key_generate_triggered() {
 }
 
 QDialog *create_notifications_dialog(QWidget *p) {
-  return new DlgNotifications(p);
+  QDialog *dlg = new DlgNotifications(p);
+  dlg->setFixedWidth(dlg->width());
+  return dlg;
 }
 void TrayControlWindow::show_notifications_triggered() {
   show_dialog(create_notifications_dialog, tr("Notifications history"));

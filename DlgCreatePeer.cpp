@@ -72,13 +72,15 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     // QLineEdit password show
     connect(this->m_show_password_action, &QAction::triggered, [this]() {
         this->m_password_state ^= 1;
-        ui->le_pass->setEchoMode(this->m_password_state? QLineEdit::Normal : QLineEdit::Password);
+        ui->le_pass->setEchoMode(this->m_password_state? QLineEdit::Normal :
+                                                         QLineEdit::Password);
     });
 
     // QLineEdit confirm password
     connect(this->m_show_confirm_password_action, &QAction::triggered, [this]() {
         this->m_password_confirm_state ^= 1;
-        ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state? QLineEdit::Normal : QLineEdit::Password);
+        ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state? QLineEdit::Normal :
+                                                                         QLineEdit::Password);
     });
 }
 
