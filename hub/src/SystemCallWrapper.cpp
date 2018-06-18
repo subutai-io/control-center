@@ -819,115 +819,35 @@ template <>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     int *res_code, restart_p2p_type type) {
   *res_code = RSE_MANUAL;
-
   do {
-    QString pkexec_path;
-    system_call_wrapper_error_t scr =
-        CSystemCallWrapper::which("pkexec", pkexec_path);
-    if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      break;
-    }
-
-    QString sh_path;
-    scr = CSystemCallWrapper::which("sh", sh_path);
-    if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      break;
-    }
-
+    system_call_wrapper_error_t scr;
     QString systemctl_path;
     scr = CSystemCallWrapper::which("systemctl", systemctl_path);
     if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Unable to find systemctl command. Make sure that the command exists on your system or reinstall Linux.");
+      QString err_msg = QObject::tr("Unable to find systemctl command. "
+                                    "Make sure that the command exists "
+                                    "on your system or reinstall Linux.");
       qCritical() << err_msg;
       CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
       break;
     }
-
     QStringList args;
-    args << systemctl_path;
-    system_call_res_t cr;
-      QStringList lst_temp =
-          QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-      if (lst_temp.empty()) {
-        QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-        qCritical() << err_msg;
-        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-        break;
-      }
-
-      QString tmpFilePath =
-          lst_temp[0] + QDir::separator() + "reload_p2p_service.sh";
-      qDebug() << tmpFilePath;
-      QFile tmpFile(tmpFilePath);
-      if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-        QString err_msg = QObject::tr("Cannot create the reload script temporary file: %1. Try again after restarting the Control Center.")
-                          .arg(tmpFile.errorString());
-        qCritical() << err_msg;
-        CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-        break;
-      }
-      QByteArray restart_script;
-      switch (type){
-          case UPDATED_P2P:
-              restart_script = QString(
-                                        "#!/bin/bash\n"
-                                        "%1 stop p2p.service\n"
-                                        "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
-              break;
-          case STOPPED_P2P:
-              restart_script = QString(
-                                        "#!/bin/bash\n"
-                                        "%1 enable p2p.service\n"
-                                        "%1 start p2p.service\n").arg(systemctl_path).toUtf8();
-              break;
-          case STARTED_P2P:
-              restart_script = QString(
-                                        "#!/bin/bash\n"
-                                        "%1 stop p2p.service\n").arg(systemctl_path).toUtf8();
-              break;
-      }
-      if (tmpFile.write(restart_script) != restart_script.size()) {
-        QString err_msg = QObject::tr("Cannot write the restart script to the temporary file. Try again after restarting the Control Center.")
-                                 .arg(tmpFile.errorString());
-        qCritical() << err_msg;
-        break;
-      }
-      tmpFile.close();  // save
-
-      if (!QFile::setPermissions(
-              tmpFilePath,
-                  QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-                  QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-                  QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-                  QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-        QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
-        qCritical() << err_msg;
-        CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-        break;
-      }
-
-      system_call_res_t cr2;
-      QStringList args2;
-      args2 << "--user"
-            << qgetenv("USER")
-            << sh_path
-            << tmpFilePath;
-      cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 60000);
-      tmpFile.remove();
-      if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
-                                 .arg(cr.exit_code)
-                                 .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
-        qCritical() << err_msg;
-        break;
-      }
-      *res_code = RSE_SUCCESS;
+    if (type == STARTED_P2P) {
+      args << "stop" << "p2p";
+    } else if (type == STOPPED_P2P) {
+      args << "start" << "p2p";
+    } else {
+      args << "restart" << "p2p";
+    }
+    system_call_res_t res = CSystemCallWrapper::ssystem(systemctl_path, args, true, true, 60000);
+    if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
+                               .arg(res.exit_code)
+                               .arg(CSystemCallWrapper::scwe_error_to_str(res.res));
+      qCritical() << err_msg;
+      break;
+    }
+    *res_code = RSE_SUCCESS;
   } while (0);
 
   return SCWE_SUCCESS;
