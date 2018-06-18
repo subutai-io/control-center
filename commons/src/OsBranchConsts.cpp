@@ -133,11 +133,11 @@ template<class BR, class OS> const QString& vagrant_kurjun_package_name_temp_int
 
 vagrant_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "vagrant.pkg")
 vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.msi")
-vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
-vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.1.1_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.1.1_x86_64.deb")
 vagrant_kurjun_package_name_def(BT_DEV,        OS_MAC,     "vagrant.pkg")
 vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.msi")
-vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.1.1_x86_64.deb")
 vagrant_kurjun_package_name_def(BT_PROD,      OS_MAC,      "vagrant.pkg")
 vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.msi")
 
