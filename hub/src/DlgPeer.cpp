@@ -22,7 +22,6 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->setupUi(this);
     this->setMinimumWidth(this->width());
     this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
-    ui->show_ssh->setChecked(true);
     ui->gr_ssh->setVisible(true);
     ui->gr_peer_control->setVisible(false);
     ui->btn_launch_console->setEnabled(false);
@@ -47,11 +46,8 @@ DlgPeer::DlgPeer(QWidget *parent) :
     //slots
     connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished,
           this, &DlgPeer::ssh_to_rh_finished_sl);
-    connect(ui->show_ssh, &QCheckBox::toggled, [this](bool checked){
-      this->ui->gr_ssh->setVisible(checked);
-      this->adjustSize();
-    });
 
+    this->ui->gr_ssh->setVisible(true);
     this->ui->gr_peer_control->setVisible(true);
     this->adjustSize();
 
@@ -95,7 +91,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer){
         peer_fingerprint = peer.fingerprint();
     if(peer.ip() != "undefined" && !peer.ip().isEmpty()){
         ssh_ip = peer.ip();
-        ui->label->setText(tr("Host port"));
+        ui->label->setText(tr("Host port:"));
         ui->btn_launch_console->setEnabled(true);
         ssh_available = true;
     }else{
@@ -230,13 +226,13 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         if(ssh_pass.isEmpty())
             ssh_pass = QString("ubuntai");
 
-        ui->le_ip->setText(ssh_ip); ui->le_ip->setReadOnly(true);
-        ui->le_port->setText(ssh_port); ui->le_port->setReadOnly(true);
+        ui->lbl_ip->setText(ssh_ip);
+        ui->lbl_port->setText(ssh_port);
         ui->le_user->setText(ssh_user);
         ui->le_pass->setText(ssh_pass);
 
-        CSettingsManager::Instance().set_rh_host(peer_fingerprint, this->ui->le_ip->text());
-        CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->le_port->text().toInt());
+        CSettingsManager::Instance().set_rh_host(peer_fingerprint, this->ui->lbl_ip->text());
+        CSettingsManager::Instance().set_rh_port(peer_fingerprint, this->ui->lbl_port->text().toInt());
         CSettingsManager::Instance().set_rh_user(peer_fingerprint, this->ui->le_user->text());
         CSettingsManager::Instance().set_rh_pass(peer_fingerprint, this->ui->le_pass->text());
         //slots
@@ -428,7 +424,7 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call
 void DlgPeer::registerPeer(){
     ui->btn_register->setEnabled(false);
     DlgRegisterPeer* dlg_register = new DlgRegisterPeer(this);
-    const QString ip_addr=ui->le_ip->text();
+    const QString ip_addr=ui->lbl_ip->text();
     dlg_register->init(ip_addr, this->peer_name);
     dlg_register->setRegistrationMode();
     dlg_register->setWindowTitle(tr("Register peer: %1").arg(peer_name));
@@ -447,7 +443,7 @@ void DlgPeer::unregisterPeer(){
     }
     ui->btn_unregister->setEnabled(false);
     DlgRegisterPeer* dlg_unregister = new DlgRegisterPeer(this);
-    const QString ip_addr=ui->le_ip->text();
+    const QString ip_addr=ui->lbl_ip->text();
     dlg_unregister->init(ip_addr, peer_name);
     dlg_unregister->setUnregistrationMode();
     dlg_unregister->setWindowTitle(tr("Unregister peer: %1").arg(peer_name));
@@ -470,13 +466,11 @@ void DlgPeer::hideSSH(){
     ui->label_3->hide();
     ui->label_2->hide();
     ui->label_4->hide();
-    ui->le_ip->hide();
-    ui->le_port->hide();
+    ui->lbl_ip->hide();
+    ui->lbl_port->hide();
     ui->le_user->hide();
     ui->le_pass->hide();
     ui->btn_ssh_peer->hide();
-    ui->show_ssh->toggle(); //lifehack
-    ui->show_ssh->toggle();
     this->adjustSize();
 }
 

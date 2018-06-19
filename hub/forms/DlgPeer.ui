@@ -35,8 +35,41 @@
       <string>SSH info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="le_ip"/>
+      <item row="1" column="1">
+       <widget class="QLabel" name="lbl_port">
+        <property name="minimumSize">
+         <size>
+          <width>205</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string>22</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="indent">
+         <number>14</number>
+        </property>
+       </widget>
       </item>
       <item row="1" column="3">
        <widget class="QLineEdit" name="le_pass"/>
@@ -58,8 +91,8 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_port"/>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="le_user"/>
       </item>
       <item row="2" column="3">
        <widget class="QPushButton" name="btn_ssh_peer">
@@ -81,16 +114,39 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="le_user"/>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="toolTip">
          <string>Host address of the Peer</string>
         </property>
         <property name="text">
-         <string>IP</string>
+         <string>IP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lbl_ip">
+        <property name="minimumSize">
+         <size>
+          <width>205</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>127.0.0.1</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="indent">
+         <number>14</number>
         </property>
        </widget>
       </item>
@@ -159,25 +215,6 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="show_ssh">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Show ssh information of the Peer</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Show SSH box</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="Line" name="line_1">
      <property name="orientation">
@@ -204,24 +241,8 @@
       <string>Peer info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="3">
+      <item row="3" column="3">
        <widget class="QLineEdit" name="le_ram"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_disk">
-        <property name="toolTip">
-         <string>Peer's disk size in GB</string>
-        </property>
-        <property name="text">
-         <string>Max disk GB:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="3">
-       <layout class="QVBoxLayout" name="verticalLayout_4"/>
-      </item>
-      <item row="9" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout_3"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="lbl_name">
@@ -233,18 +254,8 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="change_confugre">
-        <property name="toolTip">
-         <string>Unlock to change your Peer configurations</string>
-        </property>
-        <property name="text">
-         <string>Modify peer info</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="le_cpu"/>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="le_name"/>
       </item>
       <item row="1" column="3">
        <widget class="QLabel" name="le_status">
@@ -253,29 +264,13 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="3" column="2">
        <widget class="QLabel" name="lbl_ram">
         <property name="toolTip">
          <string>RAM size of the Peer in MB</string>
         </property>
         <property name="text">
          <string>RAM MB:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_name"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QComboBox" name="cmb_bridge"/>
-      </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="lbl_bridge">
-        <property name="toolTip">
-         <string>Bridged interface of the Peer</string>
-        </property>
-        <property name="text">
-         <string>Bridge:</string>
         </property>
        </widget>
       </item>
@@ -295,19 +290,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="le_disk"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lbl_cpu">
-        <property name="toolTip">
-         <string>Number of CPU cores of the Peer</string>
-        </property>
-        <property name="text">
-         <string>CPU:</string>
-        </property>
-       </widget>
-      </item>
       <item row="11" column="1">
        <widget class="QLabel" name="lbl_update_peeros">
         <property name="enabled">
@@ -324,6 +306,55 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cmb_bridge"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_bridge">
+        <property name="toolTip">
+         <string>Bridged interface of the Peer</string>
+        </property>
+        <property name="text">
+         <string>Bridge:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="lbl_disk">
+        <property name="toolTip">
+         <string>Peer's disk size in GB</string>
+        </property>
+        <property name="text">
+         <string>Max disk GB:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="le_disk"/>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLineEdit" name="le_cpu"/>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="lbl_cpu">
+        <property name="toolTip">
+         <string>Number of CPU cores of the Peer</string>
+        </property>
+        <property name="text">
+         <string>CPU:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="change_confugre">
+        <property name="toolTip">
+         <string>Unlock to change your Peer configurations</string>
+        </property>
+        <property name="text">
+         <string>Modify peer info</string>
         </property>
        </widget>
       </item>
