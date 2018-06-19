@@ -338,6 +338,9 @@ void DlgAbout::btn_subutai_box_update_released(){
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
+  for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
+    it->second.btn->setEnabled(false);
+  }
   check_for_versions_and_updates();
 }
 ////////////////////////////////////////////////////////////////////////////
