@@ -338,6 +338,9 @@ void DlgAbout::btn_subutai_box_update_released(){
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
+  for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
+    it->second.btn->setEnabled(false);
+  }
   check_for_versions_and_updates();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -546,11 +549,13 @@ DlgAboutInitializer::do_initialization() {
       IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX,
       IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, IUpdaterComponent::VAGRANT_VBGUEST,
       IUpdaterComponent::SUBUTAI_BOX, ""};
-
+    std::vector <bool> ua;
     for (int i = 0; uas[i] != ""; ++i) {
-      bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
-      emit update_available(uas[i], ua);
+      ua.push_back(CHubComponentsUpdater::Instance()->is_update_available(uas[i]));
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+    for (int i = 0; uas[i] != ""; i++) {
+      emit update_available(uas[i], ua[i]);
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());
