@@ -25,7 +25,6 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->show_ssh->setChecked(true);
     ui->gr_ssh->setVisible(true);
     ui->gr_peer_control->setVisible(false);
-    ui->show_peer_control->setChecked(false);
     ui->btn_launch_console->setEnabled(false);
 
     ui->le_name->setReadOnly(true);
@@ -52,10 +51,10 @@ DlgPeer::DlgPeer(QWidget *parent) :
       this->ui->gr_ssh->setVisible(checked);
       this->adjustSize();
     });
-    connect(ui->show_peer_control, &QCheckBox::toggled, [this](bool checked){
-      this->ui->gr_peer_control->setVisible(checked);
-      this->adjustSize();
-    });
+
+    this->ui->gr_peer_control->setVisible(true);
+    this->adjustSize();
+
     connect(ui->btn_launch_console, &QPushButton::clicked, [this](){
         QString console_address = advanced ? "https://localhost:%1" : "https://%1:8443";
         CHubController::Instance().launch_browser(QString(console_address).arg(this->ssh_ip));
@@ -254,19 +253,19 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     else
         hideSSH();
     if(advanced){
-        ui->gr_peer_control->setTitle(tr("Peer is in your machine."));
+        ui->gr_peer_control->setTitle(tr("Peer info"));
         hub_available ?
             ui->btn_register->hide() : ui->btn_unregister->hide();
         ui->le_name->setText(peer_name);
         if(peer_status == "running"){
             ui->btn_start->hide();
-            ui->le_status->setText(tr("Peer is running"));
+            ui->le_status->setText(tr("RUNNING"));
         }
         else if(peer_status == "not ready"){
                 ui->btn_start->hide();
                 ui->btn_unregister->setEnabled(false);
                 ui->btn_register->setEnabled(false);
-                ui->le_status->setText(tr("Peer is not ready."));
+                ui->le_status->setText(tr("NOT READY"));
         }
         else if(peer_status == "not_created"){
                 ui->btn_stop->hide();
@@ -274,14 +273,14 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
                 ui->btn_reload->setEnabled(false);
                 ui->btn_register->setEnabled(false);
                 ui->btn_unregister->setEnabled(false);
-                ui->le_status->setText(tr("Peer is not created"));
+                ui->le_status->setText(tr("NOT CREATED"));
         }
         else{
             ui->btn_stop->hide();
             ui->btn_register->setEnabled(false);
             ui->btn_unregister->setEnabled(false);
             ui->btn_reload->setEnabled(false);
-            ui->le_status->setText(tr("Peer is ") + peer_status);
+            ui->le_status->setText(peer_status.toUpper());
         }
         ui->le_status->setToolTip(CPeerController::Instance()->status_description(peer_status));
         configs();
@@ -305,13 +304,13 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
             if(checked == false){
                 this->configs();
             }
-            static std::vector<QString> states = {tr("Locked configs"), tr("Unlocked configs")};
+            static std::vector<QString> states = {tr("Modify peer info"), tr("Modify peer info")};
             ui->change_confugre->setText(states[checked]);
         });
-        ui->show_peer_control->toggle();
         this->adjustSize();
     }
     else hidePeer();
+    this->adjustSize();
 }
 
 void DlgPeer::configs(){
@@ -499,11 +498,8 @@ void DlgPeer::hidePeer(){
     ui->btn_unregister->hide();
     ui->btn_update_peer->hide();
 
-    ui->show_peer_control->toggle(); //lifehack :D
-    ui->show_peer_control->toggle();
-
-    ui->gr_peer_control->setTitle(tr("This peer is not in your machine. "
-                                     "Specific functions are available only for peers in your machine."));
+    ui->lbl_update_peeros->setText(tr("This peer is not in your machine. "
+                                      "Specific functions are available only for peers in your machine."));
     this->adjustSize();
 }
 
