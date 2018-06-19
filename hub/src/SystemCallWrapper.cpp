@@ -2677,24 +2677,50 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t x2go_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString &version){
+  QString cmd = "script";
+  QStringList args;
+  args << "-q"
+       << "/dev/stdout"
+       << "-c"
+       << CSettingsManager::Instance().x2goclient() + " -v";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    QRegExp pattern("([0-9]+[.])+([0-9]+)");
+    for (auto s : res.out) {
+      s = s.simplified();
+      if (pattern.exactMatch(s)) {
+        version = s;
+        break;
+      }
+    }
+  }
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
 system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
-    version = "undefined";
-    QString cmd = CSettingsManager::Instance().x2goclient();
-    /*
-    QStringList args;
-    args
-        << "--debug"
-        << "--hide"
-        << "--no-menu"
-        << "--thinclient"
-        << "-v";
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
-    */
-    //if (res.res == SCWE_SUCCESS && res.exit_code == 255)
-    if(x2goclient_check())
-        version = "Installed";
-    else return SCWE_CREATE_PROCESS;
-    return SCWE_SUCCESS;
+  version = "undefined";
+  if (x2goclient_check()) {
+      version = "Installed";
+      return x2go_version_internal <Os2Type <CURRENT_OS>>(version);
+  } else {
+    return SCWE_CREATE_PROCESS;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
