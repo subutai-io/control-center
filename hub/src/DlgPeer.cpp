@@ -76,6 +76,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
     });
     peer_name = peer.name();
     peer_fingerprint = peer.fingerprint();
+    ui->le_status->setText(peer.status());
     ssh_available = true;
     const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
     update_environments(envs);
@@ -251,30 +252,30 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
     if(advanced){
         ui->gr_peer_control->setTitle(tr("Peer info"));
         hub_available ?
-            ui->btn_register->hide() : ui->btn_unregister->hide();
+            ui->btn_register_unregister->hide() : ui->btn_unregister->hide();
         ui->le_name->setText(peer_name);
         if(peer_status == "running"){
-            ui->btn_start->hide();
+            ui->btn_start_stop->setText(tr("Stop peer"));
             ui->le_status->setText(tr("RUNNING"));
         }
         else if(peer_status == "not ready"){
-                ui->btn_start->hide();
-                ui->btn_unregister->setEnabled(false);
-                ui->btn_register->setEnabled(false);
+                ui->btn_start_stop->setText(tr("Stop peer"));
+                //ui->btn_unregister->setEnabled(false);
+                ui->btn_register_unregister->setEnabled(false);
                 ui->le_status->setText(tr("NOT READY"));
         }
         else if(peer_status == "not_created"){
                 ui->btn_stop->hide();
-                ui->btn_start->setEnabled(false);
+                ui->btn_start_stop->setEnabled(false);
                 ui->btn_reload->setEnabled(false);
-                ui->btn_register->setEnabled(false);
-                ui->btn_unregister->setEnabled(false);
+                ui->btn_register_unregister->setEnabled(false);
+                //ui->btn_unregister->setEnabled(false);
                 ui->le_status->setText(tr("NOT CREATED"));
         }
         else{
             ui->btn_stop->hide();
-            ui->btn_register->setEnabled(false);
-            ui->btn_unregister->setEnabled(false);
+            ui->btn_register_unregister->setEnabled(false);
+            //ui->btn_unregister->setEnabled(false);
             ui->btn_reload->setEnabled(false);
             ui->le_status->setText(peer_status.toUpper());
         }
@@ -282,10 +283,10 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_p
         configs();
 
         connect(ui->btn_destroy, &QPushButton::clicked, [this](){this->destroyPeer();});
-        connect(ui->btn_start, &QPushButton::clicked, [this](){this->startPeer();});
+        connect(ui->btn_start_stop, &QPushButton::clicked, [this](){this->startPeer();});
         connect(ui->btn_stop, &QPushButton::clicked, [this](){this->stopPeer();});
         connect(ui->btn_reload, &QPushButton::clicked, [this](){this->reloadPeer();});
-        connect(ui->btn_register, &QPushButton::clicked, this, &DlgPeer::registerPeer);
+        connect(ui->btn_register_unregister, &QPushButton::clicked, this, &DlgPeer::registerPeer);
         connect(ui->btn_unregister, &QPushButton::clicked, this, &DlgPeer::unregisterPeer);
         connect(ui->btn_update_peer, &QPushButton::clicked, this, &DlgPeer::updatePeer);
         connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked){
@@ -398,14 +399,14 @@ void DlgPeer::enabled_peer_buttons(bool state){
         if(hub_available){
             ui->btn_unregister->setEnabled(state);
         }
-        else ui->btn_register->setEnabled(state);
+        else ui->btn_register_unregister->setEnabled(state);
     }
     else if(peer_status == "not ready"){
             ui->btn_stop->setEnabled(state);
             ui->btn_reload->setEnabled(state);
     }
     else {
-        ui->btn_start->setEnabled(state);
+        ui->btn_start_stop->setEnabled(state);
     }
 }
 
@@ -422,7 +423,7 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call
 }
 
 void DlgPeer::registerPeer(){
-    ui->btn_register->setEnabled(false);
+    ui->btn_register_unregister->setEnabled(false);
     DlgRegisterPeer* dlg_register = new DlgRegisterPeer(this);
     const QString ip_addr=ui->lbl_ip->text();
     dlg_register->init(ip_addr, this->peer_name);
@@ -454,7 +455,7 @@ void DlgPeer::unregisterPeer(){
 }
 
 void DlgPeer::regDlgClosed(){
-    ui->btn_register->setEnabled(true);
+    ui->btn_register_unregister->setEnabled(true);
     ui->btn_unregister->setEnabled(true );
     if(registration_dialog == nullptr)
         return;
@@ -476,19 +477,19 @@ void DlgPeer::hideSSH(){
 
 void DlgPeer::hidePeer(){
     ui->lbl_name->hide(); ui->le_name->hide();
-    ui->lbl_status->hide(); ui->le_status->hide();
+    //ui->lbl_status->hide(); ui->le_status->hide();
     ui->lbl_bridge->hide(); ui->cmb_bridge->hide();
     ui->lbl_cpu->hide(); ui->le_cpu->hide();
     ui->lbl_disk->hide(); ui->le_disk->hide();
     ui->lbl_ram->hide(); ui->le_ram->hide();
 
     //buttons
-    ui->btn_start->hide();
+    ui->btn_start_stop->hide();
     ui->btn_stop->hide();
     ui->change_confugre->hide();
     ui->btn_reload->hide();
     ui->btn_destroy->hide();
-    ui->btn_register->hide();
+    ui->btn_register_unregister->hide();
     ui->btn_unregister->hide();
     ui->btn_update_peer->hide();
 
@@ -498,7 +499,8 @@ void DlgPeer::hidePeer(){
 }
 
 void DlgPeer::hideEnvs(){
-    ui->gr_ssh->setTitle(tr("No \"environments\" on this peer."));
+    ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
+
     ui->lbl_env->hide();
     ui->lbl_env_owner->hide();
     ui->lbl_env_status->hide();
