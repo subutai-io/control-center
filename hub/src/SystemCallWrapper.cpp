@@ -2737,11 +2737,9 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &
           version = second_buf[0];
         }
         break;
-    }
+      }
+   }
   }
-  return SCWE_SUCCESS;
-}
-return res.res;
   return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
