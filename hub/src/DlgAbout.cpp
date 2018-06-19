@@ -546,11 +546,13 @@ DlgAboutInitializer::do_initialization() {
       IUpdaterComponent::VAGRANT, IUpdaterComponent::ORACLE_VIRTUALBOX,
       IUpdaterComponent::CHROME, IUpdaterComponent::VAGRANT_SUBUTAI, IUpdaterComponent::VAGRANT_VBGUEST,
       IUpdaterComponent::SUBUTAI_BOX, ""};
-
+    std::vector <bool> ua;
     for (int i = 0; uas[i] != ""; ++i) {
-      bool ua = CHubComponentsUpdater::Instance()->is_update_available(uas[i]);
-      emit update_available(uas[i], ua);
+      ua.push_back(CHubComponentsUpdater::Instance()->is_update_available(uas[i]));
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+    for (int i = 0; uas[i] != ""; i++) {
+      emit update_available(uas[i], ua[i]);
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s", ex.what());

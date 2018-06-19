@@ -171,10 +171,11 @@ public slots:
   void stop_p2p();
   void launch_p2p_installation();
 
+  void application_quit();
+
 private slots:
   /*tray slots*/
   void dialog_closed(int unused);
-  void application_quit();
   void notification_received(CNotificationObserver::notification_level_t level,
                              const QString& msg, DlgNotification::NOTIFICATION_ACTION_TYPE action_type);
   void logout();
