@@ -2711,6 +2711,35 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &
 template <>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version){
   UNUSED_ARG(version);
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\x2goclient"
+    << "/v"
+    << "DisplayVersion";
+  qDebug() << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()
+      << "got x2go client version"
+      << "exit code" << res.exit_code
+      << "result code" << res.res
+      << "output" << res.out;
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+      QStringList buf = s.split(" ", QString::SkipEmptyParts);
+      if (buf.size() == 3) {
+        QStringList second_buf = buf[2].split("-", QString::SkipEmptyParts);
+        if (!second_buf.isEmpty()) {
+          version = second_buf[0];
+        }
+        break;
+      }
+   }
+  }
   return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
