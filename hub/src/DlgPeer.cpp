@@ -465,6 +465,7 @@ void DlgPeer::regDlgClosed(){
 }
 
 void DlgPeer::hideSSH(){
+    ui->gr_ssh->hide();
     ui->label->hide();
     ui->label_3->hide();
     ui->label_2->hide();
