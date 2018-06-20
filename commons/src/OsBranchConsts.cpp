@@ -443,7 +443,7 @@ const QString& chrome_profiles_internal<Os2Type<OS_MAC>>() {
 template<>
 const QString& chrome_profiles_internal<Os2Type<OS_WIN>>() {
   QStringList paths =
-      QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+      QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
   static QString path;
   if (!paths.empty()) {
     path = (*paths.begin()).append("\\Google\\Chrome\\User Data\\Local State");

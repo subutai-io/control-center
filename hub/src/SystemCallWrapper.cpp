@@ -3230,7 +3230,7 @@ bool CSystemCallWrapper::chrome_last_section(){
     QString cmd = CSettingsManager::Instance().chrome_path();
     QStringList args;
     args << "--restore-last-session"
-         << "--profile-directory=Default";
+         << QString("--profile-directory=%1").arg(CSettingsManager::Instance().default_profile());
     return QProcess::startDetached(cmd, args);
 
 }
