@@ -25,6 +25,8 @@ DlgPeer::DlgPeer(QWidget *parent) :
     ui->gr_ssh->setVisible(true);
     ui->gr_peer_control->setVisible(false);
     ui->btn_launch_console->setEnabled(false);
+    ui->lbl_update_peeros->setWordWrap(true);
+    ui->lbl_env_info->setWordWrap(true);
 
     ui->le_name->setReadOnly(true);
     ui->le_cpu->setReadOnly(true);
