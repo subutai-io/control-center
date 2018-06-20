@@ -615,10 +615,15 @@ QStringList CSystemCallWrapper::list_interfaces(){
     args << "list" << "bridgedifs";
     qDebug()<<path<<args;
     system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
-    qDebug()<<"Listing interfaces result:"
-            <<"exit code:"<<res.exit_code
-            <<"result:"<<res.res;
-    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+    QString output;
+    for (auto s : res.out) {
+      output += s;
+    }
+    qDebug() << "Listing interfaces result:"
+             << "exit code:" << res.exit_code
+             << "result:" << res.res
+             << "output:" << output;
+    if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
         return interfaces;
     //time to parse data
     QStringList parse_me = res.out;
