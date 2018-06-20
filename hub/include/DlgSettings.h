@@ -56,6 +56,7 @@ private:
   QTimer m_refresh_rh_list_timer;
   int m_refresh_rh_list_progress_val;
   QString current_browser;
+  QString current_profile;
   void rebuild_rh_list_model();
 
 private slots:

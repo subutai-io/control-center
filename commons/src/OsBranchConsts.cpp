@@ -2,6 +2,9 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
 
@@ -409,6 +412,87 @@ const QStringList& supported_browsers(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& chrome_profiles_internal();
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_LINUX>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("/google-chrome/Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_MAC>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::RuntimeLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("/Google/Chrome/Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_WIN>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("\\Google\\Chrome\\User Data\\Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+const std::pair<QStringList, QStringList>& chrome_profiles(){
+  static std::pair<QStringList, QStringList> profiles;
+  profiles.first.clear();
+  profiles.second.clear();
+  QString path = chrome_profiles_internal<Os2Type<CURRENT_OS>>();
+
+  if (path != "empty") {
+    QFile jsonFile(path);
+    jsonFile.open(QFile::ReadOnly);
+    QJsonObject obj = QJsonDocument().fromJson(jsonFile.readAll()).object();
+
+    if (obj["profile"].isObject()) {
+      obj = obj["profile"].toObject();
+
+      if (obj["info_cache"].isObject()) {
+        obj = obj["info_cache"].toObject();
+        QStringList keys = obj.keys();
+
+        for (auto profile_key : keys) {
+          if (obj[profile_key].isObject()) {
+            QJsonObject cur = obj[profile_key].toObject();
+            QString profile_name;
+
+            if (cur.contains("gaia_given_name")) {
+              profile_name = cur["gaia_given_name"].toString();
+            } else {
+              profile_name = cur["name"].toString();
+            }
+
+            profiles.first.append(profile_key);
+            profiles.second.append(profile_name);
+          }
+        }
+      }
+    }
+  }
+
+  return profiles;
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -887,6 +971,15 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v){
 const QString& default_default_browser(){
     static QString res("Chrome");
     return res;
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& default_default_profile() {
+  static QString res("Default");
+  QStringList profile_name_keys = chrome_profiles().first;
+  if (!profile_name_keys.empty() && !profile_name_keys.contains(res)) {
+    res = *profile_name_keys.begin();
+  }
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 const QString& subutai_e2e_id(const QString& current_browser){

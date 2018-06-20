@@ -183,6 +183,14 @@ DlgSettings::DlgSettings(QWidget* parent)
       }
   }
 
+  std::pair<QStringList, QStringList> profiles_list = chrome_profiles();
+  current_profile = CSettingsManager::Instance().default_profile();
+  ui->cb_profile->addItems(profiles_list.second);
+  for (int i = 0; i < profiles_list.first.size(); i++){
+      if (profiles_list.first[i] == current_profile){
+          ui->cb_profile->setCurrentIndex(i);
+      }
+  }
 
   rebuild_rh_list_model();
 
@@ -293,6 +301,24 @@ void DlgSettings::btn_ok_released() {
       tr("Cannot launch application");
 
   CSettingsManager::Instance().set_default_browser(ui->cb_browser->currentText());
+
+  QString profile_name = ui->cb_profile->currentText();
+  std::pair<QStringList, QStringList> pnames = chrome_profiles();
+  if (!pnames.first.empty()) {
+    bool dpset = false;
+    for (int i = 0; i < pnames.second.size(); i++) {
+      if (pnames.second[i] == profile_name) {
+        CSettingsManager::Instance().set_default_profile(pnames.first[i]);
+        dpset = true;
+        break;
+      }
+    }
+    if (!dpset) {
+      CSettingsManager::Instance().set_default_profile(pnames.first[0]);
+    }
+  } else {
+    CSettingsManager::Instance().set_default_profile("Default");
+  }
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
                      ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command, ui->le_scp_command};
