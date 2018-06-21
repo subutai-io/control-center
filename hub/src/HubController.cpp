@@ -282,7 +282,7 @@ void CHubController::launch_browser(const QString &url) {
         QStringList args;
         args << "--new-window";
         args << url
-             << QString("--profile-directory=%1").arg(profile).toStdString().c_str();
+             << QString("--profile-directory=%1").arg(profile);
         if (!QProcess::startDetached(chrome_path, args)) {
           QString err_msg = tr("Unable to redirect to Subutai Bazaar through a browser. Be sure that you have Google Chrome browser installed in your system, "
                                "or you can install Google Chrome by going to the menu > About. ");
