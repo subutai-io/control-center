@@ -89,14 +89,11 @@ DlgAbout::DlgAbout(QWidget *parent) :
   this->setMinimumWidth(700);
 
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
-  ui->gridLayout_2->setSizeConstraint(QLayout::SetFixedSize);
+  ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
-
 
   QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
-                    this->ui->lbl_rhm_version_val,
-                    this->ui->lbl_rh_version_val,
                     this->ui->lbl_tray_version_val,
                     this->ui->lbl_x2go_version_val,
                     this->ui->lbl_vagrant_version_val,
@@ -118,8 +115,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
   //connect
   connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);
   connect(ui->btn_tray_update, &QPushButton::released, this, &DlgAbout::btn_tray_update_released);
-  connect(ui->btn_rh_update, &QPushButton::released, this, &DlgAbout::btn_rh_update_released);
-  connect(ui->btn_rhm_update, &QPushButton::released, this, &DlgAbout::btn_rhm_update_released);
   connect(ui->btn_recheck, &QPushButton::released, this, &DlgAbout::btn_recheck_released);
   connect(ui->btn_x2go_update, &QPushButton::released, this, &DlgAbout::btn_x2go_update_released);
   connect(ui->btn_vagrant_update, &QPushButton::released, this, &DlgAbout::btn_vagrant_update_released);
@@ -143,10 +138,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
                                        get_p2p_version};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray, ui->btn_tray_update,
                                         NULL};
-  m_dct_fpb[IUpdaterComponent::RH] = {ui->lbl_rh_version_val, ui->pb_rh, ui->btn_rh_update,
-                                      CSystemCallWrapper::rh_version};
-  m_dct_fpb[IUpdaterComponent::RHMANAGEMENT] = {ui->lbl_rhm_version_val, ui->pb_rhm, ui->btn_rhm_update,
-                                                CSystemCallWrapper::rhm_version};
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go, ui->btn_x2go_update,
                                         get_x2go_version};
   m_dct_fpb[IUpdaterComponent::VAGRANT] = {ui->lbl_vagrant_version_val, ui->pb_vagrant, ui->btn_vagrant_update,
@@ -171,18 +162,10 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
-  /*currently we are not using them, but we might need them */
-  ui->lbl_rhm_version->hide();
-  ui->lbl_rhm_version_val->hide();
-  ui->lbl_rh_version->hide();
-  ui->lbl_rh_version_val->hide();
-  ui->btn_rhm_update->hide();
-  ui->btn_rh_update->hide();
-  ui->pb_rh->hide();
-  ui->pb_rhm->hide();
-
   this->adjustSize();
   check_for_versions_and_updates();
+  QPushButton *b6 = new QPushButton("F");
+  ui->gl_components->addWidget(b6, 0,3,1,1);
 }
 
 void DlgAbout::set_visible_chrome(bool value){
@@ -216,10 +199,6 @@ void DlgAbout::check_for_versions_and_updates() {
           this, &DlgAbout::got_chrome_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version,
           this, &DlgAbout::got_p2p_version_sl);
-  connect(di, &DlgAboutInitializer::got_rh_version,
-          this, &DlgAbout::got_rh_version_sl);
-  connect(di, &DlgAboutInitializer::got_rh_management_version,
-          this, &DlgAbout::got_rh_management_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version,
           this, &DlgAbout::got_x2go_version_sl);
   connect(di, &DlgAboutInitializer::got_vagrant_version,
@@ -256,26 +235,7 @@ DlgAbout::btn_p2p_update_released() {
       CHubComponentsUpdater::Instance()->install(IUpdaterComponent::P2P);
   else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
-////////////////////////////////////////////////////////////////////////////
 
-void
-DlgAbout::btn_rh_update_released() {
-  ui->btn_rh_update->setEnabled(false);
-  ui->pb_rh->setEnabled(false);
-  ui->pb_rh->setRange(0, 0);
-  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
-                    IUpdaterComponent::RH);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgAbout::btn_rhm_update_released() {
-  ui->btn_rhm_update->setEnabled(false);
-  ui->pb_rhm->setEnabled(false);
-  ui->pb_rhm->setRange(0,0);
-  QtConcurrent::run(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::force_update,
-                    IUpdaterComponent::RHMANAGEMENT);
-}
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_x2go_update_released() {
     ui->btn_x2go_update->setEnabled(false);
@@ -283,59 +243,67 @@ void DlgAbout::btn_x2go_update_released() {
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::X2GO);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::X2GO);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_vagrant_update_released(){
+void DlgAbout::btn_vagrant_update_released() {
     ui->btn_vagrant_update->setEnabled(false);
     if(ui->lbl_vagrant_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_oracle_virtualbox_update_released(){
+void DlgAbout::btn_oracle_virtualbox_update_released() {
     ui->btn_oracle_virtualbox_update->setEnabled(false);
     if(ui->lbl_oracle_virtualbox_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::ORACLE_VIRTUALBOX);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::ORACLE_VIRTUALBOX);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_chrome_update_release(){
+void DlgAbout::btn_chrome_update_release() {
     ui->btn_chrome->setEnabled(false);
     if(ui->lbl_chrome_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::CHROME);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::CHROME);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_e2e_update_released(){
     ui->btn_subutai_e2e->setEnabled(false);
-    if(ui->lbl_subutai_e2e_val->text() == "undefined"){
+    if(ui->lbl_subutai_e2e_val->text() == "undefined") {
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::E2E);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::E2E);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_subutai_plugin_update_released(){
+void DlgAbout::btn_subutai_plugin_update_released() {
     ui->btn_subutai_plugin_update->setEnabled(false);
     if(ui->lbl_subutai_plugin_version_val->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_SUBUTAI);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_SUBUTAI);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_vbguest_plugin_update_released(){
+void DlgAbout::btn_vbguest_plugin_update_released() {
     ui->btn_vbguest_plugin_update->setEnabled(false);
     if(ui->lbl_vbguest_plugin_version_val->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_VBGUEST);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_VBGUEST);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::btn_subutai_box_update_released(){
+void DlgAbout::btn_subutai_box_update_released() {
     ui->btn_subutai_box->setEnabled(false);
     if(ui->lbl_subutai_box_version->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::SUBUTAI_BOX);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::SUBUTAI_BOX);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
@@ -397,9 +365,9 @@ void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
   if(version == "undefined"){
-      ui->btn_p2p_update->setText(tr("Install P2P"));
+      ui->btn_p2p_update->setText(tr("Install"));
   }
-  else ui->btn_p2p_update->setText(tr("Update P2P"));
+  else ui->btn_p2p_update->setText(tr("Update"));
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -407,10 +375,10 @@ void
 DlgAbout::got_chrome_version_sl(QString version) {
   ui->lbl_chrome_version_val->setText(version);
   if(version == "undefined"){
-      ui->btn_chrome->setText(tr("Install Chrome"));
+      ui->btn_chrome->setText(tr("Install "));
   }
   else{
-      ui->btn_chrome->setText(tr("Update Chrome"));
+      ui->btn_chrome->setText(tr("Update"));
   }
 }
 
@@ -418,65 +386,53 @@ DlgAbout::got_chrome_version_sl(QString version) {
 void DlgAbout::got_e2e_version_sl(QString version){
     ui->lbl_subutai_e2e_val->setText(version);
     if(version == "undefined"){
-        ui->btn_subutai_e2e->setText(tr("Install Subutai E2E"));
+        ui->btn_subutai_e2e->setText(tr("Install"));
     }
     else{
-        ui->btn_subutai_e2e->setText(tr("Update Subutai E2E"));
+        ui->btn_subutai_e2e->setText(tr("Update"));
     }
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgAbout::got_rh_version_sl(QString version) {
-  ui->lbl_rh_version_val->setText(version);
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-DlgAbout::got_rh_management_version_sl(QString version) {
-  ui->lbl_rhm_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_x2go_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_x2go_update->setText(tr("Install X2Go-Client"));
-    else ui->btn_x2go_update->setText(tr("Update X2Go-Client"));
+        ui->btn_x2go_update->setText(tr("Install"));
+    else ui->btn_x2go_update->setText(tr("Update"));
     ui->lbl_x2go_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_vagrant_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_vagrant_update->setText(tr("Install Vagrant"));
-    else ui->btn_vagrant_update->setText(tr("Update Vagrant"));
+        ui->btn_vagrant_update->setText(tr("Install"));
+    else ui->btn_vagrant_update->setText(tr("Update"));
     ui->lbl_vagrant_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_oracle_virtualbox_update->setText(tr("Install Oracle VirtualBox"));
-    else ui->btn_oracle_virtualbox_update->setText(tr("Update Oracle VirtualBox"));
+        ui->btn_oracle_virtualbox_update->setText(tr("Install"));
+    else ui->btn_oracle_virtualbox_update->setText(tr("Update"));
     ui->lbl_oracle_virtualbox_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_subutai_plugin_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_subutai_plugin_update->setText(tr("Install Subutai plugin"));
-    else ui->btn_subutai_plugin_update->setText(tr("Update Subutai plugin"));
+        ui->btn_subutai_plugin_update->setText(tr("Install"));
+    else ui->btn_subutai_plugin_update->setText(tr("Update"));
     ui->lbl_subutai_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_vbguest_plugin_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_vbguest_plugin_update->setText(tr("Install VirtualBox plugin"));
-    else ui->btn_vbguest_plugin_update->setText(tr("Update VirtualBox plugin"));
+        ui->btn_vbguest_plugin_update->setText(tr("Install"));
+    else ui->btn_vbguest_plugin_update->setText(tr("Update"));
     ui->lbl_vbguest_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::got_subutai_box_version_sl(QString version){
     if(version == "undefined")
-        ui->btn_subutai_box->setText(tr("Install Subutai box"));
-    else ui->btn_subutai_box->setText(tr("Update Subutai box"));
+        ui->btn_subutai_box->setText(tr("Install"));
+    else ui->btn_subutai_box->setText(tr("Update"));
     ui->lbl_subutai_box_version->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////

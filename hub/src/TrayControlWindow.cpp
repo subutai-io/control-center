@@ -242,7 +242,7 @@ void TrayControlWindow::create_tray_actions() {
           [] { CHubController::Instance().launch_balance_page(); });
   m_act_balance->setToolTip(tr("GoodWill"));
 
-  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("About"), this);
+  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("Component Versions"), this);
   connect(m_act_about, &QAction::triggered, this,
           &TrayControlWindow::show_about);
   m_act_about->setToolTip(tr("Information about CC"));
@@ -1488,7 +1488,7 @@ void TrayControlWindow::show_create_dialog() {
 ////////////////////////////////////////////////////////////////////////////
 QDialog *create_about_dialog(QWidget *p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
-  show_dialog(create_about_dialog, tr("About Subutai Control Center"));
+  show_dialog(create_about_dialog, tr("Component Versions"));
 }
 
 ////////////////////////////////////////////////////////////////////////////
