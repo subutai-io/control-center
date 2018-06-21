@@ -24,7 +24,7 @@ private:
   std::map<QString,QCheckBox*> selected_conts;
   std::map<QString,QLabel*> desktops_info;
 
-  void addContainer(const CHubContainer*cont);
+  void addContainer(const CHubContainer*cont, int row);
   void check_container_status(const CHubContainer *cont);
   void check_environment_status();
   void remote_acces(const CHubContainer &cont);

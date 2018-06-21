@@ -11,10 +11,6 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
   qDebug() << "Environment dialog is initialized";
 
   this->setMinimumWidth(this->width());
-  ui->cont_name->setAlignment(Qt::AlignHCenter);
-  ui->cont_rhip->setAlignment(Qt::AlignHCenter);
-  ui->cont_desktop_info->setAlignment(Qt::AlignHCenter);
-  ui->cont_select->setAlignment(Qt::AlignHCenter);
   connect(ui->btn_desktop_selected, &QPushButton::clicked,
           this, &DlgEnvironment::desktop_selected);
   connect(ui->btn_ssh_selected, &QPushButton::clicked,
@@ -104,8 +100,9 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
 
   qDebug() << "Environment added env: " << env.name();
 
+  int row = 0;
   for (auto cont : env.containers()) {
-    addContainer(&cont);
+    addContainer(&cont, row++);
   }
 
   ui->le_env_hash->setText(env.hash());
@@ -138,7 +135,7 @@ void DlgEnvironment::addEnvironment(const CEnvironment *_env) {
 
 //////////////////////////////////////////////////////////////////////////
 
-void DlgEnvironment::addContainer(const CHubContainer *cont) {
+void DlgEnvironment::addContainer(const CHubContainer *cont, int row) {
   qDebug() << QString("Adding container cont: %1, env: %2 ").arg(cont->name(), env.name());
   QLabel *cont_name = new QLabel(cont->name(), this);
   QLabel *cont_rhip_port = new QLabel(cont->rh_ip() + ":" + cont->port(), this);
@@ -155,10 +152,18 @@ void DlgEnvironment::addContainer(const CHubContainer *cont) {
   cont_desktop_info->setTextInteractionFlags(Qt::TextSelectableByMouse);
   cont_select->setStyleSheet("QCheckBox {color : green;}");
 
-  ui->cont_name->addWidget(cont_name);
-  ui->cont_rhip->addWidget(cont_rhip_port);
-  ui->cont_desktop_info->addWidget(cont_desktop_info);
-  ui->cont_select->addWidget(cont_select);
+  if (row == 0) {
+    for (int i = 0; i < 4; i++) {
+      ui->cont_data->setColumnStretch(i, 1);
+    }
+  }
+  ui->cont_data->setRowStretch(row, 1);
+
+  ui->cont_data->addWidget(cont_name, row, 0, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_rhip_port, row, 1, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_desktop_info, row, 2, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_select, row, 3, Qt::AlignCenter);
+
   selected_conts[cont->id()] = cont_select;
   desktops_info[cont->id()] = cont_desktop_info;
   connect(cont_select, &QCheckBox::stateChanged, [this](){
