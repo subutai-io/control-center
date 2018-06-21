@@ -1,5 +1,6 @@
 #include "OsBranchConsts.h"
 
+#include <QDebug>
 #include <QApplication>
 #include <QDir>
 #include <QJsonDocument>
@@ -459,6 +460,8 @@ const std::pair<QStringList, QStringList>& chrome_profiles(){
   profiles.second.clear();
   QString path = chrome_profiles_internal<Os2Type<CURRENT_OS>>();
 
+  qDebug() << "Got chrome profiles directory:" << path;
+
   if (path != "empty") {
     QFile jsonFile(path);
     jsonFile.open(QFile::ReadOnly);
@@ -475,20 +478,28 @@ const std::pair<QStringList, QStringList>& chrome_profiles(){
           if (obj[profile_key].isObject()) {
             QJsonObject cur = obj[profile_key].toObject();
             QString profile_name;
+            bool name_set = false;
 
             if (cur.contains("gaia_given_name")) {
               profile_name = cur["gaia_given_name"].toString();
-            } else {
+              name_set = true;
+            } else if (cur.contains("name")) {
               profile_name = cur["name"].toString();
+              name_set = true;
             }
 
-            profiles.first.append(profile_key);
-            profiles.second.append(profile_name);
+            if (name_set) {
+              profiles.first.append(profile_key);
+              profiles.second.append(profile_name);
+            }
           }
         }
       }
     }
   }
+
+  qDebug() << "Got profile keys list:" << profiles.first;
+  qDebug() << "Got profile names list:" << profiles.second;
 
   return profiles;
 }

@@ -598,12 +598,26 @@ void CSettingsManager::set_default_browser(QString fr){
     m_default_browser = fr;
     m_settings.setValue(SM_DEFAULT_BROWSER, m_default_browser);
 }
+/////////////////////////////////////////////////////////////
 
 void CSettingsManager::set_default_profile(QString fr){
     m_default_profile = fr;
     m_settings.setValue(SM_DEFAULT_PROFILE, m_default_profile);
 }
 
+const QString& CSettingsManager::default_profile() {
+  QStringList klist = chrome_profiles().first;
+  if (!klist.contains(m_default_profile)) {
+    if (klist.empty()) {
+      set_default_profile("Default");
+    } else {
+      set_default_profile(*klist.begin());
+    }
+  }
+  return m_default_profile;
+}
+
+/////////////////////////////////////////////////////////////
 void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
     QString sl = QFile::symLinkTarget(virtualbox_path);
     m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
