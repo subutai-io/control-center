@@ -984,7 +984,7 @@ const QString& default_default_browser(){
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////
-const QString& default_default_profile() {
+const QString&  default_default_chrome_profile() {
   static QString res("Default");
   QStringList profile_name_keys = chrome_profiles().first;
   if (!profile_name_keys.empty() && !profile_name_keys.contains(res)) {

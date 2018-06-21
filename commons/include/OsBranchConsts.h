@@ -81,7 +81,7 @@ const QString& default_x2goclient_path();
 const QString& default_term_arg();
 const QString& default_oracle_virtualbox_path();
 const QString& default_default_browser();
-const QString& default_default_profile();
+const QString& default_default_chrome_profile();
 const QString& default_chrome_extensions_path();
 const QStringList& supported_browsers();
 const std::pair<QStringList, QStringList>& chrome_profiles();

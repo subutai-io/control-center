@@ -318,7 +318,7 @@
            <item row="8" column="0">
             <widget class="QLabel" name="lbl_profile">
              <property name="text">
-              <string>Profile :</string>
+              <string>Browser profile (only Chrome) :</string>
              </property>
             </widget>
            </item>

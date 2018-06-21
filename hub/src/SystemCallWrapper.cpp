@@ -2928,7 +2928,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
-        QString chrome_profile = CSettingsManager::Instance().default_profile();
+        QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
         args << QString("%1%3%4/Extensions/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path(), chrome_profile);
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
@@ -2956,7 +2956,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
          * */
         version = "undefined";
         QString ex_id = subutai_e2e_id(current_browser);
-        QString chrome_profile = CSettingsManager::Instance().default_profile();
+        QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
         QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
         QDir extension_dir(extension_path);
         if(extension_dir.exists()){
@@ -3230,7 +3230,7 @@ bool CSystemCallWrapper::chrome_last_section(){
     QString cmd = CSettingsManager::Instance().chrome_path();
     QStringList args;
     args << "--restore-last-session"
-         << QString("--profile-directory=%1").arg(CSettingsManager::Instance().default_profile());
+         << QString("--profile-directory=%1").arg(CSettingsManager::Instance().default_chrome_profile());
     return QProcess::startDetached(cmd, args);
 
 }

@@ -274,7 +274,7 @@ void CHubController::force_refresh() {
 void CHubController::launch_browser(const QString &url) {
   QString current_browser = CSettingsManager::Instance().default_browser();
   if(current_browser == "Chrome"){
-      QString profile = CSettingsManager::Instance().default_profile();
+      QString profile = CSettingsManager::Instance().default_chrome_profile();
       QString chrome_path = CSettingsManager::Instance().chrome_path();
       qDebug() << "Trying to launch the browser with url: " << url;
 

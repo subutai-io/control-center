@@ -184,10 +184,10 @@ DlgSettings::DlgSettings(QWidget* parent)
   }
 
   std::pair<QStringList, QStringList> profiles_list = chrome_profiles();
-  current_profile = CSettingsManager::Instance().default_profile();
+  current_chrome_profile = CSettingsManager::Instance().default_chrome_profile();
   ui->cb_profile->addItems(profiles_list.second);
   for (int i = 0; i < profiles_list.first.size(); i++){
-      if (profiles_list.first[i] == current_profile){
+      if (profiles_list.first[i] == current_chrome_profile){
           ui->cb_profile->setCurrentIndex(i);
       }
   }
@@ -308,16 +308,16 @@ void DlgSettings::btn_ok_released() {
     bool dpset = false;
     for (int i = 0; i < pnames.second.size(); i++) {
       if (pnames.second[i] == profile_name) {
-        CSettingsManager::Instance().set_default_profile(pnames.first[i]);
+        CSettingsManager::Instance().set_default_chrome_profile(pnames.first[i]);
         dpset = true;
         break;
       }
     }
     if (!dpset) {
-      CSettingsManager::Instance().set_default_profile(pnames.first[0]);
+      CSettingsManager::Instance().set_default_chrome_profile(pnames.first[0]);
     }
   } else {
-    CSettingsManager::Instance().set_default_profile("Default");
+    CSettingsManager::Instance().set_default_chrome_profile("Default");
   }
 
   QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
