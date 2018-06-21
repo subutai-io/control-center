@@ -163,10 +163,10 @@ void DlgEnvironment::addContainer(const CHubContainer *cont, int row) {
   }
   ui->cont_data->setRowStretch(row, 1);
 
-  ui->cont_data->addWidget(cont_name, row, 0, Qt::AlignHCenter);
-  ui->cont_data->addWidget(cont_rhip_port, row, 1, Qt::AlignHCenter);
-  ui->cont_data->addWidget(cont_desktop_info, row, 2, Qt::AlignHCenter);
-  ui->cont_data->addWidget(cont_select, row, 3, Qt::AlignHCenter);
+  ui->cont_data->addWidget(cont_name, row, 0, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_rhip_port, row, 1, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_desktop_info, row, 2, Qt::AlignCenter);
+  ui->cont_data->addWidget(cont_select, row, 3, Qt::AlignCenter);
 
   selected_conts[cont->id()] = cont_select;
   desktops_info[cont->id()] = cont_desktop_info;
