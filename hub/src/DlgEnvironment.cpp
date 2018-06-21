@@ -10,11 +10,7 @@ DlgEnvironment::DlgEnvironment(QWidget *parent) :
   ui->setupUi(this);
   qDebug() << "Environment dialog is initialized";
 
-  this->setMinimumWidth(this->width());/**
-  ui->cont_name->setAlignment(Qt::AlignHCenter);
-  ui->cont_rhip->setAlignment(Qt::AlignHCenter);
-  ui->cont_desktop_info->setAlignment(Qt::AlignHCenter);
-  ui->cont_select->setAlignment(Qt::AlignHCenter);**/
+  this->setMinimumWidth(this->width());
   connect(ui->btn_desktop_selected, &QPushButton::clicked,
           this, &DlgEnvironment::desktop_selected);
   connect(ui->btn_ssh_selected, &QPushButton::clicked,
