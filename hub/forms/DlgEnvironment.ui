@@ -7,13 +7,23 @@
     <x>0</x>
     <y>0</y>
     <width>616</width>
-    <height>361</height>
+    <height>409</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="2">
+    <widget class="Line" name="line_9">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <layout class="QGridLayout" name="cont_data"/>
+   </item>
    <item row="0" column="3" alignment="Qt::AlignHCenter">
     <widget class="QCheckBox" name="select_all">
      <property name="text">
@@ -21,56 +31,48 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <layout class="QVBoxLayout" name="cont_name"/>
+   <item row="1" column="1">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
    </item>
-   <item row="5" column="0" colspan="4">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Operations on selected containers</string>
+   <item row="1" column="0">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Container</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QPushButton" name="btn_ssh_selected">
-        <property name="text">
-         <string>SSH </string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="btn_desktop_selected">
-        <property name="text">
-         <string>Remote Desktop</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="btn_upload_selected">
-        <property name="text">
-         <string>Transfer File</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
-   <item row="2" column="1">
-    <layout class="QVBoxLayout" name="cont_rhip"/>
-   </item>
-   <item row="6" column="0" colspan="4" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="cb_details">
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>More details</string>
+      <string>Resource Host</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="4">
+   <item row="1" column="3">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="4">
     <widget class="QGroupBox" name="gr_details">
      <property name="title">
       <string/>
@@ -126,45 +128,37 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <layout class="QVBoxLayout" name="cont_select"/>
-   </item>
-   <item row="1" column="1">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="Line" name="line_6">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Container</string>
+   <item row="4" column="0" colspan="4">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Operations on selected containers</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="Line" name="line_9">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="btn_ssh_selected">
+        <property name="text">
+         <string>SSH </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="btn_desktop_selected">
+        <property name="text">
+         <string>Remote Desktop</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="btn_upload_selected">
+        <property name="text">
+         <string>Transfer File</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="0" column="2">
@@ -177,16 +171,13 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
-    <layout class="QVBoxLayout" name="cont_desktop_info"/>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Resource Host</string>
+   <item row="5" column="0" colspan="4" alignment="Qt::AlignHCenter">
+    <widget class="QCheckBox" name="cb_details">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="text">
+      <string>More details</string>
      </property>
     </widget>
    </item>
