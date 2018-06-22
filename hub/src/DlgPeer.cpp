@@ -264,11 +264,11 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
   if (advanced) {
     ui->gr_peer_control->setTitle(tr("Peer info"));
     ui->le_name->setText(rh_name);
+    if (hub_available) {
+      ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
+    }
     if (rh_status == "running") {
       ui->btn_start_stop->setText(tr("Stop peer"));
-      if (hub_available) {
-        ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
-      }
     } else {
       ui->btn_register_unregister->setEnabled(false);
       ui->btn_launch_console->setEnabled(false);
@@ -277,6 +277,8 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
       } else if (rh_status == "not_created") {
         ui->btn_reload->setEnabled(false);
         ui->btn_start_stop->setEnabled(false);
+      } else if (rh_status == "poweroff") {
+        ui->btn_reload->setEnabled(false);
       }
     }
     ui->le_status->setText(rh_status.toUpper());
