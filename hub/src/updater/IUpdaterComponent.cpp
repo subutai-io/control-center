@@ -472,7 +472,7 @@ bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
     if (version == "undefined") return true;
     if (res != SCWE_SUCCESS) return false;
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
-    return cloud_version != version;
+    return cloud_version > version;
 }
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     qDebug()

@@ -615,10 +615,15 @@ QStringList CSystemCallWrapper::list_interfaces(){
     args << "list" << "bridgedifs";
     qDebug()<<path<<args;
     system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
-    qDebug()<<"Listing interfaces result:"
-            <<"exit code:"<<res.exit_code
-            <<"result:"<<res.res;
-    if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
+    QString output;
+    for (auto s : res.out) {
+      output += s;
+    }
+    qDebug() << "Listing interfaces result:"
+             << "exit code:" << res.exit_code
+             << "result:" << res.res
+             << "output:" << output;
+    if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
         return interfaces;
     //time to parse data
     QStringList parse_me = res.out;
@@ -1010,7 +1015,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
                             .arg(port);
 
   if (!key.isEmpty()) {
-    str_command += QString(" -i '%1' ").arg(key);
+    str_command += QString(" -i \"%1\" ").arg(key);
   }
 
 
@@ -2677,24 +2682,106 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t x2go_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString &version){
+  QString cmd = "script";
+  QStringList args;
+  args << "-q"
+       << "/dev/stdout"
+       << "-c"
+       << CSettingsManager::Instance().x2goclient() + " -v";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    QRegExp pattern("([0-9]+[.])+([0-9]+)");
+    for (auto s : res.out) {
+      s = s.simplified();
+      if (pattern.exactMatch(s)) {
+        version = s;
+        break;
+      }
+    }
+  }
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &version){
+  QString path = CSettingsManager::Instance().x2goclient();
+  QDir dir(path);
+  dir.cdUp(); dir.cdUp();
+  path = dir.absolutePath();
+  path += "/Info.plist";
+
+  QFile info_plist(path);
+  QString line;
+  bool found = false;
+  if (!info_plist.exists()) {
+      return SCWE_SUCCESS;
+  }
+  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream stream(&info_plist);
+      while (!stream.atEnd()) {
+        line = stream.readLine();
+        line = line.simplified();
+        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+        if (found) {
+            version = line;
+            break;
+        }
+        else if (line == "CFBundleVersion") {
+            found = true;
+        }
+    }
+    info_plist.close();
+  }
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version){
+  UNUSED_ARG(version);
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\x2goclient"
+    << "/v"
+    << "DisplayVersion";
+  qDebug() << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()
+      << "got x2go client version"
+      << "exit code" << res.exit_code
+      << "result code" << res.res
+      << "output" << res.out;
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+      QStringList buf = s.split(" ", QString::SkipEmptyParts);
+      if (buf.size() == 3) {
+        QStringList second_buf = buf[2].split("-", QString::SkipEmptyParts);
+        if (!second_buf.isEmpty()) {
+          version = second_buf[0];
+        }
+        break;
+      }
+   }
+  }
+  return SCWE_SUCCESS;
+}
 system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
-    version = "undefined";
-    QString cmd = CSettingsManager::Instance().x2goclient();
-    /*
-    QStringList args;
-    args
-        << "--debug"
-        << "--hide"
-        << "--no-menu"
-        << "--thinclient"
-        << "-v";
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
-    */
-    //if (res.res == SCWE_SUCCESS && res.exit_code == 255)
-    if(x2goclient_check())
-        version = "Installed";
-    else return SCWE_CREATE_PROCESS;
-    return SCWE_SUCCESS;
+  version = "undefined";
+  if (x2goclient_check()) {
+      version = "Installed";
+      return x2go_version_internal <Os2Type <CURRENT_OS>>(version);
+  } else {
+    return SCWE_CREATE_PROCESS;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -2772,10 +2859,13 @@ system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LI
   QStringList args;
   args << "--version";
 
-  QString vboxmanage_path = CSettingsManager::Instance().oracle_virtualbox_path();
-  vboxmanage_path.append(QString("Manage"));
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  path = dir.absolutePath();
+  path += "/VBoxManage";
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(vboxmanage_path,
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(path,
                                                          args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
@@ -2843,7 +2933,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
         QString cmd("ls");
         QString ex_id = subutai_e2e_id(current_browser);
         QStringList args;
-        QString chrome_profile = "Default";
+        QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
         args << QString("%1%3%4/Extensions/%2/").arg(homePath.first(), ex_id, default_chrome_extensions_path(), chrome_profile);
         system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
         if(res.res == SCWE_SUCCESS && res.exit_code == 0 && res.out.size() != 0){
@@ -2871,7 +2961,7 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
          * */
         version = "undefined";
         QString ex_id = subutai_e2e_id(current_browser);
-        QString chrome_profile = "Default";
+        QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
         QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
         QDir extension_dir(extension_path);
         if(extension_dir.exists()){
@@ -3145,7 +3235,7 @@ bool CSystemCallWrapper::chrome_last_section(){
     QString cmd = CSettingsManager::Instance().chrome_path();
     QStringList args;
     args << "--restore-last-session"
-         << "--profile-directory=Default";
+         << QString("--profile-directory=%1").arg(CSettingsManager::Instance().default_chrome_profile());
     return QProcess::startDetached(cmd, args);
 
 }

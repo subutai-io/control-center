@@ -72,10 +72,9 @@ int main(int argc, char* argv[]) {
 
   cmd_parser.addHelpOption();
 
-  std::string tray_build_number_str = TRAY_BUILD_NUMBER;
+  QString tray_build_number_str = TRAY_BUILD_NUMBER;
   QApplication::setApplicationVersion(QString("version: %1 build: %2").
-    arg(TRAY_VERSION,
-        tray_build_number_str.substr(0, tray_build_number_str.size() - 9).c_str()));
+    arg(TRAY_VERSION, tray_build_number_str));
 
   cmd_parser.addVersionOption();
 

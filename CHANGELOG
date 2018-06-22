@@ -1,5 +1,21 @@
 # Change Log
 
+## [7.1.1] 21/12/2018
+# IMPROVEMENTS:
+* Reworked login page
+* Reworked P2P control button, now it's an action menu
+* Updated packages of Vagrant and Virtualbox
+* About menu shows component's versions# BUG FIXES:
+* Implemented eye button for password input
+* Improved UI/UX of "Notification history" dialog
+* Open tray menu with left click on KDE Desktops
+# BUG FIXES:
+* Fixed bug with multiples user authorization for p2p daemon commands
+* Fixed bug on Windows, when after CC update, users had two tray icons
+# FEATURES:
+* Update PeerOS management from CC
+* Implemented CLI commands, type `SubutaiControlCenter --help` to learn about them
+
 ## [7.1.0] 6/12/2018
 # IMPROVEMENTS:
 * Use name validators for the peer registration

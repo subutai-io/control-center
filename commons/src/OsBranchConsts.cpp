@@ -1,29 +1,33 @@
 #include "OsBranchConsts.h"
 
+#include <QDebug>
 #include <QApplication>
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
 
 static std::map<QString, QString> virtual_package_codename = {
-    {"xenial", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
-    {"bionic", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"},
-    {"zesty", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
-    {"yakkety", "virtualbox-5.2_5.2.8-121009_Ubuntu_yakkety_amd64.deb"},
-    {"trusty", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
-    {"stretch", "virtualbox-5.2_5.2.8-121009_Debian_stretch_amd64.deb"},
-    {"jessie", "virtualbox-5.2_5.2.8-121009_Debian_jessie_amd64.deb"},
-    {"wheezy", "virtualbox-5.2_5.2.8-121009_Debian_wheezy_amd64.deb"},
-    {"artful", "virtualbox-5.2_5.2.8-121009_Ubuntu_zesty_amd64"},
-    {"qiana", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"}, //compatible with 14.04
-    {"rebecca", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
-    {"rafaela", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
-    {"rosa", "virtualbox-5.2_5.2.8-121009_Ubuntu_trusty_amd64.deb"},
-    {"sarah", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"}, //compatible with 16.04
-    {"serena", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
-    {"sonya", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
-    {"sylvia", "virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb"},
-    {"rara", "virtualbox-5.2_5.2.8-121009_Ubuntu_bionic_amd64.deb"} //compatible with 18.04
+    {"xenial",   "virtualbox-xenial.deb"},
+    {"bionic",   "virtualbox-bionic.deb"},
+    {"zesty",    "virtualbox-zesty.deb"},
+    {"yakkety",  "virtualbox-yakkety.deb"},
+    {"trusty",   "virtualbox-trusty.deb"},
+    {"stretch",  "virtualbox-stretch.deb"},
+    {"jessie",   "virtualbox-jessie.deb"},
+    {"wheezy",   "virtualbox-wheezy.deb"},
+    {"artful",   "virtualbox-zesty.deb"},
+    {"qiana",    "virtualbox-trusty.deb"}, //compatible with 14.04
+    {"rebecca",  "virtualbox-trusty.deb"},
+    {"rafaela",  "virtualbox-trusty.deb"},
+    {"rosa",     "virtualbox-trusty.deb"},
+    {"sarah",    "virtualbox-xenial.deb"}, //compatible with 16.04
+    {"serena",   "virtualbox-xenial.deb"},
+    {"sonya",    "virtualbox-xenial.deb"},
+    {"sylvia",   "virtualbox-xenial.deb"},
+    {"rara",     "virtualbox-bionic.deb"} //compatible with 18.04
 };
 
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
@@ -85,7 +89,7 @@ oracle_virtualbox_kurjun_package_name() {
     //first check type of os
     QString type = info.begin()->second;
     if(type == "Windows")
-        kurjun_file = "VirtualBox-5.2.8-121009-Win.exe";
+        kurjun_file = "VirtualBox.exe";
     else if(type == "Mac")
         kurjun_file = "VirtualBox.pkg";
     if(kurjun_file != "not_found")
@@ -132,14 +136,14 @@ template<class BR, class OS> const QString& vagrant_kurjun_package_name_temp_int
   }
 
 vagrant_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "vagrant.pkg")
-vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant_2.0.3_x86_64.msi")
-vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
-vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "vagrant.msi")
+vagrant_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "vagrant.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "vagrant.deb")
 vagrant_kurjun_package_name_def(BT_DEV,        OS_MAC,     "vagrant.pkg")
-vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant_2.0.3_x86_64.msi")
-vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant_2.0.3_x86_64.deb")
+vagrant_kurjun_package_name_def(BT_DEV,        OS_WIN,     "vagrant.msi")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "vagrant.deb")
 vagrant_kurjun_package_name_def(BT_PROD,      OS_MAC,      "vagrant.pkg")
-vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant_2.0.3_x86_64.msi")
+vagrant_kurjun_package_name_def(BT_PROD,      OS_WIN,      "vagrant.msi")
 
 const QString &
 vagrant_kurjun_package_name(){
@@ -409,6 +413,97 @@ const QStringList& supported_browsers(){
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& chrome_profiles_internal();
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_LINUX>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("/google-chrome/Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_MAC>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::RuntimeLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("/Google/Chrome/Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+template<>
+const QString& chrome_profiles_internal<Os2Type<OS_WIN>>() {
+  QStringList paths =
+      QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+  static QString path;
+  if (!paths.empty()) {
+    path = (*paths.begin()).append("\\Google\\Chrome\\User Data\\Local State");
+  } else {
+    path = "empty";
+  }
+  return path;
+}
+
+const std::pair<QStringList, QStringList>& chrome_profiles(){
+  static std::pair<QStringList, QStringList> profiles;
+  profiles.first.clear();
+  profiles.second.clear();
+  QString path = chrome_profiles_internal<Os2Type<CURRENT_OS>>();
+
+  qDebug() << "Got chrome profiles directory:" << path;
+
+  if (path != "empty") {
+    QFile jsonFile(path);
+    jsonFile.open(QFile::ReadOnly);
+    QJsonObject obj = QJsonDocument().fromJson(jsonFile.readAll()).object();
+
+    if (obj["profile"].isObject()) {
+      obj = obj["profile"].toObject();
+
+      if (obj["info_cache"].isObject()) {
+        obj = obj["info_cache"].toObject();
+        QStringList keys = obj.keys();
+
+        for (auto profile_key : keys) {
+          if (obj[profile_key].isObject()) {
+            QJsonObject cur = obj[profile_key].toObject();
+            QString profile_name;
+            bool name_set = false;
+
+            if (cur.contains("gaia_given_name")) {
+              profile_name = cur["gaia_given_name"].toString();
+              name_set = true;
+            } else if (cur.contains("name")) {
+              profile_name = cur["name"].toString();
+              name_set = true;
+            }
+
+            if (name_set) {
+              profiles.first.append(profile_key);
+              profiles.second.append(profile_name);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  qDebug() << "Got profile keys list:" << profiles.first;
+  qDebug() << "Got profile names list:" << profiles.second;
+
+  return profiles;
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -559,7 +654,7 @@ template<class OS> const QString& default_x2goclient_path_internal();
   }
 
 default_x2goclient_path_internal_def(OS_LINUX, "/usr/bin/x2goclient")
-default_x2goclient_path_internal_def(OS_MAC, "x2goclient")
+default_x2goclient_path_internal_def(OS_MAC, "/Applications/x2goclient.app/Contents/MacOS/x2goclient")
 default_x2goclient_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\x2goclient\\x2goclient.exe")
 
 const QString &
@@ -887,6 +982,15 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v){
 const QString& default_default_browser(){
     static QString res("Chrome");
     return res;
+}
+////////////////////////////////////////////////////////////////////////////
+const QString&  default_default_chrome_profile() {
+  static QString res("Default");
+  QStringList profile_name_keys = chrome_profiles().first;
+  if (!profile_name_keys.empty() && !profile_name_keys.contains(res)) {
+    res = *profile_name_keys.begin();
+  }
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 const QString& subutai_e2e_id(const QString& current_browser){

@@ -1,5 +1,6 @@
 #include "Commons.h"
 #include "SystemCallWrapper.h"
+#include "TrayControlWindow.h"
 
 #include <time.h>
 #include <QApplication>
@@ -88,7 +89,7 @@ void CCommons::RestartTray() {
   QStringList args;
   args << RESTARTED_ARG;
   QProcess::startDetached(QApplication::applicationFilePath(), args);
-  QApplication::exit(0);
+  TrayControlWindow::Instance()->application_quit();
 }
 
 ////////////////////////////////////////////////////////////////
