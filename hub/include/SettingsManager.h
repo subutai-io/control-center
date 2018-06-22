@@ -28,6 +28,7 @@ class CSettingsManager : public QObject {
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
   static const QString SM_DEFAULT_BROWSER;
+  static const QString SM_DEFAULT_CHROME_PROFILE;
 
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
@@ -86,6 +87,7 @@ class CSettingsManager : public QObject {
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
   QString m_default_browser;
+  QString m_default_chrome_profile;
 
   uint32_t m_notification_delay_sec;
 
@@ -285,6 +287,8 @@ class CSettingsManager : public QObject {
   void set_x2goclient_path(QString fr);
   void set_oracle_virtualbox_path(QString fr);
   void set_default_browser(QString fr);
+  void set_default_chrome_profile(QString fr);
+  const QString& default_chrome_profile();
   void set_rh_pass(const QString &id, const QString &pass);
   void set_rh_user(const QString &id, const QString &user);
   void set_rh_host(const QString &id, const QString &host);
