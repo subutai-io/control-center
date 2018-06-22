@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>541</height>
+    <width>582</width>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,45 +17,112 @@
    <enum>Qt::LeftToRight</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="1" colspan="3">
+   <item row="10" column="1" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0">
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btn_start_stop">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Start the Peer</string>
+       </property>
+       <property name="text">
+        <string>Start peer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="btn_destroy">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Destroy the Peer from your machine</string>
+       </property>
+       <property name="text">
+        <string>Destroy peer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QPushButton" name="btn_update_peer">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>No updates for PeerOS</string>
+       </property>
+       <property name="text">
+        <string>No updates available</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_register_unregister">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Register Peer to your Bazaar account</string>
+       </property>
+       <property name="text">
+        <string>Register to Bazaar</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btn_reload">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Restart the Peer</string>
+       </property>
+       <property name="text">
+        <string>Reload peer</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="8" column="1" colspan="2">
     <widget class="QGroupBox" name="gr_ssh">
      <property name="title">
-      <string/>
+      <string>SSH info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="le_ip"/>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLineEdit" name="le_pass"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>SSH Port</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_3">
-        <property name="toolTip">
-         <string>User for ssh (Only for the LAN Peers)</string>
-        </property>
-        <property name="text">
-         <string>User</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_port"/>
-      </item>
-      <item row="2" column="3">
-       <widget class="QPushButton" name="btn_ssh_peer">
-        <property name="toolTip">
-         <string>SSH into the Peer</string>
-        </property>
-        <property name="text">
-         <string>SSH into Peer</string>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="le_user">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
@@ -65,12 +132,62 @@
          <string>Password for ssh (Only for the LAN Peers)</string>
         </property>
         <property name="text">
-         <string>Pass</string>
+         <string>SSH password:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="le_user"/>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>SSH port:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="le_pass">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lbl_ip">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>127.0.0.1</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="indent">
+         <number>14</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="toolTip">
+         <string>User for ssh (Only for the LAN Peers)</string>
+        </property>
+        <property name="text">
+         <string>SSH username:</string>
+        </property>
+       </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
@@ -78,225 +195,176 @@
          <string>Host address of the Peer</string>
         </property>
         <property name="text">
-         <string>IP</string>
+         <string>IP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QPushButton" name="btn_ssh_peer">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>SSH into the Peer</string>
+        </property>
+        <property name="text">
+         <string>SSH into peer</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="lbl_port">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string>22</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="indent">
+         <number>14</number>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="lbl_env">
-     <property name="toolTip">
-      <string>List of environments running on your Peer</string>
-     </property>
-     <property name="text">
-      <string>Environment</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QLabel" name="lbl_env_status">
-     <property name="toolTip">
-      <string>Status of environments</string>
-     </property>
-     <property name="text">
-      <string>Status</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <layout class="QVBoxLayout" name="env_status"/>
-   </item>
-   <item row="3" column="2">
-    <layout class="QVBoxLayout" name="env_owner"/>
-   </item>
-   <item row="9" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="show_peer_control">
-     <property name="toolTip">
-      <string>Advanced settings</string>
-     </property>
-     <property name="text">
-      <string>Advanced settings</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <layout class="QVBoxLayout" name="env_name"/>
-   </item>
-   <item row="6" column="3">
-    <widget class="QPushButton" name="btn_launch_console">
-     <property name="toolTip">
-      <string>Launch Subutai Console in browser</string>
-     </property>
-     <property name="text">
-      <string>Launch  Subutai Console</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="QPushButton" name="btn_peer_on_hub">
-     <property name="toolTip">
-      <string>Open Peer in the Bazaar</string>
-     </property>
-     <property name="text">
-      <string>Peer on Bazaar</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2" alignment="Qt::AlignHCenter">
-    <widget class="QCheckBox" name="show_ssh">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Show ssh information of the Peer</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Show SSH box</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="Line" name="line_1">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="lbl_env_owner">
-     <property name="toolTip">
-      <string>List of owners for each environment</string>
-     </property>
-     <property name="text">
-      <string>Owner</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1" colspan="3">
+   <item row="9" column="1" colspan="2">
     <widget class="QGroupBox" name="gr_peer_control">
      <property name="title">
-      <string/>
+      <string>Peer info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="le_ram"/>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="lbl_disk">
-        <property name="toolTip">
-         <string>Peer's disk size in GB</string>
-        </property>
-        <property name="text">
-         <string>Disk</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="3">
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QPushButton" name="btn_register">
-          <property name="toolTip">
-           <string>Register Peer to your Bazaar account</string>
-          </property>
-          <property name="text">
-           <string>Register to Bazaar</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_unregister">
-          <property name="toolTip">
-           <string>Unregister Peer from your Bazaar account</string>
-          </property>
-          <property name="text">
-           <string>Unregister from Bazaar</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="9" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QPushButton" name="btn_start">
-          <property name="toolTip">
-           <string>Start the Peer</string>
-          </property>
-          <property name="text">
-           <string>Start</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btn_stop">
-          <property name="toolTip">
-           <string>Shut down the Peer</string>
-          </property>
-          <property name="text">
-           <string>Stop</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="lbl_name">
         <property name="toolTip">
          <string>Name of the Peer</string>
         </property>
         <property name="text">
-         <string>Name</string>
+         <string>Peer name:</string>
+        </property>
+        <property name="indent">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="le_name">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cmb_bridge">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="lbl_bridge">
+        <property name="toolTip">
+         <string>Bridged interface of the Peer</string>
+        </property>
+        <property name="text">
+         <string>Bridge:</string>
+        </property>
+        <property name="indent">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLineEdit" name="le_cpu">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="lbl_cpu">
+        <property name="toolTip">
+         <string>Number of CPU cores of the Peer</string>
+        </property>
+        <property name="text">
+         <string>CPU:</string>
+        </property>
+        <property name="indent">
+         <number>0</number>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
        <widget class="QCheckBox" name="change_confugre">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string>Unlock to change your Peer configurations</string>
         </property>
         <property name="text">
-         <string>Locked configs</string>
+         <string>Modify peer info</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="le_cpu"/>
+      <item row="1" column="2">
+       <widget class="QLabel" name="lbl_disk">
+        <property name="toolTip">
+         <string>Peer's disk size in GB</string>
+        </property>
+        <property name="text">
+         <string>Max disk GB:</string>
+        </property>
+        <property name="indent">
+         <number>0</number>
+        </property>
+       </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLabel" name="le_status">
-        <property name="text">
-         <string>Peer is running</string>
+       <widget class="QLineEdit" name="le_disk">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
@@ -306,79 +374,33 @@
          <string>RAM size of the Peer in MB</string>
         </property>
         <property name="text">
-         <string>RAM</string>
+         <string>RAM MB:</string>
+        </property>
+        <property name="indent">
+         <number>0</number>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_name"/>
-      </item>
-      <item row="4" column="3">
-       <widget class="QComboBox" name="cmb_bridge"/>
-      </item>
-      <item row="10" column="3">
-       <widget class="QPushButton" name="btn_reload">
-        <property name="toolTip">
-         <string>Restart the Peer</string>
-        </property>
-        <property name="text">
-         <string>Reload</string>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="le_ram">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="lbl_bridge">
-        <property name="toolTip">
-         <string>Bridged interface of the Peer</string>
-        </property>
-        <property name="text">
-         <string>Bridge</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QPushButton" name="btn_destroy">
-        <property name="toolTip">
-         <string>Destroy the Peer from your machine</string>
-        </property>
-        <property name="text">
-         <string>Destroy</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="lbl_status">
-        <property name="minimumSize">
-         <size>
-          <width>44</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="toolTip">
-         <string>State of the Peer</string>
-        </property>
-        <property name="text">
-         <string>State</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="le_disk"/>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="lbl_cpu">
-        <property name="toolTip">
-         <string>Number of CPU cores of the Peer</string>
-        </property>
-        <property name="text">
-         <string>CPU</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
+      <item row="11" column="0" colspan="4">
        <widget class="QLabel" name="lbl_update_peeros">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="statusTip">
          <string>Updates for PeerOS</string>
@@ -386,20 +408,215 @@
         <property name="text">
          <string/>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
-      <item row="11" column="3">
-       <widget class="QPushButton" name="btn_update_peer">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>No updates for PeerOS</string>
-        </property>
-        <property name="text">
-         <string>No updates available</string>
-        </property>
-       </widget>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="spacing">
+      <number>6</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetFixedSize</enum>
+     </property>
+     <item>
+      <widget class="QLabel" name="lbl_status">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>State of the Peer</string>
+       </property>
+       <property name="text">
+        <string>Peer status:</string>
+       </property>
+       <property name="indent">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="le_status">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhPreferUppercase</set>
+       </property>
+       <property name="text">
+        <string>RUNNING</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_peer_on_hub">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Open Peer in the Bazaar</string>
+       </property>
+       <property name="text">
+        <string>Open peer in Bazaar</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_launch_console">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Launch Subutai Console in browser</string>
+       </property>
+       <property name="text">
+        <string>Open Subutai Console</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="1" rowspan="2" colspan="2">
+    <widget class="QGroupBox" name="gb_environment">
+     <property name="title">
+      <string>Environments</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_6">
+        <item row="0" column="1">
+         <widget class="QLabel" name="lbl_env_owner">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>List of owners for each environment</string>
+          </property>
+          <property name="text">
+           <string>Owner</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="Line" name="line_1">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="lbl_env_status">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Status of environments</string>
+          </property>
+          <property name="text">
+           <string>Status</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <layout class="QVBoxLayout" name="env_owner"/>
+        </item>
+        <item row="2" column="0">
+         <layout class="QVBoxLayout" name="env_name"/>
+        </item>
+        <item row="1" column="1">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <layout class="QVBoxLayout" name="env_status"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="lbl_env">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>List of environments running on your Peer</string>
+          </property>
+          <property name="text">
+           <string>Environment name</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <widget class="QLabel" name="lbl_env_info">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="margin">
+           <number>2</number>
+          </property>
+          <property name="indent">
+           <number>2</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
