@@ -721,7 +721,7 @@ void DlgPeer::rh_reload() {
               CNotificationObserver::Instance()->Info(
                   tr("The process to reload peer %1 has started. Do not close "
                      "this terminal "
-                     "until processing has completed."),
+                     "until processing has completed.").arg(rh_name),
                   DlgNotification::N_NO_ACTION);
               this->close();
             } else {
