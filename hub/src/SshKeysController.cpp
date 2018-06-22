@@ -154,7 +154,7 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   QFile key_pub(str_public);
 
   if (fi.baseName().contains(QRegularExpression("[/|\\\\$%~\"*?:<>^]")) ||
-      fi.baseName().size() == 0 || fi.baseName()[0] == '.') {
+      fi.baseName().isEmpty() || fi.baseName()[0] == '.') {
     CNotificationObserver::Error(QString("SSH key name can not begin with . "
                                          "(dot) and can not contain following "
                                          "symbols:\n/|\\$%~\"<>:*?^"),
