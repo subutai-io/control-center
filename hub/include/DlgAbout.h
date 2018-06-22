@@ -83,6 +83,7 @@ private:
   void set_visible_chrome(bool value);
   void set_visible_firefox(bool value);
   QString current_browser;
+  QPushButton* checked_btn();
 
 private slots:
   void btn_tray_update_released();

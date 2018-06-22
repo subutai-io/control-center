@@ -73,5 +73,6 @@
     </qresource>
     <qresource prefix="/">
         <file>show_password.png</file>
+        <file>check_box.png</file>
     </qresource>
 </RCC>

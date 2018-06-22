@@ -374,6 +374,12 @@
        </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="btn_recheck">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Check for updates</string>
          </property>

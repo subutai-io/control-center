@@ -92,25 +92,44 @@ DlgAbout::DlgAbout(QWidget *parent) :
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
 
-  QLabel* lbls[]= { this->ui->lbl_chrome_version_val,
-                    this->ui->lbl_p2p_version_val,
-                    this->ui->lbl_tray_version_val,
-                    this->ui->lbl_x2go_version_val,
-                    this->ui->lbl_vagrant_version_val,
-                    this->ui->lbl_chrome_version_val,
-                    this->ui->lbl_subutai_e2e_val,
-                    this->ui->lbl_subutai_plugin_version_val,
-                    this->ui->lbl_vbguest_plugin_version_val,
-                    this->ui->lbl_subutai_box_version,
-                    nullptr };
+  QLabel* lbls[] = { this->ui->lbl_chrome_version_val,
+                     this->ui->lbl_p2p_version_val,
+                     this->ui->lbl_tray_version_val,
+                     this->ui->lbl_x2go_version_val,
+                     this->ui->lbl_vagrant_version_val,
+                     this->ui->lbl_chrome_version_val,
+                     this->ui->lbl_subutai_e2e_val,
+                     this->ui->lbl_subutai_plugin_version_val,
+                     this->ui->lbl_vbguest_plugin_version_val,
+                     this->ui->lbl_subutai_box_version,
+                     nullptr
+                   };
+
+  QProgressBar* pbs[] = { this->ui->pb_tray,
+                          this->ui->pb_p2p,
+                          this->ui->pb_vagrant,
+                          this->ui->pb_e2e,
+                          this->ui->pb_oracle_virtualbox,
+                          this->ui->pb_chrome,
+                          this->ui->pb_subutai_box,
+                          this->ui->pb_subutai_plugin,
+                          this->ui->pb_vbguest_plugin,
+                          this->ui->pb_x2go,
+                          nullptr
+                        };
 
   for (QLabel **i = lbls; *i; ++i) {
-    (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    (*i)->setWordWrap(true);
+      (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+      (*i)->setWordWrap(true);
   }
+
+  for (QProgressBar **i = pbs; *i; ++i) {
+      (*i)->setHidden(true);
+  }
+
   bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
   ui->btn_p2p_update->setVisible(p2p_visible);
-  ui->pb_p2p->setVisible(p2p_visible);
+  //ui->pb_p2p->setVisible(p2p_visible);
 
   //connect
   connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);
@@ -162,20 +181,19 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
-  this->adjustSize();
   check_for_versions_and_updates();
-  QPushButton *b6 = new QPushButton("F");
-  ui->gl_components->addWidget(b6, 0,3,1,1);
+  this->adjustSize();
 }
 
-void DlgAbout::set_visible_chrome(bool value){
+void DlgAbout::set_visible_chrome(bool value) {
     ui->btn_chrome->setVisible(value);
     ui->lbl_chrome_version->setVisible(value);
     ui->lbl_chrome_version_val->setVisible(value);
     ui->pb_chrome->setVisible(value);
     this->adjustSize();
 }
-void DlgAbout::set_visible_firefox(bool value){
+
+void DlgAbout::set_visible_firefox(bool value) {
     ui->btn_firefox->setVisible(value);
     ui->pb_firefox->setVisible(value);
     ui->lbl_firefox->setVisible(value);
@@ -223,6 +241,7 @@ void DlgAbout::check_for_versions_and_updates() {
 
 void
 DlgAbout::btn_tray_update_released() {
+  ui->pb_tray->setHidden(false);
   ui->btn_tray_update->setEnabled(false);
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
 }
@@ -230,81 +249,91 @@ DlgAbout::btn_tray_update_released() {
 
 void
 DlgAbout::btn_p2p_update_released() {
+  ui->pb_p2p->setHidden(false);
   ui->btn_p2p_update->setEnabled(false);
   if(ui->lbl_p2p_version_val->text()=="undefined")
       CHubComponentsUpdater::Instance()->install(IUpdaterComponent::P2P);
   else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::P2P);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_x2go_update_released() {
+    ui->pb_x2go->setHidden(false);
     ui->btn_x2go_update->setEnabled(false);
     if(ui->lbl_x2go_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::X2GO);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::X2GO);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_vagrant_update_released() {
+    ui->pb_vagrant->setHidden(false);
     ui->btn_vagrant_update->setEnabled(false);
     if(ui->lbl_vagrant_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_oracle_virtualbox_update_released() {
+    ui->pb_oracle_virtualbox->setHidden(false);
+    ui->btn_oracle_virtualbox_update->setHidden(false);
     ui->btn_oracle_virtualbox_update->setEnabled(false);
     if(ui->lbl_oracle_virtualbox_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::ORACLE_VIRTUALBOX);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::ORACLE_VIRTUALBOX);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_chrome_update_release() {
+    ui->pb_chrome->setHidden(false);
     ui->btn_chrome->setEnabled(false);
     if(ui->lbl_chrome_version_val->text()=="undefined")
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::CHROME);
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::CHROME);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_e2e_update_released(){
+    ui->pb_e2e->setHidden(false);
     ui->btn_subutai_e2e->setEnabled(false);
     if(ui->lbl_subutai_e2e_val->text() == "undefined") {
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::E2E);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::E2E);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_subutai_plugin_update_released() {
+    ui->pb_subutai_plugin->setHidden(false);
     ui->btn_subutai_plugin_update->setEnabled(false);
     if(ui->lbl_subutai_plugin_version_val->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_SUBUTAI);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_SUBUTAI);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_vbguest_plugin_update_released() {
+    ui->pb_vbguest_plugin->setHidden(false);
     ui->btn_vbguest_plugin_update->setEnabled(false);
     if(ui->lbl_vbguest_plugin_version_val->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_VBGUEST);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_VBGUEST);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_subutai_box_update_released() {
+    ui->pb_subutai_box->setHidden(false);
     ui->btn_subutai_box->setEnabled(false);
     if(ui->lbl_subutai_box_version->text() == "undefined"){
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::SUBUTAI_BOX);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::SUBUTAI_BOX);
 }
-
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::btn_recheck_released() {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     it->second.btn->setEnabled(false);
@@ -383,7 +412,8 @@ DlgAbout::got_chrome_version_sl(QString version) {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_e2e_version_sl(QString version){
+
+void DlgAbout::got_e2e_version_sl(QString version) {
     ui->lbl_subutai_e2e_val->setText(version);
     if(version == "undefined"){
         ui->btn_subutai_e2e->setText(tr("Install"));
@@ -394,58 +424,76 @@ void DlgAbout::got_e2e_version_sl(QString version){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgAbout::got_x2go_version_sl(QString version){
+void DlgAbout::got_x2go_version_sl(QString version) {
     if(version == "undefined")
         ui->btn_x2go_update->setText(tr("Install"));
     else ui->btn_x2go_update->setText(tr("Update"));
     ui->lbl_x2go_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_vagrant_version_sl(QString version){
+
+void DlgAbout::got_vagrant_version_sl(QString version) {
     if(version == "undefined")
         ui->btn_vagrant_update->setText(tr("Install"));
     else ui->btn_vagrant_update->setText(tr("Update"));
     ui->lbl_vagrant_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_oracle_virtualbox_version_sl(QString version){
+
+void DlgAbout::got_oracle_virtualbox_version_sl(QString version) {
     if(version == "undefined")
         ui->btn_oracle_virtualbox_update->setText(tr("Install"));
     else ui->btn_oracle_virtualbox_update->setText(tr("Update"));
     ui->lbl_oracle_virtualbox_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_subutai_plugin_version_sl(QString version){
-    if(version == "undefined")
+
+void DlgAbout::got_subutai_plugin_version_sl(QString version) {
+    if(version == "undefined") {
+        // TODO
+        ui->btn_subutai_plugin_update->setHidden(false);
         ui->btn_subutai_plugin_update->setText(tr("Install"));
-    else ui->btn_subutai_plugin_update->setText(tr("Update"));
+    } else {
+        ui->btn_subutai_plugin_update->setText(tr("Update"));
+    }
     ui->lbl_subutai_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_vbguest_plugin_version_sl(QString version){
+
+void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
     if(version == "undefined")
         ui->btn_vbguest_plugin_update->setText(tr("Install"));
     else ui->btn_vbguest_plugin_update->setText(tr("Update"));
     ui->lbl_vbguest_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::got_subutai_box_version_sl(QString version){
-    if(version == "undefined")
+
+void DlgAbout::got_subutai_box_version_sl(QString version) {
+    if(version == "undefined") {
         ui->btn_subutai_box->setText(tr("Install"));
-    else ui->btn_subutai_box->setText(tr("Update"));
+    } else {
+        ui->btn_subutai_box->setText(tr("Update"));
+    }
     ui->lbl_subutai_box_version->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::update_available_sl(const QString& component_id, bool available) {
-    if(m_dct_fpb.find(component_id) == m_dct_fpb.end()){
+    bool update_available = (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) && available);
+
+    if(m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
         return;
     }
-    m_dct_fpb[component_id].pb->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) && available);
-    m_dct_fpb[component_id].btn->setEnabled(!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) && available);
-}
 
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
+    // if not available component updates but checkbox icon
+    if (!update_available) {
+        m_dct_fpb[component_id].btn->setHidden(true);
+        ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn, DlgAbout::checked_btn());
+    }
+
+    m_dct_fpb[component_id].pb->setEnabled(update_available);
+    m_dct_fpb[component_id].btn->setEnabled(update_available);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -520,7 +568,8 @@ DlgAboutInitializer::do_initialization() {
   emit finished();
 }
 ////////////////////////////////////////////////////////////////////////////
-void DlgAbout::install_finished(const QString &file_id, bool success){
+
+void DlgAbout::install_finished(const QString &file_id, bool success) {
     qDebug()<<"Install finished  for"<<file_id<<"with result"<<success;
     if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
     m_dct_fpb[file_id].btn->setEnabled(false);
@@ -531,9 +580,33 @@ void DlgAbout::install_finished(const QString &file_id, bool success){
     if (m_dct_fpb[file_id].pf_version) {
       m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
     }
+
+    if (success) {
+        m_dct_fpb[file_id].pb->setHidden(true);
+        m_dct_fpb[file_id].btn->setHidden(true);
+        ui->gl_components->replaceWidget(m_dct_fpb[file_id].btn, DlgAbout::checked_btn());
+    }
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void
-DlgAboutInitializer::abort() {
+void DlgAboutInitializer::abort() {
   emit finished();
 }
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief DlgAbout::checked_btn
+/// Creates button with checkboxed icon
+/// \return
+///
+QPushButton* DlgAbout::checked_btn() {
+    QPushButton* btn_checked = new QPushButton("");
+    static QPixmap pixmap(":/hub/check_box.png");
+    static QIcon icon(pixmap);
+    btn_checked->setIcon(icon);
+    btn_checked->setIconSize(pixmap.rect().size());
+    btn_checked->setStyleSheet("border-style: outset; border-width: 0px;");
+
+    return btn_checked;
+}
+
+////////////////////////////////////////////////////////////////////////////
