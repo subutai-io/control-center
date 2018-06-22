@@ -266,14 +266,17 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
     ui->le_name->setText(rh_name);
     if (hub_available) {
       ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
+      ui->btn_register_unregister->setToolTip(tr("Unregister peer from your Bazaar account"));
     }
     if (rh_status == "running") {
       ui->btn_start_stop->setText(tr("Stop peer"));
+      ui->btn_start_stop->setToolTip(tr("Turnoff your peer"));
     } else {
       ui->btn_register_unregister->setEnabled(false);
       ui->btn_launch_console->setEnabled(false);
       if (rh_status == "not ready") {
         ui->btn_start_stop->setText(tr("Stop peer"));
+        ui->btn_start_stop->setToolTip(tr("Turnoff your peer"));
       } else if (rh_status == "not_created") {
         ui->btn_reload->setEnabled(false);
         ui->btn_start_stop->setEnabled(false);
