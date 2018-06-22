@@ -203,6 +203,8 @@ class CSystemCallWrapper {
                                                      const QString &provider,
                                                      const QString &box_dir);
 
+  static system_call_wrapper_error_t give_write_permissions(const QString &dir);
+
   static QStringList list_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
