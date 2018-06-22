@@ -62,10 +62,14 @@ void CSshKeysController::refresh_key_files() {
           key_file.errorString().toStdString().c_str());
       continue;
     }
-    lst_key_files.push_back(*i);
-    QByteArray arr_content = key_file.readAll();
-    arr_content.truncate(arr_content.size() - 1);  // hack for hub
-    lst_key_content.push_back(QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]")));
+    QFileInfo fi(key_file);
+    if (!fi.baseName().contains(QRegularExpression("[/|\\\\$%~\"*?:<>^]"))
+        && !(fi.baseName()[0] == '.')) {
+      lst_key_files.push_back(*i);
+      QByteArray arr_content = key_file.readAll();
+      arr_content.truncate(arr_content.size() - 1);  // hack for hub
+      lst_key_content.push_back(QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]")));
+    }
     key_file.close();
   }
 
@@ -149,19 +153,27 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
   QFile key(str_private);
   QFile key_pub(str_public);
 
-  if (key.exists() && key_pub.exists()) {
-    key.remove();
-    key_pub.remove();
-  }
+  if (fi.baseName().contains(QRegularExpression("[/|\\\\$%~\"*?:<>^]")) ||
+      fi.baseName().size() == 0 || fi.baseName()[0] == '.') {
+    CNotificationObserver::Error(QString("SSH key name can not begin with . "
+                                         "(dot) and can not contain following "
+                                         "symbols:\n/|\\$%~\"<>:*?^"),
+                                 DlgNotification::N_NO_ACTION);
+  } else {
+    if (key.exists() && key_pub.exists()) {
+      key.remove();
+      key_pub.remove();
+    }
 
-  system_call_wrapper_error_t scwe = CSystemCallWrapper::generate_ssh_key(
-      CHubController::Instance().current_user(), str_private);
-  if (scwe != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->Error(
-        tr("An error has occurred while trying to generate the SSH key: %1. You can manually "
-           "create an SSH key or try again by restarting the Control Center first.")
-            .arg(CSystemCallWrapper::scwe_error_to_str(scwe)), DlgNotification::N_NO_ACTION);
-    return;
+    system_call_wrapper_error_t scwe = CSystemCallWrapper::generate_ssh_key(
+        CHubController::Instance().current_user(), str_private);
+    if (scwe != SCWE_SUCCESS) {
+      CNotificationObserver::Instance()->Error(
+          tr("An error has occurred while trying to generate the SSH key: %1. You can manually "
+             "create an SSH key or try again by restarting the Control Center first.")
+              .arg(CSystemCallWrapper::scwe_error_to_str(scwe)), DlgNotification::N_NO_ACTION);
+      return;
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////
