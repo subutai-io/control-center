@@ -596,6 +596,41 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
     return std::make_pair(bridges, global_status);
 }
 //////////////////////////////////////////////////////////////////////
+
+template<class OS>
+system_call_wrapper_error_t give_write_permissions_internal(const QString &dir);
+
+template<>
+system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_LINUX> >(const QString &dir) {
+  UNUSED_ARG(dir);
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_MAC> >(const QString &dir) {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e" << QString("do shell script \"chmod +w %1\" "
+                          "with administrator privileges").arg(dir);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+  if (res.res != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("An error occured while running chmod command.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+  }
+  return res.res;
+}
+
+template<>
+system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_WIN> >(const QString &dir) {
+  UNUSED_ARG(dir);
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QString &dir) {
+  return give_write_permissions_internal<Os2Type<CURRENT_OS> >(dir);
+}
+//////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
      * using command VBoxManage get list of all bridged interfaces

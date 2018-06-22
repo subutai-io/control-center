@@ -1,6 +1,8 @@
 #include <QFile>
+#include <QFileInfo>
 #include "Commons.h"
 #include "NotificationObserver.h"
+#include "SystemCallWrapper.h"
 #include "updater/ExecutableUpdater.h"
 
 using namespace update_system;
@@ -38,6 +40,10 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
   qInfo("dst : %s", m_dst_file_str.toStdString().c_str());
   qInfo("tmp : %s", tmp.toStdString().c_str());
   qInfo("src : %s", m_src_file_str.toStdString().c_str());
+
+  QFileInfo fi(m_dst_file_str);
+  static QString dir = fi.path();
+  CSystemCallWrapper::give_write_permissions(dir);
 
   do {    
     if (dst.exists()) {
