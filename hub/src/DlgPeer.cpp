@@ -14,7 +14,8 @@
 
 #include "LibsshController.h"
 
-DlgPeer::DlgPeer(QWidget *parent) : QDialog(parent), ui(new Ui::DlgPeer) {
+DlgPeer::DlgPeer(QWidget *parent, QString peer_id) : QDialog(parent), ui(new Ui::DlgPeer) {
+  peer_fingerprint = peer_id;
   qDebug() << "Peer dialog is initialized";
   // ui
   ui->setupUi(this);

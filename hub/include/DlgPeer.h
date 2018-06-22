@@ -14,7 +14,7 @@ class DlgPeer : public QDialog
 {
   Q_OBJECT
 public:
-  explicit DlgPeer(QWidget *parent = 0);
+  explicit DlgPeer(QWidget *parent = 0, QString peer_id = "");
   ~DlgPeer();
   void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp);
   void addLocalPeer(std::pair<QString, QString> peer);
