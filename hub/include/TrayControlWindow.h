@@ -98,7 +98,7 @@ private:
   QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
-  void generate_peer_dlg(const QString &peer_id);
+  QString generate_peer_dlg(const QString &peer_id);
   static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 

@@ -1214,28 +1214,10 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id,
 
 void TrayControlWindow::my_peer_button_pressed_sl(
     const QString &peer_id) {
-  this->generate_peer_dlg(peer_id);
+  QString peer_name = this->generate_peer_dlg(peer_id);
   TrayControlWindow::show_dialog(
         TrayControlWindow::last_generated_peer_dlg,
-        QString(tr("Peer")));
-  /*
-  if (peer_info == NULL) {
-    return;
-  }
-  static std::pair<QString, QString> empty_network_peer =
-      std::make_pair("", "");
-  std::vector<CLocalPeer> local_peer_info;
-  if (peer_info->m_local_peer != NULL) {
-    local_peer_info.push_back(*(peer_info->m_local_peer));
-  }
-  this->generate_peer_dlg(peer_info->m_hub_peer,
-                          peer_info->m_network_peer == NULL
-                              ? empty_network_peer
-                              : *(peer_info->m_network_peer),
-                          local_peer_info);
-  TrayControlWindow::show_dialog(
-      TrayControlWindow::last_generated_peer_dlg,
-      QString("Peer \"%1\"").arg(peer_info->peer_name));*/
+        peer_name);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -1562,13 +1544,14 @@ QDialog *TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
   return m_last_generated_peer_dlg;
 }
 
-void TrayControlWindow::generate_peer_dlg(const QString& peer_id) {  // local_peer -> pair of fingerprint and local ip
+QString TrayControlWindow::generate_peer_dlg(const QString& peer_id) {  // local_peer -> pair of fingerprint and local ip
   DlgPeer *dlg_peer = new DlgPeer(this, peer_id);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this,
           &TrayControlWindow::ssh_to_rh_triggered);
   connect(dlg_peer, &DlgPeer::peer_update_peeros, this,
           &TrayControlWindow::peer_update_peeros_sl);
   m_last_generated_peer_dlg = dlg_peer;
+  return dlg_peer->get_peer_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////

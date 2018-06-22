@@ -20,6 +20,14 @@ public:
   void addLocalPeer(std::pair<QString, QString> peer);
   void addHubPeer(CMyPeerInfo peer);
   void addMachinePeer(CLocalPeer peer);
+  void updatePeer();
+  QString get_peer_name(){
+    if (hub_available) {
+      return peer_name;
+    } else {
+      return rh_name;
+    }
+  }
   //ui
   void hideSSH();
   void hidePeer();

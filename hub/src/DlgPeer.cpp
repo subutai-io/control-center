@@ -51,18 +51,37 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id) : QDialog(parent), ui(new Ui:
   this->ui->gr_ssh->setVisible(true);
   this->ui->gr_peer_control->setVisible(true);
   this->adjustSize();
-
-  connect(ui->btn_launch_console, &QPushButton::clicked, [this]() {
-    QString console_address =
-        advanced ? "https://localhost:%1" : "https://%1:8443";
-    CHubController::Instance().launch_browser(
-        QString(console_address).arg(this->ssh_ip));
-  });
   // vars
   registration_dialog = nullptr;
   ssh_available = false;
   advanced = false;
   hub_available = false;
+  updatePeer();
+}
+
+void DlgPeer::updatePeer(){
+  if (TrayControlWindow::Instance()->my_peers_button_table.
+      find(peer_fingerprint) == TrayControlWindow::Instance()->my_peers_button_table.end()) {
+    qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
+    this->close();
+  } else {
+    TrayControlWindow::my_peer_button *peer_info =
+        TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
+    if (peer_info == nullptr) {
+      qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
+      this->close();
+      return;
+    }
+    std::vector<CLocalPeer> local_peer_info;
+    if (peer_info->m_local_peer != NULL) {
+      local_peer_info.push_back(*(peer_info->m_local_peer));
+    }
+    addPeer(peer_info->m_hub_peer, // bazaar peer info
+            peer_info->m_network_peer == NULL // lan peer info
+                ? std::make_pair("", "")
+                : *(peer_info->m_network_peer),
+            local_peer_info); // local peer info
+  }
 }
 
 void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
@@ -266,8 +285,11 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
     ui->gr_peer_control->setTitle(tr("Peer info"));
     ui->le_name->setText(rh_name);
     if (hub_available) {
+      this->setWindowTitle(peer_name);
       ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
       ui->btn_register_unregister->setToolTip(tr("Unregister peer from your Bazaar account"));
+    } else {
+      this->setWindowTitle(rh_name);
     }
     if (rh_status == "running") {
       ui->btn_start_stop->setText(tr("Stop peer"));
@@ -319,6 +341,12 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
     this->adjustSize();
   } else
     hidePeer();
+  connect(ui->btn_launch_console, &QPushButton::clicked, [this]() {
+    QString console_address =
+        advanced ? "https://localhost:%1" : "https://%1:8443";
+    CHubController::Instance().launch_browser(
+        QString(console_address).arg(this->ssh_ip));
+  });
   this->adjustSize();
 }
 
