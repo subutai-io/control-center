@@ -80,7 +80,6 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
   peer_name = peer.name();
   peer_fingerprint = peer.fingerprint();
   ui->le_status->setText(peer.status());
-  ssh_available = true;
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
   update_environments(envs);
 }
@@ -107,7 +106,8 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     }
   }
   // fingerprint
-  if (peer.fingerprint() != "loading" || peer.fingerprint() != "undefined") {
+  if (peer.fingerprint() != "loading" && peer.fingerprint() != "undefined" &&
+      !peer.ip().isEmpty()) {
     peer_fingerprint = peer.fingerprint();
   } else {  // if fingerprint is unknown means management is not ready yet
     ui->btn_launch_console->setEnabled(false);
@@ -139,7 +139,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   connect(timer_refresh_machine_peer, &QTimer::timeout, this, [this]() {
     std::map<QString, CLocalPeer> local_peers =
         TrayControlWindow::Instance()->machine_peers_table;
-    auto it_peer = local_peers.find(this->peer_name);
+    auto it_peer = local_peers.find(this->rh_name);
     if (it_peer == local_peers.end()) {
       this->close();
       return;
@@ -263,26 +263,27 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
     hideSSH();
   if (advanced) {
     ui->gr_peer_control->setTitle(tr("Peer info"));
-    ui->le_name->setText(peer_name);
+    ui->le_name->setText(rh_name);
     if (rh_status == "running") {
       ui->btn_start_stop->setText(tr("Stop peer"));
-    } else if (rh_status == "not ready") {
-      ui->btn_start_stop->setText(tr("Stop peer"));
-      ui->btn_register_unregister->setEnabled(false);
-    } else if (rh_status == "not_created") {
-      ui->btn_start_stop->setEnabled(false);
-      ui->btn_reload->setEnabled(false);
-      ui->btn_register_unregister->setEnabled(false);
+      if (hub_available) {
+        ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
+      }
     } else {
-      ui->btn_start_stop->setEnabled(false);
       ui->btn_register_unregister->setEnabled(false);
-      ui->btn_reload->setEnabled(false);
+      ui->btn_launch_console->setEnabled(false);
+      if (rh_status == "not ready") {
+        ui->btn_start_stop->setText(tr("Stop peer"));
+      } else if (rh_status == "not_created") {
+        ui->btn_reload->setEnabled(false);
+        ui->btn_start_stop->setEnabled(false);
+      }
     }
     ui->le_status->setText(rh_status.toUpper());
     ui->le_status->setToolTip(
         CPeerController::Instance()->status_description(rh_status));
     configs();
-
+    // slots
     connect(ui->btn_destroy, &QPushButton::clicked,
             [this]() { this->rh_destroy(); });
     connect(ui->btn_start_stop, &QPushButton::clicked,
@@ -409,15 +410,15 @@ void DlgPeer::enabled_peer_buttons(bool state) {
   if (rh_status == "running") {
     ui->btn_start_stop->setEnabled(state);
     ui->btn_reload->setEnabled(state);
-    if (hub_available) {
-      ui->btn_register_unregister->setEnabled(state);
-    } else
-      ui->btn_register_unregister->setEnabled(state);
+    ui->btn_register_unregister->setEnabled(state);
+    ui->btn_destroy->setEnabled(state);
   } else if (rh_status == "not ready") {
     ui->btn_start_stop->setEnabled(state);
     ui->btn_reload->setEnabled(state);
+    ui->btn_destroy->setEnabled(state);
   } else {
     ui->btn_start_stop->setEnabled(state);
+    ui->btn_destroy->setEnabled(state);
   }
 }
 
@@ -428,7 +429,7 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint,
   UNUSED_ARG(res);
   UNUSED_ARG(libbssh_exit_code);  // need to use this variables to give feedback
                                   // to user
-  if (QString::compare(peer_fingerprint, peer_fingerprint,
+  if (QString::compare(peer_fingerprint, this->peer_fingerprint,
                        Qt::CaseInsensitive) != 0)
     return;
 
@@ -436,15 +437,21 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint,
   ui->btn_ssh_peer->setText(tr("SSH into Peer"));
 }
 
-void DlgPeer::rh_register_or_unregister() { return; }
+void DlgPeer::rh_register_or_unregister() {
+  if (hub_available) {
+    rh_unregister();
+  } else {
+    rh_register();
+  }
+}
 
 void DlgPeer::rh_register() {
   ui->btn_register_unregister->setEnabled(false);
   DlgRegisterPeer *dlg_register = new DlgRegisterPeer(this);
   const QString ip_addr = ui->lbl_ip->text();
-  dlg_register->init(ip_addr, this->peer_name);
+  dlg_register->init(ip_addr, this->rh_name);
   dlg_register->setRegistrationMode();
-  dlg_register->setWindowTitle(tr("Register peer: %1").arg(peer_name));
+  dlg_register->setWindowTitle(tr("Register peer: %1").arg(rh_name));
   dlg_register->show();
   registration_dialog = dlg_register;
   connect(dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
@@ -617,12 +624,12 @@ void DlgPeer::rh_ssh() {
   enabled_peer_buttons(false);
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
   ui->btn_ssh_peer->setText(tr("Processing..."));
-  thread_init->init(rh_dir, up_command, peer_name);
+  thread_init->init(rh_dir, up_command, rh_name);
   thread_init->startWork();
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              qDebug() << "sshed to peer" << peer_name;
+              qDebug() << "sshed to peer" << rh_name;
             } else {
               CNotificationObserver::Instance()->Error(
                   tr("Failed to SSH to the peer \"%1\". Check the stability of "
@@ -663,7 +670,7 @@ void DlgPeer::rh_destroy() {
   static QString delete_command = "destroy -f";
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
   ui->btn_destroy->setText(tr("Trying to destroy this peer, please wait."));
-  thread_init->init(rh_dir, delete_command, peer_name);
+  thread_init->init(rh_dir, delete_command, rh_name);
   thread_init->startWork();
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
@@ -672,16 +679,15 @@ void DlgPeer::rh_destroy() {
                   tr("The process to destroy peer %1 has started. Do not close "
                      "this terminal until "
                      "processing has completed.")
-                      .arg(peer_name),
+                      .arg(rh_name),
                   DlgNotification::N_NO_ACTION);
-              //     emit peer_deleted(this->peer_name);
               this->close();
             } else {
               CNotificationObserver::Instance()->Error(
                   tr("Failed to destroy peer \"%1\". Make sure that your "
                      "Internet connection is stable and "
                      "that you have the required administrative privileges.")
-                      .arg(peer_name),
+                      .arg(rh_name),
                   DlgNotification::N_NO_ACTION);
               enabled_peer_buttons(true);
               ui->btn_destroy->setText(tr("Destroy"));
@@ -701,9 +707,9 @@ void DlgPeer::rh_reload() {
   }
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
   ui->btn_reload->setText(tr("Trying to reload this peer, please wait."));
-  thread_init->init(rh_dir, reload_command, peer_name);
+  thread_init->init(rh_dir, reload_command, rh_name);
   thread_init->startWork();
-  emit peer_modified(this->peer_name);
+  emit peer_modified(this->rh_name);
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
@@ -772,7 +778,5 @@ void DlgPeer::update_environments(
 
 DlgPeer::~DlgPeer() {
   qDebug() << "Deleting DlgPeer";
-  if (advanced && timer_refresh_machine_peer != nullptr)
-    timer_refresh_machine_peer->deleteLater();
   delete ui;
 }
