@@ -6,6 +6,7 @@
 
 #include <QProgressBar>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QLabel>
 #include <QThread>
 
@@ -73,6 +74,7 @@ private:
   struct progress_item_t {
     QLabel* lbl;
     QProgressBar* pb;
+    QCheckBox* cb;
     QPushButton* btn;
     QString (*pf_version)();
   };
@@ -83,7 +85,6 @@ private:
   void set_visible_chrome(bool value);
   void set_visible_firefox(bool value);
   QString current_browser;
-  QPushButton* checked_btn();
 
 private slots:
   void btn_tray_update_released();
