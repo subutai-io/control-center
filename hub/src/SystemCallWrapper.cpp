@@ -1791,9 +1791,6 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get update\n"
-                                    "apt-get upgrade -y\n"
-                                    "apt-get install -y build-essential\n"
                                     "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
                                     "if [ $? -gt 0 ]\n"
                                     "then\n"
@@ -1842,7 +1839,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
             <<"error code:"<<cr2.exit_code
             <<"output: "<<cr2.out
             <<"result: "<<cr2.res;
-  //  tmpFile.remove();
+    tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
 
