@@ -807,8 +807,7 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
   args << "start"
        << "-ip" << ip
        << "-key" << key
-       << "-hash" << hash
-       << "-dht" << p2p_dht_arg();
+       << "-hash" << hash;
   if (swarm_base_interface_id != -1)
        args << "-dev" << base_interface_name() + QString::number(swarm_base_interface_id);
 
