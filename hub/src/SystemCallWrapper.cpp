@@ -1791,26 +1791,21 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "echo install linux headers\n"
+                                    "apt-get update\n"
+                                    "apt-get upgrade -y\n"
+                                    "apt-get install -y build-essential\n"
                                     "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
                                     "if [ $? -gt 0 ]\n"
                                     "then\n"
-                                    "echo failed to install linux hearders\n"
-                                    "echo install dependcy for linux hearder\n"
                                     "apt-get install -y -f\n"
                                     "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
                                     "fi\n"
                                     "cd %1\n"
-                                    "echo start install vb"
                                     "dpkg -i %2\n"
                                     "if [ $? -gt 0 ]\n"
                                     "then\n"
-                                    "echo failed to install vb\n"
-                                    "echo uninstall vb\n"
                                     "dpkg --remove --force-remove-reinstreq %2\n"
-                                    "echo install dependencies for vb\n"
                                     "apt-get install -y -f\n"
-                                    "echo install again vb\n"
                                     "dpkg -i %2\n"
                                     "fi\n")
                                     .arg(dir, file_name)
@@ -1847,7 +1842,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
             <<"error code:"<<cr2.exit_code
             <<"output: "<<cr2.out
             <<"result: "<<cr2.res;
-    //tmpFile.remove();
+  //  tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
 
