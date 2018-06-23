@@ -78,7 +78,7 @@ private:
   QString rh_bridge;
   QString rh_status;
   QString rh_name;
-  QTimer *timer_refresh_machine_peer;
+  QTimer *refresh_timer;
   QDialog *registration_dialog;
 
 signals:

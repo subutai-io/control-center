@@ -19,6 +19,8 @@ public:
     void setUnregistrationMode();
     QRegExp m_invalid_chars;
     bool m_password_state;
+    static int dialog_used [10000];
+    static int dialog_running [10000];
 signals:
     void register_finished();
 private:
