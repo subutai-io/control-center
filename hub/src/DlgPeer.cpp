@@ -1,5 +1,6 @@
 #include "DlgPeer.h"
 #include "DlgRegisterPeer.h"
+#include "PeerController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "ui_DlgPeer.h"
@@ -14,7 +15,9 @@
 
 #include "LibsshController.h"
 
-DlgPeer::DlgPeer(QWidget *parent) : QDialog(parent), ui(new Ui::DlgPeer) {
+DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
+    : QDialog(parent), ui(new Ui::DlgPeer) {
+  peer_fingerprint = peer_id;
   qDebug() << "Peer dialog is initialized";
   // ui
   ui->setupUi(this);
@@ -46,22 +49,74 @@ DlgPeer::DlgPeer(QWidget *parent) : QDialog(parent), ui(new Ui::DlgPeer) {
   // slots
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &DlgPeer::ssh_to_rh_finished_sl);
+  // btn rh
+  connect(ui->btn_destroy, &QPushButton::clicked, this,
+          &DlgPeer::rh_destroy_sl);
+  connect(ui->btn_start_stop, &QPushButton::clicked, this,
+          &DlgPeer::rh_stop_or_start_sl);
+  connect(ui->btn_reload, &QPushButton::clicked, this, &DlgPeer::rh_reload_sl);
+  connect(ui->btn_register_unregister, &QPushButton::clicked, this,
+          &DlgPeer::rh_register_or_unregister_sl);
+  connect(ui->btn_update_peer, &QPushButton::clicked, this,
+          &DlgPeer::rh_update_sl);
+  connect(ui->btn_ssh_peer, &QPushButton::clicked, this, &DlgPeer::rh_ssh_sl);
+  connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked) {
+    ui->le_cpu->setReadOnly(!checked);
+    ui->le_ram->setReadOnly(!checked);
+    ui->le_disk->setReadOnly(!checked);
+    ui->cmb_bridge->setEnabled(checked);
+    ui->le_disk->setEnabled(checked);
+    ui->le_cpu->setEnabled(checked);
+    ui->le_ram->setEnabled(checked);
+    if (checked == false) {
+      this->configs();
+    }
+  });
+  // btn other
+  connect(ui->btn_launch_console, &QPushButton::clicked, this,
+          &DlgPeer::launch_console_sl);
+  connect(ui->btn_peer_on_hub, &QPushButton::clicked, this,
+          &DlgPeer::launch_bazaar_sl);
 
   this->ui->gr_ssh->setVisible(true);
   this->ui->gr_peer_control->setVisible(true);
-  this->adjustSize();
-
-  connect(ui->btn_launch_console, &QPushButton::clicked, [this]() {
-    QString console_address =
-        advanced ? "https://localhost:%1" : "https://%1:8443";
-    CHubController::Instance().launch_browser(
-        QString(console_address).arg(this->ssh_ip));
-  });
   // vars
   registration_dialog = nullptr;
   ssh_available = false;
   advanced = false;
   hub_available = false;
+  updatePeer();
+  refresh_timer = new QTimer(this);
+  refresh_timer->setInterval(7 * 1000); //7 seconds
+  connect(refresh_timer, &QTimer::timeout, this, &DlgPeer::updatePeer);
+  refresh_timer->start();
+}
+
+void DlgPeer::updatePeer() {
+  if (TrayControlWindow::Instance()->my_peers_button_table.find(
+          peer_fingerprint) ==
+      TrayControlWindow::Instance()->my_peers_button_table.end()) {
+    qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
+    this->close();
+  } else {
+    TrayControlWindow::my_peer_button *peer_info =
+        TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
+    if (peer_info == nullptr) {
+      qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
+      this->close();
+      return;
+    }
+    std::vector<CLocalPeer> local_peer_info;
+    if (peer_info->m_local_peer != NULL) {
+      local_peer_info.push_back(*(peer_info->m_local_peer));
+    }
+    addPeer(peer_info->m_hub_peer,             // bazaar peer info
+            peer_info->m_network_peer == NULL  // lan peer info
+                ? std::make_pair("", "")
+                : *(peer_info->m_network_peer),
+            local_peer_info);  // local peer info
+  }
+  this->adjustSize();
 }
 
 void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
@@ -73,15 +128,15 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
 // when peer is registered to the bazaar
 // CMyPeerInfo is peer information based on the bazaar
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
-  hub_available = true;
-  connect(ui->btn_peer_on_hub, &QPushButton::clicked, [peer]() {
-    CHubController::Instance().launch_peer_page(peer.id().toInt());
-  });
+  peer_id = peer.id();
   peer_name = peer.name();
   peer_fingerprint = peer.fingerprint();
   ui->le_status->setText(peer.status());
+  ui->btn_peer_on_hub->setEnabled(true);
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
-  update_environments(envs);
+  if (!hub_available)  // update envs info is not implemented yet
+    update_environments(envs);
+  hub_available = true;
 }
 // add resource host, which should be management for full functionality
 void DlgPeer::addMachinePeer(CLocalPeer peer) {
@@ -133,39 +188,10 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
           tr("This peer is currently updating. Please wait"));
     }
   }
-  // timer to refresh info about local rh
-  timer_refresh_machine_peer = new QTimer(this);
-  timer_refresh_machine_peer->setInterval(7000);
-  connect(timer_refresh_machine_peer, &QTimer::timeout, this, [this]() {
-    std::map<QString, CLocalPeer> local_peers =
-        TrayControlWindow::Instance()->machine_peers_table;
-    auto it_peer = local_peers.find(this->rh_name);
-    if (it_peer == local_peers.end()) {
-      this->close();
-      return;
-    }
-    CLocalPeer peer = it_peer->second;
-    this->management_ua = peer.update_available() == "true" ? true : false;
-    if (management_ua) {
-      ui->btn_update_peer->setText("Update is available");
-      ui->btn_update_peer->setEnabled(true);
-      ui->btn_update_peer->setToolTip(tr("Update for PeerOS is available"));
-    } else {
-      ui->btn_update_peer->setEnabled(false);
-      if (peer.update_available() == "false") {
-        ui->btn_update_peer->setText(tr("No updates available"));
-        ui->btn_update_peer->setToolTip(tr("No updates for the PeerOS"));
-      } else {
-        ui->btn_update_peer->setText(tr("Updating..."));
-        ui->btn_update_peer->setToolTip(
-            tr("This peer is currently updating. Please wait"));
-      }
-    }
-  });
-  timer_refresh_machine_peer->start();
   parse_yml();
 }
 // takes information about rh from configuration file
+// format of configuration file -> KEY : VALUE
 void DlgPeer::parse_yml() {
   QString filename = QString("%1/vagrant-subutai.yml").arg(rh_dir);
   QFile file(filename);
@@ -206,24 +232,32 @@ void DlgPeer::parse_yml() {
 void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
                       std::pair<QString, QString> local_peer,
                       std::vector<CLocalPeer> lp) {
-  static QPalette *green_text = new QPalette();
-  green_text->setColor(QPalette::Text, Qt::green);
-  static QPalette *yellow_text = new QPalette();
-  yellow_text->setColor(QPalette::Text, Qt::yellow);
-  static QPalette *red_text = new QPalette();
-  red_text->setColor(QPalette::Text, Qt::red);
   if (hub_peer != nullptr) {
     addHubPeer(*hub_peer);
-  } else {
+  } else {  // peer is not registered to the bazaar
+    hub_available = false;
+    envs_available = false;
     ui->btn_peer_on_hub->setEnabled(false);
+    ui->btn_register_unregister->setText(tr("Register peer to Bazaar"));
+    ui->btn_register_unregister->setToolTip(
+        tr("Register peer to your Bazaar account"));
     hideEnvs();
   }
   if (!local_peer.first.isEmpty()) {
     addLocalPeer(local_peer);
+  } else {  // peer was not found in lan network
+    ssh_available = false;
   }
   if (!lp.empty()) {
     addMachinePeer(lp[0]);
+  } else {  // cc didn't see this peer in your machine
+    advanced = false;
+    ssh_available = false;
   }
+  updateUI();
+}
+
+void DlgPeer::updateUI() {
   if (ssh_available) {  // parse SSH information
     if (ssh_ip.isEmpty())
       ssh_ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
@@ -249,24 +283,20 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
                                              this->ui->le_user->text());
     CSettingsManager::Instance().set_rh_pass(peer_fingerprint,
                                              this->ui->le_pass->text());
-    // slots
-    if (!advanced) {
-      connect(ui->btn_ssh_peer, &QPushButton::clicked, [this]() {
-        this->ui->btn_ssh_peer->setEnabled(false);
-        this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
-        emit this->ssh_to_rh_sig(this->peer_fingerprint);
-      });
-    } else {
-      connect(ui->btn_ssh_peer, &QPushButton::clicked, this, &DlgPeer::rh_ssh);
-    }
-  } else
+  } else {  // this means you don't have any access to the peer
+    ui->btn_launch_console->setEnabled(false);
     hideSSH();
+  }
   if (advanced) {
     ui->gr_peer_control->setTitle(tr("Peer info"));
     ui->le_name->setText(rh_name);
     if (hub_available) {
+      this->setWindowTitle(peer_name);
       ui->btn_register_unregister->setText(tr("Unregister from Bazaar"));
-      ui->btn_register_unregister->setToolTip(tr("Unregister peer from your Bazaar account"));
+      ui->btn_register_unregister->setToolTip(
+          tr("Unregister peer from your Bazaar account"));
+    } else {
+      this->setWindowTitle(rh_name);
     }
     if (rh_status == "running") {
       ui->btn_start_stop->setText(tr("Stop peer"));
@@ -282,6 +312,11 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
         ui->btn_start_stop->setEnabled(false);
       } else if (rh_status == "poweroff") {
         ui->btn_reload->setEnabled(false);
+        ui->btn_start_stop->setText(tr("Start peer"));
+        ui->btn_start_stop->setToolTip(tr("Start your peer"));
+      } else {
+        ui->btn_start_stop->setText(tr("Start peer"));
+        ui->btn_start_stop->setToolTip(tr("Start your peer"));
       }
     }
     ui->le_status->setText(rh_status.toUpper());
@@ -289,36 +324,34 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
         CPeerController::Instance()->status_description(rh_status));
     configs();
     // slots
-    connect(ui->btn_destroy, &QPushButton::clicked,
-            [this]() { this->rh_destroy(); });
-    connect(ui->btn_start_stop, &QPushButton::clicked,
-            [this]() { this->rh_stop_or_start(); });
-    connect(ui->btn_reload, &QPushButton::clicked,
-            [this]() { this->rh_reload(); });
-    connect(ui->btn_register_unregister, &QPushButton::clicked,
-            [this]() { this->rh_register_or_unregister(); });
-    connect(ui->btn_update_peer, &QPushButton::clicked, this,
-            &DlgPeer::rh_update);
-    connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked) {
-      ui->le_cpu->setReadOnly(!checked);
-      ui->le_ram->setReadOnly(!checked);
-      ui->le_disk->setReadOnly(!checked);
-
-      ui->cmb_bridge->setEnabled(checked);
-      ui->le_disk->setEnabled(checked);
-      ui->le_cpu->setEnabled(checked);
-      ui->le_ram->setEnabled(checked);
-      if (checked == false) {
-        this->configs();
-      }
-      static std::vector<QString> states = {tr("Modify peer info"),
-                                            tr("Modify peer info")};
-      ui->change_confugre->setText(states[checked]);
-    });
-    this->adjustSize();
+    enabled_peer_buttons(true);
   } else
     hidePeer();
-  this->adjustSize();
+}
+
+void DlgPeer::launch_console_sl() {
+  QString console_address =
+      advanced ? "https://localhost:%1" : "https://%1:8443";
+  CHubController::Instance().launch_browser(
+      QString(console_address).arg(this->ssh_ip));
+}
+
+void DlgPeer::launch_bazaar_sl() {
+  if (!hub_available) {
+    qCritical() << "Pressed launch bazaar for nonregistered peer"
+                << peer_fingerprint;
+    return;
+  }
+  CHubController::Instance().launch_peer_page(peer_id.toInt());
+}
+
+void DlgPeer::rh_ssh_sl() {
+  if (!advanced) {
+    this->ui->btn_ssh_peer->setEnabled(false);
+    this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
+    emit this->ssh_to_rh_sig(this->peer_fingerprint);
+  } else
+    rh_ssh();
 }
 
 void DlgPeer::configs() {
@@ -415,7 +448,12 @@ void DlgPeer::enabled_peer_buttons(bool state) {
   if (rh_status == "running") {
     ui->btn_start_stop->setEnabled(state);
     ui->btn_reload->setEnabled(state);
-    ui->btn_register_unregister->setEnabled(state);
+    if (DlgRegisterPeer::dialog_used[ssh_ip.toInt() - 9999] == 1 ||
+        DlgRegisterPeer::dialog_running[ssh_ip.toInt() - 9999] == 1) {
+      ui->btn_register_unregister->setEnabled(false);
+    } else {
+      ui->btn_register_unregister->setEnabled(state);
+    }
     ui->btn_destroy->setEnabled(state);
   } else if (rh_status == "not ready") {
     ui->btn_start_stop->setEnabled(state);
@@ -441,13 +479,8 @@ void DlgPeer::ssh_to_rh_finished_sl(const QString &peer_fingerprint,
   ui->btn_ssh_peer->setEnabled(true);
   ui->btn_ssh_peer->setText(tr("SSH into Peer"));
 }
-
-void DlgPeer::rh_register_or_unregister() {
-  if (hub_available) {
-    rh_unregister();
-  } else {
-    rh_register();
-  }
+void DlgPeer::rh_register_or_unregister_sl() {
+  hub_available ? rh_unregister() : rh_register();
 }
 
 void DlgPeer::rh_register() {
@@ -459,7 +492,6 @@ void DlgPeer::rh_register() {
   dlg_register->setWindowTitle(tr("Register peer: %1").arg(rh_name));
   dlg_register->show();
   registration_dialog = dlg_register;
-  connect(dlg_register, &QDialog::finished, this, &DlgPeer::regDlgClosed);
   connect(dlg_register, &DlgRegisterPeer::register_finished,
           [this]() { this->close(); });
 }
@@ -481,13 +513,11 @@ void DlgPeer::rh_unregister() {
   dlg_unregister->setWindowTitle(tr("Unregister peer: %1").arg(peer_name));
   dlg_unregister->show();
   registration_dialog = dlg_unregister;
-  connect(dlg_unregister, &QDialog::finished, this, &DlgPeer::regDlgClosed);
   connect(dlg_unregister, &DlgRegisterPeer::register_finished,
           [this]() { this->close(); });
 }
 
 void DlgPeer::regDlgClosed() {
-  ui->btn_register_unregister->setEnabled(true);
   ui->btn_register_unregister->setEnabled(true);
   if (registration_dialog == nullptr) return;
   registration_dialog->deleteLater();
@@ -504,13 +534,11 @@ void DlgPeer::hideSSH() {
   ui->le_user->hide();
   ui->le_pass->hide();
   ui->btn_ssh_peer->hide();
-  this->adjustSize();
 }
 
 void DlgPeer::hidePeer() {
   ui->lbl_name->hide();
   ui->le_name->hide();
-  // ui->lbl_status->hide(); ui->le_status->hide();
   ui->lbl_bridge->hide();
   ui->cmb_bridge->hide();
   ui->lbl_cpu->hide();
@@ -533,27 +561,20 @@ void DlgPeer::hidePeer() {
   ui->lbl_update_peeros->setText(
       tr("This peer is not in your machine. "
          "Specific functions are available only for peers in your machine."));
-  this->adjustSize();
 }
 
 void DlgPeer::hideEnvs() {
   ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
-
   ui->lbl_env->hide();
   ui->lbl_env_owner->hide();
   ui->lbl_env_status->hide();
   ui->line_1->hide();
   ui->line_2->hide();
   ui->line_3->hide();
-  this->adjustSize();
 }
 
-void DlgPeer::rh_stop_or_start() {
-  if (ui->btn_start_stop->text() == tr("Start peer")) {
-    rh_start();
-  } else {
-    rh_stop();
-  }
+void DlgPeer::rh_stop_or_start_sl() {
+  ui->btn_start_stop->text() == tr("Start peer") ? rh_start() : rh_stop();
 }
 
 void DlgPeer::rh_stop() {
@@ -648,7 +669,7 @@ void DlgPeer::rh_ssh() {
           });
 }
 
-void DlgPeer::rh_destroy() {
+void DlgPeer::rh_destroy_sl() {
   if (hub_available) {
     CNotificationObserver::Error(tr("Registered peers cannot be destroyed. "
                                     "Before destroying this peer, you must "
@@ -701,7 +722,7 @@ void DlgPeer::rh_destroy() {
   return;
 }
 
-void DlgPeer::rh_reload() {
+void DlgPeer::rh_reload_sl() {
   static QString reload_command = "reload";
   enabled_peer_buttons(false);
   if (ui->change_confugre->isChecked()) {
@@ -721,7 +742,8 @@ void DlgPeer::rh_reload() {
               CNotificationObserver::Instance()->Info(
                   tr("The process to reload peer %1 has started. Do not close "
                      "this terminal "
-                     "until processing has completed."),
+                     "until processing has completed.")
+                      .arg(rh_name),
                   DlgNotification::N_NO_ACTION);
               this->close();
             } else {
@@ -737,12 +759,11 @@ void DlgPeer::rh_reload() {
           });
 }
 
-void DlgPeer::rh_update() {
+void DlgPeer::rh_update_sl() {
   ui->btn_update_peer->setEnabled(false);
   ui->btn_update_peer->setText(tr("Updating"));
   ui->btn_update_peer->setToolTip(
       tr("This peer is currently updating. Please wait"));
-  timer_refresh_machine_peer->start();
   emit this->peer_update_peeros(peer_fingerprint);
 }
 
@@ -773,10 +794,8 @@ void DlgPeer::update_environments(
       ui->env_status->addWidget(env_status);
     }
     envs_available = true;
-    this->adjustSize();
   } else {
     envs_available = false;
-    this->adjustSize();
     hideEnvs();
   }
 }

@@ -98,7 +98,7 @@ private:
   QString m_default_peer_id;
 
   static QDialog *last_generated_peer_dlg(QWidget *p);
-  void generate_peer_dlg(CMyPeerInfo *peer, std::pair<QString, QString>, std::vector<CLocalPeer> lp);
+  QString generate_peer_dlg(const QString &peer_id);
   static QDialog *m_last_generated_peer_dlg;
   /*hub end*/
 
@@ -196,7 +196,7 @@ private slots:
   void peer_deleted_sl(const QString& peer_name);
   void peer_under_modification_sl(const QString& peer_name);
   void peer_poweroff_sl(const QString& peer_name);
-  void my_peer_button_pressed_sl(const my_peer_button* peer_info);
+  void my_peer_button_pressed_sl(const QString& peer_id);
   void peer_update_peeros_sl(const QString peer_fingerprint);
 
 

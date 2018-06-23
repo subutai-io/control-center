@@ -9,7 +9,8 @@
 #include "TrayControlWindow.h"
 #include "RhController.h"
 
-static int dialog_used [10000] = {0};
+int DlgRegisterPeer::dialog_used [10000] = {0};
+int DlgRegisterPeer::dialog_running [10000] = {0};
 
 DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     QDialog(parent),
@@ -41,6 +42,7 @@ DlgRegisterPeer::~DlgRegisterPeer()
 }
 
 void DlgRegisterPeer::registerPeer() {
+    dialog_running[ip_addr.toInt() - 9999] = 1;
     qInfo()
             << "Register button pressed: "
             << ip_addr;
@@ -157,18 +159,20 @@ void DlgRegisterPeer::registerPeer() {
         if (kill_me){
             CHubController::Instance().force_refresh();
             emit register_finished();
+            dialog_running[ip_addr.toInt() - 9999] = 0;
             this->close();
         }
     }
+    dialog_running[ip_addr.toInt() - 9999] = 0;
     ui->btn_cancel->setEnabled(true);
     ui->btn_register->setEnabled(true);
     ui->lne_password->setEnabled(true);
     ui->lne_peername->setEnabled(true);
     ui->lne_username->setEnabled(true);
-
 }
 
 void DlgRegisterPeer::unregisterPeer(){
+    dialog_running[ip_addr.toInt() - 9999] = 1;
     qInfo()
             << "Unregister button pressed: "
             << ip_addr;
@@ -261,11 +265,13 @@ void DlgRegisterPeer::unregisterPeer(){
             break;
         }
         if (kill_me){
+            dialog_running[ip_addr.toInt() - 9999] = 0;
             CHubController::Instance().force_refresh();
             emit register_finished();
             this->close();
         }
     }
+    dialog_running[ip_addr.toInt() - 9999] = 0;
     ui->btn_cancel->setEnabled(true);
     ui->btn_unregister->setEnabled(true);
     ui->lne_password->setEnabled(true);
