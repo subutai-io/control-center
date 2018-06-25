@@ -155,7 +155,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     ui->btn_launch_console->setEnabled(false);
     if (rh_status == "running") {
       rh_status = "not ready";
-    } else {  // if not running can't ssh
+    } else if (rh_status != "not ready"){  // if not running can't ssh
       ssh_available = false;
     }
   }
@@ -167,7 +167,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     ui->btn_launch_console->setEnabled(false);
     if (rh_status == "running") {
       rh_status = "not ready";
-    } else {  // if not running can't ssh
+    } else if (rh_status != "not ready"){  // if not running can't ssh
       ssh_available = false;
     }
   }
