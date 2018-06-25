@@ -1,10 +1,10 @@
 /****************************************************************************
-** PEER (GROUP OF RH CONNECTED TO ONE RH WHICH IS MANAGEMENT)
-** CC CAN CONTROL MANAGEMENT RH
-** CC CAN VIEW DATA ABOUT PEER REGISTERED TO BAZAAR
-** CC CAN SSH TO THE RH FOUND ON LAN
-** RH HAS 3 TYPES EACH WITH DIFFERENT FUNCTION
-** MAKE SURE YOU UNDERSTAND DIFFERENCE BETWEEN PEER, RH, RH-MANAGEMENT
+** peer (group of rh connected to one rh which is management)
+** cc can control management rh
+** cc can view data about peer registered to bazaar
+** cc can ssh to the rh found on lan
+** rh has 3 types each with different function
+** make sure you understand difference between peer, rh, rh-management
 ****************************************************************************/
 #ifndef DLGPEER_H
 #define DLGPEER_H
