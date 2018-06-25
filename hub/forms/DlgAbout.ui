@@ -49,10 +49,44 @@
      </item>
      <item row="0" column="0">
       <layout class="QGridLayout" name="gl_components" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0,0">
+       <item row="12" column="2">
+        <widget class="QProgressBar" name="pb_x2go">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
        <item row="11" column="4">
         <widget class="QPushButton" name="btn_vbguest_plugin_update">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -64,18 +98,20 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="2">
-        <widget class="QProgressBar" name="pb_subutai_plugin">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
          </property>
         </widget>
        </item>
@@ -83,16 +119,6 @@
         <widget class="QLabel" name="lbl_vagrant_version_val">
          <property name="text">
           <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="2">
-        <widget class="QProgressBar" name="pb_chrome">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
          </property>
         </widget>
        </item>
@@ -107,6 +133,18 @@
         <widget class="QPushButton" name="btn_p2p_update">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -131,6 +169,18 @@
         <widget class="QPushButton" name="btn_subutai_box">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -159,6 +209,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>242</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
           <string>Check for updates</string>
          </property>
@@ -171,30 +227,22 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="2">
-        <widget class="QProgressBar" name="pb_p2p">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QProgressBar" name="pb_e2e">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="4">
         <widget class="QPushButton" name="btn_vagrant_update">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -205,16 +253,6 @@
         <widget class="QLabel" name="lbl_oracle_virtualbox_version">
          <property name="text">
           <string>Oracle VirtualBox</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QProgressBar" name="pb_tray">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
          </property>
         </widget>
        </item>
@@ -251,6 +289,18 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update</string>
          </property>
@@ -261,18 +311,20 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="2">
-        <widget class="QProgressBar" name="pb_firefox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
          </property>
         </widget>
        </item>
@@ -316,6 +368,18 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update</string>
          </property>
@@ -339,6 +403,18 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="text">
           <string>Update</string>
          </property>
@@ -348,6 +424,18 @@
         <widget class="QPushButton" name="btn_subutai_e2e">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -361,16 +449,6 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="2">
-        <widget class="QProgressBar" name="pb_x2go">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
        <item row="9" column="0">
         <widget class="QLabel" name="lbl_subutai_box">
          <property name="text">
@@ -378,30 +456,22 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="2">
-        <widget class="QProgressBar" name="pb_vbguest_plugin">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QProgressBar" name="pb_vagrant">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
        <item row="12" column="4">
         <widget class="QPushButton" name="btn_x2go_update">
          <property name="enabled">
           <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="text">
           <string>Update</string>
@@ -415,26 +485,6 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="2">
-        <widget class="QProgressBar" name="pb_oracle_virtualbox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="2">
-        <widget class="QProgressBar" name="pb_subutai_box">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="lbl_p2p_version">
          <property name="text">
@@ -444,6 +494,18 @@
        </item>
        <item row="1" column="3">
         <widget class="QCheckBox" name="cb_tray">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -481,6 +543,18 @@
        </item>
        <item row="3" column="3">
         <widget class="QCheckBox" name="cb_p2p">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -515,6 +589,18 @@
        </item>
        <item row="4" column="3">
         <widget class="QCheckBox" name="cb_vagrant">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -549,6 +635,18 @@
        </item>
        <item row="6" column="3">
         <widget class="QCheckBox" name="cb_subutai_e2e">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -583,6 +681,18 @@
        </item>
        <item row="7" column="3">
         <widget class="QCheckBox" name="cb_oracle_virtualbox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -617,6 +727,18 @@
        </item>
        <item row="8" column="3">
         <widget class="QCheckBox" name="cb_chrome">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -651,6 +773,18 @@
        </item>
        <item row="9" column="3">
         <widget class="QCheckBox" name="cb_vagrant_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -685,6 +819,18 @@
        </item>
        <item row="10" column="3">
         <widget class="QCheckBox" name="cb_vagrant_subtuai_plugin">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -719,6 +865,18 @@
        </item>
        <item row="11" column="3">
         <widget class="QCheckBox" name="cb_vagrant_vbguest_plugin">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -753,6 +911,18 @@
        </item>
        <item row="12" column="3">
         <widget class="QCheckBox" name="cb_x2goclient">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -787,6 +957,18 @@
        </item>
        <item row="13" column="3">
         <widget class="QCheckBox" name="cb_firefox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -816,6 +998,226 @@
          </property>
          <property name="checked">
           <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QProgressBar" name="pb_subutai_box">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QProgressBar" name="pb_oracle_virtualbox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QProgressBar" name="pb_chrome">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QProgressBar" name="pb_vagrant">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QProgressBar" name="pb_e2e">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QProgressBar" name="pb_p2p">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="2">
+        <widget class="QProgressBar" name="pb_vbguest_plugin">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="2">
+        <widget class="QProgressBar" name="pb_subutai_plugin">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="2">
+        <widget class="QProgressBar" name="pb_firefox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QProgressBar" name="pb_tray">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
