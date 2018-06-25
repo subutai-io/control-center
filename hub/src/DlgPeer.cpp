@@ -492,7 +492,7 @@ void DlgPeer::rh_register() {
   dlg_register->show();
   registration_dialog = dlg_register;
   connect(dlg_register, &DlgRegisterPeer::register_finished,
-          [this]() { this->close(); });
+          [this]() { regDlgClosed(); });
 }
 
 void DlgPeer::rh_unregister() {
@@ -513,7 +513,7 @@ void DlgPeer::rh_unregister() {
   dlg_unregister->show();
   registration_dialog = dlg_unregister;
   connect(dlg_unregister, &DlgRegisterPeer::register_finished,
-          [this]() { this->close(); });
+          [this]() { regDlgClosed(); });
 }
 
 void DlgPeer::regDlgClosed() {
