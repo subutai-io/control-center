@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                                "FATAL (3), INFO (4). Logs with lover level than "
                                "logs_level will not be shown. Default value is '1'.");
   log_level_opt.setValueName("logs_level");
-  log_level_opt.setDefaultValue("1");
+  log_level_opt.setDefaultValue("0");
 
   cmd_parser.addOption(log_level_opt);
 
