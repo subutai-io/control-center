@@ -128,15 +128,14 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
 // when peer is registered to the bazaar
 // CMyPeerInfo is peer information based on the bazaar
 void DlgPeer::addHubPeer(CMyPeerInfo peer) {
+  hub_available = true;
   peer_id = peer.id();
   peer_name = peer.name();
   peer_fingerprint = peer.fingerprint();
   ui->le_status->setText(peer.status());
   ui->btn_peer_on_hub->setEnabled(true);
   const std::vector<CMyPeerInfo::env_info> envs = peer.peer_environments();
-  if (!hub_available)  // update envs info is not implemented yet
-    update_environments(envs);
-  hub_available = true;
+  update_environments(envs);
 }
 // add resource host, which should be management for full functionality
 void DlgPeer::addMachinePeer(CLocalPeer peer) {
@@ -566,6 +565,7 @@ void DlgPeer::hidePeer() {
 void DlgPeer::hideEnvs() {
   if (hub_available) ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
   else ui->lbl_env_info->setText(tr("This peer is not registered to your bazaar account"));
+  ui->lbl_env_info->setVisible(true);
   ui->lbl_env->hide();
   ui->lbl_env_owner->hide();
   ui->lbl_env_status->hide();
@@ -770,35 +770,73 @@ void DlgPeer::rh_update_sl() {
 
 void DlgPeer::update_environments(
     const std::vector<CMyPeerInfo::env_info> &envs) {
-  hub_available = true;
+  qDebug() << "updating information about environments in " << peer_name;
   if (!envs.empty()) {
-    for (CMyPeerInfo::env_info env : envs) {
-      // env name
-      QLabel *env_name = new QLabel(env.envName);
-      env_name->setAlignment(Qt::AlignHCenter);
-      env_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
-      // env owner
-      QLabel *env_owner = new QLabel(
-          QString("<a href=\"%1\">%2</a>")
-              .arg(hub_user_profile_url() + QString::number(env.ownerId))
-              .arg(env.ownerName));
-      env_owner->setAlignment(Qt::AlignHCenter);
-      env_owner->setTextFormat(Qt::RichText);
-      env_owner->setTextInteractionFlags(Qt::TextBrowserInteraction);
-      env_owner->setOpenExternalLinks(true);
-      // env status
-      QLabel *env_status = new QLabel(env.status);
-      env_status->setAlignment(Qt::AlignHCenter);
-      env_status->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
-      ui->env_name->addWidget(env_name);
-      ui->env_owner->addWidget(env_owner);
-      ui->env_status->addWidget(env_status);
-    }
+    ui->lbl_env_info->setVisible(false);
     envs_available = true;
+    for (CMyPeerInfo::env_info env : envs) {
+      QLabel *env_name;
+      QLabel *env_owner;
+      QLabel *env_status;
+      int env_id = env.envId;
+      if (env_info_table.find(env_id) == env_info_table.end()) { // a new environment created
+        // env name
+        env_name = new QLabel();
+        env_name->setAlignment(Qt::AlignHCenter);
+        env_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        // env owner
+        env_owner = new QLabel();
+        env_owner->setAlignment(Qt::AlignHCenter);
+        env_owner->setTextFormat(Qt::RichText);
+        env_owner->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        env_owner->setOpenExternalLinks(true);
+        // env status
+        env_status = new QLabel();
+        env_status->setAlignment(Qt::AlignHCenter);
+        env_status->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        // show them
+        ui->env_name->addWidget(env_name);
+        ui->env_owner->addWidget(env_owner);
+        ui->env_status->addWidget(env_status);
+        // save in table
+        env_label_info env_item;
+        env_item.init(env_name, env_owner, env_status);
+        env_info_table[env_id] = env_item;
+      } else {
+        env_label_info env_item = env_info_table[env_id];
+        env_name = env_item.m_env_name;
+        env_owner = env_item.m_env_user;
+        env_status = env_item.m_env_status;
+      }
+      // update
+      env_info_table[env_id].is_deleted = false;
+      env_name->setText(env.envName);
+      env_owner->setText(
+            QString("<a href=\"%1\">%2</a>")
+                .arg(hub_user_profile_url() + QString::number(env.ownerId))
+                .arg(env.ownerName));
+      env_status->setText(env.status);
+    }
+    // update existing environements
   } else {
     envs_available = false;
     hideEnvs();
+  }
+  // delete removed envs
+  qDebug() << "searching deleted environments in" << peer_name;
+  std::vector <std::map <int, env_label_info>::iterator> delete_me;
+  for (auto env_item = env_info_table.begin(); env_item != env_info_table.end(); env_item++) {
+    if (env_item->second.is_deleted) {
+      env_item->second.m_env_name->deleteLater();
+      env_item->second.m_env_user->deleteLater();
+      env_item->second.m_env_status->deleteLater();
+      delete_me.push_back(env_item);
+    } else {
+      env_item->second.is_deleted = true;
+    }
+  }
+  for (auto del_me : delete_me){
+    env_info_table.erase(del_me);
   }
 }
 

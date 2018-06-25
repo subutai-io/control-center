@@ -10,6 +10,7 @@
 #define DLGPEER_H
 
 #include <QDialog>
+#include <QLabel>
 #include "HubController.h"
 #include "SystemCallWrapper.h"
 #include "PeerController.h"
@@ -22,6 +23,23 @@ class DlgPeer : public QDialog
 {
   Q_OBJECT
 public:
+  struct env_label_info
+  {
+    QLabel *m_env_name;
+    QLabel *m_env_user;
+    QLabel *m_env_status;
+    bool is_deleted;
+    env_label_info(){}
+    void init(QLabel *env_name,
+         QLabel *env_user,
+         QLabel *env_status) {
+      m_env_name = env_name;
+      m_env_user = env_user;
+      m_env_status = env_status;
+      is_deleted = false; // after each update make false and find removed envs
+    }
+    ~env_label_info(){}
+  };
   explicit DlgPeer(QWidget *parent = 0, QString peer_id = "");
   ~DlgPeer();
   void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp); // take all data about peer
@@ -61,6 +79,7 @@ private:
   QString peer_id;
   bool hub_available;
   bool envs_available;
+  std::map <int, env_label_info> env_info_table;
   //parameters for ssh section
   QString ssh_port;
   QString ssh_ip;
