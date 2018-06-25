@@ -564,7 +564,8 @@ void DlgPeer::hidePeer() {
 }
 
 void DlgPeer::hideEnvs() {
-  ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
+  if (hub_available) ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
+  else ui->lbl_env_info->setText(tr("This peer is not registered to your bazaar account"));
   ui->lbl_env->hide();
   ui->lbl_env_owner->hide();
   ui->lbl_env_status->hide();
@@ -769,6 +770,7 @@ void DlgPeer::rh_update_sl() {
 
 void DlgPeer::update_environments(
     const std::vector<CMyPeerInfo::env_info> &envs) {
+  hub_available = true;
   if (!envs.empty()) {
     for (CMyPeerInfo::env_info env : envs) {
       // env name
