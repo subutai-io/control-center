@@ -317,7 +317,8 @@ void DlgAbout::btn_e2e_update_released(){
 void DlgAbout::btn_subutai_plugin_update_released() {
     ui->pb_subutai_plugin->setHidden(false);
     ui->btn_subutai_plugin_update->setEnabled(false);
-    if(ui->lbl_subutai_plugin_version_val->text() == "undefined"){
+
+    if (ui->lbl_subutai_plugin_version_val->text() == "undefined") {
         CHubComponentsUpdater::Instance()->install(IUpdaterComponent::VAGRANT_SUBUTAI);
     }
     else CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::VAGRANT_SUBUTAI);
@@ -370,16 +371,28 @@ DlgAbout::update_available(const QString& file_id) {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::update_finished(const QString& file_id,
+DlgAbout::update_finished(const QString& component_id,
                           bool success) {
-  UNUSED_ARG(success);
-  if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[file_id].btn->setEnabled(false);
-  m_dct_fpb[file_id].pb->setEnabled(false);
-  m_dct_fpb[file_id].pb->setValue(0);
-  m_dct_fpb[file_id].pb->setRange(0, 100);
-  if (m_dct_fpb[file_id].pf_version) {
-    m_dct_fpb[file_id].lbl->setText(m_dct_fpb[file_id].pf_version());
+  if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
+
+  m_dct_fpb[component_id].btn->setEnabled(false);
+  m_dct_fpb[component_id].pb->setEnabled(false);
+  m_dct_fpb[component_id].pb->setValue(0);
+  m_dct_fpb[component_id].pb->setRange(0, 100);
+
+  if (m_dct_fpb[component_id].pf_version) {
+    m_dct_fpb[component_id].pb->setHidden(true);
+    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+  }
+
+  if (success) {
+      m_dct_fpb[component_id].btn->setHidden(true);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(true);
+      ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
+                                       m_dct_fpb[component_id].cb);
+  } else {
+      m_dct_fpb[component_id].btn->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -403,7 +416,7 @@ DlgAbout::init_progress_sl(int part,
 void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
-  if(version == "undefined"){
+  if(version == "undefined") {
       ui->btn_p2p_update->setHidden(false);
       ui->cb_p2p->setVisible(false);
       ui->pb_p2p->setHidden(true);
@@ -539,8 +552,15 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
         return;
     }
 
-    // if not available component updates but checkbox icon
-    if (!update_available) {
+    // update available component
+    if (update_available) {
+        qInfo() << "update available: "
+                << component_id;
+        m_dct_fpb[component_id].cb->setHidden(true);
+        m_dct_fpb[component_id].btn->setVisible(true);
+        m_dct_fpb[component_id].btn->activateWindow();
+    } else {
+        // not available component
         m_dct_fpb[component_id].btn->setHidden(true);
         m_dct_fpb[component_id].cb->setVisible(true);
         m_dct_fpb[component_id].cb->setChecked(true);
@@ -651,6 +671,10 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
         m_dct_fpb[component_id].cb->setVisible(true);
         ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
                                          m_dct_fpb[component_id].cb);
+    } else {
+        m_dct_fpb[component_id].btn->setEnabled(true);
+        m_dct_fpb[component_id].btn->setText(tr("Install"));
+        m_dct_fpb[component_id].pb->setHidden(true);
     }
 }
 
