@@ -140,6 +140,7 @@ void DlgPeer::addHubPeer(CMyPeerInfo peer) {
 // add resource host, which should be management for full functionality
 void DlgPeer::addMachinePeer(CLocalPeer peer) {
   advanced = true;
+  ssh_available = true;
   rh_status = peer.status();
   rh_dir = peer.dir();
   rh_name = peer.name();
@@ -150,7 +151,6 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     ssh_ip = peer.ip();
     ui->label->setText(tr("Host port:"));
     ui->btn_launch_console->setEnabled(true);
-    ssh_available = true;
   } else {  // no port no management
     ui->btn_launch_console->setEnabled(false);
     if (rh_status == "running") {
@@ -251,7 +251,6 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
     addMachinePeer(lp[0]);
   } else {  // cc didn't see this peer in your machine
     advanced = false;
-    ssh_available = false;
   }
   updateUI();
 }
