@@ -40,6 +40,17 @@ CUpdaterComponentTray::update_available_internal() {
 
 chue_t
 CUpdaterComponentTray::update_internal() {
+  QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                                         QObject::tr("This will update Subutai Control Center on your machine.\n"
+                                                     "Do you agree?"),
+                                         QMessageBox::Yes | QMessageBox::No);
+
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+  if (msg_box->exec() != QMessageBox::Yes) {
+      install_finished_sl(false);
+      return CHUE_SUCCESS;
+  }
+
   QString str_tray_path = tray_path();
   if (str_tray_path.isEmpty()) return CHUE_FAILED;
 

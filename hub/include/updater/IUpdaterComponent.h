@@ -14,6 +14,7 @@ namespace update_system {
     CHUE_NOT_ON_KURJUN,
     CHUE_FAILED
   } hub_component_updater_error_t, chue_t;
+
   ////////////////////////////////////////////////////////////////////////////
 
   /**
