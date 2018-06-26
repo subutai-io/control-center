@@ -694,6 +694,13 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
 chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     qDebug()
             << "Starting install new version of subutai box";
+
+    QString version;
+    QString subutai_box = subutai_box_name();
+    QString subutai_provider = "virtualbox";
+
+    system_call_wrapper_error_t res =
+        CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
     if (version == "undefined") {
       QMessageBox *msg_box = new QMessageBox(
             QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
@@ -707,7 +714,6 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
           return CHUE_SUCCESS;
       }
     }
-    QString subutai_provider = "virtualbox";
     QString file_name = subutai_box_kurjun_package_name(subutai_provider);
     QString file_dir = download_subutai_box_path();
     QString str_downloaded_path = file_dir + "/" + file_name;
