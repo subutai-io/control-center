@@ -6,7 +6,6 @@
 
 QT       += core gui network websockets quick
 CONFIG   += c++11
-QTPLUGIN += qgif
 
 
 
