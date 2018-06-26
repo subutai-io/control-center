@@ -78,12 +78,13 @@ chue_t CUpdaterComponentP2P::install_internal(){
     qDebug()
             << "Starting install P2P";
 
-    QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
-                                           QObject::tr("Subutai P2P is the tool for connecting to "
-                                                       "the peers and environments.\n"
-                                                       "Subutai Control Center will install it on your machine.\n"
-                                                       "Do you agree?"),
-                                           QMessageBox::Yes | QMessageBox::No);
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "Subutai P2P is the tool for connecting to the peers and environments.<br>"
+            "<a href='https://subutai.io/getting-started.html#P2P'>More info.</a><br>"
+            "Subutai Control Center will install it on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
 
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     if (msg_box->exec() != QMessageBox::Yes) {
