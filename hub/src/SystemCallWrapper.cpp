@@ -2263,7 +2263,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "apt-get install libssl1.0-dev")
+                                    "apt-get install -y libssl1.0-dev")
                                     .toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
