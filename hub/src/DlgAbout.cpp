@@ -86,7 +86,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   set_visible_firefox("Firefox" == current_browser);
 
 
-  this->setMinimumWidth(700);
+  this->setMinimumWidth(600);
 
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
@@ -143,6 +143,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgAbout::btn_subutai_plugin_update_released);
   connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this, &DlgAbout::btn_subutai_box_update_released);
+  connect(ui->btn_close, &QPushButton::released, this, &DlgAbout::btn_close_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -353,6 +354,11 @@ void DlgAbout::btn_recheck_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::btn_close_released() {
+  this->close();
+}
+////////////////////////////////////////////////////////////////////////////
+
 void
 DlgAbout::download_progress(const QString& file_id,
                             qint64 rec,
@@ -386,13 +392,13 @@ DlgAbout::update_finished(const QString& component_id,
   }
 
   if (success) {
-      m_dct_fpb[component_id].btn->setHidden(true);
-      m_dct_fpb[component_id].cb->setChecked(true);
-      m_dct_fpb[component_id].cb->setVisible(true);
-      ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
+    m_dct_fpb[component_id].btn->setHidden(true);
+    m_dct_fpb[component_id].cb->setChecked(true);
+    m_dct_fpb[component_id].cb->setVisible(true);
+    ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
                                        m_dct_fpb[component_id].cb);
   } else {
-      m_dct_fpb[component_id].btn->setEnabled(true);
+    m_dct_fpb[component_id].btn->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
