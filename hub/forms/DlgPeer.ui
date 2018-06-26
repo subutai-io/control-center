@@ -41,8 +41,8 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="btn_destroy">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btn_reload">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -50,10 +50,26 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Destroy the Peer from your machine</string>
+        <string>Restart the Peer</string>
        </property>
        <property name="text">
-        <string>Destroy peer</string>
+        <string>Reload peer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btn_register_unregister">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Register Peer to your Bazaar account</string>
+       </property>
+       <property name="text">
+        <string>Register to Bazaar</string>
        </property>
       </widget>
      </item>
@@ -76,8 +92,8 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="btn_register_unregister">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="btn_destroy">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -85,26 +101,27 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Register Peer to your Bazaar account</string>
+        <string>Destroy the Peer from your machine</string>
        </property>
        <property name="text">
-        <string>Register to Bazaar</string>
+        <string>Destroy peer</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="btn_reload">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="1" column="1" colspan="2">
+      <widget class="QProgressBar" name="pb_activity">
+       <property name="value">
+        <number>0</number>
        </property>
-       <property name="toolTip">
-        <string>Restart the Peer</string>
+       <property name="textVisible">
+        <bool>false</bool>
        </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="lbl_activity_info">
        <property name="text">
-        <string>Reload peer</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -186,7 +203,7 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QCheckBox" name="change_confugre">
+       <widget class="QCheckBox" name="change_configure">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>

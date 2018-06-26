@@ -24,6 +24,8 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
   ui->gr_ssh->setVisible(true);
+  ui->pb_activity->setVisible(false);
+  ui->lbl_activity_info->setVisible(false);
   ui->gr_peer_control->setVisible(false);
   ui->btn_launch_console->setEnabled(false);
   ui->lbl_update_peeros->setWordWrap(true);
@@ -60,7 +62,7 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   connect(ui->btn_update_peer, &QPushButton::clicked, this,
           &DlgPeer::rh_update_sl);
   connect(ui->btn_ssh_peer, &QPushButton::clicked, this, &DlgPeer::rh_ssh_sl);
-  connect(ui->change_confugre, &QCheckBox::toggled, [this](bool checked) {
+  connect(ui->change_configure, &QCheckBox::toggled, [this](bool checked) {
     ui->le_cpu->setReadOnly(!checked);
     ui->le_ram->setReadOnly(!checked);
     ui->le_disk->setReadOnly(!checked);
@@ -192,7 +194,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
 // takes information about rh from configuration file
 // format of configuration file -> KEY : VALUE
 void DlgPeer::parse_yml() {
-  if (ui->change_confugre->isChecked()) return;
+  if (ui->change_configure->isChecked()) return;
   QString filename = QString("%1/vagrant-subutai.yml").arg(rh_dir);
   QFile file(filename);
   if (file.open(QIODevice::ReadWrite)) {
@@ -550,7 +552,7 @@ void DlgPeer::hidePeer() {
   // buttons
   ui->btn_start_stop->hide();
   ui->btn_start_stop->hide();
-  ui->change_confugre->hide();
+  ui->change_configure->hide();
   ui->btn_reload->hide();
   ui->btn_destroy->hide();
   ui->btn_register_unregister->hide();
@@ -612,7 +614,7 @@ void DlgPeer::rh_stop() {
 void DlgPeer::rh_start() {
   static QString up_command = "up";
   enabled_peer_buttons(false);
-  if (ui->change_confugre->isChecked()) {
+  if (ui->change_configure->isChecked()) {
     if (!change_configs()) {
       enabled_peer_buttons(true);
       return;
@@ -726,7 +728,7 @@ void DlgPeer::rh_destroy_sl() {
 void DlgPeer::rh_reload_sl() {
   static QString reload_command = "reload";
   enabled_peer_buttons(false);
-  if (ui->change_confugre->isChecked()) {
+  if (ui->change_configure->isChecked()) {
     if (!change_configs()) {
       enabled_peer_buttons(true);
       return;
