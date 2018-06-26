@@ -192,6 +192,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
 // takes information about rh from configuration file
 // format of configuration file -> KEY : VALUE
 void DlgPeer::parse_yml() {
+  if (ui->change_confugre->isChecked()) return;
   QString filename = QString("%1/vagrant-subutai.yml").arg(rh_dir);
   QFile file(filename);
   if (file.open(QIODevice::ReadWrite)) {
