@@ -201,6 +201,7 @@ QString CPeerController::get_error_messages(QDir peer_dir, QString command){
             break;
         }
     }
+    error_message.remove(QRegExp("\x1b[^m]*m"));
     return error_message;
 }
 
