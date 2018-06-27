@@ -6,6 +6,7 @@
 
 #include <QProgressBar>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QLabel>
 #include <QThread>
 
@@ -40,8 +41,6 @@ signals:
   void got_component_version(const QString &component_id, const QString &version);
   void got_p2p_version(QString version);
   void got_chrome_version(QString version);
-  void got_rh_version(QString version);
-  void got_rh_management_version(QString version);
   void got_x2go_version(QString version);
   void got_vagrant_version(QString version);
   void got_oracle_virtualbox_version(QString version);
@@ -73,6 +72,7 @@ private:
   struct progress_item_t {
     QLabel* lbl;
     QProgressBar* pb;
+    QCheckBox* cb;
     QPushButton* btn;
     QString (*pf_version)();
   };
@@ -87,8 +87,6 @@ private:
 private slots:
   void btn_tray_update_released();
   void btn_p2p_update_released();
-  void btn_rh_update_released();
-  void btn_rhm_update_released();
   void btn_x2go_update_released();
   void btn_vagrant_update_released();
   void btn_oracle_virtualbox_update_released();
@@ -98,6 +96,7 @@ private slots:
   void btn_vbguest_plugin_update_released();
   void btn_subutai_box_update_released();
   void btn_recheck_released();
+  void btn_close_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
@@ -109,8 +108,6 @@ private slots:
   void init_progress_sl(int part, int total);
   void got_p2p_version_sl(QString version);
   void got_chrome_version_sl(QString version);
-  void got_rh_version_sl(QString version);
-  void got_rh_management_version_sl(QString version);
   void got_x2go_version_sl(QString version);
   void got_vagrant_version_sl(QString version);
   void got_oracle_virtualbox_version_sl(QString version);

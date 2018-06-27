@@ -207,15 +207,19 @@ CHubComponentsUpdater::force_update(const QString &component_id) {
   }
   m_dct_components[component_id].Component()->update();
 }
+
 void CHubComponentsUpdater::force_update_p2p() {
   force_update(IUpdaterComponent::P2P);
 }
+
 void CHubComponentsUpdater::force_update_tray() {
   force_update(IUpdaterComponent::TRAY);
 }
+
 void CHubComponentsUpdater::force_update_rh() {
   force_update(IUpdaterComponent::RH);
 }
+
 void CHubComponentsUpdater::force_update_rhm() {
   force_update(IUpdaterComponent::RHMANAGEMENT);
 }
