@@ -105,26 +105,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
                      nullptr
                    };
 
-  QProgressBar* pbs[] = { this->ui->pb_tray,
-                          this->ui->pb_p2p,
-                          this->ui->pb_vagrant,
-                          this->ui->pb_e2e,
-                          this->ui->pb_oracle_virtualbox,
-                          this->ui->pb_chrome,
-                          this->ui->pb_subutai_box,
-                          this->ui->pb_subutai_plugin,
-                          this->ui->pb_vbguest_plugin,
-                          this->ui->pb_x2go,
-                          nullptr
-                        };
-
   for (QLabel **i = lbls; *i; ++i) {
       (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
       (*i)->setWordWrap(true);
-  }
-
-  for (QProgressBar **i = pbs; *i; ++i) {
-      (*i)->setHidden(true);
   }
 
   bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
@@ -187,7 +170,8 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   // hide checkboxes
   for (const auto& component : m_dct_fpb) {
-      component.second.cb->setVisible(false);
+    component.second.cb->setVisible(false);
+    set_hidden_pb(component.first);
   }
 
   check_for_versions_and_updates();
@@ -360,11 +344,11 @@ void DlgAbout::btn_close_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgAbout::download_progress(const QString& file_id,
+DlgAbout::download_progress(const QString& component_id,
                             qint64 rec,
                             qint64 total) {
-  if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[file_id].pb->setValue((rec*100)/total);
+  if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
+  m_dct_fpb[component_id].pb->setValue((rec*100)/total);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -382,7 +366,6 @@ DlgAbout::update_finished(const QString& component_id,
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
 
   m_dct_fpb[component_id].btn->setEnabled(false);
-  m_dct_fpb[component_id].pb->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
 
@@ -423,9 +406,9 @@ void
 DlgAbout::got_p2p_version_sl(QString version) {
   ui->lbl_p2p_version_val->setText(version);
   if(version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::P2P);
       ui->btn_p2p_update->setHidden(false);
       ui->cb_p2p->setVisible(false);
-      ui->pb_p2p->setHidden(true);
       ui->btn_p2p_update->setText(tr("Install"));
       ui->btn_p2p_update->activateWindow();
   }
@@ -436,10 +419,10 @@ DlgAbout::got_p2p_version_sl(QString version) {
 void
 DlgAbout::got_chrome_version_sl(QString version) {
   ui->lbl_chrome_version_val->setText(version);
-  if(version == "undefined"){
+  if(version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::CHROME);
       ui->btn_chrome->setHidden(false);
       ui->cb_chrome->setVisible(false);
-      ui->pb_chrome->setHidden(true);
       ui->btn_chrome->setText(tr("Install"));
       ui->btn_chrome->activateWindow();
   }
@@ -452,10 +435,10 @@ DlgAbout::got_chrome_version_sl(QString version) {
 
 void DlgAbout::got_e2e_version_sl(QString version) {
     ui->lbl_subutai_e2e_val->setText(version);
-    if(version == "undefined"){
+    if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::E2E);
         ui->btn_subutai_e2e->setHidden(false);
         ui->cb_subutai_e2e->setVisible(false);
-        ui->pb_e2e->setHidden(true);
         ui->btn_subutai_e2e->setText(tr("Install"));
         ui->btn_subutai_e2e->activateWindow();
     }
@@ -467,9 +450,9 @@ void DlgAbout::got_e2e_version_sl(QString version) {
 
 void DlgAbout::got_x2go_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::X2GO);
         ui->btn_x2go_update->setHidden(false);
         ui->cb_x2goclient->setVisible(false);
-        ui->pb_x2go->setHidden(true);
         ui->btn_x2go_update->setText(tr("Install"));
         ui->btn_x2go_update->activateWindow();
     } else {
@@ -481,9 +464,9 @@ void DlgAbout::got_x2go_version_sl(QString version) {
 
 void DlgAbout::got_vagrant_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::VAGRANT);
         ui->btn_vagrant_update->setHidden(false);
         ui->cb_vagrant->setVisible(false);
-        ui->pb_vagrant->setHidden(true);
         ui->btn_vagrant_update->setText(tr("Install"));
         ui->btn_vagrant_update->activateWindow();
     } else {
@@ -495,9 +478,9 @@ void DlgAbout::got_vagrant_version_sl(QString version) {
 
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::ORACLE_VIRTUALBOX);
         ui->btn_oracle_virtualbox_update->setHidden(false);
         ui->cb_oracle_virtualbox->setVisible(false);
-        ui->pb_oracle_virtualbox->setHidden(true);
         ui->btn_oracle_virtualbox_update->setText(tr("Install"));
         ui->btn_oracle_virtualbox_update->activateWindow();
     } else {
@@ -509,9 +492,9 @@ void DlgAbout::got_oracle_virtualbox_version_sl(QString version) {
 
 void DlgAbout::got_subutai_plugin_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::VAGRANT_SUBUTAI);
         ui->btn_subutai_plugin_update->setHidden(false);
         ui->cb_vagrant_subtuai_plugin->setVisible(false);
-        ui->pb_subutai_plugin->setHidden(true);
         ui->btn_subutai_plugin_update->setText(tr("Install"));
         ui->btn_subutai_plugin_update->activateWindow();
     } else {
@@ -523,9 +506,9 @@ void DlgAbout::got_subutai_plugin_version_sl(QString version) {
 
 void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::VAGRANT_VBGUEST);
         ui->btn_vbguest_plugin_update->setHidden(false);
         ui->cb_vagrant_vbguest_plugin->setVisible(false);
-        ui->pb_vbguest_plugin->setHidden(true);
         ui->btn_vbguest_plugin_update->setText(tr("Install"));
         ui->btn_vbguest_plugin_update->activateWindow();
     } else {
@@ -537,15 +520,24 @@ void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
 
 void DlgAbout::got_subutai_box_version_sl(QString version) {
     if(version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::SUBUTAI_BOX);
         ui->btn_subutai_box->setHidden(false);
         ui->cb_vagrant_box->setVisible(false);
-        ui->pb_subutai_box->setHidden(true);
         ui->btn_subutai_box->setText(tr("Install"));
         ui->btn_subutai_box->activateWindow();
     } else {
         ui->btn_subutai_box->setText(tr("Update"));
     }
     ui->lbl_subutai_box_version->setText(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::set_hidden_pb(const QString &component_id) {
+  if (CHubComponentsUpdater::Instance()->is_in_progress(component_id)) {
+    m_dct_fpb[component_id].pb->setVisible(true);
+  } else {
+    m_dct_fpb[component_id].pb->setHidden(true);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -573,8 +565,6 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
         ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
                                          m_dct_fpb[component_id].cb);
     }
-
-    m_dct_fpb[component_id].pb->setEnabled(update_available);
     m_dct_fpb[component_id].btn->setEnabled(update_available);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -660,7 +650,6 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
 
     if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
     m_dct_fpb[component_id].btn->setEnabled(false);
-    m_dct_fpb[component_id].pb->setEnabled(false);
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setRange(0, 100);
     m_dct_fpb[component_id].btn->setText(tr("Update %1")

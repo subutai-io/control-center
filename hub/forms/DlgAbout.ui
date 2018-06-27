@@ -52,7 +52,7 @@
        <item row="12" column="2">
         <widget class="QProgressBar" name="pb_x2go">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1004,7 +1004,7 @@
        <item row="9" column="2">
         <widget class="QProgressBar" name="pb_subutai_box">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1026,7 +1026,7 @@
        <item row="7" column="2">
         <widget class="QProgressBar" name="pb_oracle_virtualbox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1048,7 +1048,7 @@
        <item row="8" column="2">
         <widget class="QProgressBar" name="pb_chrome">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1070,7 +1070,7 @@
        <item row="4" column="2">
         <widget class="QProgressBar" name="pb_vagrant">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1092,7 +1092,7 @@
        <item row="6" column="2">
         <widget class="QProgressBar" name="pb_e2e">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1114,7 +1114,7 @@
        <item row="3" column="2">
         <widget class="QProgressBar" name="pb_p2p">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1136,7 +1136,7 @@
        <item row="11" column="2">
         <widget class="QProgressBar" name="pb_vbguest_plugin">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1158,7 +1158,7 @@
        <item row="10" column="2">
         <widget class="QProgressBar" name="pb_subutai_plugin">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1180,7 +1180,7 @@
        <item row="13" column="2">
         <widget class="QProgressBar" name="pb_firefox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1202,7 +1202,7 @@
        <item row="1" column="2">
         <widget class="QProgressBar" name="pb_tray">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1244,7 +1244,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>
