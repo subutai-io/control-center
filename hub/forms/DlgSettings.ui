@@ -65,6 +65,11 @@
            </item>
            <item row="2" column="2">
             <widget class="QSpinBox" name="sb_notification_delay">
+             <property name="styleSheet">
+              <string notr="true">border-width: 1px;
+border-style: solid;
+border-color: rgb(175, 162, 152)</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -243,6 +248,11 @@
            </item>
            <item row="1" column="2">
             <widget class="QSpinBox" name="sb_refresh_timeout">
+             <property name="styleSheet">
+              <string notr="true">border-width: 1px;
+border-style: solid;
+border-color: rgb(175, 162, 152)</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -888,7 +898,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>
