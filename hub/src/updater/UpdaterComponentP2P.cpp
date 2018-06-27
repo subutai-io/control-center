@@ -80,9 +80,9 @@ chue_t CUpdaterComponentP2P::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Subutai P2P is the tool for connecting to the peers and environments.<br>"
-            "<a href='https://subutai.io/getting-started.html#P2P'>More info.</a><br>"
-            "Subutai Control Center will install it on your machine.<br>"
+            "<a href='https://subutai.io/getting-started.html#P2P'>Subutai P2P</a>"
+            " handles the connection between peers and environments.<br>"
+            "Subutai P2P will be installed on your machine.<br>"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
     msg_box->setTextFormat(Qt::RichText);
 

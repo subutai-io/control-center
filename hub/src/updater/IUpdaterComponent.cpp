@@ -123,9 +123,9 @@ chue_t CUpdaterComponentX2GO::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "The x2goclient application is the client part of X2Go.<br>"
-            "<a href='https://wiki.x2go.org/doku.php/doc:usage:x2goclient'>More info.</a><br>"
-            "Subutai Control Center will install it on your machine.<br>"
+            "<a href='https://wiki.x2go.org/doku.php/doc:usage:x2goclient'>X2Go client</a>"
+            " enables remote desktop access.<br>"
+            "The X2Go client will be installed on your machine.<br>"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
     msg_box->setTextFormat(Qt::RichText);
 
@@ -209,9 +209,9 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Vagrant is a tool for building and managing virtual machine environments.<br>"
-            "<a href='https://www.vagrantup.com/intro/index.html'>More info.</a><br>"
-            "Subutai Control Center will install it on your machine.<br>"
+            "<a href='https://www.vagrantup.com/intro/index.html'>Vagrant</a>"
+            " is used to build and manage virtual machine environments.<br>"
+            "Vagrant will be installed on your machine.<br>"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
     msg_box->setTextFormat(Qt::RichText);
 
@@ -295,9 +295,9 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Oracle VirtualBox is the hypervisor for virtaul machnes.<br>"
-            "<a href='https://www.virtualbox.org/wiki/VirtualBox'>More info.</a>.<br>"
-            "Subutai Control Center will install it on your machine.<br>"
+            "<a href='https://www.virtualbox.org/wiki/VirtualBox'>VirtualBox</a>"
+            " is used as the default hypervisor.<br>"
+            "VirtualBox will be installed on your machine.<br>"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
     msg_box->setTextFormat(Qt::RichText);
 
@@ -381,9 +381,9 @@ chue_t CUpdaterComponentCHROME::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Google Chrome is a freeware web browser developed by Google.<br>"
-            "<a href='https://www.google.com/chrome/'>More info.</a><br>"
-            "Subutai Control Center will install it on your machine.<br>"
+            "<a href='https://www.google.com/chrome/'>Chrome</a>"
+            " is used as the default browser.<br>"
+            "Chrome will be installed on your machine.<br>"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
     msg_box->setTextFormat(Qt::RichText);
 
@@ -466,10 +466,11 @@ chue_t CUpdaterComponentE2E::install_internal(){
     if(CSettingsManager::Instance().default_browser() == "Chrome"){
         QMessageBox *msg_box = new QMessageBox(
               QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-                "Subutai E2E plugin installation will restart your Chrome. "
-                "Make sure you saved all of your work.<br>"
-                "<a href='https://subutai.io/getting-started.html#E2E'>More info.</a><br>"
-                "Don't forget to approve the extension after the installation.<br>"
+                "The <a href='https://subutai.io/getting-started.html#E2E'>Subutai E2E plugin</a>"
+                " manages your PGP keys.<br>"
+                "Installing the E2E plugin will restart your browser. "
+                "Be sure to save your work before installing, and "
+                "approve the extension after installing.<br>"
                 "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
         msg_box->setTextFormat(Qt::RichText);
 
@@ -542,9 +543,8 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Vagrant Subutai is the plugin for Vagrant which sets up peer "
-            "parameters like disk size, ram, cpu cores quantity etc.\n"
-            "Subutai Control Center will install it on your machine.\n"
+            "The Vagrant Subutai plugin sets up peer parameters, like disk size and RAM.\n"
+            "The Vagrant Subutai plugin will be installed on your machine.\n"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
 
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
@@ -617,9 +617,8 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
 
     QMessageBox *msg_box = new QMessageBox(
           QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "Vagrant VirtaulBox is the plugin which lets "
-            "VirtualBox be the hypervisor for Vagrant.\n"
-            "Subutai Control Center will install it on your machine.\n"
+            "The Vagrant VirtualBox plugin sets VirtualBox as your hypervisor for Vagrant.\n"
+            "The Vagrant VirtualBox plugin will be installed on your machine.\n"
             "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
 
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
@@ -704,9 +703,11 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     if (version == "undefined") {
       QMessageBox *msg_box = new QMessageBox(
             QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-              "Subutai Box is the resource box for peer creating.\n"
-              "Subutai Control Center will install it on your machine.\n"
+              "<a href='https://app.vagrantup.com/subutai/boxes/stretch'>Subutai Box</a>"
+              " is the resource box for peer creation.<br>"
+              "Subutai Box will be installed on your machine.<br>"
               "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+      msg_box->setTextFormat(Qt::RichText);
 
       QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
       if (msg_box->exec() != QMessageBox::Yes) {

@@ -92,27 +92,28 @@ int main(int argc, char* argv[]) {
 
   bool ok = false;
   QString log_level_str = cmd_parser.value(log_level_opt);
-  int a_logs_level = log_level_str.toInt(&ok);
+  if (log_level_str != "undefined") { // if user specified log level
+    int a_logs_level = log_level_str.toInt(&ok);
 
-  if (a_logs_level < 0 || a_logs_level > 4 || !ok) {
-    std::cout << QString("%1: invalid argument '%2' for '-l'").
-                 arg(QApplication::applicationName(), log_level_str).
-                 toStdString() << "\n";
-    std::cout <<"Valid arguments are:\n"
-                "  - '0'\n"
-                "  - '1'\n"
-                "  - '2'\n"
-                "  - '3'\n"
-                "  - '4'\n"
-                "Usage: SubutaiControlCenter -l <log_level>\n"
-                "Try 'SubutaiControlCenter --help' for more information.\n";
-    return 0;
-  } else {
-    std::cout << QString("%1: logs level set to '%2'.").
-      arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
+    if (a_logs_level < 0 || a_logs_level > 4 || !ok) {
+      std::cout << QString("%1: invalid argument '%2' for '-l'").
+                   arg(QApplication::applicationName(), log_level_str).
+                   toStdString() << "\n";
+      std::cout <<"Valid arguments are:\n"
+                  "  - '0'\n"
+                  "  - '1'\n"
+                  "  - '2'\n"
+                  "  - '3'\n"
+                  "  - '4'\n"
+                  "Usage: SubutaiControlCenter -l <log_level>\n"
+                  "Try 'SubutaiControlCenter --help' for more information.\n";
+      return 0;
+    } else {
+      std::cout << QString("%1: logs level set to '%2'.").
+        arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
+    }
+    CSettingsManager::Instance().set_logs_level(a_logs_level);
   }
-
-  CSettingsManager::Instance().set_logs_level(a_logs_level);
 
   Logger::Instance()->Init();
 
