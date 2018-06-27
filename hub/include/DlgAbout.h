@@ -82,6 +82,7 @@ private:
   //hide some soft
   void set_visible_chrome(bool value);
   void set_visible_firefox(bool value);
+  void set_hidden_pb(const QString& component_id);
   QString current_browser;
 
 private slots:
