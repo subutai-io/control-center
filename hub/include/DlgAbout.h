@@ -87,8 +87,6 @@ private:
 private slots:
   void btn_tray_update_released();
   void btn_p2p_update_released();
-  void btn_rh_update_released();
-  void btn_rhm_update_released();
   void btn_x2go_update_released();
   void btn_vagrant_update_released();
   void btn_oracle_virtualbox_update_released();
