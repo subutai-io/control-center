@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                                "FATAL (3), INFO (4). Logs with lover level than "
                                "logs_level will not be shown. Default value is '1'.");
   log_level_opt.setValueName("logs_level");
-  log_level_opt.setDefaultValue("undefined");
+  log_level_opt.setDefaultValue("0");
 
   cmd_parser.addOption(log_level_opt);
 
@@ -112,9 +112,8 @@ int main(int argc, char* argv[]) {
       std::cout << QString("%1: logs level set to '%2'.").
         arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
     }
+    CSettingsManager::Instance().set_logs_level(a_logs_level);
   }
-
-  CSettingsManager::Instance().set_logs_level(a_logs_level);
 
   Logger::Instance()->Init();
 
