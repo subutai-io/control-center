@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                                "FATAL (3), INFO (4). Logs with lover level than "
                                "logs_level will not be shown. Default value is '1'.");
   log_level_opt.setValueName("logs_level");
-  log_level_opt.setDefaultValue("0");
+  log_level_opt.setDefaultValue("-228");
 
   cmd_parser.addOption(log_level_opt);
 
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
   QString log_level_str = cmd_parser.value(log_level_opt);
   int a_logs_level = log_level_str.toInt(&ok);
 
-  if (a_logs_level < 0 || a_logs_level > 4 || !ok) {
+  if (a_logs_level != -228 && (a_logs_level < 0 || a_logs_level > 4 || !ok)) {
     std::cout << QString("%1: invalid argument '%2' for '-l'").
                  arg(QApplication::applicationName(), log_level_str).
                  toStdString() << "\n";
@@ -111,8 +111,7 @@ int main(int argc, char* argv[]) {
     std::cout << QString("%1: logs level set to '%2'.").
       arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
   }
-
-  CSettingsManager::Instance().set_logs_level(a_logs_level);
+  if (a_logs_level != -228) CSettingsManager::Instance().set_logs_level(a_logs_level);
 
   Logger::Instance()->Init();
 
