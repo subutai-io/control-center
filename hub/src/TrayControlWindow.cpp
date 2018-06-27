@@ -274,19 +274,19 @@ void TrayControlWindow::create_tray_actions() {
 
   // p2p action start
   m_act_p2p_start =
-      new QAction(QIcon(""), tr("Start P2P"), this);
+      new QAction(QIcon(":/hub/launch.png"), tr("Start P2P"), this);
   connect(m_act_p2p_start, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p);
 
   // p2p action stop
   m_act_p2p_stop =
-      new QAction(QIcon(""), tr("Stop P2P"), this);
+      new QAction(QIcon(":/hub/pause.png"), tr("Stop P2P"), this);
   connect(m_act_p2p_stop, &QAction::triggered, this,
           &TrayControlWindow::stop_p2p);
 
   // p2p action install
   m_act_p2p_install =
-     new QAction(QIcon(""), tr("Install P2P"), this);
+     new QAction(QIcon(":/hub/install.png"), tr("Install P2P"), this);
   connect(m_act_p2p_install, &QAction::triggered, this,
           &TrayControlWindow::launch_p2p_installation);
 }

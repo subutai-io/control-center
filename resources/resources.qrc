@@ -69,6 +69,9 @@
         <file>cc_icon_resized.png</file>
         <file>User_Name-07.png</file>
         <file>show_password.png</file>
+        <file>launch.png</file>
+        <file>pause.png</file>
+        <file>install.png</file>
         <file>check_box.png</file>
         <file>check_box_outline.png</file>
     </qresource>
