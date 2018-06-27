@@ -112,8 +112,9 @@ int main(int argc, char* argv[]) {
       std::cout << QString("%1: logs level set to '%2'.").
         arg(QApplication::applicationName(), log_level_str).toStdString() << "\n";
     }
-    CSettingsManager::Instance().set_logs_level(a_logs_level);
   }
+
+  CSettingsManager::Instance().set_logs_level(a_logs_level);
 
   Logger::Instance()->Init();
 
