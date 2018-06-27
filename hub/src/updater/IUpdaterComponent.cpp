@@ -121,6 +121,20 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     qDebug()
             << "Starting install x2go";
 
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "<a href='https://wiki.x2go.org/doku.php/doc:usage:x2goclient'>X2Go client</a>"
+            " enables remote desktop access.<br>"
+            "The X2Go client will be installed on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString file_name = x2go_kurjun_package_name();
     QString file_dir = download_x2go_path();
@@ -192,6 +206,20 @@ bool CUpdaterComponentVAGRANT::update_available_internal(){
 chue_t CUpdaterComponentVAGRANT::install_internal(){
     qDebug()
             << "Starting install vagrant";
+
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "<a href='https://www.vagrantup.com/intro/index.html'>Vagrant</a>"
+            " is used to build and manage virtual machine environments.<br>"
+            "Vagrant will be installed on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
 
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString file_name = vagrant_kurjun_package_name();
@@ -265,6 +293,20 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     qDebug()
             << "Starting install oracle virtualbox";
 
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "<a href='https://www.virtualbox.org/wiki/VirtualBox'>VirtualBox</a>"
+            " is used as the default hypervisor.<br>"
+            "VirtualBox will be installed on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString file_name = oracle_virtualbox_kurjun_package_name();
     QString file_dir = download_oracle_virtualbox_path();
@@ -336,6 +378,21 @@ bool CUpdaterComponentCHROME::update_available_internal(){
 chue_t CUpdaterComponentCHROME::install_internal(){
     qDebug()
             << "Starting install chrome";
+
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "<a href='https://www.google.com/chrome/'>Chrome</a>"
+            " is used as the default browser.<br>"
+            "Chrome will be installed on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     QString file_name = chrome_kurjun_package_name();
     QString file_dir = download_chrome_path();
     QString str_downloaded_path = file_dir + "/" + file_name;
@@ -407,10 +464,16 @@ chue_t CUpdaterComponentE2E::install_internal(){
     qDebug()
             << "Starting install subutai e2e";
     if(CSettingsManager::Instance().default_browser() == "Chrome"){
-        QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
-                                               QObject::tr("Control Center will restart your Chrome. Make sure you saved all of your work.\n"
-                                                           "Don't forget to approve the extension after the installation"),
-                                               QMessageBox::Yes | QMessageBox::No);
+        QMessageBox *msg_box = new QMessageBox(
+              QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+                "The <a href='https://subutai.io/getting-started.html#E2E'>Subutai E2E plugin</a>"
+                " manages your PGP keys.<br>"
+                "Installing the E2E plugin will restart your browser. "
+                "Be sure to save your work before installing, and "
+                "approve the extension after installing.<br>"
+                "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+        msg_box->setTextFormat(Qt::RichText);
+
         QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
         if (msg_box->exec() != QMessageBox::Yes) {
             install_finished_sl(false);
@@ -477,6 +540,19 @@ bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     qDebug()
             << "Starting install vagrant subutai";
+
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "The Vagrant Subutai plugin sets up peer parameters, like disk size and RAM.\n"
+            "The Vagrant Subutai plugin will be installed on your machine.\n"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     update_progress_sl(50, 100); // imitation of progress bar :D, todo implement
     static QString empty_string = "";
     SilentInstaller *silent_installer = new SilentInstaller(this);
@@ -538,6 +614,19 @@ bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
 chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
     qDebug()
             << "Starting install vagrant vbguest";
+
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "The Vagrant VirtualBox plugin sets VirtualBox as your hypervisor for Vagrant.\n"
+            "The Vagrant VirtualBox plugin will be installed on your machine.\n"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     update_progress_sl(50, 100);
     static QString empty_string = "";
     SilentInstaller *silent_installer = new SilentInstaller(this);
@@ -604,7 +693,28 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
 chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     qDebug()
             << "Starting install new version of subutai box";
+
+    QString version;
+    QString subutai_box = subutai_box_name();
     QString subutai_provider = "virtualbox";
+
+    system_call_wrapper_error_t res =
+        CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
+    if (version == "undefined") {
+      QMessageBox *msg_box = new QMessageBox(
+            QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+              "<a href='https://app.vagrantup.com/subutai/boxes/stretch'>Subutai Box</a>"
+              " is the resource box for peer creation.<br>"
+              "Subutai Box will be installed on your machine.<br>"
+              "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+      msg_box->setTextFormat(Qt::RichText);
+
+      QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+      if (msg_box->exec() != QMessageBox::Yes) {
+          install_finished_sl(false);
+          return CHUE_SUCCESS;
+      }
+    }
     QString file_name = subutai_box_kurjun_package_name(subutai_provider);
     QString file_dir = download_subutai_box_path();
     QString str_downloaded_path = file_dir + "/" + file_name;

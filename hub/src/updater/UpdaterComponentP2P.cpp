@@ -78,6 +78,20 @@ chue_t CUpdaterComponentP2P::install_internal(){
     qDebug()
             << "Starting install P2P";
 
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "<a href='https://subutai.io/getting-started.html#P2P'>Subutai P2P</a>"
+            " handles the connection between peers and environments.<br>"
+            "Subutai P2P will be installed on your machine.<br>"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+        install_finished_sl(false);
+        return CHUE_SUCCESS;
+    }
+
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString file_name = p2p_kurjun_package_name();
     QString file_dir = download_p2p_path();
