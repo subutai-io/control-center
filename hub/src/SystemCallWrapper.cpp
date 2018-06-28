@@ -724,6 +724,11 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
                                                                            const QString &provider,
                                                                            QString &version){
     qDebug() << "get the latest box version of " << box << "provider: " << provider;
+    vagrant_version(version);
+    if (version == "undefined"){
+        version = QObject::tr("Install Vagrant first");
+        return SCWE_CREATE_PROCESS;
+    }
     version = "undefined";
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
