@@ -2908,8 +2908,14 @@ system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LI
                                                          args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    QString ver = res.out[0];
-    version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+    QRegExp pattern("([0-9]+[.])+[0-9]+[r]+[0-9]+");
+    for (auto str: res.out) {
+      QString ver = str.simplified();
+      if (pattern.exactMatch(ver)) {
+        version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+        break;
+      }
+    }
   }
 
   return res.res;
@@ -2947,8 +2953,14 @@ system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_WIN> >
           <<"result code"<<res.res
           <<"output"<<res.out;
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    QString ver = res.out[0];
-    version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+    QRegExp pattern("([0-9]+[.])+[0-9]+[r]+[0-9]+");
+    for (auto str: res.out) {
+      QString ver = str.simplified();
+      if (pattern.exactMatch(ver)) {
+        version = ver.remove(QRegularExpression("([ ]*)?(r[0-9]*)?"));
+        break;
+      }
+    }
   }
   return res.res;
 }
