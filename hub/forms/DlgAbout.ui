@@ -12,1105 +12,39 @@
   </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>2</horstretch>
+    <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>846</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>About subutai tray</string>
+   <string>Components</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/resources.qrc">
     <normaloff>:/hub/about.png</normaloff>:/hub/about.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true">DlgAbout {
+min-height: 550pxk
+}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_3" rowstretch="10,0,0">
-     <item row="2" column="0">
-      <layout class="QGridLayout" name="gridLayout" columnstretch="1,3">
-       <item row="0" column="1">
-        <widget class="QProgressBar" name="pb_initialization_progress">
-         <property name="maximum">
-          <number>7</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_about_init">
-         <property name="text">
-          <string>Collecting data:</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
      <item row="0" column="0">
       <layout class="QGridLayout" name="gl_components" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0,0">
-       <item row="12" column="2">
-        <widget class="QProgressBar" name="pb_x2go">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="4">
-        <widget class="QPushButton" name="btn_vbguest_plugin_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="4">
-        <widget class="QPushButton" name="btn_chrome">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="lbl_vagrant_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="lbl_tray_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="4">
-        <widget class="QPushButton" name="btn_p2p_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="lbl_vbguest_plugin_version">
-         <property name="text">
-          <string>Vagrant VBGuest plug-in</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="QLabel" name="lbl_subutai_box_version">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="4">
-        <widget class="QPushButton" name="btn_subutai_box">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="lbl_tray_version">
-         <property name="text">
-          <string>Subutai Control Center</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="lbl_p2p_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QPushButton" name="btn_recheck">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>242</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Check for updates</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="lbl_firefox">
-         <property name="text">
-          <string>Mozilla Firefox</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
-        <widget class="QPushButton" name="btn_vagrant_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="lbl_oracle_virtualbox_version">
-         <property name="text">
-          <string>Oracle VirtualBox</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="1">
-        <widget class="QLabel" name="lbl_vbguest_plugin_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="lbl_subutai_e2e_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="QLabel" name="lbl_subutai_plugin_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="4">
-        <widget class="QPushButton" name="btn_subutai_plugin_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="4">
-        <widget class="QPushButton" name="btn_firefox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="lbl_subutai_plugin_version">
-         <property name="text">
-          <string>Vagrant Subutai plug-in</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="lbl_subutai_e2e">
-         <property name="text">
-          <string>Subutai E2E</string>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="1">
-        <widget class="QLabel" name="lbl_firefox_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="lbl_vagrant_version">
-         <property name="text">
-          <string>Vagrant</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="lbl_chrome_version">
-         <property name="text">
-          <string>Google Chrome</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QPushButton" name="btn_tray_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QLabel" name="lbl_chrome_version_val">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>undefined</string>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="4">
-        <widget class="QPushButton" name="btn_oracle_virtualbox_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="4">
-        <widget class="QPushButton" name="btn_subutai_e2e">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1">
-        <widget class="QLabel" name="lbl_x2go_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="lbl_subutai_box">
-         <property name="text">
-          <string>Vagrant Subutai box</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="4">
-        <widget class="QPushButton" name="btn_x2go_update">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="lbl_x2go_version">
-         <property name="text">
-          <string>X2Go-Client</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="lbl_p2p_version">
-         <property name="text">
-          <string>Subutai P2P</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QCheckBox" name="cb_tray">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QCheckBox" name="cb_p2p">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QCheckBox" name="cb_vagrant">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="3">
-        <widget class="QCheckBox" name="cb_subutai_e2e">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="3">
-        <widget class="QCheckBox" name="cb_oracle_virtualbox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="3">
-        <widget class="QCheckBox" name="cb_chrome">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="3">
-        <widget class="QCheckBox" name="cb_vagrant_box">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="3">
-        <widget class="QCheckBox" name="cb_vagrant_subtuai_plugin">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="3">
-        <widget class="QCheckBox" name="cb_vagrant_vbguest_plugin">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="3">
-        <widget class="QCheckBox" name="cb_x2goclient">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="3">
-        <widget class="QCheckBox" name="cb_firefox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="2">
-        <widget class="QProgressBar" name="pb_subutai_box">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="2">
-        <widget class="QProgressBar" name="pb_oracle_virtualbox">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="2">
-        <widget class="QProgressBar" name="pb_chrome">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QProgressBar" name="pb_vagrant">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QProgressBar" name="pb_e2e">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="2">
         <widget class="QProgressBar" name="pb_p2p">
          <property name="enabled">
@@ -1133,8 +67,43 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="2">
-        <widget class="QProgressBar" name="pb_vbguest_plugin">
+       <item row="11" column="0">
+        <widget class="QLabel" name="lbl_vbguest_plugin_version">
+         <property name="text">
+          <string>Vagrant VBGuest plug-in</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="lbl_firefox">
+         <property name="text">
+          <string>Mozilla Firefox</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="lbl_tray_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="lbl_p2p_version">
+         <property name="text">
+          <string>Subutai P2P</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="QLabel" name="lbl_subutai_plugin_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="2">
+        <widget class="QProgressBar" name="pb_firefox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1177,8 +146,29 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="2">
-        <widget class="QProgressBar" name="pb_firefox">
+       <item row="11" column="1">
+        <widget class="QLabel" name="lbl_vbguest_plugin_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="lbl_subutai_e2e">
+         <property name="text">
+          <string>Subutai E2E</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QProgressBar" name="pb_e2e">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1196,6 +186,83 @@
          </property>
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="lbl_subutai_box">
+         <property name="text">
+          <string>Vagrant Subutai box</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="lbl_subutai_e2e_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="lbl_oracle_virtualbox_version">
+         <property name="text">
+          <string>Oracle VirtualBox</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="lbl_p2p_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="QLabel" name="lbl_firefox_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QProgressBar" name="pb_subutai_box">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="lbl_chrome_version_val">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>undefined</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="lbl_tray_version">
+         <property name="text">
+          <string>Subutai Control Center</string>
          </property>
         </widget>
        </item>
@@ -1218,6 +285,1000 @@
          </property>
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="2">
+        <widget class="QProgressBar" name="pb_chrome">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1">
+        <widget class="QLabel" name="lbl_subutai_box_version">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QProgressBar" name="pb_vagrant">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QProgressBar" name="pb_oracle_virtualbox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btn_recheck">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>242</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Check for updates</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLabel" name="lbl_vagrant_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="2">
+        <widget class="QProgressBar" name="pb_vbguest_plugin">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="lbl_x2go_version">
+         <property name="text">
+          <string>X2Go-Client</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QLabel" name="lbl_x2go_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="lbl_vagrant_version">
+         <property name="text">
+          <string>Vagrant</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="lbl_subutai_plugin_version">
+         <property name="text">
+          <string>Vagrant Subutai plug-in</string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="2">
+        <widget class="QProgressBar" name="pb_x2go">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="lbl_chrome_version">
+         <property name="text">
+          <string>Google Chrome</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QPushButton" name="btn_tray_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_tray">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <widget class="QPushButton" name="btn_p2p_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_p2p">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <widget class="QPushButton" name="btn_vagrant_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_vagrant">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <widget class="QPushButton" name="btn_subutai_e2e">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_subutai_e2e">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <item>
+          <widget class="QPushButton" name="btn_oracle_virtualbox_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_oracle_virtualbox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="8" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_12">
+         <item>
+          <widget class="QPushButton" name="btn_chrome">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_chrome">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="9" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_13">
+         <item>
+          <widget class="QPushButton" name="btn_subutai_box">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_vagrant_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="10" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_14">
+         <item>
+          <widget class="QPushButton" name="btn_subutai_plugin_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_vagrant_subtuai_plugin">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="11" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_15">
+         <item>
+          <widget class="QPushButton" name="btn_vbguest_plugin_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_vagrant_vbguest_plugin">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="12" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_16">
+         <item>
+          <widget class="QPushButton" name="btn_x2go_update">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_x2goclient">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="13" column="4">
+        <layout class="QVBoxLayout" name="verticalLayout_17">
+         <item>
+          <widget class="QPushButton" name="btn_firefox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_firefox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="0">
+      <layout class="QGridLayout" name="gridLayout" columnstretch="1,3">
+       <item row="0" column="1">
+        <widget class="QProgressBar" name="pb_initialization_progress">
+         <property name="maximum">
+          <number>7</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_about_init">
+         <property name="text">
+          <string>Collecting data:</string>
          </property>
         </widget>
        </item>
@@ -1244,6 +1305,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>

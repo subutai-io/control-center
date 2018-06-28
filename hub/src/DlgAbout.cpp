@@ -85,13 +85,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
 
-
-  this->setMinimumWidth(600);
-
-  ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
-  ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
-  ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
-
   QLabel* lbls[] = { this->ui->lbl_chrome_version_val,
                      this->ui->lbl_p2p_version_val,
                      this->ui->lbl_tray_version_val,
@@ -175,6 +168,13 @@ DlgAbout::DlgAbout(QWidget *parent) :
   }
 
   check_for_versions_and_updates();
+
+  ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
+  ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
+  ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
+
+  this->setMinimumWidth(600);
+  this->setMaximumHeight(450);
   this->adjustSize();
 }
 
@@ -375,14 +375,18 @@ DlgAbout::update_finished(const QString& component_id,
   }
 
   if (success) {
-    m_dct_fpb[component_id].btn->setHidden(true);
+    m_dct_fpb[component_id].btn->setVisible(false);
     m_dct_fpb[component_id].cb->setChecked(true);
     m_dct_fpb[component_id].cb->setVisible(true);
-    ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
-                                       m_dct_fpb[component_id].cb);
+    m_dct_fpb[component_id].pb->setVisible(false);
   } else {
     m_dct_fpb[component_id].btn->setEnabled(true);
   }
+
+  qDebug() << "update finished: "
+           << component_id
+           << " status: "
+           << success;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -562,8 +566,6 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
         m_dct_fpb[component_id].btn->setHidden(true);
         m_dct_fpb[component_id].cb->setVisible(true);
         m_dct_fpb[component_id].cb->setChecked(true);
-        ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
-                                         m_dct_fpb[component_id].cb);
     }
     m_dct_fpb[component_id].btn->setEnabled(update_available);
 }
@@ -664,8 +666,6 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
         m_dct_fpb[component_id].btn->setHidden(true);
         m_dct_fpb[component_id].cb->setChecked(true);
         m_dct_fpb[component_id].cb->setVisible(true);
-        ui->gl_components->replaceWidget(m_dct_fpb[component_id].btn,
-                                         m_dct_fpb[component_id].cb);
     } else {
         m_dct_fpb[component_id].btn->setEnabled(true);
         m_dct_fpb[component_id].btn->setText(tr("Install"));
