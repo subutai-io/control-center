@@ -276,6 +276,14 @@ bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
         return true;
     else return m_dct_components[component_id].Component()->is_in_progress();
 }
+const std::pair <quint64, quint64>& CHubComponentsUpdater::get_last_pb_value(const QString &component_id) {
+  static std::pair <quint64, quint64> zero(0, 0);
+  if (m_dct_components.find(component_id) == m_dct_components.end() || !is_in_progress(component_id)) {
+    return zero;
+  } else {
+    return m_dct_components[component_id].Component()->get_last_pb_value();
+  }
+}
 ///////* class installs cc components in silent mode *///////////
 void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type){
     m_dir = dir;
