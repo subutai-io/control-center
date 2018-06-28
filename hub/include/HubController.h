@@ -152,6 +152,8 @@ public:
 
   void launch_balance_page();
 
+  void launch_help_page();
+
   void launch_browser(const QString &url);
 
   void launch_environment_page(const int hub_id);
