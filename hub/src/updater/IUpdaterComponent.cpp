@@ -688,7 +688,7 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
     if (version == "undefined") return true;
     if (res != SCWE_SUCCESS) return false;
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
-    return cloud_version != version;
+    return cloud_version > version;
 }
 chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     qDebug()
@@ -698,8 +698,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     QString subutai_box = subutai_box_name();
     QString subutai_provider = "virtualbox";
 
-    system_call_wrapper_error_t res =
-        CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
+    CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider, version);
     if (version == "undefined") {
       QMessageBox *msg_box = new QMessageBox(
             QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
