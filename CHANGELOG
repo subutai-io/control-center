@@ -1,6 +1,24 @@
 # Change Log
 
-## [7.1.1] 21/12/2018
+## [7.1.2] 6/29/2018
+# IMPROVEMENTS:
+* Added validator for ssh key names
+* Improved UI/UX of Peer dialog
+* Reworked UI/UI of About dialog, now it's called "Components"
+* Small improvements in various sections, added more icons
+* Now, before vagrant box installation, CC checks if vagrant is installed
+* Remove stderr bad character from error messages
+# BUG FIXES:
+* Fixed bug on Windows, when CC does not load gif images
+* Fixed bug with wrong alignment of containers in the Environment dialog
+* Fixed bug when user create a peer when version of cloud subutai plugin is older than local
+* Fixed bug of CC freezing while login on some Debian machines
+* Fixed bug when CC won't update, when Application folder does not have writing permissions 
+# FEATURES:
+* Allow users to specify Google Chrome profile in settings
+* CC gives information about component before installation
+
+## [7.1.1] 6/21/2018
 # IMPROVEMENTS:
 * Reworked login page
 * Reworked P2P control button, now it's an action menu
