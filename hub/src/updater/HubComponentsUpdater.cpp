@@ -226,17 +226,39 @@ void CHubComponentsUpdater::force_update_rhm() {
 
 
 ////////////////////////////////////////////////////////////////////////////
+/// \brief CHubComponentsUpdater::install
+/// \param component_id
+///
+void CHubComponentsUpdater::install(const QString &component_id) {
+    qDebug("Install component: %s started.",
+           component_id.toStdString().c_str());
 
-void CHubComponentsUpdater::install(const QString &component_id){
-    qDebug()
-        <<"Install"<<component_id.toStdString().c_str()<<"called";
     if (m_dct_components.find(component_id) == m_dct_components.end()) {
-      qCritical(
-            "can't find component updater in map with id = %s", component_id.toStdString().c_str());
+      qCritical("Can't find component updater in map with id = %s",
+                component_id.toStdString().c_str());
       return;
     }
+
     emit install_component_started(IUpdaterComponent::component_id_to_user_view(component_id));
     m_dct_components[component_id].Component()->install();
+}
+
+////////////////////////////////////////////////////////////////////////////
+/// \brief CHubComponentsUpdater::uninstall
+/// \param component_id
+///
+void CHubComponentsUpdater::uninstall(const QString &component_id) {
+  qDebug("Uninstall component: %s started.",
+         component_id.toStdString().c_str());
+
+  if (m_dct_components.find(component_id) == m_dct_components.end()) {
+    qCritical("Can't find component by id=%s in updater map",
+              component_id.toStdString().c_str());
+    return;
+  }
+
+  emit uninstall_component_started(IUpdaterComponent::component_id_to_user_view(component_id));
+  m_dct_components[component_id].Component()->uninstall();
 }
 
 void CHubComponentsUpdater::install_p2p(){
@@ -276,6 +298,7 @@ bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
         return true;
     else return m_dct_components[component_id].Component()->is_in_progress();
 }
+
 ///////* class installs cc components in silent mode *///////////
 void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type){
     m_dir = dir;
@@ -338,14 +361,63 @@ void SilentInstaller::silentInstallation(){
     });
 }
 
+///////* class uninstalls cc components in silent mode *///////////
+void SilentUninstaller::init(const QString &dir, const QString &file_name, cc_component type) {
+  m_dir = dir;
+  m_file_name = file_name;
+  m_type = type;
+}
+
+void SilentUninstaller::startWork() {
+  QThread* thread = new QThread();
+  connect(thread, &QThread::started,
+          this, &SilentUninstaller::silentUninstallation);
+  connect(this, &SilentUninstaller::outputReceived,
+          thread, &QThread::quit);
+  connect(thread, &QThread::finished,
+          this, &SilentUninstaller::deleteLater);
+  connect(thread, &QThread::finished,
+          thread, &QThread::deleteLater);
+  this->moveToThread(thread);
+  thread->start();
+}
+
+void SilentUninstaller::silentUninstallation() {
+  QFutureWatcher<system_call_wrapper_error_t> *watcher
+      = new QFutureWatcher<system_call_wrapper_error_t>(this);
+  QFuture<system_call_wrapper_error_t>  res;
+
+  static QString subutai_plugin_name = "vagrant-subutai";
+  static QString vbguest_plugin_name = "vagrant-vbguest";
+  static QString command = "uninstall";
+
+  switch (m_type) {
+  case CC_VAGRANT_SUBUTAI:
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
+      break;
+  case CC_VAGRANT_VBGUEST:
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
+      break;
+      //TODO add other components
+  default:
+      break;
+  }
+
+  watcher->setFuture(res);
+
+  connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res]() {
+    emit this->outputReceived(res.result() == SCWE_SUCCESS);
+  });
+}
+
 ///////* class updates cc components in silent mode *///////////
-void SilentUpdater::init(const QString &dir, const QString &file_name, cc_component type){
+void SilentUpdater::init(const QString &dir, const QString &file_name, cc_component type) {
     m_dir = dir;
     m_file_name = file_name;
     m_type = type;
 }
 
-void SilentUpdater::startWork(){
+void SilentUpdater::startWork() {
     QThread* thread = new QThread();
     connect(thread, &QThread::started,
             this, &SilentUpdater::silentUpdate);
@@ -359,7 +431,7 @@ void SilentUpdater::startWork(){
     thread->start();
 }
 
-void SilentUpdater::silentUpdate(){
+void SilentUpdater::silentUpdate() {
     QFutureWatcher<system_call_wrapper_error_t> *watcher
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t>  res;

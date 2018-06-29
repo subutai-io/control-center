@@ -1664,12 +1664,52 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     return SCWE_SUCCESS;
 }
+
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
    installer_is_busy.unlock();
    return res;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief CSystemCallWrapper::vagrant_plugin
+/// \param name of vagrant plugin
+/// \param command (we use for "vagrant plugin command")
+/// accepted commands are: uninstall, install, update
+/// \return
+///
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &name,
+                                                               const QString &command) {
+  installer_is_busy.lock();
+  qDebug() << QString("Vagrant plugin %1 %2 started.")
+              .arg(command)
+              .arg(name);
+
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "plugin"
+       << command // might be: uninstall, install, update
+       << name;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+  qDebug() << QString("Vagrant plugin %1 %2 is finished.")
+              .arg(command)
+              .arg(name)
+           << " Exist code: "
+           << res.exit_code
+           << " Result: "
+           << res.res
+           << " Output: "
+           << res.out;
+
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+          res.res = SCWE_CREATE_PROCESS;
+
+  installer_is_busy.unlock();
+  return res.res;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
     QString cmd = CSettingsManager::Instance().vagrant_path();
@@ -1683,6 +1723,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QSt
         res.res = SCWE_CREATE_PROCESS;
     return res.res;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
     installer_is_busy.lock();

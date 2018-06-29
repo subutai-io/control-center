@@ -120,6 +120,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this, &DlgAbout::btn_subutai_box_update_released);
   connect(ui->btn_close, &QPushButton::released, this, &DlgAbout::btn_close_released);
+  connect(ui->btn_uninstall_components, &QPushButton::released, this, &DlgAbout::btn_uninstall_components);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -341,8 +342,20 @@ void DlgAbout::btn_recheck_released() {
 void DlgAbout::btn_close_released() {
   this->close();
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
+/// \brief DlgAbout::btn_uninstall_components
+///
+void DlgAbout::btn_uninstall_components() {
+  for (const auto& component : m_dct_fpb) {
+    if (component.second.cb->isChecked()) {
+      qDebug() << "Checkbox enabled: "
+               << component.first;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
 void
 DlgAbout::download_progress(const QString& component_id,
                             qint64 rec,
@@ -350,8 +363,8 @@ DlgAbout::download_progress(const QString& component_id,
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   m_dct_fpb[component_id].pb->setValue((rec*100)/total);
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
 void
 DlgAbout::update_available(const QString& file_id) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;

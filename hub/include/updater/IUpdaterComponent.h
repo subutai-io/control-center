@@ -45,6 +45,8 @@ namespace update_system {
     virtual void update_post_action(bool success) = 0;
     virtual chue_t install_internal() = 0;
     virtual void install_post_interntal(bool success) = 0;
+    virtual chue_t uninstall_internal() = 0;
+    virtual void uninstall_post_internal(bool success) = 0;
 
   public:
 
@@ -93,6 +95,12 @@ namespace update_system {
        return install_internal();
     }
 
+    chue_t uninstall() {
+      if (m_in_progress) return CHUE_IN_PROGRESS;
+      m_in_progress = true;
+      return uninstall_internal();
+    }
+
     const QString& component_id() const {return m_component_id;}
 
   protected slots:
@@ -135,6 +143,9 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
+
     private:
       QString download_x2go_path();
     };
@@ -154,6 +165,8 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
     private:
       QString download_vagrant_path();
     };
@@ -173,6 +186,8 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
     private:
       QString download_oracle_virtualbox_path();
     };
@@ -192,6 +207,9 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
+
     private:
       QString download_chrome_path();
     };
@@ -211,6 +229,9 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
+
     private:
       QString download_e2e_path();
     };
@@ -230,7 +251,9 @@ namespace update_system {
       virtual chue_t update_internal();
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
+      virtual chue_t uninstall_internal();
       virtual void install_post_interntal(bool success);
+      virtual void uninstall_post_internal(bool success);
     };
 
     /**
@@ -249,6 +272,8 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
     };
     /**
      * @brief The CUpdaterComponentSUBUTAI_BOX class implements IUpdaterComponent. Works with vagrant subutai box
@@ -266,6 +291,9 @@ namespace update_system {
       virtual void update_post_action(bool success);
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
+      virtual chue_t uninstall_internal();
+      virtual void uninstall_post_internal(bool success);
+
     private:
       QString download_subutai_box_path();
     };

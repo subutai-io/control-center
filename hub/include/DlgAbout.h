@@ -98,6 +98,7 @@ private slots:
   void btn_subutai_box_update_released();
   void btn_recheck_released();
   void btn_close_released();
+  void btn_uninstall_components();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
