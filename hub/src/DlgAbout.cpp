@@ -159,6 +159,16 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box, ui->btn_subutai_box,
                                               get_subutai_box_version};
 
+  for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
+    std::pair <quint64, quint64> progress =
+        CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
+    if (progress.first * progress.second == 0)
+      it->second.pb->setValue(0);
+    else
+      it->second.pb->setValue((progress.first * 100)
+                              / progress.second == 0 ? 1 : progress.second);
+  }
+
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
   // hide checkboxes
