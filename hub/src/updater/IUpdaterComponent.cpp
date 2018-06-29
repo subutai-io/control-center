@@ -645,17 +645,32 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
 }
 
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal() {
-    update_progress_sl(50, 100);
-    static QString empty_string = "";
-    SilentUpdater *silent_updater = new SilentUpdater(this);
-    silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
-    connect(silent_updater, &SilentUpdater::outputReceived,
-            this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
-    silent_updater->startWork();
-    return CHUE_SUCCESS;
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUpdater *silent_updater = new SilentUpdater(this);
+  silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+
+  connect(silent_updater, &SilentUpdater::outputReceived,
+          this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
+
+  silent_updater->startWork();
+
+  return CHUE_SUCCESS;
 }
 
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::uninstall_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT_SUBUTAI::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 

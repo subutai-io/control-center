@@ -59,11 +59,18 @@ CUpdaterComponentRH::update_post_action(bool success) {
 }
 //////////////////////////////////////////////////////////////////////////////
 /// instalation staff just to make compiler happy
-chue_t CUpdaterComponentRH::install_internal(){
-    return CHUE_SUCCESS;
+chue_t CUpdaterComponentRH::install_internal() {
+  return CHUE_SUCCESS;
 }
-void CUpdaterComponentRH::install_post_interntal(bool success){
-    UNUSED_ARG(success);
-    return;
+
+void CUpdaterComponentRH::install_post_interntal(bool success) {
+  UNUSED_ARG(success);
+  return;
 }
+
+chue_t CUpdaterComponentRH::uninstall_internal() {
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentRH::uninstall_post_internal(bool success) {}
 

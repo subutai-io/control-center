@@ -235,3 +235,9 @@ void CUpdaterComponentP2P::install_post_interntal(bool success){
     }
 }
 ////////////////////////////////////////////////////////////////////////////
+
+chue_t CUpdaterComponentP2P::uninstall_internal() {
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentP2P::uninstall_post_internal(bool success) {}

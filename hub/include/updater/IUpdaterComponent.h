@@ -110,10 +110,16 @@ namespace update_system {
       emit update_finished(m_component_id, success);
     }
 
-    void install_finished_sl(bool success){
-        install_post_interntal(success);
-        m_in_progress = false;
-        emit install_finished(m_component_id, success);
+    void install_finished_sl(bool success) {
+      install_post_interntal(success);
+      m_in_progress = false;
+      emit install_finished(m_component_id, success);
+    }
+
+    void uninstall_finished_sl(bool success) {
+      uninstall_post_internal(success);
+      m_in_progress = false;
+      emit uninstall_finished(m_component_id, success);
     }
 
     void update_progress_sl(qint64 part, qint64 total){
@@ -124,6 +130,7 @@ namespace update_system {
     void update_progress(const QString& component_id, qint64 part, qint64 total);
     void update_finished(const QString& component_id, bool success);
     void install_finished(const QString& component_id, bool success);
+    void uninstall_finished(const QString& component_id, bool success);
     void update_available_changed(const QString& component_id);
   };
 ////////////////////////// declaration of other staff

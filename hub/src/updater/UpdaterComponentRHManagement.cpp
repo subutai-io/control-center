@@ -57,12 +57,20 @@ void
 CUpdaterComponentRHM::update_post_action(bool success) {
   UNUSED_ARG(success); //do nothing
 }
+
 ////////////////////////////////////////////////////////////////////////////
 /// instalation staff just to make compiler happy
-chue_t CUpdaterComponentRHM::install_internal(){
+chue_t CUpdaterComponentRHM::install_internal() {
     return CHUE_SUCCESS;
 }
+
 void CUpdaterComponentRHM::install_post_interntal(bool success){
     UNUSED_ARG(success);
     return;
 }
+
+chue_t CUpdaterComponentRHM::uninstall_internal() {
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentRHM::uninstall_post_internal(bool success) {}

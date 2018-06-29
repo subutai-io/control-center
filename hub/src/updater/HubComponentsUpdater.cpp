@@ -60,6 +60,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
         this, &CHubComponentsUpdater::update_component_finished_sl);
     connect(ucs[i], &IUpdaterComponent::install_finished,
             this, &CHubComponentsUpdater::install_component_finished_sl);
+    connect(ucs[i], &IUpdaterComponent::uninstall_finished,
+            this, &CHubComponentsUpdater::uninstall_component_finished_sl);
   }
   ///
   set_p2p_update_freq();
@@ -281,12 +283,17 @@ void
 CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool replaced) {
   emit updating_finished(file_id, replaced);
 }
+
 ////////////////////////////////////////////////////////////////////////////
-void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced){
+void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced) {
     emit installing_finished(file_id, replaced);
 }
+
+void CHubComponentsUpdater::uninstall_component_finished_sl(const QString &component_id, bool success) {
+  emit uninstalling_component_finished(component_id, success);
+}
 /////////////////////////////////////////////////////////////////////////////
-QString CHubComponentsUpdater::component_name(const QString &component_id){
+QString CHubComponentsUpdater::component_name(const QString &component_id) {
     if(m_dct_components.find(component_id) == m_dct_components.end())
         return "";
     return m_dct_components[component_id].Component()->component_id_to_user_view(component_id);

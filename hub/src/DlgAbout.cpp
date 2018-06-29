@@ -351,6 +351,7 @@ void DlgAbout::btn_uninstall_components() {
     if (component.second.cb->isChecked()) {
       qDebug() << "Checkbox enabled: "
                << component.first;
+      CHubComponentsUpdater::Instance()->uninstall(component.first);
     }
   }
 }

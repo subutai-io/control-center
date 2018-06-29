@@ -144,13 +144,14 @@ namespace update_system {
     void update_component_progress_sl(const QString& component_id, qint64 cur, qint64 full);
     void update_component_finished_sl(const QString& component_id, bool replaced);
     void install_component_finished_sl(const QString& component_id, bool replaced);
-    void uninstall_component_finished_sl(const QString& component_id);
+    void uninstall_component_finished_sl(const QString& component_id, bool success);
 
   signals:
     void download_file_progress(const QString& component_id, qint64 rec, qint64 total);
     void updating_finished(const QString& component_id, bool success);
     void update_available(const QString& component_id);
     void installing_finished(const QString& component_id, bool success);
+    void uninstalling_finished(const QString& component_id, bool success);
     void install_component_started(const QString& component_id);
     void uninstalling_component_finished(const QString& component_id, bool success);
     void uninstall_component_started(const QString& component_id);
