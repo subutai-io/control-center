@@ -280,7 +280,7 @@ void TrayControlWindow::create_tray_actions() {
 
   // p2p action stop
   m_act_p2p_stop =
-      new QAction(QIcon(":/hub/pause.png"), tr("Stop P2P"), this);
+      new QAction(QIcon(":/hub/stop_p2p.png"), tr("Stop P2P"), this);
   connect(m_act_p2p_stop, &QAction::triggered, this,
           &TrayControlWindow::stop_p2p);
 
