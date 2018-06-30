@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
+#include "SettingsManager.h"
 
 static std::map<QString, QString> virtual_package_codename = {
     {"xenial",   "virtualbox-xenial.deb"},
@@ -265,7 +266,12 @@ hub_post_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_post_url() {
-  return hub_post_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_post_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_post_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_post_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -284,7 +290,12 @@ hub_register_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/regi
 
 const QString &
 hub_register_url() {
-  return hub_register_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_register_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_register_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_register_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 

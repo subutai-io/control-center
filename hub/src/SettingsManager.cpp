@@ -20,6 +20,7 @@
 const QString CSettingsManager::ORG_NAME("subutai");
 const QString CSettingsManager::APP_NAME("Control Center");
 
+const QString CSettingsManager::SM_APP_BRANCH("APP_Branch");
 const QString CSettingsManager::SM_LOGIN("Login");
 const QString CSettingsManager::SM_PASSWORD("Password");
 const QString CSettingsManager::SM_REMEMBER_ME("Remember_Me");
@@ -243,6 +244,8 @@ CSettingsManager::CSettingsManager()
     }
   }
 
+  m_branch = current_branch_name();
+
   setting_val_t dct_settings_vals[] = {
       // str
       {(void*)&m_login, SM_LOGIN, qvar_to_str},
@@ -317,6 +320,12 @@ CSettingsManager::CSettingsManager()
     uint32_t nd = m_settings.value(SM_NOTIFICATION_DELAY_SEC).toUInt(&ok);
     if (ok) set_notification_delay_sec(nd);
   }
+
+  if (!m_settings.value(SM_APP_BRANCH).isNull()) {
+    QString branch = m_settings.value(SM_APP_BRANCH).toString();
+    set_branch(branch);
+  }
+  m_settings.setValue(SM_APP_BRANCH, m_branch);
 
   if (m_tray_guid.isEmpty()) {
     m_tray_guid = QUuid::createUuid().toString();
@@ -732,6 +741,13 @@ const QString& CSettingsManager::peer_finger(const QString &peer_name){
         m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
     }
     return m_peer_fingers[peer_name];
+}
+
+void CSettingsManager::set_branch(const QString &branch){
+  if (branch == "production" ||
+      branch == "stage" ||
+      branch == "development") m_branch = branch;
+  m_settings.setValue(SM_APP_BRANCH, m_branch);
 }
 
 ////////////////////////////////////////////////////////////////////////////
