@@ -26,28 +26,28 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent) :
     //requirements
     requirement virtualbox(tr ("VirtualBox is not ready"),
                            tr ("Checking VirtualBox..."),
-                           tr ("VirtualBox is not ready. You should install or update it from About"),
+                           tr ("VirtualBox is not ready. You should install or update it from Components"),
                            DlgNotification::N_ABOUT,
                            [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::ORACLE_VIRTUALBOX);});
     requirement vagrant(tr ("Vagrant is not ready"),
                         tr ("Checking Vagrant..."),
-                        tr ("Vagrant is not ready. You should install or update it from About"),
+                        tr ("Vagrant is not ready. You should install or update it from Components"),
                         DlgNotification::N_ABOUT,
                         [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT);});
     requirement subutai_plugin(tr ("Subutai plugin is not ready"),
                                tr ("Checking Subutai plugin..."),
                                tr ("Unable to run the Vagrant Subutai plugin. Make sure that you have it "
-                                   "installed or updated successfully by going to the menu > About."),
+                                   "installed or updated successfully by going to the menu > Components."),
                                DlgNotification::N_ABOUT,
                                [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_SUBUTAI);});
     requirement vbguest_plugin(tr ("VirtualBox plugin is not ready"),
                                tr ("Checking VirtualBox plugin..."),
-                               tr ("Vagrant VirtualBox plugin is not ready. You should install or update it from About"),
+                               tr ("Vagrant VirtualBox plugin is not ready. You should install or update it from Components"),
                                DlgNotification::N_ABOUT,
                                [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::VAGRANT_VBGUEST);});
     requirement subutai_box(tr ("Subutai box is not ready"),
                             tr ("Checking Subutai box..."),
-                            tr ("Vagrant Subutai box is not ready. You should install or update it from About"),
+                            tr ("Vagrant Subutai box is not ready. You should install or update it from Components"),
                             DlgNotification::N_ABOUT,
                             [](){ return !CHubComponentsUpdater::Instance()->is_update_available(IUpdaterComponent::SUBUTAI_BOX);});
     m_requirements_ls = std::vector <requirement> {vagrant, virtualbox, subutai_plugin, vbguest_plugin, subutai_box};
