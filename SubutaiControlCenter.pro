@@ -153,7 +153,7 @@ DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_MASTER
+GBV=BT_PROD
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
@@ -167,7 +167,7 @@ equals(GIT_BRANCH_STR, "head") {
 }
 
 equals(GIT_BRANCH_STR, "dev") {
-  GBV=BT_DEV
+  GBV=BT_PROD
 }
 
 DEFINES += CURRENT_BRANCH=$$GBV

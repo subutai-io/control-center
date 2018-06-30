@@ -356,6 +356,7 @@ void DlgPeer::rh_ssh_sl() {
 }
 
 void DlgPeer::configs() {
+  if (ui->change_configure->isChecked()) return;
   ui->le_cpu->setText(rh_cpu);
   ui->le_ram->setText(rh_ram);
   ui->le_disk->setText(rh_disk);
