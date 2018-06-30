@@ -360,7 +360,7 @@ void DlgPeer::configs() {
   ui->le_cpu->setText(rh_cpu);
   ui->le_ram->setText(rh_ram);
   ui->le_disk->setText(rh_disk);
-  QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   int index_bridge = -1;
   for (int i = 0; i < bridges.size(); i++) {
     QString s = bridges[i];
