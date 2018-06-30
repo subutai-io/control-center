@@ -285,14 +285,14 @@ void CHubController::launch_browser(const QString &url) {
              << QString("--profile-directory=%1").arg(profile);
         if (!QProcess::startDetached(chrome_path, args)) {
           QString err_msg = tr("Unable to redirect to Subutai Bazaar through a browser. Be sure that you have Google Chrome browser installed in your system, "
-                               "or you can install Google Chrome by going to the menu > About. ");
+                               "or you can install Google Chrome by going to the menu > Components. ");
           CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
           qCritical("%s", err_msg.toStdString().c_str());
         }
       }
       else {
           CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without a Google Chrome browser installed in your system. "
-                                          "You can install the Google Chrome browser by going to the menu > About."), DlgNotification::N_ABOUT);
+                                          "You can install the Google Chrome browser by going to the menu > Components."), DlgNotification::N_ABOUT);
         }
       }
 }

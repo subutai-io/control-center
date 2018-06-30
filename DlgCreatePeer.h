@@ -15,7 +15,7 @@ class DlgCreatePeer;
 // This structure 'requirement' needed to check requirements for peer creataion
 // how to use:
 // status label = 'Checking the VirtualBox'
-// error_notification = 'VirtualBox is not installed please install it from about'
+// error_notification = 'VirtualBox is not installed please install it from Components'
 // notification_type = N_N_ABOUT error_label: 'virtualbox is not istalled'
 struct requirement {
   QString error_label;

@@ -777,7 +777,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
     vagrant_version(version);
     if(version == "undefined"){
         CNotificationObserver::Error(QObject::tr("Cannot create a peer without Vagrant installed in your system. "
-                                                 "To install, go to the menu > About."), DlgNotification::N_ABOUT);
+                                                 "To install, go to the menu > Components."), DlgNotification::N_ABOUT);
         return false;
     }
     oracle_virtualbox_version(version);
