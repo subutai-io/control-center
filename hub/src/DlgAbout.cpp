@@ -131,6 +131,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
           this, &DlgAbout::install_finished);
 
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::uninstalling_finished,
+          this, &DlgAbout::uninstall_finished);
+
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p, ui->cb_p2p, ui->btn_p2p_update,
                                        get_p2p_version};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray, ui->cb_tray, ui->btn_tray_update,
@@ -685,6 +688,23 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
         m_dct_fpb[component_id].btn->setText(tr("Install"));
         m_dct_fpb[component_id].pb->setHidden(true);
     }
+}
+
+void DlgAbout::uninstall_finished(const QString &component_id, bool success) {
+  qDebug() << "Uninstall finished for: "
+           << component_id
+           << "with result"
+           << success;
+
+  if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
+
+  if (success) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].cb->setChecked(false);
+    m_dct_fpb[component_id].btn->setVisible(true);
+    m_dct_fpb[component_id].btn->setEnabled(true);
+    m_dct_fpb[component_id].btn->setText(tr("Install"));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

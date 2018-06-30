@@ -691,7 +691,14 @@ void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success) {
     }
 }
 
-void CUpdaterComponentVAGRANT_SUBUTAI::uninstall_post_internal(bool success) {}
+void CUpdaterComponentVAGRANT_SUBUTAI::uninstall_post_internal(bool success) {
+    if (!success) {
+      CNotificationObserver::Instance()->Info(tr("Failed to uninstall the Vagrant Subutai plugin. You may try manually uninstalling it "
+                                                 "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
+    } else {
+      CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been uninstalled successfully."), DlgNotification::N_NO_ACTION);
+    }
+}
 
 //////////////////////////*VAGRANT-VBGUEST*///////////////////////////////////////
 
@@ -751,6 +758,17 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_VBGUEST::uninstall_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT_VBGUEST);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT_VBGUEST::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
@@ -768,13 +786,18 @@ void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success) {
     if(!success){
         CNotificationObserver::Instance()->Info(tr("Failed to install the Vagrant VirtualBox plugin. You may try manually installing it "
                                                    "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
-    }
-    else{
+    } else {
         CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 
 void CUpdaterComponentVAGRANT_VBGUEST::uninstall_post_internal(bool success) {
+  if(!success){
+    CNotificationObserver::Instance()->Info(tr("Failed to uninstall the Vagrant VirtualBox plugin. You may try manually uninstalling it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
+  } else {
+    CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been uninstalled successfully."), DlgNotification::N_NO_ACTION);
+  }
 }
 
 //////////////////////////*SUBUTAI-BOX*///////////////////////////////////////
@@ -901,4 +924,6 @@ void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
     }
 }
 
-void CUpdaterComponentSUBUTAI_BOX::uninstall_post_internal(bool success) {}
+void CUpdaterComponentSUBUTAI_BOX::uninstall_post_internal(bool success) {
+
+}

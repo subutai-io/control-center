@@ -22,7 +22,7 @@ public:
 public:
   void do_initialization();
   void abort();
-  void startWork(){
+  void startWork() {
         QThread* th = new QThread();
         connect(th, &QThread::started,
                 this, &DlgAboutInitializer::do_initialization);
@@ -105,6 +105,7 @@ private slots:
  // void unavailable(const QString &file_id);
   void update_finished(const QString &file_id, bool success);  
   void install_finished(const QString &file_id, bool success);
+  void uninstall_finished(const QString& component_id, bool success);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);

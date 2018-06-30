@@ -290,7 +290,7 @@ void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id
 }
 
 void CHubComponentsUpdater::uninstall_component_finished_sl(const QString &component_id, bool success) {
-  emit uninstalling_component_finished(component_id, success);
+  emit uninstalling_finished(component_id, success);
 }
 /////////////////////////////////////////////////////////////////////////////
 QString CHubComponentsUpdater::component_name(const QString &component_id) {
