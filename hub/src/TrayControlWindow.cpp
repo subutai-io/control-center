@@ -598,7 +598,7 @@ void TrayControlWindow::desktop_to_container_triggered(
   if (!CSystemCallWrapper::x2goclient_check()) {
     CNotificationObserver::Error(
         QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is "
-                    "installed from \"About\" settings.")
+                    "installed from \"Components\".")
             .arg(x2goclient_url()),
         DlgNotification::N_ABOUT);
     return;
@@ -611,7 +611,7 @@ void TrayControlWindow::desktop_to_container_triggered(
 void TrayControlWindow::update_available(QString file_id) {
   qDebug() << "File ID: " << file_id;
   CNotificationObserver::Info(
-      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id),
+      tr("Update for %1 is available. Check \"Components\" dialog").arg(file_id),
       DlgNotification::N_ABOUT);
 }
 
@@ -1457,7 +1457,7 @@ void TrayControlWindow::show_create_dialog() {
   QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
-        tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > About."), DlgNotification::N_ABOUT);
+        tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > Components."), DlgNotification::N_ABOUT);
     return;
   }
   if (vb_version == "undefined") {
