@@ -302,10 +302,6 @@ class CSystemCallWrapper {
   static bool set_application_autostart(bool start);
   static bool application_autostart();
 
-  static system_call_wrapper_error_t vagrant_plugin_install(const QString &plugin_name);
-
-  static system_call_wrapper_error_t vagrant_plugin_update(const QString &plugin_name);
-
   static system_call_wrapper_error_t vagrant_plugin(const QString& name,
                                                     const QString& command);
 

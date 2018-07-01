@@ -686,7 +686,9 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
     } else {
         m_dct_fpb[component_id].btn->setEnabled(true);
         m_dct_fpb[component_id].btn->setText(tr("Install"));
-        m_dct_fpb[component_id].pb->setHidden(true);
+        m_dct_fpb[component_id].pb->setVisible(true);
+        m_dct_fpb[component_id].cb->setVisible(false);
+        m_dct_fpb[component_id].cb->setEnabled(false);
     }
 }
 
@@ -699,6 +701,7 @@ void DlgAbout::uninstall_finished(const QString &component_id, bool success) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
 
   if (success) {
+    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].cb->setChecked(false);
     m_dct_fpb[component_id].btn->setVisible(true);

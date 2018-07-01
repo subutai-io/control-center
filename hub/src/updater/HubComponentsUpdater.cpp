@@ -331,6 +331,11 @@ void SilentInstaller::silentInstallation(){
     QFutureWatcher<system_call_wrapper_error_t> *watcher
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t>  res;
+
+    static QString subutai_plugin_name = "vagrant-subutai";
+    static QString vbguest_plugin_name = "vagrant-vbguest";
+    static QString command = "install";
+
     switch (m_type) {
     case CC_P2P:
         res = QtConcurrent::run(CSystemCallWrapper::install_p2p, m_dir, m_file_name);
@@ -351,10 +356,10 @@ void SilentInstaller::silentInstallation(){
         res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
         break;
     case CC_VAGRANT_SUBUTAI:
-        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_subutai);
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
         break;
     case CC_VAGRANT_VBGUEST:
-        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_vbguest);
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
         break;
     case CC_SUBUTAI_BOX:
         res = QtConcurrent::run(CSystemCallWrapper::install_subutai_box, m_dir, m_file_name);
@@ -400,11 +405,13 @@ void SilentUninstaller::silentUninstallation() {
 
   switch (m_type) {
   case CC_VAGRANT_SUBUTAI:
-      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
-      break;
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
+    break;
   case CC_VAGRANT_VBGUEST:
-      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
-      break;
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
+    break;
+  //case CC_VAGRANT_SUBUTAI:
+    //res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_update)
       //TODO add other components
   default:
       break;
@@ -442,19 +449,24 @@ void SilentUpdater::silentUpdate() {
     QFutureWatcher<system_call_wrapper_error_t> *watcher
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t>  res;
-    static QString subutai_plugin = "vagrant-subutai";
-    static QString vbguest_plugin = "vagrant-vbguest";
+
+    static QString subutai_plugin_name = "vagrant-subutai";
+    static QString vbguest_plugin_name = "vagrant-vbguest";
+    static QString command = "update";
+
     switch (m_type) {
     case CC_VAGRANT_SUBUTAI:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin_update, subutai_plugin);
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
         break;
     case CC_VAGRANT_VBGUEST:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin_update, vbguest_plugin);
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
         break;
     default:
         break;
     }
+
     watcher->setFuture(res);
+
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
       emit this->outputReceived(res.result() == SCWE_SUCCESS);
     });

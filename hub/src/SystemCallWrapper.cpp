@@ -792,7 +792,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
         if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
             return plugin == installed_plugin.first;}) == plugins.end()){
             CNotificationObserver::Info(QObject::tr("Installing the vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
-            vagrant_plugin_install(plugin);
+            vagrant_plugin(plugin, QString("install"));
         }
     }
     return true;
@@ -1710,41 +1710,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
   return res.res;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args<<"plugin"<<"install"<<plugin_name;
-    qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
-    qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
-           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    return res.res;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
-    installer_is_busy.lock();
-    qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
-
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args << "plugin"
-         << "update"
-         << plugin_name;
-
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
-
-    qDebug()<<QString("vagrant plugin %1 update is finished").arg(plugin_name)
-           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
-
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    installer_is_busy.unlock();
-    return res.res;
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
@@ -2180,21 +2145,6 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
         return install_e2e_chrome();
     }
     return SCWE_SUCCESS;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_subutai(){
-    installer_is_busy.lock();
-    QString vagrant_subutai = "vagrant-subutai";
-    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
-    installer_is_busy.unlock();
-    return res;
-}
-system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
-    installer_is_busy.lock();
-    QString vagrant_subutai = "vagrant-vbguest";
-    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
-    installer_is_busy.unlock();
-    return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
