@@ -41,7 +41,6 @@ if [[ $BRANCH = "HEAD" ]] || [[ $BRANCH = "head" ]]
 then
 upload_cdn $FILE $URL
 fi
-;;
 
 echo "---------"
 ECHO $FILE
