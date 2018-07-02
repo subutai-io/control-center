@@ -119,6 +119,7 @@ private:
   QAction *m_act_launch;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
+  QAction *m_act_help;
   QAction *m_act_logout;
   QAction *m_act_notifications_history;
 

@@ -301,6 +301,10 @@ void CHubController::launch_balance_page() {
   launch_browser(QString(hub_billing_url()).arg(m_user_id));
 }
 
+void CHubController::launch_help_page() {
+  launch_browser("https://github.com/subutai-io/control-center/wiki/Subutai-Control-Center-Help");
+}
+
 void CHubController::launch_environment_page(const int hub_id) {
   launch_browser(QString(hub_billing_url()).arg(m_user_id) + QString("/environments/%1").arg(hub_id));
 }

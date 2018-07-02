@@ -74,6 +74,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
       m_act_user_name(NULL),
       m_act_launch_Hub(NULL),
       m_act_about(NULL),
+      m_act_help(NULL),
       m_act_logout(NULL),
       m_sys_tray_icon(NULL),
       m_act_create_peer(NULL),
@@ -142,6 +143,7 @@ TrayControlWindow::~TrayControlWindow() {
                      m_act_user_name,
                      m_act_launch_Hub,
                      m_act_about,
+                     m_act_help,
                      m_act_logout,
                      m_act_notifications_history,
                      m_act_p2p_start,
@@ -247,6 +249,11 @@ void TrayControlWindow::create_tray_actions() {
           &TrayControlWindow::show_about);
   m_act_about->setToolTip(tr("Information about CC"));
 
+  m_act_help = new QAction(QIcon(":/hub/Help.png"), tr("Help"), this);
+  connect(m_act_help, &QAction::triggered,
+          [] { CHubController::Instance().launch_help_page(); });
+  m_act_help->setToolTip(tr("Help"));
+
   m_act_ssh_keys_management =
       new QAction(QIcon(":/hub/ssh-keys.png"), tr("SSH-keys management"), this);
   connect(m_act_ssh_keys_management, &QAction::triggered, this,
@@ -321,6 +328,7 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_notifications_history);
   m_tray_menu->addAction(m_act_about);
   m_tray_menu->addSeparator();
+  m_tray_menu->addAction(m_act_help);
   m_tray_menu->addAction(m_act_logout);
   m_tray_menu->addAction(m_act_quit);
   m_sys_tray_icon->setIcon(QIcon(":/hub/cc_icon_last.png"));
