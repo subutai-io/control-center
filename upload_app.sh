@@ -1,6 +1,6 @@
-tar czf SubutaiControlCenter.tar.gz ./subutai_control_center/SubutaiControlCenter.app
+tar czf /Users/travis/build/subutai-io/control-center/SubutaiControlCenter.tar.gz /Users/travis/build/subutai-io/control-center/subutai_control_center_bin/SubutaiControlCenter.app
 echo "Uploading SubutaiControlCenter.app"
-BRANCH=HEAD
+BRANCH=$1
 FILE=""
 URL=""
 USER=jenkins
@@ -35,13 +35,14 @@ upload_cdn (){
 
     echo -e "\\nCompleted"
 }
-FILE="SubutaiControlCenter.tar.gz"
+FILE="/Users/travis/build/subutai-io/control-center/SubutaiControlCenter.tar.gz"
 URL=https://devcdn.subutai.io:8338/kurjun/rest
-upload_cdn subutai_control_center_bin/$FILE $URL
-;;
+if [[ $BRANCH != "master" ]] && [[ $BRANCH != "head" ]]
+then
+upload_cdn $FILE $URL
+fi
 
 echo "---------"
-ECHO $FILE
-echo $OS
+echo $FILE
 echo $BRANCH
 echo "---------"
