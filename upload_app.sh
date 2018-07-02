@@ -37,13 +37,12 @@ upload_cdn (){
 }
 FILE="/Users/travis/build/subutai-io/control-center/SubutaiControlCenter.tar.gz"
 URL=https://devcdn.subutai.io:8338/kurjun/rest
-if [[ $BRANCH = "HEAD" ]] || [[ $BRANCH = "head" ]]
+if [[ $BRANCH != "master" ]] && [[ $BRANCH != "head" ]]
 then
 upload_cdn $FILE $URL
 fi
 
 echo "---------"
-ECHO $FILE
-echo $OS
+echo $FILE
 echo $BRANCH
 echo "---------"
