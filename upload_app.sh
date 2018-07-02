@@ -37,7 +37,7 @@ upload_cdn (){
 }
 FILE="SubutaiControlCenter.tar.gz"
 URL=https://devcdn.subutai.io:8338/kurjun/rest
-upload_cdn subutai_control_center_bin/$FILE $URL
+upload_cdn $FILE $URL
 ;;
 
 echo "---------"
