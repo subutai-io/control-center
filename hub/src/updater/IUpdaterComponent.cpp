@@ -14,6 +14,7 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "DownloadFileManager.h"
+#include "TrayControlWindow.h"
 
 using namespace update_system;
 
@@ -192,6 +193,16 @@ chue_t CUpdaterComponentX2GO::update_internal() {
 }
 
 chue_t CUpdaterComponentX2GO::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_X2GO);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentX2GO::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
@@ -900,6 +911,27 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal() {
 }
 
 chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
+  size_t total = TrayControlWindow::Instance()->machine_peers_table.size();
+  qDebug() << "Total machine peers: "
+           << total;
+
+  // while removing vagrant box. we should check existing vagrant machines. it will corrupt existing machines.
+  if (total > 0) {
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "Removing the Subutai box could corrupt the peers. "
+            "We recommend destroying peers first from \"My Peers\" menu.\n"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+      emit uninstall_finished_sl(false);
+      return CHUE_SUCCESS;
+    }
+  }
+
+
   update_progress_sl(50, 100);
   static QString empty_string = "";
 

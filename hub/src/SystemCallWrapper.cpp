@@ -1455,7 +1455,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 }
 
 template <>
-system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1543,17 +1543,69 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
 
     return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name){
+
+system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
     installer_is_busy.unlock();
     return res;
 }
+
+template <class OS>
+system_call_wrapper_error_t uninstall_x2go_internal();
+
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
+  // pkexec apt-get remove -y x2goclient --purge
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "x2goclient"
+       << "--purge";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of x2goclient finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall X2GO-Client err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_x2go_internal<Os2Type <CURRENT_OS> >();
+  installer_is_busy.unlock();
+
+  return res;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
 template <>
-system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
   QString file_path  = dir + "/" + file_name;
@@ -1563,7 +1615,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QS
   return res.res;
 }
 template <>
-system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd("msiexec");
     QStringList args0;
     args0 << "set_working_directory"

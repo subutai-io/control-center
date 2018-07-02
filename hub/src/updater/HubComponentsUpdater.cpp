@@ -414,6 +414,9 @@ void SilentUninstaller::silentUninstallation() {
   case CC_SUBUTAI_BOX:
     res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_remove, subutai_box_name(), provider);
     break;
+  case CC_X2GO:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_x2go);
+    break;
   //TODO add other components
   default:
       break;

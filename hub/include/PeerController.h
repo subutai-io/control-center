@@ -425,8 +425,8 @@ signals:
 class UpdatePeerOS : public QObject{
   Q_OBJECT
 public:
-  UpdatePeerOS(QObject *parent = nullptr) : QObject(parent){}
-  void startWork(){
+  UpdatePeerOS(QObject *parent = nullptr) : QObject(parent) {}
+  void startWork() {
     QThread* thread = new QThread();
     connect(thread, &QThread::started,
             this, &UpdatePeerOS::execute_remote_command);
