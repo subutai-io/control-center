@@ -3,6 +3,7 @@ branches:
   only:
   - master
   - dev
+  - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 env:
   global:
   - secure: MF4u+11dbLkxvSiffBatl6627SrGEHM6l9YOvf+xLDLu2lfKmcNBUPRe2C/f1U5cwe33UIQynXti+3Y2ro0DyvNU1fZ7PVg4tEx5EjK4aSx5YAg8F2vbdS5v6kTRefBpwg70Apxjt7ZDGr4CPbcLMgZYA9vZizoKkoM/xBgOPftBE/lVa7cDKYwpOtq1vvaiIcttCOea3VNgA//M1Kpf+xAO0h2OFP3a1hTMHTzCYPHbfpCf3LfWQPifEfn252RKG3ewOowbCuuUj78tBqKOryrx9w1kbxvIdJUXbgRvliCQZ9s6/cR1fufGkNQiaAEzsaipTeQ4XdLWC950FBjhBelnNe58uNmGAKfS+zdqbXnx0/Cr9uIFjzqoGHs1pqSZFEm118i7khjcaGwlfAZdeGVbsXmv8/QGuwrfAoTZE1R8j925goKvztNZy+TSGu0wHsewlZOdCmYU5tIzdPCBAEOBm2YUmPmX5BmDhQVZAx0nL1wsmBjaMxejrcIvR+IQjiSbFQBYA6nTb1J0u6UckWT2WgI/iKEN4OhZnjYT7QhxJLjEEE20C2RWZS9u596ufUAtYchcpRn1matJhdekbKwBSDQWhU4ALl+PcVjFfahYmX3qCOFJiigP7aeENG+FEPoguiMI308rtAx5WGbzOHyz2LkRv9ep83PSja8PX1o=
