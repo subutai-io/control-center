@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
+#include "SettingsManager.h"
 
 static std::map<QString, QString> virtual_package_codename = {
     {"xenial",   "virtualbox-xenial.deb"},
@@ -247,7 +248,13 @@ subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
 
 const QString &
 subutai_box_name() {
-  return subutai_box_name_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return subutai_box_name_internal<Branch2Type<BT_PROD> >();
+  else if (branch == "stage")
+    return subutai_box_name_internal<Branch2Type<BT_MASTER> >();
+  else
+    return subutai_box_name_internal<Branch2Type<BT_DEV> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class BR> const QString& hub_post_url_temp_internal();
@@ -265,7 +272,12 @@ hub_post_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_post_url() {
-  return hub_post_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_post_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_post_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_post_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -284,7 +296,12 @@ hub_register_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/regi
 
 const QString &
 hub_register_url() {
-  return hub_register_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_register_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_register_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_register_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -305,7 +322,12 @@ hub_user_profile_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/user
 
 const QString &
 hub_user_profile_url() {
-  return hub_user_profile_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_user_profile_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_user_profile_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_user_profile_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -324,7 +346,12 @@ hub_get_url_temp_internal_def(BT_DEV,     "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_get_url() {
-  return hub_get_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_get_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_get_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_get_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -352,7 +379,12 @@ hub_health_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v
 
 const QString &
 hub_health_url() {
-  return hub_healt_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_healt_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_healt_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_healt_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -371,7 +403,12 @@ hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/ku
 
 const QString &
 hub_gorjun_url() {
-  return hub_kurjun_url_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_kurjun_url_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_kurjun_url_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_kurjun_url_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -390,7 +427,12 @@ hub_billing_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/%1"
 
 const QString &
 hub_billing_url() {
-  return hub_billing_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_billing_temp_internal<Branch2Type<BT_PROD> > ();
+  else if (branch == "stage")
+    return hub_billing_temp_internal<Branch2Type<BT_MASTER> > ();
+  else return hub_billing_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -566,7 +608,13 @@ p2p_dht_arg_internal_def(BT_DEV,    "eu0.devcdn.subutai.io:6881")
 
 const QString &
 p2p_dht_arg() {
-  return p2p_dht_arg_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return p2p_dht_arg_temp_internal<Branch2Type<BT_PROD> > ();
+  else  if (branch == "stage")
+    return p2p_dht_arg_temp_internal<Branch2Type<BT_MASTER> > ();
+  else
+    return p2p_dht_arg_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -758,7 +806,13 @@ hub_site_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io")
 
 const QString &
 hub_site() {
-  return hub_site_temp_internal<Branch2Type<CURRENT_BRANCH> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return hub_site_temp_internal<Branch2Type<BT_PROD> > ();
+  else  if (branch == "stage")
+    return hub_site_temp_internal<Branch2Type<BT_MASTER> > ();
+  else
+    return hub_site_temp_internal<Branch2Type<BT_DEV> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -815,7 +869,7 @@ subutai_command_internal_def(BT_DEV,    "/usr/bin/subutai")
 
 const QString &
 subutai_command() {
-  return subutai_command_internal<Branch2Type<CURRENT_BRANCH> >();
+  return subutai_command_internal<Branch2Type<CURRENT_BRANCH> > ();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -859,7 +913,13 @@ p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurj
 
 const QString &
 p2p_package_url() {
-  return p2p_package_url_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return p2p_package_url_temp_internal<Branch2Type<BT_PROD>, Os2Type<CURRENT_OS> > ();
+  else  if (branch == "stage")
+    return p2p_package_url_temp_internal<Branch2Type<BT_MASTER>, Os2Type<CURRENT_OS> > ();
+  else
+    return p2p_package_url_temp_internal<Branch2Type<BT_DEV>, Os2Type<CURRENT_OS> > ();
 }
 
 const QString &
@@ -903,7 +963,13 @@ branch_name_str_def(BT_PROD, QObject::tr(""))
 
 const QString&
 branch_name_str() {
-    return branch_name_str_temp_internal<Branch2Type<CURRENT_BRANCH>>();
+  QString branch = CSettingsManager::Instance().app_branch();
+  if (branch == "production")
+    return branch_name_str_temp_internal<Branch2Type<BT_PROD>>();
+  else if (branch == "stage")
+    return branch_name_str_temp_internal<Branch2Type<BT_MASTER>>();
+  else
+    return branch_name_str_temp_internal<Branch2Type<BT_DEV>>();
 }
 ////////////////////////////////////////////////////////////////////////////
 

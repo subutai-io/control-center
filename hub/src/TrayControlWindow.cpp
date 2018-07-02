@@ -244,7 +244,7 @@ void TrayControlWindow::create_tray_actions() {
           [] { CHubController::Instance().launch_balance_page(); });
   m_act_balance->setToolTip(tr("GoodWill"));
 
-  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("Component Versions"), this);
+  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("Components"), this);
   connect(m_act_about, &QAction::triggered, this,
           &TrayControlWindow::show_about);
   m_act_about->setToolTip(tr("Information about CC"));
@@ -287,7 +287,7 @@ void TrayControlWindow::create_tray_actions() {
 
   // p2p action stop
   m_act_p2p_stop =
-      new QAction(QIcon(":/hub/pause.png"), tr("Stop P2P"), this);
+      new QAction(QIcon(":/hub/stop_p2p.png"), tr("Stop P2P"), this);
   connect(m_act_p2p_stop, &QAction::triggered, this,
           &TrayControlWindow::stop_p2p);
 
@@ -606,7 +606,7 @@ void TrayControlWindow::desktop_to_container_triggered(
   if (!CSystemCallWrapper::x2goclient_check()) {
     CNotificationObserver::Error(
         QObject::tr("X2Go-Client is not launchable. Make sure x2go-client is "
-                    "installed from \"About\" settings.")
+                    "installed from \"Components\".")
             .arg(x2goclient_url()),
         DlgNotification::N_ABOUT);
     return;
@@ -619,7 +619,7 @@ void TrayControlWindow::desktop_to_container_triggered(
 void TrayControlWindow::update_available(QString file_id) {
   qDebug() << "File ID: " << file_id;
   CNotificationObserver::Info(
-      tr("Update for %1 is available. Check \"About\" dialog").arg(file_id),
+      tr("Update for %1 is available. Check \"Components\" dialog").arg(file_id),
       DlgNotification::N_ABOUT);
 }
 
@@ -1465,7 +1465,7 @@ void TrayControlWindow::show_create_dialog() {
   QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
-        tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > About."), DlgNotification::N_ABOUT);
+        tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > Components."), DlgNotification::N_ABOUT);
     return;
   }
   if (vb_version == "undefined") {
@@ -1483,7 +1483,7 @@ void TrayControlWindow::show_create_dialog() {
 ////////////////////////////////////////////////////////////////////////////
 QDialog *create_about_dialog(QWidget *p) { return new DlgAbout(p); }
 void TrayControlWindow::show_about() {
-  show_dialog(create_about_dialog, tr("Component Versions"));
+  show_dialog(create_about_dialog, tr("Components"));
 }
 
 ////////////////////////////////////////////////////////////////////////////

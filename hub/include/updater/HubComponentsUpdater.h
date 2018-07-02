@@ -131,9 +131,10 @@ namespace update_system {
     void install_x2go();
     QString component_name(const QString& component_id);
 
-    /* check for in progress each component
+    /* check for in progress each component and get progress value
     */
     bool is_in_progress(const QString& component_id);
+    const std::pair <quint64, quint64>& get_last_pb_value(const QString& component_id);
 
   private slots:
 

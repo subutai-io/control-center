@@ -64,6 +64,10 @@ namespace update_system {
     bool is_in_progress(){
         return m_in_progress;
     }
+    std::pair <quint64, quint64> last_pb_value;
+    const std::pair <quint64, quint64>& get_last_pb_value(){
+      return last_pb_value;
+    }
 
     IUpdaterComponent() : m_in_progress(false){}
     virtual ~IUpdaterComponent(){}
@@ -109,6 +113,8 @@ namespace update_system {
     }
 
     void update_progress_sl(qint64 part, qint64 total){
+      last_pb_value.first = part;
+      last_pb_value.second = total;
       emit update_progress(m_component_id, part, total);
     }
 

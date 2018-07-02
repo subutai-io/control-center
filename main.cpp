@@ -71,13 +71,12 @@ int main(int argc, char* argv[]) {
       "This Control Center application should help users to work with hub"));
 
   cmd_parser.addHelpOption();
-
+  // version
   QString tray_build_number_str = TRAY_BUILD_NUMBER;
   QApplication::setApplicationVersion(QString("version: %1 build: %2").
     arg(TRAY_VERSION, tray_build_number_str));
-
   cmd_parser.addVersionOption();
-
+  // log level
   QCommandLineOption log_level_opt("l");
   log_level_opt.setDescription("Adjusts displayed logs' level. logs_level "
                                "can be DEBUG (0), WARNING (1), CRITICAL (2), "
@@ -85,10 +84,34 @@ int main(int argc, char* argv[]) {
                                "logs_level will not be shown. Default value is '1'.");
   log_level_opt.setValueName("logs_level");
   log_level_opt.setDefaultValue("0");
-
   cmd_parser.addOption(log_level_opt);
-
+  // mode
+  QCommandLineOption app_mode("mode");
+  app_mode.setDescription("Set application mode for an advanced users. Mode can be "
+                          "\"production\", \"stage\", \"development\".");
+  app_mode.setValueName("mode");
+  app_mode.setDefaultValue("undefined");
+  cmd_parser.addOption(app_mode);
+  // process app
   cmd_parser.process(app);
+
+  QString branch = cmd_parser.value(app_mode);
+  if (branch != "undefined") { //if user specified branch
+    if (branch != "development" &&
+        branch != "stage" &&
+        branch != "production") {
+      std::cout << QString("%1: invalid argument '%2' for '--mode'").
+                   arg(QApplication::applicationName(), branch).
+                   toStdString() << "\n";
+      std::cout <<"Valid arguments are:\n"
+                  "  - 'production'\n"
+                  "  - 'stage'\n"
+                  "  - 'development'\n"
+                  "Usage: SubutaiControlCenter --mode <mode>\n"
+                  "Try 'SubutaiControlCenter --help' for more information.\n";
+      return 0;
+    }
+  }
 
   bool ok = false;
   QString log_level_str = cmd_parser.value(log_level_opt);
@@ -114,6 +137,9 @@ int main(int argc, char* argv[]) {
     }
     CSettingsManager::Instance().set_logs_level(a_logs_level);
   }
+  if (branch != "undefined") CSettingsManager::Instance().set_branch(branch);
+  else CSettingsManager::Instance().set_branch(current_branch_name());
+
 
   Logger::Instance()->Init();
 

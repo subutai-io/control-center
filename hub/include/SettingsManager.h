@@ -13,6 +13,7 @@ class CSettingsManager : public QObject {
   static const QString ORG_NAME;
   static const QString APP_NAME;
 
+  static const QString SM_APP_BRANCH;
   static const QString SM_LOGIN;
   static const QString SM_PASSWORD;
   static const QString SM_REMEMBER_ME;
@@ -76,6 +77,7 @@ class CSettingsManager : public QObject {
 
   QSettings m_settings;
   QString m_login;
+  QString m_branch;
 
   QByteArray m_password;
   QString m_password_str;
@@ -191,6 +193,7 @@ class CSettingsManager : public QObject {
 
   const QString& login() const { return m_login; }
   const QString& password() const { return m_password_str; }
+  const QString& app_branch() const { return m_branch; }
   bool remember_me() const { return m_remember_me; }
 
   uint32_t refresh_time_sec() const { return m_refresh_time_sec; }
@@ -309,6 +312,7 @@ class CSettingsManager : public QObject {
 
 #define SET_FIELD_DECL(f, t) void set_##f(const t f);
   SET_FIELD_DECL(login, QString&)
+  SET_FIELD_DECL(branch, QString&)
   SET_FIELD_DECL(password, QString&)
   SET_FIELD_DECL(remember_me, bool)
   SET_FIELD_DECL(refresh_time_sec, uint32_t)

@@ -33,7 +33,7 @@ DlgNotification::DlgNotification(
     {"Bazaar", [](){TrayControlWindow::Instance()->launch_Hub();}},
     {"Notification history", [](){TrayControlWindow::Instance()->show_notifications_triggered();}},
     {"Restart Control Center", [](){CCommons::RestartTray();}},
-    {"About", [](){TrayControlWindow::Instance()->show_about();}},
+    {"Components", [](){TrayControlWindow::Instance()->show_about();}},
     {"No Action", [](){}},
     {"Start P2P", [](){
       int rse_err;

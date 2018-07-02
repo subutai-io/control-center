@@ -75,6 +75,7 @@
         <file>check_box.png</file>
         <file>check_box_outline.png</file>
         <file>Help.png</file>
+        <file>stop_p2p.png</file>
     </qresource>
     <qresource prefix="/">
         <file>show_password.png</file>
