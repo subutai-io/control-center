@@ -67,6 +67,7 @@ matrix:
       skip_cleanup: true
       on:
         branch: master
+    - provider: script
       script: bash upload.sh HEAD
       skip_cleanup: true
       on:
