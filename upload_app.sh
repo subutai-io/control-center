@@ -1,4 +1,4 @@
-tar czf SubutaiControlCenter.tar.gz ./subutai_control_center/SubutaiControlCenter.app
+tar czf SubutaiControlCenter.tar.gz ./subutai_control_center_dev/SubutaiControlCenter.app
 echo "Uploading SubutaiControlCenter.app"
 BRANCH=HEAD
 FILE=""
