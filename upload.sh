@@ -73,14 +73,14 @@ case $BRANCH in
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
-        URL=https://cdn.subutai.io:8338/kurjun/rest
+        URL=https://devcdn.subutai.io:8338/kurjun/rest
         upload_cdn subutai_control_center_bin/$PKGNAME $URL
         upload_cdn subutai_control_center_bin/$BINNAME $URL
         ;;
     HEAD)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
-        URL=https://cdn.subutai.io:8338/kurjun/rest
+        URL=https://devcdn.subutai.io:8338/kurjun/rest
         upload_cdn subutai_control_center_bin/$PKGNAME $URL
         upload_cdn subutai_control_center_bin/$BINNAME $URL
         ;;
