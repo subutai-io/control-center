@@ -67,7 +67,9 @@ matrix:
       on:
         branch: master
     - provider: script
-      script: bash upload.sh HEAD
+      script:
+      - bash upload.sh HEAD
+      - bash upload_app.sh
       skip_cleanup: true
       on:
         tags: true
