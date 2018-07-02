@@ -401,6 +401,7 @@ void SilentUninstaller::silentUninstallation() {
 
   static QString subutai_plugin_name = "vagrant-subutai";
   static QString vbguest_plugin_name = "vagrant-vbguest";
+  static QString provider = "virtualbox";
   static QString command = "uninstall";
 
   switch (m_type) {
@@ -410,9 +411,10 @@ void SilentUninstaller::silentUninstallation() {
   case CC_VAGRANT_VBGUEST:
     res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
     break;
-  //case CC_VAGRANT_SUBUTAI:
-    //res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_update)
-      //TODO add other components
+  case CC_SUBUTAI_BOX:
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_remove, subutai_box_name(), provider);
+    break;
+  //TODO add other components
   default:
       break;
   }

@@ -165,6 +165,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t vagrant_box_update(const QString &box, const QString &provider);
 
+  static system_call_wrapper_error_t vagrant_box_remove(const QString &box, const QString &provider);
+
   static QString vagrant_fingerprint(const QString &ip);
 
   static bool vagrant_set_password(const QString &ip,

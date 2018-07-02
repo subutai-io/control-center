@@ -899,12 +899,23 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal() {
     return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentSUBUTAI_BOX::update_internal() {
-    return install_internal();
+chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_SUBUTAI_BOX);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentSUBUTAI_BOX::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
-  return uninstall_internal();
+chue_t CUpdaterComponentSUBUTAI_BOX::update_internal() {
+    return install_internal();
 }
 
 void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
@@ -925,5 +936,9 @@ void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
 }
 
 void CUpdaterComponentSUBUTAI_BOX::uninstall_post_internal(bool success) {
-
+  if(!success) {
+      CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box deletion has failed."), DlgNotification::N_NO_ACTION);}
+  else {
+      CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been deleted. Congratulations!"), DlgNotification::N_NO_ACTION);
+  }
 }

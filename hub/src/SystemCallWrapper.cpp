@@ -80,7 +80,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 
   proc.start(cmd, args);
   proc_controller started_proc(proc);
-  if(timeout_msec == 97){
+  if(timeout_msec == 97) {
 
       if (!proc.waitForStarted(-1)) {
         if (log) {
@@ -1234,7 +1234,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const Q
     return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider){
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider) {
     qDebug() << "updating vagrant box: " << box << "provider:" << provider;
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
@@ -1252,6 +1252,32 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
         res.res = SCWE_CREATE_PROCESS;
     }
     return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
+                                                                   const QString &provider) {
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;   // vagrant box remove box_name --provider provider_name --all
+
+  args << "box"
+       << "remove"
+       << box
+       << "--provider"
+       << provider
+       << "--all";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+
+  qDebug() << "Removing vagrant box: "
+           << box
+           << " provider: "
+           << provider
+           << " finished with exit code: "
+           << res.exit_code
+           << " output: "
+           << res.out;
+
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
