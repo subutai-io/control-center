@@ -302,7 +302,7 @@ void CHubController::launch_balance_page() {
 }
 
 void CHubController::launch_help_page() {
-  launch_browser("https://github.com/subutai-io/control-center/wiki");
+  launch_browser("https://github.com/subutai-io/control-center/wiki/Subutai-Control-Center-Help");
 }
 
 void CHubController::launch_environment_page(const int hub_id) {
