@@ -381,6 +381,9 @@ CSettingsManager::CSettingsManager()
   CSystemCallWrapper::set_application_autostart(m_autostart);
   m_autostart = CSystemCallWrapper::application_autostart();  // second check %)
   init_password();
+  QString check_me = m_settings.fileName();
+  QString check_me_also = QCoreApplication::instance()->applicationName();
+  qDebug("stop here");
 }
 ////////////////////////////////////////////////////////////////////////////
 

@@ -137,9 +137,7 @@ int main(int argc, char* argv[]) {
     }
     CSettingsManager::Instance().set_logs_level(a_logs_level);
   }
-  if (branch != "undefined") CSettingsManager::Instance().set_branch(branch);
-  else CSettingsManager::Instance().set_branch(current_branch_name());
-
+  set_application_branch(branch);
 
   Logger::Instance()->Init();
 
