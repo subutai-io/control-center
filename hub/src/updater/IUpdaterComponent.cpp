@@ -522,6 +522,7 @@ chue_t CUpdaterComponentCHROME::update_internal() {
 }
 
 chue_t CUpdaterComponentCHROME::uninstall_internal() {
+  return CHUE_SUCCESS;
 }
 
 void CUpdaterComponentCHROME::update_post_action(bool success) {

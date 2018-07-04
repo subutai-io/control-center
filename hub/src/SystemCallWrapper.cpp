@@ -1453,6 +1453,42 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QS
   return SCWE_SUCCESS;
 }
 
+template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  // wmic product where name="Subutai P2P" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("name=\"%1\"").arg(p2p_package_name())
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstall P2P: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+    res.res = SCWE_CREATE_PROCESS;
+  } else {
+    int exit_code;
+    CSystemCallWrapper::restart_p2p_service(&exit_code, UPDATED_P2P);
+
+    if(exit_code != 0)
+      res.res = SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "Uninstall P2P finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  return res.res;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
@@ -1642,6 +1678,11 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
     return SCWE_CREATE_PROCESS;
   }
 
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
   return SCWE_SUCCESS;
 }
 
@@ -1835,6 +1876,11 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
     return SCWE_CREATE_PROCESS;
   }
 
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   return SCWE_SUCCESS;
 }
 
