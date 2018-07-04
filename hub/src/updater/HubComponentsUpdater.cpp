@@ -417,6 +417,12 @@ void SilentUninstaller::silentUninstallation() {
   case CC_X2GO:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_x2go);
     break;
+  case CC_VAGRANT:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_vagrant, QString(""), QString(""));
+    break;
+  case CC_P2P:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_p2p, QString(""), QString(""));
+    break;
   //TODO add other components
   default:
       break;

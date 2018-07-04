@@ -210,12 +210,13 @@ class CSystemCallWrapper {
   static QStringList list_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_x2go(const QString &dir, const QString &file_name);
-
   static system_call_wrapper_error_t uninstall_x2go();
 
   static system_call_wrapper_error_t install_vagrant(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_vagrant(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
 

@@ -31,10 +31,18 @@ static std::map<QString, QString> virtual_package_codename = {
 };
 
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
+template<class BR, class OS> const QString& p2p_package_name_temp_internal();
 
 #define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
   template<> \
   const QString& p2p_kurjun_file_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+#define p2p_package_name_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& p2p_package_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
     static QString res(STRING); \
     return res; \
   }
@@ -49,9 +57,18 @@ p2p_kurjun_file_name_def(BT_PROD,      OS_LINUX,   "p2p")
 p2p_kurjun_file_name_def(BT_PROD,      OS_MAC,     "p2p_osx")
 p2p_kurjun_file_name_def(BT_PROD,      OS_WIN,     "p2p.exe")
 
+p2p_package_name_def(BT_MASTER, OS_LINUX, "subutai-p2p-master")
+p2p_package_name_def(BT_DEV,    OS_LINUX, "subutai-p2p-dev")
+p2p_package_name_def(BT_PROD,   OS_LINUX, "subutai-p2p")
+
 const QString &
 p2p_kurjun_file_name() {
   return p2p_kurjun_file_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+
+const QString &
+p2p_package_name() {
+  return p2p_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& p2p_kurjun_package_name_temp_internal();

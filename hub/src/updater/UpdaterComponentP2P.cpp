@@ -237,7 +237,24 @@ void CUpdaterComponentP2P::install_post_interntal(bool success){
 ////////////////////////////////////////////////////////////////////////////
 
 chue_t CUpdaterComponentP2P::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_P2P);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentP2P::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
-void CUpdaterComponentP2P::uninstall_post_internal(bool success) {}
+void CUpdaterComponentP2P::uninstall_post_internal(bool success) {
+  if(success){
+      CNotificationObserver::Info(tr("The P2P Daemon has been uninstalled."), DlgNotification::N_NO_ACTION);
+  }
+  else{
+      CNotificationObserver::Error(tr("Failed to uninstall the P2P Daemon."), DlgNotification::N_NO_ACTION);
+  }
+}

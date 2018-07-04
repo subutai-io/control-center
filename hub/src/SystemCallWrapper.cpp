@@ -1281,7 +1281,11 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
+system_call_wrapper_error_t uninstall_p2p_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
 system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
+
 template <>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
@@ -1320,7 +1324,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
 }
 
 template <>
-system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1410,11 +1414,58 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     return SCWE_SUCCESS;
 }
 
+template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  // pkexec apt-get remove -y subutai-p2p
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << p2p_package_name();
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of P2P finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall P2P err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
     installer_is_busy.unlock();
     return res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_p2p_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -1604,6 +1655,10 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
+system_call_wrapper_error_t uninstall_vagrant_internal(const QString &dir, const QString &file_name);
+
 template <>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
@@ -1614,6 +1669,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QS
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
   return res.res;
 }
+
 template <>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd("msiexec");
@@ -1743,6 +1799,45 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     return SCWE_SUCCESS;
 }
 
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  // pkexec apt-get remove -y vagrant
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "vagrant";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Vagrant finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Vagrant err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
@@ -1750,6 +1845,13 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &d
    return res;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vagrant(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief CSystemCallWrapper::vagrant_plugin
 /// \param name of vagrant plugin
