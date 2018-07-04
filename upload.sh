@@ -27,7 +27,7 @@ upload_cdn (){
 
     echo "Uploading file..."
 
-    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Ftoken=$TOKEN "$2/raw/upload")
+    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Fversion=$3 -Ftoken=$TOKEN "$2/raw/upload")
 
     echo "File uploaded with ID $ID"
     echo "URL: $2"
@@ -36,7 +36,7 @@ upload_cdn (){
 
     SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
 
-    curl -ks -Ftoken="$TOKEN" -Fversion=$3 -Fsignature="$SIGN" "$2/auth/sign"
+    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
 
     echo -e "\\nCompleted"
 }
@@ -87,7 +87,7 @@ case $BRANCH in
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         if [ $OS = Linux ]
         then
-        URL=https://devcdn.subutai.io:8338/kurjun/rest
+        URL=https://cdn.subutai.io:8338/kurjun/rest
         upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
         upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
