@@ -15,7 +15,7 @@ CPeerController::CPeerController(QObject *parent) :
 CPeerController::~CPeerController() {}
 
 void CPeerController::init() {
-    m_refresh_timer.setInterval(CSettingsManager::Instance().refresh_time_sec()); // each 6 seconds update peer list
+    m_refresh_timer.setInterval(6*1000); // each 6 seconds update peer list
     m_logs_timer.setInterval(3*1000); // 2 seconds update peer list
     number_threads = 0;
     connect(&m_refresh_timer, &QTimer::timeout,
@@ -89,14 +89,27 @@ const QString& CPeerController::status_description(const QString &status){
         {"undefined", ""}
     };
 
-    if (dct_desp.find(status) == dct_desp.end()){
+    if (dct_desp.find(status) == dct_desp.end()) {
         return dct_desp["undefined"];
-    }
-    else{
+    } else {
         return dct_desp[status];
     }
 }
 
+const QString& CPeerController::provision_step_description(const int& step){
+  static std::map <int, QString> step_description = {
+    {0, tr("Bringip up virtual machine")},
+    {1, tr("Configuring subutai...")},
+    {2, tr("Starting management...")},
+    {4096, tr("Undefined step")}
+  };
+
+  if (step_description.find(step) != step_description.end()) {
+    return step_description[step];
+  } else {
+    return step_description[4096];
+  }
+}
 
 void CPeerController::refresh_timer_timeout() {
     refresh();

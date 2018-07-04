@@ -10,7 +10,6 @@
 #include <QtConcurrent/QtConcurrent>
 
 class CLocalPeer {
-
 private:
     QString m_name;
     QString m_ip;
@@ -123,6 +122,7 @@ public:
       return vagrant_global_status;
   }
   const QString& status_description(const QString& status);
+  const QString& provision_step_description(const int& step);
 
 
 private slots:
