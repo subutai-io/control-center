@@ -87,7 +87,7 @@ case $BRANCH in
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         if [ $OS = Linux ]
         then
-        URL=https://cdn.subutai.io:8338/kurjun/rest
+        URL=https://devcdn.subutai.io:8338/kurjun/rest
         upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
         upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
