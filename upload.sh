@@ -1,5 +1,5 @@
 BRANCH=$1
-VERSION=$2
+VERSION=$(cat /home/travis/build/subutai-io/control-center/version)
 OS=$(uname)
 PKGNAME=""
 BINNAME=""
