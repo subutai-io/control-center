@@ -1,5 +1,6 @@
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
+#include <QPixmap>
 
 #include "Commons.h"
 #include "DlgAbout.h"
@@ -84,6 +85,67 @@ DlgAbout::DlgAbout(QWidget *parent) :
 
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
+
+  QLabel* ilbls[] = { this->ui->lbl_chrome_info_icon,
+                      this->ui->lbl_p2p_info_icon,
+                      this->ui->lbl_tray_info_icon,
+                      this->ui->lbl_x2go_info_icon,
+                      this->ui->lbl_vagrant_info_icon,
+                      this->ui->lbl_chrome_info_icon,
+                      this->ui->lbl_e2e_info_icon,
+                      this->ui->lbl_vbox_info_icon,
+                      this->ui->lbl_subutai_plugin_info_icon,
+                      this->ui->lbl_vbguest_plugin_info_icon,
+                      this->ui->lbl_subutai_box_info_icon,
+                      nullptr };
+
+  QPixmap info_icon = QPixmap(":/hub/info_icon.png");
+
+  for (QLabel **i = ilbls; *i; ++i) {
+    (*i)->setPixmap(info_icon);
+    (*i)->setToolTipDuration(1000 * 1000);
+    (*i)->setTextFormat(Qt::RichText);
+  }
+
+  this->ui->lbl_tray_info_icon->setToolTip(
+        "<nobr>Subutai Control Center is a tray application<br>"
+        "that is meant to ease bazaar usage.");
+
+  this->ui->lbl_p2p_info_icon->setToolTip(
+        "<nobr>Subutai P2P is powerful tool that establishes<br>"
+        "connections to peers and environments.");
+
+  this->ui->lbl_vagrant_info_icon->setToolTip(
+        "<nobr>Vagrant is a tool for building and<br>"
+        "managing virtual machine environments.");
+
+  this->ui->lbl_e2e_info_icon->setToolTip(
+        "<nobr>Subutai E2E is an extension for browser which<br>"
+        "helps to store and manage PGP-keys.");
+
+  this->ui->lbl_vbox_info_icon->setToolTip(
+        "<nobr>Oracle VirtualBox is hypervisor for<br>"
+        "managing virtual machine environments");
+
+  this->ui->lbl_chrome_info_icon->setToolTip(
+        "Google Chrome is a web browser used by default.");
+
+  this->ui->lbl_subutai_box_info_icon->setToolTip(
+        "Subutai Box is the resource box for peer creation.");
+
+  this->ui->lbl_subutai_plugin_info_icon->setToolTip(
+        "<nobr>The Vagrant Subutai plugin sets up<br>"
+        "peer parameters, like disk size and RAM.");
+
+  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(
+        "<nobr>The Vagrant VirtualBox plugin sets<br>"
+        "VirtualBox as your hypervisor for Vagrant.");
+
+  this->ui->lbl_x2go_info_icon->setToolTip(
+        "X2Go client enables remote desktop access.");
+
+  this->ui->lbl_firefox_info_icon->setToolTip(
+        "Mozilla Firefox is a web browser used by default.");
 
   QLabel* lbls[] = { this->ui->lbl_chrome_version_val,
                      this->ui->lbl_p2p_version_val,
@@ -191,7 +253,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
 void DlgAbout::set_visible_chrome(bool value) {
     ui->btn_chrome->setVisible(value);
     ui->lbl_chrome_version->setVisible(value);
+    ui->lbl_chrome_info_icon->setVisible(value);
     ui->lbl_chrome_version_val->setVisible(value);
+    ui->lbl_spacer_chrome->setVisible(value);
     ui->pb_chrome->setVisible(value);
     ui->cb_chrome->setVisible(value);
     this->adjustSize();
@@ -200,8 +264,10 @@ void DlgAbout::set_visible_chrome(bool value) {
 void DlgAbout::set_visible_firefox(bool value) {
     ui->btn_firefox->setVisible(value);
     ui->pb_firefox->setVisible(value);
-    ui->lbl_firefox->setVisible(value);
+    ui->lbl_firefox_version->setVisible(value);
+    ui->lbl_firefox_info_icon->setVisible(value);
     ui->lbl_firefox_version_val->setVisible(value);
+    ui->lbl_spacer_firefox->setVisible(value);
     ui->cb_firefox->setVisible(value);
     this->adjustSize();
 }
