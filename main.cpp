@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
   QCommandLineParser cmd_parser;
   cmd_parser.setApplicationDescription(QObject::tr(
-      "This Control Center application should help users to work with hub"));
+      "This Control Center application should help users to work with bazaar"));
 
   cmd_parser.addHelpOption();
   // version

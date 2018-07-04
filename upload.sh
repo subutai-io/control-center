@@ -1,4 +1,5 @@
 BRANCH=$1
+VERSION=$(cat /home/travis/build/subutai-io/control-center/version)
 OS=$(uname)
 PKGNAME=""
 BINNAME=""
@@ -30,11 +31,12 @@ upload_cdn (){
 
     echo "File uploaded with ID $ID"
     echo "URL: $2"
+    echo "VERSION: $3"
     echo "Signing file..."
 
     SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
 
-    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
+    curl -ks -Ftoken="$TOKEN" -Fversion=$3 -Fsignature="$SIGN" "$2/auth/sign"
 
     echo -e "\\nCompleted"
 }
@@ -85,9 +87,9 @@ case $BRANCH in
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         if [ $OS = Linux ]
         then
-        URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        URL=https://devcdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
         ;;
 esac
