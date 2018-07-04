@@ -19,8 +19,10 @@ private:
     QString m_update;
     QString m_dir;
     QString m_update_available;
+    int m_provision_step;
 public:
     CLocalPeer(){
+        m_provision_step = -1;
         m_name = "undefined";
         m_ip = "undefined";
         m_status = "undefined";
