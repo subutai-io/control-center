@@ -926,6 +926,11 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
     case CPeerController::P_UPDATE:
       updater_peer.set_update_available(output);
       break;
+    case CPeerController::P_PROVISION_STEP:
+      output != "finished" ?
+        updater_peer.set_provision_step(output.toInt()) :
+        updater_peer.set_provision_step(-1);
+      break;
     default:
       break;
   }

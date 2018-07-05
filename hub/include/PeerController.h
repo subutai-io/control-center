@@ -89,6 +89,8 @@ class CPeerController : public QObject {
   QStringList bridged_interfaces;  // list of current bridged interfaces
   system_call_res_t vagrant_global_status;  // list of current VMs
   int number_threads;                       // to emit signal when all finished
+  QString get_pr_step_fi(QFile &p_file); // get provision step from file
+  bool is_provision_running(QDir peer_dir);
 
  public:
   enum peer_info_t {

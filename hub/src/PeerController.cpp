@@ -174,6 +174,7 @@ void CPeerController::check_logs() {
       if (peer_name.isEmpty()) continue;
       deleted_flag = false;
       peer_dir.cd(fi.fileName());
+      // show error messages
       for (QFileInfo logs : peer_dir.entryInfoList()) {
         if (logs.isDir()) continue;
         file_name = logs.fileName().split('_');
@@ -208,8 +209,46 @@ void CPeerController::check_logs() {
         finish_current_update();
         refresh();
       }
+      // parse provion step
+      QFileInfo provision_file = peer_dir.absolutePath() + QDir::separator()
+          + ".vagrant" + QDir::separator() + "provision_step";
+      if (provision_file.exists()) {
+        QFile p_file(provision_file.absoluteFilePath());
+        QString provision_step = get_pr_step_fi(p_file);
+        // we got provision step, need to check if we have running peer up or peer reload
+        if (is_provision_running(peer_dir)){
+          emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
+        } else {
+          if (provision_step == "3"){
+            p_file.remove();
+            provision_step == "finished";
+            emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
+          }
+        }
+      }
     }
   }
+}
+
+QString CPeerController::get_pr_step_fi(QFile &p_file) {
+  QString provision_step = "undefined";
+  if (p_file.open(QIODevice::ReadOnly)) {
+    QTextStream stream(&p_file);
+    provision_step = QString(stream.readAll()).simplified();
+    p_file.close();
+  }
+  return provision_step;
+}
+
+bool CPeerController::is_provision_running(QDir peer_dir) {
+  for (QFileInfo logs : peer_dir.entryInfoList()) {
+    if (logs.isDir()) continue;
+    QStringList file_name = logs.fileName().split('_');
+    if (file_name.size() == 2 && file_name[1] == "up" || file_name[1] == "reload") {
+      return true;
+    }
+  }
+  return false;
 }
 
 QString CPeerController::get_error_messages(QDir peer_dir, QString command) {
