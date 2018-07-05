@@ -111,9 +111,10 @@ const QString &CPeerController::status_description(const QString &status) {
 
 const QString &CPeerController::provision_step_description(const int &step) {
   static std::map<int, QString> step_description = {
-      {0, tr("Bringip up virtual machine")},
-      {1, tr("Configuring subutai...")},
-      {2, tr("Starting management...")},
+      {0, tr("Building virtual machine")},
+      {1, tr("Installing subutai...")},
+      {2, tr("Importing management...")},
+      {3, tr("Finished provision script")},
       {4096, tr("Undefined step")}};
 
   if (step_description.find(step) != step_description.end()) {
@@ -221,7 +222,7 @@ void CPeerController::check_logs() {
         } else {
           if (provision_step == "3"){
             p_file.remove();
-            provision_step == "finished";
+            provision_step = "finished";
             emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
           }
         }
@@ -244,7 +245,7 @@ bool CPeerController::is_provision_running(QDir peer_dir) {
   for (QFileInfo logs : peer_dir.entryInfoList()) {
     if (logs.isDir()) continue;
     QStringList file_name = logs.fileName().split('_');
-    if (file_name.size() == 2 && file_name[1] == "up" || file_name[1] == "reload") {
+    if (file_name.size() == 2 && (file_name[1] == "up" || file_name[1] == "reload")) {
       return true;
     }
   }

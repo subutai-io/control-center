@@ -271,6 +271,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     CNotificationObserver::Instance()->Info(tr("Initialization is completed. Installing peer... Don't close terminal until installation is finished."), DlgNotification::N_NO_ACTION);
     QString filename = QString("%1/vagrant-subutai.yml").arg(dir);
     QFile file(filename);
+    // write config file
     if ( file.open(QIODevice::ReadWrite) ){
         QTextStream stream( &file );
         stream << "SUBUTAI_RAM : " << ram << endl;
@@ -285,6 +286,16 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         stream << "BRIDGE : "<< QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())<<endl;
     }
     file.close();
+    // write provision step file
+    QDir pr_dir;
+    pr_dir.mkdir(dir + QDir::separator() + ".vagrant");
+    QString p_name = dir + QDir::separator() + ".vagrant" + QDir::separator() + "provision_step";
+    QFile p_file(p_name);
+    if (p_file.open(QIODevice::ReadWrite)) {
+      QTextStream stream(&p_file);
+      stream << "0" << endl;
+    }
+    p_file.close();
     static QString vagrant_up_string = "up --provider virtualbox";
     QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
     CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);

@@ -90,7 +90,7 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   hub_available = false;
   updatePeer();
   refresh_timer = new QTimer(this);
-  refresh_timer->setInterval(7 * 1000); //7 seconds
+  refresh_timer->setInterval(3 * 1000); //7 seconds
   connect(refresh_timer, &QTimer::timeout, this, &DlgPeer::updatePeer);
   refresh_timer->start();
 }

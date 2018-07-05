@@ -114,7 +114,7 @@
         <number>0</number>
        </property>
        <property name="textVisible">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
