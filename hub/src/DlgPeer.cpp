@@ -23,10 +23,11 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
-  ui->pb_activity->setMaximum(3);
+  ui->pb_activity->setMaximum(4);
   ui->gr_ssh->setVisible(true);
   ui->pb_activity->setVisible(false);
   ui->lbl_activity_info->setVisible(false);
+  ui->lbl_activity_info->setStyleSheet("QLabel {color : green}");
   ui->gr_peer_control->setVisible(false);
   ui->btn_launch_console->setEnabled(false);
   ui->lbl_update_peeros->setWordWrap(true);
@@ -197,7 +198,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     ui->pb_activity->setVisible(true);
     ui->lbl_activity_info->setText(
           CPeerController::Instance()->provision_step_description(rh_provision_step));
-    ui->pb_activity->setValue(rh_provision_step);
+    ui->pb_activity->setValue(rh_provision_step + 1);
   } else {
     ui->lbl_activity_info->setVisible(false);
     ui->lbl_activity_info->setVisible(false);

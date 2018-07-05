@@ -120,6 +120,9 @@
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QLabel" name="lbl_activity_info">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="text">
         <string/>
        </property>
