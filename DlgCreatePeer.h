@@ -15,25 +15,26 @@ class DlgCreatePeer;
 // This structure 'requirement' needed to check requirements for peer creataion
 // how to use:
 // status label = 'Checking the VirtualBox'
-// error_notification = 'VirtualBox is not installed please install it from Components'
-// notification_type = N_N_ABOUT error_label: 'virtualbox is not istalled'
+// error_notification = 'VirtualBox is not installed please install it from
+// Components' notification_type = N_N_ABOUT error_label: 'virtualbox is not
+// istalled'
 struct requirement {
   QString error_label;
   QString status_label;
   QString error_notification;
   DlgNotification::NOTIFICATION_ACTION_TYPE notification_type;
-  bool(*checker_function)();
+  bool (*checker_function)();
   requirement(QString _error_label, QString _status_label,
               QString _error_notification,
               DlgNotification::NOTIFICATION_ACTION_TYPE _notification_type,
-              bool(*_checker_function)()) {
+              bool (*_checker_function)()) {
     error_label = _error_label;
     status_label = _status_label;
     error_notification = _error_notification;
     notification_type = _notification_type;
     checker_function = _checker_function;
   }
-  ~requirement(){}
+  ~requirement() {}
 };
 
 class DlgCreatePeer : public QDialog {
