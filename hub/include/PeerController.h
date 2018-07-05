@@ -37,6 +37,7 @@ public:
     const QString &dir() const { return m_dir; }
     const QString &update() const { return m_update; }
     const QString &update_available() const { return m_update_available; }
+    const int &provision_step() const { return m_provision_step; }
 
     void set_ip(const QString &val){m_ip = val;}
     void set_name(const QString &val){m_name = val;}
@@ -55,6 +56,7 @@ public:
         m_update_available = val;
       }
     }
+    void set_provision_step(const int &val){m_provision_step = val;}
 
     void operator =(const CLocalPeer &peer_second){
         this->m_name = peer_second.name();
@@ -64,6 +66,7 @@ public:
         this->m_status = peer_second.status();
         this->m_update = peer_second.update();
         this->m_update_available = peer_second.update_available();
+        this->m_provision_step = peer_second.provision_step();
     }
 
 };

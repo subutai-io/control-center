@@ -23,6 +23,7 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+  ui->pb_activity->setMaximum(3);
   ui->gr_ssh->setVisible(true);
   ui->pb_activity->setVisible(false);
   ui->lbl_activity_info->setVisible(false);
@@ -146,6 +147,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   rh_status = peer.status();
   rh_dir = peer.dir();
   rh_name = peer.name();
+  rh_provision_step = peer.provision_step();
   management_ua = peer.update_available() == "true" ? true : false;
   // localhost port
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
@@ -188,6 +190,17 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
       ui->btn_update_peer->setToolTip(
           tr("This peer is currently updating. Please wait"));
     }
+  }
+  // progress bar
+  if (rh_provision_step != -1) {
+    ui->lbl_activity_info->setVisible(true);
+    ui->pb_activity->setVisible(true);
+    ui->lbl_activity_info->setText(
+          CPeerController::Instance()->provision_step_description(rh_provision_step));
+    ui->pb_activity->setValue(rh_provision_step);
+  } else {
+    ui->lbl_activity_info->setVisible(false);
+    ui->lbl_activity_info->setVisible(false);
   }
   parse_yml();
 }
