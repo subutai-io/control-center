@@ -320,7 +320,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     if(res.res == SCWE_SUCCESS && res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
-
     return res.res;
 }
 

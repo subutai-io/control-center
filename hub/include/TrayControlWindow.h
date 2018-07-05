@@ -189,7 +189,7 @@ private slots:
 
   /*peer management*/
   void my_peers_updated_sl();
-  void got_peer_info_sl(int type,
+  void got_peer_info_sl(CPeerController::peer_info_t type,
                         QString name,
                         QString dir,
                         QString output);
