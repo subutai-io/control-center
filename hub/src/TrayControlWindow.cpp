@@ -888,7 +888,7 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
   in_peer_slot = true;
   static QString new_updated = "new";
 
-  if (type == CPeerController::PEER_STATUS &&
+  if (type == CPeerController::P_STATUS &&
       name == "update" && dir == "peer" && output == "menu") {
     machine_peers_upd_finished();
     in_peer_slot = false;
@@ -908,13 +908,13 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
   updater_peer.set_update(new_updated);
 
   switch (type) {
-    case CPeerController::PEER_STATUS:
+    case CPeerController::P_STATUS:
       updater_peer.set_status(output);
       break;
-    case CPeerController::PEER_PORT:
+    case CPeerController::P_PORT:
       updater_peer.set_ip(output);
       break;
-    case CPeerController::PEER_FINGER:
+    case CPeerController::P_FINGER:
       if (output != "undefined" && !output.isEmpty() &&
           CSettingsManager::Instance().peer_finger(name) != output) {
         delete_peer_button_info(CSettingsManager::Instance().peer_finger(name),
@@ -923,7 +923,7 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
       }
       updater_peer.set_fingerprint(output);
       break;
-    case CPeerController::PEER_UPDATE:
+    case CPeerController::P_UPDATE:
       updater_peer.set_update_available(output);
       break;
     default:
