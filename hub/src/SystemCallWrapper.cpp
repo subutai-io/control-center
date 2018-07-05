@@ -634,12 +634,15 @@ QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
      * using command VBoxManage get list of all bridged interfaces
      * */
+    installer_is_busy.lock();
     qDebug("Getting list of bridged interfaces");
     QString vb_version;
     CSystemCallWrapper::oracle_virtualbox_version(vb_version);
     QStringList interfaces;
-    if(vb_version == "undefined")
-        return interfaces;
+    if (vb_version == "undefined") {
+      installer_is_busy.unlock();
+      return interfaces;
+    }
     QString path = CSettingsManager::Instance().oracle_virtualbox_path();
     QDir dir(path);
     dir.cdUp();
@@ -690,6 +693,7 @@ QStringList CSystemCallWrapper::list_interfaces(){
         if(flag == "Status" && value == "Up")
             interfaces.push_back(last_name);
     }
+    installer_is_busy.unlock();
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
