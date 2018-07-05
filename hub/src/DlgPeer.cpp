@@ -201,7 +201,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
     ui->pb_activity->setValue(rh_provision_step + 1);
   } else {
     ui->lbl_activity_info->setVisible(false);
-    ui->lbl_activity_info->setVisible(false);
+    ui->pb_activity->setVisible(false);
   }
   parse_yml();
 }
