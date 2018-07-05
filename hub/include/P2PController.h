@@ -234,7 +234,7 @@ signals:
 
 private slots:
   void install_started(const QString &component_id) {
-    if (component_id == IUpdaterComponent::P2P) {
+    if (component_id == "P2P") {
       CNotificationObserver::Instance()->Info(tr("P2P installation has started."), DlgNotification::N_NO_ACTION);
       m_status = P2P_INSTALLING;
       emit p2p_status(P2P_INSTALLING);
@@ -244,9 +244,11 @@ private slots:
   void uninstall_started(const QString &component_id) {
     qDebug() << "Uninstall started: "
              << component_id;
-    if (component_id == IUpdaterComponent::P2P) {
-      CNotificationObserver::Instance()->Info(tr("P2P uninstallation has started."), DlgNotification::N_NO_ACTION);
-    }
+
+      CNotificationObserver::Instance()->Info(tr("%1 uninstallation has started.")
+                                              .arg(IUpdaterComponent::component_id_to_user_view(
+                                                     component_id)),
+                                              DlgNotification::N_NO_ACTION);
   }
 
   void install_finished(const QString &component_id, bool success) {
