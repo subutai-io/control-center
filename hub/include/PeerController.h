@@ -93,6 +93,13 @@ private:
 
 public:
 
+  enum peer_info_t{
+    PEER_STATUS = 0,
+    PEER_PORT,
+    PEER_FINGER,
+    PEER_UPDATE
+  };
+
   static CPeerController* Instance() {
     static CPeerController inst;
     return &inst;
@@ -100,7 +107,7 @@ public:
 
   void init();
   void refresh();
-  void parse_peer_info(int type,
+  void parse_peer_info(peer_info_t type,
                        const QString &name,
                        const QString &dir,
                        const QString &output);
@@ -131,7 +138,7 @@ public:
 private slots:
   void refresh_timer_timeout();
 signals:
-  void got_peer_info(int type,
+  void got_peer_info(peer_info_t type,
                      QString name,
                      QString dir,
                      QString output);
@@ -140,11 +147,11 @@ signals:
 class GetPeerInfo : public QObject{
     Q_OBJECT
     QString arg;
-    int action;
+    CPeerController::peer_info_t action;
 public:
     GetPeerInfo(QObject *parent = nullptr) : QObject(parent){}
 
-    void init (const QString &arg, const int &action){
+    void init (const QString &arg, const CPeerController::peer_info_t &action){
         this->arg = arg;
         this->action = action;
     }
@@ -182,13 +189,13 @@ public:
               break;
         }
         watcher->setFuture(res);
-        int lala = action;
+        CPeerController::peer_info_t lala = action;
         connect(watcher, &QFutureWatcher<QString>::finished, [this, res, lala](){
           emit this->outputReceived(lala, res.result());
         });
     }
 signals:
-    void outputReceived(int action, QString res);
+    void outputReceived(CPeerController::peer_info_t action, QString res);
 };
 
 class StopPeer : public QObject{

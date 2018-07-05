@@ -132,7 +132,7 @@ void CPeerController::search_local(){
         get_peer_info(fi, peers_dir);
     }
     if(number_threads == 0){
-         emit got_peer_info(0, "update", "peer", "menu");
+         emit got_peer_info(PEER_STATUS, "update", "peer", "menu");
     }
 }
 
@@ -224,7 +224,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    if(!fi.isDir())
        return;
    QString peer_name = parse_name(fi.fileName());
-   static int status_type = 0;
+   static peer_info_t status_type = PEER_STATUS;
    if(peer_name=="")
        return;
    dir.cd(fi.fileName());
@@ -233,7 +233,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir){
    number_threads++;
    thread_for_status->init(dir.absolutePath(), status_type);
    thread_for_status->startWork();
-   connect(thread_for_status, &GetPeerInfo::outputReceived, [dir, peer_name, this](int type, QString res){
+   connect(thread_for_status, &GetPeerInfo::outputReceived, [dir, peer_name, this](peer_info_t type, QString res){
       this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
    });
    return;
@@ -258,36 +258,36 @@ QString CPeerController::parse_name(const QString &name){
     return peer_name;
 }
 
-void CPeerController::parse_peer_info(int type, const QString &name, const QString &dir, const QString &output){
+void CPeerController::parse_peer_info(peer_info_t type, const QString &name, const QString &dir, const QString &output){
     if(number_threads == 0)
         return;
     // get ip of peer
-    if(type == 0){
+    if(type == PEER_STATUS){
         qDebug() << "Got status of "<<name<<"status:"<<output;
         GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
         if(output != "running"){
             qCritical()<<"not working peer"<<name;
         }
         else{
-            int ip_type = 1;
+            peer_info_t ip_type = PEER_PORT;
             thread_for_ip->init(dir, ip_type);
             number_threads++;
             thread_for_ip->startWork();
-            connect(thread_for_ip, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+            connect(thread_for_ip, &GetPeerInfo::outputReceived, [dir, name, this](peer_info_t type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
         }
     }
-    else if(type == 1){
+    else if(type == PEER_PORT){
         qDebug() << "Got ip of "<<name<<"ip:"<<output;
         if(!output.isEmpty() && output != "undefined"){
             // get finger
             GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
-            int finger_type = 2;
+            peer_info_t finger_type = PEER_FINGER;
             thread_for_finger->init(output, finger_type);
             number_threads++;
             thread_for_finger->startWork();
-            connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+            connect(thread_for_finger, &GetPeerInfo::outputReceived, [dir, name, this](peer_info_t type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
             // set password
@@ -299,19 +299,19 @@ void CPeerController::parse_peer_info(int type, const QString &name, const QStri
             thread_for_pass->startWork();
             // get update info
             GetPeerInfo *thread_for_update = new GetPeerInfo(this);
-            int update_type = 3;
+            peer_info_t update_type = PEER_UPDATE;
             thread_for_update->init(output, update_type);
             number_threads++;
             thread_for_update->startWork();
-            connect(thread_for_update, &GetPeerInfo::outputReceived, [dir, name, this](int type, QString res){
+            connect(thread_for_update, &GetPeerInfo::outputReceived, [dir, name, this](peer_info_t type, QString res){
                this->parse_peer_info(type, name, dir, res);
             });
         }
     }
-    else if(type == 2){
+    else if(type == PEER_FINGER){
       qDebug() << "Got finger of "<<name<<"finger:"<<output;
     }
-    else if(type == 3){
+    else if(type == PEER_UPDATE){
       qDebug() << "Got update of "<<name<<"update:"<<output;
     }
     static QString undefined_string = "undefined";
