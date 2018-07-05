@@ -220,11 +220,9 @@ void CPeerController::check_logs() {
         if (is_provision_running(peer_dir)){
           emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
         } else {
-          if (provision_step == "3"){
-            p_file.remove();
-            provision_step = "finished";
-            emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
-          }
+          p_file.remove();
+          provision_step = "finished";
+          emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
         }
       }
     }
