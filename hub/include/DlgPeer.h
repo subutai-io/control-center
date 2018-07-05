@@ -95,6 +95,7 @@ private:
   QString rh_bridge;
   QString rh_status;
   QString rh_name;
+  int rh_provision_step;
   QTimer *refresh_timer;
   QDialog *registration_dialog;
 
