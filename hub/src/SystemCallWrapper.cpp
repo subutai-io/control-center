@@ -1815,9 +1815,11 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
       "dpkg -i %2\n"
       "if [ $? -gt 0 ]\n"
       "then\n"
-      "dpkg --remove --force-remove-reinstreq %2\n"
       "apt-get install -y -f\n"
       "dpkg -i %2\n"
+      "fi\n"
+      "if [ $? -gt 0 ]\n"
+      "dpkg --remove --force-remove-reinstreq %2\n"
       "fi\n").arg(dir, file_name).toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
