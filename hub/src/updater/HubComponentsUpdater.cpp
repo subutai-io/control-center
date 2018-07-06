@@ -423,9 +423,12 @@ void SilentUninstaller::silentUninstallation() {
   case CC_P2P:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_p2p, QString(""), QString(""));
     break;
+  case CC_E2E:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_e2e);
+    break;
   //TODO add other components
   default:
-      break;
+    break;
   }
 
   watcher->setFuture(res);
