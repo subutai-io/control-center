@@ -1853,7 +1853,6 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
             <<"error code:"<<cr2.exit_code
             <<"output: "<<cr2.out
             <<"result: "<<cr2.res;
-    tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
 
