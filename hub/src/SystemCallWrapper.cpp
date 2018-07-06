@@ -2399,7 +2399,7 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_LINUX>>() {
   if(res.res != SCWE_SUCCESS){
     qCritical() << "Failed to close chrome"
                 << "exit code: " << res.exit_code
-                << "output: " < res.out;
+                << "output: " << res.out;
     return SCWE_CREATE_PROCESS;
   }
   qDebug() << "removing e2e json file";
