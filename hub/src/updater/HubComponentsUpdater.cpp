@@ -418,7 +418,7 @@ void SilentUninstaller::silentUninstallation() {
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_x2go);
     break;
   case CC_VAGRANT:
-    res = QtConcurrent::run(CSystemCallWrapper::uninstall_vagrant, QString(""), QString(""));
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_vagrant, m_dir, m_file_name);
     break;
   case CC_P2P:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_p2p, QString(""), QString(""));

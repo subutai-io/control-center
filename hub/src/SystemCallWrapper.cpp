@@ -1876,12 +1876,31 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
     return SCWE_CREATE_PROCESS;
   }
 
-  return SCWE_SUCCESS;
+  return scr.res;
 }
 
 template <>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
-  return SCWE_SUCCESS;
+  QString cmd("msiexec");
+  QStringList args;
+  args << "set_working_directory"
+        << dir
+        << "/x"
+        << file_name
+        << "/qn";
+
+  qDebug() << "Uninstalling vagrant package:"
+           << args;
+
+  qDebug() << "Uninstall vagrant "
+           << dir
+           << file_name;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){

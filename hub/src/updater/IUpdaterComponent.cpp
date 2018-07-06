@@ -308,15 +308,58 @@ chue_t CUpdaterComponentVAGRANT::update_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
-  static QString empty_string = "";
+  qDebug() << "uninstall start vagrant";
+
+  QMessageBox *msg_box = new QMessageBox(
+        QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+          "Vagrant will be uninstalled  and automatically restarted on your machine.<br>"
+          "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+  msg_box->setTextFormat(Qt::RichText);
+
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+  if (msg_box->exec() != QMessageBox::Yes) {
+      uninstall_finished_sl(false);
+      return CHUE_SUCCESS;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  QString file_name = vagrant_kurjun_package_name();
+  QString file_dir = download_vagrant_path();
+  QString str_vagrant_downloaded_path = file_dir + "/" + file_name;
+
+  std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
+
+  if (fi.empty()) {
+    qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    uninstall_finished_sl(false);
+    return CHUE_NOT_ON_KURJUN;
+  }
+  std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+  CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                      str_vagrant_downloaded_path,
+                                                      item->size());
+
 
   SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+  silent_uninstaller->init(file_dir, file_name, CC_VAGRANT);
+
+  connect(dm, &CDownloadFileManager::finished, [silent_uninstaller](bool success) {
+      qDebug() << "File downloaded vagrant result: " << success;
+      if(!success){
+          silent_uninstaller->outputReceived(success);
+      }
+      else {
+          silent_uninstaller->startWork();
+      }
+  });
 
   connect(silent_uninstaller, &SilentUninstaller::outputReceived,
           this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          dm, &CDownloadFileManager::deleteLater);
 
-  silent_uninstaller->startWork();
+  dm->start_download();
 
   return CHUE_SUCCESS;
 }
