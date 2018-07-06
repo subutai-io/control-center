@@ -501,7 +501,8 @@ void DlgPeer::rh_register_or_unregister_sl() {
 
 void DlgPeer::rh_register() {
   ui->btn_register_unregister->setEnabled(false);
-  DlgRegisterPeer *dlg_register = new DlgRegisterPeer(this);
+  DlgRegisterPeer *dlg_register = new DlgRegisterPeer();
+  dlg_register->setAttribute(Qt::WA_DeleteOnClose);
   const QString ip_addr = ui->lbl_ip->text();
   dlg_register->init(ip_addr, this->rh_name);
   dlg_register->setRegistrationMode();
@@ -522,7 +523,8 @@ void DlgPeer::rh_unregister() {
     return;
   }
   ui->btn_register_unregister->setEnabled(false);
-  DlgRegisterPeer *dlg_unregister = new DlgRegisterPeer(this);
+  DlgRegisterPeer *dlg_unregister = new DlgRegisterPeer();
+  dlg_unregister->setAttribute(Qt::WA_DeleteOnClose);
   const QString ip_addr = ui->lbl_ip->text();
   dlg_unregister->init(ip_addr, peer_name);
   dlg_unregister->setUnregistrationMode();
