@@ -29,6 +29,10 @@ private:
     QString peer_name;
     QAction *m_show_password_action;
 
+    bool check_errors(const int &err_code,
+                      const int &http_code,
+                      const int &network_error);
+
 private slots:
     void registerPeer();
     void unregisterPeer();
