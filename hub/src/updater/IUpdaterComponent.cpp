@@ -630,7 +630,7 @@ void CUpdaterComponentE2E::install_post_interntal(bool success) {
 
 void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
   if (!success) {
-    CNotificationObserver::Instance()->Info(tr(""), DlgNotification::N_NO_ACTION);
+    CNotificationObserver::Instance()->Info(tr("Failed to uninstall Subutai E2E plugin. Try uninstalling manually."), DlgNotification::N_NO_ACTION);
     return;
   }
   QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),

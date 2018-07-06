@@ -2384,11 +2384,11 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_LINUX>>() {
           subutai_e2e_id(CSettingsManager::Instance().default_browser())));
   if (!ext_json->exists()) {
     qDebug() << "e2e is installed from web store";
-    CNotificationObserver::Info("Due to the Chrome extension policy Control "
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
                                 "Center can not uninstall Subutai E2E extension "
-                                "that has been installed via Chrome Web Store.",
+                                "that has been installed via Chrome Web Store."),
                                 DlgNotification::N_NO_ACTION);
-    return SCWE_SUCCESS;
+    return SCWE_CREATE_PROCESS;
   }
   qDebug() << "closing chrome browser";
   QString cmd("pkill");
@@ -2436,11 +2436,11 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_MAC>>() {
 
   if (!QFile(jsonFilePath).exists()) {
     qDebug() << "e2e is installed from web store";
-    CNotificationObserver::Info("Due to the Chrome extension policy Control "
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
                                 "Center can not uninstall Subutai E2E extension "
-                                "that has been installed via Chrome Web Store.",
+                                "that has been installed via Chrome Web Store."),
                                 DlgNotification::N_NO_ACTION);
-    return SCWE_SUCCESS;
+    return SCWE_CREATE_PROCESS;
   }
 
   qDebug() << "quitting chrome";
@@ -2480,28 +2480,18 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_WIN>>() {
   QString cmd("REG");
   QStringList args;
   args << "QUERY" << QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+  //REG QUERY "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\ffddnlbamkjlbngpekmdpnoccckapcnh"
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code == 1) {
+    qDebug() << "e2e is installed from web store";
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
+                                "Center can not uninstall Subutai E2E extension "
+                                "that has been installed via Chrome Web Store."),
+                                DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  } else if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
     qCritical() << "failed to query registry key of e2e on chrome"
                 << "exit code: " << res.exit_code
-                << "output: " << res.out;
-    return SCWE_CREATE_PROCESS;
-  }
-  //know verdict of query
-  cmd = "echo";
-  args.clear();
-  args << "%errorlevel%";
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-  if (res.out[0] == "0") {
-    qDebug() << "e2e is installed from web store";
-    CNotificationObserver::Info("Due to the Chrome extension policy Control "
-                                "Center can not uninstall Subutai E2E extension "
-                                "that has been installed via Chrome Web Store.",
-                                DlgNotification::N_NO_ACTION);
-    return SCWE_SUCCESS;
-  } else if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
-    qCritical() << "failed to know result of query-ing registry key of e2e on chrome"
-                << "exit code" << res.exit_code
                 << "output: " << res.out;
     return SCWE_CREATE_PROCESS;
   }
@@ -2509,8 +2499,9 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_WIN>>() {
   qDebug() << "removing e2e chrome registry key";
   cmd = "REG";
   args.clear();
-  args << "DELETE" << QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id);
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  args << "DELETE" << QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id) << "/f";
+  //REG DELETE "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\ffddnlbamkjlbngpekmdpnoccckapcnh" /f
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
       qCritical() << "failed to uninstall e2e on chrome"
                   << "exit code" << res.exit_code
