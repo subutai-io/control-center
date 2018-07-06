@@ -226,9 +226,10 @@ DlgAbout::DlgAbout(QWidget *parent) :
         CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
     if (progress.first * progress.second == 0)
       it->second.pb->setValue(0);
-    else
-      it->second.pb->setValue((progress.first * 100)
-                              / progress.second == 0 ? 1 : progress.second);
+    else {
+      uint value = (progress.first * 100) / progress.second;
+      it->second.pb->setValue(value);
+    }
   }
 
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
@@ -629,7 +630,6 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
     if(m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
         return;
     }
-
     // update available component
     if (update_available) {
         qInfo() << "update available: "
@@ -661,15 +661,6 @@ DlgAboutInitializer::do_initialization() {
     emit got_chrome_version(chrome_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-/*currently not used but we might need *
-    QString rh_version = CSystemCallWrapper::rh_version();
-    emit got_rh_version(rh_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-    QString rhm_version = CSystemCallWrapper::rhm_version();
-    emit got_rh_management_version(rhm_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-*/
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -730,9 +721,7 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
     m_dct_fpb[component_id].btn->setEnabled(false);
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setRange(0, 100);
-    m_dct_fpb[component_id].btn->setText(tr("Update %1")
-                                         .arg(CHubComponentsUpdater::Instance()
-                                             ->component_name(component_id)));
+    m_dct_fpb[component_id].btn->setText(tr("Update"));
     if (m_dct_fpb[component_id].pf_version) {
       m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     }
