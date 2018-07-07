@@ -1689,7 +1689,49 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
 
 template <>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
-  return SCWE_SUCCESS;
+  QString uninstall_string;
+  QString cmd("REG");
+  QStringList args;
+
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\x2goclient"
+       << "/v"
+       << "UninstallString";
+
+  qDebug() << "Uninstall x2goclient query: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got x2goclient query"
+           << "exit code: "
+           << res.exit_code
+           << "result code: "
+           << res.res
+           << "output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+
+      QStringList buf = s.split(" ", QString::SkipEmptyParts);
+
+      if (buf.size() == 8) {
+        QStringList second_buf = buf[2].split("-", QString::SkipEmptyParts);
+
+        if (!second_buf.isEmpty()) {
+          uninstall_string = second_buf[0];
+        }
+        break;
+      }
+   }
+  }
+
+  //TODO run uninstall string command
+  return res.res;
 }
 
 template <>
@@ -2275,7 +2317,44 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QSt
 
 template <>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
-  return SCWE_SUCCESS;
+  QString uninstall_string;
+  QString cmd("REG");
+  QStringList args;
+
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"
+       << "/v"
+       << "UninstallString";
+
+  qDebug() << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got chrome uninstallstring query: "
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+      for (QString s : res.out) {
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          if(buf.size() == 8){
+              uninstall_string = buf[2];
+              break;
+          }
+      }
+  }
+
+  //TODO call uninstall string command
+  qDebug() << "got uninstall string chrome: "
+           << uninstall_string;
+
+  return res.res;
 }
 
 template <>
