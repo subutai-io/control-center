@@ -12,16 +12,10 @@
         <file>resources.qrc</file>
         <file>stop_red.png</file>
         <file>Launch-07.png</file>
-        <file>Environmetns-07.png</file>
         <file>VM-07.png</file>
-        <file>Settings-07.png</file>
-        <file>Exit-07.png</file>
         <file>Delete-07.png</file>
         <file>Pause-07.png</file>
         <file>Stop-07.png</file>
-        <file>tray.png</file>
-        <file>Balance-07.png</file>
-        <file>Hub-07.png</file>
         <file>SS-07.png</file>
         <file>Launch_na-07.png</file>
         <file>Delete_na-07.png</file>
@@ -29,11 +23,7 @@
         <file>Stop_na-07.png</file>
         <file>Tray_icon_set-07.png</file>
         <file>TrayWithWatch.png</file>
-        <file>about.png</file>
-        <file>logout.png</file>
         <file>tray_splash.png</file>
-        <file>ssh-keys.png</file>
-        <file>notifications_history.png</file>
         <file>error_notification.png</file>
         <file>info_notification.png</file>
         <file>warning_notification.png</file>
@@ -57,7 +47,6 @@
         <file>add_blue.png</file>
         <file>refreshing.gif</file>
         <file>logo.png</file>
-        <file>add.png</file>
         <file>local_off.png</file>
         <file>upload-0.png</file>
         <file>cc_splash.png</file>
@@ -67,14 +56,12 @@
         <file>cc_icon_outline.png</file>
         <file>cc_icon_last.png</file>
         <file>cc_icon_resized.png</file>
-        <file>User_Name-07.png</file>
         <file>show_password.png</file>
         <file>launch.png</file>
         <file>pause.png</file>
         <file>install.png</file>
         <file>check_box.png</file>
         <file>check_box_outline.png</file>
-        <file>Help.png</file>
         <file>stop_p2p.png</file>
         <file>info_icon.png</file>
         <file>wallet-new.png</file>

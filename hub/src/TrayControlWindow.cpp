@@ -216,7 +216,7 @@ void TrayControlWindow::create_tray_actions() {
   m_act_settings->setToolTip(tr("CC settings"));
 
   m_act_hub =
-      new QAction(QIcon(":/hub/environmetns-new.png"), tr("Environments"), this);
+      new QAction(QIcon(":/hub/environments-new.png"), tr("Environments"), this);
 
   QString user_name = "";
   CRestWorker::Instance()->get_user_info("name", user_name);

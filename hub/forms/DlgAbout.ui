@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/resources.qrc">
-    <normaloff>:/hub/about.png</normaloff>:/hub/about.png</iconset>
+    <normaloff>:/hub/components-new.png</normaloff>:/hub/components-new.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">DlgAbout {
