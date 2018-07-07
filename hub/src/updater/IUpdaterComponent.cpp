@@ -310,18 +310,6 @@ chue_t CUpdaterComponentVAGRANT::update_internal() {
 chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
   qDebug() << "uninstall start vagrant";
 
-  QMessageBox *msg_box = new QMessageBox(
-        QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-          "Vagrant will be uninstalled  and automatically restarted on your machine.<br>"
-          "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
-  msg_box->setTextFormat(Qt::RichText);
-
-  QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-  if (msg_box->exec() != QMessageBox::Yes) {
-      uninstall_finished_sl(false);
-      return CHUE_SUCCESS;
-  }
-
   QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
   QString file_name = vagrant_kurjun_package_name();
   QString file_dir = download_vagrant_path();
