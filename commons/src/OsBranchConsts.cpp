@@ -114,11 +114,11 @@ template<class BR, class OS> const QString& x2go_kurjun_package_name_temp_intern
 
 x2go_kurjun_package_name_def(BT_MASTER,     OS_MAC,     "X2GoClient_latest_macosx_10_9.dmg")
 x2go_kurjun_package_name_def(BT_MASTER,     OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
-x2go_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "subutai-p2p-master.deb")
-x2go_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "subutai-p2p-dev.deb")
+x2go_kurjun_package_name_def(BT_MASTER,     OS_LINUX,   "X2GoClient_latest_linux.deb")
+x2go_kurjun_package_name_def(BT_DEV,        OS_LINUX,   "X2GoClient_latest_linux.deb")
 x2go_kurjun_package_name_def(BT_DEV,        OS_MAC,     "X2GoClient_latest_macosx_10_9.dmg")
 x2go_kurjun_package_name_def(BT_DEV,        OS_WIN,     "X2GoClient_latest_mswin32-setup.exe")
-x2go_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "subutai-p2p.deb")
+x2go_kurjun_package_name_def(BT_PROD,      OS_LINUX,    "X2GoClient_latest_linux.deb")
 x2go_kurjun_package_name_def(BT_PROD,      OS_MAC,      "X2GoClient_latest_macosx_10_9.dmg")
 x2go_kurjun_package_name_def(BT_PROD,      OS_WIN,      "X2GoClient_latest_mswin32-setup.exe")
 
