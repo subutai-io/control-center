@@ -1455,6 +1455,11 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QS
 }
 
 template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  return SCWE_SUCCESS;
+}
+
+template <>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   // wmic product where name="Subutai P2P" call uninstall
   QString cmd("wmic");
@@ -1687,6 +1692,11 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
   return SCWE_SUCCESS;
 }
 
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
+  return SCWE_SUCCESS;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
   installer_is_busy.lock();
   system_call_wrapper_error_t res = uninstall_x2go_internal<Os2Type <CURRENT_OS> >();
@@ -1878,6 +1888,11 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
   }
 
   return scr.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  return SCWE_SUCCESS;
 }
 
 template <>
