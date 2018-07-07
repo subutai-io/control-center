@@ -223,8 +223,10 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_e2e();
+  static system_call_wrapper_error_t uninstall_e2e();
 
   static system_call_wrapper_error_t install_e2e_chrome();
+  static system_call_wrapper_error_t uninstall_e2e_chrome();
 
   static system_call_wrapper_error_t install_vagrant_subutai();
 

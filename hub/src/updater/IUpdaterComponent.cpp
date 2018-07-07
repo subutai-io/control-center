@@ -636,6 +636,13 @@ chue_t CUpdaterComponentE2E::update_internal() {
 }
 
 chue_t CUpdaterComponentE2E::uninstall_internal() {
+  qDebug() << "Starting uninstall subutai e2e";
+  static QString empty_string = "";
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_E2E);
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentE2E::uninstall_finished_sl);
+  silent_uninstaller->startWork();
   return CHUE_SUCCESS;
 }
 
@@ -664,7 +671,21 @@ void CUpdaterComponentE2E::install_post_interntal(bool success) {
     }
 }
 
-void CUpdaterComponentE2E::uninstall_post_internal(bool success) {}
+void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
+  if (!success) {
+    CNotificationObserver::Instance()->Info(tr("Failed to uninstall Subutai E2E plugin. Try uninstalling manually."), DlgNotification::N_NO_ACTION);
+    return;
+  }
+  QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                                         QObject::tr("Subutai E2E has been uninstalled from your browser<br>"
+                                                     "Press OK to restore your browser session."),
+                                         QMessageBox::Ok);
+  msg_box->setTextFormat(Qt::RichText);
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+  if (msg_box->exec() == QMessageBox::Ok) {
+      CSystemCallWrapper::chrome_last_section();
+  }
+}
 
 //////////////////////////*VAGRANT-SUBUTAI*///////////////////////////////////////
 
