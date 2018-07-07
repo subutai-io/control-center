@@ -1886,8 +1886,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const 
   args << "set_working_directory"
         << dir
         << "/x"
-        << file_name
-        << "/qn";
+        << file_name;
 
   qDebug() << "Uninstalling vagrant package:"
            << args;
