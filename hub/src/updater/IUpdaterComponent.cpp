@@ -553,6 +553,16 @@ chue_t CUpdaterComponentCHROME::update_internal() {
 }
 
 chue_t CUpdaterComponentCHROME::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_CHROME);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentCHROME::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
@@ -560,13 +570,18 @@ void CUpdaterComponentCHROME::update_post_action(bool success) {
     UNUSED_ARG(success);
 }
 
-void CUpdaterComponentCHROME::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome installation. Try again later, "
-                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
+void CUpdaterComponentCHROME::install_post_interntal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome installation. Try again later, "
+                                                "or install it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 void CUpdaterComponentCHROME::uninstall_post_internal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome uninstallation. Try again later, "
+                                                "or uninstall it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Google Chrome has been uninstalled."), DlgNotification::N_NO_ACTION);
 }
 
 //////////////////////////*E2E*///////////////////////////////////////

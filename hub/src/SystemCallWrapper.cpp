@@ -2109,8 +2109,12 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
+system_call_wrapper_error_t uninstall_chrome_internal(const QString &dir, const QString &file_name);
+
 template <>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
     qInfo() << "CC started to install google chrome";
     QString cmd("osascript");
     QStringList args;
@@ -2129,7 +2133,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
     return res.res;
 }
 template<>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -2233,7 +2237,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 }
 
 template <>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd(dir+"/"+file_name);
     QStringList args0;
     args0 << "/install";
@@ -2254,11 +2258,72 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QSt
     return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
-    installer_is_busy.lock();
-    system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
-    installer_is_busy.unlock();
-    return res;
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_LINUX> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  // pkexec apt-get remove -y subutai-p2p
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "google-chrome-stable";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Google Chrome finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Google Chrome err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_chrome(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
 }
 
 template<class OS>

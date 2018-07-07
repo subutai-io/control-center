@@ -421,10 +421,13 @@ void SilentUninstaller::silentUninstallation() {
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_vagrant, m_dir, m_file_name);
     break;
   case CC_P2P:
-    res = QtConcurrent::run(CSystemCallWrapper::uninstall_p2p, QString(""), QString(""));
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_p2p, m_dir, m_file_name);
     break;
   case CC_E2E:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_e2e);
+    break;
+  case CC_CHROME:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_chrome, m_dir, m_file_name);
     break;
   //TODO add other components
   default:
