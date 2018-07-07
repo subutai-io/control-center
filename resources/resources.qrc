@@ -77,6 +77,20 @@
         <file>Help.png</file>
         <file>stop_p2p.png</file>
         <file>info_icon.png</file>
+        <file>wallet-new.png</file>
+        <file>lan-peers-new.png</file>
+        <file>environments-new.png</file>
+        <file>ssh-keys-new.png</file>
+        <file>quit-new.png</file>
+        <file>logout-new.png</file>
+        <file>components-new.png</file>
+        <file>notifications-new.png</file>
+        <file>create-peer-new.png</file>
+        <file>my-peers-new.png</file>
+        <file>settings-new.png</file>
+        <file>user-new.png</file>
+        <file>help-new.png</file>
+        <file>hub-new.png</file>
     </qresource>
     <qresource prefix="/">
         <file>show_password.png</file>
