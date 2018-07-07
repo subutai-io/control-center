@@ -60,17 +60,17 @@ case $BRANCH in
         PKGNAME="subutai-control-center-dev$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         URL=https://devcdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     master)
         PKGNAME="subutai-control-center-master$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         URL=https://mastercdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
@@ -78,8 +78,8 @@ case $BRANCH in
         if [ $OS = Linux ]
         then
         URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
         ;;
     HEAD)
