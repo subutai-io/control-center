@@ -307,8 +307,40 @@ chue_t CUpdaterComponentVAGRANT::update_internal() {
     return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
-  qDebug() << "uninstall start vagrant";
+template <>
+chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_MAC> >() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+template <>
+chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_LINUX> >() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+// We need msi package on windows while uninstalling vagrant
+template <>
+chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_WIN> >() {
+  qDebug() << "uninstall start vagrant on windows";
 
   QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
   QString file_name = vagrant_kurjun_package_name();
@@ -334,7 +366,8 @@ chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
 
   connect(dm, &CDownloadFileManager::finished, [silent_uninstaller](bool success) {
       qDebug() << "File downloaded vagrant result: " << success;
-      if(!success){
+
+      if (!success) {
           silent_uninstaller->outputReceived(success);
       }
       else {
@@ -350,6 +383,10 @@ chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
   dm->start_download();
 
   return CHUE_SUCCESS;
+}
+
+chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
+  return uninstall_vagrant_internal<Os2Type <CURRENT_OS> >();
 }
 
 void CUpdaterComponentVAGRANT::update_post_action(bool success) {
@@ -431,7 +468,7 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal() {
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){\
-        if(!success){
+        if (!success) {
             silent_installer->outputReceived(success);
         }
         else{

@@ -173,6 +173,8 @@ namespace update_system {
       virtual chue_t install_internal();
       virtual void install_post_interntal(bool success);
       virtual chue_t uninstall_internal();
+      template <class OS>
+      chue_t uninstall_vagrant_internal();
       virtual void uninstall_post_internal(bool success);
     private:
       QString download_vagrant_path();

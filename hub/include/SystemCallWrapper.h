@@ -43,7 +43,8 @@ enum system_call_wrapper_error_t {
   SCWE_PROCESS_CRASHED,
   SCWE_LAST,
   SCWE_PERMISSION_DENIED,
-  SCWE_WRONG_FILE_NAME
+  SCWE_WRONG_FILE_NAME,
+  SCWE_COMMAND_FAILED
 };
 ////////////////////////////////////////////////////////////////////////////
 

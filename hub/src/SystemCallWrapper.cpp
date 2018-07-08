@@ -1514,7 +1514,7 @@ template <class OS>
 system_call_wrapper_error_t install_x2go_internal(const QString &dir, const QString &file_name);
 
 template <>
-system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
   QString file_path  = dir + "/" + file_name;
@@ -1736,7 +1736,26 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
 
 template <>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
-  return SCWE_SUCCESS;
+  //
+  // rm -rf /Applications/x2goclient.app
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/x2goclient.app");
+
+  qDebug() << "uninstall x2goclient internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (res.res != SCWE_SUCCESS) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
@@ -1934,7 +1953,30 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
 
 template <>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
-  return SCWE_SUCCESS;
+  //
+  // rm -rf /opt/vagrant
+  // rm -f /usr/local/bin/vagrant
+  // sudo pkgutil --forget com.vagrant.vagrant
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"%1; %2; %3\" "
+                  "with administrator privileges")
+          .arg("rm -rf /opt/vagrant")
+          .arg("rm -f /usr/local/bin/vagrant")
+          .arg("pkgutil --forget com.vagrant.vagrant");
+
+  qDebug() << "uninstall vagrant internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (res.res != SCWE_SUCCESS) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
 }
 
 template <>
@@ -3869,7 +3911,8 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
                                 "can't generate ssh-key",
                                 "call timeout",
                                 "which call failed",
-                                "process crashed"};
+                                "process crashed",
+                                "command failed"};
   return (err >= 0 && err < SCWE_LAST) ? error_str[err] : unknown;
 }
 ////////////////////////////////////////////////////////////////////////////
