@@ -24,13 +24,16 @@ DlgLogin::DlgLogin(QWidget *parent) :
   ui->lbl_register_link->setTextFormat(Qt::RichText);
   ui->lbl_register_link->setTextInteractionFlags(Qt::TextBrowserInteraction);
   ui->lbl_register_link->setOpenExternalLinks(true);
-  static QIcon show_password_icon(":/hub/show_password.png");
+  static QIcon show_password_icon(":/hub/show-password.png");
+  static QIcon hide_password_icon(":/hub/hide-password.png");
 
   this->m_show_password_action = ui->le_password->addAction(show_password_icon,
                                                             QLineEdit::TrailingPosition);
 
   connect(this->m_show_password_action, &QAction::triggered, [this]() {
       this->m_password_state ^= 1; // xor
+      this->m_show_password_action->setIcon(
+          this->m_password_state ? hide_password_icon : show_password_icon);
       ui->le_password->setEchoMode(this->m_password_state ? QLineEdit::Normal : QLineEdit::Password);
   });
 

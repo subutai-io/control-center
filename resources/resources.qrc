@@ -56,7 +56,6 @@
         <file>cc_icon_outline.png</file>
         <file>cc_icon_last.png</file>
         <file>cc_icon_resized.png</file>
-        <file>show_password.png</file>
         <file>launch.png</file>
         <file>pause.png</file>
         <file>install.png</file>
@@ -78,9 +77,10 @@
         <file>user-new.png</file>
         <file>help-new.png</file>
         <file>hub-new.png</file>
+        <file>hide-password.png</file>
+        <file>show-password.png</file>
     </qresource>
     <qresource prefix="/">
-        <file>show_password.png</file>
         <file>check_box.png</file>
         <file>check_box_outline.png</file>
     </qresource>
