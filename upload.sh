@@ -1,5 +1,5 @@
 BRANCH=$1
-VERSION=$(cat /home/travis/build/subutai-io/control-center/version)
+VERSION=$(cat version)
 OS=$(uname)
 PKGNAME=""
 BINNAME=""
@@ -99,4 +99,5 @@ echo $PKGNAME
 echo $BINNAME
 echo $OS
 echo $BRANCH
+echo $VERSION
 echo "---------"
