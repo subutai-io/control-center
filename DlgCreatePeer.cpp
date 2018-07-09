@@ -75,7 +75,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   ui->le_name->setMaxLength(20);
   ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
   m_invalid_chars.setPattern("\\W");
-  static QIcon show_password_icon(":/hub/show_password");
+  static QIcon show_password_icon(":/hub/show-password.png");
+  static QIcon hide_password_icon(":/hub/hide-password.png");
 
   // Password
   this->m_show_password_action =
@@ -88,6 +89,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // QLineEdit password show
   connect(this->m_show_password_action, &QAction::triggered, [this]() {
     this->m_password_state ^= 1;
+    this->m_show_password_action->setIcon(
+          this->m_password_state ? hide_password_icon : show_password_icon);
     ui->le_pass->setEchoMode(this->m_password_state ? QLineEdit::Normal
                                                     : QLineEdit::Password);
   });
@@ -95,6 +98,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // QLineEdit confirm password
   connect(this->m_show_confirm_password_action, &QAction::triggered, [this]() {
     this->m_password_confirm_state ^= 1;
+    this->m_show_confirm_password_action->setIcon(
+          this->m_password_confirm_state ? show_password_icon : hide_password_icon);
     ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state
                                          ? QLineEdit::Normal
                                          : QLineEdit::Password);
