@@ -3715,6 +3715,27 @@ QStringList CSystemCallWrapper::lsb_release(){
     return output;
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class  OS>
+system_call_wrapper_error_t tray_post_update_internal(const QString &version);
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
+  return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
   while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
     m_hash_counter++; m_hash_counter %= 1000;

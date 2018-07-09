@@ -2363,6 +2363,28 @@
                                 {
                                 }
                             }
+                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_94C2EAB8F3F742AE8AE80C8BAA237527"
+                            {
+                            "Name" = "8:SubutaiControlCenter"
+                            "Condition" = "8:"
+                            "AlwaysCreate" = "11:TRUE"
+                            "DeleteAtUninstall" = "11:TRUE"
+                            "Transitive" = "11:FALSE"
+                                "Keys"
+                                {
+                                }
+                                "Values"
+                                {
+                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E0A3D291350B47969AB9D9C189444EEB"
+                                    {
+                                    "Name" = "8:ProductCode"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "ValueTypes" = "3:1"
+                                    "Value" = "8:[ProductCode]"
+                                    }
+                                }
+                            }
                         }
                         "Values"
                         {

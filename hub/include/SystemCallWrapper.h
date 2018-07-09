@@ -311,9 +311,10 @@ class CSystemCallWrapper {
     QString port;
     bool use_p2p;
   };
-
   static container_ip_and_port container_ip_from_ifconfig_analog(
       const QString &port, const QString &cont_ip, const QString &rh_ip);
+  // varios system call wrappers for iupdater components
+  static system_call_wrapper_error_t tray_post_update(const QString &version);
 };
 /*
 CProcessHandler saves running processes
