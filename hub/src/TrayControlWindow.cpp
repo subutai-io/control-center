@@ -696,6 +696,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   static std::vector<QString> lst_checked_unhealthy_env;
 
   std::map<QString, std::vector<QString> > tbl_envs;
+  std::map<QString, std::vector<int> > tbl_env_ids;
   std::map<QString, int> new_envs;
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
@@ -744,6 +745,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       if (iter_found == lst_checked_unhealthy_env.end()) {
         lst_checked_unhealthy_env.push_back(env->id());
         tbl_envs[env->status()].push_back(env_name);
+        tbl_env_ids[env->status()].push_back(env->hub_id());
         qCritical("Environment %s, %s is unhealthy. Reason : %s",
                   env_name.toStdString().c_str(),
                   env->id().toStdString().c_str(),
@@ -751,8 +753,12 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       }
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
+        QString env_url = hub_billing_url()
+            .arg(CHubController::Instance().current_user_id()) +
+            QString("/environments/%1").arg(env->hub_id());
         CNotificationObserver::Info(
-            tr("Environment %1 became healthy").arg(env->name()),
+            tr("Environment <a href=%1>%2</a> became healthy")
+              .arg(env_url, env->name()),
             DlgNotification::N_NO_ACTION);
         qInfo("Environment %s became healthy",
               env->name().toStdString().c_str());
@@ -766,9 +772,15 @@ void TrayControlWindow::environments_updated_sl(int rr) {
        it != tbl_envs.end(); it++) {
     if (!it->second.empty()) {
       QString str_env_names = "";
+      QString env_url = hub_billing_url()
+          .arg(CHubController::Instance().current_user_id()) +
+          QString("/environments/%1");
       for (size_t i = 0; i < it->second.size() - 1; i++)
-        str_env_names += it->second[i] + ", ";
-      str_env_names += it->second[it->second.size() - 1];
+        str_env_names += QString("<a href=%1>")
+            .arg(env_url.arg(tbl_env_ids[it->first][i])) + it->second[i] + "</a>, ";
+      str_env_names += QString("<a href=%1>").
+          arg(env_url.arg(tbl_env_ids[it->first][it->second.size() - 1])) +
+          it->second[it->second.size() - 1] + "</a>";
       QString str_notifications = tr("Environment%1 %2 %3 %4")
                                       .arg(it->second.size() > 1 ? "s" : "")
                                       .arg(str_env_names)
