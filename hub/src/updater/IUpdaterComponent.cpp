@@ -307,86 +307,91 @@ chue_t CUpdaterComponentVAGRANT::update_internal() {
     return CHUE_SUCCESS;
 }
 
-template <>
-chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_MAC> >() {
-  static QString empty_string = "";
-
-  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
-
-  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
-          this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
-
-  silent_uninstaller->startWork();
-
-  return CHUE_SUCCESS;
-}
-
-template <>
-chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_LINUX> >() {
-  static QString empty_string = "";
-
-  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
-
-  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
-          this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
-
-  silent_uninstaller->startWork();
-
-  return CHUE_SUCCESS;
-}
-
-// We need msi package on windows while uninstalling vagrant
-template <>
-chue_t CUpdaterComponentVAGRANT::uninstall_vagrant_internal<Os2Type <OS_WIN> >() {
-  qDebug() << "uninstall start vagrant on windows";
-
-  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-  QString file_name = vagrant_kurjun_package_name();
-  QString file_dir = download_vagrant_path();
-  QString str_vagrant_downloaded_path = file_dir + "/" + file_name;
-
-  std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
-
-  if (fi.empty()) {
-    qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
-    uninstall_finished_sl(false);
-    return CHUE_NOT_ON_KURJUN;
-  }
-  std::vector<CGorjunFileInfo>::iterator item = fi.begin();
-
-  CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
-                                                      str_vagrant_downloaded_path,
-                                                      item->size());
-
-
-  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(file_dir, file_name, CC_VAGRANT);
-
-  connect(dm, &CDownloadFileManager::finished, [silent_uninstaller](bool success) {
-      qDebug() << "File downloaded vagrant result: " << success;
-
-      if (!success) {
-          silent_uninstaller->outputReceived(success);
-      }
-      else {
-          silent_uninstaller->startWork();
-      }
-  });
-
-  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
-          this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
-  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
-          dm, &CDownloadFileManager::deleteLater);
-
-  dm->start_download();
-
-  return CHUE_SUCCESS;
-}
-
 chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
-  return uninstall_vagrant_internal<Os2Type <CURRENT_OS> >();
+  switch (CURRENT_OS) {
+  case OS_MAC:
+    {
+      qDebug() << "uninstall start vagrant on mac";
+      static QString empty_string = "";
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+      silent_uninstaller->startWork();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  case OS_LINUX:
+    {
+      qDebug() << "uninstall start vagrant on linux";
+      static QString empty_string = "";
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+      silent_uninstaller->startWork();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  case OS_WIN:
+    {
+      qDebug() << "uninstall start vagrant on windows";
+
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      QString file_name = vagrant_kurjun_package_name();
+      QString file_dir = download_vagrant_path();
+      QString str_vagrant_downloaded_path = file_dir + "/" + file_name;
+
+      std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
+
+      if (fi.empty()) {
+        qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+        uninstall_finished_sl(false);
+        return CHUE_NOT_ON_KURJUN;
+      }
+      std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+      CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                          str_vagrant_downloaded_path,
+                                                          item->size());
+
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(file_dir, file_name, CC_VAGRANT);
+
+      connect(dm, &CDownloadFileManager::finished, [silent_uninstaller](bool success) {
+          qDebug() << "File downloaded vagrant result: " << success;
+
+          if (!success) {
+              silent_uninstaller->outputReceived(success);
+          }
+          else {
+              silent_uninstaller->startWork();
+          }
+      });
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              dm, &CDownloadFileManager::deleteLater);
+
+      dm->start_download();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  default:
+    return CHUE_FAILED;
+    break;
+  }
 }
 
 void CUpdaterComponentVAGRANT::update_post_action(bool success) {
