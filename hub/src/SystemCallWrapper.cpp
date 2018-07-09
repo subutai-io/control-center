@@ -1711,26 +1711,42 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
            << "output: "
            << res.out;
 
-  if (res.res == SCWE_SUCCESS &&
-      res.exit_code == 0 && !res.out.empty()) {
-    for (QString s : res.out) {
-      s = s.trimmed();
-      if (s.isEmpty()) continue;
-
-      QStringList buf = s.split(" ", QString::SkipEmptyParts);
-
-      if (buf.size() == 8) {
-        QStringList second_buf = buf[2].split("-", QString::SkipEmptyParts);
-
-        if (!second_buf.isEmpty()) {
-          uninstall_string = second_buf[0];
-        }
-        break;
-      }
-   }
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "x2goclient query failed";
+    return SCWE_CREATE_PROCESS;
   }
 
-  //TODO run uninstall string command
+  for (QString s: res.out) {
+    if (s.contains("UninstallString")) {
+      std::string sstd = s.toStdString();
+      int ind = sstd.find('"');
+      if (ind != -1) {
+        uninstall_string = QString(sstd.substr(ind, sstd.find('"', ind + 1)).c_str());
+        break;
+      }
+    }
+  }
+
+  if (uninstall_string.size() == 0) {
+    qCritical() << "x2goclient uninstall command is empty.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  cmd = uninstall_string;
+  args.clear();
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "x2goclient uninstalling process finished."
+           << "command:" << cmd
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "x2goclient uninstall failed";
+    return SCWE_COMMAND_FAILED;
+  }
+
   return res.res;
 }
 
@@ -2380,21 +2396,58 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const Q
            << " output: "
            << res.out;
 
-  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-      for (QString s : res.out) {
-          s = s.trimmed();
-          if(s.isEmpty()) continue;
-          QStringList buf = s.split(" ", QString::SkipEmptyParts);
-          if(buf.size() == 8){
-              uninstall_string = buf[2];
-              break;
-          }
-      }
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "chrome query failed";
+    return SCWE_CREATE_PROCESS;
   }
 
-  //TODO call uninstall string command
+  for (QString s: res.out) {
+    if (s.contains("UninstallString")) {
+      std::string sstd = s.toStdString();
+      int ind = sstd.find('"');
+      if (ind != -1) {
+        uninstall_string = QString(sstd.substr(ind).c_str());
+        break;
+      }
+    }
+  }
+
   qDebug() << "got uninstall string chrome: "
            << uninstall_string;
+
+  if (uninstall_string.size() == 0) {
+    qCritical() << "chrome uninstall command is empty.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  std::string sstd = uninstall_string.toStdString();
+  uninstall_string = sstd.substr(0, sstd.find('"', 1) + 1).c_str();
+  QString args_str = sstd.substr(sstd.find('"', 1) + 1).c_str();
+
+  cmd = uninstall_string;
+  args = args_str.split(" ");
+
+  for (QString &s: args) {
+    if (s.contains("\r")) {
+      sstd = s.toStdString();
+      s = sstd.replace(sstd.find("\r"), 2, "").c_str();
+    }
+  }
+
+  qDebug() << "parsed chrome uninstall command:"
+           << "cmd:" << cmd
+           << "param:" << args;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "chrome uninstalling process finished."
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "chrome uninstall failed";
+    return SCWE_COMMAND_FAILED;
+  }
 
   return res.res;
 }
