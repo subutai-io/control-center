@@ -3725,6 +3725,54 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const
 template <>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
   UNUSED_ARG(version);
+  if (version.isEmpty()) return SCWE_CREATE_PROCESS;
+  // take product code
+  QString product_code = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\SubutaiControlCenter"
+    << "/v"
+    << "ProductCode";
+  qDebug()<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got cc product code"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+      for (QString s : res.out){
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          if(buf.size() == 3){
+              product_code = buf[2];
+              break;
+          }
+      }
+  }
+  if (product_code == "undefined") {
+    return SCWE_CREATE_PROCESS;
+  }
+  // update version
+  args.clear();
+  args
+    << "add"
+    << QString("HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion"
+               "\\Uninstall\\%1").arg(product_code)
+    << "/t" << "REG_SZ"
+    << "/v" << "DisplayVersion"
+    << "/d" << version
+    << "/f";
+  qDebug()<<args;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"changed version of cc"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
   return SCWE_SUCCESS;
 }
 template <>
