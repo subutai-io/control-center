@@ -1456,7 +1456,25 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QS
 
 template <>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
-  return SCWE_SUCCESS;
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  // chrome path: /Applications/SubutaiP2P.app
+  if (!QDir("/Applications/SubutaiP2P.app").exists()) {
+    qDebug() << "Can't find p2p path: /Applications/SubutaiP2P.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  // sudo launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist; "
+                  "rm -rf /Applications/SubutaiP2P.app/ \" with administrator privileges");
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  return res.res;
 }
 
 template <>
@@ -1736,8 +1754,12 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
 
 template <>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
-  //
   // rm -rf /Applications/x2goclient.app
+  if (!QDir("/Applications/x2goclient.app").exists()) {
+    qDebug() << "Can't find x2goclient path: /Applications/x2goclient.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
   QString cmd("osascript");
   QStringList args;
 
@@ -2443,7 +2465,47 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_LINUX> > (cons
 
 template <>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
-  return SCWE_SUCCESS;
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  qDebug() << "uninstall chrome internal";
+
+  // chrome path: /Applications/Google\\\\ Chrome.app/Ï
+  if (!QDir("/Applications/Google\ Chrome.app").exists()) {
+    qDebug() << "Can't find chrome path: Applications/Google\\\\ Chrome.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args, args_close;
+
+  // close chrome application
+  // osascript -e "Tell Application \"Google Chrome\" to quit"
+  args_close << "-e"
+             << QString("Tell Application \"Google Chrome\" to quit");
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args_close, true, true);
+
+  if (rs.exit_code != 0 && rs.res != SCWE_SUCCESS) {
+    qDebug() << "Failed to close chrome app";
+  }
+
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/Google\\\\ Chrome.app");
+
+  qDebug() << "uninstall google chrome internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  qDebug() << "Ununstall chomr osx finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name) {
@@ -3360,7 +3422,9 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &
   QString line;
   bool found = false;
   if (!info_plist.exists()) {
-      return SCWE_SUCCESS;
+    version = "undefined";
+
+    return SCWE_SUCCESS;
   }
   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream stream(&info_plist);
