@@ -178,9 +178,12 @@ TrayControlWindow::~TrayControlWindow() {
 void TrayControlWindow::save_current_pid(){
   qint64 current_pid = QCoreApplication::applicationPid();
   QFile f_pid(QCoreApplication::applicationDirPath() + QDir::separator() + "last_pid");
-  if (f_pid.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)){
+  if (f_pid.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
     QTextStream in(&f_pid);
     in << current_pid;
+    f_pid.close();
+  } else {
+    qDebug("Failed to write pid");
   }
 }
 ////////////////////////////////////////////////////////////////////////////
