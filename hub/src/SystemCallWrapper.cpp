@@ -256,7 +256,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-S" << CSettingsManager::Instance().ssh_path()
       << "-i" << ssh_info.second
       << file_path
-      << QString("%1@%2:%3").arg(remote_user, ip, destination);
+      << QString("%1@%2:\"%3\"").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
