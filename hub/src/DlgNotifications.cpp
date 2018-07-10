@@ -1,3 +1,6 @@
+#include <QPainter>
+#include <QTextDocument>
+
 #include "DlgNotifications.h"
 #include "ui_DlgNotifications.h"
 #include "NotificationLogger.h"
@@ -7,6 +10,8 @@ DlgNotifications::DlgNotifications(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::DlgNotifications) {
   ui->setupUi(this);
+
+  this->ui->tv_notifications->setItemDelegate(new Delegate());
 
   m_notifications_model = new DlgNotificationsTableModel(this);
   m_notification_unions_model = new DlgNotificationUnionsTableModel(this);
@@ -37,6 +42,29 @@ DlgNotifications::~DlgNotifications() {
   delete m_notification_sort_proxy_model;
   delete m_notification_unions_sort_proxy_model;
 }
+////////////////////////////////////////////////////////////////////////////
+
+void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                     const QModelIndex &index) const {
+  QStyleOptionViewItem options = option;
+  initStyleOption(&options, index);
+
+  painter->save();
+
+  QTextDocument doc;
+  doc.setHtml(options.text);
+
+  options.text = "";
+  options.widget->style()->drawControl(QStyle::CE_ItemViewItem,
+                                       &options, painter);
+
+  painter->translate(options.rect.left(), options.rect.top());
+  QRect clip(0, 0, options.rect.width(), options.rect.height());
+  doc.drawContents(painter, clip);
+
+  painter->restore();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void
