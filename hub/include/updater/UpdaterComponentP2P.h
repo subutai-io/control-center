@@ -24,6 +24,14 @@ namespace update_system {
     CUpdaterComponentP2P();
     virtual ~CUpdaterComponentP2P();
   };
+  class PostUpdater : public QObject{
+      Q_OBJECT
+  public:
+      PostUpdater(QObject *parent = nullptr) : QObject (parent){}
+      void start_work();
+      void post_update();
+  signals:
+      void output_received(bool success);
+  };
 }
-
 #endif // UPDATERCOMPONENTP2P_H
