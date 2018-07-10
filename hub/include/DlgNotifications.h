@@ -2,9 +2,11 @@
 #define DLGNOTIFICATIONS_H
 
 #include <QDialog>
+#include <QStyledItemDelegate>
 #include "DlgNotificationsModel.h"
 namespace Ui {
   class DlgNotifications;
+  class Delegate;
 }
 
 class DlgNotifications : public QDialog
@@ -26,6 +28,16 @@ private:
 private slots:
   void rebuild_model();
   void chk_full_info_toggled(bool checked);
+};
+
+class Delegate : public QStyledItemDelegate
+{
+  Q_OBJECT
+
+public:
+  Delegate(QWidget *parent = 0) : QStyledItemDelegate(parent) {}
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             const QModelIndex &index) const;
 };
 
 #endif // DLGNOTIFICATIONS_H
