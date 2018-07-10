@@ -63,7 +63,8 @@ SOURCES += \
     hub/forms/DlgTransferFile.cpp \
     hub/src/DlgRegisterPeer.cpp \
     DlgCreatePeer.cpp \
-    hub/src/PeerController.cpp
+    hub/src/PeerController.cpp \
+    commons/src/Environment.cpp
 
 
 
@@ -112,7 +113,8 @@ HEADERS  += \
     hub/forms/DlgTransferFile.h \
     hub/include/DlgRegisterPeer.h \
     DlgCreatePeer.h \
-    hub/include/PeerController.h
+    hub/include/PeerController.h \
+    commons/include/Environment.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

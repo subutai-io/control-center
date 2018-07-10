@@ -1,3 +1,4 @@
+#include <thread>
 #include "DlgCreatePeer.h"
 #include "DlgNotification.h"
 #include "NotificationObserver.h"
@@ -104,6 +105,12 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                                          ? QLineEdit::Normal
                                          : QLineEdit::Password);
   });
+
+  // add item to combobox cpu
+  int n_cpu = std::thread::hardware_concurrency();
+  for(int i = 0; i < n_cpu; i++) {
+    ui->cmb_cpu->addItem(QString::number(i+1));
+  }
 }
 
 DlgCreatePeer::~DlgCreatePeer() { delete ui; }
