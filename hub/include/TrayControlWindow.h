@@ -87,6 +87,7 @@ public:
   bool is_p2p_avaibale();
 private:
   Ui::TrayControlWindow *ui;
+  void save_current_pid();
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;

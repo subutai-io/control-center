@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-kill -9 $(ps -A | grep "Subutai" | awk {'print $1'})
+kill -9 $(cat /opt/subutai/bin/last_pid)
 if which update-icon-caches >/dev/null 2>&1 ; then
     update-icon-caches /usr/share/icons/cc_icon_resized.png
 fi
