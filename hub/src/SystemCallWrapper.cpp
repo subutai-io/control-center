@@ -3784,6 +3784,69 @@ system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &
   return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t p2p_post_update_internal();
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_LINUX> >(){
+  return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_MAC> >(){
+  return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_WIN> >(){
+  // get p2p product code
+  // wmic product where "Name like '%Subutai p2p%'" get IdentifyingNumber
+  QString cmd = "wmic";
+  QStringList args;
+  args
+    << "product" << "where"
+    << "Name like '%Subutai p2p%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of p2p"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_SUCCESS;
+  QString version;
+  CSystemCallWrapper::p2p_version(version);
+  version = version.remove("p2p");
+  version = version.remove("version");
+  version = version.trimmed();
+  if (version == "undefined" || version.isEmpty()) return SCWE_SUCCESS;
+  // update version
+  args.clear();
+  cmd = "REG";
+  args
+    << "add"
+    << QString("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
+               "\\Uninstall\\%1").arg(product_code)
+    << "/t" << "REG_SZ"
+    << "/v" << "DisplayVersion"
+    << "/d" << version
+    << "/f";
+  qDebug()<<args;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"changed version of p2p"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::p2p_post_update(){
+  return p2p_post_update_internal<Os2Type<CURRENT_OS>>();
+}
+////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
   while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
     m_hash_counter++; m_hash_counter %= 1000;
