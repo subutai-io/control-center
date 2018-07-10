@@ -126,7 +126,6 @@ chue_t CUpdaterComponentP2P::install_internal(){
 chue_t
 CUpdaterComponentP2P::update_internal() {
   qDebug() << "Starting to update P2P";
-
   QString str_p2p_path = p2p_path();
   if(str_p2p_path == "Not found"){
       CNotificationObserver::Instance()->Error(tr("To continue, you must install the P2P Daemon first."), DlgNotification::N_INSTALL_P2P);
@@ -223,6 +222,10 @@ CUpdaterComponentP2P::update_post_action(bool success) {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     msg_box->exec();
   }
+  // additional post update scripts
+  static QString cloud_version = "neoMatrix";
+  PostUpdater *post_scripts = new PostUpdater(this);
+  post_scripts->start_work();
 }
 
 void CUpdaterComponentP2P::install_post_interntal(bool success){
@@ -235,3 +238,26 @@ void CUpdaterComponentP2P::install_post_interntal(bool success){
     }
 }
 ////////////////////////////////////////////////////////////////////////////
+void PostUpdater::start_work(){
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &PostUpdater::post_update);
+    connect(this, &PostUpdater::output_received,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &PostUpdater::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+}
+
+void PostUpdater::post_update(){
+    QFutureWatcher<system_call_wrapper_error_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_error_t>(this);
+    QFuture<system_call_wrapper_error_t>  res = QtConcurrent::run(CSystemCallWrapper::p2p_post_update);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
+      emit this->output_received(res.result() == SCWE_SUCCESS);
+    });
+}
