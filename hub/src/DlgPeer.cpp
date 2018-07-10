@@ -23,9 +23,11 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
   this->ui->le_pass->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+  ui->pb_activity->setMaximum(4);
   ui->gr_ssh->setVisible(true);
   ui->pb_activity->setVisible(false);
   ui->lbl_activity_info->setVisible(false);
+  ui->lbl_activity_info->setStyleSheet("QLabel {color : green}");
   ui->gr_peer_control->setVisible(false);
   ui->btn_launch_console->setEnabled(false);
   ui->lbl_update_peeros->setWordWrap(true);
@@ -89,7 +91,7 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   hub_available = false;
   updatePeer();
   refresh_timer = new QTimer(this);
-  refresh_timer->setInterval(7 * 1000); //7 seconds
+  refresh_timer->setInterval(3 * 1000); //7 seconds
   connect(refresh_timer, &QTimer::timeout, this, &DlgPeer::updatePeer);
   refresh_timer->start();
 }
@@ -146,6 +148,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   rh_status = peer.status();
   rh_dir = peer.dir();
   rh_name = peer.name();
+  rh_provision_step = peer.provision_step();
   management_ua = peer.update_available() == "true" ? true : false;
   // localhost port
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
@@ -188,6 +191,17 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
       ui->btn_update_peer->setToolTip(
           tr("This peer is currently updating. Please wait"));
     }
+  }
+  // progress bar
+  if (rh_provision_step != -1) {
+    ui->lbl_activity_info->setVisible(true);
+    ui->pb_activity->setVisible(true);
+    ui->lbl_activity_info->setText(
+          CPeerController::Instance()->provision_step_description(rh_provision_step));
+    ui->pb_activity->setValue(rh_provision_step + 1);
+  } else {
+    ui->lbl_activity_info->setVisible(false);
+    ui->pb_activity->setVisible(false);
   }
   parse_yml();
 }
@@ -356,10 +370,11 @@ void DlgPeer::rh_ssh_sl() {
 }
 
 void DlgPeer::configs() {
+  if (ui->change_configure->isChecked()) return;
   ui->le_cpu->setText(rh_cpu);
   ui->le_ram->setText(rh_ram);
   ui->le_disk->setText(rh_disk);
-  QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   int index_bridge = -1;
   for (int i = 0; i < bridges.size(); i++) {
     QString s = bridges[i];
@@ -486,7 +501,8 @@ void DlgPeer::rh_register_or_unregister_sl() {
 
 void DlgPeer::rh_register() {
   ui->btn_register_unregister->setEnabled(false);
-  DlgRegisterPeer *dlg_register = new DlgRegisterPeer(this);
+  DlgRegisterPeer *dlg_register = new DlgRegisterPeer();
+  dlg_register->setAttribute(Qt::WA_DeleteOnClose);
   const QString ip_addr = ui->lbl_ip->text();
   dlg_register->init(ip_addr, this->rh_name);
   dlg_register->setRegistrationMode();
@@ -507,7 +523,8 @@ void DlgPeer::rh_unregister() {
     return;
   }
   ui->btn_register_unregister->setEnabled(false);
-  DlgRegisterPeer *dlg_unregister = new DlgRegisterPeer(this);
+  DlgRegisterPeer *dlg_unregister = new DlgRegisterPeer();
+  dlg_unregister->setAttribute(Qt::WA_DeleteOnClose);
   const QString ip_addr = ui->lbl_ip->text();
   dlg_unregister->init(ip_addr, peer_name);
   dlg_unregister->setUnregistrationMode();

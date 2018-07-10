@@ -12,6 +12,7 @@ namespace update_system {
   private:
     static QString tray_path();
     static QString download_tray_path();
+    QString tray_cloud_version;
 
     // IUpdaterComponent interface
   protected:

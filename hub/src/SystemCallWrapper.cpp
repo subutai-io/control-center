@@ -257,7 +257,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
       << "-S" << CSettingsManager::Instance().ssh_path()
       << "-i" << ssh_info.second
       << file_path
-      << QString("%1@%2:%3").arg(remote_user, ip, destination);
+      << QString("%1@%2:\"%3\"").arg(remote_user, ip, destination);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
@@ -321,7 +321,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     if(res.res == SCWE_SUCCESS && res.exit_code != 0){
         return SCWE_CREATE_PROCESS;
     }
-
     return res.res;
 }
 
@@ -636,12 +635,15 @@ QStringList CSystemCallWrapper::list_interfaces(){
     /*#1 how to get bridged interfaces
      * using command VBoxManage get list of all bridged interfaces
      * */
+    installer_is_busy.lock();
     qDebug("Getting list of bridged interfaces");
     QString vb_version;
     CSystemCallWrapper::oracle_virtualbox_version(vb_version);
     QStringList interfaces;
-    if(vb_version == "undefined")
-        return interfaces;
+    if (vb_version == "undefined") {
+      installer_is_busy.unlock();
+      return interfaces;
+    }
     QString path = CSettingsManager::Instance().oracle_virtualbox_path();
     QDir dir(path);
     dir.cdUp();
@@ -692,6 +694,7 @@ QStringList CSystemCallWrapper::list_interfaces(){
         if(flag == "Status" && value == "Up")
             interfaces.push_back(last_name);
     }
+    installer_is_busy.unlock();
     return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
@@ -778,7 +781,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
     vagrant_version(version);
     if(version == "undefined"){
         CNotificationObserver::Error(QObject::tr("Cannot create a peer without Vagrant installed in your system. "
-                                                 "To install, go to the menu > About."), DlgNotification::N_ABOUT);
+                                                 "To install, go to the menu > Components."), DlgNotification::N_ABOUT);
         return false;
     }
     oracle_virtualbox_version(version);
@@ -2139,7 +2142,6 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> 
 }
 template <>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
-    QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2180,25 +2182,37 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
       CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
       return SCWE_CREATE_PROCESS;
     }
-
     QByteArray install_script = QString(
-                                    "#!/bin/bash\n"
-                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
-                                    "if [ $? -gt 0 ]\n"
-                                    "then\n"
-                                    "apt-get install -y -f\n"
-                                    "apt-get install -y dkms build-essential linux-headers-`uname -r`\n"
-                                    "fi\n"
-                                    "cd %1\n"
-                                    "dpkg -i %2\n"
-                                    "if [ $? -gt 0 ]\n"
-                                    "then\n"
-                                    "dpkg --remove --force-remove-reinstreq %2\n"
-                                    "apt-get install -y -f\n"
-                                    "dpkg -i %2\n"
-                                    "fi\n")
-                                    .arg(dir, file_name)
-                                    .toUtf8();
+      "#!/bin/bash\n"
+      "apt-get install -y dkms\n"
+      "if [ $? -gt 0 ]\n"
+      "then\n"
+      "apt-get install -y -f\n"
+      "apt-get install -y dkms\n"
+      "fi\n"
+      "apt-get install -y libcurl3\n"
+      "if [ $? -gt 0 ]\n"
+      "then\n"
+      "apt-get install -y -f\n"
+      "apt-get install -y libcurl3\n"
+      "fi\n"
+      "apt-get install -y linux-header-`uname -r`\n"
+      "if [ $? -gt 0 ]\n"
+      "then\n"
+      "apt-get install -y -f\n"
+      "apt-get install -y linux-header-`uname -r`\n"
+      "fi\n"
+      "cd %1\n"
+      "dpkg -i %2\n"
+      "if [ $? -gt 0 ]\n"
+      "then\n"
+      "apt-get install -y -f\n"
+      "dpkg -i %2\n"
+      "fi\n"
+      "if [ $? -gt 0 ]\n"
+      "then\n"
+      "dpkg --remove --force-remove-reinstreq %2\n"
+      "fi\n").arg(dir, file_name).toUtf8();
 
     if (tmpFile.write(install_script) != install_script.size()) {
       QString err_msg = QObject::tr("Couldn't write install script to temp file")
@@ -2231,7 +2245,6 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
             <<"error code:"<<cr2.exit_code
             <<"output: "<<cr2.out
             <<"result: "<<cr2.res;
-    tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
       return SCWE_CREATE_PROCESS;
 
@@ -4420,6 +4433,138 @@ QStringList CSystemCallWrapper::lsb_release(){
     if(res.exit_code != 0 || res.res != SCWE_SUCCESS)
         output.clear();
     return output;
+}
+////////////////////////////////////////////////////////////////////////////
+template <class  OS>
+system_call_wrapper_error_t tray_post_update_internal(const QString &version);
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
+  UNUSED_ARG(version);
+  if (version.isEmpty()) return SCWE_CREATE_PROCESS;
+  // take product code
+  QString product_code = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  args
+    << "QUERY"
+    << "HKLM\\SOFTWARE\\WOW6432Node\\SubutaiControlCenter"
+    << "/v"
+    << "ProductCode";
+  qDebug()<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"got cc product code"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+      for (QString s : res.out){
+          s = s.trimmed();
+          if(s.isEmpty()) continue;
+          QStringList buf = s.split(" ", QString::SkipEmptyParts);
+          if(buf.size() == 3){
+              product_code = buf[2];
+              break;
+          }
+      }
+  }
+  if (product_code == "undefined") {
+    return SCWE_CREATE_PROCESS;
+  }
+  // update version
+  args.clear();
+  args
+    << "add"
+    << QString("HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion"
+               "\\Uninstall\\%1").arg(product_code)
+    << "/t" << "REG_SZ"
+    << "/v" << "DisplayVersion"
+    << "/d" << version
+    << "/f";
+  qDebug()<<args;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"changed version of cc"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+template <>
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
+  UNUSED_ARG(version);
+  return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
+  return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t p2p_post_update_internal();
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_LINUX> >(){
+  return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_MAC> >(){
+  return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_WIN> >(){
+  // get p2p product code
+  // wmic product where "Name like '%Subutai p2p%'" get IdentifyingNumber
+  QString cmd = "wmic";
+  QStringList args;
+  args
+    << "product" << "where"
+    << "Name like '%Subutai p2p%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of p2p"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_SUCCESS;
+  QString version;
+  CSystemCallWrapper::p2p_version(version);
+  version = version.remove("p2p");
+  version = version.remove("version");
+  version = version.trimmed();
+  if (version == "undefined" || version.isEmpty()) return SCWE_SUCCESS;
+  // update version
+  args.clear();
+  cmd = "REG";
+  args
+    << "add"
+    << QString("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
+               "\\Uninstall\\%1").arg(product_code)
+    << "/t" << "REG_SZ"
+    << "/v" << "DisplayVersion"
+    << "/d" << version
+    << "/f";
+  qDebug()<<args;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug()<<"changed version of p2p"
+          <<"exit code"<<res.exit_code
+          <<"result code"<<res.res
+          <<"output"<<res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::p2p_post_update(){
+  return p2p_post_update_internal<Os2Type<CURRENT_OS>>();
 }
 ////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){

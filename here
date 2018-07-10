@@ -1,0 +1,12 @@
+
+=======
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_vbguest_plugin_info_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+>>>>>>> 142cd37ab5b5ed6474e14033e94869077fdefa59

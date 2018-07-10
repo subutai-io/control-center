@@ -1,5 +1,6 @@
 #include <QThread>
 #include <QtConcurrent/QtConcurrent>
+#include <QPixmap>
 
 #include "Commons.h"
 #include "DlgAbout.h"
@@ -85,6 +86,67 @@ DlgAbout::DlgAbout(QWidget *parent) :
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
 
+  QLabel* ilbls[] = { this->ui->lbl_chrome_info_icon,
+                      this->ui->lbl_p2p_info_icon,
+                      this->ui->lbl_tray_info_icon,
+                      this->ui->lbl_x2go_info_icon,
+                      this->ui->lbl_vagrant_info_icon,
+                      this->ui->lbl_chrome_info_icon,
+                      this->ui->lbl_e2e_info_icon,
+                      this->ui->lbl_vbox_info_icon,
+                      this->ui->lbl_subutai_plugin_info_icon,
+                      this->ui->lbl_vbguest_plugin_info_icon,
+                      this->ui->lbl_subutai_box_info_icon,
+                      nullptr };
+
+  QPixmap info_icon = QPixmap(":/hub/info_icon.png");
+
+  for (QLabel **i = ilbls; *i; ++i) {
+    (*i)->setPixmap(info_icon);
+    (*i)->setToolTipDuration(1000 * 1000);
+    (*i)->setTextFormat(Qt::RichText);
+  }
+
+  this->ui->lbl_tray_info_icon->setToolTip(
+        "<nobr>Subutai Control Center is a tray application<br>"
+        "that is meant to ease bazaar usage.");
+
+  this->ui->lbl_p2p_info_icon->setToolTip(
+        "<nobr>Subutai P2P is powerful tool that establishes<br>"
+        "connections to peers and environments.");
+
+  this->ui->lbl_vagrant_info_icon->setToolTip(
+        "<nobr>Vagrant is a tool for building and<br>"
+        "managing virtual machine environments.");
+
+  this->ui->lbl_e2e_info_icon->setToolTip(
+        "<nobr>Subutai E2E is an extension for browser which<br>"
+        "helps to store and manage PGP-keys.");
+
+  this->ui->lbl_vbox_info_icon->setToolTip(
+        "<nobr>Oracle VirtualBox is hypervisor for<br>"
+        "managing virtual machine environments");
+
+  this->ui->lbl_chrome_info_icon->setToolTip(
+        "Google Chrome is a web browser used by default.");
+
+  this->ui->lbl_subutai_box_info_icon->setToolTip(
+        "Subutai Box is the resource box for peer creation.");
+
+  this->ui->lbl_subutai_plugin_info_icon->setToolTip(
+        "<nobr>The Vagrant Subutai plugin sets up<br>"
+        "peer parameters, like disk size and RAM.");
+
+  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(
+        "<nobr>The Vagrant VirtualBox plugin sets<br>"
+        "VirtualBox as your hypervisor for Vagrant.");
+
+  this->ui->lbl_x2go_info_icon->setToolTip(
+        "X2Go client enables remote desktop access.");
+
+  this->ui->lbl_firefox_info_icon->setToolTip(
+        "Mozilla Firefox is a web browser used by default.");
+
   QLabel* lbls[] = { this->ui->lbl_chrome_version_val,
                      this->ui->lbl_p2p_version_val,
                      this->ui->lbl_tray_version_val,
@@ -163,6 +225,17 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box, ui->btn_subutai_box,
                                               get_subutai_box_version};
 
+  for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
+    std::pair <quint64, quint64> progress =
+        CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
+    if (progress.first * progress.second == 0)
+      it->second.pb->setValue(0);
+    else {
+      uint value = (progress.first * 100) / progress.second;
+      it->second.pb->setValue(value);
+    }
+  }
+
   ui->pb_initialization_progress->setMaximum(DlgAboutInitializer::COMPONENTS_COUNT);
 
   // hide checkboxes
@@ -185,7 +258,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
 void DlgAbout::set_visible_chrome(bool value) {
     ui->btn_chrome->setVisible(value);
     ui->lbl_chrome_version->setVisible(value);
+    ui->lbl_chrome_info_icon->setVisible(value);
     ui->lbl_chrome_version_val->setVisible(value);
+    ui->lbl_spacer_chrome->setVisible(value);
     ui->pb_chrome->setVisible(value);
     ui->cb_chrome->setVisible(value);
     this->adjustSize();
@@ -194,8 +269,10 @@ void DlgAbout::set_visible_chrome(bool value) {
 void DlgAbout::set_visible_firefox(bool value) {
     ui->btn_firefox->setVisible(value);
     ui->pb_firefox->setVisible(value);
-    ui->lbl_firefox->setVisible(value);
+    ui->lbl_firefox_version->setVisible(value);
+    ui->lbl_firefox_info_icon->setVisible(value);
     ui->lbl_firefox_version_val->setVisible(value);
+    ui->lbl_spacer_firefox->setVisible(value);
     ui->cb_firefox->setVisible(value);
     this->adjustSize();
 }
@@ -570,7 +647,6 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
     if(m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
         return;
     }
-
     // update available component
     if (update_available) {
         qInfo() << "update available: "
@@ -602,15 +678,6 @@ DlgAboutInitializer::do_initialization() {
     emit got_chrome_version(chrome_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-/*currently not used but we might need *
-    QString rh_version = CSystemCallWrapper::rh_version();
-    emit got_rh_version(rh_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-    QString rhm_version = CSystemCallWrapper::rhm_version();
-    emit got_rh_management_version(rhm_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-*/
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -671,9 +738,7 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
     m_dct_fpb[component_id].btn->setEnabled(false);
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setRange(0, 100);
-    m_dct_fpb[component_id].btn->setText(tr("Update %1")
-                                         .arg(CHubComponentsUpdater::Instance()
-                                             ->component_name(component_id)));
+    m_dct_fpb[component_id].btn->setText(tr("Update"));
     if (m_dct_fpb[component_id].pf_version) {
       m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     }

@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+kill -9 $(cat /opt/subutai/bin/last_pid)
 if which update-icon-caches >/dev/null 2>&1 ; then
     update-icon-caches /usr/share/icons/cc_icon_resized.png
 fi
@@ -25,11 +26,11 @@ if [ $count != 0 ]; then
   rm /opt/subutai/bin/*.qm
 fi 
 
-if [ -f /opt/subutai/lbin/SubutaiControlCenter ]; then
-  rm /opt/subutai/bin/SubutaiControlCenter
+if [ -f /opt/subutai/bin/SubutaiControlCenter ]; then
+  rm /opt/subutai/bin/SubutaiControlCenter*
 fi
 
-if [ -f /opt/subutai/lbin/subutai-control-center ]; then
+if [ -f /opt/subutai/bin/subutai-control-center ]; then
   rm /opt/subutai/bin/subutai-control-center
 fi
 

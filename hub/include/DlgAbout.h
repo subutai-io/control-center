@@ -53,7 +53,7 @@ signals:
 ////////////////////////////////////////////////////////////////////////////
 
 /*!
- * \brief This class manages behavior of "About" dialog
+ * \brief This class manages behavior of "Components" dialog
  */
 class DlgAbout : public QDialog
 {

@@ -67,6 +67,7 @@ CUpdaterComponentTray::update_internal() {
     eu->replace_executables(true);
     return CHUE_SUCCESS;
   }
+  tray_cloud_version = item->version();
   CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                       str_tray_download_path,
                                                       item->size());
@@ -92,7 +93,10 @@ CUpdaterComponentTray::update_post_action(bool success) {
     CNotificationObserver::Error(tr("Failed to update the Control Center. Make sure that you have the required permissions."), DlgNotification::N_SETTINGS);
     return;
   }
-
+  system_call_wrapper_error_t res = CSystemCallWrapper::tray_post_update(tray_cloud_version);
+  if (res != SCWE_SUCCESS) {
+    qCritical("Failed to finish post install after tray update");
+  }
   QMessageBox* msg_box = new QMessageBox(QMessageBox::Question, tr("Successfully updated the Control Center."),
                       tr("The Control Center has been updated. Do you want to restart it now?"),
                       QMessageBox::Yes | QMessageBox::No);

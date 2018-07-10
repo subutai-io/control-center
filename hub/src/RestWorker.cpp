@@ -218,19 +218,13 @@ void CRestWorker::peer_token(const QString& port, const QString& login,
            << "Network Error " << network_error;
 
   token = QString(arr);
-  static const QString str_acces_denied = "Access Denied to the resource!";
   if (err_code != RE_SUCCESS) {
-    if (http_code == 500) err_code = RE_LOGIN_OR_EMAIL;
+    if (network_error == 204) err_code = RE_LOGIN_OR_EMAIL;
     return;
   }
 
   if (QString(arr) == "") {
     err_code = RE_NETWORK_ERROR;
-    return;
-  }
-
-  if (QString(arr) == str_acces_denied) {
-    err_code = RE_LOGIN_OR_EMAIL;
     return;
   }
 }

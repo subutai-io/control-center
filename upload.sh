@@ -1,4 +1,5 @@
 BRANCH=$1
+VERSION=$(cat version)
 OS=$(uname)
 PKGNAME=""
 BINNAME=""
@@ -26,10 +27,11 @@ upload_cdn (){
 
     echo "Uploading file..."
 
-    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Ftoken=$TOKEN "$2/raw/upload")
+    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Fversion=$3 -Ftoken=$TOKEN "$2/raw/upload")
 
     echo "File uploaded with ID $ID"
     echo "URL: $2"
+    echo "VERSION: $3"
     echo "Signing file..."
 
     SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
@@ -58,31 +60,37 @@ case $BRANCH in
         PKGNAME="subutai-control-center-dev$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         URL=https://devcdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     master)
         PKGNAME="subutai-control-center-master$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         URL=https://mastercdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
+        if [ $OS = Linux ]
+        then
         URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        fi
         ;;
     HEAD)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
+        if [ $OS = Linux ]
+        then
         URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        fi
         ;;
 esac
 
@@ -91,4 +99,5 @@ echo $PKGNAME
 echo $BINNAME
 echo $OS
 echo $BRANCH
+echo $VERSION
 echo "---------"

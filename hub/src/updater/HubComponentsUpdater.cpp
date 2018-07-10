@@ -115,7 +115,13 @@ CHubComponentsUpdater::update_component_timer_timeout(const QString &component_i
           "can't find component updater in map with id = %s", component_id.toStdString().c_str());
     return;
   }
-
+  if (component_id == IUpdaterComponent::P2P) {
+    QString p2p_old_version;
+    CSystemCallWrapper::p2p_version(p2p_old_version);
+    if (p2p_old_version == "undefined"){
+      return;
+    }
+  }
   m_dct_components[component_id].timer_stop();
   if (m_dct_components[component_id].Component()->update_available()) {
     if (m_dct_components[component_id].autoupdate) {
@@ -304,6 +310,15 @@ bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
     if(m_dct_components.find(component_id) == m_dct_components.end())
         return true;
     else return m_dct_components[component_id].Component()->is_in_progress();
+}
+
+const std::pair <quint64, quint64>& CHubComponentsUpdater::get_last_pb_value(const QString &component_id) {
+  static std::pair <quint64, quint64> zero(0, 0);
+  if (m_dct_components.find(component_id) == m_dct_components.end() || !is_in_progress(component_id)) {
+    return zero;
+  } else {
+    return m_dct_components[component_id].Component()->get_last_pb_value();
+  }
 }
 
 ///////* class installs cc components in silent mode *///////////

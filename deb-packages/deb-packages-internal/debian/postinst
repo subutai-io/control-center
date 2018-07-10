@@ -23,7 +23,7 @@ cp /tmp/subutai/SubutaiControlCenter/bin/*.qm /opt/subutai/bin
 cp /tmp/subutai/SubutaiControlCenter/bin/subutai-control-center $tray_binary
 
 echo "#!/bin/bash" > $tray_script
-echo "LD_LIBRARY_PATH=/opt/subutai/Libs/ $tray_binary" >> $tray_script
+echo "LD_LIBRARY_PATH=/opt/subutai/Libs/ $tray_binary \$@" >> $tray_script
 ln -s $tray_script $tray_link
 chmod +x $tray_link
 chmod +x $tray_script

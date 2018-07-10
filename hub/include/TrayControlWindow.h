@@ -87,6 +87,7 @@ public:
   bool is_p2p_avaibale();
 private:
   Ui::TrayControlWindow *ui;
+  void save_current_pid();
   static QDialog *last_generated_env_dlg(QWidget *p);
   void generate_env_dlg(const CEnvironment *env);
   static QDialog *m_last_generated_env_dlg;
@@ -119,6 +120,7 @@ private:
   QAction *m_act_launch;
   QAction *m_act_launch_Hub;
   QAction *m_act_about;
+  QAction *m_act_help;
   QAction *m_act_logout;
   QAction *m_act_notifications_history;
 
@@ -188,7 +190,7 @@ private slots:
 
   /*peer management*/
   void my_peers_updated_sl();
-  void got_peer_info_sl(int type,
+  void got_peer_info_sl(CPeerController::peer_info_t type,
                         QString name,
                         QString dir,
                         QString output);
