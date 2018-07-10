@@ -130,6 +130,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
   CHubController::Instance().force_refresh();
   login_success();
   check_components();
+  save_current_pid();
 }
 
 TrayControlWindow::~TrayControlWindow() {
@@ -172,6 +173,15 @@ TrayControlWindow::~TrayControlWindow() {
   } catch (...) {
   }
   delete ui;
+}
+////////////////////////////////////////////////////////////////////////////
+void TrayControlWindow::save_current_pid(){
+  qint64 current_pid = QCoreApplication::applicationPid();
+  QFile f_pid(QCoreApplication::applicationDirPath() + QDir::separator() + "last_pid");
+  if (f_pid.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)){
+    QTextStream in(&f_pid);
+    in << current_pid;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::check_components() {
