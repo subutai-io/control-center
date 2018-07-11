@@ -690,7 +690,12 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
     return cloud_version > version;
 }
+
 chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
+  return CUpdaterComponentSUBUTAI_BOX::install_internal(false);
+}
+
+chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
     qDebug()
             << "Starting install new version of subutai box";
 
@@ -746,15 +751,20 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
             silent_installer->startWork();
         }
     });
-    connect(silent_installer, &SilentInstaller::outputReceived,
-            this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+    if (update) {
+      connect(silent_installer, &SilentInstaller::outputReceived,
+              this, &CUpdaterComponentSUBUTAI_BOX::update_finished_sl);
+    } else {
+      connect(silent_installer, &SilentInstaller::outputReceived,
+              this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+    }
     connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;
 }
 chue_t CUpdaterComponentSUBUTAI_BOX::update_internal(){
-    return install_internal();
+    return install_internal(true);
 }
 void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success){
     if(!success){
