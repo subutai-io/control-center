@@ -22,7 +22,7 @@ public:
 public:
   void do_initialization();
   void abort();
-  void startWork(){
+  void startWork() {
         QThread* th = new QThread();
         connect(th, &QThread::started,
                 this, &DlgAboutInitializer::do_initialization);
@@ -98,12 +98,14 @@ private slots:
   void btn_subutai_box_update_released();
   void btn_recheck_released();
   void btn_close_released();
+  void btn_uninstall_components();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
  // void unavailable(const QString &file_id);
   void update_finished(const QString &file_id, bool success);  
   void install_finished(const QString &file_id, bool success);
+  void uninstall_finished(const QString& component_id, bool success);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);

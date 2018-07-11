@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>561</width>
-    <height>804</height>
+    <height>846</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/resources.qrc">
-    <normaloff>:/hub/about.png</normaloff>:/hub/about.png</iconset>
+    <normaloff>:/hub/components-new.png</normaloff>:/hub/components-new.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">DlgAbout {
@@ -117,7 +117,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -332,7 +332,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -574,7 +574,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -712,7 +712,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -804,7 +804,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -848,6 +848,36 @@ min-height: 550pxk
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box_outline.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
            </property>
            <property name="text">
             <string/>
@@ -920,7 +950,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -964,6 +994,36 @@ min-height: 550pxk
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box_outline.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
            </property>
            <property name="text">
             <string/>
@@ -1051,7 +1111,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -1188,7 +1248,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -1333,7 +1393,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -1427,7 +1487,7 @@ min-height: 550pxk
   }
   QCheckBox::indicator:unchecked
   {
-    image: url(:/hub/check_box.png);
+    image: url(:/hub/check_box_outline.png);
   }
 
   QCheckBox::indicator:checked:pressed
@@ -1495,6 +1555,30 @@ min-height: 550pxk
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box_outline.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
            </property>
            <property name="text">
             <string>Vagrant VBGuest plug-in</string>
@@ -1625,25 +1709,58 @@ min-height: 550pxk
      </item>
     </layout>
    </item>
-   <item alignment="Qt::AlignRight">
-    <widget class="QPushButton" name="btn_close">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_uninstall_components">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+padding-left: 5px; 
+padding-right: 3px;
+padding-top: 1px; 
+padding-bottom: 1px;
+}</string>
+       </property>
+       <property name="text">
+        <string>Uninstall components</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_close">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>

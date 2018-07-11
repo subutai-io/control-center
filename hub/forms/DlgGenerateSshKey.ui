@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources/resources.qrc">
-    <normaloff>:/hub/ssh-keys.png</normaloff>:/hub/ssh-keys.png</iconset>
+    <normaloff>:/hub/ssh-keys-new.png</normaloff>:/hub/ssh-keys-new.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -153,7 +153,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>

@@ -182,6 +182,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this, &DlgAbout::btn_subutai_box_update_released);
   connect(ui->btn_close, &QPushButton::released, this, &DlgAbout::btn_close_released);
+  connect(ui->btn_uninstall_components, &QPushButton::released, this, &DlgAbout::btn_uninstall_components);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -191,6 +192,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
           this, &DlgAbout::update_finished);
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
           this, &DlgAbout::install_finished);
+
+  connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::uninstalling_finished,
+          this, &DlgAbout::uninstall_finished);
 
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p, ui->cb_p2p, ui->btn_p2p_update,
                                        get_p2p_version};
@@ -418,8 +422,21 @@ void DlgAbout::btn_recheck_released() {
 void DlgAbout::btn_close_released() {
   this->close();
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
+/// \brief DlgAbout::btn_uninstall_components
+///
+void DlgAbout::btn_uninstall_components() {
+  for (const auto& component : m_dct_fpb) {
+    if (component.second.cb->isChecked()) {
+      qDebug() << "Checkbox enabled: "
+               << component.first;
+      CHubComponentsUpdater::Instance()->uninstall(component.first);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
 void
 DlgAbout::download_progress(const QString& component_id,
                             qint64 rec,
@@ -427,8 +444,8 @@ DlgAbout::download_progress(const QString& component_id,
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   m_dct_fpb[component_id].pb->setValue((rec*100)/total);
 }
-////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////
 void
 DlgAbout::update_available(const QString& file_id) {
   if (m_dct_fpb.find(file_id) == m_dct_fpb.end()) return;
@@ -734,8 +751,28 @@ void DlgAbout::install_finished(const QString &component_id, bool success) {
     } else {
         m_dct_fpb[component_id].btn->setEnabled(true);
         m_dct_fpb[component_id].btn->setText(tr("Install"));
-        m_dct_fpb[component_id].pb->setHidden(true);
+        m_dct_fpb[component_id].pb->setVisible(false);
+        m_dct_fpb[component_id].cb->setVisible(false);
+        m_dct_fpb[component_id].cb->setEnabled(false);
     }
+}
+
+void DlgAbout::uninstall_finished(const QString &component_id, bool success) {
+  qDebug() << "Uninstall finished for: "
+           << component_id
+           << "with result"
+           << success;
+
+  if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
+
+  if (success) {
+    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].cb->setChecked(false);
+    m_dct_fpb[component_id].btn->setVisible(true);
+    m_dct_fpb[component_id].btn->setEnabled(true);
+    m_dct_fpb[component_id].btn->setText(tr("Install"));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

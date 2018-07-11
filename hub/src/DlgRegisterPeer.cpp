@@ -25,12 +25,15 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     m_invalid_chars.setPattern("\\W");
 
     // QLineEdit Show password action
-    static QIcon show_password_icon(":/hub/show_password.png");
+    static QIcon show_password_icon(":/hub/show-password.png");
+    static QIcon hide_password_icon(":/hub/hide-password.png");
     this->m_show_password_action = ui->lne_password->addAction(show_password_icon,
                                                                 QLineEdit::TrailingPosition);
 
     connect(this->m_show_password_action, &QAction::triggered, [this]() {
        this->m_password_state ^= 1;
+       this->m_show_password_action->setIcon(
+            this->m_password_state ? hide_password_icon : show_password_icon);
        ui->lne_password->setEchoMode(m_password_state ? QLineEdit::Normal : QLineEdit::Password);
     });
 }

@@ -54,6 +54,7 @@ template<browser_t v> struct Browser2Type
 const QString& tray_kurjun_file_name();
 const QString& p2p_kurjun_file_name();
 const QString& p2p_kurjun_package_name();
+const QString& p2p_package_name();
 const QString& x2go_kurjun_package_name();
 const QString& vagrant_kurjun_package_name();
 const QString& oracle_virtualbox_kurjun_package_name();

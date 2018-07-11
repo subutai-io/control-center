@@ -14,6 +14,7 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "DownloadFileManager.h"
+#include "TrayControlWindow.h"
 
 using namespace update_system;
 
@@ -27,9 +28,6 @@ const QString IUpdaterComponent::TRAY = "SubutaiControlCenter";
 #else
 const QString IUpdaterComponent::TRAY = "SubutaiControlCenter.exe";
 #endif
-
-const QString IUpdaterComponent::RH = "resource_host";
-const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
 const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
@@ -44,8 +42,6 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
     {P2P, "P2P"},
     {TRAY, "ControlCenter"},
-    {RH, "resource host"},
-    {RHMANAGEMENT, "resource host management"},
     {X2GO, "X2Go-Client"},
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
@@ -66,8 +62,6 @@ IUpdaterComponent::component_id_changelog(const QString& id) {
   static std::map<QString, QString> dct_changelog = {
     {P2P, "https://github.com/subutai-io/p2p/releases/latest"},
     {TRAY, "https://github.com/subutai-io/control-center/releases/latest"},
-    {RH, ""},
-    {RHMANAGEMENT, ""},
     {X2GO, "https://wiki.x2go.org/doku.php/news:start"},
     {VAGRANT, "https://github.com/hashicorp/vagrant/blob/master/CHANGELOG.md"},
     {ORACLE_VIRTUALBOX, "https://www.virtualbox.org/wiki/Changelog"},
@@ -88,8 +82,6 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
   static std::map<QString, DlgNotification::NOTIFICATION_ACTION_TYPE> dct = {
     {P2P, DlgNotification::N_UPDATE_P2P},
     {TRAY, DlgNotification::N_UPDATE_TRAY},
-    {RH, DlgNotification::N_UPDATE_RH},
-    {RHMANAGEMENT, DlgNotification::N_UPDATE_RHM},
     {X2GO, DlgNotification::N_ABOUT},
     {VAGRANT, DlgNotification::N_ABOUT},
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},
@@ -106,18 +98,22 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
 CUpdaterComponentX2GO::CUpdaterComponentX2GO() {
   m_component_id = X2GO;
 }
+
 CUpdaterComponentX2GO::~CUpdaterComponentX2GO() {
 }
-QString CUpdaterComponentX2GO::download_x2go_path(){
+
+QString CUpdaterComponentX2GO::download_x2go_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentX2GO::update_available_internal(){
+
+bool CUpdaterComponentX2GO::update_available_internal() {
     QString version;
     CSystemCallWrapper::x2go_version(version);
     return version == "undefined";
 }
-chue_t CUpdaterComponentX2GO::install_internal(){
+
+chue_t CUpdaterComponentX2GO::install_internal() {
     qDebug()
             << "Starting install x2go";
 
@@ -141,11 +137,13 @@ chue_t CUpdaterComponentX2GO::install_internal(){
     QString str_x2go_downloaded_path = file_dir + "/" + file_name;
 
     std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
+
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
       install_finished_sl(false);
       return CHUE_NOT_ON_KURJUN;
     }
+
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
     CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
@@ -154,8 +152,12 @@ chue_t CUpdaterComponentX2GO::install_internal(){
 
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(file_dir, file_name, CC_X2GO);
+
     connect(dm, &CDownloadFileManager::download_progress_sig,
-            [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
+            [this](qint64 rec, qint64 total){
+      update_progress_sl(rec, total+(total/5));
+    });
+
     connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
         if(!success){
             silent_installer->outputReceived(success);
@@ -165,45 +167,70 @@ chue_t CUpdaterComponentX2GO::install_internal(){
             silent_installer->startWork();
         }
     });
+
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentX2GO::install_finished_sl);
+
     connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentX2GO::update_internal(){
+
+chue_t CUpdaterComponentX2GO::update_internal() {
     update_progress_sl(100,100);
     update_finished_sl(true);
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentX2GO::update_post_action(bool success){
+
+chue_t CUpdaterComponentX2GO::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_X2GO);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentX2GO::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentX2GO::update_post_action(bool success) {
     UNUSED_ARG(success);
 }
-void CUpdaterComponentX2GO::install_post_interntal(bool success){
+
+void CUpdaterComponentX2GO::install_post_interntal(bool success) {
     if(!success)
         CNotificationObserver::Instance()->Error(tr("Failed to complete X2Go-Client installation. Try again later, "
                                                     "or install it manually."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("The X2Go-Client has been installed."), DlgNotification::N_NO_ACTION);
 }
 
-//////////////////////////*VAGRANT*///////////////////////////////////////
+void CUpdaterComponentX2GO::uninstall_post_internal(bool success) {
+}
 
+//////////////////////////*VAGRANT*///////////////////////////////////////
 CUpdaterComponentVAGRANT::CUpdaterComponentVAGRANT() {
   m_component_id = VAGRANT;
 }
+
 CUpdaterComponentVAGRANT::~CUpdaterComponentVAGRANT() {
 }
+
 QString CUpdaterComponentVAGRANT::download_vagrant_path(){
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentVAGRANT::update_available_internal(){
+
+bool CUpdaterComponentVAGRANT::update_available_internal() {
     QString version;
     CSystemCallWrapper::vagrant_version(version);
     return version == "undefined";
 }
-chue_t CUpdaterComponentVAGRANT::install_internal(){
+
+chue_t CUpdaterComponentVAGRANT::install_internal() {
     qDebug()
             << "Starting install vagrant";
 
@@ -240,9 +267,13 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
 
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(file_dir, file_name, CC_VAGRANT);
+
     connect(dm, &CDownloadFileManager::download_progress_sig,
-            [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
+            [this](qint64 rec, qint64 total) {
+      update_progress_sl(rec, total+(total/5));
+    });
+
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success) {
         if(!success){
             silent_installer->outputReceived(success);
         }
@@ -251,26 +282,126 @@ chue_t CUpdaterComponentVAGRANT::install_internal(){
             silent_installer->startWork();
         }
     });
+
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentVAGRANT::install_finished_sl);
+
     connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
     dm->start_download();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentVAGRANT::update_internal(){
+
+chue_t CUpdaterComponentVAGRANT::update_internal() {
     update_progress_sl(100,100);
     update_finished_sl(true);
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentVAGRANT::update_post_action(bool success){
+
+chue_t CUpdaterComponentVAGRANT::uninstall_internal() {
+  switch (CURRENT_OS) {
+  case OS_MAC:
+    {
+      qDebug() << "uninstall start vagrant on mac";
+      static QString empty_string = "";
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+      silent_uninstaller->startWork();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  case OS_LINUX:
+    {
+      qDebug() << "uninstall start vagrant on linux";
+      static QString empty_string = "";
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT);
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+
+      silent_uninstaller->startWork();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  case OS_WIN:
+    {
+      qDebug() << "uninstall start vagrant on windows";
+
+      QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      QString file_name = vagrant_kurjun_package_name();
+      QString file_dir = download_vagrant_path();
+      QString str_vagrant_downloaded_path = file_dir + "/" + file_name;
+
+      std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(file_name);
+
+      if (fi.empty()) {
+        qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+        uninstall_finished_sl(false);
+        return CHUE_NOT_ON_KURJUN;
+      }
+      std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+      CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+                                                          str_vagrant_downloaded_path,
+                                                          item->size());
+
+
+      SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+      silent_uninstaller->init(file_dir, file_name, CC_VAGRANT);
+
+      connect(dm, &CDownloadFileManager::finished, [silent_uninstaller](bool success) {
+          qDebug() << "File downloaded vagrant result: " << success;
+
+          if (!success) {
+              silent_uninstaller->outputReceived(success);
+          }
+          else {
+              silent_uninstaller->startWork();
+          }
+      });
+
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              this, &CUpdaterComponentVAGRANT::uninstall_finished_sl);
+      connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+              dm, &CDownloadFileManager::deleteLater);
+
+      dm->start_download();
+
+      return CHUE_SUCCESS;
+    }
+    break;
+  default:
+    return CHUE_FAILED;
+    break;
+  }
+}
+
+void CUpdaterComponentVAGRANT::update_post_action(bool success) {
     UNUSED_ARG(success);
 }
-void CUpdaterComponentVAGRANT::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Failed to complete Vagrant installation. Try again later, "
-                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. You may now install the Vagrant "
-                                                    "plugins to complete your setup."), DlgNotification::N_NO_ACTION);
+
+void CUpdaterComponentVAGRANT::install_post_interntal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Vagrant installation. Try again later, "
+                                                "or install it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Vagrant has been installed. You may now install the Vagrant "
+                                                  "plugins to complete your setup."), DlgNotification::N_NO_ACTION);
+}
+
+void CUpdaterComponentVAGRANT::uninstall_post_internal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Vagrant uninstallation. Try again later, "
+                                                "or uninstall it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Vagrant has been uninstalled"), DlgNotification::N_NO_ACTION);
 }
 
 ///////////////////////////*VIRTUALBOX*///////////////////////////////////////
@@ -278,18 +409,22 @@ void CUpdaterComponentVAGRANT::install_post_interntal(bool success){if(!success)
 CUpdaterComponentORACLE_VIRTUALBOX::CUpdaterComponentORACLE_VIRTUALBOX() {
   m_component_id = ORACLE_VIRTUALBOX;
 }
+
 CUpdaterComponentORACLE_VIRTUALBOX::~CUpdaterComponentORACLE_VIRTUALBOX() {
 }
-QString CUpdaterComponentORACLE_VIRTUALBOX::download_oracle_virtualbox_path(){
+
+QString CUpdaterComponentORACLE_VIRTUALBOX::download_oracle_virtualbox_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentORACLE_VIRTUALBOX::update_available_internal(){
+
+bool CUpdaterComponentORACLE_VIRTUALBOX::update_available_internal() {
     QString version;
     CSystemCallWrapper::oracle_virtualbox_version(version);
     return version == "undefined";
 }
-chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
+
+chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal() {
     qDebug()
             << "Starting install oracle virtualbox";
 
@@ -329,7 +464,7 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     connect(dm, &CDownloadFileManager::download_progress_sig,
             [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
     connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){\
-        if(!success){
+        if (!success) {
             silent_installer->outputReceived(success);
         }
         else{
@@ -344,19 +479,29 @@ chue_t CUpdaterComponentORACLE_VIRTUALBOX::install_internal(){
     dm->start_download();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentORACLE_VIRTUALBOX::update_internal(){
+
+chue_t CUpdaterComponentORACLE_VIRTUALBOX::update_internal() {
     update_progress_sl(100,100);
     update_finished_sl(true);
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success){
+
+chue_t CUpdaterComponentORACLE_VIRTUALBOX::uninstall_internal() {
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentORACLE_VIRTUALBOX::update_post_action(bool success) {
     UNUSED_ARG(success);
 }
-void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
+
+void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success) {
     if(!success)
             CNotificationObserver::Instance()->Error(tr("Failed to complete VirtualBox installation. Try again later, "
                                                         "or install it manually."), DlgNotification::N_NO_ACTION);
     else CNotificationObserver::Instance()->Info(tr("Virtualbox has been installed."), DlgNotification::N_NO_ACTION);
+}
+
+void CUpdaterComponentORACLE_VIRTUALBOX::uninstall_post_internal(bool success) {
 }
 
 //////////////////////////*CHROME*///////////////////////////////////////
@@ -364,18 +509,22 @@ void CUpdaterComponentORACLE_VIRTUALBOX::install_post_interntal(bool success){
 CUpdaterComponentCHROME::CUpdaterComponentCHROME() {
   m_component_id = CHROME;
 }
+
 CUpdaterComponentCHROME::~CUpdaterComponentCHROME() {
 }
-QString CUpdaterComponentCHROME::download_chrome_path(){
+
+QString CUpdaterComponentCHROME::download_chrome_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentCHROME::update_available_internal(){
+
+bool CUpdaterComponentCHROME::update_available_internal() {
     QString version;
     CSystemCallWrapper::chrome_version(version);
     return version == "undefined";
 }
-chue_t CUpdaterComponentCHROME::install_internal(){
+
+chue_t CUpdaterComponentCHROME::install_internal() {
     qDebug()
             << "Starting install chrome";
 
@@ -429,41 +578,69 @@ chue_t CUpdaterComponentCHROME::install_internal(){
     dm->start_download();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentCHROME::update_internal(){
+
+chue_t CUpdaterComponentCHROME::update_internal() {
     update_progress_sl(100,100);
     update_finished_sl(true);
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentCHROME::update_post_action(bool success){
-    UNUSED_ARG(success);
-}
-void CUpdaterComponentCHROME::install_post_interntal(bool success){if(!success)
-        CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome installation. Try again later, "
-                                                    "or install it manually."), DlgNotification::N_NO_ACTION);
-    else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
+
+chue_t CUpdaterComponentCHROME::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_CHROME);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentCHROME::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
 }
 
+void CUpdaterComponentCHROME::update_post_action(bool success) {
+    UNUSED_ARG(success);
+}
+
+void CUpdaterComponentCHROME::install_post_interntal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome installation. Try again later, "
+                                                "or install it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
+}
+
+void CUpdaterComponentCHROME::uninstall_post_internal(bool success) {
+  if(!success)
+    CNotificationObserver::Instance()->Error(tr("Failed to complete Google Chrome uninstallation. Try again later, "
+                                                "or uninstall it manually."), DlgNotification::N_NO_ACTION);
+  else CNotificationObserver::Instance()->Info(tr("Google Chrome has been uninstalled."), DlgNotification::N_NO_ACTION);
+}
 
 //////////////////////////*E2E*///////////////////////////////////////
 
 CUpdaterComponentE2E::CUpdaterComponentE2E() {
   m_component_id = E2E;
 }
+
 CUpdaterComponentE2E::~CUpdaterComponentE2E() {
 }
-QString CUpdaterComponentE2E::download_e2e_path(){
+
+QString CUpdaterComponentE2E::download_e2e_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentE2E::update_available_internal(){
+
+bool CUpdaterComponentE2E::update_available_internal() {
     QString version;
     CSystemCallWrapper::subutai_e2e_version(version);
     return version == "undefined";
 }
-chue_t CUpdaterComponentE2E::install_internal(){
+
+chue_t CUpdaterComponentE2E::install_internal() {
     qDebug()
             << "Starting install subutai e2e";
-    if(CSettingsManager::Instance().default_browser() == "Chrome"){
+    if(CSettingsManager::Instance().default_browser() == "Chrome") {
         QMessageBox *msg_box = new QMessageBox(
               QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
                 "The <a href='https://subutai.io/getting-started.html#E2E'>Subutai E2E plugin</a>"
@@ -488,14 +665,28 @@ chue_t CUpdaterComponentE2E::install_internal(){
     silent_installer->startWork();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentE2E::update_internal(){
+
+chue_t CUpdaterComponentE2E::update_internal() {
     update_finished_sl(true);
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentE2E::update_post_action(bool success){
+
+chue_t CUpdaterComponentE2E::uninstall_internal() {
+  qDebug() << "Starting uninstall subutai e2e";
+  static QString empty_string = "";
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_E2E);
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentE2E::uninstall_finished_sl);
+  silent_uninstaller->startWork();
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentE2E::update_post_action(bool success) {
     UNUSED_ARG(success);
 }
-void CUpdaterComponentE2E::install_post_interntal(bool success){
+
+void CUpdaterComponentE2E::install_post_interntal(bool success) {
     if(!success){
         CNotificationObserver::Instance()->Info(tr("Failed to complete E2E plugin installation. You may try installing directly through the link under "
                                                    "<a href='https://subutai.io/getting-started.html#E2E'>Getting Started</a>"
@@ -516,6 +707,21 @@ void CUpdaterComponentE2E::install_post_interntal(bool success){
     }
 }
 
+void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
+  if (!success) {
+    CNotificationObserver::Instance()->Info(tr("Failed to uninstall Subutai E2E plugin. Try uninstalling manually."), DlgNotification::N_NO_ACTION);
+    return;
+  }
+  QMessageBox *msg_box = new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                                         QObject::tr("Subutai E2E has been uninstalled from your browser<br>"
+                                                     "Press OK to restore your browser session."),
+                                         QMessageBox::Ok);
+  msg_box->setTextFormat(Qt::RichText);
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+  if (msg_box->exec() == QMessageBox::Ok) {
+      CSystemCallWrapper::chrome_last_section();
+  }
+}
 
 //////////////////////////*VAGRANT-SUBUTAI*///////////////////////////////////////
 
@@ -526,7 +732,7 @@ CUpdaterComponentVAGRANT_SUBUTAI::CUpdaterComponentVAGRANT_SUBUTAI() {
 CUpdaterComponentVAGRANT_SUBUTAI::~CUpdaterComponentVAGRANT_SUBUTAI() {
 }
 
-bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
+bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal() {
     QString version;
     QString subutai_plugin = "vagrant-subutai";
     system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_subutai_version(version);
@@ -537,6 +743,7 @@ bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal(){
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
     return cloud_version > version;
 }
+
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     qDebug()
             << "Starting install vagrant subutai";
@@ -562,32 +769,60 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal(){
     silent_installer->startWork();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal(){
-    update_progress_sl(50, 100);
-    static QString empty_string = "";
-    SilentUpdater *silent_updater = new SilentUpdater(this);
-    silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
-    connect(silent_updater, &SilentUpdater::outputReceived,
-            this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
-    silent_updater->startWork();
-    return CHUE_SUCCESS;
+
+chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUpdater *silent_updater = new SilentUpdater(this);
+  silent_updater->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+
+  connect(silent_updater, &SilentUpdater::outputReceived,
+          this, &CUpdaterComponentVAGRANT_SUBUTAI::update_finished_sl);
+
+  silent_updater->startWork();
+
+  return CHUE_SUCCESS;
 }
-void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success){
-    if(!success){
+
+chue_t CUpdaterComponentVAGRANT_SUBUTAI::uninstall_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT_SUBUTAI::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success) {
+    if(!success) {
         CNotificationObserver::Instance()->Info(tr("Failed to update the Vagrant Subutai plugin. You may try manually installing it "
                                                    "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
-    }
-    else{
+    } else {
         CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been updated successfully."), DlgNotification::N_NO_ACTION);
     }
 }
-void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success){
-    if(!success){
+void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success) {
+    if(!success) {
         CNotificationObserver::Instance()->Info(tr("Failed to install the Vagrant Subutai plugin. You may try manually installing it "
                                                    "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
-    }
-    else{
+    } else {
         CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been installed successfully."), DlgNotification::N_NO_ACTION);
+    }
+}
+
+void CUpdaterComponentVAGRANT_SUBUTAI::uninstall_post_internal(bool success) {
+    if (!success) {
+      CNotificationObserver::Instance()->Info(tr("Failed to uninstall the Vagrant Subutai plugin. You may try manually uninstalling it "
+                                                 "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
+    } else {
+      CNotificationObserver::Instance()->Info(tr("Vagrant Subutai plugin has been uninstalled successfully."), DlgNotification::N_NO_ACTION);
     }
 }
 
@@ -600,7 +835,7 @@ CUpdaterComponentVAGRANT_VBGUEST::CUpdaterComponentVAGRANT_VBGUEST() {
 CUpdaterComponentVAGRANT_VBGUEST::~CUpdaterComponentVAGRANT_VBGUEST() {
 }
 
-bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
+bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal() {
     QString version;
     QString subutai_plugin = "vagrant-vbguest";
     system_call_wrapper_error_t res = CSystemCallWrapper::vagrant_vbguest_version(version);
@@ -611,7 +846,7 @@ bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal(){
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
     return cloud_version != version;
 }
-chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
+chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal() {
     qDebug()
             << "Starting install vagrant vbguest";
 
@@ -636,7 +871,8 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal(){
     silent_installer->startWork();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal(){
+
+chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal() {
     update_progress_sl(50, 100);
     static QString empty_string = "";
     SilentUpdater *silent_updater = new SilentUpdater(this);
@@ -646,23 +882,48 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal(){
     silent_updater->startWork();
     return CHUE_SUCCESS;
 }
-void CUpdaterComponentVAGRANT_VBGUEST::update_post_action(bool success){
-    if(!success){
+
+chue_t CUpdaterComponentVAGRANT_VBGUEST::uninstall_internal() {
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VAGRANT_VBGUEST);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentVAGRANT_VBGUEST::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+void CUpdaterComponentVAGRANT_VBGUEST::update_post_action(bool success) {
+    if(!success) {
         CNotificationObserver::Instance()->Info(tr("Failed to update the Vagrant VirtualBox plugin. You may try manually installing it "
                                                    "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
     }
-    else{
+    else {
         CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been updated successfully."), DlgNotification::N_NO_ACTION);
     }
 }
-void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success){
+
+void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success) {
     if(!success){
         CNotificationObserver::Instance()->Info(tr("Failed to install the Vagrant VirtualBox plugin. You may try manually installing it "
                                                    "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
-    }
-    else{
+    } else {
         CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been installed successfully."), DlgNotification::N_NO_ACTION);
     }
+}
+
+void CUpdaterComponentVAGRANT_VBGUEST::uninstall_post_internal(bool success) {
+  if(!success){
+    CNotificationObserver::Instance()->Info(tr("Failed to uninstall the Vagrant VirtualBox plugin. You may try manually uninstalling it "
+                                                   "or try again by restarting the Control Center first."), DlgNotification::N_NO_ACTION);
+  } else {
+    CNotificationObserver::Instance()->Info(tr("Vagrant VirtualBox plugin has been uninstalled successfully."), DlgNotification::N_NO_ACTION);
+  }
 }
 
 //////////////////////////*SUBUTAI-BOX*///////////////////////////////////////
@@ -670,12 +931,15 @@ void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success){
 CUpdaterComponentSUBUTAI_BOX::CUpdaterComponentSUBUTAI_BOX() {
   m_component_id = SUBUTAI_BOX;
 }
+
 CUpdaterComponentSUBUTAI_BOX::~CUpdaterComponentSUBUTAI_BOX() {}
-QString CUpdaterComponentSUBUTAI_BOX::download_subutai_box_path(){
+
+QString CUpdaterComponentSUBUTAI_BOX::download_subutai_box_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]);
 }
-bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
+
+bool CUpdaterComponentSUBUTAI_BOX::update_available_internal() {
     QString version;
     QString subutai_box = subutai_box_name();
     QString subutai_provider = "virtualbox";
@@ -690,7 +954,8 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal(){
     if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
     return cloud_version > version;
 }
-chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
+
+chue_t CUpdaterComponentSUBUTAI_BOX::install_internal() {
     qDebug()
             << "Starting install new version of subutai box";
 
@@ -714,6 +979,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
           return CHUE_SUCCESS;
       }
     }
+
     QString file_name = subutai_box_kurjun_package_name(subutai_provider);
     QString file_dir = download_subutai_box_path();
     QString str_downloaded_path = file_dir + "/" + file_name;
@@ -731,43 +997,95 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
     CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
                                                         str_downloaded_path,
                                                         item->size());
+
     dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(file_dir, file_name, CC_SUBUTAI_BOX);
+
     connect(dm, &CDownloadFileManager::download_progress_sig,
-            [this](qint64 rec, qint64 total){
-        update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success){
-        if(!success){
+            [this](qint64 rec, qint64 total) {
+        update_progress_sl(rec, total+(total/5));
+    });
+
+    connect(dm, &CDownloadFileManager::finished,[silent_installer](bool success) {
+        if(!success) {
             silent_installer->outputReceived(success);
-        }
-        else{
+        } else {
             CNotificationObserver::Instance()->Info(tr("Running installation scripts."), DlgNotification::N_NO_ACTION);
             silent_installer->startWork();
         }
     });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+
     connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
+
     dm->start_download();
     return CHUE_SUCCESS;
 }
-chue_t CUpdaterComponentSUBUTAI_BOX::update_internal(){
+
+chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
+  size_t total = TrayControlWindow::Instance()->machine_peers_table.size();
+  qDebug() << "Total machine peers: "
+           << total;
+
+  // while removing vagrant box. we should check existing vagrant machines. it will corrupt existing machines.
+  if (total > 0) {
+    QMessageBox *msg_box = new QMessageBox(
+          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+            "Removing the Subutai box could corrupt the peers. "
+            "We recommend destroying peers first from \"My Peers\" menu.\n"
+            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+    msg_box->setTextFormat(Qt::RichText);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+    if (msg_box->exec() != QMessageBox::Yes) {
+      emit uninstall_finished_sl(false);
+      return CHUE_SUCCESS;
+    }
+  }
+
+
+  update_progress_sl(50, 100);
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_SUBUTAI_BOX);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived,
+          this, &CUpdaterComponentSUBUTAI_BOX::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
+  return CHUE_SUCCESS;
+}
+
+chue_t CUpdaterComponentSUBUTAI_BOX::update_internal() {
     return install_internal();
 }
-void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success){
-    if(!success){
+
+void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
+    if(!success) {
         CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box failed to update"), DlgNotification::N_ABOUT);
     }
-    else{
+    else {
         CNotificationObserver::Instance()->Info(tr("Succesfully updated Vagrant Subutai box, congratulations!"), DlgNotification::N_ABOUT);
     }
 }
-void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success){
-    if(!success){
+
+void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
+    if(!success) {
         CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box installation has failed."), DlgNotification::N_NO_ACTION);}
-    else{
+    else {
         CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
     }
+}
+
+void CUpdaterComponentSUBUTAI_BOX::uninstall_post_internal(bool success) {
+  if(!success) {
+      CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box deletion has failed."), DlgNotification::N_NO_ACTION);}
+  else {
+      CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been deleted. Congratulations!"), DlgNotification::N_NO_ACTION);
+  }
 }

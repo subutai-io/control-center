@@ -223,69 +223,69 @@ void TrayControlWindow::application_quit() {
 
 void TrayControlWindow::create_tray_actions() {
   m_act_settings =
-      new QAction(QIcon(":/hub/Settings-07.png"), tr("Settings"), this);
+      new QAction(QIcon(":/hub/settings-new.png"), tr("Settings"), this);
   connect(m_act_settings, &QAction::triggered, this,
           &TrayControlWindow::show_settings_dialog);
   m_act_settings->setToolTip(tr("CC settings"));
 
   m_act_hub =
-      new QAction(QIcon(":/hub/Environmetns-07.png"), tr("Environments"), this);
+      new QAction(QIcon(":/hub/environments-new.png"), tr("Environments"), this);
 
   QString user_name = "";
   CRestWorker::Instance()->get_user_info("name", user_name);
 
   m_act_user_name =
-      new QAction(QIcon(":/hub/User_Name-07.png"), user_name.toStdString().c_str(), this);
+      new QAction(QIcon(":/hub/user-new.png"), user_name.toStdString().c_str(), this);
   connect(m_act_user_name, &QAction::triggered,
             [] { CHubController::Instance().launch_balance_page(); });
   m_act_user_name->setToolTip(tr("Name"));
 
-  m_act_quit = new QAction(QIcon(":/hub/Exit-07"), tr("Quit"), this);
+  m_act_quit = new QAction(QIcon(":/hub/quit-new.png"), tr("Quit"), this);
   connect(m_act_quit, &QAction::triggered, this,
           &TrayControlWindow::application_quit);
   m_act_quit->setToolTip(tr("Close Control Center"));
 
   m_act_launch_Hub =
-      new QAction(QIcon(":/hub/Hub-07.png"), tr("Go to Bazaar"), this);
+      new QAction(QIcon(":/hub/hub-new.png"), tr("Go to Bazaar"), this);
   connect(m_act_launch_Hub, &QAction::triggered, this,
           &TrayControlWindow::launch_Hub);
   m_act_launch_Hub->setToolTip(tr("Will go to main Website"));
 
-  m_act_balance = new QAction(QIcon(":/hub/Balance-07.png"),
+  m_act_balance = new QAction(QIcon(":/hub/wallet-new.png"),
                               CHubController::Instance().balance(), this);
   connect(m_act_balance, &QAction::triggered,
           [] { CHubController::Instance().launch_balance_page(); });
   m_act_balance->setToolTip(tr("GoodWill"));
 
-  m_act_about = new QAction(QIcon(":/hub/about.png"), tr("Components"), this);
+  m_act_about = new QAction(QIcon(":/hub/components-new.png"), tr("Components"), this);
   connect(m_act_about, &QAction::triggered, this,
           &TrayControlWindow::show_about);
   m_act_about->setToolTip(tr("Information about CC"));
 
-  m_act_help = new QAction(QIcon(":/hub/Help.png"), tr("Help"), this);
+  m_act_help = new QAction(QIcon(":/hub/help-new.png"), tr("Help"), this);
   connect(m_act_help, &QAction::triggered,
           [] { CHubController::Instance().launch_help_page(); });
   m_act_help->setToolTip(tr("Help"));
 
   m_act_ssh_keys_management =
-      new QAction(QIcon(":/hub/ssh-keys.png"), tr("SSH-keys management"), this);
+      new QAction(QIcon(":/hub/ssh-keys-new.png"), tr("SSH-keys management"), this);
   connect(m_act_ssh_keys_management, &QAction::triggered, this,
           &TrayControlWindow::ssh_key_generate_triggered);
   m_act_ssh_keys_management->setToolTip(tr("Generate and Deploy SSH keys"));
 
-  m_act_logout = new QAction(QIcon(":/hub/logout.png"), tr("Logout"), this);
+  m_act_logout = new QAction(QIcon(":/hub/logout-new.png"), tr("Logout"), this);
   connect(m_act_logout, &QAction::triggered, this, &TrayControlWindow::logout);
   m_act_logout->setToolTip(tr("Sign out from your account"));
 
   m_act_notifications_history =
-      new QAction(QIcon(":hub/notifications_history.png"),
+      new QAction(QIcon(":hub/notifications-new.png"),
                   tr("Notifications history"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
   m_act_notifications_history->setToolTip(tr("Show notification history"));
 
   m_act_create_peer =
-      new QAction(QIcon(":hub/add.png"), tr("Create Peer"), this);
+      new QAction(QIcon(":hub/create-peer-new.png"), tr("Create Peer"), this);
   connect(m_act_create_peer, &QAction::triggered, this,
           &TrayControlWindow::show_create_dialog);
   m_empty_action = new QAction(tr("Empty"), this);
@@ -324,15 +324,15 @@ void TrayControlWindow::create_tray_icon() {
   m_tray_menu->addAction(m_act_user_name);
   m_tray_menu->addAction(m_act_balance);
   m_tray_menu->addSeparator();
-  m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/Environmetns-07.png"),
+  m_hub_menu = m_tray_menu->addMenu(QIcon(":/hub/environments-new.png"),
                                     tr("Environments"));
   m_hub_menu->setStyleSheet(qApp->styleSheet());
   m_hub_menu->addAction(m_empty_action);
   m_hub_peer_menu =
-      m_tray_menu->addMenu(QIcon(":/hub/tray.png"), tr("My Peers"));
+      m_tray_menu->addMenu(QIcon(":/hub/my-peers-new.png"), tr("My Peers"));
   m_hub_peer_menu->addAction(m_empty_action);
   m_local_peer_menu =
-      m_tray_menu->addMenu(QIcon(":/hub/Launch-07.png"), tr("LAN Peers"));
+      m_tray_menu->addMenu(QIcon(":/hub/lan-peers-new.png"), tr("LAN Peers"));
   m_local_peer_menu->addAction(m_empty_action);
   m_tray_menu->addAction(m_act_create_peer);
   m_tray_menu->addSeparator();
@@ -709,6 +709,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   static std::vector<QString> lst_checked_unhealthy_env;
 
   std::map<QString, std::vector<QString> > tbl_envs;
+  std::map<QString, std::vector<int> > tbl_env_ids;
   std::map<QString, int> new_envs;
 
   for (auto env = CHubController::Instance().lst_environments().cbegin();
@@ -757,6 +758,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       if (iter_found == lst_checked_unhealthy_env.end()) {
         lst_checked_unhealthy_env.push_back(env->id());
         tbl_envs[env->status()].push_back(env_name);
+        tbl_env_ids[env->status()].push_back(env->hub_id());
         qCritical("Environment %s, %s is unhealthy. Reason : %s",
                   env_name.toStdString().c_str(),
                   env->id().toStdString().c_str(),
@@ -764,8 +766,12 @@ void TrayControlWindow::environments_updated_sl(int rr) {
       }
     } else {
       if (iter_found != lst_checked_unhealthy_env.end()) {
+        QString env_url = hub_billing_url()
+            .arg(CHubController::Instance().current_user_id()) +
+            QString("/environments/%1").arg(env->hub_id());
         CNotificationObserver::Info(
-            tr("Environment %1 became healthy").arg(env->name()),
+            tr("Environment <a href=%1>%2</a> became healthy")
+              .arg(env_url, env->name()),
             DlgNotification::N_NO_ACTION);
         qInfo("Environment %s became healthy",
               env->name().toStdString().c_str());
@@ -779,9 +785,15 @@ void TrayControlWindow::environments_updated_sl(int rr) {
        it != tbl_envs.end(); it++) {
     if (!it->second.empty()) {
       QString str_env_names = "";
+      QString env_url = hub_billing_url()
+          .arg(CHubController::Instance().current_user_id()) +
+          QString("/environments/%1");
       for (size_t i = 0; i < it->second.size() - 1; i++)
-        str_env_names += it->second[i] + ", ";
-      str_env_names += it->second[it->second.size() - 1];
+        str_env_names += QString("<a href=%1>")
+            .arg(env_url.arg(tbl_env_ids[it->first][i])) + it->second[i] + "</a>, ";
+      str_env_names += QString("<a href=%1>").
+          arg(env_url.arg(tbl_env_ids[it->first][it->second.size() - 1])) +
+          it->second[it->second.size() - 1] + "</a>";
       QString str_notifications = tr("Environment%1 %2 %3 %4")
                                       .arg(it->second.size() > 1 ? "s" : "")
                                       .arg(str_env_names)
