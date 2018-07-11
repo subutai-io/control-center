@@ -220,6 +220,8 @@ public:
              this, &P2PStatus_checker::uninstall_started);
      connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
              this, &P2PStatus_checker::install_finished);
+     connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::uninstalling_finished,
+             this, &P2PStatus_checker::uninstall_finished);
    }
 
    P2P_STATUS get_status()  {
@@ -235,33 +237,32 @@ signals:
 private slots:
   void install_started(const QString &component_id) {
     if (component_id == "P2P") {
-      CNotificationObserver::Instance()->Info(tr("The P2P Daemon installation has started."), DlgNotification::N_NO_ACTION);
       m_status = P2P_INSTALLING;
       emit p2p_status(P2P_INSTALLING);
     }
   }
-
   void uninstall_started(const QString &component_id) {
-    qDebug() << "Uninstall started: "
-             << component_id;
-
     if (component_id == "P2P") {
-      CNotificationObserver::Instance()->Info(tr("The P2P Daemon uninstallation has started."), DlgNotification::N_NO_ACTION);
+      m_status = P2P_UNINSTALLING;
+      emit p2p_status(P2P_UNINSTALLING);
     }
   }
-
   void install_finished(const QString &component_id, bool success) {
     UNUSED_ARG(success);
-    qDebug() << "install finished "
-             << " component: "
-             << component_id
-             << " success: "
-             << success;
-
-
     if (component_id == IUpdaterComponent::P2P) {
       m_status = P2P_READY;
       emit p2p_status(P2P_READY);
+    }
+  }
+  void uninstall_finished(const QString &component_id, bool success){
+    UNUSED_ARG(success);
+    if (component_id == IUpdaterComponent::P2P) {
+      if (success) {
+        m_status = P2P_FAIL;
+      } else {
+        m_status = P2P_READY;
+      }
+      emit p2p_status(m_status);
     }
   }
 };

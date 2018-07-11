@@ -1275,6 +1275,11 @@ void TrayControlWindow::update_p2p_status_sl(
     m_p2p_menu->setTitle(tr("P2P is installing"));
     m_p2p_menu->setIcon(p2p_loading);
     return;
+  } else if (P2PStatus_checker::Instance().get_status() ==
+             P2PStatus_checker::P2P_UNINSTALLING) {
+    m_p2p_menu->setTitle(tr("P2P is uninstalling"));
+    m_p2p_menu->setIcon(p2p_loading);
+    return;
   }
   switch (status) {
     case P2PStatus_checker::P2P_READY:
@@ -1309,6 +1314,12 @@ void TrayControlWindow::update_p2p_status_sl(
       m_p2p_menu->setTitle(tr("P2P is installing"));
       m_p2p_menu->setIcon(p2p_loading);
       break;
+    case P2PStatus_checker::P2P_UNINSTALLING:
+      m_p2p_menu->setTitle(tr("P2P is uninstalling"));
+      m_p2p_menu->setIcon(p2p_loading);
+      break;
+  default:
+    break;
   }
 }
 //////////////////////////////////////

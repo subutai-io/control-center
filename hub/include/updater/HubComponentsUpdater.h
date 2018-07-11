@@ -194,7 +194,7 @@ private:
 signals:
     void outputReceived(bool success);
 };
-
+/////* class deletes cc components in silent mode *///////////////
 class SilentUninstaller : public QObject {
   Q_OBJECT
 public:
