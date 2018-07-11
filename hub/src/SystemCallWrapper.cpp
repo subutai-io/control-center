@@ -3777,7 +3777,52 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
 }
 template <>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
-  UNUSED_ARG(version);
+  QDir dir(QApplication::applicationDirPath());
+  dir.cdUp();
+  QFile file(dir.absolutePath() + "/Info.plist");
+  qDebug() << "got Info.plist path:" << dir.absolutePath() + "/Info.plist";
+  if (!file.exists()) {
+    CNotificationObserver::Error("Info.plist file is missing. make sure that "
+                                 "you have installed the Control Center correctly.",
+                                 DlgNotification::N_NO_ACTION);
+    qCritical() << "Info.plist is missing";
+    return SCWE_CREATE_PROCESS;
+  }
+  if (file.open(QIODevice::ReadWrite)) {
+    qDebug() << "reading Info.plist file";
+    QTextStream stream(&file);
+    QStringList plist = stream.readAll().split("/n");
+    for (auto i = plist.begin(); i != plist.end(); i++) {
+      QString &str = *i;
+      if (str.contains("CFBundleVersion") || str.contains("CFBundleShortVersionString")) {
+        QString &strv = *(i++);
+        int ida = strv.toStdString().find('>');
+        int idb = strv.toStdString().find('<', ida);
+        strv = strv.left(ida + 1) + version + strv.right(strv.size() - idb);
+      }
+    }
+    file.close();
+    if (!file.remove()) {
+      CNotificationObserver::Error("Failed to remove old Info.plist file. "
+                                   "Make sure that you have proper privileges.",
+                                   DlgNotification::N_NO_ACTION);
+      qCritical() << "Failed to remove old Info.plist file.";
+      return SCWE_CREATE_PROCESS;
+    }
+    qDebug() << "writing into Info.plist file";
+    if (!file.open(QIODevice::ReadWrite)) {
+      CNotificationObserver::Error("Failed to create new Info.plist file. "
+                                   "Make sure that you have proper privileges.",
+                                   DlgNotification::N_NO_ACTION);
+      qCritical() << "Failed to create new Info.plist file.";
+      return SCWE_CREATE_PROCESS;
+    }
+    QTextStream sstream(&file);
+    for (QString str: plist) {
+      sstream << str << "\n";
+    }
+    file.close();
+  }
   return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
