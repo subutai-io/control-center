@@ -771,13 +771,13 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success){
         CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box failed to update"), DlgNotification::N_ABOUT);
     }
     else{
-        CNotificationObserver::Instance()->Info(tr("Succesfully updated Vagrant Subutai box, congratulations!"), DlgNotification::N_ABOUT);
+        CNotificationObserver::Instance()->Info(tr("Succesfully updated the Vagrant Subutai box"), DlgNotification::N_ABOUT);
     }
 }
 void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success){
     if(!success){
         CNotificationObserver::Instance()->Error(tr("Vagrant Subutai box installation has failed."), DlgNotification::N_NO_ACTION);}
     else{
-        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been installed. Congratulations!"), DlgNotification::N_NO_ACTION);
+        CNotificationObserver::Instance()->Info(tr("Vagrant Subutai box has been installed."), DlgNotification::N_NO_ACTION);
     }
 }
