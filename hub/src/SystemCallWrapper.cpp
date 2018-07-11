@@ -2536,7 +2536,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const 
   qDebug() << "uninstall chrome internal";
 
   // chrome path: /Applications/Google\\\\ Chrome.app/Ï
-  if (!QDir("/Applications/Google\ Chrome.app").exists()) {
+  if (!QDir("/Applications/Google\\ Chrome.app").exists()) {
     qDebug() << "Can't find chrome path: Applications/Google\\\\ Chrome.app";
     return SCWE_COMMAND_FAILED;
   }
