@@ -11,8 +11,6 @@
 #include <exception>
 #include <iostream>
 #include <string>
-#include <thread>
-#include <sys/sysinfo.h>
 #include "DlgLogin.h"
 #include "SettingsManager.h"
 #include "TrayControlWindow.h"
@@ -207,15 +205,6 @@ int main(int argc, char* argv[]) {
 
       P2PController::Instance().init();
       P2PStatus_checker::Instance().update_status();
-
-      struct sysinfo info;
-      if (sysinfo(&info) == 0) {
-        qDebug() << "RAM: "
-                 << " total: "
-                 << (int) (info.totalram * info.mem_unit / (1024 * 1024))
-                 << " free: "
-                 << (int) (info.freeram * info.mem_unit / (1024 * 1024));
-      }
 
       result = app.exec();
     } while (0);

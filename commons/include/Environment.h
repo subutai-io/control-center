@@ -12,6 +12,7 @@ public:
   template <class OS>
   unsigned int ramSizeInternal();
   unsigned int ramSize();
+  unsigned int numCpu();
 };
 
 #endif // ENVIRONMENT_H
