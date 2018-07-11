@@ -113,9 +113,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->lbl_err_rhip_password->hide();
 
   fill_freq_combobox(ui->cb_p2p_frequency);
-  fill_freq_combobox(ui->cb_rh_frequency);
   fill_freq_combobox(ui->cb_tray_frequency);
-  fill_freq_combobox(ui->cb_rhm_frequency);
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
   fill_tray_skin_combobox(ui->cb_tray_skin);
@@ -129,9 +127,7 @@ DlgSettings::DlgSettings(QWidget* parent)
         ui->cb_preferred_notifications_place);
 
   ui->cb_p2p_frequency->setCurrentIndex(CSettingsManager::Instance().p2p_update_freq());
-  ui->cb_rh_frequency->setCurrentIndex(CSettingsManager::Instance().rh_update_freq());
   ui->cb_tray_frequency->setCurrentIndex(CSettingsManager::Instance().tray_update_freq());
-  ui->cb_rhm_frequency->setCurrentIndex(CSettingsManager::Instance().rh_management_update_freq());
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
   ui->cb_tray_skin->setCurrentIndex(CSettingsManager::Instance().tray_skin());
@@ -142,9 +138,7 @@ DlgSettings::DlgSettings(QWidget* parent)
         CSettingsManager::Instance().preferred_notifications_place());
 
   ui->chk_p2p_autoupdate->setChecked(CSettingsManager::Instance().p2p_autoupdate());
-  ui->chk_rh_autoupdate->setChecked(CSettingsManager::Instance().rh_autoupdate());
   ui->chk_tray_autoupdate->setChecked(CSettingsManager::Instance().tray_autoupdate());
-  ui->chk_rhm_autoupdate->setChecked(CSettingsManager::Instance().rh_management_autoupdate());
 
 #ifndef RT_OS_DARWIN
   m_tab_resize_filter = new TabResizeFilter(ui->tabWidget);
@@ -458,21 +452,13 @@ void DlgSettings::btn_ok_released() {
 
   CSettingsManager::Instance().set_p2p_autoupdate(
         ui->chk_p2p_autoupdate->checkState() == Qt::Checked);
-  CSettingsManager::Instance().set_rh_autoupdate(
-        ui->chk_rh_autoupdate->checkState() == Qt::Checked);
   CSettingsManager::Instance().set_tray_autoupdate(
         ui->chk_tray_autoupdate->checkState() == Qt::Checked);
-  CSettingsManager::Instance().set_rh_management_autoupdate(
-        ui->chk_rhm_autoupdate->checkState() == Qt::Checked);
 
   CSettingsManager::Instance().set_p2p_update_freq(
         ui->cb_p2p_frequency->currentIndex());
-  CSettingsManager::Instance().set_rh_update_freq(
-        ui->cb_rh_frequency->currentIndex());
   CSettingsManager::Instance().set_tray_update_freq(
         ui->cb_tray_frequency->currentIndex());
-  CSettingsManager::Instance().set_rh_management_freq(
-        ui->cb_rhm_frequency->currentIndex());
   CSettingsManager::Instance().set_preferred_notifications_place(
         ui->cb_preferred_notifications_place->currentIndex());
 

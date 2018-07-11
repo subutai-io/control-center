@@ -10,21 +10,17 @@
 #include "DownloadFileManager.h"
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/UpdaterComponentTray.h"
-#include "updater/UpdaterComponentRH.h"
-#include "updater/UpdaterComponentRHManagement.h"
 #include "updater/IUpdaterComponent.h"
 
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_rh, *uc_rhm, *uc_x2go,
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_subutai_box;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
-  uc_rh   = new CUpdaterComponentRH;
-  uc_rhm  = new CUpdaterComponentRHM;
   uc_x2go = new CUpdaterComponentX2GO;
   uc_vagrant = new CUpdaterComponentVAGRANT;
   uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
@@ -33,15 +29,13 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
   uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
   uc_subutai_box = new CUpdaterComponentSUBUTAI_BOX;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_rh, uc_rhm,
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
-  m_dct_components[IUpdaterComponent::RH]   = CUpdaterComponentItem(uc_rh);
-  m_dct_components[IUpdaterComponent::RHMANAGEMENT] = CUpdaterComponentItem(uc_rhm);
   m_dct_components[IUpdaterComponent::X2GO] = CUpdaterComponentItem(uc_x2go);
   m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
@@ -65,9 +59,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   }
   ///
   set_p2p_update_freq();
-  set_rh_update_freq();
   set_tray_update_freq();
-  set_rh_management_update_freq();
 }
 
 CHubComponentsUpdater::~CHubComponentsUpdater() {
@@ -149,21 +141,8 @@ CHubComponentsUpdater::set_p2p_update_freq() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-CHubComponentsUpdater::set_rh_update_freq() {
-  set_update_freq(IUpdaterComponent::RH, CSettingsManager::Instance().rh_update_freq());
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
 CHubComponentsUpdater::set_tray_update_freq() {
   set_update_freq(IUpdaterComponent::TRAY, CSettingsManager::Instance().tray_update_freq());
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CHubComponentsUpdater::set_rh_management_update_freq() {
-  set_update_freq(IUpdaterComponent::RHMANAGEMENT,
-                  CSettingsManager::Instance().rh_management_update_freq());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -173,25 +152,10 @@ CHubComponentsUpdater::set_p2p_autoupdate() {
                            CSettingsManager::Instance().p2p_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
-
-void
-CHubComponentsUpdater::set_rh_autoupdate() {
-  set_component_autoupdate(IUpdaterComponent::RH,
-                           CSettingsManager::Instance().rh_autoupdate());
-}
-////////////////////////////////////////////////////////////////////////////
-
 void
 CHubComponentsUpdater::set_tray_autoupdate() {
   set_component_autoupdate(IUpdaterComponent::TRAY,
                            CSettingsManager::Instance().tray_autoupdate());
-}
-////////////////////////////////////////////////////////////////////////////
-
-void
-CHubComponentsUpdater::set_rh_management_autoupdate() {
-  set_component_autoupdate(IUpdaterComponent::RHMANAGEMENT,
-                           CSettingsManager::Instance().rh_management_autoupdate());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -222,14 +186,6 @@ void CHubComponentsUpdater::force_update_p2p() {
 
 void CHubComponentsUpdater::force_update_tray() {
   force_update(IUpdaterComponent::TRAY);
-}
-
-void CHubComponentsUpdater::force_update_rh() {
-  force_update(IUpdaterComponent::RH);
-}
-
-void CHubComponentsUpdater::force_update_rhm() {
-  force_update(IUpdaterComponent::RHMANAGEMENT);
 }
 
 

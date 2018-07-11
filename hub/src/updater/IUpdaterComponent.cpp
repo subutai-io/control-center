@@ -28,9 +28,6 @@ const QString IUpdaterComponent::TRAY = "SubutaiControlCenter";
 #else
 const QString IUpdaterComponent::TRAY = "SubutaiControlCenter.exe";
 #endif
-
-const QString IUpdaterComponent::RH = "resource_host";
-const QString IUpdaterComponent::RHMANAGEMENT = "resource_host_management";
 const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
@@ -45,8 +42,6 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
   static std::map<QString, QString> dct = {
     {P2P, "P2P"},
     {TRAY, "ControlCenter"},
-    {RH, "resource host"},
-    {RHMANAGEMENT, "resource host management"},
     {X2GO, "X2Go-Client"},
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
@@ -67,8 +62,6 @@ IUpdaterComponent::component_id_changelog(const QString& id) {
   static std::map<QString, QString> dct_changelog = {
     {P2P, "https://github.com/subutai-io/p2p/releases/latest"},
     {TRAY, "https://github.com/subutai-io/control-center/releases/latest"},
-    {RH, ""},
-    {RHMANAGEMENT, ""},
     {X2GO, "https://wiki.x2go.org/doku.php/news:start"},
     {VAGRANT, "https://github.com/hashicorp/vagrant/blob/master/CHANGELOG.md"},
     {ORACLE_VIRTUALBOX, "https://www.virtualbox.org/wiki/Changelog"},
@@ -89,8 +82,6 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
   static std::map<QString, DlgNotification::NOTIFICATION_ACTION_TYPE> dct = {
     {P2P, DlgNotification::N_UPDATE_P2P},
     {TRAY, DlgNotification::N_UPDATE_TRAY},
-    {RH, DlgNotification::N_UPDATE_RH},
-    {RHMANAGEMENT, DlgNotification::N_UPDATE_RHM},
     {X2GO, DlgNotification::N_ABOUT},
     {VAGRANT, DlgNotification::N_ABOUT},
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},

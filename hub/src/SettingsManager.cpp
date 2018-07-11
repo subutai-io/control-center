@@ -54,13 +54,9 @@ const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
 
 const QString CSettingsManager::SM_P2P_UPDATE_FREQ("P2p_update_freq");
-const QString CSettingsManager::SM_RH_UPDATE_FREQ("Rh_update_freq");
 const QString CSettingsManager::SM_TRAY_UPDATE_FREQ("Tray_update_freq");
-const QString CSettingsManager::SM_RHMANAGEMENT_FREQ("Rh_management_update_freq");
 const QString CSettingsManager::SM_P2P_AUTOUPDATE("P2p_Autoupdate");
-const QString CSettingsManager::SM_RH_AUTOUPDATE("Rh_Autoupdate");
 const QString CSettingsManager::SM_TRAY_AUTOUPDATE("Tray_Autoupdate");
-const QString CSettingsManager::SM_RHMANAGEMENT_AUTOUPDATE("Rh_Management_Autoupdate");
 
 const QString CSettingsManager::SM_RTM_DB_DIR("Rtm_Db_Dir");
 
@@ -206,13 +202,9 @@ CSettingsManager::CSettingsManager()
       m_peers_storage(QString(QStandardPaths::HomeLocation)),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
-      m_rh_update_freq(UF_NEVER),
       m_tray_update_freq(UF_MIN30),
-      m_rh_management_update_freq(UF_NEVER),
       m_p2p_autoupdate(false),
-      m_rh_autoupdate(false),
       m_tray_autoupdate(false),
-      m_rh_management_autoupdate(false),
       m_terminal_cmd(default_terminal()),
       m_x2goclient(default_x2goclient_path()),
       m_terminal_arg(default_term_arg()),
@@ -276,16 +268,12 @@ CSettingsManager::CSettingsManager()
       // bool
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
       {(void*)&m_p2p_autoupdate, SM_P2P_AUTOUPDATE, qvar_to_bool},
-      {(void*)&m_rh_autoupdate, SM_RH_AUTOUPDATE, qvar_to_bool},
-      {(void*)&m_rh_management_autoupdate, SM_RHMANAGEMENT_AUTOUPDATE, qvar_to_bool},
       {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
       {(void*)&m_use_animations, SM_USE_ANIMATIONS, qvar_to_bool},
       {(void*)&m_autostart, SM_AUTOSTART, qvar_to_bool},
 
       // uint
       {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
-      {(void*)&m_rh_update_freq, SM_RH_UPDATE_FREQ, qvar_to_int},
-      {(void*)&m_rh_management_update_freq, SM_RHMANAGEMENT_FREQ, qvar_to_int},
       {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
       {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
       {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
@@ -512,25 +500,10 @@ void CSettingsManager::set_p2p_update_freq(int fr) {
   m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
   update_system::CHubComponentsUpdater::Instance()->set_p2p_update_freq();
 }
-
-void CSettingsManager::set_rh_update_freq(int fr) {
-  m_rh_update_freq = (update_freq_t)fr % UF_LAST;
-  m_settings.setValue(SM_RH_UPDATE_FREQ, (int8_t)m_rh_update_freq);
-  update_system::CHubComponentsUpdater::Instance()->set_rh_update_freq();
-}
-
 void CSettingsManager::set_tray_update_freq(int fr) {
   m_tray_update_freq = (update_freq_t)fr % UF_LAST;
   m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
   update_system::CHubComponentsUpdater::Instance()->set_tray_update_freq();
-}
-
-void CSettingsManager::set_rh_management_freq(int fr) {
-  m_rh_management_update_freq = (update_freq_t)fr % UF_LAST;
-  m_settings.setValue(SM_RHMANAGEMENT_FREQ,
-                      (int8_t)m_rh_management_update_freq);
-  update_system::CHubComponentsUpdater::Instance()
-      ->set_rh_management_update_freq();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -562,26 +535,12 @@ void CSettingsManager::set_p2p_autoupdate(const bool p2p_autoupdate) {
   update_system::CHubComponentsUpdater::Instance()->set_p2p_autoupdate();
 }
 
-void CSettingsManager::set_rh_autoupdate(const bool rh_autoupdate) {
-  m_rh_autoupdate = rh_autoupdate;
-  m_settings.setValue(SM_RH_AUTOUPDATE, m_rh_autoupdate);
-  update_system::CHubComponentsUpdater::Instance()->set_rh_autoupdate();
-}
-
 void CSettingsManager::set_tray_autoupdate(const bool tray_autoupdate) {
   m_tray_autoupdate = tray_autoupdate;
   m_settings.setValue(SM_TRAY_AUTOUPDATE, m_tray_autoupdate);
   update_system::CHubComponentsUpdater::Instance()->set_tray_autoupdate();
 }
 ////////////////////////////////////////////////////////////////////////////
-
-void CSettingsManager::set_rh_management_autoupdate(
-    const bool rh_management_autoupdate) {
-  m_rh_management_autoupdate = rh_management_autoupdate;
-  m_settings.setValue(SM_RHMANAGEMENT_AUTOUPDATE, m_rh_management_autoupdate);
-  update_system::CHubComponentsUpdater::Instance()
-      ->set_rh_management_autoupdate();
-}
 
 void CSettingsManager::set_autostart(const bool autostart) {
   if (m_autostart == autostart) return;

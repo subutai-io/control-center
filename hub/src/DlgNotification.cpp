@@ -27,8 +27,6 @@ DlgNotification::DlgNotification(
   } action_handler[] = {
     {"Update P2P", [](){update_system::CHubComponentsUpdater::Instance()->force_update_p2p();}},
     {"Update",[](){update_system::CHubComponentsUpdater::Instance()->force_update_tray();}},
-    {"Update Resource Host", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rh();}},
-    {"Update RH Management", [](){update_system::CHubComponentsUpdater::Instance()->force_update_rhm();}},
     {"Settings", [](){TrayControlWindow::Instance()->show_settings_dialog();}},
     {"Bazaar", [](){TrayControlWindow::Instance()->launch_Hub();}},
     {"Notification history", [](){TrayControlWindow::Instance()->show_notifications_triggered();}},

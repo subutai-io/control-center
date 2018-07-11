@@ -52,8 +52,6 @@ namespace update_system {
 
     static const QString P2P;
     static const QString TRAY;
-    static const QString RH;
-    static const QString RHMANAGEMENT;
     static const QString X2GO;
     static const QString VAGRANT;
     static const QString ORACLE_VIRTUALBOX;
