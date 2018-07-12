@@ -2257,6 +2257,10 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
+  return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
 

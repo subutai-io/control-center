@@ -408,7 +408,9 @@ void SilentUninstaller::silentUninstallation() {
   case CC_CHROME:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_chrome, m_dir, m_file_name);
     break;
-  //TODO add other components
+  case CC_VB:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_oracle_virtualbox, m_dir, m_file_name);
+    break;
   default:
     break;
   }

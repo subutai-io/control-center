@@ -101,6 +101,25 @@ chue_t CUpdaterComponentVIRTUALBOX::update_internal() {
 }
 
 chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
+  QMessageBox *msg_box = new QMessageBox(
+      QMessageBox::Information, QObject::tr("Attention!"),
+      QObject::tr(
+          "Please stop all your running virtual machines and press \'Yes\" to continue."),
+      QMessageBox::Yes | QMessageBox::No);
+  if(msg_box->exec() != QMessageBox::Yes) {
+    uninstall_finished_sl(false);
+    return CHUE_FAILED;
+  }
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_VB);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
+          &CUpdaterComponentVIRTUALBOX::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
@@ -119,4 +138,13 @@ void CUpdaterComponentVIRTUALBOX::install_post_interntal(bool success) {
         tr("Virtualbox has been installed."), DlgNotification::N_NO_ACTION);
 }
 
-void CUpdaterComponentVIRTUALBOX::uninstall_post_internal(bool success) {}
+void CUpdaterComponentVIRTUALBOX::uninstall_post_internal(bool success) {
+  if (!success)
+    CNotificationObserver::Instance()->Error(
+        tr("Failed to complete VirtualBox uninstallation. Try again later, "
+           "or uninstall it manually."),
+        DlgNotification::N_NO_ACTION);
+  else
+    CNotificationObserver::Instance()->Info(
+        tr("Virtualbox has been uninstalled."), DlgNotification::N_NO_ACTION);
+}

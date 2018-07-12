@@ -178,7 +178,7 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
         tr("Vagrant Subutai box failed to update"), DlgNotification::N_ABOUT);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Succesfully installed Vagrant Subutai box, congratulations!"),
+        tr("Succesfully updated Vagrant Subutai box"),
         DlgNotification::N_ABOUT);
   }
 }
