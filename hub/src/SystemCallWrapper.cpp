@@ -2257,8 +2257,125 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
+template <class  OS>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
+template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_LINUX> >(const QString &dir, const QString &file_name){
+  qDebug() << "uninstalling virtualbox on linux";
+  // first close(kill) all running instances of VB
+  QString cmd("ps");
+  QStringList args;
+  args << "-A";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "got process IDs of all running vb"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  QStringList pid_vb;
+  QString pid;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    for (QString s : res.out) {
+      if (!s.contains("VB")) continue;
+      pid = "";
+      while (s.size() > 0 && s[0].isSpace()) s.remove(0, 1);
+      int i = 0;
+      while (i < s.size() && !s[i].isSpace()) {
+        pid += s[i];
+        i++;
+      }
+      pid_vb.push_back(pid);
+    }
+  }
+  // after getting pid of all running vb process
+  // close each of them and delete vb
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vb_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+  QString uninstall_script_str;
+  uninstall_script_str += "#!/bin/bash\n";
+  for (QString s : pid_vb) {
+    uninstall_script_str += "kill -9 " + s + "\n";
+  }
+  uninstall_script_str += "apt-get remove --purge -y virtualbox-*\n";
+  QByteArray uninstall_script = uninstall_script_str.toUtf8();
+
+  if (tmpFile.write(uninstall_script) != uninstall_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write uninstall script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path << tmpFilePath;
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  qDebug()
+          <<"virtualbox oracle uninstallation finished"
+          <<"error code:"<<cr2.exit_code
+          <<"output: "<<cr2.out
+          <<"result: "<<cr2.res;
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
   return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
