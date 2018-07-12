@@ -11,6 +11,7 @@
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentVagrant.h"
+#include "updater/UpdaterComponentX2go.h"
 #include "updater/IUpdaterComponent.h"
 
 
