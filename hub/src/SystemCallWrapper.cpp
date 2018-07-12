@@ -3791,14 +3791,15 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
   if (file.open(QIODevice::ReadWrite)) {
     qDebug() << "reading Info.plist file";
     QTextStream stream(&file);
-    QStringList plist = stream.readAll().split("/n");
+    QStringList plist = stream.readAll().split("\n");
     for (auto i = plist.begin(); i != plist.end(); i++) {
       QString &str = *i;
       if (str.contains("CFBundleVersion") || str.contains("CFBundleShortVersionString")) {
-        QString &strv = *(i++);
+        auto it = i;
+        QString &strv = *(++it);
         int ida = strv.toStdString().find('>');
         int idb = strv.toStdString().find('<', ida);
-        strv = strv.left(ida + 1) + version + strv.right(strv.size() - idb);
+        strv = strv.left(ida + 1) + "vse po chesnoku" + strv.right(strv.size() - idb);
       }
     }
     file.close();
