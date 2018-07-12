@@ -9,85 +9,6 @@
 #include "ui_DlgCreatePeer.h"
 #include "Environment.h"
 
-// Validator template for QlineEdit
-template <class TC>
-struct field_validator_t {
-  TC* fc;  // field control
-  QLabel* lbl_err;
-  bool (*f_validator)(const TC*);
-  QString validator_msg;
-};
-
-bool is_le_empty(const QLineEdit* le) {
-  return le->text().trimmed().isEmpty();
-}
-
-// checks password size
-bool is_le_valid_size(const QLineEdit* le) {
-  if (le->text().size() < 7)
-    return false;
-
-  return true;
-}
-
-// checks password invalid characters
-bool is_le_chars_and_digits(const QLineEdit* le) {
-  QRegExp invalid_chars;
-  invalid_chars.setPattern("\\W");
-
-  if (le->text().contains(invalid_chars))
-    return false;
-
-  return true;
-}
-
-// checks only letters and numbers.
-bool is_le_letter_and_number(const QLineEdit* le) {
-  QRegExp invalid_chars;
-  invalid_chars.setPattern("\\W");
-
-  if (le->text().contains(invalid_chars) ||
-      le->text().contains("_")) {
-    return false;
-  }
-
-  return true;
-}
-
-// check min ram
-bool is_le_has_min_ram(const QLineEdit* le) {
-  if (le->text().toInt() < 2048)
-    return false;
-
-  return true;
-}
-
-// check max ram
-bool is_le_has_max_ram(const QLineEdit* le) {
-  if ((unsigned int)le->text().toInt() < Environment::Instance()->ramSize())
-    return false;
-
-  return true;
-}
-
-// check min disk
-bool is_le_has_min_disk(const QLineEdit* le) {
-  // min 100 gb disk size
-  if (le->text().toInt() < 100)
-    return false;
-
-  return true;
-}
-
-// check max disk
-bool is_le_has_max_disk(const QLineEdit* le) {
-  // max 2 terebytes disk size
-  if (le->text().toInt() <= 2048)
-    return false;
-
-  return true;
-}
-
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
       m_password_state(0),
@@ -203,6 +124,8 @@ DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass) {
 }
 
 bool DlgCreatePeer::check_configurations() {
+  qDebug() << "Check conf RAM: "
+           << Environment::Instance()->ramSize();
   QString ram = ui->le_ram->text();
   QString disk = ui->le_disk->text();
   QString password1 = ui->le_pass->text();
@@ -259,58 +182,34 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_ram->show();
     errors_exist = true;
+  } else if (ram.toInt() > (int) Environment::Instance()->ramSize()) {   // check max ram
+    ui->lbl_err_ram->setText(tr("Ram cannot be more than %1 MB.").arg(Environment::Instance()->ramSize()));
+    ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_ram->show();
+    errors_exist = true;
   } else
     ui->lbl_err_ram->hide();
+
   // disk
-  if (disk.toInt() < 40) {
-    ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB."));
+  if (disk.toInt() < 100) {
+    ui->lbl_err_disk->setText(tr("Disk cannot be less than 100 GB."));
+    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->show();
+    errors_exist = true;
+  } else if (disk.toInt() > 2048) { // disk max size 2048 GB = 2 TB
+    ui->lbl_err_disk->setText(tr("Disk cannot be more than 2048 GB."));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
   } else
     ui->lbl_err_disk->hide();
+
   return errors_exist;
 }
 
 void DlgCreatePeer::create_button_pressed() {
-  static const QString empty_validator_msg = tr("Field cannot be empty");
-  static const  QString empty_password_msg = tr("Password cannot be empty.");
-  static const QString password_size_msg = tr("Password size should be more than 7.");
-  static const QString letters_or_digits_msg = tr("Use only letters and numbers.");
-  static const QString min_ram_msg = tr("Ram cannot be less than 2048 MB.");
-  static const QString max_ram_msg = tr("Ram cannot be more than %1 MB").arg(Environment::Instance()->ramSize());
-  static const QString max_disk_msg = tr("Disk cannot be more than 2 TB.");
-  static const QString min_disk_msg = tr("Disk cannot be less than 100 GB.");
+  if (check_configurations()) return;
 
-  field_validator_t<QLineEdit> le_validators[] = {
-    {ui->le_name, ui->lbl_err_name, is_le_empty, empty_validator_msg},
-    {ui->le_pass, ui->lbl_err_pass, is_le_empty, empty_password_msg},
-    {ui->le_pass, ui->lbl_err_pass, is_le_valid_size, password_size_msg},
-    {ui->le_name, ui->lbl_err_name, is_le_letter_and_number, letters_or_digits_msg},
-    {ui->le_ram, ui->lbl_err_ram, is_le_has_min_ram, min_ram_msg},
-    {ui->le_ram, ui->lbl_err_ram, is_le_has_max_ram, max_ram_msg},
-    {ui->le_disk, ui->lbl_err_disk, is_le_has_min_disk, min_disk_msg},
-    {ui->le_disk, ui->lbl_err_disk, is_le_has_max_disk, max_disk_msg},
-    {NULL, NULL, NULL, ""}
-  };
-
-  std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
- // field_validator_t<QLineEdit>* tmp = le_validators;
-
-  for(int8_t i = 0; i < (int8_t)5; i++) {
-    qDebug() << "msg: " << le_validators[i].validator_msg;
-    //if (!le_validators[i].fc->isVisible()) continue;
-    //if (le_validators[i].f_validator(le_validators[i].fc)) continue;
-    //lst_failed_validators.push_back(le_validators[i]);
-  }
-
-  qDebug() << "before crash " << lst_failed_validators.empty();
-
-
-  if (check_configurations())
-    return;
-
-  qDebug() << "after return";
   QString dir = create_dir("subutai-peer_" + ui->le_name->text());
   if (dir.isEmpty()) {
     ui->lbl_err_name->setText(tr("Name already exists"));

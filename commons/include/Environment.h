@@ -9,8 +9,6 @@ Q_OBJECT
 
 public:
   static Environment* Instance();
-  template <class OS>
-  unsigned int ramSizeInternal();
   unsigned int ramSize();
   unsigned int numCpu();
 };
