@@ -19,6 +19,7 @@
 #include "Logger.h"
 #include "LanguageController.h"
 #include "TraySkinController.h"
+#include "VagrantProvider.h"
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
@@ -36,6 +37,13 @@ static void fill_tray_skin_combobox(QComboBox* cb) {
 static void fill_locale_combobox(QComboBox* cb) {
   for (int i = 0; i <= LanguageController::LOCALE_LAST; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
+}
+//////////////////////////////////////////////////////////////////////////
+
+static void fill_vagrant_provider_combobox(QComboBox* cb) {
+  for (int i = 0; i <= VagrantProvider::PROVIDER_LAST; i++) {
+    cb->addItem(VagrantProvider::ProviderToStr((VagrantProvider::PROVIDERS)i));
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -119,6 +127,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
   fill_tray_skin_combobox(ui->cb_tray_skin);
+  fill_vagrant_provider_combobox(ui->cb_vagrant_provider);
 
   fill_locale_combobox(ui->cb_locale);
 
@@ -135,6 +144,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
   ui->cb_tray_skin->setCurrentIndex(CSettingsManager::Instance().tray_skin());
+  ui->cb_vagrant_provider->setCurrentIndex(CSettingsManager::Instance().vagrant_provider());
 
   ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 
@@ -483,6 +493,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_tray_skin(ui->cb_tray_skin->currentIndex());
 
   CSettingsManager::Instance().set_locale(ui->cb_locale->currentIndex());
+  CSettingsManager::Instance().set_vagrant_provider(ui->cb_vagrant_provider->currentIndex());
 
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());

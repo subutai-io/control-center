@@ -61,6 +61,7 @@ class CSettingsManager : public QObject {
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
   static const QString SM_LOGS_LEVEL;
+  static const QString SM_VAGRANT_PROVIDER;
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
@@ -137,6 +138,7 @@ class CSettingsManager : public QObject {
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
   uint32_t m_logs_level;
+  uint32_t m_vagrant_provider;
   uint32_t m_tray_skin;
   uint32_t m_locale;
 
@@ -257,6 +259,7 @@ class CSettingsManager : public QObject {
 
   uint32_t notifications_level() const { return m_notifications_level; }
   uint32_t logs_level() const { return m_logs_level; }
+  uint32_t vagrant_provider() const { return m_vagrant_provider; }
   uint32_t tray_skin() const { return m_tray_skin; }
   uint32_t preferred_notifications_place() const {
     return m_preferred_notifications_place;
@@ -280,6 +283,7 @@ class CSettingsManager : public QObject {
   /**********************/
 
   void set_logs_level(int logs_level);
+  void set_vagrant_provider(int provider);
   void set_p2p_update_freq(int fr);
   void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
@@ -338,6 +342,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(logs_level, uint32_t)
+  SET_FIELD_DECL(vagrant_provider, uint32_t)
   SET_FIELD_DECL(tray_skin, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)

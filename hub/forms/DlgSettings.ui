@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>622</width>
-    <height>632</height>
+    <height>686</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,10 +53,10 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout_6">
-           <item row="6" column="2">
+           <item row="7" column="2">
             <widget class="QComboBox" name="cb_tray_skin"/>
            </item>
-           <item row="9" column="0">
+           <item row="11" column="0">
             <widget class="QCheckBox" name="chk_use_animations">
              <property name="text">
               <string>Use animations</string>
@@ -84,7 +84,7 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="lbl_browser">
              <property name="text">
               <string>CC Browser :</string>
@@ -94,7 +94,7 @@ border-color: rgb(175, 162, 152)</string>
            <item row="3" column="2">
             <widget class="QComboBox" name="cb_notification_level"/>
            </item>
-           <item row="10" column="0" colspan="3">
+           <item row="12" column="0" colspan="3">
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_logs_storage">
@@ -189,11 +189,14 @@ border-color: rgb(175, 162, 152)</string>
              </item>
             </layout>
            </item>
+           <item row="8" column="2">
+            <widget class="QComboBox" name="cb_browser"/>
+           </item>
            <item row="0" column="2">
             <widget class="QComboBox" name="cb_locale"/>
            </item>
-           <item row="7" column="2">
-            <widget class="QComboBox" name="cb_browser"/>
+           <item row="4" column="2">
+            <widget class="QComboBox" name="cb_log_level"/>
            </item>
            <item row="4" column="0">
             <widget class="QLabel" name="lbl_log_level">
@@ -202,7 +205,7 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="lbl_preferred_notifications_place">
              <property name="toolTip">
               <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
@@ -215,9 +218,6 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="2">
-            <widget class="QComboBox" name="cb_log_level"/>
-           </item>
            <item row="3" column="0">
             <widget class="QLabel" name="lbl_notification_level">
              <property name="text">
@@ -225,7 +225,14 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="2">
+           <item row="6" column="2">
+            <widget class="QComboBox" name="cb_preferred_notifications_place">
+             <property name="toolTip">
+              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="2">
             <widget class="QCheckBox" name="chk_autostart">
              <property name="text">
               <string>Start on login</string>
@@ -236,13 +243,6 @@ border-color: rgb(175, 162, 152)</string>
             <widget class="QLabel" name="lbl_locale">
              <property name="text">
               <string>Language</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="QComboBox" name="cb_preferred_notifications_place">
-             <property name="toolTip">
-              <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
              </property>
             </widget>
            </item>
@@ -274,14 +274,14 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="lbl_tray_skin">
              <property name="text">
               <string>Skin Theme :</string>
              </property>
             </widget>
            </item>
-           <item row="11" column="0" colspan="3">
+           <item row="13" column="0" colspan="3">
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="lbl_ssh_user">
@@ -318,19 +318,35 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="2">
+           <item row="9" column="2">
             <widget class="QComboBox" name="cb_profile">
              <property name="editable">
               <bool>false</bool>
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="lbl_profile">
              <property name="text">
               <string>Browser profile (only Chrome) :</string>
              </property>
             </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="lbl_vagrant_provider">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Vagrant Provider:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="2">
+            <widget class="QComboBox" name="cb_vagrant_provider"/>
            </item>
           </layout>
          </item>
@@ -898,6 +914,7 @@ border-color: rgb(175, 162, 152)</string>
   </layout>
  </widget>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>
