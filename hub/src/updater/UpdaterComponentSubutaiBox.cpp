@@ -45,8 +45,11 @@ bool CUpdaterComponentSUBUTAI_BOX::update_available_internal() {
   if (cloud_version == "undefined" || cloud_version.isEmpty()) return false;
   return cloud_version > version;
 }
+chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(){
+  return CUpdaterComponentSUBUTAI_BOX::install_internal(false);
+}
 
-chue_t CUpdaterComponentSUBUTAI_BOX::install_internal() {
+chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
   qDebug() << "Starting install new version of subutai box";
 
   QString version;
@@ -113,9 +116,13 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal() {
               silent_installer->startWork();
             }
           });
-  connect(silent_installer, &SilentInstaller::outputReceived, this,
-          &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
-
+  if (update) {
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentSUBUTAI_BOX::update_finished_sl);
+  } else {
+    connect(silent_installer, &SilentInstaller::outputReceived,
+            this, &CUpdaterComponentSUBUTAI_BOX::install_finished_sl);
+  }
   connect(silent_installer, &SilentInstaller::outputReceived, dm,
           &CDownloadFileManager::deleteLater);
 
@@ -162,7 +169,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
 }
 
 chue_t CUpdaterComponentSUBUTAI_BOX::update_internal() {
-  return install_internal();
+  return install_internal(true);
 }
 
 void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
@@ -171,7 +178,7 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
         tr("Vagrant Subutai box failed to update"), DlgNotification::N_ABOUT);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Succesfully updated Vagrant Subutai box, congratulations!"),
+        tr("Succesfully installed Vagrant Subutai box, congratulations!"),
         DlgNotification::N_ABOUT);
   }
 }
@@ -183,7 +190,7 @@ void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Subutai box has been installed. Congratulations!"),
+        tr("Succesfully installed the Vagrant Subutai box"),
         DlgNotification::N_NO_ACTION);
   }
 }
@@ -195,7 +202,7 @@ void CUpdaterComponentSUBUTAI_BOX::uninstall_post_internal(bool success) {
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Subutai box has been deleted. Congratulations!"),
+        tr("Succesfully deleted the Vagrant Subutai box"),
         DlgNotification::N_NO_ACTION);
   }
 }
