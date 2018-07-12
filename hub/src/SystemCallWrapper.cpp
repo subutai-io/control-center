@@ -3799,7 +3799,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
         QString &strv = *(++it);
         int ida = strv.toStdString().find('>');
         int idb = strv.toStdString().find('<', ida);
-        strv = strv.left(ida + 1) + "vse po chesnoku" + strv.right(strv.size() - idb);
+        strv = strv.left(ida + 1) + version + strv.right(strv.size() - idb);
       }
     }
     file.close();
