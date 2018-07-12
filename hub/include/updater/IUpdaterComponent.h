@@ -139,27 +139,7 @@ namespace update_system {
   };
 ////////////////////////// declaration of other staff
 
-    /**
-     * @brief The CUpdaterComponentORACLE_VIRTUALBOX class implements IUpdaterComponent. Works with oracle virtualbox
-     */
-    class CUpdaterComponentORACLE_VIRTUALBOX : public IUpdaterComponent {
-      // IUpdaterComponent interface
-    public:
-      CUpdaterComponentORACLE_VIRTUALBOX();
-      virtual ~CUpdaterComponentORACLE_VIRTUALBOX();
 
-      // IUpdaterComponent interface
-    protected:
-      virtual bool update_available_internal();
-      virtual chue_t update_internal();
-      virtual void update_post_action(bool success);
-      virtual chue_t install_internal();
-      virtual void install_post_interntal(bool success);
-      virtual chue_t uninstall_internal();
-      virtual void uninstall_post_internal(bool success);
-    private:
-      QString download_oracle_virtualbox_path();
-    };
     /**
      * @brief The CUpdaterComponentCHROME class implements IUpdaterComponent. Works with chrome
      */

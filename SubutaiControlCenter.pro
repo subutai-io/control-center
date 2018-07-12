@@ -63,7 +63,8 @@ SOURCES += \
     DlgCreatePeer.cpp \
     hub/src/PeerController.cpp \
     hub/src/updater/UpdaterComponentVagrant.cpp \
-    hub/src/updater/UpdaterComponentX2go.cpp
+    hub/src/updater/UpdaterComponentX2go.cpp \
+    hub/src/updater/UpdaterComponentVirtualbox.cpp
 
 
 
@@ -112,7 +113,8 @@ HEADERS  += \
     DlgCreatePeer.h \
     hub/include/PeerController.h \
     hub/include/updater/UpdaterComponentVagrant.h \
-    hub/include/updater/UpdaterComponentX2go.h
+    hub/include/updater/UpdaterComponentX2go.h \
+    hub/include/updater/UpdaterComponentVirtualbox.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

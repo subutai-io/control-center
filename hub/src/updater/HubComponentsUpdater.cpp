@@ -12,6 +12,7 @@
 #include "updater/UpdaterComponentTray.h"
 #include "updater/UpdaterComponentVagrant.h"
 #include "updater/UpdaterComponentX2go.h"
+#include "updater/UpdaterComponentVirtualbox.h"
 #include "updater/IUpdaterComponent.h"
 
 
@@ -25,7 +26,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_p2p  = new CUpdaterComponentP2P;
   uc_x2go = new CUpdaterComponentX2GO;
   uc_vagrant = new CUpdaterComponentVAGRANT;
-  uc_oracle_virtualbox = new CUpdaterComponentORACLE_VIRTUALBOX;
+  uc_oracle_virtualbox = new CUpdaterComponentVIRTUALBOX;
   uc_chrome = new CUpdaterComponentCHROME;
   uc_e2e = new CUpdaterComponentE2E;
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
