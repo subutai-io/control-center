@@ -1,17 +1,13 @@
-#ifndef UPDATERCOMPONENTX2GO_H
-#define UPDATERCOMPONENTX2GO_H
+#ifndef UPDATERCOMPONENTCHROME_H
+#define UPDATERCOMPONENTCHROME_H
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
-/**
- * @brief The CUpdaterComponentX2GO class implements IUpdaterComponent. Works
- * with X2GO
- */
-class CUpdaterComponentX2GO : public IUpdaterComponent {
+class CUpdaterComponentCHROME : public IUpdaterComponent {
   // IUpdaterComponent interface
  public:
-  CUpdaterComponentX2GO();
-  virtual ~CUpdaterComponentX2GO();
+  CUpdaterComponentCHROME();
+  virtual ~CUpdaterComponentCHROME();
 
   // IUpdaterComponent interface
  protected:
@@ -24,7 +20,7 @@ class CUpdaterComponentX2GO : public IUpdaterComponent {
   virtual void uninstall_post_internal(bool success);
 
  private:
-  QString download_x2go_path();
+  QString download_chrome_path();
 };
 }  // namespace update_system
 #endif  // UPDATERCOMPONENTX2GO_H

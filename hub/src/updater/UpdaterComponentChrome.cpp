@@ -12,37 +12,34 @@
 #include "SystemCallWrapper.h"
 #include "updater/ExecutableUpdater.h"
 #include "updater/HubComponentsUpdater.h"
-#include "updater/UpdaterComponentVirtualbox.h"
+#include "updater/UpdaterComponentChrome.h"
 
-CUpdaterComponentVIRTUALBOX::CUpdaterComponentVIRTUALBOX() {
-  m_component_id = ORACLE_VIRTUALBOX;
-}
+CUpdaterComponentCHROME::CUpdaterComponentCHROME() { m_component_id = CHROME; }
 
-CUpdaterComponentVIRTUALBOX::~CUpdaterComponentVIRTUALBOX() {}
+CUpdaterComponentCHROME::~CUpdaterComponentCHROME() {}
 
-QString CUpdaterComponentVIRTUALBOX::download_virtualbox_path() {
+QString CUpdaterComponentCHROME::download_chrome_path() {
   QStringList lst_temp =
       QStandardPaths::standardLocations(QStandardPaths::TempLocation);
   return (lst_temp.isEmpty() ? QApplication::applicationDirPath()
                              : lst_temp[0]);
 }
 
-bool CUpdaterComponentVIRTUALBOX::update_available_internal() {
+bool CUpdaterComponentCHROME::update_available_internal() {
   QString version;
-  CSystemCallWrapper::oracle_virtualbox_version(version);
+  CSystemCallWrapper::chrome_version(version);
   return version == "undefined";
 }
 
-chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
-  qDebug() << "Starting install oracle virtualbox";
+chue_t CUpdaterComponentCHROME::install_internal() {
+  qDebug() << "Starting install chrome";
 
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
-      QObject::tr(
-          "<a href='https://www.virtualbox.org/wiki/VirtualBox'>VirtualBox</a>"
-          " is used as the default hypervisor.<br>"
-          "VirtualBox will be installed on your machine.<br>"
-          "Do you want to proceed?"),
+      QObject::tr("<a href='https://www.google.com/chrome/'>Chrome</a>"
+                  " is used as the default browser.<br>"
+                  "Chrome will be installed on your machine.<br>"
+                  "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
   msg_box->setTextFormat(Qt::RichText);
 
@@ -52,9 +49,10 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
     install_finished_sl(false);
     return CHUE_SUCCESS;
   }
-  QString file_name = oracle_virtualbox_kurjun_package_name();
-  QString file_dir = download_virtualbox_path();
-  QString str_oracle_virtualbox_downloaded_path = file_dir + "/" + file_name;
+
+  QString file_name = chrome_kurjun_package_name();
+  QString file_dir = download_chrome_path();
+  QString str_downloaded_path = file_dir + "/" + file_name;
 
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(file_name);
@@ -66,11 +64,11 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
-  CDownloadFileManager *dm = new CDownloadFileManager(
-      item->id(), str_oracle_virtualbox_downloaded_path, item->size());
+  CDownloadFileManager *dm =
+      new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
-  silent_installer->init(file_dir, file_name, CC_VB);
+  silent_installer->init(file_dir, file_name, CC_CHROME);
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
             update_progress_sl(rec, total + (total / 5));
@@ -87,36 +85,56 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
             }
           });
   connect(silent_installer, &SilentInstaller::outputReceived, this,
-          &CUpdaterComponentVIRTUALBOX::install_finished_sl);
+          &CUpdaterComponentCHROME::install_finished_sl);
   connect(silent_installer, &SilentInstaller::outputReceived, dm,
           &CDownloadFileManager::deleteLater);
   dm->start_download();
   return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentVIRTUALBOX::update_internal() {
+chue_t CUpdaterComponentCHROME::update_internal() {
   update_progress_sl(100, 100);
   update_finished_sl(true);
   return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
+chue_t CUpdaterComponentCHROME::uninstall_internal() {
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_CHROME);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
+          &CUpdaterComponentCHROME::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 
-void CUpdaterComponentVIRTUALBOX::update_post_action(bool success) {
+void CUpdaterComponentCHROME::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentVIRTUALBOX::install_post_interntal(bool success) {
+void CUpdaterComponentCHROME::install_post_interntal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
-        tr("Failed to complete VirtualBox installation. Try again later, "
+        tr("Failed to complete Google Chrome installation. Try again later, "
            "or install it manually."),
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("Virtualbox has been installed."), DlgNotification::N_NO_ACTION);
+        tr("Google Chrome has been installed."), DlgNotification::N_NO_ACTION);
 }
 
-void CUpdaterComponentVIRTUALBOX::uninstall_post_internal(bool success) {}
+void CUpdaterComponentCHROME::uninstall_post_internal(bool success) {
+  if (!success)
+    CNotificationObserver::Instance()->Error(
+        tr("Failed to complete Google Chrome uninstallation. Try again later, "
+           "or uninstall it manually."),
+        DlgNotification::N_NO_ACTION);
+  else
+    CNotificationObserver::Instance()->Info(
+        tr("Google Chrome has been uninstalled."),
+        DlgNotification::N_NO_ACTION);
+}

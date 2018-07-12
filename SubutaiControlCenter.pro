@@ -64,7 +64,12 @@ SOURCES += \
     hub/src/PeerController.cpp \
     hub/src/updater/UpdaterComponentVagrant.cpp \
     hub/src/updater/UpdaterComponentX2go.cpp \
-    hub/src/updater/UpdaterComponentVirtualbox.cpp
+    hub/src/updater/UpdaterComponentVirtualbox.cpp \
+    hub/src/updater/UpdaterComponentChrome.cpp \
+    hub/src/updater/UpdaterComponentE2E.cpp \
+    hub/src/updater/UpdaterComponentSubutaiBox.cpp \
+    hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
+    hub/src/updater/UpdaterComponentVagrantVBguest.cpp
 
 
 
@@ -114,7 +119,12 @@ HEADERS  += \
     hub/include/PeerController.h \
     hub/include/updater/UpdaterComponentVagrant.h \
     hub/include/updater/UpdaterComponentX2go.h \
-    hub/include/updater/UpdaterComponentVirtualbox.h
+    hub/include/updater/UpdaterComponentVirtualbox.h \
+    hub/include/updater/UpdaterComponentChrome.h \
+    hub/include/updater/UpdaterComponentE2E.h \
+    hub/include/updater/UpdaterComponentSubutaiBox.h \
+    hub/include/updater/UpdaterComponentVagrantSubutai.h \
+    hub/include/updater/UpdaterComponentVagrantVBguest.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

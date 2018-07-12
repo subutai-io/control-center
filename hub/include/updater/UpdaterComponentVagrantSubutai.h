@@ -1,17 +1,17 @@
-#ifndef UPDATERCOMPONENTX2GO_H
-#define UPDATERCOMPONENTX2GO_H
+#ifndef UPDATERCOMPONENTVAGRANTSUBUTAI_H
+#define UPDATERCOMPONENTVAGRANTSUBUTAI_H
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
 /**
- * @brief The CUpdaterComponentX2GO class implements IUpdaterComponent. Works
- * with X2GO
+ * @brief The CUpdaterComponentVAGRANT_SUBUTAI class implements
+ * IUpdaterComponent. Works with subutai subutai plugin
  */
-class CUpdaterComponentX2GO : public IUpdaterComponent {
+class CUpdaterComponentVAGRANT_SUBUTAI : public IUpdaterComponent {
   // IUpdaterComponent interface
  public:
-  CUpdaterComponentX2GO();
-  virtual ~CUpdaterComponentX2GO();
+  CUpdaterComponentVAGRANT_SUBUTAI();
+  virtual ~CUpdaterComponentVAGRANT_SUBUTAI();
 
   // IUpdaterComponent interface
  protected:
@@ -19,12 +19,9 @@ class CUpdaterComponentX2GO : public IUpdaterComponent {
   virtual chue_t update_internal();
   virtual void update_post_action(bool success);
   virtual chue_t install_internal();
-  virtual void install_post_interntal(bool success);
   virtual chue_t uninstall_internal();
+  virtual void install_post_interntal(bool success);
   virtual void uninstall_post_internal(bool success);
-
- private:
-  QString download_x2go_path();
 };
 }  // namespace update_system
-#endif  // UPDATERCOMPONENTX2GO_H
+#endif  // UPDATERCOMPONENTVAGRANTSUBUTAI_H

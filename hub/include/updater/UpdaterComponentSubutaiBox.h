@@ -1,17 +1,17 @@
-#ifndef UPDATERCOMPONENTX2GO_H
-#define UPDATERCOMPONENTX2GO_H
+#ifndef UPDATERCOMPONENTSUBUTAIBOX_H
+#define UPDATERCOMPONENTSUBUTAIBOX_H
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
 /**
- * @brief The CUpdaterComponentX2GO class implements IUpdaterComponent. Works
- * with X2GO
+ * @brief The CUpdaterComponentSUBUTAI_BOX class implements IUpdaterComponent.
+ * Works with vagrant subutai box
  */
-class CUpdaterComponentX2GO : public IUpdaterComponent {
+class CUpdaterComponentSUBUTAI_BOX : public IUpdaterComponent {
   // IUpdaterComponent interface
  public:
-  CUpdaterComponentX2GO();
-  virtual ~CUpdaterComponentX2GO();
+  CUpdaterComponentSUBUTAI_BOX();
+  virtual ~CUpdaterComponentSUBUTAI_BOX();
 
   // IUpdaterComponent interface
  protected:
@@ -24,7 +24,7 @@ class CUpdaterComponentX2GO : public IUpdaterComponent {
   virtual void uninstall_post_internal(bool success);
 
  private:
-  QString download_x2go_path();
+  QString download_subutai_box_path();
 };
 }  // namespace update_system
-#endif  // UPDATERCOMPONENTX2GO_H
+#endif  // UPDATERCOMPONENTSUBUTAIBOX_H

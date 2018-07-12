@@ -1,17 +1,19 @@
-#ifndef UPDATERCOMPONENTX2GO_H
-#define UPDATERCOMPONENTX2GO_H
+#ifndef UPDATERCOMPONENTE2E_H
+#define UPDATERCOMPONENTE2E_H
+
+#endif  // UPDATERCOMPONENTE2E_H
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
 /**
- * @brief The CUpdaterComponentX2GO class implements IUpdaterComponent. Works
- * with X2GO
+ * @brief The CUpdaterComponentE2E class implements IUpdaterComponent. Works
+ * with subutai e2e plugin
  */
-class CUpdaterComponentX2GO : public IUpdaterComponent {
+class CUpdaterComponentE2E : public IUpdaterComponent {
   // IUpdaterComponent interface
  public:
-  CUpdaterComponentX2GO();
-  virtual ~CUpdaterComponentX2GO();
+  CUpdaterComponentE2E();
+  virtual ~CUpdaterComponentE2E();
 
   // IUpdaterComponent interface
  protected:
@@ -24,7 +26,6 @@ class CUpdaterComponentX2GO : public IUpdaterComponent {
   virtual void uninstall_post_internal(bool success);
 
  private:
-  QString download_x2go_path();
+  QString download_e2e_path();
 };
 }  // namespace update_system
-#endif  // UPDATERCOMPONENTX2GO_H

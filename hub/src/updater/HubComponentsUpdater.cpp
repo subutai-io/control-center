@@ -13,6 +13,11 @@
 #include "updater/UpdaterComponentVagrant.h"
 #include "updater/UpdaterComponentX2go.h"
 #include "updater/UpdaterComponentVirtualbox.h"
+#include "updater/UpdaterComponentChrome.h"
+#include "updater/UpdaterComponentE2E.h"
+#include "updater/UpdaterComponentSubutaiBox.h"
+#include "updater/UpdaterComponentVagrantSubutai.h"
+#include "updater/UpdaterComponentVagrantVBguest.h"
 #include "updater/IUpdaterComponent.h"
 
 
