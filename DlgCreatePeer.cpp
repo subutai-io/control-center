@@ -7,6 +7,7 @@
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "ui_DlgCreatePeer.h"
+#include "VagrantProvider.h"
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
@@ -331,7 +332,8 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     stream << "0" << endl;
   }
   p_file.close();
-  static QString vagrant_up_string = "up --provider virtualbox";
+  static QString vagrant_up_string = QString("up --provider %1").arg(
+        VagrantProvider::Instance()->CurrentProvider());
   QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
   CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
   res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string,

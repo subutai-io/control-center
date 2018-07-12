@@ -22,6 +22,7 @@
 #include "SettingsManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
+#include "VagrantProvider.h"
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -761,7 +762,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
     QStringList args;
     args << "box"
          << "add" << box
-         << "--provider" << provider
+         << "--provider" << VagrantProvider::Instance()->CurrentProvider()
          << box_dir
          << "--force";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
@@ -1246,7 +1247,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
          << "--box"
          << box
          << "--provider"
-         << provider;
+         << VagrantProvider::Instance()->CurrentProvider();
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug() << "updating vagrant box: " << box << "provider:" << provider
              << "finished with" << "exit code: " << res.exit_code
