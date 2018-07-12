@@ -48,11 +48,11 @@ unsigned int Environment::ramSize() {
 
   qDebug() << "RAM: "
            << " total: "
-           << (int)statex.ullTotalPhys/(1024*1024)
+           << (float)statex.ullTotalPhys/(1024*1024)
            << " free: "
-           << (int)statex.ullAvailPhys/(1024*1024);
+           << (float)statex.ullAvailPhys/(1024*1024);
 
-  return (int)statex.ullTotalPhys/(1024*1024); // in MB
+  return (float)statex.ullTotalPhys/(1024*1024); // in MB
 }
 #endif
 
