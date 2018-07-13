@@ -26,15 +26,13 @@ try {
         def cc_version = "${plain_version}+${date}"
 
 		sh """
-		export MAINTAINER="Jenkins Admin"
-        export MAINTAINER_EMAIL="jenkins@subut.ai"
 		export QTBINPATH=/home/builder/qt_static/bin/
 		qmake --version
-        ./generate_changelog --maintainer="${MAINTAINER}" --maintainer-email="${MAINTAINER_EMAIL}"
-		nproc_count="${(nproc)}"
-        core_number=${((nproc_count*2+1))}
+        ./generate_changelog --maintainer="Jenkins Admin" --maintainer-email="jenkins@subut.ai"
+		nproc_count="$(nproc)"
+        core_number=$((nproc_count*2+1))
         subutai_control_center_bin="subutai_control_center_bin"
-		if [ -d "${subutai_control_center_bin}" ]; then 
+		if [ -d "$(subutai_control_center_bin)" ]; then 
 	    echo "Try to remove subutai_control_center_bin"
         rm -rf subutai_control_center_bin
         fi 
@@ -42,7 +40,7 @@ try {
         cd subutai_control_center_bin
         lrelease ../SubutaiControlCenter.pro
         qmake ../SubutaiControlCenter.pro -r -spec linux-g++
-        make -j${core_number} 
+        make -j$(core_number) 
         rm *.o *.cpp *.h
         mv ../*.qm .
         cd ../
