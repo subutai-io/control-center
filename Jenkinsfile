@@ -18,19 +18,18 @@ try {
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
+		def workspace = pwd()
 		sh """
 		export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
 		export MAINTAINER="Jenkins Admin"
         export MAINTAINER_EMAIL="jenkins@subut.ai"
 		export QTBINPATH=/home/builder/qt_static/bin/
-		export workspace="$(pwd)"
 		qmake --version
-        ./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
+        ./generate_changelog --maintainer="${MAINTAINER}" --maintainer-email="${MAINTAINER_EMAIL}"
 		nproc_count="$(nproc)"
         core_number=$((nproc_count*2+1))
         subutai_control_center_bin="subutai_control_center_bin"
-
-		if [ -d "$subutai_control_center_bin" ]; then 
+		if [ -d "${subutai_control_center_bin}" ]; then 
 	    echo "Try to remove subutai_control_center_bin"
         rm -rf subutai_control_center_bin
         fi 
@@ -38,24 +37,20 @@ try {
         cd subutai_control_center_bin
         lrelease ../SubutaiControlCenter.pro
         qmake ../SubutaiControlCenter.pro -r -spec linux-g++
-        make -j$core_number 
+        make -j${core_number} 
         rm *.o *.cpp *.h
         mv ../*.qm .
         cd ../
-
         cd deb-packages/deb-packages-internal
         ./clear.sh
         ./pack_debian.sh 
         cd ../..
-
         rm -r /home/builder/deb_repo/*
         cd /home/builder/deb_repo
-        cp $workspace/deb-packages/*.deb .
-        cp $workspace/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
-
+        cp ${workspace}/deb-packages/*.deb .
+        cp ${workspace}/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
         mv *.deb ${PKGNAME}_${cc_version}.deb
         mv subutai-control-center SubutaiControlCenter
-
 		"""
 
 		stage("Upload")
