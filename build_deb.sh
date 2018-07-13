@@ -33,10 +33,10 @@ cd ../
 
 case $BRANCH in
 	dev)
-		PKGNAME="subutai-control-center-dev"
+		PKGNAME="subutai-control-center-dev$cc_version.deb"
 		;;
 	master)
-		PKGNAME="subutai-control-center-master"
+		PKGNAME="subutai-control-center-master$cc_version.deb"
 		;;
 esac
 
@@ -51,5 +51,5 @@ cp $workspace/deb-packages/*.deb .
 cp $workspace/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
 
 
-mv *.deb $PKGNAME_$cc_version.deb
+mv *.deb $PKGNAME
 mv subutai-control-center SubutaiControlCenter
