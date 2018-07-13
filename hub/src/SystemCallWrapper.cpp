@@ -2371,6 +2371,45 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_LINU
     return SCWE_CREATE_PROCESS;
   return SCWE_SUCCESS;
 }
+template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_WIN> > (const QString &dir,
+                                                                                    const QString &file_name){
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // get p2p product code
+  // wmic product where "Name like '%Virtualbox%'" get IdentifyingNumber
+  QString cmd = "wmic";
+  QStringList args;
+  args
+    << "product" << "where"
+    << "Name like '%virtualbox%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of p2p"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
+  // use msiexec to delete virtualbox
+  cmd = "msiexec";
+  args.clear();
+  args << "/x"
+       << product_code
+       << "/qn";
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "remove virtualbox finished"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
   installer_is_busy.lock();
   system_call_wrapper_error_t res = uninstall_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
@@ -4656,7 +4695,7 @@ system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_WIN> >(){
     product_code = res.out[1];
     product_code = product_code.trimmed();
   }
-  if (product_code.isEmpty()) return SCWE_SUCCESS;
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
   QString version;
   CSystemCallWrapper::p2p_version(version);
   version = version.remove("p2p");
