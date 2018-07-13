@@ -6,10 +6,10 @@ try {
 	notifyBuild('STARTED')
 	switch (env.BRANCH_NAME) {
             case ~/master/: 
-            PKGNAME = "subutai-control-center-master"
+            branch = "master"
             break;
 	    	default: 
-            PKGNAME = "subutai-control-center-dev"
+            branch = "dev"
     }
 	
 	node("debian") {
@@ -18,42 +18,9 @@ try {
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 		checkout scm
-		def workspace = pwd()
-        String date = new Date().format( 'yyyyMMddHHMMSS' )
-		String plain_version = sh (script: """
-					cat ${workspace}/version | tr -d '\n'
-					""", returnStdout: true)
-        def cc_version = "${plain_version}+${date}"
 
 		sh """
-		export QTBINPATH=/home/builder/qt_static/bin/
-		qmake --version
-        ./generate_changelog --maintainer="Jenkins Admin" --maintainer-email="jenkins@subut.ai"
-		nproc_count="${(nproc)}"
-        core_number=${((nproc_count*2+1))}
-        subutai_control_center_bin="subutai_control_center_bin"
-		if [ -d "${(subutai_control_center_bin)}" ]; then 
-	    echo "Try to remove subutai_control_center_bin"
-        rm -rf subutai_control_center_bin
-        fi 
-        mkdir subutai_control_center_bin
-        cd subutai_control_center_bin
-        lrelease ../SubutaiControlCenter.pro
-        qmake ../SubutaiControlCenter.pro -r -spec linux-g++
-        make -j${(core_number)} 
-        rm *.o *.cpp *.h
-        mv ../*.qm .
-        cd ../
-        cd deb-packages/deb-packages-internal
-        ./clear.sh
-        ./pack_debian.sh 
-        cd ../..
-        rm -r /home/builder/deb_repo/*
-        cd /home/builder/deb_repo
-        cp ${workspace}/deb-packages/*.deb .
-        cp ${workspace}/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
-        mv *.deb ${PKGNAME}_${cc_version}.deb
-        mv subutai-control-center SubutaiControlCenter
+		./build_deb.sh ${branch}
 		"""
 
 		stage("Upload")
@@ -63,8 +30,8 @@ try {
 		sh """
 		cd /home/builder/deb_repo
 		touch uploading_agent
-		scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${env.BRANCH_NAME}/
-		ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${env.BRANCH_NAME} agent
+		scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${branch}/
+		ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${branch} agent
 		"""
 	}
 
