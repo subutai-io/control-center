@@ -20,7 +20,7 @@ try {
 
 		def workspace = pwd()
 		sh """
-		export cc_version="${(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)}"
+		export cc_version="${git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S}"
 		export MAINTAINER="Jenkins Admin"
         export MAINTAINER_EMAIL="jenkins@subut.ai"
 		export QTBINPATH=/home/builder/qt_static/bin/
