@@ -254,12 +254,15 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
   QString destination_formatted = destination.contains(" ") ?
         QString("\"%1\"").arg(destination) : destination;
 
+  QString file_path_formatted = file_path.contains(" ") ?
+        QString("\"%1\"").arg(file_path) : file_path;
+
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
       << "-i" << ssh_info.second
-      << file_path
+      << file_path_formatted
       << QString("%1@%2:%3").arg(remote_user, ip, destination_formatted);
   qDebug() << "ARGS=" << args;
 
@@ -290,7 +293,7 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
        << "-S" << CSettingsManager::Instance().ssh_path()
        << "-i" << ssh_info.second
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path_formatted)
-       << QString("\"%1\"").arg(local_destination);
+       << local_destination;
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
