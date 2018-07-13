@@ -17,6 +17,7 @@ try {
 		stage("Start build Debian")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
+		checkout scm
 		def workspace = pwd()
         String date = new Date().format( 'yyyyMMddHHMMSS' )
 		String plain_version = sh (script: """
