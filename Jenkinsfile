@@ -6,84 +6,12 @@ try {
 	notifyBuild('STARTED')
 	switch (env.BRANCH_NAME) {
             case ~/master/: 
-            upload_path = "C:\\Jenkins\\upload\\master\\"
-            windows_tray_build = "build_master.lnk"
-            upload_msi = "upload_master_msi.do"
-            upload_exe = "upload_master_exe.do"
-			upload_prod_msi = "upload_prod_msi.do"
-
-            build_path_linux = "home/builder/build_master"
-            linux_tray_build = "build_master.sh"
-            upload_deb = "subutai-control-center-master.deb"
-            upload_sh = "SubutaiControlCenter"
-            upload_script = "upload_master.sh"
-			upload_script_prod ="upload_prod.sh"
-
-            build_mac = "master"
-            upload_pkg = "subutai-control-center-master.pkg"
-            upload_osx = "SubutaiControlCenter_osx"
-
+            PKGNAME = "subutai-control-center-master"
             break;
 	    	default: 
-            upload_path = "C:\\Jenkins\\upload\\dev\\"
-            windows_tray_build = "build_dev.lnk"
-            upload_msi = "upload_dev_msi.do"
-            upload_exe = "upload_dev_exe.do"
-			upload_prod_msi = "upload_prod_msi.do"
-
-            build_path_linux = "home/builder/build_dev"
-            linux_tray_build = "./build_dev.sh"
-            upload_deb = "subutai-control-center-dev.deb"
-            upload_sh = "SubutaiControlCenter"
-            upload_script = "upload_dev.sh"
-			upload_script_prod ="upload_prod.sh"
-
-            build_mac = "dev"
-            upload_pkg = "subutai-control-center-dev.pkg"
-            upload_osx = "SubutaiControlCenter_osx"
+            PKGNAME = "subutai-control-center-dev"
     }
-	/* Building agent binary.
-	Node block used to separate agent and subos code.
-	*/
-        node("mac") {
-
-		stage("Start build macOS")
-		
-		notifyBuildDetails = "\nFailed on Stage - Start build"
-
-		sh """
-		/Users/dev/SRC/TrayDevops/tray/osx/./build_mac.sh /Users/dev/Qt5.9.2/5.9.2/clang_64/bin/ ${build_mac} /Users/dev/SRC/tray/
-		"""
-
-		stage("Upload")
-
-		notifyBuildDetails = "\nFailed on Stage - Upload"
-
-		sh """
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
-		/Users/dev/upload/./${upload_script} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_osx}
-		/Users/dev/upload/./${upload_script_prod} /Users/dev/SRC/tray/subutai_control_center_bin/${upload_pkg}
-		"""
-
-	}
-
-	node("windows") {
-
-		stage("Start build Windows")
-		
-		notifyBuildDetails = "\nFailed on Stage - Start build"
-
-		bat "C:\\Jenkins\\build\\${windows_tray_build}"
-		
-		stage("Upload")
-
-		notifyBuildDetails = "\nFailed on Stage - Upload"
-
-		bat "${upload_path}${upload_msi}"
-		bat "${upload_path}${upload_exe}"
-		bat "${upload_path}${upload_prod_msi}"
-	}
-
+	
 	node("debian") {
 
 		stage("Start build Debian")
@@ -91,7 +19,43 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Start build"
 
 		sh """
-		/home/builder/./${linux_tray_build}
+		export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
+		export MAINTAINER="Jenkins Admin"
+        export MAINTAINER_EMAIL="jenkins@subut.ai"
+		export QTBINPATH=/home/builder/qt_static/bin/
+		export workspace="$(pwd)"
+		qmake --version
+        ./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
+		nproc_count="$(nproc)"
+        core_number=$((nproc_count*2+1))
+        subutai_control_center_bin="subutai_control_center_bin"
+
+		if [ -d "$subutai_control_center_bin" ]; then 
+	    echo "Try to remove subutai_control_center_bin"
+        rm -rf subutai_control_center_bin
+        fi 
+        mkdir subutai_control_center_bin
+        cd subutai_control_center_bin
+        lrelease ../SubutaiControlCenter.pro
+        qmake ../SubutaiControlCenter.pro -r -spec linux-g++
+        make -j$core_number 
+        rm *.o *.cpp *.h
+        mv ../*.qm .
+        cd ../
+
+        cd deb-packages/deb-packages-internal
+        ./clear.sh
+        ./pack_debian.sh 
+        cd ../..
+
+        rm -r /home/builder/deb_repo/*
+        cd /home/builder/deb_repo
+        cp $workspace/deb-packages/*.deb .
+        cp $workspace/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
+
+        mv *.deb ${PKGNAME}_${cc_version}.deb
+        mv subutai-control-center SubutaiControlCenter
+
 		"""
 
 		stage("Upload")
@@ -99,9 +63,10 @@ try {
 		notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		sh """
-		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_deb}
-		/home/builder/upload_script/./${upload_script} /${build_path_linux}/${upload_sh}
-		/home/builder/upload_script/./${upload_script_prod} /${build_path_linux}/${upload_deb}
+		cd /home/builder/deb_repo
+		touch uploading_agent
+		scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${env.BRANCH_NAME}/
+		ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${env.BRANCH_NAME} agent
 		"""
 	}
 
