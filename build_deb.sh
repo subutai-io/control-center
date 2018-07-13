@@ -3,6 +3,7 @@ export MAINTAINER="Jenkins Admin"
 export MAINTAINER_EMAIL="jenkins@subut.ai"
 #export TRAYDIR=/tmp/jenkins_slave/workspace/tag.builders/tray_linux.subutai-io.tag
 export QTBINPATH=/home/builder/qt_static/bin/
+export PATH=$QTBINPATH:$PATH
 export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
 export workspace="$(pwd)"
 echo $workspace
