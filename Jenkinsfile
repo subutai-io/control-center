@@ -17,17 +17,21 @@ try {
 		stage("Start build Debian")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
-
 		def workspace = pwd()
+        String date = new Date().format( 'yyyyMMddHHMMSS' )
+		String plain_version = sh (script: """
+					cat ${workspace}/version | tr -d '\n'
+					""", returnStdout: true)
+        def cc_version = "${plain_version}+${date}"
+
 		sh """
-		export cc_version="${git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S}"
 		export MAINTAINER="Jenkins Admin"
         export MAINTAINER_EMAIL="jenkins@subut.ai"
 		export QTBINPATH=/home/builder/qt_static/bin/
 		qmake --version
         ./generate_changelog --maintainer="${MAINTAINER}" --maintainer-email="${MAINTAINER_EMAIL}"
-		nproc_count="$(nproc)"
-        core_number=$((nproc_count*2+1))
+		nproc_count="${(nproc)}"
+        core_number=${((nproc_count*2+1))}
         subutai_control_center_bin="subutai_control_center_bin"
 		if [ -d "${subutai_control_center_bin}" ]; then 
 	    echo "Try to remove subutai_control_center_bin"
