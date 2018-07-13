@@ -2022,25 +2022,40 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const 
 
 template <>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
-  QString cmd("msiexec");
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // get vagrant product code
+  // wmic product where "Name like '%vagrant%'" get IdentifyingNumber
+  QString cmd = "wmic";
   QStringList args;
-  args << "set_working_directory"
-        << dir
-        << "/x"
-        << file_name;
-
-  qDebug() << "Uninstalling vagrant package:"
-           << args;
-
-  qDebug() << "Uninstall vagrant "
-           << dir
-           << file_name;
-
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
-  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
-      res.res = SCWE_CREATE_PROCESS;
-
-  return res.res;
+  args
+    << "product" << "where"
+    << "Name like '%vagrant%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of vagrant"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
+  // use msiexec to delete virtualbox
+  cmd = "msiexec";
+  args.clear();
+  args << "/x"
+       << product_code;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "remove vagrant finished"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
@@ -2376,7 +2391,7 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_WIN>
                                                                                     const QString &file_name){
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
-  // get p2p product code
+  // get virtualbox product code
   // wmic product where "Name like '%Virtualbox%'" get IdentifyingNumber
   QString cmd = "wmic";
   QStringList args;
@@ -2385,7 +2400,7 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_WIN>
     << "Name like '%virtualbox%'"
     << "get" << "IdentifyingNumber";
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-  qDebug() << "got product code of p2p"
+  qDebug() << "got product code of virtualbox"
            << "exit code: " << res.exit_code
            << "result code: " << res.res
            << "output: " << res.out;
