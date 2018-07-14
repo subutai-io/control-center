@@ -3014,7 +3014,7 @@ system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_MAC>>() {
 
   args.clear();
   args << "-e"
-       << QString("do shell script \"rm %1\"").arg(jsonFilePath);
+       << QString("do shell script \"rm '%1'\"").arg(jsonFilePath);
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
     qCritical() << "Failed to uninstall e2e from chrome"
