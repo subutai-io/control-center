@@ -13,6 +13,7 @@
 #include "DlgNotification.h"
 #include "SystemCallWrapper.h"
 #include "SettingsManager.h"
+
 enum cc_component{
     CC_P2P = 0,
     CC_X2GO,
@@ -24,6 +25,7 @@ enum cc_component{
     CC_VAGRANT_VBGUEST,
     CC_SUBUTAI_BOX
 };
+
 namespace update_system {
   /**
    * @brief Wraps common characteristics for Subutai components like autoupdate, update frequency etc.
@@ -123,10 +125,11 @@ namespace update_system {
     void force_update_rhm();
 
     /**
-      * @brief Instal implementation for components
+      * @brief Install implementation for components
       *
       */
     void install(const QString& component_id);
+    void uninstall(const QString& component_id);
     void install_p2p();
     void install_x2go();
     QString component_name(const QString& component_id);
@@ -139,46 +142,73 @@ namespace update_system {
   private slots:
 
     void update_component_timer_timeout(const QString& component_id);
-    void update_component_progress_sl(const QString &file_id, qint64 cur, qint64 full);
-    void update_component_finished_sl(const QString &file_id, bool replaced);
-    void install_component_finished_sl(const QString &file_id, bool replaced);
+    void update_component_progress_sl(const QString& component_id, qint64 cur, qint64 full);
+    void update_component_finished_sl(const QString& component_id, bool replaced);
+    void install_component_finished_sl(const QString& component_id, bool replaced);
+    void uninstall_component_finished_sl(const QString& component_id, bool success);
 
   signals:
-    void download_file_progress(const QString& file_id, qint64 rec, qint64 total);
-    void updating_finished(const QString& file_id, bool success);
-    void update_available(const QString& file_id);
-    void installing_finished(const QString & file_id, bool success);
-    void install_component_started(const QString &file_id);
+    void download_file_progress(const QString& component_id, qint64 rec, qint64 total);
+    void updating_finished(const QString& component_id, bool success);
+    void update_available(const QString& component_id);
+    void installing_finished(const QString& component_id, bool success);
+    void uninstalling_finished(const QString& component_id, bool success);
+    void install_component_started(const QString& component_id);
+    void uninstalling_component_finished(const QString& component_id, bool success);
+    void uninstall_component_started(const QString& component_id);
   };
 }
+
 ///////* class installs cc components in silent mode *///////////
-class SilentInstaller : public QObject{
+class SilentInstaller : public QObject {
     Q_OBJECT
 public:
-    SilentInstaller(QObject *parent = nullptr) : QObject (parent){}
+    SilentInstaller(QObject *parent = nullptr) : QObject (parent) {}
     void init(const QString& dir, const QString &file_name, cc_component type);
     void startWork();
     void silentInstallation();
+
 private:
     QString m_dir;
     QString m_file_name;
     cc_component m_type;
+
 signals:
     void outputReceived(bool success);
 };
+
 /////* class updates cc components in silent mode *///////////////
-class SilentUpdater : public QObject{
+class SilentUpdater : public QObject {
     Q_OBJECT
 public:
-    SilentUpdater(QObject *parent = nullptr) : QObject (parent){}
+    SilentUpdater(QObject *parent = nullptr) : QObject (parent) {}
     void init(const QString& dir, const QString &file_name, cc_component type);
     void startWork();
     void silentUpdate();
+
 private:
     QString m_dir;
     QString m_file_name;
     cc_component m_type;
+
 signals:
     void outputReceived(bool success);
+};
+/////* class deletes cc components in silent mode *///////////////
+class SilentUninstaller : public QObject {
+  Q_OBJECT
+public:
+  SilentUninstaller(QObject *parent = nullptr) : QObject(parent) {}
+  void init(const QString& dir, const QString& file_name, cc_component type);
+  void startWork();
+  void silentUninstallation();
+
+private:
+  QString m_dir;
+  QString m_file_name;
+  cc_component m_type;
+
+signals:
+  void outputReceived(bool success);
 };
 #endif // HUBCOMPONENTSUPDATER_H

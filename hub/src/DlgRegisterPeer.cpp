@@ -70,6 +70,7 @@ void DlgRegisterPeer::registerPeer() {
     ui->lne_password->setEnabled(false);
     ui->lne_peername->setEnabled(false);
     ui->lne_username->setEnabled(false);
+    ui->cmb_peer_scope->setEnabled(false);
 
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
@@ -107,6 +108,7 @@ void DlgRegisterPeer::registerPeer() {
     ui->lne_password->setEnabled(true);
     ui->lne_peername->setEnabled(true);
     ui->lne_username->setEnabled(true);
+    ui->cmb_peer_scope->setEnabled(true);
 }
 
 void DlgRegisterPeer::unregisterPeer(){
