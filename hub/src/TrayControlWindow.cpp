@@ -215,6 +215,7 @@ void TrayControlWindow::application_quit() {
   while (i--) lstActiveDialogs[i]->close();
   // close active processes
   CProcessHandler::Instance()->clear_proc();
+  QApplication::closeAllWindows();
   m_sys_tray_icon->hide();
   QApplication::quit();
 }
