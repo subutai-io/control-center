@@ -133,6 +133,7 @@ void CUpdaterComponentTray::install_post_interntal(bool success) {
 }
 
 chue_t CUpdaterComponentTray::uninstall_internal() {
+  m_in_progress = false;
   return CHUE_SUCCESS;
 }
 

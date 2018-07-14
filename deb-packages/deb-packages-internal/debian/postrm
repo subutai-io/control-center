@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
-PID=$(cat /opt/subutai/bin/last_pid)
+pid=""
+if [ -f /opt/subutai/bin/last_pid ]; then
+  pid=$(cat /opt/subutai/bin/last_pid)
+  rm /opt/subutai/bin/last_pid
+fi
+
 if ! kill $pid > /dev/null 2>&1; then
     echo >&2
 fi

@@ -38,8 +38,8 @@ maintainer="Subutai Social"
 maintainer_email="jenkins@subut.ai"
 build_deb=1
 prefix=/usr
-debian_release=trusty
-version_postfix=
+debian_release=$(lsb_release -a  | awk 'FNR == 4 {print $2}')
+version_postfix=$(date +%Y%m%d%H%M%S)
 
 while [ $# -ge 1 ]; do
     case "$1" in
@@ -143,7 +143,7 @@ else
             started=1
             release_date=`echo $line | cut -d "]" -f2 | sed -e 's/^[[:space:]]*//'`
             version_num=`echo $line | cut -d "[" -f2 | cut -d "]" -f1`
-            echo "subutai-$name_base ($version_num$version_postfix-0ubuntu1~$debian_release) $debian_release; urgency=medium" >> changelog
+            echo "subutai-$name_base ($version_num$version_postfix~$debian_release) $debian_release; urgency=medium" >> changelog
             echo "" >> changelog
         elif [ "$st" == "* " ]; then
             echo "  $line" >> changelog
