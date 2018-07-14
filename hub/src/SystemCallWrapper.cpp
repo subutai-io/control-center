@@ -14,6 +14,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QMessageBox>
+#include <QFile>
 
 #include "HubController.h"
 #include "NotificationObserver.h"
@@ -80,7 +81,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 
   proc.start(cmd, args);
   proc_controller started_proc(proc);
-  if(timeout_msec == 97){
+  if(timeout_msec == 97) {
 
       if (!proc.waitForStarted(-1)) {
         if (log) {
@@ -803,7 +804,7 @@ bool CSystemCallWrapper::check_peer_management_components(){
         if(std::find_if(plugins.begin(), plugins.end(),[plugin](const std::pair<QString, QString> &installed_plugin){
             return plugin == installed_plugin.first;}) == plugins.end()){
             CNotificationObserver::Info(QObject::tr("Installing the vagrant plugin: %1").arg(plugin), DlgNotification::N_NO_ACTION);
-            vagrant_plugin_install(plugin);
+            vagrant_plugin(plugin, QString("install"));
         }
     }
     return true;
@@ -1245,7 +1246,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const Q
     return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
 }
 ////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider){
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider) {
     qDebug() << "updating vagrant box: " << box << "provider:" << provider;
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
@@ -1264,9 +1265,39 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
     }
     return res.res;
 }
+
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
+                                                                   const QString &provider) {
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;   // vagrant box remove box_name --provider provider_name --all
+
+  args << "box"
+       << "remove"
+       << box
+       << "--provider"
+       << provider
+       << "--all";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+
+  qDebug() << "Removing vagrant box: "
+           << box
+           << " provider: "
+           << provider
+           << " finished with exit code: "
+           << res.exit_code
+           << " output: "
+           << res.out;
+
+  return res.res;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
+system_call_wrapper_error_t uninstall_p2p_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
 system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
+
 template <>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
@@ -1305,7 +1336,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
 }
 
 template <>
-system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1395,18 +1426,128 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     return SCWE_SUCCESS;
 }
 
+template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec apt-get remove -y subutai-p2p
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << p2p_package_name();
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of P2P finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall P2P err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  // chrome path: /Applications/SubutaiP2P.app
+  if (!QDir("/Applications/SubutaiP2P.app").exists()) {
+    qDebug() << "Can't find p2p path: /Applications/SubutaiP2P.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  // sudo launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist; "
+                  "rm -rf /Applications/SubutaiP2P.app/ \" with administrator privileges");
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // wmic product where name="Subutai P2P" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("name=\"%1\"").arg(p2p_package_name())
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstall P2P: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
+    res.res = SCWE_CREATE_PROCESS;
+  } else {
+    int exit_code;
+    CSystemCallWrapper::restart_p2p_service(&exit_code, UPDATED_P2P);
+
+    if(exit_code != 0)
+      res.res = SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "Uninstall P2P finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  return res.res;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
     installer_is_busy.unlock();
     return res;
 }
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_p2p_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_x2go_internal(const QString &dir, const QString &file_name);
 
 template <>
-system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
   QString file_path  = dir + "/" + file_name;
@@ -1440,7 +1581,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 }
 
 template <>
-system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1528,17 +1669,164 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
 
     return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name){
+
+system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
     installer_is_busy.lock();
     system_call_wrapper_error_t res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
     installer_is_busy.unlock();
     return res;
 }
+
+template <class OS>
+system_call_wrapper_error_t uninstall_x2go_internal();
+
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
+  // pkexec apt-get remove -y x2goclient --purge
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "x2goclient"
+       << "--purge";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of x2goclient finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall X2GO-Client err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
+  QString uninstall_string;
+  QString cmd("REG");
+  QStringList args;
+
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\x2goclient"
+       << "/v"
+       << "UninstallString";
+
+  qDebug() << "Uninstall x2goclient query: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got x2goclient query"
+           << "exit code: "
+           << res.exit_code
+           << "result code: "
+           << res.res
+           << "output: "
+           << res.out;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "x2goclient query failed";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  for (QString s: res.out) {
+    if (s.contains("UninstallString")) {
+      std::string sstd = s.toStdString();
+      int ind = sstd.find('"');
+      if (ind != -1) {
+        uninstall_string = QString(sstd.substr(ind, sstd.find('"', ind + 1)).c_str());
+        break;
+      }
+    }
+  }
+
+  if (uninstall_string.size() == 0) {
+    qCritical() << "x2goclient uninstall command is empty.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  cmd = uninstall_string;
+  args.clear();
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "x2goclient uninstalling process finished."
+           << "command:" << cmd
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "x2goclient uninstall failed";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
+  // rm -rf /Applications/x2goclient.app
+  if (!QDir("/Applications/x2goclient.app").exists()) {
+    qDebug() << "Can't find x2goclient path: /Applications/x2goclient.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/x2goclient.app");
+
+  qDebug() << "uninstall x2goclient internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (res.res != SCWE_SUCCESS) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_x2go_internal<Os2Type <CURRENT_OS> >();
+  installer_is_busy.unlock();
+
+  return res;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
+system_call_wrapper_error_t uninstall_vagrant_internal(const QString &dir, const QString &file_name);
+
 template <>
-system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
   QString file_path  = dir + "/" + file_name;
@@ -1547,8 +1835,9 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QS
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
   return res.res;
 }
+
 template <>
-system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd("msiexec");
     QStringList args0;
     args0 << "set_working_directory"
@@ -1675,46 +1964,168 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
     return SCWE_SUCCESS;
 }
+
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec apt-get remove -y vagrant
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "vagrant";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Vagrant finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Vagrant err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return scr.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  //
+  // rm -rf /opt/vagrant
+  // rm -f /usr/local/bin/vagrant
+  // sudo pkgutil --forget com.vagrant.vagrant
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"%1; %2; %3\" "
+                  "with administrator privileges")
+          .arg("rm -rf /opt/vagrant")
+          .arg("rm -f /usr/local/bin/vagrant")
+          .arg("pkgutil --forget com.vagrant.vagrant");
+
+  qDebug() << "uninstall vagrant internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (res.res != SCWE_SUCCESS) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // get vagrant product code
+  // wmic product where "Name like '%vagrant%'" get IdentifyingNumber
+  QString cmd = "wmic";
+  QStringList args;
+  args
+    << "product" << "where"
+    << "Name like '%vagrant%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of vagrant"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
+  // use msiexec to delete virtualbox
+  cmd = "msiexec";
+  args.clear();
+  args << "/x"
+       << product_code;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "remove vagrant finished"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
    system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
    installer_is_busy.unlock();
    return res;
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_install(const QString &plugin_name){
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args<<"plugin"<<"install"<<plugin_name;
-    qDebug()<<"vagrant plugin subutai instal"<<plugin_name<<"started";
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
-    qDebug()<<QString("vagrant plugin %1 installation is finished").arg(plugin_name)
-           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    return res.res;
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vagrant(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_update(const QString &plugin_name){
-    installer_is_busy.lock();
-    qDebug()<<"vagrant plugin subutai update"<<plugin_name<<"started";
+/// \brief CSystemCallWrapper::vagrant_plugin
+/// \param name of vagrant plugin
+/// \param command (we use for "vagrant plugin command")
+/// accepted commands are: uninstall, install, update
+/// \return
+///
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &name,
+                                                               const QString &command) {
+  installer_is_busy.lock();
+  qDebug() << QString("Vagrant plugin %1 %2 started.")
+              .arg(command)
+              .arg(name);
 
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args << "plugin"
-         << "update"
-         << plugin_name;
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "plugin"
+       << command // might be: uninstall, install, update
+       << name;
 
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+  qDebug() << QString("Vagrant plugin %1 %2 is finished.")
+              .arg(command)
+              .arg(name)
+           << " Exist code: "
+           << res.exit_code
+           << " Result: "
+           << res.res
+           << " Output: "
+           << res.out;
 
-    qDebug()<<QString("vagrant plugin %1 update is finished").arg(plugin_name)
-           <<"exit code:"<<res.exit_code<<"result:"<<res.res<<"output:"<<res.out;
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+          res.res = SCWE_CREATE_PROCESS;
 
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    installer_is_busy.unlock();
-    return res.res;
+  installer_is_busy.unlock();
+  return res.res;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
@@ -1877,10 +2288,195 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class  OS>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
+template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_MAC> > (const QString &dir, const QString &file_name){
+  qDebug() << "uninstall virtualbox on mac";
+  // run downloaded uninstallation script easy
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"chmod +x %1; %1 --unattended\" with administrator privileges").arg(file_path);
+  qDebug() << "ARGS=" << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  qDebug()
+          <<"Uninstallation of oracle virtualbox is finished"
+          <<"error :"<<res.exit_code
+          <<"output :"<<res.out;
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+  return res.res;
+}
+template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_LINUX> >(const QString &dir, const QString &file_name){
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  qDebug() << "uninstalling virtualbox on linux";
+  // first close(kill) all running instances of VB
+  QString cmd("ps");
+  QStringList args;
+  args << "-A";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "got process IDs of all running vb"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  QStringList pid_vb;
+  QString pid;
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    for (QString s : res.out) {
+      if (!s.contains("VB")) continue;
+      pid = "";
+      while (s.size() > 0 && s[0].isSpace()) s.remove(0, 1);
+      int i = 0;
+      while (i < s.size() && !s[i].isSpace()) {
+        pid += s[i];
+        i++;
+      }
+      pid_vb.push_back(pid);
+    }
+  }
+  // after getting pid of all running vb process
+  // close each of them and delete vb
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vb_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+  QString uninstall_script_str;
+  uninstall_script_str += "#!/bin/bash\n";
+  for (QString s : pid_vb) {
+    uninstall_script_str += "kill -9 " + s + "\n";
+  }
+  uninstall_script_str += "apt-get remove --purge -y virtualbox-*\n";
+  QByteArray uninstall_script = uninstall_script_str.toUtf8();
+
+  if (tmpFile.write(uninstall_script) != uninstall_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write uninstall script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path << tmpFilePath;
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  qDebug()
+          <<"virtualbox oracle uninstallation finished"
+          <<"error code:"<<cr2.exit_code
+          <<"output: "<<cr2.out
+          <<"result: "<<cr2.res;
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_WIN> > (const QString &dir,
+                                                                                    const QString &file_name){
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // get virtualbox product code
+  // wmic product where "Name like '%Virtualbox%'" get IdentifyingNumber
+  QString cmd = "wmic";
+  QStringList args;
+  args
+    << "product" << "where"
+    << "Name like '%virtualbox%'"
+    << "get" << "IdentifyingNumber";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "got product code of virtualbox"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  QString product_code;
+  if (res.out.size() == 3) {
+    product_code = res.out[1];
+    product_code = product_code.trimmed();
+  }
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
+  // use msiexec to delete virtualbox
+  cmd = "msiexec";
+  args.clear();
+  args << "/x"
+       << product_code
+       << "/qn";
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "remove virtualbox finished"
+           << "exit code: " << res.exit_code
+           << "result code: " << res.res
+           << "output: " << res.out;
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
+}
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
+
+template <class OS>
+system_call_wrapper_error_t uninstall_chrome_internal(const QString &dir, const QString &file_name);
+
 template <>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
     qInfo() << "CC started to install google chrome";
     QString cmd("osascript");
     QStringList args;
@@ -1899,7 +2495,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
     return res.res;
 }
 template<>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -2003,7 +2599,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 }
 
 template <>
-system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
+system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd(dir+"/"+file_name);
     QStringList args0;
     args0 << "/install";
@@ -2024,11 +2620,188 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QSt
     return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name){
-    installer_is_busy.lock();
-    system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
-    installer_is_busy.unlock();
-    return res;
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  QString uninstall_string;
+  QString cmd("REG");
+  QStringList args;
+
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Google Chrome"
+       << "/v"
+       << "UninstallString";
+
+  qDebug() << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got chrome uninstallstring query: "
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "chrome query failed";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  for (QString s: res.out) {
+    if (s.contains("UninstallString")) {
+      std::string sstd = s.toStdString();
+      int ind = sstd.find('"');
+      if (ind != -1) {
+        uninstall_string = QString(sstd.substr(ind).c_str());
+        break;
+      }
+    }
+  }
+
+  qDebug() << "got uninstall string chrome: "
+           << uninstall_string;
+
+  if (uninstall_string.size() == 0) {
+    qCritical() << "chrome uninstall command is empty.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  std::string sstd = uninstall_string.toStdString();
+  uninstall_string = sstd.substr(0, sstd.find('"', 1) + 1).c_str();
+  QString args_str = sstd.substr(sstd.find('"', 1) + 1).c_str();
+
+  cmd = uninstall_string;
+  args = args_str.split(" ");
+
+  for (QString &s: args) {
+    if (s.contains("\r")) {
+      sstd = s.toStdString();
+      s = sstd.replace(sstd.find("\r"), 2, "").c_str();
+    }
+  }
+
+  qDebug() << "parsed chrome uninstall command:"
+           << "cmd:" << cmd
+           << "param:" << args;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "chrome uninstalling process finished."
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "chrome uninstall failed";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_LINUX> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  // pkexec apt-get remove -y subutai-p2p
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "google-chrome-stable";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Google Chrome finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Google Chrome err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  qDebug() << "uninstall chrome internal";
+
+  // chrome path: /Applications/Google\\\\ Chrome.app/Ï
+  if (!QDir("/Applications/Google\\ Chrome.app").exists()) {
+    qDebug() << "Can't find chrome path: Applications/Google\\\\ Chrome.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args, args_close;
+
+  // close chrome application
+  // osascript -e "Tell Application \"Google Chrome\" to quit"
+  args_close << "-e"
+             << QString("Tell Application \"Google Chrome\" to quit");
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args_close, true, true);
+
+  if (rs.exit_code != 0 && rs.res != SCWE_SUCCESS) {
+    qDebug() << "Failed to close chrome app";
+  }
+
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/Google\\\\ Chrome.app");
+
+  qDebug() << "uninstall google chrome internal osx"
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  qDebug() << "Ununstall chomr osx finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_chrome(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
 }
 
 template<class OS>
@@ -2161,21 +2934,171 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
     }
     return SCWE_SUCCESS;
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_subutai(){
-    installer_is_busy.lock();
-    QString vagrant_subutai = "vagrant-subutai";
-    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
-    installer_is_busy.unlock();
-    return res;
+
+template<class OS>
+system_call_wrapper_error_t uninstall_e2e_chrome_internal();
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_LINUX>>() {
+  qDebug() << "checking if e2e was installed from chrome web store";
+  QFile *ext_json = new QFile(QString("/opt/google/chrome/extensions/%1.json").arg(
+          subutai_e2e_id(CSettingsManager::Instance().default_browser())));
+  if (!ext_json->exists()) {
+    qDebug() << "e2e is installed from web store";
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
+                                "Center can not uninstall Subutai E2E extension "
+                                "that has been installed via Chrome Web Store."),
+                                DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  }
+  qDebug() << "closing chrome browser";
+  QString cmd("pkill");
+  QStringList args;
+  args << "--oldest"
+       << "chrome";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if(res.res != SCWE_SUCCESS){
+    qCritical() << "Failed to close chrome"
+                << "exit code: " << res.exit_code
+                << "output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  qDebug() << "removing e2e json file";
+  args.clear();
+  cmd = "pkexec";
+  args << "bash"
+       << "-c"
+       << QString("rm /opt/google/chrome/extensions/%1.json").arg(
+            subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to uninstall e2e"
+                << "exit code: " << res.exit_code
+                << "output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_vagrant_vbguest(){
-    installer_is_busy.lock();
-    QString vagrant_subutai = "vagrant-vbguest";
-    system_call_wrapper_error_t res = vagrant_plugin_install(vagrant_subutai);
-    installer_is_busy.unlock();
-    return res;
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_MAC>>() {
+  QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_path.empty()) {
+    QString err_msg = QObject::tr("Couldn't get standard home location");
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "checking if e2e was installed from chrome web store";
+
+  QString jsonFilePath = QString("%1/Library/Application Support/Google/Chrome/"
+                                 "External Extensions/%2.json").arg(home_path[0],
+      subutai_e2e_id(CSettingsManager::Instance().default_browser()));
+
+  if (!QFile(jsonFilePath).exists()) {
+    qDebug() << "e2e is installed from web store";
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
+                                "Center can not uninstall Subutai E2E extension "
+                                "that has been installed via Chrome Web Store."),
+                                DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "quitting chrome";
+
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << "tell application \"Google Chrome\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to close Chrome"
+                << "Exit code: " << res.exit_code
+                << "Output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  qDebug() << "removing e2e from chrome";
+
+  args.clear();
+  args << "-e"
+       << QString("do shell script \"rm '%1'\"").arg(jsonFilePath);
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to uninstall e2e from chrome"
+                << "exit code: " << res.exit_code
+                << "output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  return SCWE_SUCCESS;
 }
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_chrome_internal<Os2Type<OS_WIN>>() {
+  QString ex_id = subutai_e2e_id(CSettingsManager::Instance().default_browser());
+  //ask if registry key exists
+  qDebug() << "checking if e2e was installed from chrome web store";
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY" << QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id);
+  //REG QUERY "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\ffddnlbamkjlbngpekmdpnoccckapcnh"
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code == 1) {
+    qDebug() << "e2e is installed from web store";
+    CNotificationObserver::Info(QObject::tr("Due to the Chrome extension policy Control "
+                                "Center can not uninstall Subutai E2E extension "
+                                "that has been installed via Chrome Web Store."),
+                                DlgNotification::N_NO_ACTION);
+    return SCWE_CREATE_PROCESS;
+  } else if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "failed to query registry key of e2e on chrome"
+                << "exit code: " << res.exit_code
+                << "output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  //delete registry key
+  qDebug() << "removing e2e chrome registry key";
+  cmd = "REG";
+  args.clear();
+  args << "DELETE" << QString("HKEY_LOCAL_MACHINE\\Software\\Wow6432Node\\Google\\Chrome\\Extensions\\%1").arg(ex_id) << "/f";
+  //REG DELETE "HKLM\Software\Wow6432Node\Google\Chrome\Extensions\ffddnlbamkjlbngpekmdpnoccckapcnh" /f
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+      qCritical() << "failed to uninstall e2e on chrome"
+                  << "exit code" << res.exit_code
+                  << "output: " << res.out;
+      return SCWE_CREATE_PROCESS;
+  }
+  //kill chrome
+  qDebug() << "quiting chrome";
+  cmd = "taskkill";
+  args.clear();
+  args << "/F" << "/IM" << "chrome.exe" << "/T";
+  res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+  if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+      qCritical() << "failed to close chrome"
+                  << "exit code" << res.exit_code
+                  << "output: " << res.out;
+      return SCWE_CREATE_PROCESS;
+  }
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_chrome() {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_e2e_chrome_internal<Os2Type<CURRENT_OS>>();
+  installer_is_busy.unlock();
+  return res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if (current_browser == "Chrome") {
+    return uninstall_e2e_chrome();
+  }
+  return SCWE_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
@@ -2779,7 +3702,9 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &
   QString line;
   bool found = false;
   if (!info_plist.exists()) {
-      return SCWE_SUCCESS;
+    version = "undefined";
+
+    return SCWE_SUCCESS;
   }
   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream stream(&info_plist);
@@ -3330,7 +4255,8 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
                                 "can't generate ssh-key",
                                 "call timeout",
                                 "which call failed",
-                                "process crashed"};
+                                "process crashed",
+                                "command failed"};
   return (err >= 0 && err < SCWE_LAST) ? error_str[err] : unknown;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -3869,7 +4795,7 @@ system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_WIN> >(){
     product_code = res.out[1];
     product_code = product_code.trimmed();
   }
-  if (product_code.isEmpty()) return SCWE_SUCCESS;
+  if (product_code.isEmpty()) return SCWE_CREATE_PROCESS;
   QString version;
   CSystemCallWrapper::p2p_version(version);
   version = version.remove("p2p");
