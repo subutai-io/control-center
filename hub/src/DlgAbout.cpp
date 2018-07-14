@@ -99,7 +99,7 @@ DlgAbout::DlgAbout(QWidget *parent) :
                       this->ui->lbl_subutai_box_info_icon,
                       nullptr };
 
-  QPixmap info_icon = QPixmap(":/hub/info_icon.png");
+  static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
 
   for (QLabel **i = ilbls; *i; ++i) {
     (*i)->setPixmap(info_icon);
@@ -164,11 +164,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
       (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
       (*i)->setWordWrap(true);
   }
-
-  bool p2p_visible = CSettingsManager::Instance().p2p_path() != snap_p2p_path();
-  ui->btn_p2p_update->setVisible(p2p_visible);
-  //ui->pb_p2p->setVisible(p2p_visible);
-
   //connect
   connect(ui->btn_p2p_update, &QPushButton::released, this, &DlgAbout::btn_p2p_update_released);
   connect(ui->btn_tray_update, &QPushButton::released, this, &DlgAbout::btn_tray_update_released);
@@ -181,8 +176,8 @@ DlgAbout::DlgAbout(QWidget *parent) :
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this, &DlgAbout::btn_subutai_plugin_update_released);
   connect(ui->btn_vbguest_plugin_update, &QPushButton::released, this, &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this, &DlgAbout::btn_subutai_box_update_released);
-  connect(ui->btn_close, &QPushButton::released, this, &DlgAbout::btn_close_released);
   connect(ui->btn_uninstall_components, &QPushButton::released, this, &DlgAbout::btn_uninstall_components);
+  connect(ui->btn_close, &QPushButton::released, this, &DlgAbout::btn_close_released);
 
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::download_file_progress,
           this, &DlgAbout::download_progress);
@@ -192,7 +187,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
           this, &DlgAbout::update_finished);
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::installing_finished,
           this, &DlgAbout::install_finished);
-
   connect(CHubComponentsUpdater::Instance(), &CHubComponentsUpdater::uninstalling_finished,
           this, &DlgAbout::uninstall_finished);
 
@@ -207,7 +201,6 @@ DlgAbout::DlgAbout(QWidget *parent) :
   m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox, ui->cb_oracle_virtualbox,
                                                      ui->btn_oracle_virtualbox_update,
                                                      get_oracle_virtualbox_version};
-
   m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val, ui->pb_chrome, ui->cb_chrome, ui->btn_chrome,
                                          get_chrome_version};
 
@@ -228,9 +221,9 @@ DlgAbout::DlgAbout(QWidget *parent) :
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair <quint64, quint64> progress =
         CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
-    if (progress.first * progress.second == 0)
+    if (progress.first * progress.second == 0) {
       it->second.pb->setValue(0);
-    else {
+    } else {
       uint value = (progress.first * 100) / progress.second;
       it->second.pb->setValue(value);
     }
@@ -243,16 +236,14 @@ DlgAbout::DlgAbout(QWidget *parent) :
     component.second.cb->setVisible(false);
     set_hidden_pb(component.first);
   }
-
-  check_for_versions_and_updates();
-
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
-
   this->setMinimumWidth(600);
   this->setMaximumHeight(450);
   this->adjustSize();
+
+  check_for_versions_and_updates();
 }
 
 void DlgAbout::set_visible_chrome(bool value) {
@@ -472,10 +463,12 @@ DlgAbout::update_finished(const QString& component_id,
     m_dct_fpb[component_id].btn->setVisible(false);
     m_dct_fpb[component_id].cb->setChecked(true);
     m_dct_fpb[component_id].cb->setVisible(true);
-    m_dct_fpb[component_id].pb->setVisible(false);
   } else {
     m_dct_fpb[component_id].btn->setEnabled(true);
+    m_dct_fpb[component_id].cb->setChecked(true);
+    m_dct_fpb[component_id].cb->setVisible(false);
   }
+  m_dct_fpb[component_id].pb->setVisible(false);
 
   qDebug() << "update finished: "
            << component_id
@@ -653,7 +646,7 @@ void DlgAbout::update_available_sl(const QString& component_id, bool available) 
                 << component_id;
         m_dct_fpb[component_id].cb->setHidden(true);
         m_dct_fpb[component_id].btn->setVisible(true);
-        m_dct_fpb[component_id].btn->activateWindow();
+        m_dct_fpb[component_id].cb->setChecked(true);
     } else {
         // not available component
         m_dct_fpb[component_id].btn->setHidden(true);
@@ -767,7 +760,7 @@ void DlgAbout::uninstall_finished(const QString &component_id, bool success) {
   if (success) {
     m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].cb->setChecked(false);
+    m_dct_fpb[component_id].cb->setChecked(true);
     m_dct_fpb[component_id].btn->setVisible(true);
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
