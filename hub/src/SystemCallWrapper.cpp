@@ -1420,6 +1420,8 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
 
 template <>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   // pkexec apt-get remove -y subutai-p2p
   QString pkexec_path;
   system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1482,6 +1484,8 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QStr
 
 template <>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   // wmic product where name="Subutai P2P" call uninstall
   QString cmd("wmic");
   QStringList args;
@@ -1955,6 +1959,8 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
 
 template <>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   // pkexec apt-get remove -y vagrant
   QString pkexec_path;
   system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -1994,6 +2000,8 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
 
 template <>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   //
   // rm -rf /opt/vagrant
   // rm -f /usr/local/bin/vagrant
@@ -2606,6 +2614,8 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QSt
 
 template <>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   QString uninstall_string;
   QString cmd("REG");
   QStringList args;
