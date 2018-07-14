@@ -111,14 +111,52 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
     return CHUE_FAILED;
   }
   static QString empty_string = "";
+  if (CURRENT_OS == OS_MAC) {
+    QString file_name = "VirtualBox_Uninstall.tool";
+    QString file_dir = download_virtualbox_path();
+    QString str_oracle_virtualbox_downloaded_path = file_dir + "/" + file_name;
 
-  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(empty_string, empty_string, CC_VB);
+    std::vector<CGorjunFileInfo> fi =
+        CRestWorker::Instance()->get_gorjun_file_info(
+          file_name, "https://cdn.subutai.io:8338/kurjun/rest/raw/info");
+    if (fi.empty()) {
+      qCritical("File %s isn't presented on kurjun",
+                m_component_id.toStdString().c_str());
+      install_finished_sl(false);
+      return CHUE_NOT_ON_KURJUN;
+    }
+    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
-  connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
-          &CUpdaterComponentVIRTUALBOX::uninstall_finished_sl);
+    CDownloadFileManager *dm = new CDownloadFileManager(
+        item->id(), str_oracle_virtualbox_downloaded_path, item->size());
+    dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
 
-  silent_uninstaller->startWork();
+    SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+    silent_uninstaller->init(file_dir, file_name, CC_VB);
+
+    connect(dm, &CDownloadFileManager::finished,
+            [silent_uninstaller](bool success) {
+              if (!success) {
+                silent_uninstaller->outputReceived(success);
+              } else {
+                silent_uninstaller->startWork();
+              }
+            });
+    connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
+            &CUpdaterComponentVIRTUALBOX::uninstall_finished_sl);
+    connect(silent_uninstaller, &SilentUninstaller::outputReceived, dm,
+            &CDownloadFileManager::deleteLater);
+    dm->start_download();
+    return CHUE_SUCCESS;
+  } else {
+    SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+    silent_uninstaller->init(empty_string, empty_string, CC_VB);
+
+    connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
+            &CUpdaterComponentVIRTUALBOX::uninstall_finished_sl);
+
+    silent_uninstaller->startWork();
+  }
 
   return CHUE_SUCCESS;
 }
