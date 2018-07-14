@@ -2275,7 +2275,28 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
 template <class  OS>
 system_call_wrapper_error_t uninstall_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
 template<>
+system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_MAC> > (const QString &dir, const QString &file_name){
+  qDebug() << "uninstall virtualbox on mac";
+  // run downloaded uninstallation script easy
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"%1 --unattended\" with administrator privileges").arg(file_path);
+  qDebug() << "ARGS=" << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  qDebug()
+          <<"Uninstallation of oracle virtualbox is finished"
+          <<"error :"<<res.exit_code
+          <<"output :"<<res.out;
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+  return res.res;
+}
+template<>
 system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_LINUX> >(const QString &dir, const QString &file_name){
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   qDebug() << "uninstalling virtualbox on linux";
   // first close(kill) all running instances of VB
   QString cmd("ps");
