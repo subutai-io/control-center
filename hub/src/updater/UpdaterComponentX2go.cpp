@@ -138,4 +138,14 @@ void CUpdaterComponentX2GO::install_post_interntal(bool success) {
         DlgNotification::N_NO_ACTION);
 }
 
-void CUpdaterComponentX2GO::uninstall_post_internal(bool success) {}
+void CUpdaterComponentX2GO::uninstall_post_internal(bool success) {
+
+  if (!success)
+    CNotificationObserver::Instance()->Error(
+        tr("Failed to complete X2Go uninstallation. Try again later, "
+           "or uninstall it manually."),
+        DlgNotification::N_NO_ACTION);
+  else
+    CNotificationObserver::Instance()->Info(tr("X2Go has been uninstalled"),
+                                            DlgNotification::N_NO_ACTION);
+}
