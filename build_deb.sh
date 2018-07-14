@@ -12,6 +12,11 @@ mkdir /home/builder/deb_repo
 
 cd $workspace
 qmake --version
+git checkout -- .
+git pull
+git checkout $BRANCH
+git pull origin $BRANCH
+
 ./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
 
 nproc_count="$(nproc)"
