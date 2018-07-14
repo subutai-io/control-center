@@ -450,10 +450,6 @@ void DlgAbout::btn_uninstall_components() {
   for (const auto& component : m_dct_fpb) {
     if (!component.second.cb->isChecked()) {
       qDebug() << "Checkbox enabled: " << component.first;
-      m_dct_fpb[component.first].pb->setMaximum(0);
-      m_dct_fpb[component.first].pb->setMinimum(0);
-      m_dct_fpb[component.first].pb->setValue(0);
-      m_dct_fpb[component.first].pb->setVisible(true);
       CHubComponentsUpdater::Instance()->uninstall(component.first);
     }
   }
