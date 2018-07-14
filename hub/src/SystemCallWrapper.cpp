@@ -251,13 +251,17 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
+
+  QString destination_formatted = destination.contains(" ") ?
+        QString("\"%1\"").arg(destination) : destination;
+
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
       << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
       << "-i" << ssh_info.second
       << file_path
-      << QString("%1@%2:\"%3\"").arg(remote_user, ip, destination);
+      << QString("%1@%2:%3").arg(remote_user, ip, destination_formatted);
   qDebug() << "ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
@@ -277,12 +281,16 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
   QString cmd
       = CSettingsManager::Instance().scp_path();
   QStringList args;
+
+  QString remote_file_path_formatted = remote_file_path.contains(" ") ?
+        QString("\"%1\"").arg(remote_file_path) : remote_file_path;
+
   args << "-rp"
        << "-o StrictHostKeyChecking=no"
        << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
        << "-i" << ssh_info.second
-       << QString("%1@%2:\"%3\"").arg(remote_user, ip, remote_file_path)
+       << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path_formatted)
        << local_destination;
   qDebug() << "ARGS=" << args;
 
@@ -4703,7 +4711,53 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
 }
 template <>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
-  UNUSED_ARG(version);
+  QDir dir(QApplication::applicationDirPath());
+  dir.cdUp();
+  QFile file(dir.absolutePath() + "/Info.plist");
+  qDebug() << "got Info.plist path:" << dir.absolutePath() + "/Info.plist";
+  if (!file.exists()) {
+    CNotificationObserver::Error("Info.plist file is missing. make sure that "
+                                 "you have installed the Control Center correctly.",
+                                 DlgNotification::N_NO_ACTION);
+    qCritical() << "Info.plist is missing";
+    return SCWE_CREATE_PROCESS;
+  }
+  if (file.open(QIODevice::ReadWrite)) {
+    qDebug() << "reading Info.plist file";
+    QTextStream stream(&file);
+    QStringList plist = stream.readAll().split("\n");
+    for (auto i = plist.begin(); i != plist.end(); i++) {
+      QString &str = *i;
+      if (str.contains("CFBundleVersion") || str.contains("CFBundleShortVersionString")) {
+        auto it = i;
+        QString &strv = *(++it);
+        int ida = strv.toStdString().find('>');
+        int idb = strv.toStdString().find('<', ida);
+        strv = strv.left(ida + 1) + version + strv.right(strv.size() - idb);
+      }
+    }
+    file.close();
+    if (!file.remove()) {
+      CNotificationObserver::Error("Failed to remove old Info.plist file. "
+                                   "Make sure that you have proper privileges.",
+                                   DlgNotification::N_NO_ACTION);
+      qCritical() << "Failed to remove old Info.plist file.";
+      return SCWE_CREATE_PROCESS;
+    }
+    qDebug() << "writing into Info.plist file";
+    if (!file.open(QIODevice::ReadWrite)) {
+      CNotificationObserver::Error("Failed to create new Info.plist file. "
+                                   "Make sure that you have proper privileges.",
+                                   DlgNotification::N_NO_ACTION);
+      qCritical() << "Failed to create new Info.plist file.";
+      return SCWE_CREATE_PROCESS;
+    }
+    QTextStream sstream(&file);
+    for (QString str: plist) {
+      sstream << str << "\n";
+    }
+    file.close();
+  }
   return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){

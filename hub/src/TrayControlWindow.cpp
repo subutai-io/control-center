@@ -744,6 +744,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     else{
         env_start = my_envs_button_table[env_id];
     }
+    env_start->setEnabled(true);
     env_start->setText(env_name);
     env_start->setIcon(env->status() == "HEALTHY"
                            ? healthy_icon

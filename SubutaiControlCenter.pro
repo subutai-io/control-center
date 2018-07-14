@@ -69,7 +69,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentE2E.cpp \
     hub/src/updater/UpdaterComponentSubutaiBox.cpp \
     hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
-    hub/src/updater/UpdaterComponentVagrantVBguest.cpp
+    hub/src/updater/UpdaterComponentVagrantVBguest.cpp \
+    commons/src/Environment.cpp
 
 
 
@@ -124,7 +125,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentE2E.h \
     hub/include/updater/UpdaterComponentSubutaiBox.h \
     hub/include/updater/UpdaterComponentVagrantSubutai.h \
-    hub/include/updater/UpdaterComponentVagrantVBguest.h
+    hub/include/updater/UpdaterComponentVagrantVBguest.h \
+    commons/include/Environment.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
