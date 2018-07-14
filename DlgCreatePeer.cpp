@@ -268,6 +268,9 @@ void DlgCreatePeer::set_enabled_buttons(bool state) {
   ui->le_ram->setEnabled(state);
   ui->btn_create->setEnabled(state);
   ui->btn_cancel->setEnabled(state);
+  ui->cmb_bridge->setEnabled(state);
+  ui->cmb_cpu->setEnabled(state);
+  ui->cmb_os->setEnabled(state);
 }
 
 void DlgCreatePeer::hide_err_labels() {
