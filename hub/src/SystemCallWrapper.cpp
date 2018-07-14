@@ -1486,6 +1486,7 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QStr
        << QString("do shell script \"launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist; "
                   "rm -rf /Applications/SubutaiP2P.app/ \" with administrator privileges");
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  if (res.exit_code != 0) res.res = SCWE_CREATE_PROCESS;
 
   return res.res;
 }
@@ -1509,21 +1510,14 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
 
-  if (res.exit_code != 0 && res.res == SCWE_SUCCESS) {
-    res.res = SCWE_CREATE_PROCESS;
-  } else {
-    int exit_code;
-    CSystemCallWrapper::restart_p2p_service(&exit_code, UPDATED_P2P);
-
-    if(exit_code != 0)
-      res.res = SCWE_CREATE_PROCESS;
-  }
-
   qDebug() << "Uninstall P2P finished: "
            << "exit code: "
            << res.exit_code
            << "output: "
            << res.out;
+
+  if (res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
 
   return res.res;
 }
@@ -1710,7 +1704,7 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
            << scr.exit_code
            << " output: "
            << scr.out;
-  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
     QString err_msg = QObject::tr("Couldn't uninstall X2GO-Client err = %1")
                              .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
     qCritical() << err_msg;
@@ -1804,7 +1798,7 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
 
-  if (res.res != SCWE_SUCCESS) {
+  if (res.exit_code != 0) {
     return SCWE_COMMAND_FAILED;
   }
 
@@ -1833,6 +1827,9 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QS
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  if (res.exit_code != 0){
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 
@@ -1857,8 +1854,6 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QS
             <<"output: "<<res.out;
     if(res.exit_code != 0 && res.exit_code != 3010 && res.res == SCWE_SUCCESS)
         res.res = SCWE_CREATE_PROCESS;
-    if(res.res != SCWE_SUCCESS)
-        return res.res;
     return res.res;
 }
 template <>
@@ -1996,7 +1991,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
            << scr.exit_code
            << " output: "
            << scr.out;
-  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS ) {
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
     QString err_msg = QObject::tr("Couldn't uninstall Vagrant err = %1")
                              .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
     qCritical() << err_msg;
@@ -2029,7 +2024,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const 
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
 
-  if (res.res != SCWE_SUCCESS) {
+  if (res.exit_code != 0) {
     return SCWE_COMMAND_FAILED;
   }
 
@@ -2784,7 +2779,9 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const 
            << res.exit_code
            << "output: "
            << res.out;
-
+  if (res.exit_code != 0){
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 
