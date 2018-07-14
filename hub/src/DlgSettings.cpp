@@ -147,7 +147,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
   ui->cb_tray_skin->setCurrentIndex(CSettingsManager::Instance().tray_skin());
-  ui->cb_vagrant_provider->setCurrentText(VagrantProvider::Instance()->CurrentName());
+  ui->cb_vagrant_provider->setCurrentText(VagrantProvider::Instance()->CurrentStr());
 
   ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 

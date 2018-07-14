@@ -631,71 +631,149 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
   return give_write_permissions_internal<Os2Type<CURRENT_OS> >(dir);
 }
 //////////////////////////////////////////////////////////////////////
-QStringList CSystemCallWrapper::list_interfaces(){
-    /*#1 how to get bridged interfaces
-     * using command VBoxManage get list of all bridged interfaces
-     * */
-    installer_is_busy.lock();
-    qDebug("Getting list of bridged interfaces");
-    QString vb_version;
-    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-    QStringList interfaces;
-    if (vb_version == "undefined") {
-      installer_is_busy.unlock();
-      return interfaces;
-    }
-    QString path = CSettingsManager::Instance().oracle_virtualbox_path();
-    QDir dir(path);
-    dir.cdUp();
-    path = dir.absolutePath();
-    path += "/VBoxManage";
-    QStringList args;
-    args << "list" << "bridgedifs";
-    qDebug()<<path<<args;
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
-    QString output;
-    for (auto s : res.out) {
-      output += s;
-    }
-    qDebug() << "Listing interfaces result:"
-             << "exit code:" << res.exit_code
-             << "result:" << res.res
-             << "output:" << output;
-    if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
-        return interfaces;
-    //time to parse data
-    QStringList parse_me = res.out;
-    QString flag;
-    QString value;
-    QString last_name;
-    bool reading_value = false;
-    for (auto s : parse_me){
-        flag = value = "";
-        reading_value = false;
-        for (int i=0; i < s.size(); i++){
-            if(s[i]=='\r')continue;
-            if(reading_value){
-                value += s[i];
-                continue;
-            }
-            if(s[i] == ':'){
-                flag = value;
-                value = "";
-                continue;
-            }
-            if(s[i] != ' '){
-                if(value == "" && !flag.isEmpty())
-                    reading_value = true;
-                value+=s[i];
-            }
-        }
-        if(flag == "Name")
-            last_name = value;
-        if(flag == "Status" && value == "Up")
-            interfaces.push_back(last_name);
-    }
+QStringList CSystemCallWrapper::list_interfaces() {
+  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+
+  switch (provider) {
+  case VagrantProvider::VIRTUALBOX:
+    return virtualbox_interfaces();
+  case VagrantProvider::LIBVIRT:
+    return libvirt_interfaces();
+  default:
+    return virtualbox_interfaces();
+  }
+}
+
+QStringList CSystemCallWrapper::libvirt_interfaces() {
+  installer_is_busy.lock();
+
+  qDebug("Getting list of bridged interfaces libvirt");
+
+  QStringList interfaces;
+  QString cmd = "virsh";
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
     return interfaces;
+  }
+
+  QStringList args;
+  args << "iface-list";
+
+  qDebug() << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
+  QString output;
+
+  for (auto s : res.out) {
+    output += s;
+  }
+
+  qDebug() << "Listing libvirt interfaces result:"
+           << "exit code: "
+           << res.exit_code
+           << "result: "
+           << res.res
+           << "output:"
+           << output;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+
+  // parse bridge interface
+  QStringList parse_me = res.out;
+  unsigned i = 0;
+  for (auto line : parse_me) {
+    if (i > 1) {
+      QStringList list = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+      QString bridge = list.at(0);
+      QString state = list.at(1);
+
+      if (state == "active" && bridge != "lo") {
+        interfaces.push_back(bridge);
+      }
+
+      qDebug() << bridge
+               << state;
+
+    }
+    i++;
+  }
+
+  installer_is_busy.unlock();
+  return interfaces;
+}
+
+QStringList CSystemCallWrapper::virtualbox_interfaces() {
+  /*#1 how to get bridged interfaces
+   * using command VBoxManage get list of all bridged interfaces
+   * */
+  installer_is_busy.lock();
+  qDebug("Getting list of bridged interfaces virtualbox");
+  QString vb_version;
+  CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+  QStringList interfaces;
+  if (vb_version == "undefined") {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  path = dir.absolutePath();
+  path += "/VBoxManage";
+  QStringList args;
+  args << "list" << "bridgedifs";
+  qDebug()<<path<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+  QString output;
+  for (auto s : res.out) {
+    output += s;
+  }
+  qDebug() << "Listing interfaces result:"
+           << "exit code:" << res.exit_code
+           << "result:" << res.res
+           << "output:" << output;
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+  //time to parse data
+  QStringList parse_me = res.out;
+  QString flag;
+  QString value;
+  QString last_name;
+  bool reading_value = false;
+  for (auto s : parse_me){
+      flag = value = "";
+      reading_value = false;
+      for (int i=0; i < s.size(); i++){
+          if(s[i]=='\r')continue;
+          if(reading_value){
+              value += s[i];
+              continue;
+          }
+          if(s[i] == ':'){
+              flag = value;
+              value = "";
+              continue;
+          }
+          if(s[i] != ' '){
+              if(value == "" && !flag.isEmpty())
+                  reading_value = true;
+              value+=s[i];
+          }
+      }
+      if(flag == "Name")
+          last_name = value;
+      if(flag == "Status" && value == "Up")
+          interfaces.push_back(last_name);
+  }
+  installer_is_busy.unlock();
+  return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
 void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins){
@@ -762,7 +840,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
     QStringList args;
     args << "box"
          << "add" << box
-         << "--provider" << VagrantProvider::Instance()->CurrentProvider()
+         << "--provider" << VagrantProvider::Instance()->CurrentVal()
          << box_dir
          << "--force";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
@@ -1247,7 +1325,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
          << "--box"
          << box
          << "--provider"
-         << VagrantProvider::Instance()->CurrentProvider();
+         << VagrantProvider::Instance()->CurrentVal();
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug() << "updating vagrant box: " << box << "provider:" << provider
              << "finished with" << "exit code: " << res.exit_code

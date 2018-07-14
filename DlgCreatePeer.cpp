@@ -14,10 +14,13 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       m_password_state(0),
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
+  // Bridge interfaces
+  QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
   ui->setupUi(this);
   ui->le_disk->setText("100");
-  ui->cmb_bridge->addItems(CPeerController::Instance()->get_bridgedifs());
+  ui->cmb_bridge->addItems(bridges);
+  ui->lbl_provider->setText(VagrantProvider::Instance()->CurrentStr());
   hide_err_labels();
   this->adjustSize();
   // slots
@@ -86,6 +89,12 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // Password Confirm
   this->m_show_confirm_password_action = ui->le_pass_confirm->addAction(
       show_password_icon, QLineEdit::TrailingPosition);
+
+  // hide bridge interface
+  if (bridges.size() == 0) {
+    ui->lbl_bridge->hide();
+    ui->cmb_bridge->hide();
+  }
 
   // QLineEdit password show
   connect(this->m_show_password_action, &QAction::triggered, [this]() {
@@ -316,9 +325,12 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
       stream << "SUBUTAI_ENV : "
              << "master" << endl;
     stream << "DISK_SIZE : " << disk << endl;
-    stream << "BRIDGE : "
-           << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
-           << endl;
+
+    if (!this->ui->cmb_bridge->currentText().isEmpty()) {
+      stream << "BRIDGE : "
+             << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
+             << endl;
+    }
   }
   file.close();
   // write provision step file
@@ -333,7 +345,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
   }
   p_file.close();
   QString vagrant_up_string = QString("up --provider %1").arg(
-        VagrantProvider::Instance()->CurrentProvider());
+        VagrantProvider::Instance()->CurrentVal());
   QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
   CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
   res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string,

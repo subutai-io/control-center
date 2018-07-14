@@ -1505,9 +1505,24 @@ void TrayControlWindow::show_create_dialog() {
         DlgNotification::N_ABOUT);
     return;
   }
-  if(bridged_ifs.size() == 0){
+
+  if (bridged_ifs.size() == 0) {
+    VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+
+    switch (provider) {
+    case VagrantProvider::VIRTUALBOX:
       CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
+    case VagrantProvider::PARALLELS:
+      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
+      return;
+    case VagrantProvider::HYPERV:
+      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
+      return;
+    default:
+      break;
+    }
+
   }
   show_dialog(create_create_peer_dialog, tr("Create Peer"));
 }

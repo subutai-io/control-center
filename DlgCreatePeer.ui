@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>358</width>
-    <height>483</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="15" column="0" rowspan="2" colspan="2">
+   <item row="16" column="0" rowspan="2" colspan="2">
     <widget class="QLabel" name="lbl_err_os">
      <property name="text">
       <string/>
@@ -41,7 +41,7 @@
      </property>
     </widget>
    </item>
-   <item row="17" column="0">
+   <item row="18" column="0">
     <widget class="QPushButton" name="btn_cancel">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
@@ -120,6 +120,9 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="le_name"/>
+   </item>
    <item row="5" column="0">
     <widget class="QLabel" name="lbl_ram">
      <property name="toolTip">
@@ -140,8 +143,8 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="le_name"/>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="le_pass"/>
    </item>
    <item row="9" column="0">
     <widget class="QLabel" name="lbl_bridge">
@@ -152,6 +155,9 @@
       <string>Bridge Interface</string>
      </property>
     </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="le_pass_confirm"/>
    </item>
    <item row="6" column="0" colspan="2">
     <widget class="QLabel" name="lbl_err_ram">
@@ -168,12 +174,6 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="le_pass"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="le_pass_confirm"/>
    </item>
    <item row="5" column="1">
     <widget class="QLineEdit" name="le_ram">
@@ -192,6 +192,9 @@
      </property>
     </widget>
    </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="le_disk"/>
+   </item>
    <item row="4" column="0" colspan="2">
     <widget class="QLabel" name="lbl_err_pass">
      <property name="sizePolicy">
@@ -208,6 +211,15 @@
      </property>
     </widget>
    </item>
+   <item row="13" column="1">
+    <widget class="QComboBox" name="cmb_os">
+     <item>
+      <property name="text">
+       <string>Debian Stretch</string>
+      </property>
+     </item>
+    </widget>
+   </item>
    <item row="7" column="0">
     <widget class="QLabel" name="lbl_disk">
      <property name="toolTip">
@@ -216,18 +228,6 @@
      <property name="text">
       <string>Disk GB</string>
      </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="le_disk"/>
-   </item>
-   <item row="13" column="1">
-    <widget class="QComboBox" name="cmb_os">
-     <item>
-      <property name="text">
-       <string>Debian Stretch</string>
-      </property>
-     </item>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
@@ -246,7 +246,7 @@
      </property>
     </widget>
    </item>
-   <item row="17" column="1">
+   <item row="18" column="1">
     <widget class="QPushButton" name="btn_create">
      <property name="toolTip">
       <string>Start building your Peer</string>
@@ -311,7 +311,7 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0" colspan="2">
+   <item row="15" column="0" colspan="2">
     <widget class="QProgressBar" name="pb_peer">
      <property name="enabled">
       <bool>false</bool>
@@ -321,6 +321,20 @@
      </property>
      <property name="textVisible">
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Provider</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="1">
+    <widget class="QLabel" name="lbl_provider">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>

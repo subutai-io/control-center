@@ -22,8 +22,9 @@ public:
   static VagrantProvider* Instance();
   static const QString& ProviderToStr(PROVIDERS p);
   static const QString& ProviderToVal(PROVIDERS p);
-  static QString CurrentProvider();
-  static QString CurrentName();
+  static QString CurrentVal();
+  static QString CurrentStr();
+  static PROVIDERS CurrentProvider();
   static std::vector<int> List();
 
   template <class OS> static

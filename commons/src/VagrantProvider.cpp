@@ -42,8 +42,7 @@ const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   return p_val[p];
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-QString VagrantProvider::CurrentProvider() {
+QString VagrantProvider::CurrentVal() {
   QString provider = VagrantProvider::ProviderToVal(VagrantProvider::VIRTUALBOX);
 
   if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
@@ -54,8 +53,18 @@ QString VagrantProvider::CurrentProvider() {
   return provider;
 }
 
-QString VagrantProvider::CurrentName() {
-  QString provider = VagrantProvider::ProviderToVal(VagrantProvider::VIRTUALBOX);
+VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
+  VagrantProvider::PROVIDERS provider = VagrantProvider::VIRTUALBOX;
+
+  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+    provider = (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider();
+  }
+
+  return provider;
+}
+
+QString VagrantProvider::CurrentStr() {
+  QString provider = VagrantProvider::ProviderToStr(VagrantProvider::VIRTUALBOX);
 
   if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
     provider = VagrantProvider::ProviderToStr(

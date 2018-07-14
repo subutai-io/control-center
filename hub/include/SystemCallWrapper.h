@@ -8,6 +8,7 @@
 #include <vector>
 #include <QProcess>
 #include <QMutex>
+#include "VagrantProvider.h"
 
 //give type for restart p2p
 enum restart_p2p_type{
@@ -206,6 +207,10 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t give_write_permissions(const QString &dir);
 
   static QStringList list_interfaces();
+
+  static QStringList virtualbox_interfaces();
+
+  static QStringList libvirt_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
 
