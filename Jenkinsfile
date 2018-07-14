@@ -17,6 +17,7 @@ try {
 		stage("Start build Debian")
 		
 		notifyBuildDetails = "\nFailed on Stage - Start build"
+		checkout scm
 
 		sh """
 		./build_deb.sh ${branch}
