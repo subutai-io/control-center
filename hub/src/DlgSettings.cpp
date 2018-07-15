@@ -20,6 +20,7 @@
 #include "LanguageController.h"
 #include "TraySkinController.h"
 #include "VagrantProvider.h"
+#include "PeerController.h"
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
@@ -508,6 +509,10 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() ==
                                              Qt::Checked);
   CSettingsManager::Instance().save_all();
+
+  // Update peer info and interfaces list
+  CPeerController::Instance()->refresh();
+
   this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
