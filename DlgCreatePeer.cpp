@@ -8,6 +8,7 @@
 #include "TrayControlWindow.h"
 #include "ui_DlgCreatePeer.h"
 #include "VagrantProvider.h"
+#include "Environment.h"
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
@@ -53,9 +54,18 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::VAGRANT_SUBUTAI);
       });
+  requirement parallels_plugin(
+      tr("Parallels plugin is not ready"), tr("Checking Parallels plugin..."),
+      tr("Unable to run the Vagrant Parallels plugin, Make sure that you have it "
+         "installed or updated successfully by going to the menu > "
+         "Components."),
+      DlgNotification::N_ABOUT, []() {
+        return !CHubComponentsUpdater::Instance()->is_update_available(
+              IUpdaterComponent::VAGRANT_PARALLELS);
+       });
   requirement vbguest_plugin(
       tr("VirtualBox plugin is not ready"), tr("Checking VirtualBox plugin..."),
-      tr("Vagrant VirtualBox plugin is not ready. You should install or update "
+      tr("Vagrant VBGuest plugin is not ready. You should install or update "
          "it from Components"),
       DlgNotification::N_ABOUT, []() {
         return !CHubComponentsUpdater::Instance()->is_update_available(
@@ -69,6 +79,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::SUBUTAI_BOX);
       });
+  // TODO add requirements by provider
   m_requirements_ls = std::vector<requirement>{
       vagrant, virtualbox, subutai_plugin, vbguest_plugin, subutai_box};
   // format
@@ -114,6 +125,11 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                                          ? QLineEdit::Normal
                                          : QLineEdit::Password);
   });
+
+  // add num cpu to combobox item
+  for(unsigned int i = 0; i < Environment::Instance()->numCpu(); i++) {
+    ui->cmb_cpu->addItem(QString::number(i+1));
+  }
 }
 
 DlgCreatePeer::~DlgCreatePeer() { delete ui; }
@@ -128,6 +144,8 @@ DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass) {
 }
 
 bool DlgCreatePeer::check_configurations() {
+  qDebug() << "Check conf RAM: "
+           << Environment::Instance()->ramSize();
   QString ram = ui->le_ram->text();
   QString disk = ui->le_disk->text();
   QString password1 = ui->le_pass->text();
@@ -184,21 +202,34 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_ram->show();
     errors_exist = true;
+  } else if (ram.toInt() > (int) Environment::Instance()->ramSize()) {   // check max ram
+    ui->lbl_err_ram->setText(tr("Ram cannot be more than %1 MB.").arg(Environment::Instance()->ramSize()));
+    ui->lbl_err_ram->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_ram->show();
+    errors_exist = true;
   } else
     ui->lbl_err_ram->hide();
+
   // disk
-  if (disk.toInt() < 40) {
-    ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB."));
+  if (disk.toInt() < 100) {
+    ui->lbl_err_disk->setText(tr("Disk cannot be less than 100 GB."));
+    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->show();
+    errors_exist = true;
+  } else if (disk.toInt() > 2048) { // disk max size 2048 GB = 2 TB
+    ui->lbl_err_disk->setText(tr("Disk cannot be more than 2048 GB."));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
   } else
     ui->lbl_err_disk->hide();
+
   return errors_exist;
 }
 
 void DlgCreatePeer::create_button_pressed() {
   if (check_configurations()) return;
+
   QString dir = create_dir("subutai-peer_" + ui->le_name->text());
   if (dir.isEmpty()) {
     ui->lbl_err_name->setText(tr("Name already exists"));
@@ -257,6 +288,9 @@ void DlgCreatePeer::set_enabled_buttons(bool state) {
   ui->le_ram->setEnabled(state);
   ui->btn_create->setEnabled(state);
   ui->btn_cancel->setEnabled(state);
+  ui->cmb_bridge->setEnabled(state);
+  ui->cmb_cpu->setEnabled(state);
+  ui->cmb_os->setEnabled(state);
 }
 
 void DlgCreatePeer::hide_err_labels() {

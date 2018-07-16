@@ -399,15 +399,18 @@ class UpdateVMInformation : public QObject {
 // updates rh and management of peer
 class UpdatePeerOS : public QObject {
   Q_OBJECT
- public:
+public:
   UpdatePeerOS(QObject *parent = nullptr) : QObject(parent) {}
   void startWork() {
-    QThread *thread = new QThread();
-    connect(thread, &QThread::started, this,
-            &UpdatePeerOS::execute_remote_command);
-    connect(this, &UpdatePeerOS::outputReceived, thread, &QThread::quit);
-    connect(thread, &QThread::finished, this, &UpdatePeerOS::deleteLater);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &UpdatePeerOS::execute_remote_command);
+    connect(this, &UpdatePeerOS::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &UpdatePeerOS::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
     this->moveToThread(thread);
     thread->start();
   }

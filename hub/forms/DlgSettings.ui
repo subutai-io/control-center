@@ -834,14 +834,7 @@ border-color: rgb(175, 162, 152)</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <layout class="QGridLayout" name="gridLayout_9" columnstretch="2,1,1">
-           <item row="2" column="0">
-            <widget class="QLabel" name="lbl_rh_update">
-             <property name="text">
-              <string>Resource Host check for updates frequency:</string>
-             </property>
-            </widget>
-           </item>
+          <layout class="QGridLayout" name="gridLayout_9" columnstretch="2,0,0">
            <item row="1" column="0">
             <widget class="QLabel" name="lbl_tray_update">
              <property name="text">
@@ -852,9 +845,6 @@ border-color: rgb(175, 162, 152)</string>
            <item row="1" column="1">
             <widget class="QComboBox" name="cb_tray_frequency"/>
            </item>
-           <item row="2" column="1">
-            <widget class="QComboBox" name="cb_rh_frequency"/>
-           </item>
            <item row="1" column="2">
             <widget class="QCheckBox" name="chk_tray_autoupdate">
              <property name="text">
@@ -862,12 +852,8 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QCheckBox" name="chk_rh_autoupdate">
-             <property name="text">
-              <string>Automatic rh update</string>
-             </property>
-            </widget>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="cb_p2p_frequency"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="lbl_p2p_update">
@@ -876,30 +862,10 @@ border-color: rgb(175, 162, 152)</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="cb_p2p_frequency"/>
-           </item>
            <item row="0" column="2">
             <widget class="QCheckBox" name="chk_p2p_autoupdate">
              <property name="text">
               <string>Automatic p2p update</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="lbl_rhm_update">
-             <property name="text">
-              <string>Management check for updates frequency:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="cb_rhm_frequency"/>
-           </item>
-           <item row="3" column="2">
-            <widget class="QCheckBox" name="chk_rhm_autoupdate">
-             <property name="text">
-              <string>Automatic mh update</string>
              </property>
             </widget>
            </item>

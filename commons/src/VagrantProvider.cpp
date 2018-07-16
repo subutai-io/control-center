@@ -1,5 +1,6 @@
 #include <VagrantProvider.h>
 #include <SettingsManager.h>
+#include <map>
 
 // For Linux providers
 std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALBOX,
@@ -27,13 +28,21 @@ VagrantProvider::~VagrantProvider() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 VagrantProvider* VagrantProvider::Instance() {
   static VagrantProvider instance;
+
   return &instance;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
   static QString p_str[] = {tr("Virtualbox"), tr("Parallels"), tr("Hyper-V"), tr("VMware"), tr("Libvirt")};
+
   return p_str[p];
+}
+
+const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
+  static std::map<PROVIDERS, QString> p_name = {{LIBVIRT, "vagrant-libvirt"}, {VMWARE_DESKTOP, "vagrant-vmware-desktop"},
+                                           {PARALLELS, "vagrant-parallels"}};
+  return p_name[p];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +56,17 @@ QString VagrantProvider::CurrentVal() {
 
   if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
     provider = VagrantProvider::ProviderToVal(
+             (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
+  }
+
+  return provider;
+}
+
+QString VagrantProvider::CurrentName() {
+  QString provider = VagrantProvider::ProviderToName(VagrantProvider::VIRTUALBOX);
+
+  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+    provider = VagrantProvider::ProviderToName(
              (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
   }
 

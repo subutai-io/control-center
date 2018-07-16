@@ -215,6 +215,7 @@ void TrayControlWindow::application_quit() {
   while (i--) lstActiveDialogs[i]->close();
   // close active processes
   CProcessHandler::Instance()->clear_proc();
+  QApplication::closeAllWindows();
   m_sys_tray_icon->hide();
   QApplication::quit();
 }
@@ -744,6 +745,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     else{
         env_start = my_envs_button_table[env_id];
     }
+    env_start->setEnabled(true);
     env_start->setText(env_name);
     env_start->setIcon(env->status() == "HEALTHY"
                            ? healthy_icon
@@ -1275,6 +1277,11 @@ void TrayControlWindow::update_p2p_status_sl(
     m_p2p_menu->setTitle(tr("P2P is installing"));
     m_p2p_menu->setIcon(p2p_loading);
     return;
+  } else if (P2PStatus_checker::Instance().get_status() ==
+             P2PStatus_checker::P2P_UNINSTALLING) {
+    m_p2p_menu->setTitle(tr("P2P is uninstalling"));
+    m_p2p_menu->setIcon(p2p_loading);
+    return;
   }
   switch (status) {
     case P2PStatus_checker::P2P_READY:
@@ -1309,6 +1316,12 @@ void TrayControlWindow::update_p2p_status_sl(
       m_p2p_menu->setTitle(tr("P2P is installing"));
       m_p2p_menu->setIcon(p2p_loading);
       break;
+    case P2PStatus_checker::P2P_UNINSTALLING:
+      m_p2p_menu->setTitle(tr("P2P is uninstalling"));
+      m_p2p_menu->setIcon(p2p_loading);
+      break;
+  default:
+    break;
   }
 }
 //////////////////////////////////////

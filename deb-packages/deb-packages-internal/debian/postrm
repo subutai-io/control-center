@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
-kill -9 $(cat /opt/subutai/bin/last_pid)
+pid=""
+if [ -f /opt/subutai/bin/last_pid ]; then
+  pid=$(cat /opt/subutai/bin/last_pid)
+  rm /opt/subutai/bin/last_pid
+fi
+
+if ! kill $pid > /dev/null 2>&1; then
+    echo >&2
+fi
 if which update-icon-caches >/dev/null 2>&1 ; then
     update-icon-caches /usr/share/icons/cc_icon_resized.png
 fi

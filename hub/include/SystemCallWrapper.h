@@ -44,7 +44,8 @@ enum system_call_wrapper_error_t {
   SCWE_PROCESS_CRASHED,
   SCWE_LAST,
   SCWE_PERMISSION_DENIED,
-  SCWE_WRONG_FILE_NAME
+  SCWE_WRONG_FILE_NAME,
+  SCWE_COMMAND_FAILED
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -166,6 +167,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t vagrant_box_update(const QString &box, const QString &provider);
 
+  static system_call_wrapper_error_t vagrant_box_remove(const QString &box, const QString &provider);
+
   static QString vagrant_fingerprint(const QString &ip);
 
   static bool vagrant_set_password(const QString &ip,
@@ -213,18 +216,25 @@ class CSystemCallWrapper {
   static QStringList libvirt_interfaces();
 
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_x2go(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_x2go();
 
   static system_call_wrapper_error_t install_vagrant(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_vagrant(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_oracle_virtualbox(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_chrome(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_e2e();
+  static system_call_wrapper_error_t uninstall_e2e();
 
   static system_call_wrapper_error_t install_e2e_chrome();
+  static system_call_wrapper_error_t uninstall_e2e_chrome();
 
   static system_call_wrapper_error_t install_vagrant_subutai();
 
@@ -291,6 +301,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
+  static system_call_wrapper_error_t vagrant_plugin_version(QString &version, QString vagrant_plugin);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
@@ -307,9 +318,8 @@ class CSystemCallWrapper {
   static bool set_application_autostart(bool start);
   static bool application_autostart();
 
-  static system_call_wrapper_error_t vagrant_plugin_install(const QString &plugin_name);
-
-  static system_call_wrapper_error_t vagrant_plugin_update(const QString &plugin_name);
+  static system_call_wrapper_error_t vagrant_plugin(const QString& name,
+                                                    const QString& command);
 
   struct container_ip_and_port {
     QString ip;

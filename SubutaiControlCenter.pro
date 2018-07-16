@@ -37,12 +37,10 @@ SOURCES += \
     hub/src/updater/ExecutableUpdater.cpp \
     hub/src/DlgGenerateSshKey.cpp \
     hub/src/updater/HubComponentsUpdater.cpp \
-    hub/src/updater/UpdaterComponentRH.cpp \
     hub/src/updater/UpdaterComponentP2P.cpp \
     hub/src/updater/UpdaterComponentTray.cpp \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
-    hub/src/updater/UpdaterComponentRHManagement.cpp \
     hub/src/SshKeysController.cpp \
     commons/src/OsBranchConsts.cpp \
     hub/src/SsdpController.cpp \
@@ -64,7 +62,19 @@ SOURCES += \
     hub/src/DlgRegisterPeer.cpp \
     DlgCreatePeer.cpp \
     hub/src/PeerController.cpp \
-    commons/src/VagrantProvider.cpp
+    commons/src/VagrantProvider.cpp \
+    hub/src/updater/UpdaterComponentVagrant.cpp \
+    hub/src/updater/UpdaterComponentX2go.cpp \
+    hub/src/updater/UpdaterComponentVirtualbox.cpp \
+    hub/src/updater/UpdaterComponentChrome.cpp \
+    hub/src/updater/UpdaterComponentE2E.cpp \
+    hub/src/updater/UpdaterComponentSubutaiBox.cpp \
+    hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
+    hub/src/updater/UpdaterComponentVagrantVBguest.cpp \
+    commons/src/Environment.cpp \
+    hub/src/updater/UpdaterComponentVagrantLibvirt.cpp \
+    hub/src/updater/UpdaterComponentVagrantParallels.cpp \
+    hub/src/updater/UpdaterComponentVagrantVmware.cpp
 
 
 
@@ -85,14 +95,12 @@ HEADERS  += \
     hub/include/DlgGenerateSshKey.h \
     hub/include/updater/HubComponentsUpdater.h \
     hub/include/updater/IUpdaterComponent.h \
-    hub/include/updater/UpdaterComponentRH.h \
     hub/include/updater/UpdaterComponentP2P.h \
     hub/include/updater/UpdaterComponentTray.h \
     commons/include/InternalCriticalSection.h \
     commons/include/Locker.h \
     commons/include/Commons.h \
     libssh2/include/LibsshController.h \
-    hub/include/updater/UpdaterComponentRHManagement.h \
     hub/include/SshKeysController.h \
     commons/include/OsBranchConsts.h \
     hub/include/SsdpController.h \
@@ -114,7 +122,19 @@ HEADERS  += \
     hub/include/DlgRegisterPeer.h \
     DlgCreatePeer.h \
     hub/include/PeerController.h \
-    commons/include/VagrantProvider.h
+    commons/include/VagrantProvider.h \
+    hub/include/updater/UpdaterComponentVagrant.h \
+    hub/include/updater/UpdaterComponentX2go.h \
+    hub/include/updater/UpdaterComponentVirtualbox.h \
+    hub/include/updater/UpdaterComponentChrome.h \
+    hub/include/updater/UpdaterComponentE2E.h \
+    hub/include/updater/UpdaterComponentSubutaiBox.h \
+    hub/include/updater/UpdaterComponentVagrantSubutai.h \
+    hub/include/updater/UpdaterComponentVagrantVBguest.h \
+    commons/include/Environment.h \
+    hub/include/updater/UpdaterComponentVagrantLibvirt.h \
+    hub/include/updater/UpdaterComponentVagrantParallels.h \
+    hub/include/updater/UpdaterComponentVagrantVmware.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -155,7 +175,7 @@ DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_MASTER
+GBV=BT_PROD
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }

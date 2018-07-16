@@ -1,0 +1,27 @@
+#ifndef UPDATERCOMPONENTVAGRANTVMWARE_H
+#define UPDATERCOMPONENTVAGRANTVMWARE_H
+#include "updater/IUpdaterComponent.h"
+
+namespace update_system {
+/**
+ * @brief The CUpdaterComponentVAGRANT_VMWARE class implements
+ * IUpdaterComponent.
+ */
+class CUpdaterComponentVAGRANT_VMWARE : public IUpdaterComponent {
+  // IUpdaterComponent interface
+ public:
+  CUpdaterComponentVAGRANT_VMWARE();
+  virtual ~CUpdaterComponentVAGRANT_VMWARE();
+
+  // IUpdaterComponent interface
+ protected:
+  virtual bool update_available_internal();
+  virtual chue_t update_internal();
+  virtual void update_post_action(bool success);
+  virtual chue_t install_internal();
+  virtual chue_t uninstall_internal();
+  virtual void install_post_interntal(bool success);
+  virtual void uninstall_post_internal(bool success);
+};
+}  // namespace update_system
+#endif // UPDATERCOMPONENTVAGRANTVMWARE_H

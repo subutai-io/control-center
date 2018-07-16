@@ -46,13 +46,9 @@ class CSettingsManager : public QObject {
   static const QString SM_TRAY_GUID;
 
   static const QString SM_P2P_UPDATE_FREQ;
-  static const QString SM_RH_UPDATE_FREQ;
   static const QString SM_TRAY_UPDATE_FREQ;
-  static const QString SM_RHMANAGEMENT_FREQ;
   static const QString SM_P2P_AUTOUPDATE;
-  static const QString SM_RH_AUTOUPDATE;
   static const QString SM_TRAY_AUTOUPDATE;
-  static const QString SM_RHMANAGEMENT_AUTOUPDATE;
 
   static const QString SM_RTM_DB_DIR;
 
@@ -117,9 +113,7 @@ class CSettingsManager : public QObject {
   uint32_t m_tray_update_freq;
   uint32_t m_rh_management_update_freq;
   bool m_p2p_autoupdate;
-  bool m_rh_autoupdate;
   bool m_tray_autoupdate;
-  bool m_rh_management_autoupdate;
 
   QString m_terminal_cmd;
   QString m_x2goclient;
@@ -234,19 +228,11 @@ class CSettingsManager : public QObject {
   update_freq_t p2p_update_freq() const {
     return (update_freq_t)m_p2p_update_freq;
   }
-  update_freq_t rh_update_freq() const {
-    return (update_freq_t)m_rh_update_freq;
-  }
   update_freq_t tray_update_freq() const {
     return (update_freq_t)m_tray_update_freq;
   }
-  update_freq_t rh_management_update_freq() const {
-    return (update_freq_t)m_rh_management_update_freq;
-  }
   bool p2p_autoupdate() const { return m_p2p_autoupdate; }
-  bool rh_autoupdate() const { return m_rh_autoupdate; }
   bool tray_autoupdate() const { return m_tray_autoupdate; }
-  bool rh_management_autoupdate() const { return m_rh_management_autoupdate; }
 
   bool is_writable() const { return m_settings.isWritable(); }
 
@@ -285,9 +271,7 @@ class CSettingsManager : public QObject {
   void set_logs_level(int logs_level);
   void set_vagrant_provider(int provider);
   void set_p2p_update_freq(int fr);
-  void set_rh_update_freq(int fr);
   void set_tray_update_freq(int fr);
-  void set_rh_management_freq(int fr);
   void set_locale(int fr);
   void set_p2p_path(QString fr);
   void set_vagrant_path(QString fr);
@@ -334,9 +318,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(ssh_keys_storage, QString&)
   SET_FIELD_DECL(peers_storage, QString&)
   SET_FIELD_DECL(p2p_autoupdate, bool)
-  SET_FIELD_DECL(rh_autoupdate, bool)
   SET_FIELD_DECL(tray_autoupdate, bool)
-  SET_FIELD_DECL(rh_management_autoupdate, bool)
   SET_FIELD_DECL(terminal_cmd, QString&)
   SET_FIELD_DECL(terminal_arg, QString&)
   SET_FIELD_DECL(use_animations, bool)
