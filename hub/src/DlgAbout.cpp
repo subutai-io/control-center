@@ -243,7 +243,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
         CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
-    if (progress.first * progress.second == 0) {
+    if (progress.second == 0) {
       it->second.pb->setValue(0);
       it->second.pb->setMaximum(0);
       it->second.pb->setMinimum(0);
