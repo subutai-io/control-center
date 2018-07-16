@@ -52,7 +52,7 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  update_progress_sl(50, 100);  // imitation of progress bar :D, todo implement
+  update_progress_sl(0, 0);  // imitation of progress bar :D, todo implement
   static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(empty_string, empty_string, CC_VAGRANT_SUBUTAI);
@@ -63,7 +63,7 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::install_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal() {
-  update_progress_sl(50, 100);
+  update_progress_sl(0, 0);
   static QString empty_string = "";
 
   SilentUpdater *silent_updater = new SilentUpdater(this);
@@ -78,7 +78,6 @@ chue_t CUpdaterComponentVAGRANT_SUBUTAI::update_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_SUBUTAI::uninstall_internal() {
-  update_progress_sl(50, 100);
   static QString empty_string = "";
 
   SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
