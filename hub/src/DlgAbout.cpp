@@ -243,8 +243,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
         CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
-    if (progress.first * progress.second == 0) {
+    if (progress.second == 0) {
       it->second.pb->setValue(0);
+      it->second.pb->setMaximum(0);
+      it->second.pb->setMinimum(0);
     } else {
       uint value = (progress.first * 100) / progress.second;
       it->second.pb->setValue(value);
@@ -448,8 +450,14 @@ void DlgAbout::btn_close_released() { this->close(); }
 ///
 void DlgAbout::btn_uninstall_components() {
   for (const auto& component : m_dct_fpb) {
-    if (component.second.cb->isChecked()) {
+    if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
+      if (component.first == "SubutaiControlCenter") continue;
+      if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
+          m_dct_fpb[component.first].lbl->text() == "No supported browser is available")
+        continue;
+      m_dct_fpb[component.first].pb->setEnabled(true);
+      m_dct_fpb[component.first].pb->setVisible(true);
       CHubComponentsUpdater::Instance()->uninstall(component.first);
     }
   }
@@ -459,7 +467,13 @@ void DlgAbout::btn_uninstall_components() {
 void DlgAbout::download_progress(const QString& component_id, qint64 rec,
                                  qint64 total) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+  if (total == 0) {
+    m_dct_fpb[component_id].pb->setValue(0);
+    m_dct_fpb[component_id].pb->setMinimum(0);
+    m_dct_fpb[component_id].pb->setMaximum(0);
+  } else {
+    m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -661,7 +675,7 @@ void DlgAbout::update_available_sl(const QString& component_id,
     qInfo() << "update available: " << component_id;
     m_dct_fpb[component_id].cb->setHidden(true);
     m_dct_fpb[component_id].btn->setVisible(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
+    m_dct_fpb[component_id].cb->setChecked(false);
   } else {
     // not available component
     m_dct_fpb[component_id].btn->setHidden(true);
@@ -777,11 +791,14 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
   if (success) {
     m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].cb->setChecked(true);
+    m_dct_fpb[component_id].cb->setChecked(false);
     m_dct_fpb[component_id].btn->setVisible(true);
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
   }
+  m_dct_fpb[component_id].pb->setValue(0);
+  m_dct_fpb[component_id].pb->setRange(0, 100);
+  m_dct_fpb[component_id].pb->setVisible(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////

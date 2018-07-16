@@ -73,13 +73,14 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   silent_installer->init(file_dir, file_name, CC_VB);
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
-            update_progress_sl(rec, total + (total / 5));
+            update_progress_sl(rec, total);
           });
   connect(dm, &CDownloadFileManager::finished,
-          [silent_installer](bool success) {
+          [this, silent_installer](bool success) {
             if (!success) {
               silent_installer->outputReceived(success);
             } else {
+              this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),
                   DlgNotification::N_NO_ACTION);
@@ -133,12 +134,16 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
 
     SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
     silent_uninstaller->init(file_dir, file_name, CC_VB);
-
+    connect(dm, &CDownloadFileManager::download_progress_sig,
+            [this](qint64 rec, qint64 total) {
+              update_progress_sl(rec, total);
+            });
     connect(dm, &CDownloadFileManager::finished,
-            [silent_uninstaller](bool success) {
+            [this, silent_uninstaller](bool success) {
               if (!success) {
                 silent_uninstaller->outputReceived(success);
               } else {
+                this->update_progress_sl(0,0);
                 silent_uninstaller->startWork();
               }
             });
