@@ -277,7 +277,7 @@ bool CHubComponentsUpdater::is_in_progress(const QString &component_id){
 }
 
 const std::pair <quint64, quint64>& CHubComponentsUpdater::get_last_pb_value(const QString &component_id) {
-  static std::pair <quint64, quint64> zero(0, 0);
+  static std::pair <quint64, quint64> zero(0, 100);
   if (m_dct_components.find(component_id) == m_dct_components.end() || !is_in_progress(component_id)) {
     return zero;
   } else {

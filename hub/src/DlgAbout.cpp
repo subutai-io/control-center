@@ -796,7 +796,6 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
   }
-  m_dct_fpb[component_id].btn->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].pb->setVisible(false);
