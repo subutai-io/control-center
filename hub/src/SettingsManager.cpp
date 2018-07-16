@@ -74,6 +74,7 @@ const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
+const QString CSettingsManager::SM_FIREFOX_PATH("FirefoxPath");
 const QString CSettingsManager::SM_SUBUTAI_CMD("SubutaiCmd");
 
 const QString CSettingsManager::EMPTY_STRING("");
@@ -217,6 +218,7 @@ CSettingsManager::CSettingsManager()
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
+      m_firefox_path(default_firefox_path()),
       m_subutai_cmd(subutai_command()) {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, nullptr};
@@ -261,6 +263,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
+      {(void*)&m_firefox_path, SM_FIREFOX_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
       {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
       {(void*)&m_default_chrome_profile, SM_DEFAULT_CHROME_PROFILE, qvar_to_str},
@@ -739,4 +742,5 @@ SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
+SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
 #undef SET_FIELD_DEF

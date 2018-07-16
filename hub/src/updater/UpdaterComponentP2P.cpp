@@ -228,7 +228,7 @@ CUpdaterComponentP2P::update_post_action(bool success) {
   post_scripts->start_work();
 }
 
-void CUpdaterComponentP2P::install_post_interntal(bool success){
+void CUpdaterComponentP2P::install_post_internal(bool success){
     if(success){
         CNotificationObserver::Info(tr("The P2P Daemon has been installed and will start running in a few seconds."), DlgNotification::N_NO_ACTION);
     }

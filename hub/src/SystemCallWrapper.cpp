@@ -868,10 +868,10 @@ system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t restart_p2p_service_internal(int *res_code,restart_p2p_type type);
 
-template <>
+template<>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     int *res_code, restart_p2p_type type) {
   *res_code = RSE_MANUAL;
@@ -910,7 +910,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
 }
 /*************************/
 
-template <>
+template<>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
     int *res_code, restart_p2p_type type) {
   QString cmd("sc");
@@ -929,7 +929,7 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_WIN> >(
 }
 /*************************/
 
-template <>
+template<>
 system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
     int *res_code, restart_p2p_type type) {
   QString cmd("osascript");
@@ -977,13 +977,13 @@ system_call_wrapper_error_t CSystemCallWrapper::check_container_state(
 
 ////////////////////////////////////////////////////////////////////////////
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t run_sshkey_in_terminal_internal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,
                                                          const QString &key);
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
         const QString &user,
         const QString &ip,
@@ -1018,7 +1018,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
 }
 /*********************/
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
         const QString &user,
         const QString &ip,
@@ -1048,7 +1048,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_MAC> >(
 }
 /*********************/
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(const QString &user,
                                                                            const QString &ip,
                                                                            const QString &port,
@@ -1109,12 +1109,12 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshkey_in_terminal(
    return run_sshkey_in_terminal_internal<Os2Type<CURRENT_OS> >(user, ip, port, key);
 }
 //////////////////////////////////////////////////////////////////////////////
-template <class  OS>
+template<class  OS>
 system_call_wrapper_error_t vagrant_command_terminal_internal(const QString &dir,
                                                               const QString &command,
                                                               const QString &name);
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
                                                                                  const QString &name){
@@ -1150,7 +1150,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                                               : SCWE_CREATE_PROCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
@@ -1186,7 +1186,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
                                               : SCWE_CREATE_PROCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name){
@@ -1292,13 +1292,13 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t uninstall_p2p_internal(const QString &dir, const QString &file_name);
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t install_p2p_internal(const QString &dir, const QString &file_name);
 
-template <>
+template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
@@ -1309,7 +1309,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QStrin
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd("msiexec");
     QStringList args0;
@@ -1335,7 +1335,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
     return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
@@ -1426,7 +1426,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QStr
     return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -1467,7 +1467,7 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_LINUX> >(const QS
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -1491,7 +1491,7 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QStr
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -1537,10 +1537,10 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_p2p(const QString &dir
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t install_x2go_internal(const QString &dir, const QString &file_name);
 
-template <>
+template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
@@ -1552,7 +1552,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd(dir+"/"+file_name);
     QStringList args0;
@@ -1574,7 +1574,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
     return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
@@ -1671,10 +1671,10 @@ system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir,
     return res;
 }
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t uninstall_x2go_internal();
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
   // pkexec apt-get remove -y x2goclient --purge
   QString pkexec_path;
@@ -1714,7 +1714,7 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_LINUX> >() {
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
   QString uninstall_string;
   QString cmd("REG");
@@ -1777,7 +1777,7 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
   // rm -rf /Applications/x2goclient.app
   if (!QDir("/Applications/x2goclient.app").exists()) {
@@ -1813,13 +1813,13 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t install_vagrant_internal(const QString &dir, const QString &file_name);
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t uninstall_vagrant_internal(const QString &dir, const QString &file_name);
 
-template <>
+template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
@@ -1833,7 +1833,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QS
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd("msiexec");
     QStringList args0;
@@ -1856,7 +1856,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QS
         res.res = SCWE_CREATE_PROCESS;
     return res.res;
 }
-template <>
+template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString file_info = dir + "/" + file_name;
     QString pkexec_path;
@@ -1960,7 +1960,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
     return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2001,7 +2001,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
   return scr.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2031,7 +2031,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_MAC> >(const 
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2122,9 +2122,9 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
-template <>
+template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
@@ -2144,7 +2144,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> 
       res.res = SCWE_CREATE_PROCESS;
   return res.res;
 }
-template <>
+template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
     QString cmd(dir + "/" + file_name);
     QStringList args0;
@@ -2166,7 +2166,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> 
         res.res = SCWE_CREATE_PROCESS;
     return res.res;
 }
-template <>
+template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -2283,7 +2283,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const 
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class  OS>
+template<class  OS>
 system_call_wrapper_error_t uninstall_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
 template<>
 system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_MAC> > (const QString &dir, const QString &file_name){
@@ -2464,13 +2464,13 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(cons
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t uninstall_chrome_internal(const QString &dir, const QString &file_name);
 
-template <>
+template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
     qInfo() << "CC started to install google chrome";
     QString cmd("osascript");
@@ -2584,7 +2584,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
             <<"output:"<<cr2.out;
     tmpFile.remove();
     if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't install vagrant err = %1")
+      QString err_msg = QObject::tr("Couldn't install chrome err = %1")
                                .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
       qCritical() << err_msg;
       return SCWE_CREATE_PROCESS;
@@ -2593,7 +2593,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
     return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
     QString cmd(dir+"/"+file_name);
     QStringList args0;
@@ -2615,7 +2615,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QSt
     return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2696,7 +2696,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const Q
   return res.res;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_LINUX> > (const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2738,7 +2738,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_LINUX> > (cons
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
@@ -2925,11 +2925,13 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
     return res;
 }
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
-    QString current_browser = CSettingsManager::Instance().default_browser();
-    if(current_browser == "Chrome"){
-        return install_e2e_chrome();
-    }
-    return SCWE_SUCCESS;
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if (current_browser == "Chrome") {
+    return install_e2e_chrome();
+  } else if (current_browser == "Firefox") {
+    return install_e2e_firefox();
+  }
+  return SCWE_SUCCESS;
 }
 
 template<class OS>
@@ -3087,11 +3089,320 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_chrome() {
   installer_is_busy.unlock();
   return res;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class OS>
+system_call_wrapper_error_t install_firefox_internal(const QString &dir, const QString &file_name);
+
+template<>
+system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
+  QString file_info =  dir + "/" + file_name;
+  QString pkexec_path;
+  system_call_wrapper_error_t scr =
+      CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr(
+          "Unable to find pkexec command. You may reinstall "
+          "the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr(
+          "Unable to find sh command. Make sure that the "
+          "command exists on your system or reinstall Linux.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp =
+      QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr(
+          "Unable to get the standard temporary location. Verify that "
+          "your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "firefox_installer.sh";
+  qDebug() << tmpFilePath;
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+                                  "#!/bin/bash\n"
+                                  "dpkg -i %1;"
+                                  "if test $? -gt 0\n"
+                                  "then\n"
+                                  "dpkg --remove --force-remove-reinstreq %2\n"
+                                  "apt-get install -y -f;\n"
+                                  "dpkg -i %1;"
+                                  "else\n"
+                                  "rm %1\n"
+                                  "fi")
+                                  .arg(file_info)
+                                  .toUtf8();
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+              QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg =
+        QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path << tmpFilePath;
+  qDebug() << "Firefox installation started"
+           << "pkexec_path:" << pkexec_path
+           << "args2:" << args2;
+
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60000);
+  qDebug() << "Chrome installation finished"
+           << "exit code:" << cr2.exit_code
+           << "result code:" << cr2.res
+           << "output:" << cr2.out;
+  tmpFile.remove();
+
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Couldn't install firefox err = %1")
+        .arg(CSystemCallWrapper::scwe_error_to_str(cr2.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QString &dir, const QString &file_name) {
+  qInfo() << "CC started to install firefox";
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path = dir + "/" + file_name;
+  args << "-e"
+       << QString("do shell script \"hdutil attach -nobrowse %1; "
+                  "cp -R /Volumes/Firefox/Firefox.app "
+                  "/Applications/Firefox.app\" with administrator privileges")
+          .arg(file_path);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "Installation of firefox finished"
+           << "Result code:" << res.res
+           << "Exit code:" << res.exit_code
+           << "Output message:" << res.out;
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
+template<>
+system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
+  QString cmd(dir + "/" + file_name);
+  QStringList args0;
+  args0 << "/install";
+  qDebug() << "installing firefox:" << args0;
+
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args0, true, true, 97);
+  qDebug() << "Installing firefox finished"
+           << "cmd:" << cmd
+           << "exit code:" << res.exit_code
+           << "result:" << res.res
+           << "outpit:" << res.out;
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_firefox(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+  installer_is_busy.unlock();
+  return res;
+}
+
+template<class OS>
+system_call_wrapper_error_t uninstall_firefox_internal(const QString &dir, const QString &file_name);
+
+template<>
+system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  QString pkexec_path;
+  system_call_wrapper_error_t scre =
+      CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr(
+          "Unable to find pkexec command. You may reinstall "
+          "the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "firefox";
+
+  scr = CSystemCallWrapper::ssystem_th(pkexec_path, args, false, true, 60000);
+  qDebug() << "Uninstallation of Google Chrome finished: "
+           << "exit code:" << scr.exit_code
+           << "output:" << scr.out;
+  if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Couldn't uninstall firefox err = %1")
+        .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_MAC>>(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  qDebug() << "firefox uninstallation started";
+
+  if (!QDir("/Applications/Firefox.app").exists()) {
+    qDebug() << "Can't find firefox path: /Applications/Firefox.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args, args_close;
+  args_close << "-e"
+             << QString("Tell Application \"Firefox\" to quit");
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args_close, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qDebug() << "Failed to close firefox";
+  }
+
+  args << "-e"
+       << QString("do shell script \"%1\" with administrator privileges")
+          .arg("rm -rf /Applications/Firefox.app");
+  qDebug() << "firefox uninstallation started"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+  qDebug() << "Uninstall firefox finished"
+           << "exit code:" << rs.exit_code
+           << "output:" << rs.out;
+
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+
+  return res.res;
+}
+
+template<>
+system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_firefox(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+  installer_is_busy.unlock();
+  return res;
+}
+
+template<class OS>
+system_call_wrapper_error_t install_e2e_firefox_internal();
+
+template<>
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>() {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>() {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>() {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_firefox() {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_e2e_firefox_internal<Os2Type<CURRENT_OS>>();
+  installer_is_busy.unlock();
+  return res;
+}
+
+template<class OS>
+system_call_wrapper_error_t uninstall_e2e_firefox_internal();
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_LINUX>>() {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_WIN>>() {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_firefox() {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_e2e_firefox_internal<Os2Type<CURRENT_OS>>();
+  installer_is_busy.unlock();
+  return res;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
   QString current_browser = CSettingsManager::Instance().default_browser();
   if (current_browser == "Chrome") {
     return uninstall_e2e_chrome();
+  } else if (current_browser == "Firefox") {
+    return uninstall_e2e_firefox();
   }
   return SCWE_SUCCESS;
 }
@@ -3254,14 +3565,14 @@ void CSystemCallWrapper::run_linux_script(QStringList args){
     UNUSED_ARG(args);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal(const QString &user,
                                                          const QString &ip,
                                                          const QString &port,
                                                          const QString &pass);
 
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(const QString &user,
                                                                            const QString &ip,
                                                                            const QString &port,
@@ -3311,7 +3622,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_LINUX> >(const QString &user,
                                                                            const QString &ip,
                                                                            const QString &port,
@@ -3341,7 +3652,7 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_LINUX> >
                                             : SCWE_SSH_LAUNCH_FAILED;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_MAC> >(const QString &user,
                                                                            const QString &ip,
                                                                            const QString &port,
@@ -3376,10 +3687,10 @@ system_call_wrapper_error_t CSystemCallWrapper::run_sshpass_in_terminal(
 
 
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t run_x2goclient_session_internal(const QString &session_id);
 
-template <>
+template<>
 system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_MAC> >(
         const QString &session_id) {
     QString session_file_path = X2GoClient::x2goclient_config_path();
@@ -3400,7 +3711,7 @@ system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_MAC> >(
                                               : SCWE_SSH_LAUNCH_FAILED;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_WIN> >(
         const QString &session_id) {
     QString session_file_path = X2GoClient::x2goclient_config_path();
@@ -3418,7 +3729,7 @@ system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_WIN> >(
                                               : SCWE_SSH_LAUNCH_FAILED;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_LINUX> >(
         const QString &session_id) {
     QString session_file_path = X2GoClient::x2goclient_config_path();
@@ -3662,10 +3973,10 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t x2go_version_internal(QString &version);
 
-template <>
+template<>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString &version){
   QString cmd = "script";
   QStringList args;
@@ -3687,7 +3998,7 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &version){
   QString path = CSettingsManager::Instance().x2goclient();
   QDir dir(path);
@@ -3722,7 +4033,7 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &
   return SCWE_SUCCESS;
 }
 
-template <>
+template<>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version){
   UNUSED_ARG(version);
   QString cmd("REG");
@@ -3767,11 +4078,11 @@ system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t vagrant_version_internal(QString &version);
 
 /********************/
-template <>
+template<>
 system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_MAC_LIN> >(
     QString &version) {
   version = "undefined";
@@ -3790,21 +4101,21 @@ system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_MAC_LIN> >(
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_LINUX> >(
     QString &version) {
   return vagrant_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_MAC> >(
     QString &version) {
   return vagrant_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t vagrant_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
   version = "undefined";
@@ -3830,11 +4141,11 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_version(
   return vagrant_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t oracle_virtualbox_version_internal(QString &version);
 
 /********************/
-template <>
+template<>
 system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(
     QString &version) {
   version = "undefined";
@@ -3865,21 +4176,21 @@ system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC_LI
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_LINUX> >(
     QString &version) {
   return oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_MAC> >(
     QString &version) {
   return oracle_virtualbox_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t oracle_virtualbox_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
   version = "undefined";
@@ -3913,10 +4224,10 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
   return oracle_virtualbox_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
-system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+template<class OS>
+system_call_wrapper_error_t subutai_e2e_chrome_version_internal(QString &version);
 template<>
-system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(QString &version){
+system_call_wrapper_error_t subutai_e2e_chrome_version_internal<Os2Type <OS_MAC_LIN> >(QString &version){
     QString current_browser = CSettingsManager::Instance().default_browser();
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     if (current_browser == "Chrome"){
@@ -3938,37 +4249,35 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(
     return SCWE_CREATE_PROCESS;
 }
 template<>
-system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_LINUX> >(QString &version){
-    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+system_call_wrapper_error_t subutai_e2e_chrome_version_internal<Os2Type <OS_LINUX> >(QString &version){
+    return subutai_e2e_chrome_version_internal<Os2Type <OS_MAC_LIN> >(version);
 }
 template<>
-system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_MAC> >(QString &version){
-    return subutai_e2e_version_internal<Os2Type <OS_MAC_LIN> >(version);
+system_call_wrapper_error_t subutai_e2e_chrome_version_internal<Os2Type <OS_MAC> >(QString &version){
+    return subutai_e2e_chrome_version_internal<Os2Type <OS_MAC_LIN> >(version);
 }
 template<>
-system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QString &version){
+system_call_wrapper_error_t subutai_e2e_chrome_version_internal<Os2Type <OS_WIN> >(QString &version){
     QString current_browser = CSettingsManager::Instance().default_browser();
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-    if (current_browser == "Chrome"){
-        /*
-         * to get version of chrome extension just check path
-         * */
-        version = "undefined";
-        QString ex_id = subutai_e2e_id(current_browser);
-        QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
-        QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
-        QDir extension_dir(extension_path);
-        if(extension_dir.exists()){
-            extension_dir.setFilter(QDir::Dirs);
-            QStringList extension_entry_list = extension_dir.entryList();
-            qDebug() << "extension entry" << extension_entry_list;
-            if(!extension_entry_list.isEmpty()){
-                version = extension_entry_list[extension_entry_list.size() - 1];
-                return SCWE_SUCCESS;
-            }
+    /*
+     * to get version of chrome extension just check path
+     * */
+    version = "undefined";
+    QString ex_id = subutai_e2e_id(current_browser);
+    QString chrome_profile = CSettingsManager::Instance().default_chrome_profile();
+    QString extension_path = QString("%1%3%4\\Extensions\\%2\\").arg(homePath.first().split(QDir::separator()).last(), ex_id, default_chrome_extensions_path(), chrome_profile);
+    QDir extension_dir(extension_path);
+    if(extension_dir.exists()){
+        extension_dir.setFilter(QDir::Dirs);
+        QStringList extension_entry_list = extension_dir.entryList();
+        qDebug() << "extension entry" << extension_entry_list;
+        if(!extension_entry_list.isEmpty()){
+            version = extension_entry_list[extension_entry_list.size() - 1];
+            return SCWE_SUCCESS;
         }
     }
-    if(current_browser == "Chrome" && version == "undefined"){
+    if(version == "undefined"){
         /* get the extension version from secondary profile
          * to get version of chrome extension just check path
          * */
@@ -3989,17 +4298,57 @@ system_call_wrapper_error_t subutai_e2e_version_internal<Os2Type <OS_WIN> >(QStr
     }
     return SCWE_CREATE_PROCESS;
 }
+
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_chrome_version(QString &version) {
+  QString chrome_ver;
+  CSystemCallWrapper::chrome_version(chrome_ver);
+
+  if (chrome_ver == "undefined") {
+    version = QObject::tr("Default browser is not installed");
+    return SCWE_SUCCESS;
+  }
+
+  return subutai_e2e_chrome_version_internal<Os2Type<CURRENT_OS>>(version);
+}
+
+template<class OS>
+system_call_wrapper_error_t subutai_e2e_firefox_version_internal(QString &version);
+
+template<>
+system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_LINUX>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_MAC>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_WIN>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_firefox_version(QString &version) {
+  QString firefox_ver;
+  CSystemCallWrapper::firefox_version(firefox_ver);
+
+  if (firefox_ver == "undefined") {
+    version = QObject::tr("Default browser is not installed");
+    return SCWE_SUCCESS;
+  }
+
+  return subutai_e2e_firefox_version_internal<Os2Type<CURRENT_OS>>(version);
+}
+
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &version){
-    /*
-     * check if chrome installed first
-     */
-    CSystemCallWrapper::chrome_version(version);
-    if(version == "undefined"){
-        version = QObject::tr("No supported browser is available");
-        return SCWE_SUCCESS;
-    }
-    version = "undefined";
-    return subutai_e2e_version_internal<Os2Type <CURRENT_OS> >(version);
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if (current_browser == "Chrome") {
+    return CSystemCallWrapper::subutai_e2e_chrome_version(version);
+  } else if (current_browser == "Firefox") {
+    return CSystemCallWrapper::subutai_e2e_firefox_version(version);
+  }
+  return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 //* get vagrant plugin list and find there required plugin version *//
@@ -4149,11 +4498,11 @@ system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t chrome_version_internal(QString &version);
 
 /********************/
-template <>
+template<>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC_LIN> >(
     QString &version) {
   version = "undefined";
@@ -4174,21 +4523,21 @@ system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC_LIN> >(
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_LINUX> >(
     QString &version) {
   return chrome_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_MAC> >(
     QString &version) {
   return chrome_version_internal<Os2Type<OS_MAC_LIN> >(version);
 }
 /********************/
 
-template <>
+template<>
 system_call_wrapper_error_t chrome_version_internal<Os2Type<OS_WIN> >(
     QString &version) {
   version = "undefined";
@@ -4223,9 +4572,39 @@ system_call_wrapper_error_t CSystemCallWrapper::chrome_version(
     QString &version) {
   return chrome_version_internal<Os2Type<CURRENT_OS> >(version);
 }
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS>
+system_call_wrapper_error_t firefox_version_internal(QString &version);
+
+template<>
+system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_LINUX>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_MAC>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+template<>
+system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_WIN>>(QString &version) {
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::firefox_version(
+    QString &version) {
+  return firefox_version_internal<Os2Type<CURRENT_OS>>(version);
+}
 
 ////////////////////////////////////////////////////////////////////////////
-bool CSystemCallWrapper::chrome_last_section(){
+
+bool CSystemCallWrapper::firefox_last_session() {
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::chrome_last_session(){
     QString cmd = CSettingsManager::Instance().chrome_path();
     QStringList args;
     args << "--restore-last-session"
@@ -4260,10 +4639,10 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
 
 static const QString APP_AUTOSTART_KEY = "subutai-control";
 
-template <class OS>
+template<class OS>
 bool set_application_autostart_internal(bool start);
 
-template <>
+template<>
 bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
   static const QString desktop_file_content_template =
       "[Desktop Entry]\n"
@@ -4353,7 +4732,7 @@ bool set_application_autostart_internal<Os2Type<OS_LINUX> >(bool start) {
 }
 /*********************/
 
-template <>
+template<>
 bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
   static const QString item_location = "Library/LaunchAgents/";
 
@@ -4434,7 +4813,7 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
 }
 /*********************/
 
-template <>
+template<>
 bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
   (void)start;  // make compiler happy
   bool result = true;
@@ -4515,10 +4894,10 @@ bool CSystemCallWrapper::set_application_autostart(bool start) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template <class OS>
+template<class OS>
 bool application_autostart_internal();
 
-template <>
+template<>
 bool application_autostart_internal<Os2Type<OS_LINUX> >() {
   QStringList lst_standard_locations =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -4540,7 +4919,7 @@ bool application_autostart_internal<Os2Type<OS_LINUX> >() {
 }
 /*********************/
 
-template <>
+template<>
 bool application_autostart_internal<Os2Type<OS_MAC> >() {
   static const QString item_location = "Library/LaunchAgents/";
 
@@ -4562,7 +4941,7 @@ bool application_autostart_internal<Os2Type<OS_MAC> >() {
 }
 /*********************/
 
-template <>
+template<>
 bool application_autostart_internal<Os2Type<OS_WIN> >() {
   bool result = true;
 #ifdef RT_OS_WINDOWS
@@ -4646,14 +5025,14 @@ QStringList CSystemCallWrapper::lsb_release(){
     return output;
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class  OS>
+template<class  OS>
 system_call_wrapper_error_t tray_post_update_internal(const QString &version);
-template <>
+template<>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const QString &version){
   UNUSED_ARG(version);
   return SCWE_SUCCESS;
 }
-template <>
+template<>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
   UNUSED_ARG(version);
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
@@ -4706,7 +5085,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
     return SCWE_CREATE_PROCESS;
   return SCWE_SUCCESS;
 }
-template <>
+template<>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
   QDir dir(QApplication::applicationDirPath());
   dir.cdUp();
@@ -4761,7 +5140,7 @@ system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &
   return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
-template <class OS>
+template<class OS>
 system_call_wrapper_error_t p2p_post_update_internal();
 template<>
 system_call_wrapper_error_t p2p_post_update_internal<Os2Type<OS_LINUX> >(){

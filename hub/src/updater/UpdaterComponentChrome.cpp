@@ -116,7 +116,7 @@ void CUpdaterComponentCHROME::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentCHROME::install_post_interntal(bool success) {
+void CUpdaterComponentCHROME::install_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
         tr("Failed to complete Google Chrome installation. Try again later, "

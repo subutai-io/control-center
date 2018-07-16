@@ -165,7 +165,7 @@ void CUpdaterComponentVIRTUALBOX::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentVIRTUALBOX::install_post_interntal(bool success) {
+void CUpdaterComponentVIRTUALBOX::install_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
         tr("Failed to complete VirtualBox installation. Try again later, "

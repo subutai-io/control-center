@@ -33,26 +33,24 @@ bool CUpdaterComponentE2E::update_available_internal() {
 
 chue_t CUpdaterComponentE2E::install_internal() {
   qDebug() << "Starting install subutai e2e";
-  if (CSettingsManager::Instance().default_browser() == "Chrome") {
-    QMessageBox *msg_box = new QMessageBox(
-        QMessageBox::Information, QObject::tr("Attention!"),
-        QObject::tr(
-            "The <a href='https://subutai.io/getting-started.html#E2E'>Subutai "
-            "E2E plugin</a>"
-            " manages your PGP keys.<br>"
-            "Installing the E2E plugin will restart your browser. "
-            "Be sure to save your work before installing, and "
-            "approve the extension after installing.<br>"
-            "Do you want to proceed?"),
-        QMessageBox::Yes | QMessageBox::No);
-    msg_box->setTextFormat(Qt::RichText);
+  QMessageBox *msg_box = new QMessageBox(
+      QMessageBox::Information, QObject::tr("Attention!"),
+      QObject::tr(
+          "The <a href='https://subutai.io/getting-started.html#E2E'>Subutai "
+          "E2E plugin</a>"
+          " manages your PGP keys.<br>"
+          "Installing the E2E plugin will restart your browser. "
+          "Be sure to save your work before installing, and "
+          "approve the extension after installing.<br>"
+          "Do you want to proceed?"),
+      QMessageBox::Yes | QMessageBox::No);
+  msg_box->setTextFormat(Qt::RichText);
 
-    QObject::connect(msg_box, &QMessageBox::finished, msg_box,
-                     &QMessageBox::deleteLater);
-    if (msg_box->exec() != QMessageBox::Yes) {
-      install_finished_sl(false);
-      return CHUE_SUCCESS;
-    }
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box,
+                   &QMessageBox::deleteLater);
+  if (msg_box->exec() != QMessageBox::Yes) {
+    install_finished_sl(false);
+    return CHUE_SUCCESS;
   }
   static QString empty_stings = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
@@ -83,7 +81,7 @@ void CUpdaterComponentE2E::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentE2E::install_post_interntal(bool success) {
+void CUpdaterComponentE2E::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
         tr("Failed to complete E2E plugin installation. You may try installing "
@@ -109,7 +107,7 @@ void CUpdaterComponentE2E::install_post_interntal(bool success) {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::Ok) {
-    CSystemCallWrapper::chrome_last_section();
+    CSystemCallWrapper::chrome_last_session();
   }
 }
 
@@ -130,6 +128,6 @@ void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::Ok) {
-    CSystemCallWrapper::chrome_last_section();
+    CSystemCallWrapper::chrome_last_session();
   }
 }

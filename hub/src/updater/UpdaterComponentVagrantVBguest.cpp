@@ -100,7 +100,7 @@ void CUpdaterComponentVAGRANT_VBGUEST::update_post_action(bool success) {
   }
 }
 
-void CUpdaterComponentVAGRANT_VBGUEST::install_post_interntal(bool success) {
+void CUpdaterComponentVAGRANT_VBGUEST::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
         tr("Failed to install the Vagrant VirtualBox plugin. You may try "

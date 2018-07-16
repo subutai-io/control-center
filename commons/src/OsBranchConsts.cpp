@@ -188,6 +188,20 @@ const QString& chrome_kurjun_package_name(){
     return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS> const QString& firefox_kurjun_package_name_internal();
+#define firefox_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& firefox_kurjun_package_name_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+firefox_kurjun_package_name_def(OS_MAC, "mozillafirefox.dmg")
+firefox_kurjun_package_name_def(OS_LINUX, "mozilla-firefox-stable_current_amd64.deb")
+firefox_kurjun_package_name_def(OS_WIN, "FirefoxSetup.exe")
+const QString& firefox_kurjun_package_name(){
+    return firefox_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
 #define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -469,9 +483,9 @@ template<class OS> const QStringList& supported_browsers_internal();
         return res; \
     }
 
-supported_browsers_internal_def(OS_WIN, "Chrome") // add edge, mozilla
-supported_browsers_internal_def(OS_LINUX, "Chrome") // add mozilla
-supported_browsers_internal_def(OS_MAC, "Chrome") // add safari , mozilla
+supported_browsers_internal_def(OS_WIN, "Chrome Firefox") // add edge, mozilla
+supported_browsers_internal_def(OS_LINUX, "Chrome Firefox") // add mozilla
+supported_browsers_internal_def(OS_MAC, "Chrome Firefox") // add safari , mozilla
 
 const QStringList& supported_browsers(){
     return supported_browsers_internal<Os2Type <CURRENT_OS> >();
@@ -877,6 +891,25 @@ default_chrome_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& default_firefox_path_internal();
+
+#define default_firefox_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_firefox_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_firefox_path_internal_def(OS_LINUX, "/usr/bin/google-chrome-stable")
+default_firefox_path_internal_def(OS_MAC, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+default_firefox_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")
+
+const QString &
+default_firefox_path() {
+  return default_firefox_path_internal<Os2Type<CURRENT_OS> >();
+}
+
+////////////////////////////////////////////////////////////////////////////
 template<class BR> const QString& subutai_command_internal();
 
 #define subutai_command_internal_def(BT_TYPE, STRING) \
@@ -1031,6 +1064,24 @@ default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/")
 const QString&
 default_chrome_extensions_path() {
     return default_chrome_extensions_path_internal< Os2Type<CURRENT_OS> >();
+}
+///////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_firefox_extensions_path_internal();
+
+#define default_firefox_extensions_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_firefox_extensions_path_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_firefox_extensions_path_internal_def(OS_WIN, "")
+default_firefox_extensions_path_internal_def(OS_MAC, "")
+default_firefox_extensions_path_internal_def(OS_LINUX, "")
+
+const QString&
+default_firefox_extensions_path() {
+    return default_firefox_extensions_path_internal< Os2Type<CURRENT_OS> >();
 }
 ///////////////////////////////////////////////////////////////////////////////
 void current_os_info(std::vector<std::pair<QString, QString> >& v){

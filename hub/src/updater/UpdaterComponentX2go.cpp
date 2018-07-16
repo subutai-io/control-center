@@ -126,7 +126,7 @@ void CUpdaterComponentX2GO::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentX2GO::install_post_interntal(bool success) {
+void CUpdaterComponentX2GO::install_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
         tr("Failed to complete X2Go-Client installation. Try again later, "

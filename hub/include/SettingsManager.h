@@ -65,6 +65,7 @@ class CSettingsManager : public QObject {
 
   static const QString SM_AUTOSTART;
   static const QString SM_CHROME_PATH;
+  static const QString SM_FIREFOX_PATH;
   static const QString SM_SUBUTAI_CMD;
 
   static const QString EMPTY_STRING;
@@ -140,6 +141,7 @@ class CSettingsManager : public QObject {
 
   bool m_autostart;
   QString m_chrome_path;
+  QString m_firefox_path;
   QString m_subutai_cmd;
 
   void init_password();
@@ -252,6 +254,7 @@ class CSettingsManager : public QObject {
 
   bool autostart() const { return m_autostart; }
   const QString& chrome_path() const { return m_chrome_path; }
+  const QString& firefox_path() const { return m_firefox_path; }
   const QString& subutai_cmd() const { return m_subutai_cmd; }
   ////////////////////////////////////////////////////////////////////////////
 
@@ -325,6 +328,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)
   SET_FIELD_DECL(autostart, bool)
   SET_FIELD_DECL(chrome_path, QString&)
+  SET_FIELD_DECL(firefox_path, QString&)
   SET_FIELD_DECL(subutai_cmd, QString&)
 #undef SET_FIELD_DECL
 

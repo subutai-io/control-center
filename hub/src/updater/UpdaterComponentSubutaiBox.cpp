@@ -183,7 +183,7 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
   }
 }
 
-void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
+void CUpdaterComponentSUBUTAI_BOX::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Error(
         tr("Vagrant Subutai box installation has failed."),

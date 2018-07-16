@@ -20,7 +20,7 @@ class CUpdaterComponentSUBUTAI_BOX : public IUpdaterComponent {
   virtual void update_post_action(bool success);
   virtual chue_t install_internal();
   virtual chue_t install_internal(bool update);
-  virtual void install_post_interntal(bool success);
+  virtual void install_post_internal(bool success);
   virtual chue_t uninstall_internal();
   virtual void uninstall_post_internal(bool success);
 

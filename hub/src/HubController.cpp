@@ -294,7 +294,9 @@ void CHubController::launch_browser(const QString &url) {
           CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without a Google Chrome browser installed in your system. "
                                           "You can install the Google Chrome browser by going to the menu > Components."), DlgNotification::N_ABOUT);
         }
-      }
+  } else if (current_browser == "Firefox") {
+
+  }
 }
 
 void CHubController::launch_balance_page() {

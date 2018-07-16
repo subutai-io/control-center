@@ -18,13 +18,14 @@
 #include "updater/UpdaterComponentSubutaiBox.h"
 #include "updater/UpdaterComponentVagrantSubutai.h"
 #include "updater/UpdaterComponentVagrantVBguest.h"
+#include "updater/UpdaterComponentFirefox.h"
 #include "updater/IUpdaterComponent.h"
 
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go,
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go, *uc_firefox,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_subutai_box;
   uc_tray = new CUpdaterComponentTray;
@@ -33,11 +34,12 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant = new CUpdaterComponentVAGRANT;
   uc_oracle_virtualbox = new CUpdaterComponentVIRTUALBOX;
   uc_chrome = new CUpdaterComponentCHROME;
+  uc_firefox = new CUpdaterComponentFIREFOX;
   uc_e2e = new CUpdaterComponentE2E;
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
   uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
   uc_subutai_box = new CUpdaterComponentSUBUTAI_BOX;
-  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
+  IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_firefox,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, NULL};
@@ -48,6 +50,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
+  m_dct_components[IUpdaterComponent::FIREFOX] = CUpdaterComponentItem(uc_firefox);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
   m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
   m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
@@ -322,6 +325,9 @@ void SilentInstaller::silentInstallation(){
     case CC_CHROME:
         res = QtConcurrent::run(CSystemCallWrapper::install_chrome, m_dir, m_file_name);
         break;
+    case CC_FIREFOX:
+        res = QtConcurrent::run(CSystemCallWrapper::install_firefox, m_dir, m_file_name);
+        break;
     case CC_VAGRANT:
         res = QtConcurrent::run(CSystemCallWrapper::install_vagrant, m_dir, m_file_name);
         break;
@@ -407,6 +413,9 @@ void SilentUninstaller::silentUninstallation() {
     break;
   case CC_CHROME:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_chrome, m_dir, m_file_name);
+    break;
+  case CC_FIREFOX:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_firefox, m_dir, m_file_name);
     break;
   case CC_VB:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_oracle_virtualbox, m_dir, m_file_name);

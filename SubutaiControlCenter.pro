@@ -66,11 +66,13 @@ SOURCES += \
     hub/src/updater/UpdaterComponentX2go.cpp \
     hub/src/updater/UpdaterComponentVirtualbox.cpp \
     hub/src/updater/UpdaterComponentChrome.cpp \
+    hub/src/updater/UpdaterComponentFirefox.cpp \
     hub/src/updater/UpdaterComponentE2E.cpp \
     hub/src/updater/UpdaterComponentSubutaiBox.cpp \
     hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
     hub/src/updater/UpdaterComponentVagrantVBguest.cpp \
-    commons/src/Environment.cpp
+    commons/src/Environment.cpp \
+    hub/src/updater/UpdaterComponentFirefox.cpp
 
 
 
@@ -122,11 +124,13 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentX2go.h \
     hub/include/updater/UpdaterComponentVirtualbox.h \
     hub/include/updater/UpdaterComponentChrome.h \
+    hub/include/updater/UpdaterComponentFirefox.h\
     hub/include/updater/UpdaterComponentE2E.h \
     hub/include/updater/UpdaterComponentSubutaiBox.h \
     hub/include/updater/UpdaterComponentVagrantSubutai.h \
     hub/include/updater/UpdaterComponentVagrantVBguest.h \
-    commons/include/Environment.h
+    commons/include/Environment.h \
+    hub/include/updater/UpdaterComponentFirefox.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
