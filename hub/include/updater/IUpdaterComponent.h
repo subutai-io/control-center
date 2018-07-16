@@ -83,12 +83,14 @@ class IUpdaterComponent : public QObject {
   chue_t update() {
     if (m_in_progress) return CHUE_IN_PROGRESS;
     m_in_progress = true;
+    update_progress_sl(0,100);
     return update_internal();
   }
 
   chue_t install() {
     if (m_in_progress) return CHUE_IN_PROGRESS;
     m_in_progress = true;
+    update_progress_sl(0,100);
     return install_internal();
   }
 

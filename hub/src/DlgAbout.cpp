@@ -467,7 +467,7 @@ void DlgAbout::btn_uninstall_components() {
 void DlgAbout::download_progress(const QString& component_id, qint64 rec,
                                  qint64 total) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
-  if (rec * total == 0) {
+  if (total == 0) {
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setMinimum(0);
     m_dct_fpb[component_id].pb->setMaximum(0);
