@@ -95,6 +95,7 @@ class IUpdaterComponent : public QObject {
   chue_t uninstall() {
     if (m_in_progress) return CHUE_IN_PROGRESS;
     m_in_progress = true;
+    update_progress_sl(0,0);
     return uninstall_internal();
   }
 

@@ -133,7 +133,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -348,7 +348,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -593,7 +593,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -731,7 +731,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -823,7 +823,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -969,7 +969,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1130,7 +1130,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1267,7 +1267,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1412,7 +1412,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1506,7 +1506,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
