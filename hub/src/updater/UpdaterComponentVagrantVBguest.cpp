@@ -23,7 +23,7 @@ bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal() {
   QString version;
   QString subutai_plugin = "vagrant-vbguest";
   system_call_wrapper_error_t res =
-      CSystemCallWrapper::vagrant_vbguest_version(version);
+      CSystemCallWrapper::vagrant_plugin_version(version, subutai_plugin);
   QString cloud_version =
       CRestWorker::Instance()->get_vagrant_plugin_cloud_version(subutai_plugin);
   if (version == "undefined") return true;

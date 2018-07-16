@@ -31,7 +31,7 @@ QString CUpdaterComponentSUBUTAI_BOX::download_subutai_box_path() {
 bool CUpdaterComponentSUBUTAI_BOX::update_available_internal() {
   QString version;
   QString subutai_box = subutai_box_name();
-  QString subutai_provider = "virtualbox";
+  QString subutai_provider = VagrantProvider::Instance()->CurrentVal();
   system_call_wrapper_error_t res =
       CSystemCallWrapper::vagrant_latest_box_version(subutai_box,
                                                      subutai_provider, version);
@@ -54,7 +54,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
 
   QString version;
   QString subutai_box = subutai_box_name();
-  QString subutai_provider = "virtualbox";
+  QString subutai_provider = VagrantProvider::Instance()->CurrentVal();
 
   CSystemCallWrapper::vagrant_latest_box_version(subutai_box, subutai_provider,
                                                  version);

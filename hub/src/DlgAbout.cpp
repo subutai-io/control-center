@@ -54,21 +54,32 @@ QString get_e2e_version() {
   return version;
 }
 
+QString get_vagrant_provider_version() {
+  QString version = "";
+
+  CSystemCallWrapper::vagrant_plugin_version(version, VagrantProvider::Instance()->CurrentVal());
+  return version;
+}
+
 QString get_vagrant_subutai_version() {
   QString version = "";
-  CSystemCallWrapper::vagrant_subutai_version(version);
+  static const QString subutai_plugin = "vagrant-subutai";
+
+  CSystemCallWrapper::vagrant_plugin_version(version, subutai_plugin);
   return version;
 }
 
 QString get_vagrant_vbguest_version() {
   QString version = "";
-  CSystemCallWrapper::vagrant_vbguest_version(version);
+  static const QString vbguest_plugin = "vagrant-vbguest";
+
+  CSystemCallWrapper::vagrant_plugin_version(version, vbguest_plugin);
   return version;
 }
 
 QString get_subutai_box_version() {
   QString version = "";
-  QString provider = "virtualbox", box = subutai_box_name();
+  QString provider = VagrantProvider::Instance()->CurrentVal(), box = subutai_box_name();
   CSystemCallWrapper::vagrant_latest_box_version(box, provider, version);
   return version;
 }
@@ -153,6 +164,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,
                     this->ui->lbl_subutai_box_version,
+                    this->ui->lbl_provider_libvirt_version,
+                    this->ui->lbl_provider_parallels_version,
+                    this->ui->lbl_provider_vmware_version,
                     nullptr};
 
   for (QLabel** i = lbls; *i; ++i) {
@@ -239,6 +253,21 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
       ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
       ui->btn_subutai_box, get_subutai_box_version};
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
+    ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
+    ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
+    get_vagrant_provider_version};
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
+    ui->lbl_provider_vmware_version, ui->pb_provider_vmware,
+    ui->cb_provider_vmware, ui->btn_provider_vmware_update,
+    get_vagrant_provider_version};
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
+    ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
+    ui->cb_provider_parallels, ui->btn_provider_parallels_update,
+    get_vagrant_provider_version};
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
@@ -636,6 +665,10 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
   }
   ui->lbl_subutai_box_version->setText(version);
 }
+
+void DlgAbout::got_provider_version_sl(QString version) {
+
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::set_hidden_pb(const QString& component_id) {
@@ -713,6 +746,10 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    QString vagrant_provider_version = get_vagrant_provider_version();
+    emit got_provider_version(vagrant_provider_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
     QString uas[] = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
                      IUpdaterComponent::X2GO,
@@ -723,6 +760,9 @@ void DlgAboutInitializer::do_initialization() {
                      IUpdaterComponent::VAGRANT_SUBUTAI,
                      IUpdaterComponent::VAGRANT_VBGUEST,
                      IUpdaterComponent::SUBUTAI_BOX,
+                     IUpdaterComponent::VAGRANT_LIBVIRT,
+                     IUpdaterComponent::VAGRANT_PARALLELS,
+                     IUpdaterComponent::VAGRANT_VMWARE_DESKTOP,
                      ""};
     std::vector<bool> ua;
     for (int i = 0; uas[i] != ""; ++i) {

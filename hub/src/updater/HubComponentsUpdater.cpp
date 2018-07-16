@@ -18,6 +18,9 @@
 #include "updater/UpdaterComponentSubutaiBox.h"
 #include "updater/UpdaterComponentVagrantSubutai.h"
 #include "updater/UpdaterComponentVagrantVBguest.h"
+#include "updater/UpdaterComponentVagrantParallels.h"
+#include "updater/UpdaterComponentVagrantLibvirt.h"
+#include "updater/UpdaterComponentVagrantVmware.h"
 #include "updater/IUpdaterComponent.h"
 
 
@@ -26,7 +29,8 @@ using namespace update_system;
 CHubComponentsUpdater::CHubComponentsUpdater() {
   IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
-          *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_subutai_box;
+          *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_vagrant_parallels,
+          *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_x2go = new CUpdaterComponentX2GO;
@@ -37,10 +41,15 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
   uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
   uc_subutai_box = new CUpdaterComponentSUBUTAI_BOX;
+  uc_vagrant_parallels = new CUpdaterComponentVAGRANT_PARALLELS;
+  uc_vagrant_libvirt = new CUpdaterComponentVAGRANT_LIBVIRT;
+  uc_vagrant_vmware = new CUpdaterComponentVAGRANT_VMWARE;
+
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
-                              uc_vagrant_vbguest, uc_subutai_box, NULL};
+                              uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
+                              uc_vagrant_libvirt, uc_vagrant_vmware, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -52,6 +61,9 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
   m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
   m_dct_components[IUpdaterComponent::SUBUTAI_BOX] = CUpdaterComponentItem(uc_subutai_box);
+  m_dct_components[IUpdaterComponent::VAGRANT_PARALLELS] = CUpdaterComponentItem(uc_vagrant_parallels);
+  m_dct_components[IUpdaterComponent::VAGRANT_LIBVIRT] = CUpdaterComponentItem(uc_vagrant_libvirt);
+  m_dct_components[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = CUpdaterComponentItem(uc_vagrant_vmware);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -313,6 +325,9 @@ void SilentInstaller::silentInstallation(){
 
     static QString subutai_plugin_name = "vagrant-subutai";
     static QString vbguest_plugin_name = "vagrant-vbguest";
+    static QString parallels_provider = "vagrant-parallels";
+    static QString vmware_provider = "vagrant-vmware-desktop";
+    static QString libvirt_provider = "vagrant-libvirt";
     static QString command = "install";
 
     switch (m_type) {
@@ -342,6 +357,15 @@ void SilentInstaller::silentInstallation(){
         break;
     case CC_SUBUTAI_BOX:
         res = QtConcurrent::run(CSystemCallWrapper::install_subutai_box, m_dir, m_file_name);
+        break;
+    case CC_VAGRANT_LIBVIRT:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
+        break;
+    case CC_VAGRANT_VMWARE_DESKTOP:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);
+        break;
+    case CC_VAGRANT_PARALLELS:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
         break;
     default:
         break;
@@ -380,7 +404,10 @@ void SilentUninstaller::silentUninstallation() {
 
   static QString subutai_plugin_name = "vagrant-subutai";
   static QString vbguest_plugin_name = "vagrant-vbguest";
-  static QString provider = "virtualbox";
+  static QString parallels_provider = "vagrant-parallels";
+  static QString vmware_provider = "vagrant-vmware-desktop";
+  static QString libvirt_provider = "vagrant-libvirt";
+
   static QString command = "uninstall";
 
   switch (m_type) {
@@ -391,7 +418,16 @@ void SilentUninstaller::silentUninstallation() {
     res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
     break;
   case CC_SUBUTAI_BOX:
-    res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_remove, subutai_box_name(), provider);
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_box_remove, subutai_box_name(), VagrantProvider::Instance()->CurrentVal());
+    break;
+  case CC_VAGRANT_LIBVIRT:
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
+    break;
+  case CC_VAGRANT_VMWARE_DESKTOP:
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);
+    break;
+  case CC_VAGRANT_PARALLELS:
+    res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
     break;
   case CC_X2GO:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_x2go);
@@ -450,6 +486,9 @@ void SilentUpdater::silentUpdate() {
 
     static QString subutai_plugin_name = "vagrant-subutai";
     static QString vbguest_plugin_name = "vagrant-vbguest";
+    static QString parallels_provider = "vagrant-parallels";
+    static QString vmware_provider = "vagrant-vmware-desktop";
+    static QString libvirt_provider = "vagrant-libvirt";
     static QString command = "update";
 
     switch (m_type) {
@@ -458,6 +497,15 @@ void SilentUpdater::silentUpdate() {
         break;
     case CC_VAGRANT_VBGUEST:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
+        break;
+    case CC_VAGRANT_LIBVIRT:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
+        break;
+    case CC_VAGRANT_VMWARE_DESKTOP:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);
+        break;
+    case CC_VAGRANT_PARALLELS:
+        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
         break;
     default:
         break;

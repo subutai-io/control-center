@@ -54,15 +54,38 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::VAGRANT_SUBUTAI);
       });
-  requirement parallels_plugin(
-      tr("Parallels plugin is not ready"), tr("Checking Parallels plugin..."),
-      tr("Unable to run the Vagrant Parallels plugin, Make sure that you have it "
+  // For Parallels
+  requirement parallels_provider(
+      tr("Parallels provider is not ready"), tr("Checking Parallels provider..."),
+      tr("Unable to run the Vagrant Parallels provider, Make sure that you have it "
          "installed or updated successfully by going to the menu > "
          "Components."),
       DlgNotification::N_ABOUT, []() {
         return !CHubComponentsUpdater::Instance()->is_update_available(
               IUpdaterComponent::VAGRANT_PARALLELS);
        });
+  // For Libvirt
+  requirement libvirt_provider(
+        tr("Libvirt provider is not ready"), tr("Checking Libvirt provider..."),
+        tr("Unable to run the Vagrant Libvirt provider, Make sure that you have it "
+           "installed or updated successfully by going to the menu > "
+           "Components."),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VAGRANT_LIBVIRT);
+         });
+  // For VMware. We use vagrant-vmware-desktop provider.
+  // Which works both VMware Fusion and Workstation.
+  requirement vmware_provider(
+        tr("VMware provider is not ready"), tr("Checking VMware provider..."),
+        tr("Unable to run the Vagrant VMware provider, Make sure that you have it "
+           "installed or updated successfully by going to the menu > "
+           "Components."),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+         });
+
   requirement vbguest_plugin(
       tr("VirtualBox plugin is not ready"), tr("Checking VirtualBox plugin..."),
       tr("Vagrant VBGuest plugin is not ready. You should install or update "
@@ -79,9 +102,40 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::SUBUTAI_BOX);
       });
-  // TODO add requirements by provider
+
+  // Default requrements
   m_requirements_ls = std::vector<requirement>{
-      vagrant, virtualbox, subutai_plugin, vbguest_plugin, subutai_box};
+      vagrant, subutai_plugin, subutai_box};
+
+  // add provider requirements by hypervisor
+  switch(VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    m_requirements_ls.push_back(virtualbox);
+    m_requirements_ls.push_back(vbguest_plugin);
+    break;
+  case VagrantProvider::PARALLELS:
+    m_requirements_ls.push_back(parallels_provider);
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    m_requirements_ls.push_back(vmware_provider);
+
+    ui->lbl_bridge->hide();
+    ui->cmb_bridge->hide();
+
+    break;
+  case VagrantProvider::LIBVIRT:
+    m_requirements_ls.push_back(libvirt_provider);
+
+    if (bridges.size() == 0) {
+      ui->lbl_bridge->hide();
+      ui->cmb_bridge->hide();
+    }
+
+    break;
+  default:
+    break;
+  }
+
   // format
   ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
   ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
@@ -100,12 +154,6 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // Password Confirm
   this->m_show_confirm_password_action = ui->le_pass_confirm->addAction(
       show_password_icon, QLineEdit::TrailingPosition);
-
-  // hide bridge interface
-  if (bridges.size() == 0) {
-    ui->lbl_bridge->hide();
-    ui->cmb_bridge->hide();
-  }
 
   // QLineEdit password show
   connect(this->m_show_password_action, &QAction::triggered, [this]() {

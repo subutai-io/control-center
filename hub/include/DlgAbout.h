@@ -46,6 +46,7 @@ signals:
   void got_oracle_virtualbox_version(QString version);
   void got_e2e_version(QString version);
   void got_subutai_plugin_version(QString version);
+  void got_provider_version(QString version);
   void got_vbguest_plugin_version(QString version);
   void got_subutai_box_version(QString version);
   void update_available(QString component_id, bool available);
@@ -117,6 +118,7 @@ private slots:
   void got_e2e_version_sl(QString version);
   void got_subutai_plugin_version_sl(QString version);
   void got_vbguest_plugin_version_sl(QString version);
+  void got_provider_version_sl(QString version);
   void got_subutai_box_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };

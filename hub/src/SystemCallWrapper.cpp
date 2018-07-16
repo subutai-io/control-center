@@ -642,6 +642,7 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+  QStringList empty;
 
   switch (provider) {
   case VagrantProvider::VIRTUALBOX:
@@ -649,7 +650,7 @@ QStringList CSystemCallWrapper::list_interfaces() {
   case VagrantProvider::LIBVIRT:
     return libvirt_interfaces();
   default:
-    return virtualbox_interfaces();
+    return empty;
   }
 }
 
@@ -3179,7 +3180,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
 system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     QString subutai_box = subutai_box_name();
-    QString subutai_provider = "virtualbox";
+    QString subutai_provider = VagrantProvider::Instance()->CurrentVal();
     system_call_wrapper_error_t res = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);
     if(res == SCWE_SUCCESS){
         QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -4117,64 +4118,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_version(QString &
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString &version){
-    qDebug() << "getting version of vagrant subutai plugin";
-    vagrant_version(version);
-    QString subutai_plugin = "vagrant-subutai";
-    if (version == "undefined"){
-        version = QObject::tr("Install Vagrant first");
-        return SCWE_CREATE_PROCESS;
-    }
-    version = "undefined";
-    std::vector<std::pair<QString, QString> > plugin_list;
-    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
-    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [subutai_plugin](const std::pair<QString, QString>& plugin){
-        return subutai_plugin == plugin.first;
-    });
-    if(it == plugin_list.end()){
-        return SCWE_CREATE_PROCESS;
-    }
-    else{
-        version = it->second;
-        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
-            version.remove(0, 1);
-            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
-                version.remove(version.size() - 1, 1);
-            }
-            version.remove(version.size() - 1, 1);
-        }
-    }
-    return SCWE_SUCCESS;
-}
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_vbguest_version(QString &version){
-    qDebug() << "getting version of vagrant vbguest plugin";
-    vagrant_version(version);
-    QString vbguest_plugin = "vagrant-vbguest";
-    if (version == "undefined"){
-        version = QObject::tr("Install Vagrant first");
-        return SCWE_CREATE_PROCESS;
-    }
-    version = "undefined";
-    std::vector<std::pair<QString, QString> > plugin_list;
-    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
-    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [vbguest_plugin](const std::pair<QString, QString>& plugin){
-        return vbguest_plugin == plugin.first;
-    });
-    if(it == plugin_list.end()){
-        return SCWE_CREATE_PROCESS;
-    }
-    else{
-        version = it->second;
-        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
-            version.remove(0, 1);
-            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
-                version.remove(version.size() - 1, 1);
-            }
-            version.remove(version.size() - 1, 1);
-        }
-    }
-    return SCWE_SUCCESS;
-}
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";
