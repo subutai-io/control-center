@@ -561,9 +561,12 @@ void DlgAbout::got_e2e_version_sl(QString version) {
     ui->btn_subutai_e2e->setHidden(false);
     ui->cb_subutai_e2e->setVisible(false);
     ui->btn_subutai_e2e->setText(tr("Install"));
-    ui->btn_subutai_e2e->activateWindow();
+    ui->cb_subutai_e2e->setEnabled(true);
+  } else if(version == "No supported browser is available") {
+    ui->cb_subutai_e2e->setEnabled(false);
   } else {
     ui->btn_subutai_e2e->setText(tr("Update"));
+    ui->cb_subutai_e2e->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -617,8 +620,12 @@ void DlgAbout::got_subutai_plugin_version_sl(QString version) {
     ui->cb_vagrant_subtuai_plugin->setVisible(false);
     ui->btn_subutai_plugin_update->setText(tr("Install"));
     ui->btn_subutai_plugin_update->activateWindow();
+    ui->cb_vagrant_subtuai_plugin->setEnabled(true);
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_subtuai_plugin->setEnabled(false);
   } else {
     ui->btn_subutai_plugin_update->setText(tr("Update"));
+    ui->cb_vagrant_subtuai_plugin->setEnabled(true);
   }
   ui->lbl_subutai_plugin_version_val->setText(version);
 }
@@ -631,8 +638,12 @@ void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
     ui->cb_vagrant_vbguest_plugin->setVisible(false);
     ui->btn_vbguest_plugin_update->setText(tr("Install"));
     ui->btn_vbguest_plugin_update->activateWindow();
+    ui->cb_vagrant_vbguest_plugin->setEnabled(true);
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_vbguest_plugin->setEnabled(false);
   } else {
     ui->btn_vbguest_plugin_update->setText(tr("Update"));
+    ui->cb_vagrant_vbguest_plugin->setEnabled(true);
   }
   ui->lbl_vbguest_plugin_version_val->setText(version);
 }
@@ -645,8 +656,11 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
     ui->cb_vagrant_box->setVisible(false);
     ui->btn_subutai_box->setText(tr("Install"));
     ui->btn_subutai_box->activateWindow();
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_box->setEnabled(false);
   } else {
     ui->btn_subutai_box->setText(tr("Update"));
+    ui->cb_vagrant_box->setEnabled(true);
   }
   ui->lbl_subutai_box_version->setText(version);
 }
