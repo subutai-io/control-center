@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include "NotificationObserver.h"
+#include "TrayControlWindow.h"
 #include "QStandardPaths"
 #include "RestContainers.h"
 #include "RestWorker.h"
@@ -222,7 +223,10 @@ void CPeerController::check_logs() {
         } else {
           p_file.remove();
           provision_step = "finished";
-          emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
+          TrayControlWindow::Instance()->got_peer_info_sl(P_PROVISION_STEP,
+                                                          peer_name,
+                                                          peer_dir.absolutePath(),
+                                                          provision_step);
         }
       }
     }

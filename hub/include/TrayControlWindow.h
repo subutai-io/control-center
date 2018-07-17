@@ -190,10 +190,6 @@ private slots:
 
   /*peer management*/
   void my_peers_updated_sl();
-  void got_peer_info_sl(CPeerController::peer_info_t type,
-                        QString name,
-                        QString dir,
-                        QString output);
   void machine_peers_upd_finished();
   void peer_deleted_sl(const QString& peer_name);
   void peer_under_modification_sl(const QString& peer_name);
@@ -230,6 +226,10 @@ private slots:
   void update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status);
 public slots:
   void tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason);
+  void got_peer_info_sl(CPeerController::peer_info_t type,
+                        QString name,
+                        QString dir,
+                        QString output);
 };
 ////////////////////////////////////////////////////////////////////////////
 #endif // TRAYCONTROLWINDOW_H
