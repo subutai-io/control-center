@@ -51,7 +51,7 @@ private:
                                   QNetworkRequest &req);
 
   static QNetworkReply* post_reply(QNetworkAccessManager* nam,
-                                   const QByteArray &data,
+                                   QByteArray data,
                                    QNetworkRequest &req);
 
   static QNetworkReply* delete_reply(QNetworkAccessManager* nam,
