@@ -879,7 +879,7 @@ QNetworkReply* CRestWorker::get_reply(QNetworkAccessManager* nam,
 }
 
 QNetworkReply* CRestWorker::post_reply(QNetworkAccessManager* nam,
-                                       QByteArray data,
+                                       const QByteArray& data,
                                        QNetworkRequest& req) {
   req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                    QNetworkRequest::AlwaysNetwork);
