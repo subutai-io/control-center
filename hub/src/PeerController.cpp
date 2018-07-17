@@ -9,13 +9,14 @@
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
 
+
 CPeerController::CPeerController(QObject *parent) : QObject(parent) {}
 
 CPeerController::~CPeerController() {}
 
 void CPeerController::init() {
   m_refresh_timer.setInterval(6 * 1000);  // each 6 seconds update peer list
-  m_logs_timer.setInterval(3 * 1000);     // 2 seconds update peer list
+  m_logs_timer.setInterval(3 * 1000);     // 3 seconds update peer list
   number_threads = 0;
   connect(&m_refresh_timer, &QTimer::timeout, this,
           &CPeerController::refresh_timer_timeout);
@@ -214,20 +215,19 @@ void CPeerController::check_logs() {
       // parse provion step
       QFileInfo provision_file = peer_dir.absolutePath() + QDir::separator()
           + ".vagrant" + QDir::separator() + "provision_step";
+      int provision_step_int = -1;
       if (provision_file.exists()) {
         QFile p_file(provision_file.absoluteFilePath());
         QString provision_step = get_pr_step_fi(p_file);
         // we got provision step, need to check if we have running peer up or peer reload
-        if (is_provision_running(peer_dir)){
-          emit got_peer_info(P_PROVISION_STEP, peer_name, peer_dir.absolutePath(), provision_step);
-        } else {
+        is_provision_running(peer_dir) ?
+          provision_step_int = provision_step.toInt() :
           p_file.remove();
-          provision_step = "finished";
-          TrayControlWindow::Instance()->got_peer_info_sl(P_PROVISION_STEP,
-                                                          peer_name,
-                                                          peer_dir.absolutePath(),
-                                                          provision_step);
-        }
+      }
+      if (TrayControlWindow::Instance()->machine_peers_table.find(peer_name) !=
+          TrayControlWindow::Instance()->machine_peers_table.end() &&
+          TrayControlWindow::Instance()->machine_peers_table[peer_name].provision_step() != provision_step_int) {
+        TrayControlWindow::Instance()->machine_peers_table[peer_name].set_provision_step(provision_step_int);
       }
     }
   }
