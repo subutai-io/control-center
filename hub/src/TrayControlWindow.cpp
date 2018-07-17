@@ -914,6 +914,7 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
                                          QString output) {
   in_peer_slot = true;
   static QString new_updated = "new";
+  static int minus_one = -1;
 
   if (type == CPeerController::P_STATUS &&
       name == "update" && dir == "peer" && output == "menu") {
@@ -956,7 +957,7 @@ void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QStr
     case CPeerController::P_PROVISION_STEP:
       output != "finished" ?
         updater_peer.set_provision_step(output.toInt()) :
-        updater_peer.set_provision_step(-1);
+        updater_peer.set_provision_step(minus_one);
       break;
     default:
       break;

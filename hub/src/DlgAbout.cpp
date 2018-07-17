@@ -449,17 +449,30 @@ void DlgAbout::btn_close_released() { this->close(); }
 /// \brief DlgAbout::btn_uninstall_components
 ///
 void DlgAbout::btn_uninstall_components() {
+  std::vector <std::pair<int, QString> > uninstall_vector; // pair <priority, name> of uninstalled component
+  static QStringList high_priority_component = {IUpdaterComponent::SUBUTAI_BOX,
+                                                IUpdaterComponent::VAGRANT_VBGUEST,
+                                                IUpdaterComponent::VAGRANT_SUBUTAI,
+                                                IUpdaterComponent::E2E}; // components with 1 priority, other will be 0
+
   for (const auto& component : m_dct_fpb) {
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
-      if (component.first == "SubutaiControlCenter") continue;
+      if (component.first == IUpdaterComponent::TRAY) { continue; }
       if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
-          m_dct_fpb[component.first].lbl->text() == "No supported browser is available")
+          m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
         continue;
-      m_dct_fpb[component.first].pb->setEnabled(true);
-      m_dct_fpb[component.first].pb->setVisible(true);
-      CHubComponentsUpdater::Instance()->uninstall(component.first);
+      }
+      uninstall_vector.push_back(std::make_pair(!high_priority_component.contains(component.first), component.first));
     }
+  }
+
+  sort(uninstall_vector.begin(), uninstall_vector.end());
+  for (size_t i = 0; i < uninstall_vector.size(); i++) {
+    QString componen_id = uninstall_vector[i].second;
+    m_dct_fpb[componen_id].pb->setEnabled(true);
+    m_dct_fpb[componen_id].pb->setVisible(true);
+    CHubComponentsUpdater::Instance()->uninstall(componen_id);
   }
 }
 
@@ -656,6 +669,7 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
     ui->cb_vagrant_box->setVisible(false);
     ui->btn_subutai_box->setText(tr("Install"));
     ui->btn_subutai_box->activateWindow();
+    ui->cb_vagrant_box->setEnabled(true);
   } else if(version == "Install Vagrant first") {
     ui->cb_vagrant_box->setEnabled(false);
   } else {
