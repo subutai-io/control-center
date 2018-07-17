@@ -30,6 +30,7 @@ class CSettingsManager : public QObject {
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
   static const QString SM_DEFAULT_BROWSER;
   static const QString SM_DEFAULT_CHROME_PROFILE;
+  static const QString SM_DEFAULT_FIREFOX_PROFILE;
 
   static const QString SM_RH_USER;
   static const QString SM_RH_PASS;
@@ -87,6 +88,7 @@ class CSettingsManager : public QObject {
   QString m_oracle_virtualbox_path;
   QString m_default_browser;
   QString m_default_chrome_profile;
+  QString m_default_firefox_profile;
 
   uint32_t m_notification_delay_sec;
 
@@ -203,6 +205,8 @@ class CSettingsManager : public QObject {
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
   const QString& default_browser() const { return m_default_browser; }
+  const QString& default_chrome_profile();
+  const QString& default_firefox_profile();
 
   const QString& rh_user(const QString &id);
   const QString& rh_pass(const QString &id);
@@ -278,7 +282,7 @@ class CSettingsManager : public QObject {
   void set_oracle_virtualbox_path(QString fr);
   void set_default_browser(QString fr);
   void set_default_chrome_profile(QString fr);
-  const QString& default_chrome_profile();
+  void set_default_firefox_profile(QString fr);
   void set_rh_pass(const QString &id, const QString &pass);
   void set_rh_user(const QString &id, const QString &user);
   void set_rh_host(const QString &id, const QString &host);

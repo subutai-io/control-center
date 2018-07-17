@@ -32,6 +32,7 @@ const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
+const QString CSettingsManager::SM_DEFAULT_FIREFOX_PROFILE("Default_Firefox_Profile");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -184,6 +185,7 @@ CSettingsManager::CSettingsManager()
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
+      m_default_firefox_profile(default_default_firefox_profile()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -267,6 +269,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
       {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
       {(void*)&m_default_chrome_profile, SM_DEFAULT_CHROME_PROFILE, qvar_to_str},
+      {(void*)&m_default_firefox_profile, SM_DEFAULT_FIREFOX_PROFILE, qvar_to_str},
 
       // bool
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -582,6 +585,20 @@ const QString& CSettingsManager::default_chrome_profile() {
     set_default_chrome_profile(default_default_chrome_profile());
   }
   return m_default_chrome_profile;
+}
+/////////////////////////////////////////////////////////////
+
+void CSettingsManager::set_default_firefox_profile(QString fr) {
+  m_default_firefox_profile = fr;
+  m_settings.setValue(SM_DEFAULT_FIREFOX_PROFILE, m_default_firefox_profile);
+}
+
+const QString& CSettingsManager::default_firefox_profile() {
+  QStringList profiles_list = firefox_profiles();
+  if (!profiles_list.contains(m_default_firefox_profile)) {
+    set_default_firefox_profile(default_default_firefox_profile());
+  }
+  return m_default_firefox_profile;
 }
 
 /////////////////////////////////////////////////////////////

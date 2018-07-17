@@ -338,7 +338,7 @@ void SilentInstaller::silentInstallation(){
         res = QtConcurrent::run(CSystemCallWrapper::install_x2go, m_dir, m_file_name);
         break;
     case CC_E2E:
-        res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+        res = QtConcurrent::run(CSystemCallWrapper::install_e2e, m_dir, m_file_name);
         break;
     case CC_VAGRANT_SUBUTAI:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);

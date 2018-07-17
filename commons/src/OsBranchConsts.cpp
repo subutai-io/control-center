@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
@@ -583,6 +584,51 @@ const std::pair<QStringList, QStringList>& chrome_profiles(){
   return profiles;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS>
+const QString firefox_profiles_internal();
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_LINUX>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "/.mozilla/firefox/profiles.ini";
+}
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_MAC>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "/Library/Application\\\\ Support/Firefox/profiles.ini";
+}
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_WIN>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "\\AppData\\Roaming\\Mozilla\\Firefox\\profiles.ini";
+}
+
+const QStringList &firefox_profiles() {
+  static QStringList profiles;
+  profiles.clear();
+  QString ini_path = firefox_profiles_internal<Os2Type<CURRENT_OS>>();
+  QFile ini_file(ini_path);
+
+  if (ini_file.open(QIODevice::ReadOnly)) {
+    QTextStream stream(&ini_file);
+
+    while (!stream.atEnd()) {
+      QString str = stream.readLine();
+
+      if (str.contains("Name=")) {
+        str = str.right(str.size() - 5);
+        str.replace(QRegularExpression("[ \n\t]"), "");
+        profiles << str;
+      }
+    }
+  }
+  return profiles;
+}
+
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -900,9 +946,9 @@ template<class OS> const QString& default_firefox_path_internal();
     return res; \
   }
 
-default_firefox_path_internal_def(OS_LINUX, "/usr/bin/google-chrome-stable")
-default_firefox_path_internal_def(OS_MAC, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
-default_firefox_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")
+default_firefox_path_internal_def(OS_LINUX, "/usr/bin/firefox")
+default_firefox_path_internal_def(OS_MAC, "/Applications/Firefox.app/Contents/MacOS/Firefox")
+default_firefox_path_internal_def(OS_WIN, "C:\\Program Files\\Mozilla Firefox\\firefox.exe")
 
 const QString &
 default_firefox_path() {
@@ -1133,11 +1179,23 @@ const QString&  default_default_chrome_profile() {
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
+const QString& default_default_firefox_profile() {
+  static QString res("default");
+  QStringList profiles = firefox_profiles();
+  if (!profiles.empty() && !profiles.contains(res)) {
+    res = *profiles.begin();
+  }
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
 const QString& subutai_e2e_id(const QString& current_browser){
-    static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
-    if(current_browser == "Chrome")
-        return res;
-    return res;
+  static QString res = "";
+  if (current_browser == "Chrome") {
+    res = "ffddnlbamkjlbngpekmdpnoccckapcnh";
+  } else if (current_browser == "Firefox") {
+    res = "jid1-KejrJUY3AaPCkZ";
+  }
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
 const QString& set_application_branch(QString branch) {

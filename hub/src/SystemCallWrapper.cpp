@@ -1746,7 +1746,7 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_WIN> >() {
   for (QString s: res.out) {
     if (s.contains("UninstallString")) {
       std::string sstd = s.toStdString();
-      int ind = sstd.find('"');
+      int ind = (int) sstd.find('"');
       if (ind != -1) {
         uninstall_string = QString(sstd.substr(ind, sstd.find('"', ind + 1)).c_str());
         break;
@@ -2648,7 +2648,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const Q
   for (QString s: res.out) {
     if (s.contains("UninstallString")) {
       std::string sstd = s.toStdString();
-      int ind = sstd.find('"');
+      int ind = (int) sstd.find('"');
       if (ind != -1) {
         uninstall_string = QString(sstd.substr(ind).c_str());
         break;
@@ -2924,12 +2924,12 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
     installer_is_busy.unlock();
     return res;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_e2e(){
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e(const QString &dir, const QString &file_name){
   QString current_browser = CSettingsManager::Instance().default_browser();
   if (current_browser == "Chrome") {
     return install_e2e_chrome();
   } else if (current_browser == "Firefox") {
-    return install_e2e_firefox();
+    return install_e2e_firefox(dir, file_name);
   }
   return SCWE_SUCCESS;
 }
@@ -3336,6 +3336,59 @@ system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_MAC>>(const QS
 
 template<>
 system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  QString path;
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe";
+  qDebug() << "REG QUERY started"
+           << "args:" << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "REG QUERY finished:"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "REG QUERY failed.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  for (QString str: res.out) {
+    if (str.contains("Path") && str.contains("REG_SZ")) {
+      std::string std_str =
+          str.replace(QRegularExpression("[ \t\n]"), " ").toStdString();
+      int id = std_str.find(" ", std_str.find("REG_SZ"));
+      path = str.right(str.size() - id);
+      break;
+    }
+  }
+  qDebug() << "Got firefox path:" << path;
+
+  QString path_to_uninstaller =
+      path + QDir::separator() + "uninstall" + QDir::separator() + "helper.exe";
+  QFile uninstaller(path_to_uninstaller);
+  if (!uninstaller.exists()) {
+    qCritical() << "Control Center can not find Mozilla Firefox "
+                   "uninstaller. Please uninstall it manually.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args.clear();
+  args << "-ms";
+  qDebug() << "Starting firefox uninstallation"
+           << "cmd:" << path_to_uninstaller
+           << "args:" << args;
+  res = CSystemCallWrapper::ssystem_th(path_to_uninstaller, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Firefox uninstallation has failed"
+                << "scwe err:" << CSystemCallWrapper::scwe_error_to_str(res.res)
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 
@@ -3346,27 +3399,40 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_firefox(const QString 
   return res;
 }
 
+// e2e on firefox id: jid1-KejrJUY3AaPCkZ
+// e2e firefox extension name: jid1-KejrJUY3AaPCkZ@jetpack.xpi
+
 template<class OS>
-system_call_wrapper_error_t install_e2e_firefox_internal();
+system_call_wrapper_error_t install_e2e_firefox_internal(const QString &dir, const QString &file_name);
 
 template<>
-system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>() {
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  QStringList str_lst = QString(".mozilla firefox  extensions").split(" ");
+
   return SCWE_SUCCESS;
 }
 
 template<>
-system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>() {
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const QString &dir, const QString &file_name) {
   return SCWE_SUCCESS;
 }
 
 template<>
-system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>() {
+system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_e2e_firefox() {
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_firefox(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = install_e2e_firefox_internal<Os2Type<CURRENT_OS>>();
+  system_call_wrapper_error_t res = install_e2e_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
   installer_is_busy.unlock();
   return res;
 }
@@ -5107,8 +5173,8 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
       if (str.contains("CFBundleVersion") || str.contains("CFBundleShortVersionString")) {
         auto it = i;
         QString &strv = *(++it);
-        int ida = strv.toStdString().find('>');
-        int idb = strv.toStdString().find('<', ida);
+        int ida = (int) strv.toStdString().find('>');
+        int idb = (int) strv.toStdString().find('<', ida);
         strv = strv.left(ida + 1) + version + strv.right(strv.size() - idb);
       }
     }
