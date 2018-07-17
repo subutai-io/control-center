@@ -102,6 +102,7 @@ void DlgPeer::updatePeer() {
       TrayControlWindow::Instance()->my_peers_button_table.end()) {
     qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
     this->close();
+    return;
   } else {
     TrayControlWindow::my_peer_button *peer_info =
         TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
@@ -261,11 +262,13 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
   }
   if (!local_peer.first.isEmpty()) {
     addLocalPeer(local_peer);
+    ssh_available = true;
   } else {  // peer was not found in lan network
     ssh_available = false;
   }
   if (!lp.empty()) {
     addMachinePeer(lp[0]);
+    ssh_available = true;
   } else {  // cc didn't see this peer in your machine
     advanced = false;
   }

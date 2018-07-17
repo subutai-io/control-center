@@ -230,7 +230,7 @@ void CPeerController::check_logs() {
 }
 
 QString CPeerController::get_pr_step_fi(QFile &p_file) {
-  QString provision_step = "undefined";
+  QString provision_step = "finished";
   if (p_file.open(QIODevice::ReadOnly)) {
     QTextStream stream(&p_file);
     provision_step = QString(stream.readAll()).simplified();
