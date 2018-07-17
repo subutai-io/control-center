@@ -85,6 +85,11 @@ private:
   void set_visible_firefox(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
+  void set_hidden_providers();
+  void set_hidden_virtualbox(bool show_hide);
+  void set_hidden_vmware(bool show_hide);
+  void set_hidden_parallels(bool show_hide);
+  void set_hidden_libvirt(bool show_hide);
 
 private slots:
   void btn_tray_update_released();
@@ -100,6 +105,9 @@ private slots:
   void btn_recheck_released();
   void btn_close_released();
   void btn_uninstall_components();
+  void btn_provider_parallels_update_released();
+  void btn_provider_libvirt_updates_released();
+  void btn_provider_vmware_update_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);

@@ -39,9 +39,9 @@ chue_t CUpdaterComponentVAGRANT_VMWARE::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant VMware Desktop plugin sets up peer parameters, like disk size "
+          "The Vagrant VMware Desktop provider sets up peer parameters, like disk size "
           "and RAM.\n"
-          "The Vagrant VMware Desktop plugin will be installed on your machine.\n"
+          "The Vagrant VMware Desktop provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
 
@@ -108,13 +108,13 @@ void CUpdaterComponentVAGRANT_VMWARE::update_post_action(bool success) {
 void CUpdaterComponentVAGRANT_VMWARE::install_post_interntal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to install the Vagrant VMware Desktop plugin. You may try manually "
+        tr("Failed to install the Vagrant VMware Desktop provider. You may try manually "
            "installing it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant VMware Desktop plugin has been installed successfully."),
+        tr("Vagrant VMware Desktop provider has been installed successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }
@@ -122,13 +122,13 @@ void CUpdaterComponentVAGRANT_VMWARE::install_post_interntal(bool success) {
 void CUpdaterComponentVAGRANT_VMWARE::uninstall_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to uninstall the Vagrant VMware Desktop plugin. You may try "
+        tr("Failed to uninstall the Vagrant VMware Desktop provider. You may try "
            "manually uninstalling it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant VMware Desktop plugin has been uninstalled successfully."),
+        tr("Vagrant VMware Desktop provider has been uninstalled successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }

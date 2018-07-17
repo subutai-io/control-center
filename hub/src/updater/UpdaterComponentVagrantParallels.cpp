@@ -39,9 +39,9 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant Parallels plugin sets up peer parameters, like disk size "
+          "The Vagrant Parallels provider sets up peer parameters, like disk size "
           "and RAM.\n"
-          "The Vagrant Parallels plugin will be installed on your machine.\n"
+          "The Vagrant Parallels provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
 
@@ -95,26 +95,26 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::uninstall_internal() {
 void CUpdaterComponentVAGRANT_PARALLELS::update_post_action(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to update the Vagrant Parallels plugin. You may try manually "
+        tr("Failed to update the Vagrant Parallels provider. You may try manually "
            "installing it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Parallels plugin has been updated successfully."),
+        tr("Vagrant Parallels provider has been updated successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }
 void CUpdaterComponentVAGRANT_PARALLELS::install_post_interntal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to install the Vagrant Parallels plugin. You may try manually "
+        tr("Failed to install the Vagrant Parallels provider. You may try manually "
            "installing it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Parallels plugin has been installed successfully."),
+        tr("Vagrant Parallels provider has been installed successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }
@@ -122,13 +122,13 @@ void CUpdaterComponentVAGRANT_PARALLELS::install_post_interntal(bool success) {
 void CUpdaterComponentVAGRANT_PARALLELS::uninstall_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to uninstall the Vagrant Parallels plugin. You may try "
+        tr("Failed to uninstall the Vagrant Parallels provider. You may try "
            "manually uninstalling it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Parallels plugin has been uninstalled successfully."),
+        tr("Vagrant Parallels provider has been uninstalled successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }

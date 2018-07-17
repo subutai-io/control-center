@@ -39,9 +39,9 @@ chue_t CUpdaterComponentVAGRANT_LIBVIRT::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant Libvirt plugin sets up peer parameters, like disk size "
+          "The Vagrant Libvirt provider sets up peer parameters, like disk size "
           "and RAM.\n"
-          "The Vagrant Libvirt plugin will be installed on your machine.\n"
+          "The Vagrant Libvirt provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
 
@@ -95,26 +95,26 @@ chue_t CUpdaterComponentVAGRANT_LIBVIRT::uninstall_internal() {
 void CUpdaterComponentVAGRANT_LIBVIRT::update_post_action(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to update the Vagrant Libvirt plugin. You may try manually "
+        tr("Failed to update the Vagrant Libvirt provider. You may try manually "
            "installing it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Libvirt plugin has been updated successfully."),
+        tr("Vagrant Libvirt provider has been updated successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }
 void CUpdaterComponentVAGRANT_LIBVIRT::install_post_interntal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to install the Vagrant Libvirt plugin. You may try manually "
+        tr("Failed to install the Vagrant Libvirt provider. You may try manually "
            "installing it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Libvirt plugin has been installed successfully."),
+        tr("Vagrant Libvirt provider has been installed successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }
@@ -122,13 +122,13 @@ void CUpdaterComponentVAGRANT_LIBVIRT::install_post_interntal(bool success) {
 void CUpdaterComponentVAGRANT_LIBVIRT::uninstall_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
-        tr("Failed to uninstall the Vagrant Libvirt plugin. You may try "
+        tr("Failed to uninstall the Vagrant Libvirt provider. You may try "
            "manually uninstalling it "
            "or try again by restarting the Control Center first."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
-        tr("Vagrant Libvirt plugin has been uninstalled successfully."),
+        tr("Vagrant Libvirt provider has been uninstalled successfully."),
         DlgNotification::N_NO_ACTION);
   }
 }

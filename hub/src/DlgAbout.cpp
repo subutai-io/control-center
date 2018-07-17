@@ -57,7 +57,7 @@ QString get_e2e_version() {
 QString get_vagrant_provider_version() {
   QString version = "";
 
-  CSystemCallWrapper::vagrant_plugin_version(version, VagrantProvider::Instance()->CurrentVal());
+  CSystemCallWrapper::vagrant_plugin_version(version, VagrantProvider::Instance()->CurrentName());
   return version;
 }
 
@@ -84,6 +84,115 @@ QString get_subutai_box_version() {
   return version;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::set_hidden_libvirt(bool show_hide) {
+  // Vagrant libvirt provider vagrant-libvirt
+  ui->lbl_provider_libvirt->setHidden(show_hide);
+  ui->lbl_provider_libvirt_version->setHidden(show_hide);
+  ui->btn_provider_libvirt_update->setHidden(show_hide);
+  ui->cb_provider_libvirt->setHidden(show_hide);
+  ui->pb_provider_libvirt->setHidden(show_hide);
+}
+
+void DlgAbout::set_hidden_parallels(bool show_hide) {
+  // Vagrant parallels provider vagrant-parallels
+  ui->lbl_provider_parallels->setHidden(show_hide);
+  ui->lbl_provider_parallels_version->setHidden(show_hide);
+  ui->btn_provider_parallels_update->setHidden(show_hide);
+  ui->cb_provider_parallels->setHidden(show_hide);
+  ui->pb_provider_parallels->setHidden(show_hide);
+}
+
+void DlgAbout::set_hidden_virtualbox(bool show_hide) {
+  // virtualbox hypervisor
+  ui->lbl_oracle_virtualbox_version_val->setHidden(show_hide);
+  ui->lbl_spacer_vbox->setHidden(show_hide);
+  ui->lbl_vbox_info_icon->setHidden(show_hide);
+  ui->lbl_vbox_version->setHidden(show_hide);
+  ui->btn_oracle_virtualbox_update->setHidden(show_hide);
+  ui->pb_oracle_virtualbox->setHidden(show_hide);
+  ui->cb_oracle_virtualbox->setHidden(show_hide);
+
+  // virtualbox plugin vagrant-vbguest
+  ui->lbl_vbguest_plugin_version->setHidden(show_hide);
+  ui->lbl_spacer_vbguest_plugin->setHidden(show_hide);
+  ui->lbl_vbguest_plugin_info_icon->setHidden(show_hide);
+  ui->lbl_vbguest_plugin_version_val->setHidden(show_hide);
+  ui->pb_vbguest_plugin->setHidden(show_hide);
+  ui->btn_vbguest_plugin_update->setHidden(show_hide);
+  ui->cb_vagrant_vbguest_plugin->setHidden(show_hide);
+}
+
+void DlgAbout::set_hidden_vmware(bool show_hide) {
+  // Vagrant provider vagrant-vmware-desktop
+  ui->lbl_provider_vmware->setHidden(show_hide);
+  ui->lbl_provider_vmware_version->setHidden(show_hide);
+  ui->btn_provider_vmware_update->setHidden(show_hide);
+  ui->cb_provider_vmware->setHidden(show_hide);
+  ui->pb_provider_vmware->setHidden(show_hide);
+}
+
+void DlgAbout::set_hidden_providers() {
+  // Parallels
+  set_hidden_parallels(true);
+  // Libvirt
+  set_hidden_libvirt(true);
+  // VMware
+  set_hidden_vmware(true);
+  // Virtulbox
+  set_hidden_virtualbox(true);
+
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    set_hidden_virtualbox(false);
+
+    this->m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {
+      ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox,
+      ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
+      get_oracle_virtualbox_version};
+
+    this->m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {
+      ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin,
+      ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update,
+      get_vagrant_vbguest_version};
+
+    break;
+  case VagrantProvider::PARALLELS:
+    set_hidden_parallels(false);
+
+    this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
+      ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
+      ui->cb_provider_parallels, ui->btn_provider_parallels_update,
+      get_vagrant_provider_version};
+
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    set_hidden_vmware(false);
+
+    this->m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
+      ui->lbl_provider_vmware_version, ui->pb_provider_vmware,
+      ui->cb_provider_vmware, ui->btn_provider_vmware_update,
+      get_vagrant_provider_version};
+
+    break;
+  case VagrantProvider::LIBVIRT:
+    set_hidden_libvirt(false);
+
+    this->m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
+      ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
+      ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
+      get_vagrant_provider_version};
+
+    break;
+  case VagrantProvider::HYPERV:
+    // do nothing
+    break;
+  default:
+    set_hidden_virtualbox(false);
+  }
+
+  this->adjustSize();
+}
 
 DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->setupUi(this);
@@ -173,6 +282,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     (*i)->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     (*i)->setWordWrap(true);
   }
+
   // connect
   connect(ui->btn_p2p_update, &QPushButton::released, this,
           &DlgAbout::btn_p2p_update_released);
@@ -200,6 +310,12 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_uninstall_components);
   connect(ui->btn_close, &QPushButton::released, this,
           &DlgAbout::btn_close_released);
+  connect(ui->btn_provider_libvirt_update, &QPushButton::released, this,
+          &DlgAbout::btn_provider_libvirt_updates_released);
+  connect(ui->btn_provider_parallels_update, &QPushButton::released, this,
+          &DlgAbout::btn_provider_parallels_update_released);
+  connect(ui->btn_provider_vmware_update, &QPushButton::released, this,
+          &DlgAbout::btn_provider_vmware_update_released);
 
   connect(CHubComponentsUpdater::Instance(),
           &CHubComponentsUpdater::download_file_progress, this,
@@ -220,18 +336,18 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p,
                                        ui->cb_p2p, ui->btn_p2p_update,
                                        get_p2p_version};
+
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray,
                                         ui->cb_tray, ui->btn_tray_update, NULL};
+
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go,
                                         ui->cb_x2goclient, ui->btn_x2go_update,
                                         get_x2go_version};
+
   m_dct_fpb[IUpdaterComponent::VAGRANT] = {
       ui->lbl_vagrant_version_val, ui->pb_vagrant, ui->cb_vagrant,
       ui->btn_vagrant_update, get_vagrant_version};
-  m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {
-      ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox,
-      ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
-      get_oracle_virtualbox_version};
+
   m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val,
                                           ui->pb_chrome, ui->cb_chrome,
                                           ui->btn_chrome, get_chrome_version};
@@ -245,29 +361,12 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       ui->cb_vagrant_subtuai_plugin, ui->btn_subutai_plugin_update,
       get_vagrant_subutai_version};
 
-  m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {
-      ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin,
-      ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update,
-      get_vagrant_vbguest_version};
-
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
       ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
       ui->btn_subutai_box, get_subutai_box_version};
 
-  m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
-    ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
-    ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
-    get_vagrant_provider_version};
-
-  m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
-    ui->lbl_provider_vmware_version, ui->pb_provider_vmware,
-    ui->cb_provider_vmware, ui->btn_provider_vmware_update,
-    get_vagrant_provider_version};
-
-  m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
-    ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
-    ui->cb_provider_parallels, ui->btn_provider_parallels_update,
-    get_vagrant_provider_version};
+  // hide providers and add provider to components dictionary
+  set_hidden_providers();
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
@@ -288,6 +387,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     component.second.cb->setVisible(false);
     set_hidden_pb(component.first);
   }
+
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
@@ -348,6 +448,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_vbguest_plugin_version_sl);
   connect(di, &DlgAboutInitializer::got_subutai_box_version, this,
           &DlgAbout::got_subutai_box_version_sl);
+  connect(di, &DlgAboutInitializer::got_provider_version, this,
+          &DlgAbout::got_provider_version_sl);
   connect(di, &DlgAboutInitializer::update_available, this,
           &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress, this,
@@ -471,7 +573,40 @@ void DlgAbout::btn_recheck_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::btn_close_released() { this->close(); }
+////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::btn_provider_libvirt_updates_released() {
+  ui->pb_provider_libvirt->setHidden(false);
+  ui->btn_provider_libvirt_update->setEnabled(false);
+  if (ui->lbl_provider_libvirt_version->text() == "undefined") {
+    CHubComponentsUpdater::Instance()->install(
+        IUpdaterComponent::VAGRANT_LIBVIRT);
+  } else
+    CHubComponentsUpdater::Instance()->force_update(
+        IUpdaterComponent::VAGRANT_LIBVIRT);
+}
+
+void DlgAbout::btn_provider_parallels_update_released() {
+  ui->pb_provider_parallels->setHidden(false);
+  ui->btn_provider_parallels_update->setEnabled(false);
+  if (ui->lbl_provider_parallels_version->text() == "undefined") {
+    CHubComponentsUpdater::Instance()->install(
+        IUpdaterComponent::VAGRANT_PARALLELS);
+  } else
+    CHubComponentsUpdater::Instance()->force_update(
+        IUpdaterComponent::VAGRANT_PARALLELS);
+}
+
+void DlgAbout::btn_provider_vmware_update_released() {
+  ui->pb_provider_vmware->setHidden(false);
+  ui->btn_provider_vmware_update->setEnabled(false);
+  if (ui->lbl_provider_vmware_version->text() == "undefined") {
+    CHubComponentsUpdater::Instance()->install(
+        IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+  } else
+    CHubComponentsUpdater::Instance()->force_update(
+        IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+}
 ////////////////////////////////////////////////////////////////////////////
 /// \brief DlgAbout::btn_uninstall_components
 ///
@@ -542,132 +677,189 @@ void DlgAbout::init_progress_sl(int part, int total) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_p2p_version_sl(QString version) {
-  ui->lbl_p2p_version_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::P2P);
-    ui->btn_p2p_update->setHidden(false);
-    ui->cb_p2p->setVisible(false);
-    ui->btn_p2p_update->setText(tr("Install"));
-    ui->btn_p2p_update->activateWindow();
-  } else
-    ui->btn_p2p_update->setText(tr("Update"));
+  // check component key is exist
+  if (this->m_dct_fpb.find(IUpdaterComponent::P2P) != this->m_dct_fpb.end()) {
+    ui->lbl_p2p_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::P2P);
+      ui->btn_p2p_update->setHidden(false);
+      ui->cb_p2p->setVisible(false);
+      ui->btn_p2p_update->setText(tr("Install"));
+      ui->btn_p2p_update->activateWindow();
+    } else
+      ui->btn_p2p_update->setText(tr("Update"));
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_chrome_version_sl(QString version) {
-  ui->lbl_chrome_version_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::CHROME);
-    ui->btn_chrome->setHidden(false);
-    ui->cb_chrome->setVisible(false);
-    ui->btn_chrome->setText(tr("Install"));
-    ui->btn_chrome->activateWindow();
-  } else {
-    ui->btn_chrome->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::CHROME) != this->m_dct_fpb.end()) {
+    ui->lbl_chrome_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::CHROME);
+      ui->btn_chrome->setHidden(false);
+      ui->cb_chrome->setVisible(false);
+      ui->btn_chrome->setText(tr("Install"));
+      ui->btn_chrome->activateWindow();
+    } else {
+      ui->btn_chrome->setText(tr("Update"));
+    }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_e2e_version_sl(QString version) {
-  ui->lbl_subutai_e2e_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::E2E);
-    ui->btn_subutai_e2e->setHidden(false);
-    ui->cb_subutai_e2e->setVisible(false);
-    ui->btn_subutai_e2e->setText(tr("Install"));
-    ui->btn_subutai_e2e->activateWindow();
-  } else {
-    ui->btn_subutai_e2e->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::E2E) != this->m_dct_fpb.end()) {
+    ui->lbl_subutai_e2e_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::E2E);
+      ui->btn_subutai_e2e->setHidden(false);
+      ui->cb_subutai_e2e->setVisible(false);
+      ui->btn_subutai_e2e->setText(tr("Install"));
+      ui->btn_subutai_e2e->activateWindow();
+    } else {
+      ui->btn_subutai_e2e->setText(tr("Update"));
+    }
   }
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_x2go_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::X2GO);
-    ui->btn_x2go_update->setHidden(false);
-    ui->cb_x2goclient->setVisible(false);
-    ui->btn_x2go_update->setText(tr("Install"));
-    ui->btn_x2go_update->activateWindow();
-  } else {
-    ui->btn_x2go_update->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::X2GO) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::X2GO);
+      ui->btn_x2go_update->setHidden(false);
+      ui->cb_x2goclient->setVisible(false);
+      ui->btn_x2go_update->setText(tr("Install"));
+      ui->btn_x2go_update->activateWindow();
+    } else {
+      ui->btn_x2go_update->setText(tr("Update"));
+    }
+    ui->lbl_x2go_version_val->setText(version);
   }
-  ui->lbl_x2go_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_vagrant_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::VAGRANT);
-    ui->btn_vagrant_update->setHidden(false);
-    ui->cb_vagrant->setVisible(false);
-    ui->btn_vagrant_update->setText(tr("Install"));
-    ui->btn_vagrant_update->activateWindow();
-  } else {
-    ui->btn_vagrant_update->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::VAGRANT) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::VAGRANT);
+      ui->btn_vagrant_update->setHidden(false);
+      ui->cb_vagrant->setVisible(false);
+      ui->btn_vagrant_update->setText(tr("Install"));
+      ui->btn_vagrant_update->activateWindow();
+    } else {
+      ui->btn_vagrant_update->setText(tr("Update"));
+    }
+    ui->lbl_vagrant_version_val->setText(version);
   }
-  ui->lbl_vagrant_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::ORACLE_VIRTUALBOX);
-    ui->btn_oracle_virtualbox_update->setHidden(false);
-    ui->cb_oracle_virtualbox->setVisible(false);
-    ui->btn_oracle_virtualbox_update->setText(tr("Install"));
-    ui->btn_oracle_virtualbox_update->activateWindow();
-  } else {
-    ui->btn_oracle_virtualbox_update->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::ORACLE_VIRTUALBOX) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::ORACLE_VIRTUALBOX);
+      ui->btn_oracle_virtualbox_update->setHidden(false);
+      ui->cb_oracle_virtualbox->setVisible(false);
+      ui->btn_oracle_virtualbox_update->setText(tr("Install"));
+      ui->btn_oracle_virtualbox_update->activateWindow();
+    } else {
+      ui->btn_oracle_virtualbox_update->setText(tr("Update"));
+    }
+    ui->lbl_oracle_virtualbox_version_val->setText(version);
   }
-  ui->lbl_oracle_virtualbox_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_subutai_plugin_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::VAGRANT_SUBUTAI);
-    ui->btn_subutai_plugin_update->setHidden(false);
-    ui->cb_vagrant_subtuai_plugin->setVisible(false);
-    ui->btn_subutai_plugin_update->setText(tr("Install"));
-    ui->btn_subutai_plugin_update->activateWindow();
-  } else {
-    ui->btn_subutai_plugin_update->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::VAGRANT_SUBUTAI) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::VAGRANT_SUBUTAI);
+      ui->btn_subutai_plugin_update->setHidden(false);
+      ui->cb_vagrant_subtuai_plugin->setVisible(false);
+      ui->btn_subutai_plugin_update->setText(tr("Install"));
+      ui->btn_subutai_plugin_update->activateWindow();
+    } else {
+      ui->btn_subutai_plugin_update->setText(tr("Update"));
+    }
+    ui->lbl_subutai_plugin_version_val->setText(version);
   }
-  ui->lbl_subutai_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::VAGRANT_VBGUEST);
-    ui->btn_vbguest_plugin_update->setHidden(false);
-    ui->cb_vagrant_vbguest_plugin->setVisible(false);
-    ui->btn_vbguest_plugin_update->setText(tr("Install"));
-    ui->btn_vbguest_plugin_update->activateWindow();
-  } else {
-    ui->btn_vbguest_plugin_update->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::VAGRANT_VBGUEST) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::VAGRANT_VBGUEST);
+      ui->btn_vbguest_plugin_update->setHidden(false);
+      ui->cb_vagrant_vbguest_plugin->setVisible(false);
+      ui->btn_vbguest_plugin_update->setText(tr("Install"));
+      ui->btn_vbguest_plugin_update->activateWindow();
+    } else {
+      ui->btn_vbguest_plugin_update->setText(tr("Update"));
+    }
+    ui->lbl_vbguest_plugin_version_val->setText(version);
   }
-  ui->lbl_vbguest_plugin_version_val->setText(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_subutai_box_version_sl(QString version) {
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::SUBUTAI_BOX);
-    ui->btn_subutai_box->setHidden(false);
-    ui->cb_vagrant_box->setVisible(false);
-    ui->btn_subutai_box->setText(tr("Install"));
-    ui->btn_subutai_box->activateWindow();
-  } else {
-    ui->btn_subutai_box->setText(tr("Update"));
+  if (this->m_dct_fpb.find(IUpdaterComponent::SUBUTAI_BOX) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::SUBUTAI_BOX);
+      ui->btn_subutai_box->setHidden(false);
+      ui->cb_vagrant_box->setVisible(false);
+      ui->btn_subutai_box->setText(tr("Install"));
+      ui->btn_subutai_box->activateWindow();
+    } else {
+      ui->btn_subutai_box->setText(tr("Update"));
+    }
+    ui->lbl_subutai_box_version->setText(version);
   }
-  ui->lbl_subutai_box_version->setText(version);
 }
 
 void DlgAbout::got_provider_version_sl(QString version) {
+  QString COMPONENT_KEY = "";
 
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::PARALLELS:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
+    break;
+  case VagrantProvider::LIBVIRT:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
+    break;
+  default:
+    break;
+  }
+
+  qDebug() << "Got provider version:"
+           << COMPONENT_KEY
+           << version;
+
+  // check component key is exist
+  if (this->m_dct_fpb.find(COMPONENT_KEY) != this->m_dct_fpb.end()) {
+    if (version == "undefined") {
+      set_hidden_pb(COMPONENT_KEY);
+      this->m_dct_fpb[COMPONENT_KEY].btn->setHidden(false);
+      //ui->btn_subutai_box->setHidden(false);
+      this->m_dct_fpb[COMPONENT_KEY].cb->setVisible(false);
+      //ui->cb_vagrant_box->setVisible(false);
+      this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Install"));
+      //ui->btn_subutai_box->setText(tr("Install"));
+      this->m_dct_fpb[COMPONENT_KEY].btn->activateWindow();
+      //ui->btn_subutai_box->activateWindow();
+    } else {
+      this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Update"));
+      //ui->btn_subutai_box->setText(tr("Update"));
+    }
+    this->m_dct_fpb[COMPONENT_KEY].lbl->setText(version);
+    //ui->lbl_subutai_box_version->setText(version);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -750,28 +942,48 @@ void DlgAboutInitializer::do_initialization() {
     emit got_provider_version(vagrant_provider_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString uas[] = {IUpdaterComponent::P2P,
+    std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
                      IUpdaterComponent::X2GO,
                      IUpdaterComponent::E2E,
                      IUpdaterComponent::VAGRANT,
-                     IUpdaterComponent::ORACLE_VIRTUALBOX,
                      IUpdaterComponent::CHROME,
                      IUpdaterComponent::VAGRANT_SUBUTAI,
-                     IUpdaterComponent::VAGRANT_VBGUEST,
-                     IUpdaterComponent::SUBUTAI_BOX,
-                     IUpdaterComponent::VAGRANT_LIBVIRT,
-                     IUpdaterComponent::VAGRANT_PARALLELS,
-                     IUpdaterComponent::VAGRANT_VMWARE_DESKTOP,
-                     ""};
+                     IUpdaterComponent::SUBUTAI_BOX
+                     };
+
+    switch(VagrantProvider::Instance()->CurrentProvider()) {
+    case VagrantProvider::VIRTUALBOX:
+      uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
+      uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
+      break;
+    case VagrantProvider::PARALLELS:
+      uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
+      break;
+    case VagrantProvider::VMWARE_DESKTOP:
+      uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+      break;
+    case VagrantProvider::LIBVIRT:
+      uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
+      break;
+    case VagrantProvider::HYPERV:
+      // do nothing
+      break;
+    default:
+      uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
+      uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
+      break;
+    }
+
     std::vector<bool> ua;
-    for (int i = 0; uas[i] != ""; ++i) {
+    for (int i = 0; i < (int) uas.size(); ++i) {
       ua.push_back(
-          CHubComponentsUpdater::Instance()->is_update_available(uas[i]));
+          CHubComponentsUpdater::Instance()->is_update_available(uas.at(i)));
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    for (int i = 0; uas[i] != ""; i++) {
-      emit update_available(uas[i], ua[i]);
+
+    for (int i = 0; i < (int) uas.size(); i++) {
+      emit update_available(uas.at(i), ua.at(i));
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s",
