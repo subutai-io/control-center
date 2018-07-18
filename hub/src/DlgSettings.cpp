@@ -187,7 +187,7 @@ DlgSettings::DlgSettings(QWidget* parent)
       }
     }
   } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
-    QStringList firefox_profiles_list = firefox_profiles();
+    QStringList firefox_profiles_list = firefox_profiles().first;
     current_firefox_profile = CSettingsManager::Instance().default_firefox_profile();
     ui->cb_profile->addItems(firefox_profiles_list);
     for (int i = 0; i < firefox_profiles_list.size(); i++) {

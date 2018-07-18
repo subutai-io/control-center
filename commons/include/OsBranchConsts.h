@@ -89,7 +89,7 @@ const QString& default_default_firefox_profile();
 const QString& default_firefox_extensions_path();
 const QStringList& supported_browsers();
 const std::pair<QStringList, QStringList>& chrome_profiles();
-const QStringList& firefox_profiles();
+const std::pair<QStringList, QStringList>& firefox_profiles();
 
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();

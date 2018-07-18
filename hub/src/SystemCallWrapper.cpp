@@ -3407,6 +3407,18 @@ system_call_wrapper_error_t install_e2e_firefox_internal(const QString &dir, con
 
 template<>
 system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
+  QString cmd("pkill");
+  QStringList args;
+  args << "--oldest"
+       << "firefox";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS){
+    qCritical() << "Failed to close firefox"
+                << "exit code:" << res.exit_code;
+    return SCWE_CREATE_PROCESS;
+  }
+
   QStringList home_paths_list =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   if (home_paths_list.empty()) {
@@ -3415,18 +3427,141 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(cons
   }
 
   QString ext_path = home_paths_list[0];
-  QStringList str_lst = QString(".mozilla firefox  extensions").split(" ");
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path += QString("/.mozilla/firefox/%1/extensions/").arg(profile_folder);
+  QString cur_dir = dir + "/" + file_name;
+  args.clear();
+  cmd = "pkexec";
+  args << "bash"
+       << "-c"
+       << QString("mkdir -p %2; cp -p %1 %2").arg(cur_dir, ext_path);
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to install e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
 
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const QString &dir, const QString &file_name) {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << "tell application \"Firefox\" to quit";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0){
+    qCritical() << "Failed to close Firefox"
+                << "Exit code: " << res.exit_code
+                << "Output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions")
+      .arg(profile_folder);
+  QString cur_dir = dir + "/" + file_name;
+  args.clear();
+  cmd = "osascript";
+  args << "-e"
+       << QString("do shell script \"mkdir -p %2;"
+                  "cp %1 %2\"").arg(cur_dir, ext_path);
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to install e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
+  qDebug() << "quiting firefox";
+  QString cmd("taskkill");
+  QStringList args;
+  args << "/F" << "/IM" << "firefox.exe" << "/T";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+  if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+      qCritical() << "failed to close firefox"
+                  << "exit code" << res.exit_code
+                  << "output: " << res.out;
+      return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions")
+      .arg(profile_folder);
+  QString cur_dir = dir + "\\" + file_name;
+  args.clear();
+  cmd = "MOVE";
+  args << "/Y" << cur_dir << ext_path;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to install e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 
@@ -3442,16 +3577,158 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal();
 
 template<>
 system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_LINUX>>() {
+  QString cmd("pkill");
+  QStringList args;
+  args << "--oldest"
+       << "firefox";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS){
+    qCritical() << "Failed to close firefox"
+                << "exit code:" << res.exit_code;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path += QString("/.mozilla/firefox/%1/extensions/%2.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
+  args.clear();
+  cmd = "pkexec";
+  args << "bash"
+       << "-c"
+       << QString("rm -rf %1").arg(ext_path);
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to ininstall e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << "tell application \"Firefox\" to quit";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0){
+    qCritical() << "Failed to close Firefox"
+                << "Exit code: " << res.exit_code
+                << "Output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
+  args.clear();
+  cmd = "osascript";
+  args << "-e"
+       << QString("do shell script \"rm -rf %1\"").arg(ext_path);
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to uninstall e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_WIN>>() {
+  qDebug() << "quiting firefox";
+  QString cmd("taskkill");
+  QStringList args;
+  args << "/F" << "/IM" << "firefox.exe" << "/T";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+  if(res.res != SCWE_SUCCESS || (res.exit_code != 0 && res.exit_code != 128)){
+      qCritical() << "failed to close firefox"
+                  << "exit code" << res.exit_code
+                  << "output: " << res.out;
+      return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions")
+      .arg(profile_folder);
+  args.clear();
+  cmd = "DEL";
+  args << "/Y" << ext_path;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "Failed to uninstall e2e"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
   return SCWE_SUCCESS;
 }
 

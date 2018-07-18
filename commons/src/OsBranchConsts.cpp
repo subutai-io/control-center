@@ -606,9 +606,10 @@ const QString firefox_profiles_internal<Os2Type<OS_WIN>>() {
   return paths_str[0] + "\\AppData\\Roaming\\Mozilla\\Firefox\\profiles.ini";
 }
 
-const QStringList &firefox_profiles() {
-  static QStringList profiles;
-  profiles.clear();
+const std::pair<QStringList, QStringList> &firefox_profiles() {
+  static std::pair<QStringList, QStringList> profiles;
+  profiles.first.clear();
+  profiles.second.clear();
   QString ini_path = firefox_profiles_internal<Os2Type<CURRENT_OS>>();
   QFile ini_file(ini_path);
 
@@ -620,8 +621,12 @@ const QStringList &firefox_profiles() {
 
       if (str.contains("Name=")) {
         str = str.right(str.size() - 5);
-        str.replace(QRegularExpression("[ \n\t]"), "");
-        profiles << str;
+        str.replace(QRegularExpression("[\n\t]"), "");
+        profiles.first << str;
+      } else if (str.contains("Path=")) {
+        str = str.right(str.size() - 5);
+        str.replace(QRegularExpression("[\n\t]"), "");
+        profiles.second << str;
       }
     }
   }
@@ -1181,7 +1186,7 @@ const QString&  default_default_chrome_profile() {
 ////////////////////////////////////////////////////////////////////////////
 const QString& default_default_firefox_profile() {
   static QString res("default");
-  QStringList profiles = firefox_profiles();
+  QStringList profiles = firefox_profiles().first;
   if (!profiles.empty() && !profiles.contains(res)) {
     res = *profiles.begin();
   }

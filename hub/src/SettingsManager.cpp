@@ -594,7 +594,7 @@ void CSettingsManager::set_default_firefox_profile(QString fr) {
 }
 
 const QString& CSettingsManager::default_firefox_profile() {
-  QStringList profiles_list = firefox_profiles();
+  QStringList profiles_list = firefox_profiles().first;
   if (!profiles_list.contains(m_default_firefox_profile)) {
     set_default_firefox_profile(default_default_firefox_profile());
   }
