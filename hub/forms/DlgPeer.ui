@@ -217,7 +217,7 @@
          <string>Unlock to change your Peer configurations</string>
         </property>
         <property name="text">
-         <string>Modify peer info</string>
+         <string>Modify Peer info</string>
         </property>
        </widget>
       </item>
@@ -383,16 +383,6 @@
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="2" column="1">
-         <layout class="QVBoxLayout" name="env_owner"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="Line" name="line_1">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="2">
          <widget class="QLabel" name="lbl_env_status">
           <property name="sizePolicy">
@@ -411,6 +401,29 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
+        </item>
+        <item row="2" column="2">
+         <layout class="QVBoxLayout" name="env_status"/>
+        </item>
+        <item row="2" column="1">
+         <layout class="QVBoxLayout" name="env_owner"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <layout class="QVBoxLayout" name="env_name"/>
         </item>
         <item row="3" column="0" colspan="3">
          <widget class="QLabel" name="lbl_env_info">
@@ -434,11 +447,8 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <layout class="QVBoxLayout" name="env_name"/>
-        </item>
-        <item row="1" column="2">
-         <widget class="Line" name="line_3">
+        <item row="1" column="0">
+         <widget class="Line" name="line_1">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -463,13 +473,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QLabel" name="lbl_env_owner">
           <property name="sizePolicy">
@@ -489,9 +492,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <layout class="QVBoxLayout" name="env_status"/>
-        </item>
        </layout>
       </item>
      </layout>
@@ -503,20 +503,36 @@
       <string>SSH info</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_4">
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
         <property name="toolTip">
-         <string>Password for ssh (Only for the LAN Peers)</string>
+         <string>User for ssh (Only for the LAN Peers)</string>
         </property>
         <property name="text">
          <string>SSH username:</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>SSH port:</string>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="le_user">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lbl_port">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -527,13 +543,40 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_3">
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_4">
         <property name="toolTip">
-         <string>User for ssh (Only for the LAN Peers)</string>
+         <string>Password for ssh (Only for the LAN Peers)</string>
         </property>
         <property name="text">
          <string>SSH username:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLineEdit" name="le_pass">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="toolTip">
+         <string>Host address of the Peer</string>
+        </property>
+        <property name="text">
+         <string>IP:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>SSH port:</string>
         </property>
        </widget>
       </item>
@@ -553,46 +596,10 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="lbl_port">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="le_pass">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="le_user">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="toolTip">
-         <string>Host address of the Peer</string>
-        </property>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="change_ssh">
         <property name="text">
-         <string>IP:</string>
+         <string>Modify SSH info</string>
         </property>
        </widget>
       </item>
