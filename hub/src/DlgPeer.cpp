@@ -34,19 +34,14 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->lbl_env_info->setWordWrap(true);
 
   ui->le_name->setReadOnly(true);
-  ui->le_cpu->setReadOnly(true);
-  ui->le_ram->setReadOnly(true);
-  ui->le_disk->setReadOnly(true);
+  ui->le_pass->setReadOnly(true);
+  ui->lbl_ip->setReadOnly(true);
+  ui->lbl_port->setReadOnly(true);
 
   ui->cmb_bridge->setEnabled(false);
-  ui->le_ram->setEnabled(false);
-  ui->le_disk->setEnabled(false);
-  ui->le_cpu->setEnabled(false);
-
-  ui->le_pass->setEnabled(false);
-  ui->le_user->setEnabled(false);
-  ui->lbl_ip->setEnabled(false);
-  ui->lbl_port->setEnabled(false);
+  ui->le_ram->setReadOnly(true);
+  ui->le_disk->setReadOnly(true);
+  ui->le_cpu->setReadOnly(true);
 
   ui->lbl_port->setValidator(new QIntValidator(1, 200000, this));;
   ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
@@ -64,10 +59,6 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     ui->le_user->setReadOnly(!checked);
     ui->lbl_port->setReadOnly(!checked);
     ui->lbl_ip->setReadOnly(!checked);
-    ui->lbl_ip->setEnabled(checked);
-    ui->lbl_port->setEnabled(checked);
-    ui->le_pass->setEnabled(checked);
-    ui->le_user->setEnabled(checked);
     if (checked == false) {
       this->configs();
     }});
@@ -87,9 +78,6 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     ui->le_ram->setReadOnly(!checked);
     ui->le_disk->setReadOnly(!checked);
     ui->cmb_bridge->setEnabled(checked);
-    ui->le_disk->setEnabled(checked);
-    ui->le_cpu->setEnabled(checked);
-    ui->le_ram->setEnabled(checked);
     if (checked == false) {
       this->configs();
     }
