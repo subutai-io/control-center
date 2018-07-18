@@ -1503,19 +1503,13 @@ void TrayControlWindow::show_settings_dialog() {
 
 QDialog *create_create_peer_dialog(QWidget *p) { return new DlgCreatePeer(p); }
 void TrayControlWindow::show_create_dialog() {
-  QString vg_version, vb_version;
-  CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+  QString vg_version;
+  //CSystemCallWrapper::oracle_virtualbox_version(vb_version);
   CSystemCallWrapper::vagrant_version(vg_version);
   QStringList bridged_ifs = CPeerController::Instance()->get_bridgedifs();
   if (vg_version == "undefined") {
     CNotificationObserver::Instance()->Error(
         tr("Cannot create a peer without Vagrant installed in your system. To install, go to the menu > Components."), DlgNotification::N_ABOUT);
-    return;
-  }
-  if (vb_version == "undefined") {
-    CNotificationObserver::Instance()->Error(
-        tr("You don't have any hypervisor for Vagrant"),
-        DlgNotification::N_ABOUT);
     return;
   }
 
@@ -1527,9 +1521,6 @@ void TrayControlWindow::show_create_dialog() {
       CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
     case VagrantProvider::PARALLELS:
-      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
-      return;
-    case VagrantProvider::HYPERV:
       CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
     default:

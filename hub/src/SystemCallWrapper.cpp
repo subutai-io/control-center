@@ -649,9 +649,81 @@ QStringList CSystemCallWrapper::list_interfaces() {
     return virtualbox_interfaces();
   case VagrantProvider::LIBVIRT:
     return libvirt_interfaces();
+  case VagrantProvider::HYPERV:
+    return hyperv_interfaces();
   default:
     return empty;
   }
+}
+
+QStringList CSystemCallWrapper::hyperv_interfaces() {
+  installer_is_busy.lock();
+
+  qDebug("Getting list of bridged interfaces hyperv");
+
+  QStringList interfaces;
+  QString cmd = "powershell.exe";
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+
+  QStringList args; // powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass   -Command "$switches = Get-VMSwitch;  foreach ($switch in $switches) { Write-Debug $switch.Name }"
+  args << "-NoLogo"
+       << "-NoProfile"
+       << "-NonInteractive"
+       << "-ExecutionPolicy"
+       << "Bypass"
+       << "-Command"
+       << "Get-VMSwitch | Select Name";
+
+  qDebug() << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
+  QString output;
+
+  for (auto s : res.out) {
+    output += s;
+  }
+
+  qDebug() << "Listing Hyper interfaces result:"
+           << "exit code: "
+           << res.exit_code
+           << "result: "
+           << res.res
+           << "output:"
+           << output;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+
+  // parse virtual switches
+  qDebug() << "got hyperv switches: "
+           << res.out;
+
+  QStringList parse_me = res.out;
+  unsigned i = 0;
+  for (auto line : parse_me) {
+    if (i > 2) {
+      QString bridge = line.trimmed();
+
+      if (!bridge.isEmpty()) {
+        interfaces.push_back(bridge);
+        qDebug() << bridge
+                 << i;
+      }
+    }
+    i++;
+  }
+
+
+  installer_is_busy.unlock();
+  return interfaces;
 }
 
 QStringList CSystemCallWrapper::libvirt_interfaces() {

@@ -142,7 +142,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   ui->le_pass->setEchoMode(QLineEdit::Password);
   ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
   ui->le_name->setMaxLength(20);
-  ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
+  ui->pb_peer->setMaximum((int)m_requirements_ls.size() + 1);
   m_invalid_chars.setPattern("\\W");
   static QIcon show_password_icon(":/hub/show-password.png");
   static QIcon hide_password_icon(":/hub/hide-password.png");
