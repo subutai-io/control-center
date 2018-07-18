@@ -208,7 +208,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                                        ui->cb_p2p, ui->btn_p2p_update,
                                        get_p2p_version};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray,
-                                        ui->cb_tray, ui->btn_tray_update, NULL};
+                                        NULL, ui->btn_tray_update, NULL};
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go,
                                         ui->cb_x2goclient, ui->btn_x2go_update,
                                         get_x2go_version};
@@ -257,9 +257,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->pb_initialization_progress->setMaximum(
       DlgAboutInitializer::COMPONENTS_COUNT);
 
-  // hide checkboxes
+  // hide checkboxes and pb
   for (const auto& component : m_dct_fpb) {
-    component.second.cb->setVisible(false);
+    if (component.second.cb != nullptr) {
+      component.second.cb->setVisible(false);
+    }
     set_hidden_pb(component.first);
   }
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -458,9 +460,9 @@ void DlgAbout::btn_uninstall_components() {
 
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
+    if (component.second.cb == nullptr) {continue;}
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
-      if (component.first == IUpdaterComponent::TRAY) { continue; }
       if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
           m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
         continue;
@@ -528,13 +530,17 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   }
 
   if (success) {
-    m_dct_fpb[component_id].btn->setVisible(false);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(true);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setVisible(false);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(true);
+    }
   } else {
-    m_dct_fpb[component_id].btn->setEnabled(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(false);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setEnabled(true);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(false);
+    }
   }
   m_dct_fpb[component_id].pb->setVisible(false);
 
@@ -715,10 +721,12 @@ void DlgAbout::update_available_sl(const QString& component_id,
   // update available component
   if (update_available) {
     qInfo() << "update available: " << component_id;
-    m_dct_fpb[component_id].cb->setHidden(true);
     m_dct_fpb[component_id].btn->setVisible(true);
-    m_dct_fpb[component_id].cb->setChecked(false);
-  } else {
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].cb->setHidden(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
+    }
+  } else if (m_dct_fpb[component_id].cb != nullptr) {
     // not available component
     m_dct_fpb[component_id].btn->setHidden(true);
     m_dct_fpb[component_id].cb->setVisible(true);
@@ -815,15 +823,19 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
 
   if (success) {
     m_dct_fpb[component_id].pb->setHidden(true);
-    m_dct_fpb[component_id].btn->setHidden(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(true);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setHidden(true);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(true);
+    }
   } else {
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
-    m_dct_fpb[component_id].pb->setVisible(false);
-    m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].cb->setEnabled(false);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].pb->setVisible(false);
+      m_dct_fpb[component_id].cb->setVisible(false);
+      m_dct_fpb[component_id].cb->setEnabled(false);
+    }
   }
 }
 
