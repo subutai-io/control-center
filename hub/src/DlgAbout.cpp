@@ -1,5 +1,6 @@
 #include <QPixmap>
 #include <QThread>
+#include <QMessageBox>
 #include <QtConcurrent/QtConcurrent>
 
 #include "Commons.h"
@@ -455,6 +456,7 @@ void DlgAbout::btn_uninstall_components() {
                                                 IUpdaterComponent::VAGRANT_SUBUTAI,
                                                 IUpdaterComponent::E2E}; // components with 1 priority, other will be 0
 
+  QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
@@ -463,8 +465,22 @@ void DlgAbout::btn_uninstall_components() {
           m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
         continue;
       }
+      uninstalling_components_str += "<i>" + IUpdaterComponent::component_id_to_user_view(component.first) + "</i><br>";
       uninstall_vector.push_back(std::make_pair(!high_priority_component.contains(component.first), component.first));
     }
+  }
+  if (uninstall_vector.empty()) {return;}
+
+  QMessageBox *msg_box = new QMessageBox(
+      QMessageBox::Information, QObject::tr("Attention!"),
+      QObject::tr("<b>You are going to uninstall following components:</b><br>%1"
+          "Do you want to proceed?").arg(uninstalling_components_str),
+      QMessageBox::Yes | QMessageBox::No);
+  msg_box->setTextFormat(Qt::RichText);
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box,
+                   &QMessageBox::deleteLater);
+  if (msg_box->exec() != QMessageBox::Yes) {
+    return;
   }
 
   sort(uninstall_vector.begin(), uninstall_vector.end());
@@ -691,9 +707,7 @@ void DlgAbout::set_hidden_pb(const QString& component_id) {
 
 void DlgAbout::update_available_sl(const QString& component_id,
                                    bool available) {
-  bool update_available =
-      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
-       available);
+  bool update_available = available;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
     return;
@@ -708,8 +722,10 @@ void DlgAbout::update_available_sl(const QString& component_id,
     // not available component
     m_dct_fpb[component_id].btn->setHidden(true);
     m_dct_fpb[component_id].cb->setVisible(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
   }
+  update_available =
+      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
+       available);
   m_dct_fpb[component_id].btn->setEnabled(update_available);
 }
 ////////////////////////////////////////////////////////////////////////////
