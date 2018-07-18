@@ -54,10 +54,51 @@ chue_t CUpdaterComponentE2E::install_internal() {
   }
   static QString empty_stings = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
-  silent_installer->init(empty_stings, empty_stings, CC_E2E);
-  connect(silent_installer, &SilentInstaller::outputReceived, this,
-          &CUpdaterComponentE2E::install_finished_sl);
-  silent_installer->startWork();
+  if (CSettingsManager::Instance().default_browser() == "Chrome") {
+    silent_installer->init(empty_stings, empty_stings, CC_E2E);
+    connect(silent_installer, &SilentInstaller::outputReceived, this,
+            &CUpdaterComponentE2E::install_finished_sl);
+    silent_installer->startWork();
+  } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    QString file_name = firefox_subutai_e2e_kurjun_package_name();
+    QString file_dir = download_e2e_path();
+    QString str_downloaded_path = file_dir + "/" + file_name;
+
+    std::vector<CGorjunFileInfo> fi =
+        CRestWorker::Instance()->get_gorjun_file_info(file_name);
+    if (fi.empty()) {
+      qCritical("File %s isn't presented on kurjun",
+                m_component_id.toStdString().c_str());
+      install_finished_sl(false);
+      return CHUE_NOT_ON_KURJUN;
+    }
+    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+    CDownloadFileManager *dm =
+        new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
+
+    silent_installer->init(file_dir, file_name, CC_E2E);
+    connect(dm, &CDownloadFileManager::download_progress_sig,
+            [this](qint64 rec, qint64 total) {
+              update_progress_sl(rec, total + (total / 5));
+            });
+    connect(dm, &CDownloadFileManager::finished,
+            [silent_installer](bool success) {
+              if (!success) {
+                silent_installer->outputReceived(success);
+              } else {
+                CNotificationObserver::Instance()->Info(
+                    tr("Running installation scripts."),
+                    DlgNotification::N_NO_ACTION);
+                silent_installer->startWork();
+              }
+            });
+    connect(silent_installer, &SilentInstaller::outputReceived, this,
+            &CUpdaterComponentE2E::install_finished_sl);
+    connect(silent_installer, &SilentInstaller::outputReceived, dm,
+            &CDownloadFileManager::deleteLater);
+    dm->start_download();
+  }
   return CHUE_SUCCESS;
 }
 

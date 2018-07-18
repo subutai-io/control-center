@@ -196,11 +196,16 @@ template <class OS> const QString& firefox_kurjun_package_name_internal();
     static QString res(STRING); \
     return res; \
   }
-firefox_kurjun_package_name_def(OS_MAC, "mozillafirefox.dmg")
-firefox_kurjun_package_name_def(OS_LINUX, "mozilla-firefox-stable_current_amd64.deb")
-firefox_kurjun_package_name_def(OS_WIN, "FirefoxSetup.exe")
+firefox_kurjun_package_name_def(OS_MAC, "Firefox 61.0.1.dmg")
+firefox_kurjun_package_name_def(OS_LINUX, "Firefox 61.0.1.deb")
+firefox_kurjun_package_name_def(OS_WIN, "Firefox 61.0.1.exe")
 const QString& firefox_kurjun_package_name(){
     return firefox_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& firefox_subutai_e2e_kurjun_package_name(){
+  static QString name = "jid1-KejrJUY3AaPCkZ@jetpack.xpi";
+  return name;
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
@@ -624,7 +629,7 @@ const std::pair<QStringList, QStringList> &firefox_profiles() {
         str.replace(QRegularExpression("[\n\t]"), "");
         profiles.first << str;
       } else if (str.contains("Path=")) {
-        str = str.right(str.size() - 5);
+        str = str.right(str.size() - 14);
         str.replace(QRegularExpression("[\n\t]"), "");
         profiles.second << str;
       }

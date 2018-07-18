@@ -3358,9 +3358,9 @@ system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_WIN>>(const QS
   for (QString str: res.out) {
     if (str.contains("Path") && str.contains("REG_SZ")) {
       std::string std_str =
-          str.replace(QRegularExpression("[ \t\n]"), " ").toStdString();
+          str.replace(QRegularExpression("[\t\n]+"), "").toStdString();
       int id = std_str.find(" ", std_str.find("REG_SZ"));
-      path = str.right(str.size() - id);
+      path = str.right(str.size() - id).trimmed();
       break;
     }
   }
@@ -3492,7 +3492,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
   }
 
   ext_path +=
-      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions")
+      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/")
       .arg(profile_folder);
   QString cur_dir = dir + "/" + file_name;
   args.clear();
@@ -3514,7 +3514,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
 
 template<>
 system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
-  qDebug() << "quiting firefox";
+  qDebug() << "quitting firefox";
   QString cmd("taskkill");
   QStringList args;
   args << "/F" << "/IM" << "firefox.exe" << "/T";
@@ -3547,12 +3547,17 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const 
   }
 
   ext_path +=
-      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions")
-      .arg(profile_folder);
-  QString cur_dir = dir + "\\" + file_name;
+      QString("%2AppData%2Roaming%2Mozilla%2Firefox%2Profiles%2%1%2extensions%2")
+      .arg(profile_folder, QDir::separator());
+  QString cur_dir = dir + QDir::separator() + file_name;
+
   args.clear();
   cmd = "MOVE";
   args << "/Y" << cur_dir << ext_path;
+
+  qDebug() << "running command:"
+           << "cmd:" << cmd
+           << "args:" << args;
 
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
@@ -3608,7 +3613,7 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_LINUX>>() 
     }
   }
 
-  ext_path += QString("/.mozilla/firefox/%1/extensions/%2.xpi")
+  ext_path += QString("/.mozilla/firefox/%1/extensions/%2@jetpack.xpi")
       .arg(profile_folder, subutai_e2e_id("Firefox"));
   args.clear();
   cmd = "pkexec";
@@ -3662,7 +3667,7 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
   }
 
   ext_path +=
-      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2.xpi")
+      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
       .arg(profile_folder, subutai_e2e_id("Firefox"));
   args.clear();
   cmd = "osascript";
@@ -3715,8 +3720,8 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_WIN>>() {
   }
 
   ext_path +=
-      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions")
-      .arg(profile_folder);
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions\\%2@jetpack.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
   args.clear();
   cmd = "DEL";
   args << "/Y" << ext_path;
@@ -4659,16 +4664,170 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal(QString &versio
 
 template<>
 system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_LINUX>>(QString &version) {
+  version = "undefined";
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path += QString("/.mozilla/firefox/%1/extensions/%2@jetpack.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
+  qDebug() << "firefox e2e extension path" << ext_path;
+  QFile ext_file(ext_path);
+  if (ext_file.exists()) {
+    QString addons_path = home_paths_list[0] +
+        QString("/.mozilla/firefox/%1/addons.json").arg(profile_folder);
+    QFile addons_file(addons_path);
+    if (!addons_file.open(QIODevice::ReadOnly)) {
+      qCritical() << "Can't open addons.json file";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QTextStream stream(&addons_file);
+    QString addons_str = stream.readAll();
+    std::string str = addons_str.toStdString();
+    int id = str.find("Subutai E2E Plugin");
+    if (id == -1) {
+      qCritical() << "no entry of subutai e2e in addons.json";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    int l = id + 31;
+    int r = str.find("\"", l);
+    version = addons_str.mid(l, r - l);
+  } else {
+    qDebug() << "firefox subutai e2e isn't installed";
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_MAC>>(QString &version) {
+  version = "undefined";
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
+  qDebug() << "firefox e2e extension path" << ext_path;
+  QFile ext_file(ext_path);
+  if (ext_file.exists()) {
+    QString addons_path = home_paths_list[0] +
+        QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/addons.json")
+        .arg(profile_folder);
+    QFile addons_file(addons_path);
+    if (!addons_file.open(QIODevice::ReadOnly)) {
+      qCritical() << "Can't open addons.json file";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QTextStream stream(&addons_file);
+    QString addons_str = stream.readAll();
+    std::string str = addons_str.toStdString();
+    int id = str.find("Subutai E2E Plugin");
+    if (id == -1) {
+      qCritical() << "no entry of subutai e2e in addons.json";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    int l = id + 31;
+    int r = str.find("\"", l);
+    version = addons_str.mid(l, r - l);
+  } else {
+    qDebug() << "firefox subutai e2e isn't installed";
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
 system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_WIN>>(QString &version) {
+  version = "undefined";
+
+  QStringList home_paths_list =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (home_paths_list.empty()) {
+    qCritical() << "Failed to get home directory";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = home_paths_list[0];
+  std::pair<QStringList, QStringList> profiles = firefox_profiles();
+  QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
+  QString profile_folder = "";
+
+  for (int i = 0; i < profiles.first.size(); i++) {
+    if (profiles.first[i] == cur_profile) {
+      profile_folder = profiles.second[i];
+      break;
+    }
+  }
+
+  ext_path +=
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions\\%2@jetpack.xpi")
+      .arg(profile_folder, subutai_e2e_id("Firefox"));
+  qDebug() << "firefox e2e extension path" << ext_path;
+  QFile ext_file(ext_path);
+  if (ext_file.exists()) {
+    QString addons_path = home_paths_list[0] +
+        QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\addons.json")
+        .arg(profile_folder);
+    QFile addons_file(addons_path);
+    if (!addons_file.open(QIODevice::ReadOnly)) {
+      qCritical() << "Can't open addons.json file";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    QTextStream stream(&addons_file);
+    QString addons_str = stream.readAll();
+    std::string str = addons_str.toStdString();
+    int id = str.find("Subutai E2E Plugin");
+    if (id == -1) {
+      qCritical() << "no entry of subutai e2e in addons.json";
+      return SCWE_CREATE_PROCESS;
+    }
+
+    int l = id + 31;
+    int r = str.find("\"", l);
+    version = addons_str.mid(l, r - l);
+  } else {
+    qDebug("firefox subutai e2e extension isn't installed");
+  }
+
   return SCWE_SUCCESS;
 }
 
@@ -4921,17 +5080,88 @@ template<class OS>
 system_call_wrapper_error_t firefox_version_internal(QString &version);
 
 template<>
-system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_LINUX>>(QString &version) {
+system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_MAC_LIN>>(QString &version) {
+  version = "undefined";
+
+  QString cmd = CSettingsManager::Instance().firefox_path();
+  QStringList args;
+  args << "-v";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 5000);
+  qDebug() << "asked for firefox version"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code == 0 && res.res == SCWE_SUCCESS && !res.out.empty()) {
+    for (QString str: res.out) {
+      if (str.contains(QRegularExpression("Mozilla Firefox"))) {
+        version = str.replace(QRegularExpression("[ a-zA-Z]"), "");
+        break;
+      }
+    }
+  }
+
   return SCWE_SUCCESS;
 }
 
 template<>
+system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_LINUX>>(QString &version) {
+  return firefox_version_internal<Os2Type<OS_MAC_LIN>>(version);
+}
+
+
+template<>
 system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_MAC>>(QString &version) {
-  return SCWE_SUCCESS;
+  return firefox_version_internal<Os2Type<OS_MAC_LIN>>(version);
 }
 
 template<>
 system_call_wrapper_error_t firefox_version_internal<Os2Type<OS_WIN>>(QString &version) {
+  version = "undefined";
+
+  QString path;
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe";
+  qDebug() << "REG QUERY started"
+           << "args:" << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "REG QUERY finished:"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "REG QUERY failed.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  for (QString str: res.out) {
+    if (str.contains("Path") && str.contains("REG_SZ")) {
+      std::string std_str =
+          str.replace(QRegularExpression("[\t\n]+"), "").toStdString();
+      int id = std_str.find(" ", std_str.find("REG_SZ"));
+      path = str.right(str.size() - id).trimmed();
+      break;
+    }
+  }
+
+  cmd = path + "\\firefox.exe";
+  args.clear();
+  args << "-v";
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "asked for firefox version"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code == 0 && res.res == SCWE_SUCCESS && !res.out.empty()) {
+    for (QString str: res.out) {
+      if (str.contains(QRegularExpression("Mozilla Firefox"))) {
+        version = str.replace(QRegularExpression("[ a-zA-Z]"), "");
+        break;
+      }
+    }
+  }
+
   return SCWE_SUCCESS;
 }
 
