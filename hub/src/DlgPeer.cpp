@@ -33,7 +33,7 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->lbl_update_peeros->setWordWrap(true);
   ui->lbl_env_info->setWordWrap(true);
 
-  ui->le_name->setReadOnly(true);
+  ui->le_user->setReadOnly(true);
   ui->le_pass->setReadOnly(true);
   ui->lbl_ip->setReadOnly(true);
   ui->lbl_port->setReadOnly(true);
