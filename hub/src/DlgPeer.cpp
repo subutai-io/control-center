@@ -149,7 +149,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   rh_status = peer.status();
   rh_dir = peer.dir();
   rh_name = peer.name();
-  rh_provision_step = peer.provision_step();
+  rh_provision_step = CPeerController::Instance()->getProvisionStep(rh_dir);
   management_ua = peer.update_available() == "true" ? true : false;
   // localhost port
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&

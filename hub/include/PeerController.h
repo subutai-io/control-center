@@ -123,6 +123,7 @@ class CPeerController : public QObject {
   system_call_res_t get_global_status() { return vagrant_global_status; }
   const QString &status_description(const QString &status);
   const QString &provision_step_description(const int &step);
+  int getProvisionStep(const QString &dir);
 
  private slots:
   void refresh_timer_timeout();
