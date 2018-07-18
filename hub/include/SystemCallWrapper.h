@@ -217,6 +217,8 @@ class CSystemCallWrapper {
 
   static QStringList hyperv_interfaces();
 
+  static QStringList parallels_interfaces();
+
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_p2p(const QString &dir, const QString &file_name);
 
