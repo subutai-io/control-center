@@ -852,12 +852,12 @@ void CRestWorker::pre_handle_reply(const QNetworkReply* reply, int& http_code,
 
 QJsonDocument CRestWorker::qjson_doc_from_arr(const QByteArray& arr,
                                               int& err_code) {
-  QJsonDocument doc = QJsonDocument::fromJson(arr);
-  if (doc.isNull()) {
-    if (err_code != RE_NETWORK_ERROR && err_code != RE_TIMEOUT &&
-        QString(arr) != "[]") {
-      err_code = RE_NOT_JSON_DOC;
-    }
+  QJsonParseError error;
+  QJsonDocument doc = QJsonDocument::fromJson(arr, &error);
+  if (error.error != QJsonParseError::NoError) {
+    qCritical() << QString("Failed to convert json document. Error message: %1")
+                   .arg(error.errorString());
+    err_code = RE_NOT_JSON_DOC;
     return QJsonDocument();
   }
   return doc;
