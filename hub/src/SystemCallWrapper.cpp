@@ -3564,23 +3564,18 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const 
   }
 
   ext_path +=
-      QString("%2AppData%2Roaming%2Mozilla%2Firefox%2Profiles%2%1%2extensions%2")
-      .arg(profile_folder, QDir::separator());
-  QString cur_dir = dir + QDir::separator() + file_name;
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions\\%2")
+      .arg(profile_folder, file_name);
+  QString cur_dir = dir + "\\" + file_name;
 
-  args.clear();
-  cmd = "MOVE";
-  args << "/Y" << cur_dir << ext_path;
+  qDebug() << "copying xpi-file from" << cur_dir << "to" << ext_path;
 
-  qDebug() << "running command:"
-           << "cmd:" << cmd
-           << "args:" << args;
+  if (QFile::exists(ext_path)) {
+    QFile::remove(ext_path);
+  }
 
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
-    qCritical() << "Failed to install e2e"
-                << "exit code:" << res.exit_code
-                << "output:" << res.out;
+  if (!QFile::copy(cur_dir, ext_path)) {
+    qCritical() << "Failed to install e2e";
     return SCWE_CREATE_PROCESS;
   }
 
@@ -3739,12 +3734,8 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_WIN>>() {
   ext_path +=
       QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions\\%2@jetpack.xpi")
       .arg(profile_folder, subutai_e2e_id("Firefox"));
-  args.clear();
-  cmd = "DEL";
-  args << "/Y" << ext_path;
-
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+  QFile ext_file(ext_path);
+  if (!ext_file.remove()) {
     qCritical() << "Failed to uninstall e2e"
                 << "exit code:" << res.exit_code
                 << "output:" << res.out;
@@ -4790,7 +4781,6 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_MAC>
     for (QJsonValue i: arr) {
       if (i.isObject()) {
         QJsonObject cur = i.toObject();
-        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
         if (cur.contains("id") && cur["id"].isString() &&
             cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
           version = cur["version"].toString();
@@ -4838,6 +4828,10 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_WIN>
         QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions.json")
         .arg(profile_folder);
     QFile addons_file(addons_path);
+    if (!addons_file.open(QIODevice::ReadOnly)) {
+      qCritical() << "Can't open extensions.json file";
+      return SCWE_CREATE_PROCESS;
+    }
     QJsonObject obj = QJsonDocument().fromJson(addons_file.readAll()).object();
     if (!obj.contains("addons")) {
       qCritical() << "no entry of subutai e2e in extensions.json";
