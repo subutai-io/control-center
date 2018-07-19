@@ -3446,6 +3446,10 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(cons
        << "-c"
        << QString("mkdir -p %2; cp -p %1 %2").arg(cur_dir, ext_path);
 
+  qDebug() << "Installing e2e firefox"
+           << "cmd:" << cmd
+           << "args:" << args;
+
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
     qCritical() << "Failed to install e2e"
@@ -4691,25 +4695,32 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_LINU
   QFile ext_file(ext_path);
   if (ext_file.exists()) {
     QString addons_path = home_paths_list[0] +
-        QString("/.mozilla/firefox/%1/addons.json").arg(profile_folder);
+        QString("/.mozilla/firefox/%1/extensions.json").arg(profile_folder);
     QFile addons_file(addons_path);
     if (!addons_file.open(QIODevice::ReadOnly)) {
-      qCritical() << "Can't open addons.json file";
+      qCritical() << "Can't open extensions.json file";
       return SCWE_CREATE_PROCESS;
     }
 
-    QTextStream stream(&addons_file);
-    QString addons_str = stream.readAll();
-    std::string str = addons_str.toStdString();
-    int id = str.find("Subutai E2E Plugin");
-    if (id == -1) {
-      qCritical() << "no entry of subutai e2e in addons.json";
+    QJsonObject obj = QJsonDocument().fromJson(addons_file.readAll()).object();
+    if (!obj.contains("addons")) {
+      qCritical() << "no entry of subutai e2e in extensions.json";
       return SCWE_CREATE_PROCESS;
     }
+    QJsonArray arr = obj["addons"].toArray();
+    for (QJsonValue i: arr) {
+      if (i.isObject()) {
+        QJsonObject cur = i.toObject();
+        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
+        if (cur.contains("id") && cur["id"].isString() &&
+            cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
+          version = cur["version"].toString();
+          break;
+        }
+      }
+    }
 
-    int l = id + 31;
-    int r = str.find("\"", l);
-    version = addons_str.mid(l, r - l);
+    qDebug() << "got firefox subutai e2e version:" << version;
   } else {
     qDebug() << "firefox subutai e2e isn't installed";
   }
@@ -4747,26 +4758,31 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_MAC>
   QFile ext_file(ext_path);
   if (ext_file.exists()) {
     QString addons_path = home_paths_list[0] +
-        QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/addons.json")
+        QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions.json")
         .arg(profile_folder);
     QFile addons_file(addons_path);
     if (!addons_file.open(QIODevice::ReadOnly)) {
-      qCritical() << "Can't open addons.json file";
+      qCritical() << "Can't open extensions.json file";
       return SCWE_CREATE_PROCESS;
     }
 
-    QTextStream stream(&addons_file);
-    QString addons_str = stream.readAll();
-    std::string str = addons_str.toStdString();
-    int id = str.find("Subutai E2E Plugin");
-    if (id == -1) {
-      qCritical() << "no entry of subutai e2e in addons.json";
+    QJsonObject obj = QJsonDocument().fromJson(addons_file.readAll()).object();
+    if (!obj.contains("addons")) {
+      qCritical() << "no entry of subutai e2e in extensions.json";
       return SCWE_CREATE_PROCESS;
     }
-
-    int l = id + 31;
-    int r = str.find("\"", l);
-    version = addons_str.mid(l, r - l);
+    QJsonArray arr = obj["addons"].toArray();
+    for (QJsonValue i: arr) {
+      if (i.isObject()) {
+        QJsonObject cur = i.toObject();
+        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
+        if (cur.contains("id") && cur["id"].isString() &&
+            cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
+          version = cur["version"].toString();
+          break;
+        }
+      }
+    }
   } else {
     qDebug() << "firefox subutai e2e isn't installed";
   }
@@ -4804,26 +4820,27 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_WIN>
   QFile ext_file(ext_path);
   if (ext_file.exists()) {
     QString addons_path = home_paths_list[0] +
-        QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\addons.json")
+        QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions.json")
         .arg(profile_folder);
     QFile addons_file(addons_path);
-    if (!addons_file.open(QIODevice::ReadOnly)) {
-      qCritical() << "Can't open addons.json file";
+    QJsonObject obj = QJsonDocument().fromJson(addons_file.readAll()).object();
+    if (!obj.contains("addons")) {
+      qCritical() << "no entry of subutai e2e in extensions.json";
       return SCWE_CREATE_PROCESS;
     }
 
-    QTextStream stream(&addons_file);
-    QString addons_str = stream.readAll();
-    std::string str = addons_str.toStdString();
-    int id = str.find("Subutai E2E Plugin");
-    if (id == -1) {
-      qCritical() << "no entry of subutai e2e in addons.json";
-      return SCWE_CREATE_PROCESS;
+    QJsonArray arr = obj["addons"].toArray();
+    for (QJsonValue i: arr) {
+      if (i.isObject()) {
+        QJsonObject cur = i.toObject();
+        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
+        if (cur.contains("id") && cur["id"].isString() &&
+            cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
+          version = cur["version"].toString();
+          break;
+        }
+      }
     }
-
-    int l = id + 31;
-    int r = str.find("\"", l);
-    version = addons_str.mid(l, r - l);
   } else {
     qDebug("firefox subutai e2e extension isn't installed");
   }
@@ -5173,7 +5190,10 @@ system_call_wrapper_error_t CSystemCallWrapper::firefox_version(
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::firefox_last_session() {
-  return true;
+  qDebug() << "There is no restore session option for firefox";
+  QString cmd = CSettingsManager::Instance().firefox_path();
+  QStringList args;
+  return QProcess::startDetached(cmd, args);
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -138,7 +138,7 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
       QObject::tr(
           "<br>Subutai E2E has been installed to your browser</br>"
           "<br>If E2E does not appear, please approve installation from "
-          "chrome://extensions.\n\t</br>"
+          "Settings of your browser.</br>"
           "<br><a "
           "href='https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html'>"
           "Learn more about Subutai E2E."
@@ -148,7 +148,11 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::Ok) {
-    CSystemCallWrapper::chrome_last_session();
+    if (CSettingsManager::Instance().default_browser() == "Chrome") {
+      CSystemCallWrapper::chrome_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      CSystemCallWrapper::firefox_last_session();
+    }
   }
 }
 
@@ -169,6 +173,10 @@ void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::Ok) {
-    CSystemCallWrapper::chrome_last_session();
+    if (CSettingsManager::Instance().default_browser() == "Chrome") {
+      CSystemCallWrapper::chrome_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      CSystemCallWrapper::firefox_last_session();
+    }
   }
 }

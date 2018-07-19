@@ -196,9 +196,9 @@ template <class OS> const QString& firefox_kurjun_package_name_internal();
     static QString res(STRING); \
     return res; \
   }
-firefox_kurjun_package_name_def(OS_MAC, "Firefox 61.0.1.dmg")
-firefox_kurjun_package_name_def(OS_LINUX, "Firefox 61.0.1.deb")
-firefox_kurjun_package_name_def(OS_WIN, "Firefox 61.0.1.exe")
+firefox_kurjun_package_name_def(OS_MAC, "Firefox-61.0.1.dmg")
+firefox_kurjun_package_name_def(OS_LINUX, "Firefox-61.0.1.deb")
+firefox_kurjun_package_name_def(OS_WIN, "Firefox-61.0.1.exe")
 const QString& firefox_kurjun_package_name(){
     return firefox_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
 }
@@ -611,6 +611,19 @@ const QString firefox_profiles_internal<Os2Type<OS_WIN>>() {
   return paths_str[0] + "\\AppData\\Roaming\\Mozilla\\Firefox\\profiles.ini";
 }
 
+template<class OS>
+const int firefox_profiles_folder_path_cut();
+
+#define firefox_profiles_folder_path_cut_def(OS_TYPE, INT) \
+  template<> \
+  const int firefox_profiles_folder_path_cut<Os2Type<OS_TYPE>>() { \
+    return INT; \
+  }
+
+firefox_profiles_folder_path_cut_def(OS_LINUX, 5)
+firefox_profiles_folder_path_cut_def(OS_MAC, 5)
+firefox_profiles_folder_path_cut_def(OS_WIN, 14)
+
 const std::pair<QStringList, QStringList> &firefox_profiles() {
   static std::pair<QStringList, QStringList> profiles;
   profiles.first.clear();
@@ -629,7 +642,8 @@ const std::pair<QStringList, QStringList> &firefox_profiles() {
         str.replace(QRegularExpression("[\n\t]"), "");
         profiles.first << str;
       } else if (str.contains("Path=")) {
-        str = str.right(str.size() - 14);
+        str = str.right(str.size() -
+                        firefox_profiles_folder_path_cut<Os2Type<CURRENT_OS>>());
         str.replace(QRegularExpression("[\n\t]"), "");
         profiles.second << str;
       }
