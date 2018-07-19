@@ -4715,7 +4715,6 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_LINU
     for (QJsonValue i: arr) {
       if (i.isObject()) {
         QJsonObject cur = i.toObject();
-        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
         if (cur.contains("id") && cur["id"].isString() &&
             cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
           version = cur["version"].toString();
@@ -4842,7 +4841,6 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_WIN>
     for (QJsonValue i: arr) {
       if (i.isObject()) {
         QJsonObject cur = i.toObject();
-        qDebug() << "BLED" << cur["id"].toString() << subutai_e2e_id("Firefox") + "@jetpack";
         if (cur.contains("id") && cur["id"].isString() &&
             cur["id"] == subutai_e2e_id("Firefox") + "@jetpack") {
           version = cur["version"].toString();
