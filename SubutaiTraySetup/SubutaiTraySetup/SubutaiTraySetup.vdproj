@@ -435,6 +435,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D4F7DA00942C4257A10C7185046687EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D664A2D9C85E4F02A710C90CC2CCE616"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -576,6 +582,20 @@
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
             "Identifier" = "8:_901E9D58_1682_40DE_BE32_B1454FAD5F3D"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_D8C8F3AD2A514094978C95E9B884CF17"
+            {
+            "Name" = "8:closecc.vbs"
+            "Condition" = "8:"
+            "Object" = "8:_D4F7DA00942C4257A10C7185046687EB"
+            "FileType" = "3:4"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_B2B5AC1F_B15E_4C6D_ABA3_5D54521E96D4"
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
@@ -1978,6 +1998,26 @@
             {
             "SourcePath" = "8:C:\\tray_builds\\SubutaiTray\\api-ms-win-crt-math-l1-1-0.dll"
             "TargetName" = "8:api-ms-win-crt-math-l1-1-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4F7DA00942C4257A10C7185046687EB"
+            {
+            "SourcePath" = "8:..\\..\\closecc.vbs"
+            "TargetName" = "8:closecc.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"
