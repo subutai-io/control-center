@@ -107,7 +107,7 @@ DlgLogin::login() {
       if (!QSslSocket::supportsSsl()) {
         ui->lbl_status->setText(QString("<font color='red'>%1 %2</font>").
                                 arg(tr("There is an OpenSSL compatibility problem.")).
-                                arg(tr("Press \"Resolve\" to install proper OpenSSL version."));
+                                arg(tr("Press \"Resolve\" to install proper OpenSSL version.")));
         solve_libssl();
       } else {
         ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
