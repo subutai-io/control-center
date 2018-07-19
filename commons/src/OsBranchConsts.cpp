@@ -602,7 +602,7 @@ const QString firefox_profiles_internal<Os2Type<OS_LINUX>>() {
 template<>
 const QString firefox_profiles_internal<Os2Type<OS_MAC>>() {
   QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-  return paths_str[0] + "/Library/Application\\\\ Support/Firefox/profiles.ini";
+  return paths_str[0] + "/Library/Application Support/Firefox/profiles.ini";
 }
 
 template<>
@@ -621,7 +621,7 @@ const int firefox_profiles_folder_path_cut();
   }
 
 firefox_profiles_folder_path_cut_def(OS_LINUX, 5)
-firefox_profiles_folder_path_cut_def(OS_MAC, 5)
+firefox_profiles_folder_path_cut_def(OS_MAC, 14)
 firefox_profiles_folder_path_cut_def(OS_WIN, 14)
 
 const std::pair<QStringList, QStringList> &firefox_profiles() {
@@ -629,6 +629,9 @@ const std::pair<QStringList, QStringList> &firefox_profiles() {
   profiles.first.clear();
   profiles.second.clear();
   QString ini_path = firefox_profiles_internal<Os2Type<CURRENT_OS>>();
+
+  qDebug() << "profiles.ini path:" << ini_path;
+
   QFile ini_file(ini_path);
 
   if (ini_file.open(QIODevice::ReadOnly)) {
@@ -649,6 +652,9 @@ const std::pair<QStringList, QStringList> &firefox_profiles() {
       }
     }
   }
+
+  qDebug() << "got profiles list:" << profiles.first << profiles.second;
+
   return profiles;
 }
 

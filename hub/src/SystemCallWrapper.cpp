@@ -3211,10 +3211,13 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QStr
   QStringList args;
   QString file_path = dir + "/" + file_name;
   args << "-e"
-       << QString("do shell script \"hdutil attach -nobrowse %1; "
+       << QString("do shell script \"hdiutil attach -nobrowse %1; "
                   "cp -R /Volumes/Firefox/Firefox.app "
                   "/Applications/Firefox.app\" with administrator privileges")
           .arg(file_path);
+  qDebug() << "installing firefox"
+           << "cmd:" << cmd
+           << "args:" << args;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   qDebug() << "Installation of firefox finished"
            << "Result code:" << res.res
@@ -3463,12 +3466,16 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(cons
 
 template<>
 system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const QString &dir, const QString &file_name) {
+  qDebug() << "entered scwe:install_e2e_firefox_internal_os_mac";
   QString cmd("osascript");
   QStringList args;
   args << "-e"
        << "tell application \"Firefox\" to quit";
+  qDebug() << "Quitting Firefox";
+
   system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+
   if (res.res != SCWE_SUCCESS || res.exit_code != 0){
     qCritical() << "Failed to close Firefox"
                 << "Exit code: " << res.exit_code
@@ -3483,6 +3490,8 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
     return SCWE_CREATE_PROCESS;
   }
 
+  qDebug() << "Got home location.";
+
   QString ext_path = home_paths_list[0];
   std::pair<QStringList, QStringList> profiles = firefox_profiles();
   QString cur_profile = CSettingsManager::Instance().default_firefox_profile();
@@ -3496,7 +3505,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
   }
 
   ext_path +=
-      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/")
+      QString("/Library/Application\\\\ Support/Firefox/Profiles/%1/extensions/")
       .arg(profile_folder);
   QString cur_dir = dir + "/" + file_name;
   args.clear();
@@ -3504,6 +3513,10 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
   args << "-e"
        << QString("do shell script \"mkdir -p %2;"
                   "cp %1 %2\"").arg(cur_dir, ext_path);
+
+  qDebug() << "installing e2e firefox"
+           << "cmd:" << cmd
+           << "args:" << args;
 
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
@@ -3671,7 +3684,7 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
   }
 
   ext_path +=
-      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
+      QString("/Library/Application\\\\ Support/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
       .arg(profile_folder, subutai_e2e_id("Firefox"));
   args.clear();
   cmd = "osascript";
@@ -4745,20 +4758,22 @@ system_call_wrapper_error_t subutai_e2e_firefox_version_internal<Os2Type<OS_MAC>
   QString profile_folder = "";
 
   for (int i = 0; i < profiles.first.size(); i++) {
+    qDebug() << "gege" << profiles.first[i] << profiles.second[i] << cur_profile;
     if (profiles.first[i] == cur_profile) {
       profile_folder = profiles.second[i];
       break;
     }
   }
+  qDebug() << "got profile folder:" << profile_folder;
 
   ext_path +=
-      QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
+      QString("/Library/Application Support/Firefox/Profiles/%1/extensions/%2@jetpack.xpi")
       .arg(profile_folder, subutai_e2e_id("Firefox"));
   qDebug() << "firefox e2e extension path" << ext_path;
   QFile ext_file(ext_path);
   if (ext_file.exists()) {
     QString addons_path = home_paths_list[0] +
-        QString("/Library/Application\\\\ Suppot/Firefox/Profiles/%1/extensions.json")
+        QString("/Library/Application Support/Firefox/Profiles/%1/extensions.json")
         .arg(profile_folder);
     QFile addons_file(addons_path);
     if (!addons_file.open(QIODevice::ReadOnly)) {
