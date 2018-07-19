@@ -33,16 +33,17 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->lbl_update_peeros->setWordWrap(true);
   ui->lbl_env_info->setWordWrap(true);
 
-  ui->le_name->setReadOnly(true);
-  ui->le_cpu->setReadOnly(true);
-  ui->le_ram->setReadOnly(true);
-  ui->le_disk->setReadOnly(true);
+  ui->le_user->setReadOnly(true);
+  ui->le_pass->setReadOnly(true);
+  ui->lbl_ip->setReadOnly(true);
+  ui->lbl_port->setReadOnly(true);
 
   ui->cmb_bridge->setEnabled(false);
-  ui->le_ram->setEnabled(false);
-  ui->le_disk->setEnabled(false);
-  ui->le_cpu->setEnabled(false);
+  ui->le_ram->setReadOnly(true);
+  ui->le_disk->setReadOnly(true);
+  ui->le_cpu->setReadOnly(true);
 
+  ui->lbl_port->setValidator(new QIntValidator(1, 200000, this));;
   ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
   ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
   ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
@@ -53,6 +54,14 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   // slots
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &DlgPeer::ssh_to_rh_finished_sl);
+  connect(ui->change_ssh, &QCheckBox::toggled, [this](bool checked) {
+    ui->le_pass->setReadOnly(!checked);
+    ui->le_user->setReadOnly(!checked);
+    ui->lbl_port->setReadOnly(!checked);
+    ui->lbl_ip->setReadOnly(!checked);
+    if (checked == false) {
+      this->configs();
+    }});
   // btn rh
   connect(ui->btn_destroy, &QPushButton::clicked, this,
           &DlgPeer::rh_destroy_sl);
@@ -69,9 +78,6 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     ui->le_ram->setReadOnly(!checked);
     ui->le_disk->setReadOnly(!checked);
     ui->cmb_bridge->setEnabled(checked);
-    ui->le_disk->setEnabled(checked);
-    ui->le_cpu->setEnabled(checked);
-    ui->le_ram->setEnabled(checked);
     if (checked == false) {
       this->configs();
     }
@@ -102,6 +108,7 @@ void DlgPeer::updatePeer() {
       TrayControlWindow::Instance()->my_peers_button_table.end()) {
     qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
     this->close();
+    return;
   } else {
     TrayControlWindow::my_peer_button *peer_info =
         TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
@@ -148,7 +155,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   rh_status = peer.status();
   rh_dir = peer.dir();
   rh_name = peer.name();
-  rh_provision_step = peer.provision_step();
+  rh_provision_step = CPeerController::Instance()->getProvisionStep(rh_dir);
   management_ua = peer.update_available() == "true" ? true : false;
   // localhost port
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
@@ -261,11 +268,13 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
   }
   if (!local_peer.first.isEmpty()) {
     addLocalPeer(local_peer);
+    ssh_available = true;
   } else {  // peer was not found in lan network
     ssh_available = false;
   }
   if (!lp.empty()) {
     addMachinePeer(lp[0]);
+    ssh_available = true;
   } else {  // cc didn't see this peer in your machine
     advanced = false;
   }
@@ -274,30 +283,34 @@ void DlgPeer::addPeer(CMyPeerInfo *hub_peer,
 
 void DlgPeer::updateUI() {
   if (ssh_available) {  // parse SSH information
-    if (ssh_ip.isEmpty())
-      ssh_ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
-    if (ssh_ip.isEmpty()) ssh_ip = QString("127.0.0.1");
-    ssh_port =
-        QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
-    if (ssh_port.isEmpty() || ssh_port == "0") ssh_port = QString("22");
-    ssh_user = CSettingsManager::Instance().rh_user(peer_fingerprint);
-    if (ssh_user.isEmpty()) ssh_user = QString("subutai");
-    ssh_pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
-    if (ssh_pass.isEmpty()) ssh_pass = QString("ubuntai");
+    if (ui->change_ssh->isChecked() && !ui->lbl_ip->text().isEmpty()) {
+      qDebug("changing ssh");
+    } else {
+      if (ssh_ip.isEmpty())
+        ssh_ip = CSettingsManager::Instance().rh_host(peer_fingerprint);
+      if (ssh_ip.isEmpty()) ssh_ip = QString("127.0.0.1");
+      ssh_port =
+          QString::number(CSettingsManager::Instance().rh_port(peer_fingerprint));
+      if (ssh_port.isEmpty() || ssh_port == "0") ssh_port = QString("22");
+      ssh_user = CSettingsManager::Instance().rh_user(peer_fingerprint);
+      if (ssh_user.isEmpty()) ssh_user = QString("subutai");
+      ssh_pass = CSettingsManager::Instance().rh_pass(peer_fingerprint);
+      if (ssh_pass.isEmpty()) ssh_pass = QString("ubuntai");
 
-    ui->lbl_ip->setText(ssh_ip);
-    ui->lbl_port->setText(ssh_port);
-    ui->le_user->setText(ssh_user);
-    ui->le_pass->setText(ssh_pass);
+      ui->lbl_ip->setText(ssh_ip);
+      ui->lbl_port->setText(ssh_port);
+      ui->le_user->setText(ssh_user);
+      ui->le_pass->setText(ssh_pass);
 
-    CSettingsManager::Instance().set_rh_host(peer_fingerprint,
-                                             this->ui->lbl_ip->text());
-    CSettingsManager::Instance().set_rh_port(
-        peer_fingerprint, this->ui->lbl_port->text().toInt());
-    CSettingsManager::Instance().set_rh_user(peer_fingerprint,
-                                             this->ui->le_user->text());
-    CSettingsManager::Instance().set_rh_pass(peer_fingerprint,
-                                             this->ui->le_pass->text());
+      CSettingsManager::Instance().set_rh_host(peer_fingerprint,
+                                               this->ui->lbl_ip->text());
+      CSettingsManager::Instance().set_rh_port(
+          peer_fingerprint, this->ui->lbl_port->text().toInt());
+      CSettingsManager::Instance().set_rh_user(peer_fingerprint,
+                                               this->ui->le_user->text());
+      CSettingsManager::Instance().set_rh_pass(peer_fingerprint,
+                                               this->ui->le_pass->text());
+    }
   } else {  // this means you don't have any access to the peer
     ui->btn_launch_console->setEnabled(false);
     hideSSH();
@@ -364,6 +377,10 @@ void DlgPeer::rh_ssh_sl() {
   if (!advanced) {
     this->ui->btn_ssh_peer->setEnabled(false);
     this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
+    CSettingsManager::Instance().set_rh_host(peer_fingerprint, ui->lbl_ip->text());
+    CSettingsManager::Instance().set_rh_port(peer_fingerprint, ui->lbl_port->text().toInt());
+    CSettingsManager::Instance().set_rh_user(peer_fingerprint, ui->le_user->text());
+    CSettingsManager::Instance().set_rh_pass(peer_fingerprint, ui->le_pass->text());
     emit this->ssh_to_rh_sig(this->peer_fingerprint);
   } else
     rh_ssh();
@@ -552,6 +569,7 @@ void DlgPeer::hideSSH() {
   ui->le_user->hide();
   ui->le_pass->hide();
   ui->btn_ssh_peer->hide();
+  ui->change_ssh->hide();
 }
 
 void DlgPeer::hidePeer() {

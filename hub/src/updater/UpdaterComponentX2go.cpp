@@ -78,14 +78,15 @@ chue_t CUpdaterComponentX2GO::install_internal() {
 
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
-            update_progress_sl(rec, total + (total / 5));
+            update_progress_sl(rec, total);
           });
 
   connect(dm, &CDownloadFileManager::finished,
-          [silent_installer](bool success) {
+          [this, silent_installer](bool success) {
             if (!success) {
               silent_installer->outputReceived(success);
             } else {
+              this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),
                   DlgNotification::N_NO_ACTION);

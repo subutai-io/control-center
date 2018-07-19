@@ -616,6 +616,10 @@ system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_LINUX> >(
 
 template<>
 system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_MAC> >(const QString &dir) {
+  QFileInfo dir_info(dir);
+  if(dir_info.isDir() && dir_info.isWritable()){
+    return SCWE_SUCCESS;
+  }
   QString cmd("osascript");
   QStringList args;
   args << "-e" << QString("do shell script \"chmod +w %1\" "

@@ -1,5 +1,6 @@
 #include <QPixmap>
 #include <QThread>
+#include <QMessageBox>
 #include <QtConcurrent/QtConcurrent>
 
 #include "Commons.h"
@@ -215,7 +216,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                                        ui->cb_p2p, ui->btn_p2p_update,
                                        get_p2p_version};
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray,
-                                        ui->cb_tray, ui->btn_tray_update, NULL};
+                                        NULL, ui->btn_tray_update, NULL};
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go,
                                         ui->cb_x2goclient, ui->btn_x2go_update,
                                         get_x2go_version};
@@ -255,8 +256,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
         CHubComponentsUpdater::Instance()->get_last_pb_value(it->first);
-    if (progress.first * progress.second == 0) {
+    if (progress.second == 0) {
       it->second.pb->setValue(0);
+      it->second.pb->setMaximum(0);
+      it->second.pb->setMinimum(0);
     } else {
       uint value = (progress.first * 100) / progress.second;
       it->second.pb->setValue(value);
@@ -266,9 +269,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->pb_initialization_progress->setMaximum(
       DlgAboutInitializer::COMPONENTS_COUNT);
 
-  // hide checkboxes
+  // hide checkboxes and pb
   for (const auto& component : m_dct_fpb) {
-    component.second.cb->setVisible(false);
+    if (component.second.cb != nullptr) {
+      component.second.cb->setVisible(false);
+    }
     set_hidden_pb(component.first);
   }
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
@@ -470,11 +475,45 @@ void DlgAbout::btn_close_released() { this->close(); }
 /// \brief DlgAbout::btn_uninstall_components
 ///
 void DlgAbout::btn_uninstall_components() {
+  std::vector <std::pair<int, QString> > uninstall_vector; // pair <priority, name> of uninstalled component
+  static QStringList high_priority_component = {IUpdaterComponent::SUBUTAI_BOX,
+                                                IUpdaterComponent::VAGRANT_VBGUEST,
+                                                IUpdaterComponent::VAGRANT_SUBUTAI,
+                                                IUpdaterComponent::E2E}; // components with 1 priority, other will be 0
+
+  QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
-    if (!component.second.cb->isChecked()) {
+    if (component.second.cb == nullptr) {continue;}
+    if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
-      CHubComponentsUpdater::Instance()->uninstall(component.first);
+      if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
+          m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
+        continue;
+      }
+      uninstalling_components_str += "<i>" + IUpdaterComponent::component_id_to_user_view(component.first) + "</i><br>";
+      uninstall_vector.push_back(std::make_pair(!high_priority_component.contains(component.first), component.first));
     }
+  }
+  if (uninstall_vector.empty()) {return;}
+
+  QMessageBox *msg_box = new QMessageBox(
+      QMessageBox::Information, QObject::tr("Attention!"),
+      QObject::tr("<b>You are going to uninstall following components:</b><br>%1"
+          "Do you want to proceed?").arg(uninstalling_components_str),
+      QMessageBox::Yes | QMessageBox::No);
+  msg_box->setTextFormat(Qt::RichText);
+  QObject::connect(msg_box, &QMessageBox::finished, msg_box,
+                   &QMessageBox::deleteLater);
+  if (msg_box->exec() != QMessageBox::Yes) {
+    return;
+  }
+
+  sort(uninstall_vector.begin(), uninstall_vector.end());
+  for (size_t i = 0; i < uninstall_vector.size(); i++) {
+    QString componen_id = uninstall_vector[i].second;
+    m_dct_fpb[componen_id].pb->setEnabled(true);
+    m_dct_fpb[componen_id].pb->setVisible(true);
+    CHubComponentsUpdater::Instance()->uninstall(componen_id);
   }
 }
 
@@ -482,7 +521,13 @@ void DlgAbout::btn_uninstall_components() {
 void DlgAbout::download_progress(const QString& component_id, qint64 rec,
                                  qint64 total) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
-  m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+  if (total == 0) {
+    m_dct_fpb[component_id].pb->setValue(0);
+    m_dct_fpb[component_id].pb->setMinimum(0);
+    m_dct_fpb[component_id].pb->setMaximum(0);
+  } else {
+    m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -508,13 +553,17 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   }
 
   if (success) {
-    m_dct_fpb[component_id].btn->setVisible(false);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(true);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setVisible(false);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(true);
+    }
   } else {
-    m_dct_fpb[component_id].btn->setEnabled(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(false);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setEnabled(true);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(false);
+    }
   }
   m_dct_fpb[component_id].pb->setVisible(false);
 
@@ -593,9 +642,12 @@ void DlgAbout::got_e2e_version_sl(QString version) {
     ui->btn_subutai_e2e->setHidden(false);
     ui->cb_subutai_e2e->setVisible(false);
     ui->btn_subutai_e2e->setText(tr("Install"));
-    ui->btn_subutai_e2e->activateWindow();
+    ui->cb_subutai_e2e->setEnabled(true);
+  } else if(version == "No supported browser is available") {
+    ui->cb_subutai_e2e->setEnabled(false);
   } else {
     ui->btn_subutai_e2e->setText(tr("Update"));
+    ui->cb_subutai_e2e->setEnabled(true);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -649,8 +701,12 @@ void DlgAbout::got_subutai_plugin_version_sl(QString version) {
     ui->cb_vagrant_subtuai_plugin->setVisible(false);
     ui->btn_subutai_plugin_update->setText(tr("Install"));
     ui->btn_subutai_plugin_update->activateWindow();
+    ui->cb_vagrant_subtuai_plugin->setEnabled(true);
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_subtuai_plugin->setEnabled(false);
   } else {
     ui->btn_subutai_plugin_update->setText(tr("Update"));
+    ui->cb_vagrant_subtuai_plugin->setEnabled(true);
   }
   ui->lbl_subutai_plugin_version_val->setText(version);
 }
@@ -663,8 +719,12 @@ void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
     ui->cb_vagrant_vbguest_plugin->setVisible(false);
     ui->btn_vbguest_plugin_update->setText(tr("Install"));
     ui->btn_vbguest_plugin_update->activateWindow();
+    ui->cb_vagrant_vbguest_plugin->setEnabled(true);
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_vbguest_plugin->setEnabled(false);
   } else {
     ui->btn_vbguest_plugin_update->setText(tr("Update"));
+    ui->cb_vagrant_vbguest_plugin->setEnabled(true);
   }
   ui->lbl_vbguest_plugin_version_val->setText(version);
 }
@@ -677,8 +737,12 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
     ui->cb_vagrant_box->setVisible(false);
     ui->btn_subutai_box->setText(tr("Install"));
     ui->btn_subutai_box->activateWindow();
+    ui->cb_vagrant_box->setEnabled(true);
+  } else if(version == "Install Vagrant first") {
+    ui->cb_vagrant_box->setEnabled(false);
   } else {
     ui->btn_subutai_box->setText(tr("Update"));
+    ui->cb_vagrant_box->setEnabled(true);
   }
   ui->lbl_subutai_box_version->setText(version);
 }
@@ -695,9 +759,7 @@ void DlgAbout::set_hidden_pb(const QString& component_id) {
 
 void DlgAbout::update_available_sl(const QString& component_id,
                                    bool available) {
-  bool update_available =
-      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
-       available);
+  bool update_available = available;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
     return;
@@ -705,14 +767,15 @@ void DlgAbout::update_available_sl(const QString& component_id,
   // update available component
   if (update_available) {
     qInfo() << "update available: " << component_id;
-    m_dct_fpb[component_id].cb->setHidden(true);
     m_dct_fpb[component_id].btn->setVisible(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
-  } else {
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].cb->setHidden(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
+    }
+  } else if (m_dct_fpb[component_id].cb != nullptr) {
     // not available component
     m_dct_fpb[component_id].btn->setHidden(true);
     m_dct_fpb[component_id].cb->setVisible(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
   }
 
   if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
@@ -723,6 +786,9 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].cb->setVisible(false);
   }
 
+  update_available =
+      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
+       available);
   m_dct_fpb[component_id].btn->setEnabled(update_available);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -818,15 +884,19 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
 
   if (success) {
     m_dct_fpb[component_id].pb->setHidden(true);
-    m_dct_fpb[component_id].btn->setHidden(true);
-    m_dct_fpb[component_id].cb->setChecked(true);
-    m_dct_fpb[component_id].cb->setVisible(true);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setHidden(true);
+      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setVisible(true);
+    }
   } else {
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
-    m_dct_fpb[component_id].pb->setVisible(false);
-    m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].cb->setEnabled(false);
+    if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].pb->setVisible(false);
+      m_dct_fpb[component_id].cb->setVisible(false);
+      m_dct_fpb[component_id].cb->setEnabled(false);
+    }
   }
 
   if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
@@ -846,11 +916,14 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
   if (success) {
     m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].cb->setChecked(true);
+    m_dct_fpb[component_id].cb->setChecked(false);
     m_dct_fpb[component_id].btn->setVisible(true);
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
   }
+  m_dct_fpb[component_id].pb->setValue(0);
+  m_dct_fpb[component_id].pb->setRange(0, 100);
+  m_dct_fpb[component_id].pb->setVisible(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////
