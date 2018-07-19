@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>561</width>
-    <height>846</height>
+    <height>776</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -157,7 +157,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -378,7 +378,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -430,58 +430,6 @@ min-height: 550pxk
            </property>
            <property name="text">
             <string>Update</string>
-           </property>
-          </widget>
-         </item>
-         <item alignment="Qt::AlignRight">
-          <widget class="QCheckBox" name="cb_tray">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QCheckBox::indicator {
-     width: 24px;
-     height: 24px;
- }
-
-  QCheckBox::indicator:checked
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked
-  {
-    image: url(:/hub/check_box.png);
-  }
-
-  QCheckBox::indicator:checked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }
-  QCheckBox::indicator:unchecked:pressed
-  {
-    image: url(:/hub/check_box.png);
-  }</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -629,7 +577,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -770,7 +718,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -862,7 +810,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1008,7 +956,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1172,7 +1120,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1315,7 +1263,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1463,7 +1411,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1560,7 +1508,7 @@ min-height: 550pxk
             <string/>
            </property>
            <property name="checked">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
