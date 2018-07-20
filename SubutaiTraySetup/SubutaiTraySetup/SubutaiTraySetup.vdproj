@@ -585,20 +585,6 @@
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_D8C8F3AD2A514094978C95E9B884CF17"
-            {
-            "Name" = "8:closecc.vbs"
-            "Condition" = "8:"
-            "Object" = "8:_D4F7DA00942C4257A10C7185046687EB"
-            "FileType" = "3:4"
-            "InstallAction" = "3:4"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_B2B5AC1F_B15E_4C6D_ABA3_5D54521E96D4"
-            "InstallerClass" = "11:FALSE"
-            "CustomActionData" = "8:"
-            }
         }
         "DefaultFeature"
         {
