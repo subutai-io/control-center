@@ -2697,7 +2697,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const Q
            << "exit code:" << res.exit_code
            << "output:" << res.out;
 
-  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+  if (res.exit_code != 0 && res.exit_code != 21) {
     qCritical() << "chrome uninstall failed";
     return SCWE_COMMAND_FAILED;
   }
