@@ -2539,15 +2539,15 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "dpkg -i %1;"
-                                    "if [ test $? ] -gt 0\n"
+                                    "dpkg -i %1\n"
+                                    "if [ $? -gt 0 ]\n"
                                     "then\n"
                                     "dpkg --remove --force-remove-reinstreq %1\n"
-                                    "apt-get install -y -f;\n"
-                                    "dpkg -i %1;"
+                                    "apt-get install -y -f\n"
+                                    "dpkg -i %1\n"
                                     "else\n"
                                     "rm %1\n"
-                                    "fi")
+                                    "fi\n")
                                     .arg(file_info)
                                     .toUtf8();
 
