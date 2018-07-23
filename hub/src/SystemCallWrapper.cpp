@@ -1292,7 +1292,9 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
            << res.exit_code
            << " output: "
            << res.out;
-
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
