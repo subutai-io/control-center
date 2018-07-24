@@ -1196,7 +1196,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_58023FDC6B434D09A08352B5A73EE727"
             {
-            "SourcePath" = "8:..\\..\\closecc.vbs"
+            "SourcePath" = "8:C:\\SRC\\control-center\\closecc.vbs"
             "TargetName" = "8:closecc.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
