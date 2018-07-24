@@ -44,14 +44,7 @@ min-height: 550pxk
    <item>
     <layout class="QGridLayout" name="gridLayout_3" rowstretch="10,0,0">
      <item row="2" column="0">
-      <layout class="QGridLayout" name="gridLayout" columnstretch="1,0">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_about_init">
-         <property name="text">
-          <string>Collecting data:</string>
-         </property>
-        </widget>
-       </item>
+      <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
        <item row="0" column="1">
         <widget class="QProgressBar" name="pb_initialization_progress">
          <property name="maximum">
@@ -59,6 +52,22 @@ min-height: 550pxk
          </property>
          <property name="value">
           <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_about_init">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>133</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Collecting data:</string>
          </property>
         </widget>
        </item>

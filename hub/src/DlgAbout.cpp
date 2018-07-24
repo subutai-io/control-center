@@ -629,10 +629,12 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
 
   if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
     m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
   }
 
   if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
     m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
   }
 
   qDebug() << "update finished: " << component_id << " status: " << success;

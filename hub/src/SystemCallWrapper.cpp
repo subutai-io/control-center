@@ -5207,6 +5207,7 @@ system_call_wrapper_error_t CSystemCallWrapper::firefox_version(
 
 system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
   version = "undefined";
+#ifdef RT_OS_WINDOWS
   QString cmd("REG");
   QStringList args;
   args << "QUERY"
@@ -5230,6 +5231,7 @@ system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
     }
   }
   qDebug() << "Found Edge version:" << version;
+#endif
   return SCWE_SUCCESS;
 }
 
@@ -5237,6 +5239,7 @@ system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
 
 system_call_wrapper_error_t CSystemCallWrapper::safari_version(QString &version) {
   version = "undefined";
+#ifdef RT_OS_MAC
   QString cmd("/usr/libexec/PlistBuddy");
   QStringList args;
   args << "-c"
@@ -5252,6 +5255,7 @@ system_call_wrapper_error_t CSystemCallWrapper::safari_version(QString &version)
     return SCWE_CREATE_PROCESS;
   }
   version = *res.out.begin();
+#endif
   return SCWE_SUCCESS;
 }
 
