@@ -5200,6 +5200,36 @@ system_call_wrapper_error_t CSystemCallWrapper::firefox_version(
 
 ////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
+  version = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKCR\\AppX3xxs313wwkfjhythsb8q46xdsq8d2cvv\\Application";
+  qDebug() << "querying registry for edge version"
+           << "cmd:" << cmd
+           << "args:" << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "Failed to query edge registry key"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  for (QString str: res.out) {
+    if (str.contains(QRegularExpression("Microsoft.MicrosoftEdge_[0-9.]+"))) {
+      int l = str.indexOf("Microsoft.MicrosoftEdge_") + 24;
+      int r = str.indexOf("_", l);
+      version = str.mid(l, r - l);
+      break;
+    }
+  }
+  qDebug() << "Found Edge version:" << version;
+  return SCWE_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 bool CSystemCallWrapper::firefox_last_session() {
   qDebug() << "There is no restore session option for firefox";
   QString cmd = CSettingsManager::Instance().firefox_path();

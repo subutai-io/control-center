@@ -42,6 +42,7 @@ signals:
   void got_p2p_version(QString version);
   void got_chrome_version(QString version);
   void got_firefox_version(QString version);
+  void got_edge_version(QString version);
   void got_x2go_version(QString version);
   void got_vagrant_version(QString version);
   void got_oracle_virtualbox_version(QString version);
@@ -83,6 +84,7 @@ private:
   //hide some soft
   void set_visible_chrome(bool value);
   void set_visible_firefox(bool value);
+  void set_visible_edge(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
 
@@ -114,6 +116,7 @@ private slots:
   void got_p2p_version_sl(QString version);
   void got_chrome_version_sl(QString version);
   void got_firefox_version_sl(QString version);
+  void got_edge_version_sl(QString version);
   void got_x2go_version_sl(QString version);
   void got_vagrant_version_sl(QString version);
   void got_oracle_virtualbox_version_sl(QString version);

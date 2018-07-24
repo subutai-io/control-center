@@ -305,6 +305,19 @@ void DlgSettings::btn_ok_released() {
   static const QString can_launch_application_msg =
       tr("Cannot launch application");
 
+  if (ui->cb_browser->currentText() == "Edge") {
+    QString msg =
+        QObject::tr("You have selected Microsoft Edge as a default browser. "
+                    "Currently we do not completely support Microsoft Edge. "
+                    "You will not be able to install/uninstall the Subutai "
+                    "E2E Plugin from Control Center.");
+    QMessageBox *msgbox =
+        new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                        msg, QMessageBox::Close);
+    connect(msgbox, &QMessageBox::finished, msgbox, &QMessageBox::deleteLater);
+    msgbox->exec();
+  }
+
   CSettingsManager::Instance().set_default_browser(ui->cb_browser->currentText());
 
   QString profile_name = ui->cb_profile->currentText();

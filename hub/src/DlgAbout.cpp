@@ -79,6 +79,12 @@ QString get_subutai_box_version() {
   CSystemCallWrapper::vagrant_latest_box_version(box, provider, version);
   return version;
 }
+
+QString get_edge_version() {
+  QString version = "";
+  CSystemCallWrapper::edge_version(version);
+  return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
@@ -88,6 +94,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
 
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
+  set_visible_edge("Edge" == current_browser);
 
   QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
@@ -100,6 +107,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_vbguest_plugin_info_icon,
                      this->ui->lbl_subutai_box_info_icon,
                      this->ui->lbl_firefox_info_icon,
+                     this->ui->lbl_edge_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -136,6 +144,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->ui->lbl_firefox_info_icon->setToolTip(tr(
       "Mozilla Firefox is a web browser used by default."));
 
+  this->ui->lbl_edge_info_icon->setToolTip(tr(
+      "Microsoft Edge is web browser used by default."));
+
   this->ui->lbl_subutai_box_info_icon->setToolTip(tr(
       "Subutai Box is the resource box for peer creation."));
 
@@ -156,6 +167,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_x2go_version_val,
                     this->ui->lbl_firefox_version_val,
                     this->ui->lbl_chrome_version_val,
+                    this->ui->lbl_edge_version_val,
                     this->ui->lbl_subutai_e2e_val,
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,
@@ -308,6 +320,23 @@ void DlgAbout::set_visible_firefox(bool value) {
   this->adjustSize();
 }
 
+void DlgAbout::set_visible_edge(bool value) {
+  ui->lbl_edge->setVisible(value);
+  ui->lbl_edge_info_icon->setVisible(value);
+  ui->lbl_edge_version_val->setVisible(value);
+  ui->lbl_spacer_edge->setVisible(value);
+  if (value) {
+    ui->btn_subutai_e2e->setVisible(false);
+    ui->cb_subutai_e2e->setVisible(false);
+    ui->lbl_e2e_info_icon->setVisible(false);
+    ui->lbl_e2e_version->setVisible(false);
+    ui->lbl_spacer_e2e->setVisible(false);
+    ui->lbl_subutai_e2e_val->setVisible(false);
+    ui->pb_e2e->setVisible(false);
+  }
+  this->adjustSize();
+}
+
 DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -322,6 +351,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_chrome_version_sl);
   connect(di, &DlgAboutInitializer::got_firefox_version, this,
           &DlgAbout::got_firefox_version_sl);
+  connect(di, &DlgAboutInitializer::got_edge_version, this,
+          &DlgAbout::got_edge_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version, this,
           &DlgAbout::got_p2p_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version, this,
@@ -635,19 +666,29 @@ void DlgAbout::got_firefox_version_sl(QString version) {
 
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::got_edge_version_sl(QString version) {
+  ui->lbl_edge_version_val->setText(version);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::got_e2e_version_sl(QString version) {
   ui->lbl_subutai_e2e_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::E2E);
-    ui->btn_subutai_e2e->setHidden(false);
-    ui->cb_subutai_e2e->setVisible(false);
-    ui->btn_subutai_e2e->setText(tr("Install"));
-    ui->cb_subutai_e2e->setEnabled(true);
-  } else if(version == "No supported browser is available") {
-    ui->cb_subutai_e2e->setEnabled(false);
+  if (current_browser != "Edge") {
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::E2E);
+      ui->btn_subutai_e2e->setHidden(false);
+      ui->cb_subutai_e2e->setVisible(false);
+      ui->btn_subutai_e2e->setText(tr("Install"));
+      ui->cb_subutai_e2e->setEnabled(true);
+    } else if(version == "No supported browser is available") {
+      ui->cb_subutai_e2e->setEnabled(false);
+    } else {
+      ui->btn_subutai_e2e->setText(tr("Update"));
+      ui->cb_subutai_e2e->setEnabled(true);
+    }
   } else {
-    ui->btn_subutai_e2e->setText(tr("Update"));
-    ui->cb_subutai_e2e->setEnabled(true);
+    ui->btn_subutai_e2e->setVisible(false);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -778,6 +819,11 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].cb->setVisible(true);
   }
 
+  if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
   if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
     m_dct_fpb[component_id].cb->setVisible(false);
   }
@@ -809,6 +855,11 @@ void DlgAboutInitializer::do_initialization() {
     QString firefox_version;
     CSystemCallWrapper::firefox_version(firefox_version);
     emit got_firefox_version(firefox_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString edge_version;
+    CSystemCallWrapper::edge_version(edge_version);
+    emit got_edge_version(edge_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString x2go_version = get_x2go_version();
@@ -858,7 +909,9 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
     for (int i = 0; uas[i] != ""; i++) {
-      emit update_available(uas[i], ua[i]);
+      if (uas[i] != IUpdaterComponent::E2E || CSettingsManager::Instance().default_browser() != "Edge") {
+        emit update_available(uas[i], ua[i]);
+      }
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s",

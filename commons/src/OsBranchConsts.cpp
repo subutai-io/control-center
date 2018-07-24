@@ -481,17 +481,36 @@ hub_billing_url() {
 
 template<class OS> const QStringList& supported_browsers_internal();
 
-#define supported_browsers_internal_def(OS_TYPE, STRING) \
-    template <> \
-    const QStringList& supported_browsers_internal<Os2Type <OS_TYPE> >() { \
-        static QString st(STRING); \
-        static QStringList res = st.split(" "); \
-        return res; \
-    }
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_LINUX>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox";
+  return res;
+}
 
-supported_browsers_internal_def(OS_WIN, "Chrome Firefox") // add edge, mozilla
-supported_browsers_internal_def(OS_LINUX, "Chrome Firefox") // add mozilla
-supported_browsers_internal_def(OS_MAC, "Chrome Firefox") // add safari , mozilla
+
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_MAC>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox" << "Safari";
+  return res;
+}
+
+
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_WIN>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox";
+  QString ver = "undefined";
+  system_call_wrapper_error_t r = CSystemCallWrapper::edge_version(ver);
+  if (r == SCWE_SUCCESS && ver != "undefined") {
+    res << "Edge";
+  }
+  return res;
+}
 
 const QStringList& supported_browsers(){
     return supported_browsers_internal<Os2Type <CURRENT_OS> >();
