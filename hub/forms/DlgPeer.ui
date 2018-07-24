@@ -549,7 +549,7 @@
          <string>Password for ssh (Only for the LAN Peers)</string>
         </property>
         <property name="text">
-         <string>SSH username:</string>
+         <string>SSH password:</string>
         </property>
        </widget>
       </item>

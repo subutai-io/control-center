@@ -185,7 +185,7 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
 void CUpdaterComponentSUBUTAI_BOX::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Error(
-        tr("Vagrant Subutai box installation has failed."),
+        tr("Vagrant Subutai box installation has failed. Make sure you don't have peers on your machine and try again."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
