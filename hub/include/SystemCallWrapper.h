@@ -318,6 +318,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t chrome_version(QString &version);
   static system_call_wrapper_error_t firefox_version(QString &version);
   static system_call_wrapper_error_t edge_version(QString &version);
+  static system_call_wrapper_error_t safari_version(QString &version);
   static const QString &virtual_box_version();
   static const QString &scwe_error_to_str(system_call_wrapper_error_t err);
 

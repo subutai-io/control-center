@@ -5230,6 +5230,28 @@ system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
 
 ////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::safari_version(QString &version) {
+  version = "undefined";
+  QString cmd("/usr/libexec/PlistBuddy");
+  QStringList args;
+  args << "-c"
+       << "print :CFbundleShortVersionString/Applications/Safari.app/Contents/Info.plist";
+  qDebug() << "Getting Safari verison"
+           << "cmd:" << cmd
+           << "args:" << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS != res.out.empty()) {
+    qCritical() << "Failed to get Safari version"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  version = *res.out.begin();
+  return SCWE_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 bool CSystemCallWrapper::firefox_last_session() {
   qDebug() << "There is no restore session option for firefox";
   QString cmd = CSettingsManager::Instance().firefox_path();

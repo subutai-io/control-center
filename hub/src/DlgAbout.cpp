@@ -101,6 +101,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
   set_visible_edge("Edge" == current_browser);
+  set_visible_safari("Safari" == current_browser);
 
   QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
@@ -380,7 +381,7 @@ void DlgAbout::check_for_versions_and_updates() {
   connect(di, &DlgAboutInitializer::got_edge_version, this,
           &DlgAbout::got_edge_version_sl);
   connect(di, &DlgAboutInitializer::got_safari_version, this,
-        &DlgAbout::got_firefox_version_sl);
+          &DlgAbout::got_safari_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version, this,
           &DlgAbout::got_p2p_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version, this,
