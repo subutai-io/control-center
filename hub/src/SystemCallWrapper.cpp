@@ -1312,6 +1312,9 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QStrin
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 
