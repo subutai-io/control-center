@@ -87,6 +87,7 @@ private:
   void set_visible_firefox(bool value);
   void set_visible_safari(bool value);
   void set_visible_edge(bool value);
+  void set_visible_e2e(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
 

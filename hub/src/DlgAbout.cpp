@@ -337,15 +337,30 @@ void DlgAbout::set_visible_edge(bool value) {
   ui->lbl_edge_version_val->setVisible(value);
   ui->lbl_spacer_edge->setVisible(value);
   if (value) {
-    ui->btn_subutai_e2e->setVisible(false);
-    ui->cb_subutai_e2e->setVisible(false);
-    ui->lbl_e2e_info_icon->setVisible(false);
-    ui->lbl_e2e_version->setVisible(false);
-    ui->lbl_spacer_e2e->setVisible(false);
-    ui->lbl_subutai_e2e_val->setVisible(false);
-    ui->pb_e2e->setVisible(false);
+    set_visible_e2e(false);
   }
   this->adjustSize();
+}
+
+void DlgAbout::set_visible_safari(bool value) {
+  ui->lbl_safari->setVisible(value);
+  ui->lbl_safari_info_icon->setVisible(value);
+  ui->lbl_safari_version_val->setVisible(value);
+  ui->lbl_spacer_safari->setVisible(value);
+  if (value) {
+    set_visible_e2e(false);
+  }
+  this->adjustSize();
+}
+
+void DlgAbout::set_visible_e2e(bool value) {
+  ui->btn_subutai_e2e->setVisible(value);
+  ui->cb_subutai_e2e->setVisible(value);
+  ui->lbl_e2e_info_icon->setVisible(value);
+  ui->lbl_e2e_version->setVisible(value);
+  ui->lbl_spacer_e2e->setVisible(value);
+  ui->lbl_subutai_e2e_val->setVisible(value);
+  ui->pb_e2e->setVisible(value);
 }
 
 DlgAbout::~DlgAbout() { delete ui; }
@@ -364,6 +379,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_firefox_version_sl);
   connect(di, &DlgAboutInitializer::got_edge_version, this,
           &DlgAbout::got_edge_version_sl);
+  connect(di, &DlgAboutInitializer::got_safari_version, this,
+        &DlgAbout::got_firefox_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version, this,
           &DlgAbout::got_p2p_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version, this,
@@ -683,9 +700,15 @@ void DlgAbout::got_edge_version_sl(QString version) {
 
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::got_safari_version_sl(QString version) {
+  ui->lbl_safari_version_val->setText(version);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void DlgAbout::got_e2e_version_sl(QString version) {
   ui->lbl_subutai_e2e_val->setText(version);
-  if (current_browser != "Edge") {
+  if (current_browser != "Edge" && current_browser != "Safari") {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::E2E);
       ui->btn_subutai_e2e->setHidden(false);
@@ -830,7 +853,8 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].cb->setVisible(true);
   }
 
-  if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
+  if (component_id == IUpdaterComponent::E2E && (current_browser == "Edge" ||
+                                                 current_browser == "Safari")) {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
   }
@@ -871,6 +895,11 @@ void DlgAboutInitializer::do_initialization() {
     QString edge_version;
     CSystemCallWrapper::edge_version(edge_version);
     emit got_edge_version(edge_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString safari_version;
+    CSystemCallWrapper::safari_version(safari_version);
+    emit got_safari_version(safari_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString x2go_version = get_x2go_version();
