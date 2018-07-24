@@ -55,6 +55,12 @@ QString get_firefox_version() {
   return version;
 }
 
+QString get_safari_version() {
+  QString version = "";
+  CSystemCallWrapper::safari_version(version);
+  return version;
+}
+
 QString get_e2e_version() {
   QString version = "";
   CSystemCallWrapper::subutai_e2e_version(version);
@@ -108,6 +114,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_subutai_box_info_icon,
                      this->ui->lbl_firefox_info_icon,
                      this->ui->lbl_edge_info_icon,
+                     this->ui->lbl_safari_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -147,6 +154,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->ui->lbl_edge_info_icon->setToolTip(tr(
       "Microsoft Edge is web browser used by default."));
 
+  this->ui->lbl_safari_info_icon->setToolTip(tr(
+      "Safari is web browser used by default."));
+
   this->ui->lbl_subutai_box_info_icon->setToolTip(tr(
       "Subutai Box is the resource box for peer creation."));
 
@@ -168,6 +178,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_firefox_version_val,
                     this->ui->lbl_chrome_version_val,
                     this->ui->lbl_edge_version_val,
+                    this->ui->lbl_safari_version_val,
                     this->ui->lbl_subutai_e2e_val,
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,

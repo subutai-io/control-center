@@ -361,6 +361,28 @@ void CHubController::launch_browser(const QString &url) {
                                       "in your system."),
                                    DlgNotification::N_NO_ACTION);
     }
+  } else if (current_browser == "Safari") {
+    qDebug() << "opening safari with given url:" << url;
+    QString safari_ver;
+    system_call_wrapper_error_t res = CSystemCallWrapper::safari_version(safari_ver);
+    if (res == SCWE_SUCCESS || safari_ver != "undefined") {
+      QString cmd("open");
+      QStringList args;
+      args << "-a" << "safari" << url;
+      qDebug() << "launching safari..."
+               << "cmd:" << cmd
+               << "args:" << args;
+      if (!QProcess::startDetached(cmd, args)) {
+        QString err_msg = tr("Unable to redirect to Subutai Bazaar through a "
+                             "browser. Be sure that you have Safari "
+                             "browser installed in your system.");
+      }
+    }
+  } else {
+    CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without "
+                                    "a Safari browser installed "
+                                    "in your system."),
+                                 DlgNotification::N_NO_ACTION);
   }
 }
 
