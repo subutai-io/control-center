@@ -703,6 +703,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
   qDebug() << "Updating environments list"
            << "Result: " << rr;
 
+  m_hub_menu->setEnabled(false); // MacOS Qt bug.
+
   static QIcon unhealthy_icon(":/hub/BAD.png");
   static QIcon healthy_icon(":/hub/GOOD.png");
   static QIcon modification_icon(":/hub/OK.png");
@@ -745,6 +747,7 @@ void TrayControlWindow::environments_updated_sl(int rr) {
     else{
         env_start = my_envs_button_table[env_id];
     }
+    env_start->setEnabled(false); // MacOS Qt bug.
     env_start->setEnabled(true);
     env_start->setText(env_name);
     env_start->setIcon(env->status() == "HEALTHY"
@@ -818,6 +821,8 @@ void TrayControlWindow::environments_updated_sl(int rr) {
         my_envs_button_table.erase(my_envs_button_table.find(it->second.id()));
     }
   }
+
+  m_hub_menu->setEnabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
