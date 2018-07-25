@@ -59,6 +59,8 @@ const QString& x2go_kurjun_package_name();
 const QString& vagrant_kurjun_package_name();
 const QString& oracle_virtualbox_kurjun_package_name();
 const QString& chrome_kurjun_package_name();
+const QString& firefox_kurjun_package_name();
+const QString& firefox_subutai_e2e_kurjun_package_name();
 const QString& subutai_box_kurjun_package_name(const QString &provider);
 const QString& subutai_box_name();
 const QString& p2p_dht_arg();
@@ -84,8 +86,11 @@ const QString& default_oracle_virtualbox_path();
 const QString& default_default_browser();
 const QString& default_default_chrome_profile();
 const QString& default_chrome_extensions_path();
+const QString& default_default_firefox_profile();
+const QString& default_firefox_extensions_path();
 const QStringList& supported_browsers();
 const std::pair<QStringList, QStringList>& chrome_profiles();
+const std::pair<QStringList, QStringList>& firefox_profiles();
 
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();
@@ -94,6 +99,7 @@ const QString& scp_cmd_path();
 
 const QString& which_cmd();
 const QString& default_chrome_path();
+const QString& default_firefox_path();
 
 const QString& subutai_command();
 const QString& snap_p2p_path();
