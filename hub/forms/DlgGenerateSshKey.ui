@@ -152,7 +152,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>btn_send_to_hub</tabstop>
+  <tabstop>chk_select_all</tabstop>
+  <tabstop>lstv_environments</tabstop>
+  <tabstop>btn_generate_new_key</tabstop>
+  <tabstop>lstv_sshkeys</tabstop>
+ </tabstops>
  <resources>
+  <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
   <include location="../../resources/resources.qrc"/>
  </resources>

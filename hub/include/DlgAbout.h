@@ -41,6 +41,7 @@ signals:
   void got_component_version(const QString &component_id, const QString &version);
   void got_p2p_version(QString version);
   void got_chrome_version(QString version);
+  void got_firefox_version(QString version);
   void got_x2go_version(QString version);
   void got_vagrant_version(QString version);
   void got_oracle_virtualbox_version(QString version);
@@ -92,6 +93,7 @@ private slots:
   void btn_vagrant_update_released();
   void btn_oracle_virtualbox_update_released();
   void btn_chrome_update_release();
+  void btn_firefox_update_released();
   void btn_e2e_update_released();
   void btn_subutai_plugin_update_released();
   void btn_vbguest_plugin_update_released();
@@ -111,6 +113,7 @@ private slots:
   void init_progress_sl(int part, int total);
   void got_p2p_version_sl(QString version);
   void got_chrome_version_sl(QString version);
+  void got_firefox_version_sl(QString version);
   void got_x2go_version_sl(QString version);
   void got_vagrant_version_sl(QString version);
   void got_oracle_virtualbox_version_sl(QString version);

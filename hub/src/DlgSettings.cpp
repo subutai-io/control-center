@@ -177,13 +177,24 @@ DlgSettings::DlgSettings(QWidget* parent)
       }
   }
 
-  std::pair<QStringList, QStringList> profiles_list = chrome_profiles();
-  current_chrome_profile = CSettingsManager::Instance().default_chrome_profile();
-  ui->cb_profile->addItems(profiles_list.second);
-  for (int i = 0; i < profiles_list.first.size(); i++){
-      if (profiles_list.first[i] == current_chrome_profile){
-          ui->cb_profile->setCurrentIndex(i);
+  if (CSettingsManager::Instance().default_browser() == "Chrome") {
+    std::pair<QStringList, QStringList> chrome_profiles_list = chrome_profiles();
+    current_chrome_profile = CSettingsManager::Instance().default_chrome_profile();
+    ui->cb_profile->addItems(chrome_profiles_list.second);
+    for (int i = 0; i < chrome_profiles_list.first.size(); i++){
+      if (chrome_profiles_list.first[i] == current_chrome_profile){
+        ui->cb_profile->setCurrentIndex(i);
       }
+    }
+  } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    QStringList firefox_profiles_list = firefox_profiles().first;
+    current_firefox_profile = CSettingsManager::Instance().default_firefox_profile();
+    ui->cb_profile->addItems(firefox_profiles_list);
+    for (int i = 0; i < firefox_profiles_list.size(); i++) {
+      if (firefox_profiles_list[i] == current_firefox_profile) {
+        ui->cb_profile->setCurrentIndex(i);
+      }
+    }
   }
 
   rebuild_rh_list_model();

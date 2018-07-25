@@ -32,6 +32,7 @@ const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::CHROME = "Chrome";
+const QString IUpdaterComponent::FIREFOX = "Firefox";
 const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
 const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
@@ -46,6 +47,7 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
     {CHROME, "Google Chrome"},
+    {FIREFOX, "Mozilla Firefox"},
     {E2E, "Subutai E2E"},
     {VAGRANT_SUBUTAI, "Subutai plugin"},
     {VAGRANT_VBGUEST, "VirtualBox plugin"},
@@ -66,6 +68,7 @@ IUpdaterComponent::component_id_changelog(const QString& id) {
     {VAGRANT, "https://github.com/hashicorp/vagrant/blob/master/CHANGELOG.md"},
     {ORACLE_VIRTUALBOX, "https://www.virtualbox.org/wiki/Changelog"},
     {CHROME, "https://chromereleases.googleblog.com/"},
+    {FIREFOX, "https://mozilla.org/en-US/firefox/releases/"},
     {E2E, "https://github.com/subutai-io/browser-plugins/releases/latest"},
     {VAGRANT_SUBUTAI, "https://github.com/subutai-io/vagrant/blob/master/CHANGELOG.md"},
     {VAGRANT_VBGUEST, "https://github.com/dotless-de/vagrant-vbguest/blob/master/CHANGELOG.md"},
@@ -86,6 +89,7 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
     {VAGRANT, DlgNotification::N_ABOUT},
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},
     {CHROME, DlgNotification::N_ABOUT},
+    {FIREFOX, DlgNotification::N_ABOUT},
     {VAGRANT_SUBUTAI, DlgNotification::N_ABOUT},
     {VAGRANT_VBGUEST, DlgNotification::N_ABOUT},
     {SUBUTAI_BOX, DlgNotification::N_ABOUT}
