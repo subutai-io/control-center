@@ -100,7 +100,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   connect(this->m_show_confirm_password_action, &QAction::triggered, [this]() {
     this->m_password_confirm_state ^= 1;
     this->m_show_confirm_password_action->setIcon(
-          this->m_password_confirm_state ? show_password_icon : hide_password_icon);
+          this->m_password_confirm_state ? hide_password_icon : show_password_icon);
     ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state
                                          ? QLineEdit::Normal
                                          : QLineEdit::Password);
