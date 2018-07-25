@@ -49,6 +49,12 @@ QString get_chrome_version() {
   return version;
 }
 
+QString get_firefox_version() {
+  QString version = "";
+  CSystemCallWrapper::firefox_version(version);
+  return version;
+}
+
 QString get_e2e_version() {
   QString version = "";
   CSystemCallWrapper::subutai_e2e_version(version);
@@ -83,8 +89,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
 
-  QLabel* ilbls[] = {this->ui->lbl_chrome_info_icon,
-                     this->ui->lbl_p2p_info_icon,
+  QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
                      this->ui->lbl_x2go_info_icon,
                      this->ui->lbl_vagrant_info_icon,
@@ -94,6 +99,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_subutai_plugin_info_icon,
                      this->ui->lbl_vbguest_plugin_info_icon,
                      this->ui->lbl_subutai_box_info_icon,
+                     this->ui->lbl_firefox_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -104,51 +110,51 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     (*i)->setTextFormat(Qt::RichText);
   }
 
-  this->ui->lbl_tray_info_icon->setToolTip(
+  this->ui->lbl_tray_info_icon->setToolTip(tr(
       "<nobr>Subutai Control Center is a tray application<br>"
-      "that is meant to ease bazaar usage.");
+      "that is meant to ease bazaar usage."));
 
-  this->ui->lbl_p2p_info_icon->setToolTip(
+  this->ui->lbl_p2p_info_icon->setToolTip(tr(
       "<nobr>Subutai P2P is powerful tool that establishes<br>"
-      "connections to peers and environments.");
+      "connections to peers and environments."));
 
-  this->ui->lbl_vagrant_info_icon->setToolTip(
+  this->ui->lbl_vagrant_info_icon->setToolTip(tr(
       "<nobr>Vagrant is a tool for building and<br>"
-      "managing virtual machine environments.");
+      "managing virtual machine environments."));
 
-  this->ui->lbl_e2e_info_icon->setToolTip(
+  this->ui->lbl_e2e_info_icon->setToolTip(tr(
       "<nobr>Subutai E2E is an extension for browser which<br>"
-      "helps to store and manage PGP-keys.");
+      "helps to store and manage PGP-keys."));
 
-  this->ui->lbl_vbox_info_icon->setToolTip(
+  this->ui->lbl_vbox_info_icon->setToolTip(tr(
       "<nobr>Oracle VirtualBox is hypervisor for<br>"
-      "managing virtual machine environments");
+      "managing virtual machine environments"));
 
-  this->ui->lbl_chrome_info_icon->setToolTip(
-      "Google Chrome is a web browser used by default.");
+  this->ui->lbl_chrome_info_icon->setToolTip(tr(
+      "Google Chrome is a web browser used by default."));
 
-  this->ui->lbl_subutai_box_info_icon->setToolTip(
-      "Subutai Box is the resource box for peer creation.");
+  this->ui->lbl_firefox_info_icon->setToolTip(tr(
+      "Mozilla Firefox is a web browser used by default."));
 
-  this->ui->lbl_subutai_plugin_info_icon->setToolTip(
+  this->ui->lbl_subutai_box_info_icon->setToolTip(tr(
+      "Subutai Box is the resource box for peer creation."));
+
+  this->ui->lbl_subutai_plugin_info_icon->setToolTip(tr(
       "<nobr>The Vagrant Subutai plugin sets up<br>"
-      "peer parameters, like disk size and RAM.");
+      "peer parameters, like disk size and RAM."));
 
-  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(
+  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(tr(
       "<nobr>The Vagrant VirtualBox plugin sets<br>"
-      "VirtualBox as your hypervisor for Vagrant.");
+      "VirtualBox as your hypervisor for Vagrant."));
 
-  this->ui->lbl_x2go_info_icon->setToolTip(
-      "X2Go client enables remote desktop access.");
-
-  this->ui->lbl_firefox_info_icon->setToolTip(
-      "Mozilla Firefox is a web browser used by default.");
+  this->ui->lbl_x2go_info_icon->setToolTip(tr(
+      "X2Go client enables remote desktop access."));
 
   QLabel* lbls[] = {this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_tray_version_val,
                     this->ui->lbl_x2go_version_val,
-                    this->ui->lbl_vagrant_version_val,
+                    this->ui->lbl_firefox_version_val,
                     this->ui->lbl_chrome_version_val,
                     this->ui->lbl_subutai_e2e_val,
                     this->ui->lbl_subutai_plugin_version_val,
@@ -175,6 +181,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_oracle_virtualbox_update_released);
   connect(ui->btn_chrome, &QPushButton::released, this,
           &DlgAbout::btn_chrome_update_release);
+  connect(ui->btn_firefox, &QPushButton::released, this,
+          &DlgAbout::btn_firefox_update_released);
   connect(ui->btn_subutai_e2e, &QPushButton::released, this,
           &DlgAbout::btn_e2e_update_released);
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this,
@@ -222,6 +230,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val,
                                           ui->pb_chrome, ui->cb_chrome,
                                           ui->btn_chrome, get_chrome_version};
+
+  m_dct_fpb[IUpdaterComponent::FIREFOX] = {ui->lbl_firefox_version_val,
+                                           ui->pb_firefox, ui->cb_firefox,
+                                           ui->btn_firefox, get_firefox_version};
 
   m_dct_fpb[IUpdaterComponent::E2E] = {ui->lbl_subutai_e2e_val, ui->pb_e2e,
                                        ui->cb_subutai_e2e, ui->btn_subutai_e2e,
@@ -287,11 +299,11 @@ void DlgAbout::set_visible_chrome(bool value) {
 
 void DlgAbout::set_visible_firefox(bool value) {
   ui->btn_firefox->setVisible(value);
-  ui->pb_firefox->setVisible(value);
   ui->lbl_firefox_version->setVisible(value);
   ui->lbl_firefox_info_icon->setVisible(value);
   ui->lbl_firefox_version_val->setVisible(value);
   ui->lbl_spacer_firefox->setVisible(value);
+  ui->pb_firefox->setVisible(value);
   ui->cb_firefox->setVisible(value);
   this->adjustSize();
 }
@@ -308,6 +320,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::initialization_finished);
   connect(di, &DlgAboutInitializer::got_chrome_version, this,
           &DlgAbout::got_chrome_version_sl);
+  connect(di, &DlgAboutInitializer::got_firefox_version, this,
+          &DlgAbout::got_firefox_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version, this,
           &DlgAbout::got_p2p_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version, this,
@@ -389,6 +403,15 @@ void DlgAbout::btn_chrome_update_release() {
     CHubComponentsUpdater::Instance()->install(IUpdaterComponent::CHROME);
   else
     CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::CHROME);
+}
+////////////////////////////////////////////////////////////////////////////
+void DlgAbout::btn_firefox_update_released() {
+  ui->pb_firefox->setHidden(false);
+  ui->btn_firefox->setEnabled(false);
+  if (ui->lbl_firefox_version_val->text() == "undefined")
+    CHubComponentsUpdater::Instance()->install(IUpdaterComponent::FIREFOX);
+  else
+    CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::FIREFOX);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -575,15 +598,34 @@ void DlgAbout::got_p2p_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_chrome_version_sl(QString version) {
-  ui->lbl_chrome_version_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::CHROME);
-    ui->btn_chrome->setHidden(false);
-    ui->cb_chrome->setVisible(false);
-    ui->btn_chrome->setText(tr("Install"));
-    ui->btn_chrome->activateWindow();
-  } else {
-    ui->btn_chrome->setText(tr("Update"));
+  if (CSettingsManager::Instance().default_browser() == "Chrome") {
+    ui->lbl_chrome_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::CHROME);
+      ui->btn_chrome->setHidden(false);
+      ui->cb_chrome->setVisible(false);
+      ui->btn_chrome->setText(tr("Install"));
+      ui->btn_chrome->activateWindow();
+    } else {
+      ui->btn_chrome->setText(tr("Update"));
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::got_firefox_version_sl(QString version) {
+  if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    ui->lbl_firefox_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::FIREFOX);
+      ui->btn_firefox->setHidden(false);
+      ui->cb_firefox->setVisible(false);
+      ui->btn_firefox->setText(tr("Install"));
+      ui->btn_firefox->activateWindow();
+    } else {
+      ui->btn_firefox->setText(tr("Update"));
+    }
   }
 }
 
@@ -731,6 +773,17 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].btn->setHidden(true);
     m_dct_fpb[component_id].cb->setVisible(true);
   }
+
+  if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
   update_available =
       (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
        available);
@@ -749,6 +802,11 @@ void DlgAboutInitializer::do_initialization() {
     QString chrome_version;
     CSystemCallWrapper::chrome_version(chrome_version);
     emit got_chrome_version(chrome_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString firefox_version;
+    CSystemCallWrapper::firefox_version(firefox_version);
+    emit got_firefox_version(firefox_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString x2go_version = get_x2go_version();
@@ -786,6 +844,7 @@ void DlgAboutInitializer::do_initialization() {
                      IUpdaterComponent::VAGRANT,
                      IUpdaterComponent::ORACLE_VIRTUALBOX,
                      IUpdaterComponent::CHROME,
+                     IUpdaterComponent::FIREFOX,
                      IUpdaterComponent::VAGRANT_SUBUTAI,
                      IUpdaterComponent::VAGRANT_VBGUEST,
                      IUpdaterComponent::SUBUTAI_BOX,

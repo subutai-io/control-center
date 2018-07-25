@@ -21,7 +21,7 @@ class CUpdaterComponentE2E : public IUpdaterComponent {
   virtual chue_t update_internal();
   virtual void update_post_action(bool success);
   virtual chue_t install_internal();
-  virtual void install_post_interntal(bool success);
+  virtual void install_post_internal(bool success);
   virtual chue_t uninstall_internal();
   virtual void uninstall_post_internal(bool success);
 

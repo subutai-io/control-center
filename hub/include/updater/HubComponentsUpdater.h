@@ -20,6 +20,7 @@ enum cc_component{
     CC_VAGRANT,
     CC_VB,
     CC_CHROME,
+    CC_FIREFOX,
     CC_E2E,
     CC_VAGRANT_SUBUTAI,
     CC_VAGRANT_VBGUEST,
