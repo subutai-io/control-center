@@ -58,7 +58,7 @@ unsigned int Environment::ramSize() {
 #endif
 
 #ifdef RT_OS_DARWIN
-unsigned int Environment::ramSizeQStorageInfo() {
+unsigned int Environment::ramSize() {
   int mib[2];
   int64_t physical_memory;
   size_t length;
