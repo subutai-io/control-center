@@ -11,6 +11,7 @@ public:
   static Environment* Instance();
   unsigned int ramSize();
   unsigned int numCpu();
+  unsigned int diskSize();
 };
 
 #endif // ENVIRONMENT_H

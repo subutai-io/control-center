@@ -1,5 +1,6 @@
 #include "Environment.h"
 #include "OsBranchConsts.h"
+#include <QStorageInfo>
 #include <thread>
 
 #ifdef RT_OS_LINUX
@@ -57,7 +58,7 @@ unsigned int Environment::ramSize() {
 #endif
 
 #ifdef RT_OS_DARWIN
-unsigned int Environment::ramSize() {
+unsigned int Environment::ramSizeQStorageInfo() {
   int mib[2];
   int64_t physical_memory;
   size_t length;
@@ -80,4 +81,17 @@ unsigned int Environment::numCpu() {
            << n_cpu;
 
   return n_cpu;
+}
+
+unsigned int Environment::diskSize() {
+  QStorageInfo storage = QStorageInfo::root();
+  qDebug() << storage.rootPath();
+  if (storage.isReadOnly())
+      qDebug() << "isReadOnly:" << storage.isReadOnly();
+
+  qDebug() << "name:" << storage.name();
+  qDebug() << "fileSystemType:" << storage.fileSystemType();
+  qDebug() << "size:" << storage.bytesTotal()/1000/1000 << "MB";
+  qDebug() << "availableSize:" << storage.bytesAvailable()/1000/1000 << "MB";
+  return storage.bytesAvailable()/1000/1000/1000;
 }
