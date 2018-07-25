@@ -189,6 +189,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_58023FDC6B434D09A08352B5A73EE727"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_59C12790068B45D1834FE8A4F8CD0A9C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -565,6 +571,20 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_516D605CD71A4A7E87AA9DF5AD96D685"
+            {
+            "Name" = "8:closecc.vbs"
+            "Condition" = "8:"
+            "Object" = "8:_58023FDC6B434D09A08352B5A73EE727"
+            "FileType" = "3:4"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_53DD7B3D_7983_4EF7_A54D_A9F92498478F"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
             "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_987546011D304EB29018E685CDF1D7AC"
             {
             "Name" = "8:addvariablesshtopath.vbs"
@@ -1158,6 +1178,26 @@
             {
             "SourcePath" = "8:..\\..\\ssh\\cygcom_err-2.dll"
             "TargetName" = "8:cygcom_err-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_58023FDC6B434D09A08352B5A73EE727"
+            {
+            "SourcePath" = "8:C:\\SRC\\control-center\\closecc.vbs"
+            "TargetName" = "8:closecc.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
             "Condition" = "8:"

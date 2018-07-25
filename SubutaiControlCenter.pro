@@ -66,6 +66,7 @@ SOURCES += \
     hub/src/updater/UpdaterComponentX2go.cpp \
     hub/src/updater/UpdaterComponentVirtualbox.cpp \
     hub/src/updater/UpdaterComponentChrome.cpp \
+    hub/src/updater/UpdaterComponentFirefox.cpp \
     hub/src/updater/UpdaterComponentE2E.cpp \
     hub/src/updater/UpdaterComponentSubutaiBox.cpp \
     hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
@@ -122,6 +123,7 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentX2go.h \
     hub/include/updater/UpdaterComponentVirtualbox.h \
     hub/include/updater/UpdaterComponentChrome.h \
+    hub/include/updater/UpdaterComponentFirefox.h\
     hub/include/updater/UpdaterComponentE2E.h \
     hub/include/updater/UpdaterComponentSubutaiBox.h \
     hub/include/updater/UpdaterComponentVagrantSubutai.h \
@@ -167,7 +169,7 @@ DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_PROD
+GBV=BT_MASTER
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
