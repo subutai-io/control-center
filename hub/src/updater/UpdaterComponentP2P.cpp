@@ -92,7 +92,6 @@ chue_t CUpdaterComponentP2P::install_internal(){
         return CHUE_SUCCESS;
     }
 
-    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString file_name = p2p_kurjun_package_name();
     QString file_dir = download_p2p_path();
     QString str_p2p_downloaded_path = file_dir + "/" + file_name;
@@ -111,10 +110,19 @@ chue_t CUpdaterComponentP2P::install_internal(){
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(file_dir, file_name, CC_P2P);
     connect(dm, &CDownloadFileManager::download_progress_sig,
-            [this](qint64 rec, qint64 total){update_progress_sl(rec, total+(total/5));});
-    connect(dm, &CDownloadFileManager::finished,[silent_installer](){
-        silent_installer->startWork();
-    });
+            [this](qint64 rec, qint64 total){update_progress_sl(rec, total);});
+    connect(dm, &CDownloadFileManager::finished,
+            [this, silent_installer](bool success) {
+              if (!success) {
+                silent_installer->outputReceived(success);
+              } else {
+                this->update_progress_sl(0,0);
+                CNotificationObserver::Instance()->Info(
+                    tr("Running installation scripts."),
+                    DlgNotification::N_NO_ACTION);
+                silent_installer->startWork();
+              }
+            });
     connect(silent_installer, &SilentInstaller::outputReceived,
             this, &CUpdaterComponentP2P::install_finished_sl);
     connect(silent_installer, &SilentInstaller::outputReceived,

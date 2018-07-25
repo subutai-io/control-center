@@ -620,6 +620,10 @@ system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_LINUX> >(
 
 template<>
 system_call_wrapper_error_t give_write_permissions_internal<Os2Type<OS_MAC> >(const QString &dir) {
+  QFileInfo dir_info(dir);
+  if(dir_info.isDir() && dir_info.isWritable()){
+    return SCWE_SUCCESS;
+  }
   QString cmd("osascript");
   QStringList args;
   args << "-e" << QString("do shell script \"chmod +w %1\" "
@@ -1512,7 +1516,9 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
            << res.exit_code
            << " output: "
            << res.out;
-
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1530,6 +1536,9 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QStrin
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
   return res.res;
 }
 
@@ -2129,7 +2138,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
                                     "dpkg -i %1\n"
                                     "if [ $? -gt 0 ]\n"
                                     "then\n"
-                                    "dpkg --remove --force-remove-reinstreq %2\n"
+                                    "dpkg --remove --force-remove-reinstreq %1\n"
                                     "apt-get install -y -f\n"
                                     "dpkg -i %1\n"
                                     "else\n"
@@ -2759,15 +2768,15 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
     QByteArray install_script = QString(
                                     "#!/bin/bash\n"
-                                    "dpkg -i %1;"
-                                    "if test $? -gt 0\n"
+                                    "dpkg -i %1\n"
+                                    "if [ $? -gt 0 ]\n"
                                     "then\n"
-                                    "dpkg --remove --force-remove-reinstreq %2\n"
-                                    "apt-get install -y -f;\n"
-                                    "dpkg -i %1;"
+                                    "dpkg --remove --force-remove-reinstreq %1\n"
+                                    "apt-get install -y -f\n"
+                                    "dpkg -i %1\n"
                                     "else\n"
                                     "rm %1\n"
-                                    "fi")
+                                    "fi\n")
                                     .arg(file_info)
                                     .toUtf8();
 
@@ -2912,7 +2921,7 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_WIN> >(const Q
            << "exit code:" << res.exit_code
            << "output:" << res.out;
 
-  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+  if (res.exit_code != 0 && res.exit_code != 21) {
     qCritical() << "chrome uninstall failed";
     return SCWE_COMMAND_FAILED;
   }

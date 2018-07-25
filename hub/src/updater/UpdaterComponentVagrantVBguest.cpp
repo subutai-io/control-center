@@ -50,7 +50,7 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  update_progress_sl(50, 100);
+  update_progress_sl(0, 0);
   static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(empty_string, empty_string, CC_VAGRANT_VBGUEST);
@@ -61,7 +61,7 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::install_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal() {
-  update_progress_sl(50, 100);
+  update_progress_sl(0, 0);
   static QString empty_string = "";
   SilentUpdater *silent_updater = new SilentUpdater(this);
   silent_updater->init(empty_string, empty_string, CC_VAGRANT_VBGUEST);
@@ -72,7 +72,6 @@ chue_t CUpdaterComponentVAGRANT_VBGUEST::update_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_VBGUEST::uninstall_internal() {
-  update_progress_sl(50, 100);
   static QString empty_string = "";
 
   SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);

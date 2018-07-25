@@ -102,14 +102,15 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
 
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
-            update_progress_sl(rec, total + (total / 5));
+            update_progress_sl(rec, total);
           });
 
   connect(dm, &CDownloadFileManager::finished,
-          [silent_installer](bool success) {
+          [this, silent_installer](bool success) {
             if (!success) {
               silent_installer->outputReceived(success);
             } else {
+              this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),
                   DlgNotification::N_NO_ACTION);
@@ -153,8 +154,6 @@ chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
       return CHUE_SUCCESS;
     }
   }
-
-  update_progress_sl(50, 100);
   static QString empty_string = "";
 
   SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
@@ -186,7 +185,7 @@ void CUpdaterComponentSUBUTAI_BOX::update_post_action(bool success) {
 void CUpdaterComponentSUBUTAI_BOX::install_post_interntal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Error(
-        tr("Vagrant Subutai box installation has failed."),
+        tr("Vagrant Subutai box installation has failed. Make sure you don't have peers on your machine and try again."),
         DlgNotification::N_NO_ACTION);
   } else {
     CNotificationObserver::Instance()->Info(
