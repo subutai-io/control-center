@@ -104,11 +104,16 @@ DlgLogin::login() {
       break;
     case RE_NETWORK_ERROR:
       ui->lbl_status->setVisible(true);
-      ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
-                              arg(tr("Network error. Code")).
-                              arg(CCommons::NetworkErrorToString(network_err)));
-      if(CCommons::NetworkErrorToString(network_err) == "Unknown Network Error")
+      if (!QSslSocket::supportsSsl()) {
+        ui->lbl_status->setText(QString("<font color='red'>%1 %2</font>").
+                                arg(tr("There is an OpenSSL compatibility problem.")).
+                                arg(tr("Press \"Resolve\" to install proper OpenSSL version.")));
         solve_libssl();
+      } else {
+        ui->lbl_status->setText(QString("<font color='red'>%1 : %2</font>").
+                                arg(tr("Network error. Code")).
+                                arg(CCommons::NetworkErrorToString(network_err)));
+      }
       break;
     default:
       ui->lbl_status->setVisible(true);
