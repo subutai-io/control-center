@@ -132,7 +132,7 @@ public:
     HostChecker(QObject *parent = nullptr) : QObject (parent) {}
     void init(const QString& m_host);
     void startWork();
-    void silenChecker();
+    void silentChecker();
 
 private:
     QString m_host;
