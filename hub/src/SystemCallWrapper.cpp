@@ -1090,7 +1090,7 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2 -o UserKnownHostsFile=%3\"").arg(cmd).arg(str_command).arg(known_hosts);
+      QString("\"%1\" /k \"%2 -o UserKnownHostsFile=\"%3\"\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
