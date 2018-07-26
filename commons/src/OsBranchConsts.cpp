@@ -174,6 +174,26 @@ vagrant_kurjun_package_name(){
     return vagrant_kurjun_package_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& vmware_kurjun_package_name_temp_internal();
+
+#define vmware_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& vmware_kurjun_package_name_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vmware_kurjun_package_name_def(OS_MAC,    "vmware-fusion.pkg")
+vmware_kurjun_package_name_def(OS_WIN,    "vmware-workstation-windows.exe")
+vmware_kurjun_package_name_def(OS_LINUX,  "vmware-workstation-linux.bundle")
+
+const QString &
+vmware_kurjun_package_name(){
+    return vmware_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template <class OS> const QString& chrome_kurjun_package_name_internal();
 #define chrome_kurjun_package_name_def(OS_TYPE, STRING) \
   template<> \

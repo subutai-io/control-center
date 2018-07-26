@@ -4,17 +4,17 @@
 
 // For Linux providers
 std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALBOX,
-                                                       VagrantProvider::LIBVIRT,
+                                                     //  VagrantProvider::LIBVIRT,
                                                        VagrantProvider::VMWARE_DESKTOP
                                                      };
 // For Darwin providers
 std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUALBOX,
-                                                        VagrantProvider::PARALLELS,
+                                                      //  VagrantProvider::PARALLELS,
                                                         VagrantProvider::VMWARE_DESKTOP
                                                       };
 // For Windows providers
 std::vector<int> VagrantProvider::m_provider_win = { VagrantProvider::VIRTUALBOX,
-                                                     VagrantProvider::HYPERV,
+                                                    // VagrantProvider::HYPERV,
                                                      VagrantProvider::VMWARE_DESKTOP
                                                    };
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,9 @@ VagrantProvider* VagrantProvider::Instance() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
-  static QString p_str[] = {tr("Virtualbox"), tr("Parallels"), tr("Hyper-V"), tr("VMware"), tr("Libvirt")};
+  static QString p_str[] = {tr("Virtualbox"), tr("VMware"),
+                            tr("Parallels"), tr("Hyper-V"),
+                            tr("Libvirt")};
 
   return p_str[p];
 }
@@ -47,7 +49,9 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
-  static QString p_val[] = {"virtualbox", "parallels", "hyperv", "vmware_desktop", "libvirt"};
+  static QString p_val[] = {"virtualbox", "vmware_desktop",
+                            "parallels", "hyperv",
+                            "libvirt"};
   return p_val[p];
 }
 

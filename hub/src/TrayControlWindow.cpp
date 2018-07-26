@@ -1526,9 +1526,9 @@ void TrayControlWindow::show_create_dialog() {
     case VagrantProvider::VIRTUALBOX:
       CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
-    case VagrantProvider::PARALLELS:
-      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
-      return;
+    //case VagrantProvider::PARALLELS:
+    //  CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
+    //  return;
     default:
       break;
     }

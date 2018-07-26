@@ -11,9 +11,10 @@ class VagrantProvider : QObject
 {
 Q_OBJECT
 public:
-  enum PROVIDERS {VIRTUALBOX = 0, PARALLELS, HYPERV,
-                  VMWARE_DESKTOP, LIBVIRT,
-                  PROVIDER_LAST = LIBVIRT};
+  enum PROVIDERS {VIRTUALBOX = 0, VMWARE_DESKTOP,
+                  PARALLELS, HYPERV, LIBVIRT,
+                  PROVIDER_LAST = VMWARE_DESKTOP
+                 };
 
   static std::vector<int> m_provider_linux,
                           m_provider_darwin,

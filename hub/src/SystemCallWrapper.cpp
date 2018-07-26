@@ -654,12 +654,12 @@ QStringList CSystemCallWrapper::list_interfaces() {
   switch (provider) {
   case VagrantProvider::VIRTUALBOX:
     return virtualbox_interfaces();
-  case VagrantProvider::LIBVIRT:
-    return libvirt_interfaces();
-  case VagrantProvider::HYPERV:
-    return hyperv_interfaces();
-  case VagrantProvider::PARALLELS:
-    return parallels_interfaces();
+  //case VagrantProvider::LIBVIRT:
+  //  return libvirt_interfaces();
+  //case VagrantProvider::HYPERV:
+  //  return hyperv_interfaces();
+  //case VagrantProvider::PARALLELS:
+  //  return parallels_interfaces();
   default:
     return empty;
   }
@@ -4146,6 +4146,37 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
   return oracle_virtualbox_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
+//  VMWARE VERSION
+template <class OS>
+system_call_wrapper_error_t vmware_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  version = "undefined";
+  QStringList args;
+  args << "--version";
+
+  QString path = "/usr/bin/vmware";//CSettingsManager::Instance().oracle_virtualbox_path(); #TODO
+  QDir dir(path);
+  dir.cdUp();
+  path = dir.absolutePath();
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(path,
+                                                         args, true, true, 5000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    version = res.out.at(0);
+  }
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vmware_version(QString &version) {
+  return vmware_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
 template<>

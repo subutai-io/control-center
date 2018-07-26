@@ -26,7 +26,8 @@ enum cc_component{
     CC_VAGRANT_PARALLELS,
     CC_VAGRANT_VMWARE_DESKTOP,
     CC_VAGRANT_VBGUEST,
-    CC_SUBUTAI_BOX
+    CC_SUBUTAI_BOX,
+    CC_VMWARE
 };
 
 namespace update_system {

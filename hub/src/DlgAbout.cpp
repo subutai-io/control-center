@@ -158,15 +158,15 @@ void DlgAbout::set_hidden_providers() {
       get_vagrant_vbguest_version};
 
     break;
-  case VagrantProvider::PARALLELS:
-    set_hidden_parallels(false);
+  //case VagrantProvider::PARALLELS:
+  //  set_hidden_parallels(false);
 
-    this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
-      ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
-      ui->cb_provider_parallels, ui->btn_provider_parallels_update,
-      get_vagrant_provider_version};
+  //  this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
+  //    ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
+  //    ui->cb_provider_parallels, ui->btn_provider_parallels_update,
+  //    get_vagrant_provider_version};
 
-    break;
+  //  break;
   case VagrantProvider::VMWARE_DESKTOP:
     set_hidden_vmware(false);
 
@@ -176,18 +176,18 @@ void DlgAbout::set_hidden_providers() {
       get_vagrant_provider_version};
 
     break;
-  case VagrantProvider::LIBVIRT:
-    set_hidden_libvirt(false);
+  //case VagrantProvider::LIBVIRT:
+  //  set_hidden_libvirt(false);
 
-    this->m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
-      ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
-      ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
-      get_vagrant_provider_version};
+ //   this->m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
+ //     ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
+ //     ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
+ //     get_vagrant_provider_version};
 
     break;
-  case VagrantProvider::HYPERV:
+  //case VagrantProvider::HYPERV:
     // do nothing
-    break;
+ //   break;
   default:
     set_hidden_virtualbox(false);
   }
@@ -365,6 +365,21 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
       ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
       ui->btn_subutai_box, get_subutai_box_version};
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
+    ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt, ui->cb_provider_libvirt,
+    ui->btn_provider_libvirt_update, get_vagrant_provider_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
+    ui->lbl_provider_parallels_version, ui->pb_provider_parallels, ui->cb_provider_parallels,
+    ui->btn_provider_parallels_update, get_vagrant_provider_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
+    ui->lbl_provider_vmware_version, ui->pb_provider_vmware, ui->cb_provider_vmware,
+    ui->btn_provider_vmware_update, get_vagrant_provider_version
+  };
 
   // hide providers and add provider to components dictionary
   set_hidden_providers();
@@ -882,15 +897,15 @@ void DlgAbout::got_provider_version_sl(QString version) {
   QString COMPONENT_KEY = "";
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
-  case VagrantProvider::PARALLELS:
-    COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
-    break;
+  //case VagrantProvider::PARALLELS:
+  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
+  //  break;
   case VagrantProvider::VMWARE_DESKTOP:
     COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
     break;
-  case VagrantProvider::LIBVIRT:
-    COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
-    break;
+  //case VagrantProvider::LIBVIRT:
+  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
+  //  break;
   default:
     break;
   }
@@ -1031,18 +1046,18 @@ void DlgAboutInitializer::do_initialization() {
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
       uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
       break;
-    case VagrantProvider::PARALLELS:
-      uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
-      break;
+    //case VagrantProvider::PARALLELS:
+    //  uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
+    //  break;
     case VagrantProvider::VMWARE_DESKTOP:
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
       break;
-    case VagrantProvider::LIBVIRT:
-      uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
-      break;
-    case VagrantProvider::HYPERV:
+    //case VagrantProvider::LIBVIRT:
+    //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
+    //  break;
+    //case VagrantProvider::HYPERV:
       // do nothing
-      break;
+    //  break;
     default:
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
       uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
