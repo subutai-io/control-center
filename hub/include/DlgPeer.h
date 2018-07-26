@@ -65,8 +65,13 @@ public:
   void update_environments(const std::vector<CMyPeerInfo::env_info> &envs);
   // interaction with tray menu
   QString get_peer_name() {
-    if (hub_available) return peer_name;
-    else return rh_name;
+    if (hub_available) {
+      return peer_name;
+    } else if (advanced) {
+      return rh_name;
+    } else {
+      return peer_name;
+    }
   }
 private:
   Ui::DlgPeer *ui;

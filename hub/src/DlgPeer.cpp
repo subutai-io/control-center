@@ -134,6 +134,9 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
   peer_fingerprint = peer.first;
   ssh_ip = peer.second;
   ssh_available = true;
+  if (!hub_available) {
+    peer_name = peer.second;
+  }
   ui->btn_launch_console->setEnabled(true);
 }
 // when peer is registered to the bazaar
