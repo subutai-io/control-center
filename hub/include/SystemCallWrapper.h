@@ -237,6 +237,9 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_e2e_firefox(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_e2e_firefox();
 
+  static system_call_wrapper_error_t install_e2e_safari(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_e2e_safari();
+
   static system_call_wrapper_error_t install_vagrant_subutai();
 
   static system_call_wrapper_error_t install_vagrant_vbguest();

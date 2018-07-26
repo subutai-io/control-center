@@ -627,16 +627,6 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   }
   m_dct_fpb[component_id].pb->setVisible(false);
 
-  if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
-    m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].btn->setVisible(false);
-  }
-
-  if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
-    m_dct_fpb[component_id].cb->setVisible(false);
-    m_dct_fpb[component_id].btn->setVisible(false);
-  }
-
   qDebug() << "update finished: " << component_id << " status: " << success;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -668,30 +658,34 @@ void DlgAbout::got_p2p_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_chrome_version_sl(QString version) {
-  ui->lbl_chrome_version_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::CHROME);
-    ui->btn_chrome->setHidden(false);
-    ui->cb_chrome->setVisible(false);
-    ui->btn_chrome->setText(tr("Install"));
-    ui->btn_chrome->activateWindow();
-  } else {
-    ui->btn_chrome->setText(tr("Update"));
+  if (CSettingsManager::Instance().default_browser() == "Chrome") {
+    ui->lbl_chrome_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::CHROME);
+      ui->btn_chrome->setHidden(false);
+      ui->cb_chrome->setVisible(false);
+      ui->btn_chrome->setText(tr("Install"));
+      ui->btn_chrome->activateWindow();
+    } else {
+      ui->btn_chrome->setText(tr("Update"));
+    }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_firefox_version_sl(QString version) {
-  ui->lbl_firefox_version_val->setText(version);
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::FIREFOX);
-    ui->btn_firefox->setHidden(false);
-    ui->cb_firefox->setVisible(false);
-    ui->btn_firefox->setText(tr("Install"));
-    ui->btn_firefox->activateWindow();
-  } else {
-    ui->btn_firefox->setText(tr("Update"));
+  if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    ui->lbl_firefox_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::FIREFOX);
+      ui->btn_firefox->setHidden(false);
+      ui->cb_firefox->setVisible(false);
+      ui->btn_firefox->setText(tr("Install"));
+      ui->btn_firefox->activateWindow();
+    } else {
+      ui->btn_firefox->setText(tr("Update"));
+    }
   }
 }
 
@@ -864,10 +858,12 @@ void DlgAbout::update_available_sl(const QString& component_id,
 
   if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
     m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
   }
 
   if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
     m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
   }
 
   update_available =
@@ -993,14 +989,6 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
       m_dct_fpb[component_id].cb->setVisible(false);
       m_dct_fpb[component_id].cb->setEnabled(false);
     }
-  }
-
-  if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
-    m_dct_fpb[component_id].cb->setVisible(false);
-  }
-
-  if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
-    m_dct_fpb[component_id].cb->setVisible(false);
   }
 }
 

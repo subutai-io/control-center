@@ -100,7 +100,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   connect(this->m_show_confirm_password_action, &QAction::triggered, [this]() {
     this->m_password_confirm_state ^= 1;
     this->m_show_confirm_password_action->setIcon(
-          this->m_password_confirm_state ? show_password_icon : hide_password_icon);
+          this->m_password_confirm_state ? hide_password_icon : show_password_icon);
     ui->le_pass_confirm->setEchoMode(this->m_password_confirm_state
                                          ? QLineEdit::Normal
                                          : QLineEdit::Password);
@@ -191,8 +191,13 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_ram->hide();
 
   // disk
-  if (disk.toInt() < 100) {
-    ui->lbl_err_disk->setText(tr("Disk cannot be less than 100 GB."));
+  if (disk.toInt() < 40) {
+    ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB."));
+    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->show();
+    errors_exist = true;
+  } else if (disk.toInt() > (int) Environment::Instance()->diskSize()) {
+    ui->lbl_err_disk->setText(tr("Disk cannot be more than %1 GB.").arg(Environment::Instance()->diskSize()));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
@@ -201,8 +206,10 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
-  } else
+  } else {
     ui->lbl_err_disk->hide();
+  }
+
 
   return errors_exist;
 }

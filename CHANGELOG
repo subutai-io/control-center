@@ -1,5 +1,26 @@
 # Change Log
 
+## [7.1.4] 7/25/2018
+# IMPROVEMENTS:
+* Tooltips with component descriptions
+* Show progress bar for Peer creation
+* Change publisher to 'Subutai'
+* Rework menu icons
+* Remove HTML codes in notification history UI
+* Correct wrong messages
+* Change P2P and CC version in OS after update
+* Quit CC if it's not closed after uninstallation
+# BUG FIXES:
+* Change version of CC in OS after each update
+* Fixed bug when CLI commands do not work on Linux
+* Proper close of all active windows after CC closed
+* Fixed bug when user can't change ssh credentials for the LAN peers
+* Fixed installation script of VB for Linux
+* Fixed bug with wrong message after failed installation of P2P on MacOs
+# FEATURES:
+* Add link to the environment in notifications
+* Uninstaller for all CC components (Vagrant (+ plugins, boxes), Virtualbox, P2P, Chrome (+ E2E), X2GoClient)
+
 ## [7.1.3] 7/04/2018
 # BUG FIXES:
 * Critical bug fixed when CC does not record configuration file on Linux machines

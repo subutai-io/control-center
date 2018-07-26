@@ -376,6 +376,8 @@ void CHubController::launch_browser(const QString &url) {
         QString err_msg = tr("Unable to redirect to Subutai Bazaar through a "
                              "browser. Be sure that you have Safari "
                              "browser installed in your system.");
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        qCritical() << "unable to launch safari";
       }
     }
   } else {

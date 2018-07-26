@@ -208,6 +208,11 @@ const QString& firefox_subutai_e2e_kurjun_package_name(){
   return name;
 }
 ////////////////////////////////////////////////////////////////////////////
+const QString& safari_subutai_e2e_kurjun_package_name() {
+  static QString name = "e2e-plugin.safariextz";
+  return name;
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
 #define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
