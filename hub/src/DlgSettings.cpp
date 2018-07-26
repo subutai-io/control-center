@@ -401,6 +401,14 @@ void DlgSettings::btn_ok_released() {
     lst_failed_validators.push_back(*tmp);
   } while ((++tmp)->fc);
 
+  for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
+    ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
+    lst_failed_validators[i].fc->setFocus();
+    lst_failed_validators[i].lbl_err->show();
+    lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
+                                              arg(lst_failed_validators[i].validator_msg));
+  }
+
   if (!lst_failed_validators.empty()) {
     QMessageBox* msg_box =
         new QMessageBox(QMessageBox::Question, tr("Attention! Wrong settings"),
@@ -412,13 +420,6 @@ void DlgSettings::btn_ok_released() {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
 
     if (msg_box->exec() == QMessageBox::Yes) {
-      for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
-        ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
-        lst_failed_validators[i].fc->setFocus();
-        lst_failed_validators[i].lbl_err->show();
-        lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
-                                                  arg(lst_failed_validators[i].validator_msg));
-      }
       return;
     }
   }  // if !lst_failed_validators.empty()

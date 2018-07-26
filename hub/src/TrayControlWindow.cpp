@@ -1071,7 +1071,7 @@ void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
   }
   peer_updater->startWork();
 }
-
+// local peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CLocalPeer &peer_info) {
   qDebug() << "update peer button information wih local peer";
@@ -1104,7 +1104,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
   *(peer_button->m_local_peer) = peer_info;
   update_peer_icon(peer_id);
 }
-
+// hub peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CMyPeerInfo &peer_info) {
   qDebug() << "update peer button information wih hub peer";
@@ -1126,7 +1126,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
   *(peer_button->m_hub_peer) = peer_info;
   update_peer_icon(peer_id);
 }
-
+// lan peer
 void TrayControlWindow::update_peer_button(
     const QString &peer_id, const std::pair<QString, QString> &peer_info) {
   qDebug() << "update peer button information wih network peer(rh)";

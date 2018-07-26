@@ -5812,6 +5812,32 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_post_update(){
   return p2p_post_update_internal<Os2Type<CURRENT_OS>>();
 }
 ////////////////////////////////////////////////////////////////////////////
+bool CSystemCallWrapper::is_host_reachable(const QString &host){
+  QString cmd;
+  system_call_wrapper_error_t r1 = which(QString("ping"), cmd);
+  if (r1 != SCWE_SUCCESS) {
+    qCritical() << "ping is not found";
+    return true;
+  }
+  QStringList args;
+#ifdef RT_OS_WINDOWS
+  args << "-n 1";
+#else
+  args << "-c1";
+#endif
+  args << host;
+  qDebug() << args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+  qDebug() << "ping finished for " << host
+           << "error code: " << res.exit_code
+           << "res code: " << res.res
+           << "output: " << res.out;
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+  return res.res == SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){
   while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
     m_hash_counter++; m_hash_counter %= 1000;
