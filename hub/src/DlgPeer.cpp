@@ -908,7 +908,7 @@ void HostChecker::init(const QString &m_host){
 void HostChecker::startWork(){
     QThread* thread = new QThread();
     connect(thread, &QThread::started,
-            this, &HostChecker::silenChecker);
+            this, &HostChecker::silentChecker);
     connect(this, &HostChecker::outputReceived,
             thread, &QThread::quit);
     connect(thread, &QThread::finished,
@@ -919,7 +919,7 @@ void HostChecker::startWork(){
     thread->start();
 }
 
-void HostChecker::silenChecker(){
+void HostChecker::silentChecker(){
     QFutureWatcher<bool> *watcher
         = new QFutureWatcher<bool>(this);
     QFuture<bool> res
