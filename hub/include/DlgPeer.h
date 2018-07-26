@@ -65,8 +65,13 @@ public:
   void update_environments(const std::vector<CMyPeerInfo::env_info> &envs);
   // interaction with tray menu
   QString get_peer_name() {
-    if (hub_available) return peer_name;
-    else return rh_name;
+    if (hub_available) {
+      return peer_name;
+    } else if (advanced) {
+      return rh_name;
+    } else {
+      return peer_name;
+    }
   }
 private:
   Ui::DlgPeer *ui;
@@ -119,5 +124,20 @@ private slots:
   //other slots
   void launch_console_sl();
   void launch_bazaar_sl();
+};
+
+class HostChecker : public QObject {
+    Q_OBJECT
+public:
+    HostChecker(QObject *parent = nullptr) : QObject (parent) {}
+    void init(const QString& m_host);
+    void startWork();
+    void silenChecker();
+
+private:
+    QString m_host;
+
+signals:
+    void outputReceived(bool success);
 };
 #endif // DLGPEER_H

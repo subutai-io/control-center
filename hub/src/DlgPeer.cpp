@@ -134,6 +134,9 @@ void DlgPeer::addLocalPeer(std::pair<QString, QString> peer) {
   peer_fingerprint = peer.first;
   ssh_ip = peer.second;
   ssh_available = true;
+  if (!hub_available) {
+    peer_name = peer.second;
+  }
   ui->btn_launch_console->setEnabled(true);
 }
 // when peer is registered to the bazaar
@@ -375,15 +378,30 @@ void DlgPeer::launch_bazaar_sl() {
 
 void DlgPeer::rh_ssh_sl() {
   if (!advanced) {
+    // this our lan peer , we will use libssh to ssh, but first check if peer is reachable
     this->ui->btn_ssh_peer->setEnabled(false);
     this->ui->btn_ssh_peer->setText(tr("PROCESSING.."));
-    CSettingsManager::Instance().set_rh_host(peer_fingerprint, ui->lbl_ip->text());
-    CSettingsManager::Instance().set_rh_port(peer_fingerprint, ui->lbl_port->text().toInt());
-    CSettingsManager::Instance().set_rh_user(peer_fingerprint, ui->le_user->text());
-    CSettingsManager::Instance().set_rh_pass(peer_fingerprint, ui->le_pass->text());
-    emit this->ssh_to_rh_sig(this->peer_fingerprint);
-  } else
+
+    HostChecker *host_checker = new HostChecker(this);
+    host_checker->init(ui->lbl_ip->text());
+    connect(host_checker, &HostChecker::outputReceived, [this](bool success){
+      if (!success) {
+        CNotificationObserver::Error(tr("Peer is unreachable. Please update list of LAN peers from Settings"),
+                                     DlgNotification::N_SETTINGS);
+        this->ui->btn_ssh_peer->setEnabled(true);
+        this->ui->btn_ssh_peer->setText(tr("SSH into peer"));
+      } else {
+        CSettingsManager::Instance().set_rh_host(peer_fingerprint, ui->lbl_ip->text());
+        CSettingsManager::Instance().set_rh_port(peer_fingerprint, ui->lbl_port->text().toInt());
+        CSettingsManager::Instance().set_rh_user(peer_fingerprint, ui->le_user->text());
+        CSettingsManager::Instance().set_rh_pass(peer_fingerprint, ui->le_pass->text());
+        emit this->ssh_to_rh_sig(this->peer_fingerprint);
+      }
+    });
+    host_checker->startWork();
+  } else {
     rh_ssh();
+  }
 }
 
 void DlgPeer::configs() {
@@ -880,4 +898,34 @@ void DlgPeer::update_environments(
 DlgPeer::~DlgPeer() {
   qDebug() << "Deleting DlgPeer";
   delete ui;
+}
+
+///////* class installs cc components in silent mode *///////////
+void HostChecker::init(const QString &m_host){
+  this->m_host = m_host;
+}
+
+void HostChecker::startWork(){
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &HostChecker::silenChecker);
+    connect(this, &HostChecker::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &HostChecker::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+}
+
+void HostChecker::silenChecker(){
+    QFutureWatcher<bool> *watcher
+        = new QFutureWatcher<bool>(this);
+    QFuture<bool> res
+        = QtConcurrent::run(CSystemCallWrapper::is_host_reachable, m_host);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<bool>::finished, [this, res](){
+      emit this->outputReceived(res.result());
+    });
 }
