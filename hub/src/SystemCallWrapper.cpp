@@ -4847,7 +4847,7 @@ bool CSystemCallWrapper::is_host_reachable(const QString &host){
   args << "-c1";
 #endif
   args << host;
-  qDebug(args);
+  qDebug() << args;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
   qDebug() << "ping finished for " << host
            << "error code: " << res.exit_code
@@ -4856,7 +4856,7 @@ bool CSystemCallWrapper::is_host_reachable(const QString &host){
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
   }
-  return res.res;
+  return res.res == SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 int CProcessHandler::generate_hash(){

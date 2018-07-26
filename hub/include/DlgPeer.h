@@ -120,4 +120,19 @@ private slots:
   void launch_console_sl();
   void launch_bazaar_sl();
 };
+
+class HostChecker : public QObject {
+    Q_OBJECT
+public:
+    HostChecker(QObject *parent = nullptr) : QObject (parent) {}
+    void init(const QString& m_host);
+    void startWork();
+    void silenChecker();
+
+private:
+    QString m_host;
+
+signals:
+    void outputReceived(bool success);
+};
 #endif // DLGPEER_H
