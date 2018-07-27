@@ -57,6 +57,7 @@ private:
   int m_refresh_rh_list_progress_val;
   QString current_browser;
   QString current_chrome_profile;
+  QString current_firefox_profile;
   void rebuild_rh_list_model();
 
 private slots:

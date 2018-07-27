@@ -456,7 +456,7 @@ void CRestWorker::update_my_peers() {
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
   QTimer* timer = new QTimer(this);
-  timer->setInterval(30000);
+  timer->setInterval(60000);
   timer->setSingleShot(true);
 
   connect(timer, &QTimer::timeout, [reply]() {
@@ -497,7 +497,7 @@ void CRestWorker::update_environments() {
   reply->ignoreSslErrors();
 
   QTimer* timer = new QTimer(this);
-  timer->setInterval(30000);
+  timer->setInterval(60000);
   timer->setSingleShot(true);
 
   connect(timer, &QTimer::timeout, [reply]() {
@@ -526,7 +526,7 @@ void CRestWorker::update_balance() {
   reply->ignoreSslErrors();
 
   QTimer* timer = new QTimer(this);
-  timer->setInterval(30000);
+  timer->setInterval(60000);
   timer->setSingleShot(true);
 
   connect(timer, &QTimer::timeout, [reply]() {
