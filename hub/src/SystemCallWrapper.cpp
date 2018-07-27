@@ -3785,19 +3785,20 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString
   qDebug() << "insalling e2e on safari"
            << "cmd:" << cmd
            << "args:" << args;
-  if (!QProcess::startDetached(cmd, args)) {
-    qCritical() << "Failed to start e2e installation process";
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to start e2e installation process"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
     return SCWE_CREATE_PROCESS;
   }
 
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QString &version) {
-  version = "undefined";
-
+bool subutai_e2e_safari_exists() {
   QStringList lst =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   if (lst.empty()) {
     qCritical() << "Unable to get standard home directory.";
     return SCWE_CREATE_PROCESS;
@@ -3829,7 +3830,8 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QStri
            << "cmd:" << cmd
            << "args:" << args;
 
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
     qCritical() << "Failed to convert plist file"
                 << "exit code:" << res.exit_code
@@ -3847,43 +3849,106 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QStri
 
   QTextStream stream(&plist);
   QString str = stream.readAll();
-  QStringList p_lst = str.split("\n");
 
-  bool installed = false;
+  int id = str.indexOf("Installed Extensions");
+  if (id != -1) {
+    id = str.indexOf("Subutai E2E", id);
+    if (id != -1) {
+      QFile::remove(plist_copy);
+      return true;
+    }
+  }
 
-  for (QStringList::iterator i = p_lst.begin(); i != p_lst.end(); i++) {
-    QString &cur = *i;
-    if (version != "undefined") {
-      if (cur.contains("Installed Extensions")) {
-        for (; i != p_lst.end(); i++) {
-          QString &strr = *i;
-          if (strr.contains("Subutai E2E")) {
-            installed = true;
-            break;
-          }
-        }
-        if (installed) {
-          break;
-        }
-      }
-    } else {
-      if (cur.contains("io.subutai.tooling.e2eplugin")) {
-        QStringList::iterator j = i;
-        j++; j++;
-        QString &str =  *j;
-        int idl = str.indexOf(">") + 1;
-        int idr = str.indexOf("<", idl);
+  QFile::remove(plist_copy);
+  return false;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QString &version) {
+  version = "undefined";
+
+  if (!subutai_e2e_safari_exists()) {
+    return SCWE_SUCCESS;
+  }
+
+  QStringList lst =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Unable to get standard home directory.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = *lst.begin() + "/Library/Safari/Extensions/Subutai E2E Plugin.safariextz";
+  if (!QFile::exists(ext_path)) {
+    qCritical() << "Can't find safari e2e extension:" << ext_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_ext = *lst.begin() + "/library/Safari/Extensions/e2e-plugin.safariextension";
+  QDir ext_ext_dir(ext_ext);
+  if (ext_ext_dir.exists()) {
+    ext_ext_dir.removeRecursively();
+  }
+
+  QString cmd("xar");
+  QStringList args;
+  args << "-xf"
+       << ext_path
+       << "-C"
+       << *lst.begin() + "/Library/Safari/Extensions/";
+  qDebug() << "extracting e2e data from archive"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to extract data"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_path = *lst.begin() + "/Library/Safari/Extensions/e2e-plugin.safariextension/Info.plist";
+
+  cmd = "/usr/bin/plutil";
+  args.clear();
+  args << "-convert"
+       << "xml1"
+       << plist_path;
+  qDebug() << "Launching plutil to convert plist file to text file"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to convert plist file"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QFile plist(plist_path);
+
+  if (!plist.open(QIODevice::ReadWrite)) {
+    qCritical() << "Failed to open " << plist_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QTextStream stream(&plist);
+  QString str = stream.readAll();
+  int id = str.indexOf("CFBundleShortVersionString");
+
+  if (id != -1) {
+    int idl = str.indexOf(QRegularExpression("[0-9.]"), id);
+    if (idl != -1) {
+      int idr = str.indexOf("<", idl);
+      if (idr != -1) {
         version = str.mid(idl, idr - idl);
       }
     }
   }
 
-  if (!installed) {
-    version = "undefined";
-  }
+  ext_ext_dir.removeRecursively();
 
-  plist.close();
-  QFile::remove(plist_copy);
   return SCWE_SUCCESS;
 }
 
