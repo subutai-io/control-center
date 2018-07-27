@@ -2939,6 +2939,8 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e(const QString &dir, 
     return install_e2e_chrome();
   } else if (current_browser == "Firefox") {
     return install_e2e_firefox(dir, file_name);
+  } else if (current_browser == "Safari") {
+    return install_e2e_safari(dir, file_name);
   }
   return SCWE_SUCCESS;
 }
@@ -3762,12 +3764,239 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_firefox() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString &dir, const QString &file_name) {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << "tell application \"Safari\" to quit";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0){
+    qCritical() << "Failed to close Safari"
+                << "Exit code: " << res.exit_code
+                << "Output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  cmd = "open";
+  args.clear();
+  args << dir + "/" + file_name;
+  qDebug() << "insalling e2e on safari"
+           << "cmd:" << cmd
+           << "args:" << args;
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to start e2e installation process"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return SCWE_SUCCESS;
+}
+
+bool subutai_e2e_safari_exists() {
+  QStringList lst =
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Unable to get standard home directory.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_path = *lst.begin() + "/Library/Safari/Extensions/";
+  QString plist_original = plist_path + "Extensions.plist";
+  if (!QFile::exists(plist_original)) {
+    qCritical() << "cannot find" << plist_original;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_copy = plist_path + "Extensions-tmp-copy.plist";
+  if (QFile::exists(plist_copy)) {
+    QFile::remove(plist_copy);
+  }
+
+  if (!QFile::copy(plist_original, plist_copy)) {
+    qCritical() << "Failed to copy " << plist_original;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString cmd("/usr/bin/plutil");
+  QStringList args;
+  args << "-convert"
+       << "xml1"
+       << plist_copy;
+  qDebug() << "Launching plutil to convert plist file to text file"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to convert plist file"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    QFile::remove(plist_copy);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QFile plist(plist_copy);
+  if (!plist.open(QIODevice::ReadOnly)) {
+    qCritical() << "Failed to open plist copy" << plist_copy;
+    QFile::remove(plist_copy);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QTextStream stream(&plist);
+  QString str = stream.readAll();
+
+  int id = str.indexOf("Installed Extensions");
+  if (id != -1) {
+    id = str.indexOf("Subutai E2E", id);
+    if (id != -1) {
+      QFile::remove(plist_copy);
+      return true;
+    }
+  }
+
+  QFile::remove(plist_copy);
+  return false;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QString &version) {
+  version = "undefined";
+
+  if (!subutai_e2e_safari_exists()) {
+    return SCWE_SUCCESS;
+  }
+
+  QStringList lst =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Unable to get standard home directory.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_path = *lst.begin() + "/Library/Safari/Extensions/Subutai E2E Plugin.safariextz";
+  if (!QFile::exists(ext_path)) {
+    qCritical() << "Can't find safari e2e extension:" << ext_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString ext_ext = *lst.begin() + "/library/Safari/Extensions/e2e-plugin.safariextension";
+  QDir ext_ext_dir(ext_ext);
+  if (ext_ext_dir.exists()) {
+    ext_ext_dir.removeRecursively();
+  }
+
+  QString cmd("xar");
+  QStringList args;
+  args << "-xf"
+       << ext_path
+       << "-C"
+       << *lst.begin() + "/Library/Safari/Extensions/";
+  qDebug() << "extracting e2e data from archive"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to extract data"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_path = *lst.begin() + "/Library/Safari/Extensions/e2e-plugin.safariextension/Info.plist";
+
+  cmd = "/usr/bin/plutil";
+  args.clear();
+  args << "-convert"
+       << "xml1"
+       << plist_path;
+  qDebug() << "Launching plutil to convert plist file to text file"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to convert plist file"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QFile plist(plist_path);
+
+  if (!plist.open(QIODevice::ReadWrite)) {
+    qCritical() << "Failed to open " << plist_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QTextStream stream(&plist);
+  QString str = stream.readAll();
+  int id = str.indexOf("CFBundleShortVersionString");
+
+  if (id != -1) {
+    int idl = str.indexOf(QRegularExpression("[0-9.]"), id);
+    if (idl != -1) {
+      int idr = str.indexOf("<", idl);
+      if (idr != -1) {
+        version = str.mid(idl, idr - idl);
+      }
+    }
+  }
+
+  ext_ext_dir.removeRecursively();
+
+  return SCWE_SUCCESS;
+}
+
+//Safari e2e extension name: "Subutai E2E Plugin.safariextz"
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_safari() {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << "tell application \"Safari\" to quit";
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0){
+    qCritical() << "Failed to close Safari"
+                << "Exit code: " << res.exit_code
+                << "Output: " << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QStringList lst =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Failed to get standard home location.";
+    return SCWE_CREATE_PROCESS;
+  }
+  QString path = *lst.begin() + "/Library/Safari/Extensions/Subutai E2E Plugin.safariextz";
+  QFile ext(path);
+  if (!ext.exists()) {
+    qCritical() << "extension doesn't exist:" << path;
+    return SCWE_CREATE_PROCESS;
+  }
+  if (!ext.remove()) {
+    qCritical() << "Failed to remove extension:" << path;
+    return SCWE_CREATE_PROCESS;
+  }
+  return SCWE_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
   QString current_browser = CSettingsManager::Instance().default_browser();
   if (current_browser == "Chrome") {
     return uninstall_e2e_chrome();
   } else if (current_browser == "Firefox") {
     return uninstall_e2e_firefox();
+  } else if (current_browser == "Safari") {
+    return uninstall_e2e_safari();
   }
   return SCWE_SUCCESS;
 }
@@ -4669,7 +4898,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_chrome_version(QStri
   CSystemCallWrapper::chrome_version(chrome_ver);
 
   if (chrome_ver == "undefined") {
-    version = QObject::tr("Default browser is not installed");
+    version = QObject::tr("No supported browser is available");
     return SCWE_SUCCESS;
   }
 
@@ -4869,7 +5098,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_firefox_version(QStr
   CSystemCallWrapper::firefox_version(firefox_ver);
 
   if (firefox_ver == "undefined") {
-    version = QObject::tr("Default browser is not installed");
+    version = QObject::tr("No supported browser is available");
     return SCWE_SUCCESS;
   }
 
@@ -4882,7 +5111,10 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
     return CSystemCallWrapper::subutai_e2e_chrome_version(version);
   } else if (current_browser == "Firefox") {
     return CSystemCallWrapper::subutai_e2e_firefox_version(version);
+  } else if (current_browser == "Safari") {
+    return CSystemCallWrapper::subutai_e2e_safari_version(version);
   }
+  version = "undefined";
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -5205,6 +5437,63 @@ system_call_wrapper_error_t CSystemCallWrapper::firefox_version(
 
 ////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
+  version = "undefined";
+#ifdef RT_OS_WINDOWS
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKCR\\AppX3xxs313wwkfjhythsb8q46xdsq8d2cvv\\Application";
+  qDebug() << "querying registry for edge version"
+           << "cmd:" << cmd
+           << "args:" << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 5000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0 || res.out.empty()) {
+    qCritical() << "Failed to query edge registry key"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    return SCWE_CREATE_PROCESS;
+  }
+  for (QString str: res.out) {
+    if (str.contains(QRegularExpression("Microsoft.MicrosoftEdge_[0-9.]+"))) {
+      int l = str.indexOf("Microsoft.MicrosoftEdge_") + 24;
+      int r = str.indexOf("_", l);
+      version = str.mid(l, r - l);
+      break;
+    }
+  }
+  qDebug() << "Found Edge version:" << version;
+#endif
+  return SCWE_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::safari_version(QString &version) {
+  version = "undefined";
+#ifdef RT_OS_DARWIN
+  QString path("/Applications/Safari.app/Contents/version.plist");
+  QFile plist(path);
+  if (!plist.open(QIODevice::ReadOnly)) {
+    qCritical() << "Can't open" << path;
+    return SCWE_CREATE_PROCESS;
+  }
+  QTextStream stream(&plist);
+  QString str = stream.readAll();
+  int id = str.indexOf("CFBundleShortVersionString");
+  if (id == -1) {
+    qCritical() << "CFBundleShortVersionString not found in" << path;
+    return SCWE_CREATE_PROCESS;
+  }
+  int idl = str.indexOf(QRegularExpression("[0-9.]"), id);
+  int idr = str.indexOf("<", idl);
+  version = str.mid(idl, idr - idl);
+#endif
+  return SCWE_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 bool CSystemCallWrapper::firefox_last_session() {
   qDebug() << "There is no restore session option for firefox";
   QString cmd = CSettingsManager::Instance().firefox_path();
@@ -5221,6 +5510,16 @@ bool CSystemCallWrapper::chrome_last_session(){
     return QProcess::startDetached(cmd, args);
 
 }
+////////////////////////////////////////////////////////////////////////////
+
+bool CSystemCallWrapper::safari_last_session() {
+  qDebug() << "No restore option for safari";
+  QString cmd("open");
+  QStringList args;
+  args << "/Applications/Safari.app";
+  return QProcess::startDetached(cmd, args);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(

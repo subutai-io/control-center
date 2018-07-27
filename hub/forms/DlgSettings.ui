@@ -208,7 +208,7 @@ border-color: rgb(175, 162, 152)</string>
               <string>Works only if tray couldn't get sys. tray icon's coordinates</string>
              </property>
              <property name="text">
-              <string>Area of notifications (only linux) :</string>
+              <string>Area of notifications (Linux only) :</string>
              </property>
              <property name="wordWrap">
               <bool>false</bool>
@@ -328,7 +328,7 @@ border-color: rgb(175, 162, 152)</string>
            <item row="8" column="0">
             <widget class="QLabel" name="lbl_profile">
              <property name="text">
-              <string>Browser profile :</string>
+              <string>Browser profile (Chrome &amp; Firefox only) :</string>
              </property>
             </widget>
            </item>
