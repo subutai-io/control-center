@@ -83,7 +83,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
-                  tr("Running installation scripts."),
+                  tr("Running installation scripts might be take too long time please wait."),
                   DlgNotification::N_NO_ACTION);
               silent_installer->startWork();
             }

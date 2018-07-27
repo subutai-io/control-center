@@ -2408,7 +2408,7 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
     "#!/bin/bash\n"
     "cd %1\n"
     "chmod +x %2\n"
-    "./%2"
+    "./%2 --console --required --eulas-agreed"
     "\n").arg(dir, file_name).toUtf8();
 
   qDebug() << "VMware installation "
@@ -2480,7 +2480,7 @@ template <>
 system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
-  // pkexec vmware-installer -u vmware-workstation #TODO change uninstall commands
+  // pkexec vmware-installer -u vmware-workstation --console --required --eulas-agreed
   QString pkexec_path;
   system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
 
@@ -2497,7 +2497,10 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
   QStringList args;
   args << "vmware-installer"
        << "-u"
-       << "vmware-workstation";
+       << "vmware-workstation"
+       << "--console"
+       << "--required"
+       << "--eulas-agreed";
 
   scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
 
