@@ -2353,7 +2353,177 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
   installer_is_busy.unlock();
   return res.res;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         INSTALLATION VMWARE FUSION, WORKSTATION                                    ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_vmware_internal(const QString &dir, const QString &file_name);
 
+template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vmware_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+    "#!/bin/bash\n"
+    "cd %1\n"
+    "chmod +x %2\n"
+    "./%2"
+    "\n").arg(dir, file_name).toUtf8();
+
+  qDebug() << "VMware installation "
+           << "dir: "
+           << dir
+           << " file_name: "
+           << file_name;
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+
+  args2 << sh_path << tmpFilePath;
+
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+
+  qDebug() << "VMware worstation installation finished"
+           << "error code:"
+           << cr2.exit_code
+           << "output: "
+           << cr2.out
+           << "result: "
+           << cr2.res;
+
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_vmware(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 UNINSTALLATION VMWARE                                              ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <class OS>
+system_call_wrapper_error_t uninstall_vmware_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec vmware-installer -u vmware-workstation #TODO change uninstall commands
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "vmware-installer"
+       << "-u"
+       << "vmware-workstation";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of VMware finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall VMware Workstation err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return scr.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
@@ -4153,20 +4323,19 @@ system_call_wrapper_error_t vmware_version_internal(QString &version);
 template <>
 system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(
     QString &version) {
+  qDebug() << "VMware version";
   version = "undefined";
   QStringList args;
   args << "--version";
 
-  QString path = "/usr/bin/vmware";//CSettingsManager::Instance().oracle_virtualbox_path(); #TODO
-  QDir dir(path);
-  dir.cdUp();
-  path = dir.absolutePath();
-
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(path,
-                                                         args, true, true, 5000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      QString("/usr/bin/vmware"), args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    version = res.out.at(0);
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("build-\\d*"));
+    version = version.remove(QRegularExpression("[a-zA-Z ]*"));
+
   }
 
   return res.res;

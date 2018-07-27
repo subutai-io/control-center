@@ -15,7 +15,7 @@
 #include "updater/UpdaterComponentVMware.h"
 
 CUpdaterComponentVMware::CUpdaterComponentVMware() {
-  m_component_id = VMWARE;
+  m_component_id = IUpdaterComponent::VMWARE;
 }
 
 CUpdaterComponentVMware::~CUpdaterComponentVMware() {}
