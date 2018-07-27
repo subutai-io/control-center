@@ -323,10 +323,68 @@ void CHubController::launch_browser(const QString &url) {
       CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without "
                                       "a Mozilla Firefox browser installed "
                                       "in your system. You can install the "
-                                      "Google Chrome browser by going to "
+                                      "Mozilla Firefox browser by going to "
                                       "the menu > Components."),
                                    DlgNotification::N_ABOUT);
     }
+  } else if (current_browser == "Edge") {
+    qDebug() << "Trying to launch the browser with url:" << url;
+    QString edge_ver;
+    system_call_wrapper_error_t res = CSystemCallWrapper::edge_version(edge_ver);
+    if (res == SCWE_SUCCESS || edge_ver != "undefined") {
+      bool err = false;
+      QString cmd = QString("start microsoft-edge:%1").arg(url);
+      QStringList lst = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+      if (lst.empty()) {
+        qCritical("Unable to find standard TEMP location.");
+        err = true;
+      }
+      QString dir = *lst.begin();
+      QString file_name("run-edge.bat");
+      QFile script(dir + QDir::separator() + file_name);
+      if (script.exists()) {
+        script.remove();
+      }
+      script.open(QIODevice::ReadWrite);
+      script.write(cmd.toStdString().c_str());
+      script.close();
+      if (err || !QProcess::startDetached(dir + QDir::separator() + file_name)) {
+        QString err_msg = tr("Unable to redirect to Subutai Bazaar through a "
+                             "browser. Be sure that you have Microsoft Edge "
+                             "browser installed in your system.");
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        qCritical("%s", err_msg.toStdString().c_str());
+      }
+    } else {
+      CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without "
+                                      "a Microsoft Edge browser installed "
+                                      "in your system."),
+                                   DlgNotification::N_NO_ACTION);
+    }
+  } else if (current_browser == "Safari") {
+    qDebug() << "opening safari with given url:" << url;
+    QString safari_ver;
+    system_call_wrapper_error_t res = CSystemCallWrapper::safari_version(safari_ver);
+    if (res == SCWE_SUCCESS || safari_ver != "undefined") {
+      QString cmd("open");
+      QStringList args;
+      args << "-a" << "safari" << url;
+      qDebug() << "launching safari..."
+               << "cmd:" << cmd
+               << "args:" << args;
+      if (!QProcess::startDetached(cmd, args)) {
+        QString err_msg = tr("Unable to redirect to Subutai Bazaar through a "
+                             "browser. Be sure that you have Safari "
+                             "browser installed in your system.");
+        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+        qCritical() << "unable to launch safari";
+      }
+    }
+  } else {
+    CNotificationObserver::Error(tr("Cannot open Subutai Bazaar without "
+                                    "a Safari browser installed "
+                                    "in your system."),
+                                 DlgNotification::N_NO_ACTION);
   }
 }
 

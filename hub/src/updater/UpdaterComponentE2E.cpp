@@ -59,8 +59,14 @@ chue_t CUpdaterComponentE2E::install_internal() {
     connect(silent_installer, &SilentInstaller::outputReceived, this,
             &CUpdaterComponentE2E::install_finished_sl);
     silent_installer->startWork();
-  } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
-    QString file_name = firefox_subutai_e2e_kurjun_package_name();
+  } else if (CSettingsManager::Instance().default_browser() != "Chrome") {
+    QString file_name;
+
+    if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      file_name = firefox_subutai_e2e_kurjun_package_name();
+    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
+      file_name = safari_subutai_e2e_kurjun_package_name();
+    }
     QString file_dir = download_e2e_path();
     QString str_downloaded_path = file_dir + "/" + file_name;
 
@@ -152,6 +158,8 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
       CSystemCallWrapper::chrome_last_session();
     } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
       CSystemCallWrapper::firefox_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
+      CSystemCallWrapper::safari_last_session();
     }
   }
 }
@@ -177,6 +185,8 @@ void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
       CSystemCallWrapper::chrome_last_session();
     } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
       CSystemCallWrapper::firefox_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
+      CSystemCallWrapper::safari_last_session();
     }
   }
 }

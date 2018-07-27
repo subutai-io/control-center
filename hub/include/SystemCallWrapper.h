@@ -237,6 +237,9 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_e2e_firefox(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_e2e_firefox();
 
+  static system_call_wrapper_error_t install_e2e_safari(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_e2e_safari();
+
   static system_call_wrapper_error_t install_vagrant_subutai();
 
   static system_call_wrapper_error_t install_vagrant_vbguest();
@@ -252,6 +255,8 @@ class CSystemCallWrapper {
   static bool chrome_last_session();
 
   static bool firefox_last_session();
+
+  static bool safari_last_session();
 
  // static system_call_res_t chrome_open_link();
 
@@ -304,6 +309,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_chrome_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_firefox_version(QString &version);
+  static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
   static bool p2p_daemon_check();
@@ -317,6 +323,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t chrome_version(QString &version);
   static system_call_wrapper_error_t firefox_version(QString &version);
+  static system_call_wrapper_error_t edge_version(QString &version);
+  static system_call_wrapper_error_t safari_version(QString &version);
   static const QString &virtual_box_version();
   static const QString &scwe_error_to_str(system_call_wrapper_error_t err);
 

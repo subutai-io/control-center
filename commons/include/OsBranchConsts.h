@@ -61,6 +61,7 @@ const QString& oracle_virtualbox_kurjun_package_name();
 const QString& chrome_kurjun_package_name();
 const QString& firefox_kurjun_package_name();
 const QString& firefox_subutai_e2e_kurjun_package_name();
+const QString& safari_subutai_e2e_kurjun_package_name();
 const QString& subutai_box_kurjun_package_name(const QString &provider);
 const QString& subutai_box_name();
 const QString& p2p_dht_arg();
