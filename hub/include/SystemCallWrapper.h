@@ -256,6 +256,8 @@ class CSystemCallWrapper {
 
   static bool firefox_last_session();
 
+  static bool safari_last_session();
+
  // static system_call_res_t chrome_open_link();
 
   static system_call_wrapper_error_t run_sshpass_in_terminal(const QString &user,
@@ -307,6 +309,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_chrome_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_firefox_version(QString &version);
+  static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
   static bool p2p_daemon_check();

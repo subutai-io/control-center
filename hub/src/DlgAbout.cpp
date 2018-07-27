@@ -348,9 +348,6 @@ void DlgAbout::set_visible_safari(bool value) {
   ui->lbl_safari_info_icon->setVisible(value);
   ui->lbl_safari_version_val->setVisible(value);
   ui->lbl_spacer_safari->setVisible(value);
-  if (value) {
-    set_visible_e2e(false);
-  }
   this->adjustSize();
 }
 
@@ -705,7 +702,7 @@ void DlgAbout::got_safari_version_sl(QString version) {
 
 void DlgAbout::got_e2e_version_sl(QString version) {
   ui->lbl_subutai_e2e_val->setText(version);
-  if (current_browser != "Edge" && current_browser != "Safari") {
+  if (current_browser != "Edge") {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::E2E);
       ui->btn_subutai_e2e->setHidden(false);
@@ -850,8 +847,7 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].cb->setVisible(true);
   }
 
-  if (component_id == IUpdaterComponent::E2E && (current_browser == "Edge" ||
-                                                 current_browser == "Safari")) {
+  if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
   }

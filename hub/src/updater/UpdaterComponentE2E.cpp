@@ -158,6 +158,8 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
       CSystemCallWrapper::chrome_last_session();
     } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
       CSystemCallWrapper::firefox_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
+      CSystemCallWrapper::safari_last_session();
     }
   }
 }
@@ -183,6 +185,8 @@ void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
       CSystemCallWrapper::chrome_last_session();
     } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
       CSystemCallWrapper::firefox_last_session();
+    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
+      CSystemCallWrapper::safari_last_session();
     }
   }
 }

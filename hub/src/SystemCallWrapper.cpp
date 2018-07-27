@@ -3793,6 +3793,99 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString
   return SCWE_SUCCESS;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QString &version) {
+  version = "undefined";
+
+  QStringList lst =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Unable to get standard home directory.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_path = *lst.begin() + "/Library/Safari/Extensions/";
+  QString plist_original = plist_path + "Extensions.plist";
+  if (!QFile::exists(plist_original)) {
+    qCritical() << "cannot find" << plist_original;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString plist_copy = plist_path + "Extensions-tmp-copy.plist";
+  if (QFile::exists(plist_copy)) {
+    QFile::remove(plist_copy);
+  }
+
+  if (!QFile::copy(plist_original, plist_copy)) {
+    qCritical() << "Failed to copy " << plist_original;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString cmd("/usr/bin/plutil");
+  QStringList args;
+  args << "-convert"
+       << "xml1"
+       << plist_copy;
+  qDebug() << "Launching plutil to convert plist file to text file"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to convert plist file"
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+    QFile::remove(plist_copy);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QFile plist(plist_copy);
+  if (!plist.open(QIODevice::ReadOnly)) {
+    qCritical() << "Failed to open plist copy" << plist_copy;
+    QFile::remove(plist_copy);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QTextStream stream(&plist);
+  QString str = stream.readAll();
+  QStringList p_lst = str.split("\n");
+
+  bool installed = false;
+
+  for (QStringList::iterator i = p_lst.begin(); i != p_lst.end(); i++) {
+    QString &cur = *i;
+    if (version != "undefined") {
+      if (cur.contains("Installed Extensions")) {
+        for (; i != p_lst.end(); i++) {
+          QString &strr = *i;
+          if (strr.contains("Subutai E2E")) {
+            installed = true;
+            break;
+          }
+        }
+        if (installed) {
+          break;
+        }
+      }
+    } else {
+      if (cur.contains("io.subutai.tooling.e2eplugin")) {
+        QStringList::iterator j = i;
+        j++; j++;
+        QString &str =  *j;
+        int idl = str.indexOf(">") + 1;
+        int idr = str.indexOf("<", idl);
+        version = str.mid(idl, idr - idl);
+      }
+    }
+  }
+
+  if (!installed) {
+    version = "undefined";
+  }
+
+  plist.close();
+  QFile::remove(plist_copy);
+  return SCWE_SUCCESS;
+}
 
 //Safari e2e extension name: "Subutai E2E Plugin.safariextz"
 
@@ -4740,7 +4833,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_chrome_version(QStri
   CSystemCallWrapper::chrome_version(chrome_ver);
 
   if (chrome_ver == "undefined") {
-    version = QObject::tr("Default browser is not installed");
+    version = QObject::tr("No supported browser is available");
     return SCWE_SUCCESS;
   }
 
@@ -4940,7 +5033,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_firefox_version(QStr
   CSystemCallWrapper::firefox_version(firefox_ver);
 
   if (firefox_ver == "undefined") {
-    version = QObject::tr("Default browser is not installed");
+    version = QObject::tr("No supported browser is available");
     return SCWE_SUCCESS;
   }
 
@@ -4953,6 +5046,8 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
     return CSystemCallWrapper::subutai_e2e_chrome_version(version);
   } else if (current_browser == "Firefox") {
     return CSystemCallWrapper::subutai_e2e_firefox_version(version);
+  } else if (current_browser == "Safari") {
+    return CSystemCallWrapper::subutai_e2e_safari_version(version);
   }
   version = "undefined";
   return SCWE_SUCCESS;
@@ -5312,7 +5407,7 @@ system_call_wrapper_error_t CSystemCallWrapper::edge_version(QString &version) {
 system_call_wrapper_error_t CSystemCallWrapper::safari_version(QString &version) {
   version = "undefined";
 #ifdef RT_OS_DARWIN
-  QString path("/Applications/Safari.app/Contents/Info.plist");
+  QString path("/Applications/Safari.app/Contents/version.plist");
   QFile plist(path);
   if (!plist.open(QIODevice::ReadOnly)) {
     qCritical() << "Can't open" << path;
@@ -5350,6 +5445,16 @@ bool CSystemCallWrapper::chrome_last_session(){
     return QProcess::startDetached(cmd, args);
 
 }
+////////////////////////////////////////////////////////////////////////////
+
+bool CSystemCallWrapper::safari_last_session() {
+  qDebug() << "No restore option for safari";
+  QString cmd("open");
+  QStringList args;
+  args << "/Applications/Safari.app";
+  return QProcess::startDetached(cmd, args);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 const QString &CSystemCallWrapper::scwe_error_to_str(
