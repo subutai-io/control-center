@@ -1216,7 +1216,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_58023FDC6B434D09A08352B5A73EE727"
             {
-            "SourcePath" = "8:..\\..\\closecc.vbs"
+            "SourcePath" = "8:..\\..\\control-center\\closecc.vbs"
             "TargetName" = "8:closecc.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1356,7 +1356,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B4C567A5462440EA1ACA47496B88653"
             {
-            "SourcePath" = "8:..\\..\\addvariablesshtopath.vbs"
+            "SourcePath" = "8:..\\..\\control-center\\addvariablesshtopath.vbs"
             "TargetName" = "8:addvariablesshtopath.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
@@ -1556,7 +1556,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8494E081C9744C3B92F7BB578F5C67D1"
             {
-            "SourcePath" = "8:..\\..\\addvariablecctopath.vbs"
+            "SourcePath" = "8:..\\..\\control-center\\addvariablecctopath.vbs"
             "TargetName" = "8:addvariablecctopath.vbs"
             "Tag" = "8:"
             "Folder" = "8:_19BB28252AA541288FC059ADB0DCB039"
