@@ -5729,63 +5729,26 @@ bool set_application_autostart_internal<Os2Type<OS_WIN>> (bool start) {
     return false;
   }
 
-  QString lnk_path = *lst.begin() +
-      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenter.lnk";
+  QString vbs_path = *lst.begin() +
+      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenterStartupScript.vbs";
 
   if (start) {
-    QString vbs_script =
-        QString("Set oWS = WScript.CreateObject(\"WScript.Shell\")\n"
-                "sLinkFile = \"%1\"\n"
-                "Set oLink = oWS.CreateShortcut(sLinkFile)\n"
-                "oLink.TargetPath = \"%2\"\n"
-                "'  oLink.Arguments = \"\"\n"
-                "'  oLink.Description = \"SubutaiControlCenter\"\n"
-                "'  oLink.HotKey = \"ALT+CTRL+F\"\n"
-                "'  oLink.IconLocation = \"%2, 2\"\n"
-                "'  oLink.WindowStyle = \"1\"\n"
-                "'  oLink.WorkingDirectory = \"%3\"\n"
-                "oLink.Save")
-        .arg(lnk_path, QCoreApplication::applicationFilePath(),
-             QCoreApplication::applicationDirPath());
-
-    QStringList tlst = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-    if (tlst.empty()) {
-      tlst << QCoreApplication::applicationDirPath();
-    }
-    QString vbs_path = *tlst.begin() + QDir::separator() + "cc_autostart_scr.vbs";
-    QFile vbs_file(vbs_path);
-    if (vbs_file.exists()) {
-      vbs_file.remove();
-    }
-
-    if (!vbs_file.open(QIODevice::ReadWrite)) {
-      qCritical() << "Couldn't create vbs script file";
-      return false;
-    }
-
-    vbs_file.write(vbs_script.toStdString().c_str());
-    vbs_file.close();
-
-    QString cmd("CSCRIPT");
-    QStringList args;
-    args << vbs_path;
-
-    qDebug() << "Creating CC autostart shortcut"
-             << "cmd:" << cmd
-             << "args:" << args;
-
-    system_call_res_t res =
-        CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
-    vbs_file.remove();
-    if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
-      qCritical() << "Failed to create CC autostart shortcut"
-                  << "exit code:" << res.exit_code
-                  << "output:" << res.out;
-      return false;
+    if (!QFile::exists(vbs_path)) {
+      QFile vbs_file(vbs_path);
+      if (!vbs_file.open(QIODevice::ReadWrite)) {
+        qCritical() << "Couldn't create startup script.";
+        return false;
+      }
+      QString script = "Set WshShell = CreateObject(\"WScript.Shell\")\n"
+                       "WshShell.Run \"%1\", 0\n"
+                       "Set WshShell = Nothing\n";
+      vbs_file.write(script.arg(QCoreApplication::applicationFilePath())
+                     .toStdString().c_str());
+      vbs_file.close();
     }
   } else {
-    if (QFile::exists(lnk_path)) {
-      return QFile::remove(lnk_path);
+    if (QFile::exists(vbs_path)) {
+      return QFile::remove(vbs_path);
     }
   }
   return true;
@@ -5852,9 +5815,9 @@ bool application_autostart_internal<Os2Type<OS_WIN> >() {
     return false;
   }
 
-  QString lnk_path = *lst.begin() +
-      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenter.lnk";
-  return QFile::exists(lnk_path);
+  QString vbs_path = *lst.begin() +
+      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenterStartupScript.vbs";
+  return QFile::exists(vbs_path);
 }
 /*********************/
 
