@@ -196,11 +196,6 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
-  } else if (disk.toInt() > (int) Environment::Instance()->diskSize()) {
-    ui->lbl_err_disk->setText(tr("Disk cannot be more than %1 GB.").arg(Environment::Instance()->diskSize()));
-    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
-    ui->lbl_err_disk->show();
-    errors_exist = true;
   } else if (disk.toInt() > 2048) { // disk max size 2048 GB = 2 TB
     ui->lbl_err_disk->setText(tr("Disk cannot be more than 2048 GB."));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
