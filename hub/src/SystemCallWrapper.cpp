@@ -2360,6 +2360,36 @@ template <class OS>
 system_call_wrapper_error_t install_vmware_internal(const QString &dir, const QString &file_name);
 
 template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  // VMware-workstation-full-14.1.2-8497320.exe /s /v"/qn EULAS_AGREED=1
+  QString cmd(dir + "/" + file_name);
+  QStringList args;
+
+  qDebug() << "Installing package VMware: "
+           << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  qDebug() << "Installing package VMware finished: "
+           << " cmd: "
+           << cmd
+           << "args: "
+           << args
+           << " exit code: "
+           << res.exit_code
+           << " result: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
 system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
   QString pkexec_path;
   system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -2475,6 +2505,37 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vmware(const QString &di
 
 template <class OS>
 system_call_wrapper_error_t uninstall_vmware_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_WIN> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // wmic product where "Name like '%VMware%'" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("Name like '%VMware%'")
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstall VMware: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Uninstall VMware finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  if (res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
 
 template <>
 system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
@@ -4129,8 +4190,8 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &
 }
 
 template <>
-system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version){
-  UNUSED_ARG(version);
+system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &version) {
+  version = "undefined";
   QString cmd("REG");
   QStringList args;
   args
@@ -4322,6 +4383,52 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
 //  VMWARE VERSION
 template <class OS>
 system_call_wrapper_error_t vmware_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_WIN> >(QString &version) {
+  version = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  // REG QUERY "HKLM\SOFTWARE\WOW6432Node\VMware, Inc.\VMware Workstation" /v ProductVersion
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\VMware, Inc.\\VMware Workstation"
+       << "/v"
+       << "ProductVersion";
+
+  qDebug() << "Register query VMware: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got VMware version"
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+    QRegExp pattern("ProductVersion*");
+    pattern.setPatternSyntax(QRegExp::Wildcard);
+
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+
+      if (pattern.exactMatch(s)) {
+        QStringList buf = s.split(" ", QString::SkipEmptyParts);
+        if (buf.size() == 3) {
+          version = buf[2];
+          break;
+        }
+      }
+    }
+  }
+
+  return SCWE_SUCCESS;
+}
 
 template <>
 system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(

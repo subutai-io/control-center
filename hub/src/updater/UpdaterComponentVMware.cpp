@@ -149,5 +149,5 @@ void CUpdaterComponentVMware::uninstall_post_internal(bool success) {
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("Virtualbox has been uninstalled."), DlgNotification::N_NO_ACTION);
+        tr("VMware has been uninstalled."), DlgNotification::N_NO_ACTION);
 }
