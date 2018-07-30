@@ -184,7 +184,7 @@ template<class OS> const QString& vmware_kurjun_package_name_temp_internal();
     return res; \
   }
 
-vmware_kurjun_package_name_def(OS_MAC,    "vmware-fusion.pkg")
+vmware_kurjun_package_name_def(OS_MAC,    "vmware-fusion-osx.dmg")
 vmware_kurjun_package_name_def(OS_WIN,    "vmware-workstation-windows.exe")
 vmware_kurjun_package_name_def(OS_LINUX,  "vmware-workstation-linux.bundle")
 
