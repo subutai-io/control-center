@@ -335,24 +335,32 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
     qDebug() << "Got ip of " << name << "ip:" << output;
     if (!output.isEmpty() && output != "undefined") {
       // get finger
+      GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
       peer_info_t finger_type = P_FINGER;
-      QString peer_finger = "undefined";
-      if (CRestWorker::Instance()->peer_finger(output, peer_finger)) {
-        parse_peer_info(finger_type, name, dir, peer_finger);
-      } else {
-        parse_peer_info(finger_type, name, dir, "undefined");
-      }
+      thread_for_finger->init(output, finger_type);
+      number_threads++;
+      thread_for_finger->startWork();
+      connect(thread_for_finger, &GetPeerInfo::outputReceived,
+              [dir, name, this](peer_info_t type, QString res) {
+                this->parse_peer_info(type, name, dir, res);
+              });
       // set password
+      SetPasswordPeer *thread_for_pass = new SetPasswordPeer(this);
       static QString user_name = "admin";
-      number_threads++;
-      CRestWorker::Instance()->peer_set_pass(output,
-        user_name, CSettingsManager::Instance().peer_pass(),
-          CSettingsManager::Instance().peer_pass(name));
+      thread_for_pass->init(output, user_name,
+                            CSettingsManager::Instance().peer_pass(),
+                            CSettingsManager::Instance().peer_pass(name));
+      thread_for_pass->startWork();
       // get update info
-      number_threads++;
+      GetPeerInfo *thread_for_update = new GetPeerInfo(this);
       peer_info_t update_type = P_UPDATE;
-      parse_peer_info(update_type, name, dir,
-        CSystemCallWrapper::vagrant_is_peer_update_available(dir));
+      thread_for_update->init(output, update_type);
+      number_threads++;
+      thread_for_update->startWork();
+      connect(thread_for_update, &GetPeerInfo::outputReceived,
+              [dir, name, this](peer_info_t type, QString res) {
+                this->parse_peer_info(type, name, dir, res);
+              });
     }
   } else if (type == P_FINGER) {
     qDebug() << "Got finger of " << name << "finger:" << output;
