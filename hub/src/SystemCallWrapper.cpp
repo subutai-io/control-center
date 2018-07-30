@@ -4564,6 +4564,9 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   else{
       res.res = SCWE_CREATE_PROCESS;
   }
+  version = version.remove("p2p");
+  version = version.remove("version");
+  version = version.remove("  ");
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////

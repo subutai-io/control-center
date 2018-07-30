@@ -32,7 +32,7 @@ bool CUpdaterComponentXQuartz::update_available_internal() {
 chue_t CUpdaterComponentXQuartz::install_internal() {
   qDebug() << "Starting install xquart";
   update_progress_sl(100, 100);
-  update_finished_sl(true);
+  install_finished_sl(true);
   return CHUE_SUCCESS;
 }
 
