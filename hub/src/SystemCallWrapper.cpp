@@ -2360,6 +2360,27 @@ template <class OS>
 system_call_wrapper_error_t install_vmware_internal(const QString &dir, const QString &file_name);
 
 template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  // Installation process
+  // 1. Atttach VMware Fusion dmg file
+  // 2. Start installation process
+  // open -a /Volumes/VMware\ Fusion/VMware\ Fusion.app/
+  qDebug() << "Installation VMware Fusion";
+
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1; "
+                  "open -a /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/\" ").arg(file_path);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  return res.res;
+}
+
+template <>
 system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   // VMware-workstation-full-14.1.2-8497320.exe /s /v"/qn EULAS_AGREED=1
   QString cmd(dir + "/" + file_name);
@@ -2505,6 +2526,57 @@ system_call_wrapper_error_t CSystemCallWrapper::install_vmware(const QString &di
 
 template <class OS>
 system_call_wrapper_error_t uninstall_vmware_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
+  // close VMware Fusion
+  // osascript -e "Tell application \"VMware Fusion\" to quit"
+
+  // clean following folders
+  // /Library/Preferences/VMware\ Fusion/
+  // /Library/Application Support/VMware
+  // /Applications/VMware\ Fusion.app/
+
+  if (!QDir("/Applications/VMware Fusion.app/").exists()) {
+    qDebug() << "Can't find VMware Fusion path: /Applications/VMware Fusion.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+
+  // Quit Application VMware Fusion
+  args << "-e"
+       << "Tell application \"VMware Fusion\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true);
+
+  if (res.exit_code != 0) {
+    qDebug() << "Failed to quit VMware Fusion application";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  args.clear();
+
+  // Clean VMware Fusion folders
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/VMware\\\\ Fusion.app/; "
+               "rm -rf /Library/Preferences/VMware\\\\ Fusion/; "
+               "rm -rf /Library/Preferences/VMware*/;"
+               "rm -rf /Library/Application\\\\ Support/VMware*;");
+
+  qDebug() << "Uninstallation VMware Fusion internal"
+           << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (rs.exit_code != 0) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return rs.res;
+}
 
 template <>
 system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_WIN> > (const QString &dir, const QString &file_name) {
@@ -4383,6 +4455,44 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
 //  VMWARE VERSION
 template <class OS>
 system_call_wrapper_error_t vmware_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_MAC> >(QString &version) {
+  QString path = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion/"; // TODO ADD PATH to CSettings
+  QDir dir(path);
+  dir.cdUp(); dir.cdUp();
+  path = dir.absolutePath();
+  path += "/Info.plist";
+
+  QFile info_plist(path);
+  QString line;
+  bool found = false;
+
+  if (!info_plist.exists()) {
+    version = "undefined";
+
+    return SCWE_SUCCESS;
+  }
+
+  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream stream(&info_plist);
+      while (!stream.atEnd()) {
+        line = stream.readLine();
+        line = line.simplified();
+        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+        if (found) {
+            version = line;
+            break;
+        }
+        else if (line == "CFBundleShortVersionString") {
+            found = true;
+        }
+    }
+    info_plist.close();
+  }
+
+  return SCWE_SUCCESS;
+}
 
 template <>
 system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_WIN> >(QString &version) {
