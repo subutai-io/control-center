@@ -173,6 +173,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->ui->lbl_x2go_info_icon->setToolTip(tr(
       "X2Go client enables remote desktop access."));
 
+  this->ui->lbl_xquartz_info_icon->setToolTip(tr(
+      "XQuartz is a tool for X2Go OS X client to use the OS X X11 server"));
+
   QLabel* lbls[] = {this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_tray_version_val,
@@ -277,6 +280,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
       ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
       ui->btn_subutai_box, get_subutai_box_version};
+
+  m_dct_fpb[IUpdaterComponent::XQUARTZ] = {
+    ui->lbl_xquartz_version, ui->pb_xquartz, NULL,
+    ui->btn_xquartz_update, NULL};
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =

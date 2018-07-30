@@ -37,6 +37,7 @@ const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
 const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
 const QString IUpdaterComponent::SUBUTAI_BOX = "subutai_box";
+const QString IUpdaterComponent::XQUARTZ = "xquartz";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -51,7 +52,8 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {E2E, "Subutai E2E"},
     {VAGRANT_SUBUTAI, "Subutai plugin"},
     {VAGRANT_VBGUEST, "VirtualBox plugin"},
-    {SUBUTAI_BOX, "Subutai box"}
+    {SUBUTAI_BOX, "Subutai box"},
+    {XQUARTZ, "XQuartz"}
   };
   static const QString def = "";
 
@@ -92,7 +94,8 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
     {FIREFOX, DlgNotification::N_ABOUT},
     {VAGRANT_SUBUTAI, DlgNotification::N_ABOUT},
     {VAGRANT_VBGUEST, DlgNotification::N_ABOUT},
-    {SUBUTAI_BOX, DlgNotification::N_ABOUT}
+    {SUBUTAI_BOX, DlgNotification::N_ABOUT},
+    {XQUARTZ, DlgNotification::N_ABOUT}
   };
   return dct.at(id);
 }

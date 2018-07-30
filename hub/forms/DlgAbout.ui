@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>561</width>
-    <height>826</height>
+    <height>846</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1817,7 +1817,7 @@ min-height: 550pxk
         </widget>
        </item>
        <item row="13" column="2">
-        <widget class="QProgressBar" name="progressBar">
+        <widget class="QProgressBar" name="pb_xquartz">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1838,7 +1838,7 @@ min-height: 550pxk
        <item row="13" column="4">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="btn_xquartz_update">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1859,6 +1859,12 @@ min-height: 550pxk
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
           <widget class="QLabel" name="lbl_xquartz_version">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>XQuartz</string>
            </property>
