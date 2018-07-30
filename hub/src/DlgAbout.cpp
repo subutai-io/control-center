@@ -116,6 +116,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_firefox_info_icon,
                      this->ui->lbl_edge_info_icon,
                      this->ui->lbl_safari_info_icon,
+                     this->ui->lbl_xquartz_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
