@@ -612,13 +612,13 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   if (success) {
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setVisible(false);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(true);
     }
   } else {
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setEnabled(true);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(false);
     }
   }
@@ -974,7 +974,7 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
     m_dct_fpb[component_id].pb->setHidden(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setHidden(true);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(true);
     }
   } else {
@@ -1001,6 +1001,7 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
   }
+  m_dct_fpb[component_id].cb->setChecked(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].pb->setVisible(false);
