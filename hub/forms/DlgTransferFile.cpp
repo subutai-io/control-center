@@ -735,6 +735,10 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     qDebug()
             << "files from remote: "
             << file_info;
+    if (*file_info.begin() == 'l') {
+      qDebug() << "symlink:" << file_info;
+      continue;
+    }
     add_file_remote(file_info);
   }
   remote_movie->stop();
