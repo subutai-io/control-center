@@ -63,6 +63,8 @@ void DlgTransferFile::Init() {
   ui->le_local->setReadOnly(true);
   ui->le_remote->setReadOnly(true);
 
+  current_local_dir.setFilter(current_local_dir.filter() | QDir::NoSymLinks);
+
   QStringList stdDirList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QStringList::iterator stdDir = stdDirList.begin();
   if(stdDir == stdDirList.end())
@@ -690,8 +692,8 @@ void DlgTransferFile::refresh_button_remote() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void DlgTransferFile::refresh_local_file_system() {
-  ui->lbl_local_files->setMovie(remote_movie);
-  remote_movie->start();
+  ui->lbl_local_files->setMovie(local_movie);
+  local_movie->start();
 
   ui->local_file_system->setRowCount(0);
   current_local_dir.refresh();
@@ -700,7 +702,7 @@ void DlgTransferFile::refresh_local_file_system() {
   for (QFileInfo fi : current_local_dir.entryInfoList()) {
     add_file_local(fi);
   }
-  remote_movie->stop();
+  local_movie->stop();
   ui->lbl_local_files->setText("Local");
 }
 
@@ -735,6 +737,10 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     qDebug()
             << "files from remote: "
             << file_info;
+    if (*file_info.begin() == 'l') {
+      qDebug() << "symlink:" << file_info;
+      continue;
+    }
     add_file_remote(file_info);
   }
   remote_movie->stop();
