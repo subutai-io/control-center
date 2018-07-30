@@ -5722,78 +5722,36 @@ bool set_application_autostart_internal<Os2Type<OS_MAC> >(bool start) {
 /*********************/
 
 template<>
-bool set_application_autostart_internal<Os2Type<OS_WIN> >(bool start) {
-  (void)start;  // make compiler happy
-  bool result = true;
-#ifdef RT_OS_WINDOWS
-  HKEY rkey_run = NULL;
-  static const LPCWSTR val_name((wchar_t *)APP_AUTOSTART_KEY.utf16());
-  DWORD disp;
-  do {  // try to write value to registry
-    int32_t cr = RegCreateKeyExW(
-        HKEY_LOCAL_MACHINE,
-        L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL,
-        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &rkey_run, &disp);
+bool set_application_autostart_internal<Os2Type<OS_WIN>> (bool start) {
+  QStringList lst = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Couldn't get standard home location";
+    return false;
+  }
 
-    if (cr != ERROR_SUCCESS || !rkey_run) {
-      qCritical(
-          "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
-      CNotificationObserver::Error(QObject::tr("An error has occurred while creating the registry key. "
-                                               "Make sure that you have installed the Control Center correctly."),  DlgNotification::N_NO_ACTION);
-      result = false;
-      break;
+  QString vbs_path = *lst.begin() +
+      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenterStartupScript.vbs";
+
+  if (start) {
+    if (!QFile::exists(vbs_path)) {
+      QFile vbs_file(vbs_path);
+      if (!vbs_file.open(QIODevice::ReadWrite)) {
+        qCritical() << "Couldn't create startup script.";
+        return false;
+      }
+      QString script = "Set WshShell = CreateObject(\"WScript.Shell\")\n"
+                       "WshShell.Run \"%1\", 0\n"
+                       "Set WshShell = Nothing\n";
+      vbs_file.write(script.arg(QCoreApplication::applicationFilePath())
+                     .toStdString().c_str());
+      vbs_file.close();
     }
-
-    if (start) {
-      cr = RegSetKeyValueW(
-          rkey_run, 0, val_name, REG_SZ,
-          QApplication::applicationFilePath().replace("/", "\\").utf16(),
-          QApplication::applicationFilePath().length() * 2);
-
-      if (cr == ERROR_ACCESS_DENIED) {
-        CNotificationObserver::Error(QObject::tr(
-            "Couldn't add program to autorun due to denied access. Try to run "
-            "this application as administrator"), DlgNotification::N_NO_ACTION);
-        result = false;
-        break;
-      }
-
-      if (cr != ERROR_SUCCESS) {
-        qCritical("RegSetKeyValue err : %d, %d", cr,
-                                              GetLastError());
-        CNotificationObserver::Error(QObject::tr("An error has occurred while adding the program to autorun."),  DlgNotification::N_NO_ACTION);
-        result = false;
-        break;
-      }
-    } else {  // if (start)
-      cr = RegDeleteKeyValueW(rkey_run, 0, val_name);
-
-      if (cr == ERROR_ACCESS_DENIED) {
-        CNotificationObserver::Error(QObject::tr(
-            "Couldn't remove program from autorun due to access denied. Try to "
-            "run this application as administrator"), DlgNotification::N_NO_ACTION);
-        result = false;
-      }
-
-      if (cr == ERROR_PATH_NOT_FOUND) {
-        result = true;
-        break;
-      }
-
-      if (cr != ERROR_SUCCESS) {
-        qCritical("RegDeleteKeyValueW err : %d, %d",
-                                              cr, GetLastError());
-        CNotificationObserver::Error(QObject::tr(
-            "Couldn't remove program from autorun, sorry"), DlgNotification::N_NO_ACTION);
-        result = false;
-        break;
-      }
-    }  // if (start) ... else this block
-  } while (0);
-
-  RegCloseKey(rkey_run);
-#endif
-  return result;
+  } else {
+    if (QFile::exists(vbs_path)) {
+      return QFile::remove(vbs_path);
+    }
+  }
+  return true;
 }
 /*********************/
 
@@ -5851,40 +5809,15 @@ bool application_autostart_internal<Os2Type<OS_MAC> >() {
 
 template<>
 bool application_autostart_internal<Os2Type<OS_WIN> >() {
-  bool result = true;
-#ifdef RT_OS_WINDOWS
-  HKEY rkey_run = NULL;
-  do {
-    static const LPCWSTR val_name((wchar_t *)APP_AUTOSTART_KEY.utf16());
-    DWORD disp;
-    int32_t cr = RegCreateKeyExW(
-        HKEY_LOCAL_MACHINE,
-        L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0, NULL,
-        REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &rkey_run, &disp);
+  QStringList lst = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  if (lst.empty()) {
+    qCritical() << "Couldn't get standard home location";
+    return false;
+  }
 
-    if (cr != ERROR_SUCCESS || !rkey_run) {
-      qCritical(
-          "Create registry key error. ec = %d, cr = %d", GetLastError(), cr);
-      result = false;
-      break;
-    }
-
-    static const uint32_t buff_size = 1024;
-    uint8_t buff[buff_size] = {0};
-    DWORD cb_data;
-    DWORD rr;
-    rr = RegQueryValueEx(rkey_run, val_name, NULL, NULL, buff, &cb_data);
-    if (rr != ERROR_SUCCESS) {
-      result = false;
-      break;
-    }
-
-    QString qdata = QString::fromUtf16((ushort *)buff, cb_data);
-    result = qdata == QApplication::applicationFilePath();
-  } while (0);
-  RegCloseKey(rkey_run);
-#endif
-  return result;
+  QString vbs_path = *lst.begin() +
+      "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\SubutaiControlCenterStartupScript.vbs";
+  return QFile::exists(vbs_path);
 }
 /*********************/
 
