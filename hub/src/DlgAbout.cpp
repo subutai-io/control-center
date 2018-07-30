@@ -101,6 +101,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   set_visible_firefox("Firefox" == current_browser);
   set_visible_edge("Edge" == current_browser);
   set_visible_safari("Safari" == current_browser);
+  set_visible_xquartz(OS_MAC == CURRENT_OS);
 
   QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
@@ -366,6 +367,14 @@ void DlgAbout::set_visible_e2e(bool value) {
   ui->pb_e2e->setVisible(value);
 }
 
+void DlgAbout::set_visible_xquartz(bool value) {
+  ui->btn_xquartz_update->setVisible(value);
+  ui->lbl_xquartz_info_icon->setVisible(value);
+  ui->lbl_xquartz_version->setVisible(value);
+  ui->lbl_xquartz_version_val->setVisible(value);
+  ui->lbl_spacer_xquartz->setVisible(value);;
+  ui->pb_xquartz->setVisible(value);
+}
 DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -863,8 +872,8 @@ void DlgAbout::update_available_sl(const QString& component_id,
   // update available component
   if (update_available) {
     qInfo() << "update available: " << component_id;
-    m_dct_fpb[component_id].btn->setVisible(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setVisible(true);
       m_dct_fpb[component_id].cb->setHidden(true);
       m_dct_fpb[component_id].cb->setChecked(false);
     }
