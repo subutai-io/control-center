@@ -65,8 +65,8 @@ min-height: 550pxk
       </layout>
      </item>
      <item row="0" column="0">
-      <layout class="QGridLayout" name="gl_components" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0,0">
-       <item row="14" column="4">
+      <layout class="QGridLayout" name="gl_components" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0">
+       <item row="14" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_17">
          <item>
           <widget class="QPushButton" name="btn_firefox">
@@ -184,7 +184,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="11" column="4">
+       <item row="11" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_15">
          <item>
           <widget class="QPushButton" name="btn_vbguest_plugin_update">
@@ -327,7 +327,7 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="13" column="4">
+       <item row="13" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QPushButton" name="btn_xquartz_update">
@@ -342,6 +342,43 @@ min-height: 550pxk
            </property>
            <property name="text">
             <string>Update</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignRight">
+          <widget class="QCheckBox" name="cb_xquartz">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+     width: 24px;
+     height: 24px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/hub/check_box_outline.png);
+  }
+
+  QCheckBox::indicator:checked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }
+  QCheckBox::indicator:unchecked:pressed
+  {
+    image: url(:/hub/check_box.png);
+  }</string>
+           </property>
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>
@@ -422,7 +459,7 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="7" column="4">
+       <item row="7" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_11">
          <item>
           <widget class="QPushButton" name="btn_oracle_virtualbox_update">
@@ -508,7 +545,7 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="8" column="4">
+       <item row="8" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_12">
          <item>
           <widget class="QPushButton" name="btn_chrome">
@@ -617,7 +654,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="10" column="4">
+       <item row="10" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_14">
          <item>
           <widget class="QPushButton" name="btn_subutai_plugin_update">
@@ -866,7 +903,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="6" column="4">
+       <item row="6" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_10">
          <item>
           <widget class="QPushButton" name="btn_subutai_e2e">
@@ -1159,6 +1196,31 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
+       <item row="3" column="2">
+        <widget class="QProgressBar" name="pb_p2p">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
        <item row="12" column="1">
         <widget class="QLabel" name="lbl_x2go_version_val">
          <property name="text">
@@ -1166,8 +1228,8 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="3" column="2">
-        <widget class="QProgressBar" name="pb_p2p">
+       <item row="10" column="2">
+        <widget class="QProgressBar" name="pb_subutai_plugin">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1259,7 +1321,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="1" column="4">
+       <item row="1" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
           <widget class="QPushButton" name="btn_tray_update">
@@ -1285,8 +1347,8 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="10" column="2">
-        <widget class="QProgressBar" name="pb_subutai_plugin">
+       <item row="9" column="2">
+        <widget class="QProgressBar" name="pb_subutai_box">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1317,7 +1379,7 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="9" column="4">
+       <item row="9" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_13">
          <item>
           <widget class="QPushButton" name="btn_subutai_box">
@@ -1397,32 +1459,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="9" column="2">
-        <widget class="QProgressBar" name="pb_subutai_box">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="4">
+       <item row="4" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
           <widget class="QPushButton" name="btn_vagrant_update">
@@ -1494,7 +1531,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="3" column="4">
+       <item row="3" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
           <widget class="QPushButton" name="btn_p2p_update">
@@ -1566,7 +1603,7 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="12" column="4">
+       <item row="12" column="3">
         <layout class="QVBoxLayout" name="verticalLayout_16">
          <item>
           <widget class="QPushButton" name="btn_x2go_update">
@@ -1645,6 +1682,31 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
+       <item row="8" column="2">
+        <widget class="QProgressBar" name="pb_chrome">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
        <item row="8" column="1">
         <widget class="QLabel" name="lbl_chrome_version_val">
          <property name="enabled">
@@ -1655,6 +1717,31 @@ min-height: 550pxk
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse</set>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="2">
+        <widget class="QProgressBar" name="pb_vbguest_plugin">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -1702,8 +1789,8 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="8" column="2">
-        <widget class="QProgressBar" name="pb_chrome">
+       <item row="1" column="2">
+        <widget class="QProgressBar" name="pb_tray">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1763,56 +1850,6 @@ min-height: 550pxk
           </widget>
          </item>
         </layout>
-       </item>
-       <item row="11" column="2">
-        <widget class="QProgressBar" name="pb_vbguest_plugin">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QProgressBar" name="pb_tray">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
        </item>
        <item row="10" column="1">
         <widget class="QLabel" name="lbl_subutai_plugin_version_val">

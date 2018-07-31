@@ -280,7 +280,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       ui->btn_subutai_box, get_subutai_box_version};
 
   m_dct_fpb[IUpdaterComponent::XQUARTZ] = {
-    ui->lbl_xquartz_version_val, ui->pb_xquartz, NULL,
+    ui->lbl_xquartz_version_val, ui->pb_xquartz, ui->cb_xquartz,
     ui->btn_xquartz_update, get_xquartz_version};
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
@@ -844,13 +844,16 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_xquartz_version_sl(QString version) {
+  if (OS_MAC != CURRENT_OS) return;
+  ui->lbl_xquartz_version_val->setText(version);
   if (version == "undefined") {
     set_hidden_pb(IUpdaterComponent::XQUARTZ);
+    ui->btn_xquartz_update->setHidden(false);
+    ui->cb_xquartz->setVisible(false);
     ui->btn_xquartz_update->setText(tr("Install"));
-  } else {
-    ui->btn_subutai_box->setText(tr("Update"));
-  }
-  ui->lbl_xquartz_version_val->setText(version);
+    ui->btn_xquartz_update->activateWindow();
+  } else
+    ui->btn_xquartz_update->setText(tr("Update"));
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::set_hidden_pb(const QString& component_id) {
