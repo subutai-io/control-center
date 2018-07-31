@@ -25,8 +25,9 @@ QString CUpdaterComponentXQuartz::download_xquartz_path() {
 }
 
 bool CUpdaterComponentXQuartz::update_available_internal() {
-  return true;
-  // need to implement
+  QString version;
+  CSystemCallWrapper::xquartz_version(version);
+  return version == "undefined";
 }
 
 chue_t CUpdaterComponentXQuartz::install_internal() {
@@ -103,8 +104,17 @@ chue_t CUpdaterComponentXQuartz::update_internal() {
 }
 
 chue_t CUpdaterComponentXQuartz::uninstall_internal() {
-  update_progress_sl(100, 100);
-  update_finished_sl(true);
+  qDebug() << "uninstall start xquartz";
+  static QString empty_string = "";
+
+  SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
+  silent_uninstaller->init(empty_string, empty_string, CC_XQUARTZ);
+
+  connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
+          &CUpdaterComponentXQuartz::uninstall_finished_sl);
+
+  silent_uninstaller->startWork();
+
   return CHUE_SUCCESS;
 }
 

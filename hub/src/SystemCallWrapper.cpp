@@ -1145,11 +1145,18 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
 
     cmd = CSettingsManager::Instance().terminal_cmd();
     QStringList args;
-    args << QString("-e");
     qInfo("Launch command : %s",str_command.toStdString().c_str());
-
-    args << QString("Tell application \"%1\" to %2 \"%3\"")
+    if (cmd == "iTerm") {
+    args << "-e" << QString("Tell application \"%1\"").arg(cmd)
+         << "-e" << "activate"
+         << "-e" << "tell current window"
+         << "-e" << "create window with default profile"
+         << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
+         << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
+    } else {
+      args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
                 .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+    }
     return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
@@ -1485,7 +1492,7 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QStr
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
 
-  // chrome path: /Applications/SubutaiP2P.app
+  // p2p path: /Applications/SubutaiP2P.app
   if (!QDir("/Applications/SubutaiP2P.app").exists()) {
     qDebug() << "Can't find p2p path: /Applications/SubutaiP2P.app";
     return SCWE_COMMAND_FAILED;
@@ -4081,7 +4088,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_xquartz(const QString &d
   QString file_path  = dir + "/" + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   qDebug() << "xquartz installation has finished"
            << "exit code: " << res.exit_code
            << "result code: " << res.res
@@ -4089,6 +4096,20 @@ system_call_wrapper_error_t CSystemCallWrapper::install_xquartz(const QString &d
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
   }
+  return res.res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_xquartz(){
+  qDebug("Uninstalling xquartz");
+  // sudo launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"launchctl unload /Library/LaunchDaemons/org.macosforge.xquartz.privileged_startx.plist; "
+                  "rm -rf %1 \" with administrator privileges").arg(CSettingsManager::Instance().xquartz_path());
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  if (res.exit_code != 0) res.res = SCWE_CREATE_PROCESS;
+
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5136,6 +5157,23 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
   }
   version = "undefined";
   return SCWE_SUCCESS;
+}
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::xquartz_version(QString &version){
+  //mdls -name kMDItemVersion /Applications/Utilities/XQuartz.app/
+  version = "undefined";
+  qDebug() << "getting xquartz version";
+  QString cmd = "mdls";
+  QStringList args;
+  args << "-name"
+       << "kMDItemVersion"
+       << "/Applications/Utilities/XQuartz.app/";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.exit_code != 0 || res.out.length() != 1) {
+    return SCWE_CREATE_PROCESS;
+  }
+  version = res.out[0].remove("kMDItemVersion = ").remove("\"");
+  return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
 //* get vagrant plugin list and find there required plugin version *//

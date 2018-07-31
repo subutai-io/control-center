@@ -426,6 +426,9 @@ void SilentUninstaller::silentUninstallation() {
   case CC_VB:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_oracle_virtualbox, m_dir, m_file_name);
     break;
+  case CC_XQUARTZ:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_xquartz);
+    break;
   default:
     break;
   }
