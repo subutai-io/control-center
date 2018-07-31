@@ -32,6 +32,7 @@ const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::VMWARE = "vmware";
+const QString IUpdaterComponent::VMWARE_UTILITY = "vmware_utility";
 const QString IUpdaterComponent::CHROME = "Chrome";
 const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";

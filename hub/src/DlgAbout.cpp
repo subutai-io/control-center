@@ -145,6 +145,13 @@ void DlgAbout::set_hidden_vmware(bool show_hide) {
   ui->btn_hypervisor_vmware_update->setHidden(show_hide);
   ui->cb_hypervisor_vmware->setHidden(show_hide);
   ui->pb_hypervisor_vmware->setHidden(show_hide);
+
+  // Vagrant VMware Utility
+  ui->lbl_provider_vmware_utility->setHidden(show_hide);
+  ui->lbl_provider_vmware_utility_version->setHidden(show_hide);
+  ui->btn_provider_vmware_utility_update->setHidden(show_hide);
+  ui->cb_provider_vmware_utility->setHidden(show_hide);
+  ui->pb_provider_vmare_utility->setHidden(show_hide);
 }
 
 void DlgAbout::set_hidden_providers() {

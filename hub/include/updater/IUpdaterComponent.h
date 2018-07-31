@@ -53,6 +53,7 @@ class IUpdaterComponent : public QObject {
   static const QString VAGRANT;
   static const QString ORACLE_VIRTUALBOX;
   static const QString VMWARE;
+  static const QString VMWARE_UTILITY;
   static const QString CHROME;
   static const QString E2E;
   static const QString VAGRANT_SUBUTAI;
