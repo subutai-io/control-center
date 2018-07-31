@@ -201,6 +201,11 @@ bool DlgCreatePeer::check_configurations() {
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_disk->show();
     errors_exist = true;
+  } else if (disk.toInt() > (int) Environment::Instance()->diskSize()) {   // check max ram
+    ui->lbl_err_disk->setText(tr("Disk size cannot be more than %1 GB.").arg(Environment::Instance()->diskSize()));
+    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->show();
+    errors_exist = true;
   } else {
     ui->lbl_err_disk->hide();
   }
