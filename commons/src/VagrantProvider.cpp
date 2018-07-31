@@ -47,6 +47,12 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
   return p_name[p];
 }
 
+const QString& VagrantProvider::CurrentOpenFileTitle() {
+  static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox Command")},
+                                                 {VMWARE_DESKTOP, tr("VMware Command")}
+                                                };
+  return p_title[CurrentProvider()];
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   static QString p_val[] = {"virtualbox", "vmware_desktop",

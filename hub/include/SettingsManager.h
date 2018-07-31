@@ -28,6 +28,7 @@ class CSettingsManager : public QObject {
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
+  static const QString SM_VMWARE_PATH;
   static const QString SM_DEFAULT_BROWSER;
   static const QString SM_DEFAULT_CHROME_PROFILE;
 
@@ -85,6 +86,7 @@ class CSettingsManager : public QObject {
   QString m_p2p_path;
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
+  QString m_vmware_path;
   QString m_default_browser;
   QString m_default_chrome_profile;
 
@@ -202,6 +204,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
+  const QString& vmware_path() const { return m_vmware_path; }
   const QString& default_browser() const { return m_default_browser; }
 
   const QString& rh_user(const QString &id);
@@ -277,9 +280,12 @@ class CSettingsManager : public QObject {
   void set_vagrant_path(QString fr);
   void set_x2goclient_path(QString fr);
   void set_oracle_virtualbox_path(QString fr);
+  void set_hypervisor_path(QString fr);
+  void set_vmware_path(QString fr);
   void set_default_browser(QString fr);
   void set_default_chrome_profile(QString fr);
   const QString& default_chrome_profile();
+  const QString& current_hypervisor_path();
   void set_rh_pass(const QString &id, const QString &pass);
   void set_rh_user(const QString &id, const QString &user);
   void set_rh_host(const QString &id, const QString &host);

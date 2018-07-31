@@ -31,6 +31,7 @@ const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
+const QString CSettingsManager::SM_VMWARE_PATH("VMWARE_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
 
@@ -183,6 +184,7 @@ CSettingsManager::CSettingsManager()
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
+      m_vmware_path(default_vmware_path()),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
       m_notification_delay_sec(7),
@@ -247,6 +249,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
       {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
       {(void*)&m_oracle_virtualbox_path, SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
+      {(void*)&m_vmware_path, SM_VMWARE_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
       {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
@@ -590,11 +593,41 @@ const QString& CSettingsManager::default_chrome_profile() {
   return m_default_chrome_profile;
 }
 
+const QString& CSettingsManager::current_hypervisor_path() {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    return oracle_virtualbox_path();
+  case VagrantProvider::VMWARE_DESKTOP:
+    return vmware_path();
+  default:
+    return oracle_virtualbox_path();
+  }
+}
 /////////////////////////////////////////////////////////////
 void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
     QString sl = QFile::symLinkTarget(virtualbox_path);
     m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
     m_settings.setValue(SM_ORACLE_VIRTUALBOX_PATH, m_oracle_virtualbox_path);
+}
+
+void CSettingsManager::set_vmware_path(QString vmware_path) {
+  QString sl = QFile::symLinkTarget(vmware_path);
+  m_vmware_path = sl == "" ? vmware_path : sl;
+  m_settings.setValue(SM_VMWARE_PATH, m_vmware_path);
+}
+
+void CSettingsManager::set_hypervisor_path(QString fr) {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    set_oracle_virtualbox_path(fr);
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    set_vmware_path(fr);
+    break;
+  default:
+    set_oracle_virtualbox_path(fr);
+    break;
+  }
 }
 
 void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {

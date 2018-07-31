@@ -715,6 +715,38 @@ const QString & default_oracle_virtualbox_path() {
     return default_oracle_virtualbox_path_temp_internal<Os2Type<CURRENT_OS > >();
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_vmware_path_temp_internal();
+
+#define default_vmware_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_vmware_path_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_vmware_path_internal_def(OS_LINUX, "/usr/bin/vmware")
+default_vmware_path_internal_def(OS_WIN, "C:\\Program Files (x86)\\VMware\\VMware Workstation\\vmware.exe")
+default_vmware_path_internal_def(OS_MAC, "/Applications/VMware Fusion.app/Contents/MacOs/VMware Fusion")
+
+const QString & default_vmware_path() {
+    return default_vmware_path_temp_internal<Os2Type<CURRENT_OS > >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+// Gives default hypervisor path by Vagrant Provider
+const QString & default_hypervisor_path() {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    return default_oracle_virtualbox_path();
+  case VagrantProvider::VMWARE_DESKTOP:
+    return default_vmware_path();
+  default:
+    return default_oracle_virtualbox_path();
+  }
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class OS> const QString& default_terminal_temp_internal();
 
 #define default_terminal_internal_def(OS_TYPE, STRING) \

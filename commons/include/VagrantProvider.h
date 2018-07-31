@@ -24,6 +24,7 @@ public:
   static const QString& ProviderToStr(PROVIDERS p);
   static const QString& ProviderToVal(PROVIDERS p);
   static const QString& ProviderToName(PROVIDERS p);
+  static const QString& CurrentOpenFileTitle();
   static QString CurrentVal();
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();

@@ -137,4 +137,6 @@ chue_t CUpdaterComponentTray::uninstall_internal() {
   return CHUE_SUCCESS;
 }
 
-void CUpdaterComponentTray::uninstall_post_internal(bool success) {}
+void CUpdaterComponentTray::uninstall_post_internal(bool success) {
+  UNUSED_ARG(success);
+}
