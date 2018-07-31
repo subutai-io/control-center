@@ -19,6 +19,7 @@
 #include "updater/UpdaterComponentVagrantSubutai.h"
 #include "updater/UpdaterComponentVagrantVBguest.h"
 #include "updater/UpdaterComponentFirefox.h"
+#include "updater/UpdaterComponentXQuartz.h"
 #include "updater/IUpdaterComponent.h"
 
 
@@ -27,7 +28,7 @@ using namespace update_system;
 CHubComponentsUpdater::CHubComponentsUpdater() {
   IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go, *uc_firefox,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
-          *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_subutai_box;
+          *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_subutai_box, *uc_xquartz;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_x2go = new CUpdaterComponentX2GO;
@@ -39,10 +40,11 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
   uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
   uc_subutai_box = new CUpdaterComponentSUBUTAI_BOX;
+  uc_xquartz = new CUpdaterComponentXQuartz;
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p, uc_firefox,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
-                              uc_vagrant_vbguest, uc_subutai_box, NULL};
+                              uc_vagrant_vbguest, uc_subutai_box, uc_xquartz, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -55,6 +57,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
   m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
   m_dct_components[IUpdaterComponent::SUBUTAI_BOX] = CUpdaterComponentItem(uc_subutai_box);
+  m_dct_components[IUpdaterComponent::XQUARTZ] = CUpdaterComponentItem(uc_xquartz);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -349,6 +352,9 @@ void SilentInstaller::silentInstallation(){
     case CC_SUBUTAI_BOX:
         res = QtConcurrent::run(CSystemCallWrapper::install_subutai_box, m_dir, m_file_name);
         break;
+    case CC_XQUARTZ:
+        res = QtConcurrent::run(CSystemCallWrapper::install_xquartz, m_dir, m_file_name);
+        break;
     default:
         break;
     }
@@ -419,6 +425,9 @@ void SilentUninstaller::silentUninstallation() {
     break;
   case CC_VB:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_oracle_virtualbox, m_dir, m_file_name);
+    break;
+  case CC_XQUARTZ:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_xquartz);
     break;
   default:
     break;

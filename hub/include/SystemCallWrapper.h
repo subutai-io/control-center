@@ -246,6 +246,9 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_xquartz(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_xquartz();
+
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();
@@ -312,6 +315,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
+  static system_call_wrapper_error_t xquartz_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 

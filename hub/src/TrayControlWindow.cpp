@@ -625,6 +625,17 @@ void TrayControlWindow::desktop_to_container_triggered(
         DlgNotification::N_ABOUT);
     return;
   }
+  if (OS_MAC == CURRENT_OS) {
+    QString xquartz_version;
+    CSystemCallWrapper::xquartz_version(xquartz_version);
+    if (xquartz_version == "undefined") {
+      CNotificationObserver::Error(
+          QObject::tr("XQuartz is not launchable. Make sure XQuartz is "
+                      "installed from \"Components\"."),
+          DlgNotification::N_ABOUT);
+      return;
+    }
+  }
   CHubController::Instance().desktop_to_container_from_tray(env, cont);
 }
 

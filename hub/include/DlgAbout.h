@@ -18,7 +18,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 public:
     DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
-  static const int COMPONENTS_COUNT = 19;
+  static const int COMPONENTS_COUNT = 21;
 public:
   void do_initialization();
   void abort();
@@ -51,6 +51,7 @@ signals:
   void got_subutai_plugin_version(QString version);
   void got_vbguest_plugin_version(QString version);
   void got_subutai_box_version(QString version);
+  void got_xquartz_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -88,6 +89,7 @@ private:
   void set_visible_safari(bool value);
   void set_visible_edge(bool value);
   void set_visible_e2e(bool value);
+  void set_visible_xquartz(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
 
@@ -103,6 +105,7 @@ private slots:
   void btn_subutai_plugin_update_released();
   void btn_vbguest_plugin_update_released();
   void btn_subutai_box_update_released();
+  void btn_xquartz_update_released();
   void btn_recheck_released();
   void btn_close_released();
   void btn_uninstall_components();
@@ -128,6 +131,7 @@ private slots:
   void got_subutai_plugin_version_sl(QString version);
   void got_vbguest_plugin_version_sl(QString version);
   void got_subutai_box_version_sl(QString version);
+  void got_xquartz_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 

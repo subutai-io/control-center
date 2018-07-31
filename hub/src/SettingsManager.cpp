@@ -30,6 +30,7 @@ const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
+const QString CSettingsManager::SM_XQUARTZ_PATH("XQUARTZ_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
 const QString CSettingsManager::SM_DEFAULT_FIREFOX_PROFILE("Default_Firefox_Profile");
@@ -183,6 +184,7 @@ CSettingsManager::CSettingsManager()
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
+      m_xquartz_path("/Applications/Utilities/XQuartz.app "),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
       m_default_firefox_profile(default_default_firefox_profile()),
@@ -760,4 +762,5 @@ SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
 SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
+SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 #undef SET_FIELD_DEF

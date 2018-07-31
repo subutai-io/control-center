@@ -28,6 +28,7 @@ class CSettingsManager : public QObject {
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
+  static const QString SM_XQUARTZ_PATH;
   static const QString SM_DEFAULT_BROWSER;
   static const QString SM_DEFAULT_CHROME_PROFILE;
   static const QString SM_DEFAULT_FIREFOX_PROFILE;
@@ -86,6 +87,7 @@ class CSettingsManager : public QObject {
   QString m_p2p_path;
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
+  QString m_xquartz_path;
   QString m_default_browser;
   QString m_default_chrome_profile;
   QString m_default_firefox_profile;
@@ -204,6 +206,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
+  const QString& xquartz_path() const { return  m_xquartz_path; }
   const QString& default_browser() const { return m_default_browser; }
   const QString& default_chrome_profile();
   const QString& default_firefox_profile();
@@ -334,6 +337,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(chrome_path, QString&)
   SET_FIELD_DECL(firefox_path, QString&)
   SET_FIELD_DECL(subutai_cmd, QString&)
+  SET_FIELD_DECL(xquartz_path, QString&)
 #undef SET_FIELD_DECL
 
 };

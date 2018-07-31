@@ -84,14 +84,20 @@ unsigned int Environment::numCpu() {
 }
 
 unsigned int Environment::diskSize() {
-  QStorageInfo storage = QStorageInfo::root();
+  QStorageInfo storage;
+  static QString provider = "virtualbox"; // will be implemented after multi hypervisor support
+  QString path = "/";
+  if (provider == "virtualbox") { // default storage for virtualbox is homepath
+    path = QDir::homePath();
+  }
+  storage.setPath(path);
   qDebug() << storage.rootPath();
   if (storage.isReadOnly())
       qDebug() << "isReadOnly:" << storage.isReadOnly();
 
   qDebug() << "name:" << storage.name();
   qDebug() << "fileSystemType:" << storage.fileSystemType();
-  qDebug() << "size:" << storage.bytesTotal()/1000/1000 << "MB";
-  qDebug() << "availableSize:" << storage.bytesAvailable()/1000/1000 << "MB";
-  return storage.bytesAvailable()/1000/1000/1000;
+  qDebug() << "size:" << storage.bytesTotal()/1024/1024/1024 << "GB";
+  qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024/1024 << "GB";
+  return storage.bytesAvailable()/1024/1024/1024;
 }
