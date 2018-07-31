@@ -17,11 +17,6 @@ using namespace update_system;
 QString get_p2p_version() {
   QString p2p_version = "";
   CSystemCallWrapper::p2p_version(p2p_version);
-
-  p2p_version = p2p_version.remove("p2p");
-  p2p_version = p2p_version.remove("version");
-  p2p_version = p2p_version.remove("  ");
-
   return p2p_version;
 }
 
@@ -91,6 +86,12 @@ QString get_edge_version() {
   CSystemCallWrapper::edge_version(version);
   return version;
 }
+
+QString get_xquartz_version() {
+  QString version = "";
+  CSystemCallWrapper::xquartz_version(version);
+  return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
@@ -102,6 +103,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   set_visible_firefox("Firefox" == current_browser);
   set_visible_edge("Edge" == current_browser);
   set_visible_safari("Safari" == current_browser);
+  set_visible_xquartz(OS_MAC == CURRENT_OS);
 
   QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
@@ -116,6 +118,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_firefox_info_icon,
                      this->ui->lbl_edge_info_icon,
                      this->ui->lbl_safari_info_icon,
+                     this->ui->lbl_xquartz_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -172,6 +175,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->ui->lbl_x2go_info_icon->setToolTip(tr(
       "X2Go client enables remote desktop access."));
 
+  this->ui->lbl_xquartz_info_icon->setToolTip(tr(
+      "XQuartz is a tool for X2Go OS X client to use the OS X X11 server"));
+
   QLabel* lbls[] = {this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_tray_version_val,
@@ -184,6 +190,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,
                     this->ui->lbl_subutai_box_version,
+                    this->ui->lbl_xquartz_version,
                     nullptr};
 
   for (QLabel** i = lbls; *i; ++i) {
@@ -215,6 +222,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this,
           &DlgAbout::btn_subutai_box_update_released);
+  connect(ui->btn_xquartz_update, &QPushButton::released, this,
+          &DlgAbout::btn_xquartz_update_released);
   connect(ui->btn_uninstall_components, &QPushButton::released, this,
           &DlgAbout::btn_uninstall_components);
   connect(ui->btn_close, &QPushButton::released, this,
@@ -242,15 +251,13 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray,
                                         NULL, ui->btn_tray_update, NULL};
   m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go,
-                                        ui->cb_x2goclient, ui->btn_x2go_update,
-                                        get_x2go_version};
+                                        ui->cb_x2goclient, ui->btn_x2go_update, get_x2go_version};
   m_dct_fpb[IUpdaterComponent::VAGRANT] = {
       ui->lbl_vagrant_version_val, ui->pb_vagrant, ui->cb_vagrant,
       ui->btn_vagrant_update, get_vagrant_version};
   m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {
       ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox,
-      ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
-      get_oracle_virtualbox_version};
+      ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update, get_oracle_virtualbox_version};
   m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val,
                                           ui->pb_chrome, ui->cb_chrome,
                                           ui->btn_chrome, get_chrome_version};
@@ -260,22 +267,23 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                                            ui->btn_firefox, get_firefox_version};
 
   m_dct_fpb[IUpdaterComponent::E2E] = {ui->lbl_subutai_e2e_val, ui->pb_e2e,
-                                       ui->cb_subutai_e2e, ui->btn_subutai_e2e,
-                                       get_e2e_version};
+                                       ui->cb_subutai_e2e, ui->btn_subutai_e2e, get_e2e_version};
 
   m_dct_fpb[IUpdaterComponent::VAGRANT_SUBUTAI] = {
       ui->lbl_subutai_plugin_version_val, ui->pb_subutai_plugin,
-      ui->cb_vagrant_subtuai_plugin, ui->btn_subutai_plugin_update,
-      get_vagrant_subutai_version};
+      ui->cb_vagrant_subtuai_plugin, ui->btn_subutai_plugin_update, get_vagrant_subutai_version};
 
   m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {
       ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin,
-      ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update,
-      get_vagrant_vbguest_version};
+      ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update, get_vagrant_vbguest_version};
 
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
       ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
       ui->btn_subutai_box, get_subutai_box_version};
+
+  m_dct_fpb[IUpdaterComponent::XQUARTZ] = {
+    ui->lbl_xquartz_version_val, ui->pb_xquartz, ui->cb_xquartz,
+    ui->btn_xquartz_update, get_xquartz_version};
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     std::pair<quint64, quint64> progress =
@@ -361,6 +369,14 @@ void DlgAbout::set_visible_e2e(bool value) {
   ui->pb_e2e->setVisible(value);
 }
 
+void DlgAbout::set_visible_xquartz(bool value) {
+  ui->btn_xquartz_update->setVisible(value);
+  ui->lbl_xquartz_info_icon->setVisible(value);
+  ui->lbl_xquartz_version->setVisible(value);
+  ui->lbl_xquartz_version_val->setVisible(value);
+  ui->lbl_spacer_xquartz->setVisible(value);;
+  ui->pb_xquartz->setVisible(value);
+}
 DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -395,6 +411,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_vbguest_plugin_version_sl);
   connect(di, &DlgAboutInitializer::got_subutai_box_version, this,
           &DlgAbout::got_subutai_box_version_sl);
+  connect(di, &DlgAboutInitializer::got_xquartz_version, this,
+          &DlgAbout::got_xquartz_version_sl);
   connect(di, &DlgAboutInitializer::update_available, this,
           &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress, this,
@@ -518,6 +536,16 @@ void DlgAbout::btn_subutai_box_update_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::btn_xquartz_update_released() {
+  ui->pb_xquartz->setHidden(false);
+  ui->btn_xquartz_update->setEnabled(false);
+  if (ui->lbl_xquartz_version_val->text() == "undefined") {
+    CHubComponentsUpdater::Instance()->install(IUpdaterComponent::XQUARTZ);
+  } else {
+    CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::XQUARTZ);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     it->second.btn->setEnabled(false);
@@ -817,6 +845,19 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::got_xquartz_version_sl(QString version) {
+  if (OS_MAC != CURRENT_OS) return;
+  ui->lbl_xquartz_version_val->setText(version);
+  if (version == "undefined") {
+    set_hidden_pb(IUpdaterComponent::XQUARTZ);
+    ui->btn_xquartz_update->setHidden(false);
+    ui->cb_xquartz->setVisible(false);
+    ui->btn_xquartz_update->setText(tr("Install"));
+    ui->btn_xquartz_update->activateWindow();
+  } else
+    ui->btn_xquartz_update->setText(tr("Update"));
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgAbout::set_hidden_pb(const QString& component_id) {
   if (CHubComponentsUpdater::Instance()->is_in_progress(component_id)) {
     m_dct_fpb[component_id].pb->setVisible(true);
@@ -836,8 +877,8 @@ void DlgAbout::update_available_sl(const QString& component_id,
   // update available component
   if (update_available) {
     qInfo() << "update available: " << component_id;
-    m_dct_fpb[component_id].btn->setVisible(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setVisible(true);
       m_dct_fpb[component_id].cb->setHidden(true);
       m_dct_fpb[component_id].cb->setChecked(false);
     }
@@ -925,6 +966,10 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    QString xquartz_version = get_xquartz_version();
+    emit got_xquartz_version(xquartz_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
     QString uas[] = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
                      IUpdaterComponent::X2GO,
@@ -936,6 +981,7 @@ void DlgAboutInitializer::do_initialization() {
                      IUpdaterComponent::VAGRANT_SUBUTAI,
                      IUpdaterComponent::VAGRANT_VBGUEST,
                      IUpdaterComponent::SUBUTAI_BOX,
+                     IUpdaterComponent::XQUARTZ,
                      ""};
     std::vector<bool> ua;
     for (int i = 0; uas[i] != ""; ++i) {

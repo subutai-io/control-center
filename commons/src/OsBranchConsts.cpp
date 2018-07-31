@@ -69,6 +69,11 @@ p2p_package_name_def(BT_MASTER, OS_MAC,   "")
 p2p_package_name_def(BT_DEV,    OS_MAC,   "")
 p2p_package_name_def(BT_PROD,   OS_MAC,   "")
 
+const QString& xquartz_kurjun_package_name() {
+  static QString res("XQuartz.pkg");
+  return res;
+}
+
 const QString &
 p2p_kurjun_file_name() {
   return p2p_kurjun_file_name_temp_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
