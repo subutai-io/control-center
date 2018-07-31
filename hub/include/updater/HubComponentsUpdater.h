@@ -24,7 +24,8 @@ enum cc_component{
     CC_E2E,
     CC_VAGRANT_SUBUTAI,
     CC_VAGRANT_VBGUEST,
-    CC_SUBUTAI_BOX
+    CC_SUBUTAI_BOX,
+    CC_XQUARTZ
 };
 
 namespace update_system {

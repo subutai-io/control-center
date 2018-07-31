@@ -352,6 +352,9 @@ void SilentInstaller::silentInstallation(){
     case CC_SUBUTAI_BOX:
         res = QtConcurrent::run(CSystemCallWrapper::install_subutai_box, m_dir, m_file_name);
         break;
+    case CC_XQUARTZ:
+        res = QtConcurrent::run(CSystemCallWrapper::install_xquartz, m_dir, m_file_name);
+        break;
     default:
         break;
     }
