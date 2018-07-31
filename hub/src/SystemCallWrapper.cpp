@@ -1485,7 +1485,7 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_MAC> >(const QStr
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
 
-  // chrome path: /Applications/SubutaiP2P.app
+  // p2p path: /Applications/SubutaiP2P.app
   if (!QDir("/Applications/SubutaiP2P.app").exists()) {
     qDebug() << "Can't find p2p path: /Applications/SubutaiP2P.app";
     return SCWE_COMMAND_FAILED;
@@ -4081,7 +4081,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_xquartz(const QString &d
   QString file_path  = dir + "/" + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   qDebug() << "xquartz installation has finished"
            << "exit code: " << res.exit_code
            << "result code: " << res.res
@@ -4089,6 +4089,20 @@ system_call_wrapper_error_t CSystemCallWrapper::install_xquartz(const QString &d
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
   }
+  return res.res;
+}
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_xquartz(){
+  qDebug("Uninstalling xquartz");
+  // sudo launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist
+  QString cmd("osascript");
+  QStringList args;
+
+  args << "-e"
+       << QString("do shell script \"launchctl unload /Library/LaunchDaemons/org.macosforge.xquartz.privileged_startx.plist; "
+                  "rm -rf %1 \" with administrator privileges").arg(CSettingsManager::Instance().xquartz_path());
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  if (res.exit_code != 0) res.res = SCWE_CREATE_PROCESS;
+
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

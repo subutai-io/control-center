@@ -247,6 +247,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_xquartz(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_xquartz();
 
   static void run_linux_script(QStringList args);
 
