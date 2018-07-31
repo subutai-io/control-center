@@ -25,8 +25,9 @@ QString CUpdaterComponentXQuartz::download_xquartz_path() {
 }
 
 bool CUpdaterComponentXQuartz::update_available_internal() {
-  return true;
-  // need to implement
+  QString version;
+  CSystemCallWrapper::xquartz_version(version);
+  return version == "undefined";
 }
 
 chue_t CUpdaterComponentXQuartz::install_internal() {

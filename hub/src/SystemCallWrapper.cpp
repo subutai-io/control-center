@@ -5138,6 +5138,23 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::xquartz_version(QString &version){
+  //mdls -name kMDItemVersion /Applications/Utilities/XQuartz.app/
+  version = "undefined";
+  qDebug() << "getting xquartz version";
+  QString cmd = "mdls";
+  QStringList args;
+  args << "-name"
+       << "kMDItemVersion"
+       << "/Applications/Utilities/XQuartz.app/";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.exit_code != 0 || res.out.length() != 1) {
+    return SCWE_CREATE_PROCESS;
+  }
+  version = res.out[0].remove("kMDItemVersion = ").remove("\"");
+  return res.res;
+}
+////////////////////////////////////////////////////////////////////////////
 //* get vagrant plugin list and find there required plugin version *//
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString &version){
     qDebug() << "getting version of vagrant subutai plugin";

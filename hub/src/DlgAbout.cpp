@@ -88,7 +88,9 @@ QString get_edge_version() {
 }
 
 QString get_xquartz_version() {
-  return "undefined";
+  QString version = "";
+  CSystemCallWrapper::xquartz_version(version);
+  return version;
 }
 ////////////////////////////////////////////////////////////////////////////
 

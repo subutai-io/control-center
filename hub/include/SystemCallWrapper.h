@@ -314,6 +314,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
+  static system_call_wrapper_error_t xquartz_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
