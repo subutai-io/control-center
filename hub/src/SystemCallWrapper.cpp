@@ -1145,11 +1145,18 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
 
     cmd = CSettingsManager::Instance().terminal_cmd();
     QStringList args;
-    args << QString("-e");
     qInfo("Launch command : %s",str_command.toStdString().c_str());
-
-    args << QString("Tell application \"%1\" to %2 \"%3\"")
+    if (cmd == "iTerm") {
+    args << "-e" << QString("Tell application \"%1\"").arg(cmd)
+         << "-e" << "activate"
+         << "-e" << "tell current window"
+         << "-e" << "create window with default profile"
+         << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
+         << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
+    } else {
+      args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
                 .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+    }
     return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
