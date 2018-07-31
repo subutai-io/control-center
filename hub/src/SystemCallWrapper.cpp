@@ -4688,12 +4688,7 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_WIN> > (QString &
 }
 system_call_wrapper_error_t CSystemCallWrapper::x2go_version(QString &version){
   version = "undefined";
-  if (x2goclient_check()) {
-      version = "Installed";
-      return x2go_version_internal <Os2Type <CURRENT_OS>>(version);
-  } else {
-    return SCWE_CREATE_PROCESS;
-  }
+  return x2go_version_internal <Os2Type <CURRENT_OS>>(version);
 }
 ////////////////////////////////////////////////////////////////////////////
 
