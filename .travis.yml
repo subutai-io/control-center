@@ -10,6 +10,7 @@ env:
 matrix:
   include:
   - os: linux
+    if: branch = master || branch = dev
     dist: trusty
     sudo: required
     before_install:
