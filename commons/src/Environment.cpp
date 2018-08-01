@@ -34,7 +34,7 @@ unsigned int Environment::ramSize() {
              << " free: "
              << (int) (info.freeram * info.mem_unit / (1024 * 1024));
 
-    return (int) (info.freeram * info.mem_unit / (1024 * 1024)); //in MB
+    return (int) (info.totalram * info.mem_unit / (1024 * 1024)); //in MB
   }
 
   return 0; // if can't get ram info
@@ -53,7 +53,7 @@ unsigned int Environment::ramSize() {
            << " free: "
            << (float)statex.ullAvailPhys/(1024*1024);
 
-  return (float)statex.ullAvailPhys/(1024*1024); // in MB
+  return (float)statex.ullTotalPhys/(1024*1024); // in MB
 }
 #endif
 
