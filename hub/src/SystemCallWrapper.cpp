@@ -6111,12 +6111,11 @@ bool CSystemCallWrapper::is_host_reachable(const QString &host){
   }
   QStringList args;
 #ifdef RT_OS_WINDOWS
-  args << "-n 1";
+  args << "-n" << "1" << host;
 #else
-  args << "-c1";
+  args << "-c1" << host;
 #endif
-  args << host;
-  qDebug() << args;
+  qDebug() << "ping command:" << args;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
   qDebug() << "ping finished for " << host
            << "error code: " << res.exit_code
