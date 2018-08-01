@@ -870,7 +870,10 @@ void DlgAbout::set_hidden_pb(const QString& component_id) {
 void DlgAbout::update_available_sl(const QString& component_id,
                                    bool available) {
   bool update_available = available;
-
+  if (component_id == IUpdaterComponent::XQUARTZ
+      && OS_MAC != CURRENT_OS) {
+    return;
+  }
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
     return;
   }
@@ -966,8 +969,10 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString xquartz_version = get_xquartz_version();
-    emit got_xquartz_version(xquartz_version);
+    if (OS_MAC == CURRENT_OS) {
+      QString xquartz_version = get_xquartz_version();
+      emit got_xquartz_version(xquartz_version);
+    }
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString uas[] = {IUpdaterComponent::P2P,

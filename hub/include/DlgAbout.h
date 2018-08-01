@@ -18,7 +18,7 @@ class DlgAboutInitializer : public QObject {
   Q_OBJECT
 public:
     DlgAboutInitializer(QObject *parent = nullptr) :  QObject(parent){}
-  static const int COMPONENTS_COUNT = 21;
+  static const int COMPONENTS_COUNT = 24;
 public:
   void do_initialization();
   void abort();
