@@ -37,7 +37,7 @@ chue_t CUpdaterComponentXQuartz::install_internal() {
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
           "<a href='https://www.xquartz.org'>XQuartz</a>"
-          " is used by X2Go to for remote desktop.<br>"
+          " is used by X2Go for remote desktop connection.<br>"
           "XQuartz will be installed on your machine.<br>"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
