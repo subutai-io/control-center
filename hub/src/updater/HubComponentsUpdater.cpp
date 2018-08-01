@@ -22,6 +22,7 @@
 #include "updater/UpdaterComponentVagrantLibvirt.h"
 #include "updater/UpdaterComponentVagrantVmware.h"
 #include "updater/UpdaterComponentVMware.h"
+#include "updater/UpdaterComponentVagrantVMwareUtility.h"
 #include "updater/IUpdaterComponent.h"
 
 
@@ -31,7 +32,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_vagrant_parallels,
-          *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box, *uc_hypervisor_vmware;
+          *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box,
+          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility;
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_x2go = new CUpdaterComponentX2GO;
@@ -46,12 +48,14 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_libvirt = new CUpdaterComponentVAGRANT_LIBVIRT;
   uc_vagrant_vmware = new CUpdaterComponentVAGRANT_VMWARE;
   uc_hypervisor_vmware = new CUpdaterComponentVMware;
+  uc_vagrant_vmware_utility = new CUpdaterComponentVagrantVMwareUtility;
 
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
-                              uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware, NULL};
+                              uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
+                              uc_vagrant_vmware_utility, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -67,6 +71,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT_LIBVIRT] = CUpdaterComponentItem(uc_vagrant_libvirt);
   m_dct_components[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = CUpdaterComponentItem(uc_vagrant_vmware);
   m_dct_components[IUpdaterComponent::VMWARE] = CUpdaterComponentItem(uc_hypervisor_vmware);
+  m_dct_components[IUpdaterComponent::VMWARE_UTILITY] = CUpdaterComponentItem(uc_vagrant_vmware_utility);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -349,6 +354,9 @@ void SilentInstaller::silentInstallation(){
     case CC_VMWARE:
         res = QtConcurrent::run(CSystemCallWrapper::install_vmware, m_dir, m_file_name);
         break;
+    case CC_VMWARE_UTILITY:
+        res = QtConcurrent::run(CSystemCallWrapper::install_vmware_utility, m_dir, m_file_name);
+        break;
     case CC_X2GO:
         res = QtConcurrent::run(CSystemCallWrapper::install_x2go, m_dir, m_file_name);
         break;
@@ -455,6 +463,9 @@ void SilentUninstaller::silentUninstallation() {
     break;
   case CC_VMWARE:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_vmware, m_dir, m_file_name);
+    break;
+  case CC_VMWARE_UTILITY:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_vmware_utility, m_dir, m_file_name);
     break;
   default:
     break;

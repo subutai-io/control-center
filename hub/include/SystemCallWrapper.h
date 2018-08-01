@@ -234,6 +234,9 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_vmware(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_vmware(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_vmware_utility(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
+
   static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_chrome(const QString &dir, const QString &file_name);
 
@@ -306,6 +309,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_version(QString &version);
   static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
   static system_call_wrapper_error_t vmware_version(QString &version);
+  static system_call_wrapper_error_t vmware_utility_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t vagrant_plugin_version(QString &version, QString plugin);
   static bool p2p_daemon_check();

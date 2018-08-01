@@ -20,6 +20,13 @@ CUpdaterComponentVagrantVMwareUtility::CUpdaterComponentVagrantVMwareUtility() {
 
 CUpdaterComponentVagrantVMwareUtility::~CUpdaterComponentVagrantVMwareUtility() {}
 
+QString CUpdaterComponentVagrantVMwareUtility::download_vmware_utility_path() {
+  QStringList lst_temp =
+      QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  return (lst_temp.isEmpty() ? QApplication::applicationDirPath()
+                             : lst_temp[0]);
+}
+
 bool CUpdaterComponentVagrantVMwareUtility::update_available_internal() {
   QString version = "1.0.2";
   //CSystemCallWrapper::vagrant_version(version); TODO implement version
@@ -46,13 +53,51 @@ chue_t CUpdaterComponentVagrantVMwareUtility::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  update_progress_sl(50, 100);  // imitation of progress bar :D, todo implement
-  static QString empty_string = "";
+  QString file_name = vmware_utility_kurjun_package_name();
+  QString file_dir = download_vmware_utility_path();
+  QString str_vmware_downloaded_path = file_dir + "/" + file_name;
+
+  std::vector<CGorjunFileInfo> fi =
+      CRestWorker::Instance()->get_gorjun_file_info(file_name);
+
+  if (fi.empty()) {
+    qCritical("File %s isn't presented on kurjun",
+              m_component_id.toStdString().c_str());
+    install_finished_sl(false);
+    return CHUE_NOT_ON_KURJUN;
+  }
+
+  std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+  CDownloadFileManager *dm = new CDownloadFileManager(
+      item->id(), str_vmware_downloaded_path, item->size());
+
   SilentInstaller *silent_installer = new SilentInstaller(this);
-  silent_installer->init(empty_string, empty_string, CC_VMWARE_UTILITY);
+  silent_installer->init(file_dir, file_name, CC_VMWARE_UTILITY);
+
+  connect(dm, &CDownloadFileManager::download_progress_sig,
+          [this](qint64 rec, qint64 total) {
+            update_progress_sl(rec, total);
+          });
+  connect(dm, &CDownloadFileManager::finished,
+          [this, silent_installer](bool success) {
+            if (!success) {
+              silent_installer->outputReceived(success);
+            } else {
+              this->update_progress_sl(0,0);
+              CNotificationObserver::Instance()->Info(
+                  tr("Running installation scripts might be take too long time please wait."),
+                  DlgNotification::N_NO_ACTION);
+              silent_installer->startWork();
+            }
+          });
   connect(silent_installer, &SilentInstaller::outputReceived, this,
           &CUpdaterComponentVagrantVMwareUtility::install_finished_sl);
-  silent_installer->startWork();
+  connect(silent_installer, &SilentInstaller::outputReceived, dm,
+          &CDownloadFileManager::deleteLater);
+
+  dm->start_download();
+
   return CHUE_SUCCESS;
 }
 
@@ -80,6 +125,7 @@ chue_t CUpdaterComponentVagrantVMwareUtility::uninstall_internal() {
 void CUpdaterComponentVagrantVMwareUtility::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
+
 void CUpdaterComponentVagrantVMwareUtility::install_post_interntal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(

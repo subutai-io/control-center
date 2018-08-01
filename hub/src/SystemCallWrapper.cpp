@@ -2354,6 +2354,219 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
   return res.res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         INSTALLATION VAGRANT VMWARE UTILITY                                        ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_vmware_utility_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vmware_utility_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString file_path = dir + QDir::separator() + file_name;
+
+  // check file path
+  if (!QDir(file_path).exists()) {
+    qDebug() << "Vagrant VMware Utility file path doesn't exist: "
+             << file_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+    "#!/bin/bash\n"
+    "apt install -y %1"
+    "\n").arg(file_path).toUtf8();
+
+  qDebug() << "Vagrant VMware utility installation "
+           << "dir: "
+           << dir
+           << " file_name: "
+           << file_name;
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+
+  args2 << sh_path << tmpFilePath;
+
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+
+  qDebug() << "Vagrant VMware utility installation finished"
+           << "error code:"
+           << cr2.exit_code
+           << "output: "
+           << cr2.out
+           << "result: "
+           << cr2.res;
+
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_vmware_utility(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         UNINSTALLATION VAGRANT VMWARE UTILITY                                        ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t uninstall_vmware_utility_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_utility_internal(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // wmic product where name="Vagrant VMware Utility" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("name=\"%1\"").arg("Vagrant VMware Utility")
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstalling Vagrant VMware Utility: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Uninstall Vagrant VMware Utility finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  if (res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec apt-get remove -y vagrant-vmware-utility
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "remove"
+       << "-y"
+       << "vagrant-vmware-utility";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Vagrant VMware Utility finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Vagrant VMware Utility err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return scr.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware_utility(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                         INSTALLATION VMWARE FUSION, WORKSTATION                                    ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class OS>
@@ -2529,6 +2742,8 @@ system_call_wrapper_error_t uninstall_vmware_internal(const QString &dir, const 
 
 template <>
 system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
   // close VMware Fusion
   // osascript -e "Tell application \"VMware Fusion\" to quit"
 
@@ -4566,6 +4781,117 @@ system_call_wrapper_error_t CSystemCallWrapper::vmware_version(QString &version)
 }
 ////////////////////////////////////////////////////////////////////////////
 
+//  VMWARE VMWARE VERSION
+template <class OS>
+system_call_wrapper_error_t vmware_utility_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QString &version) {
+  QString path = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion/"; // TODO ADD PATH to CSettings
+  QDir dir(path);
+  dir.cdUp(); dir.cdUp();
+  path = dir.absolutePath();
+  path += "/Info.plist";
+
+  QFile info_plist(path);
+  QString line;
+  bool found = false;
+
+  if (!info_plist.exists()) {
+    version = "undefined";
+
+    return SCWE_SUCCESS;
+  }
+
+  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream stream(&info_plist);
+      while (!stream.atEnd()) {
+        line = stream.readLine();
+        line = line.simplified();
+        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+        if (found) {
+            version = line;
+            break;
+        }
+        else if (line == "CFBundleShortVersionString") {
+            found = true;
+        }
+    }
+    info_plist.close();
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QString &version) {
+  version = "undefined";
+  QString cmd("wmic");
+  QStringList args;
+  // wmic product where name="Vagrant VMware Utility" get version
+  args << "product"
+       << "where"
+       << "name=\"Vagrant VMware Utility\""
+       << "get"
+       << "version";
+
+  qDebug() << "Vagrant VMware utility version command "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got Vagrant VMware utility version"
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+      qDebug() << "Vagrant VMware Utility version"
+               << s;
+      version = s;
+    }
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  qDebug() << "Vagrant VMware Utility version";
+  //  dpkg-query -W -f='${Version}\n' vagrant-vmware-utility
+
+  version = "undefined";
+  QStringList args;
+  args << "-W"
+       << "-f='${Version}\\n'"
+       << "vagrant-vmware-utility";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      QString("dpkg-query"), args, true, true, 5000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = version.remove(QRegularExpression("[a-zA-Z ]*"));
+  }
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &version) {
+  return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+
+////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
 template<>

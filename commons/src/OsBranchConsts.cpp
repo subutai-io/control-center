@@ -189,8 +189,27 @@ vmware_kurjun_package_name_def(OS_WIN,    "vmware-workstation-windows.exe")
 vmware_kurjun_package_name_def(OS_LINUX,  "vmware-workstation-linux.bundle")
 
 const QString &
-vmware_kurjun_package_name(){
+vmware_kurjun_package_name() {
     return vmware_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& vmware_utility_kurjun_package_name_temp_internal();
+
+#define vmware_utility_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& vmware_utility_kurjun_package_name_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+vmware_utility_kurjun_package_name_def(OS_MAC,    "vagrant-vmware-utility-osx.dmg")
+vmware_utility_kurjun_package_name_def(OS_WIN,    "vagrant-vmware-utility-windows.msi")
+vmware_utility_kurjun_package_name_def(OS_LINUX,  "vagrant-vmware-utility-debian.deb")
+
+const QString &
+vmware_utility_kurjun_package_name() {
+    return vmware_utility_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 

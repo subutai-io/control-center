@@ -203,6 +203,12 @@ void DlgAbout::set_hidden_providers() {
       get_hypervisor_vmware_version
     };
 
+    this->m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
+      ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility,
+      ui->cb_provider_vmware_utility, ui->btn_provider_vmware_utility_update,
+
+    };
+
     break;
   //case VagrantProvider::LIBVIRT:
   //  set_hidden_libvirt(false);

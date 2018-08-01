@@ -22,6 +22,9 @@ class CUpdaterComponentVagrantVMwareUtility : public IUpdaterComponent {
   virtual chue_t uninstall_internal();
   virtual void install_post_interntal(bool success);
   virtual void uninstall_post_internal(bool success);
+
+private:
+ QString download_vmware_utility_path();
 };
 }
 #endif // UPDATERCOMPONENTVAGRANTVMWAREUTILITY_H
