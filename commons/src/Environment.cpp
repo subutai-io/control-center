@@ -83,7 +83,9 @@ unsigned int Environment::numCpu() {
   return n_cpu;
 }
 
+// Will be implemented get disk size by Hypervisor disk storage path.
 unsigned int Environment::diskSize() {
+  // On Virtualbox MAXIMUM Virtual Disk size is 2 TB.
   QStorageInfo storage;
   static QString provider = "virtualbox"; // will be implemented after multi hypervisor support
   QString path = "/";
