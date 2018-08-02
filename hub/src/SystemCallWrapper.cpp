@@ -3777,26 +3777,14 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_firefox() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString &dir, const QString &file_name) {
-  QString cmd("osascript");
+  QString cmd = "open";
   QStringList args;
-  args << "-e"
-       << "tell application \"Safari\" to quit";
-  system_call_res_t res =
-      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-  if (res.res != SCWE_SUCCESS || res.exit_code != 0){
-    qCritical() << "Failed to close Safari"
-                << "Exit code: " << res.exit_code
-                << "Output: " << res.out;
-    return SCWE_CREATE_PROCESS;
-  }
-
-  cmd = "open";
-  args.clear();
   args << dir + "/" + file_name;
   qDebug() << "insalling e2e on safari"
            << "cmd:" << cmd
            << "args:" << args;
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res =
+      CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
     qCritical() << "Failed to start e2e installation process"
                 << "exit code:" << res.exit_code
@@ -3807,7 +3795,7 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString
   return SCWE_SUCCESS;
 }
 
-bool subutai_e2e_safari_exists() {
+bool subutai_e2e_safari_exists(QString &safariextz_name) {
   QStringList lst =
         QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   if (lst.empty()) {
@@ -3865,6 +3853,8 @@ bool subutai_e2e_safari_exists() {
   if (id != -1) {
     id = str.indexOf("Subutai E2E", id);
     if (id != -1) {
+      int idr = str.indexOf("<", id);
+      safariextz_name = str.mid(id, idr - id);
       QFile::remove(plist_copy);
       return true;
     }
@@ -3877,7 +3867,9 @@ bool subutai_e2e_safari_exists() {
 system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QString &version) {
   version = "undefined";
 
-  if (!subutai_e2e_safari_exists()) {
+  QString safariextz_name;
+
+  if (!subutai_e2e_safari_exists(safariextz_name)) {
     return SCWE_SUCCESS;
   }
 
@@ -3888,7 +3880,7 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QStri
     return SCWE_CREATE_PROCESS;
   }
 
-  QString ext_path = *lst.begin() + "/Library/Safari/Extensions/Subutai E2E Plugin.safariextz";
+  QString ext_path = *lst.begin() + "/Library/Safari/Extensions/" + safariextz_name;
   if (!QFile::exists(ext_path)) {
     qCritical() << "Can't find safari e2e extension:" << ext_path;
     return SCWE_CREATE_PROCESS;
@@ -3966,6 +3958,12 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_safari_version(QStri
 //Safari e2e extension name: "Subutai E2E Plugin.safariextz"
 
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_safari() {
+  QString safariextz_name;
+  if (!subutai_e2e_safari_exists(safariextz_name)) {
+    qCritical() << "Subutai E2E not found";
+    return SCWE_CREATE_PROCESS;
+  }
+
   QString cmd("osascript");
   QStringList args;
   args << "-e"
@@ -3985,7 +3983,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_safari() {
     qCritical() << "Failed to get standard home location.";
     return SCWE_CREATE_PROCESS;
   }
-  QString path = *lst.begin() + "/Library/Safari/Extensions/Subutai E2E Plugin.safariextz";
+  QString path = *lst.begin() + "/Library/Safari/Extensions/" + safariextz_name;
   QFile ext(path);
   if (!ext.exists()) {
     qCritical() << "extension doesn't exist:" << path;
