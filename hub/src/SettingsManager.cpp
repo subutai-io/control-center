@@ -242,7 +242,7 @@ CSettingsManager::CSettingsManager()
     }
   }
 
-  m_branch = current_branch_name();
+  m_branch = current_branch_name_with_changes();
 
   setting_val_t dct_settings_vals[] = {
       // str
