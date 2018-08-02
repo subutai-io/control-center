@@ -46,6 +46,17 @@ chue_t CUpdaterComponentE2E::install_internal() {
       QMessageBox::Yes | QMessageBox::No);
   msg_box->setTextFormat(Qt::RichText);
 
+  if (CSettingsManager::Instance().default_browser() == "Safari") {
+    msg_box->setText(
+          tr("The <a href='https://subutai.io/getting-started.html#E2E'>Subutai "
+             "E2E plugin</a>"
+             " manages your PGP keys.<br>"
+             "You should press on 'Install from Gallery' in Safari preferences "
+             "dialog window in order to approve E2E plugin installation. "
+             "Safari preferences window will pop-up when installation begins.<br>"
+             "Do you want to proceed?"));
+  }
+
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
@@ -139,27 +150,27 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
         DlgNotification::N_NO_ACTION);
     return;
   }
-  QMessageBox *msg_box = new QMessageBox(
-      QMessageBox::Information, QObject::tr("Attention!"),
-      QObject::tr(
-          "<br>Subutai E2E has been installed to your browser</br>"
-          "<br>If E2E does not appear, please approve installation from "
-          "Settings of your browser.</br>"
-          "<br><a "
-          "href='https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html'>"
-          "Learn more about Subutai E2E."
-          "</a></br>"),
-      QMessageBox::Ok);
-  msg_box->setTextFormat(Qt::RichText);
-  QObject::connect(msg_box, &QMessageBox::finished, msg_box,
-                   &QMessageBox::deleteLater);
-  if (msg_box->exec() == QMessageBox::Ok) {
-    if (CSettingsManager::Instance().default_browser() == "Chrome") {
-      CSystemCallWrapper::chrome_last_session();
-    } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
-      CSystemCallWrapper::firefox_last_session();
-    } else if (CSettingsManager::Instance().default_browser() == "Safari") {
-      CSystemCallWrapper::safari_last_session();
+  if (CSettingsManager::Instance().default_browser() != "Safari") {
+    QMessageBox *msg_box = new QMessageBox(
+        QMessageBox::Information, QObject::tr("Attention!"),
+        QObject::tr(
+            "<br>Subutai E2E has been installed to your browser</br>"
+            "<br>If E2E does not appear, please approve installation from "
+            "Settings of your browser.</br>"
+            "<br><a "
+            "href='https://docs.subutai.io/Products/Bazaar/27_E2E_plugin.html'>"
+            "Learn more about Subutai E2E."
+            "</a></br>"),
+        QMessageBox::Ok);
+    msg_box->setTextFormat(Qt::RichText);
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box,
+                     &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Ok) {
+      if (CSettingsManager::Instance().default_browser() == "Chrome") {
+        CSystemCallWrapper::chrome_last_session();
+      } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+        CSystemCallWrapper::firefox_last_session();
+      }
     }
   }
 }
