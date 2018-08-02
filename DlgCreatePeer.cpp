@@ -335,7 +335,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     QTextStream stream(&file);
     stream << "SUBUTAI_RAM : " << ram << endl;
     stream << "SUBUTAI_CPU : " << cpu << endl;
-    QString branch = current_branch_name();
+    QString branch = current_branch_name_with_changes();
     if (branch == "production")
       stream << "SUBUTAI_ENV : "
              << "prod" << endl;

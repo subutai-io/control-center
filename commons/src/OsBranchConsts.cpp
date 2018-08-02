@@ -1257,12 +1257,23 @@ const QString& subutai_e2e_id(const QString& current_browser){
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
+static QString application_branch_global;
+
 const QString& set_application_branch(QString branch) {
-  static QString application_branch(current_branch_name());
+  application_branch_global = current_branch_name();
   if (branch == "production" ||
       branch == "stage" ||
       branch == "development") {
-    application_branch = branch;
+    application_branch_global = branch;
   }
-  return application_branch;
+  return application_branch_global;
+}
+
+const QString& current_branch_name_with_changes() {
+  if (application_branch_global == "production" ||
+      application_branch_global == "stage" ||
+      application_branch_global == "development") {
+    return application_branch_global;
+  }
+  return current_branch_name();
 }
