@@ -1,5 +1,27 @@
 # Change Log
 
+## [7.1.5] 8/01/2018
+# IMPROVEMENTS:
+* Clear checkboxes after install/update/uninstall -ing components.
+* SubutaiControlCenter.exe in PATH environment variable.
+* Check the status of RH before connecting via SSH.
+* "Unknown network error" message was replaces by more informative one. 
+* Wrong settings warning in Commands tab of Settings dialog window imorovements.
+* Check disk size of default hypervisor (currently virtualbox only) before Peer creation.
+* Improved environments', peers', balance's status update checkings from Bazaar which will reduce "Connection timeout" warnings. 
+# BUG FIXES:
+* Fixed bug with whitespace containing SSH-keys storage paths.
+* Fixed bug with showing symlinks as directories in File Transfer.
+* Fixed show/hide password icon bug in Create Peer dialog window.
+* Fixed autostart on logging in not working bug.
+* Fixed Vagrant commands are not working with iTerm bug.
+* Fixed Environments sub-menu elements getting disabled on MacOS.
+# FEATURES: 
+* Mozilla Firefox browser support (opening links, choosing profile, install/uninstall, E2E) on all platforms. 
+* Safari browser support (opening links, E2E) on MacOS.
+* Microsoft EDGE browser support (opening links) on Windows.
+* Installing XQuartz through Control Center.
+
 ## [7.1.4] 7/25/2018
 # IMPROVEMENTS:
 * Tooltips with component descriptions
