@@ -2360,6 +2360,28 @@ template <class OS>
 system_call_wrapper_error_t install_vmware_utility_internal(const QString &dir, const QString &file_name);
 
 template <>
+system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  QString cmd("msiexec");
+  QStringList args0;
+  args0 << "set_working_directory"
+        << dir
+        << "/i"
+        << file_name
+        << "/qn";
+
+  qDebug()
+          <<"Starting installation Vagrant VMware Utility:"
+          <<args0;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
+
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
 system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
   QString pkexec_path;
   system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -4832,14 +4854,14 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
   // wmic product where name="Vagrant VMware Utility" get version
   args << "product"
        << "where"
-       << "name=\"Vagrant VMware Utility\""
+       << QString("name=\"%1\"").arg("Vagrant VMware Utility")
        << "get"
        << "version";
 
   qDebug() << "Vagrant VMware utility version command "
            << args;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
 
   qDebug() << "got Vagrant VMware utility version"
            << " exit code: "
@@ -4855,9 +4877,9 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
     for (QString s : res.out) {
       s = s.trimmed();
       if (s.isEmpty()) continue;
-      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
       qDebug() << "Vagrant VMware Utility version"
                << s;
+      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
       version = s;
     }
   }
