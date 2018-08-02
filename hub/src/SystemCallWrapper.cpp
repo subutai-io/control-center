@@ -4640,37 +4640,20 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString
 
 template<>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &version){
-  QString path = CSettingsManager::Instance().x2goclient();
-  QDir dir(path);
-  dir.cdUp(); dir.cdUp();
-  path = dir.absolutePath();
-  path += "/Info.plist";
-
-  QFile info_plist(path);
-  QString line;
-  bool found = false;
-  if (!info_plist.exists()) {
-    version = "undefined";
-
-    return SCWE_SUCCESS;
+  //mdls -name kMDItemVersion /Applications/x2goclient.app/
+  version = "undefined";
+  qDebug() << "getting x2go version";
+  QString cmd = "mdls";
+  QStringList args;
+  args << "-name"
+       << "kMDItemVersion"
+       << "/Applications/x2goclient.app/";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  if (res.exit_code != 0 || res.out.length() != 1) {
+    return SCWE_CREATE_PROCESS;
   }
-  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream stream(&info_plist);
-      while (!stream.atEnd()) {
-        line = stream.readLine();
-        line = line.simplified();
-        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
-        if (found) {
-            version = line;
-            break;
-        }
-        else if (line == "CFBundleVersion") {
-            found = true;
-        }
-    }
-    info_plist.close();
-  }
-  return SCWE_SUCCESS;
+  version = res.out[0].remove("kMDItemVersion = ").remove("\"");
+  return res.res;
 }
 
 template<>
