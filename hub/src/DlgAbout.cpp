@@ -91,6 +91,13 @@ QString get_hypervisor_vmware_version() {
 
   return version;
 }
+
+QString get_vagrant_vmware_utility_version() {
+  QString version = "";
+  CSystemCallWrapper::vmware_utility_version(version);
+
+  return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::set_hidden_libvirt(bool show_hide) {
@@ -206,7 +213,7 @@ void DlgAbout::set_hidden_providers() {
     this->m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
       ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility,
       ui->cb_provider_vmware_utility, ui->btn_provider_vmware_utility_update,
-
+      get_vagrant_vmware_utility_version
     };
 
     break;
@@ -353,6 +360,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_provider_vmware_update_released);
   connect(ui->btn_hypervisor_vmware_update, &QPushButton::released, this,
           &DlgAbout::btn_hypervisor_vmware_update_released);
+  connect(ui->btn_provider_vmware_utility_update, &QPushButton::released, this,
+          &DlgAbout::btn_vagrant_vmware_utility_update_released);
 
   connect(CHubComponentsUpdater::Instance(),
           &CHubComponentsUpdater::download_file_progress, this,
@@ -513,6 +522,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_provider_version_sl);
   connect(di, &DlgAboutInitializer::got_hypervisor_vmware_version, this,
           &DlgAbout::got_hypervisor_vmware_version_sl);
+  connect(di, &DlgAboutInitializer::got_vagrant_vmware_utility_version, this,
+          &DlgAbout::got_vagrant_vmware_utility_version_sl);
   connect(di, &DlgAboutInitializer::update_available, this,
           &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress, this,
@@ -681,6 +692,19 @@ void DlgAbout::btn_hypervisor_vmware_update_released() {
   else
     CHubComponentsUpdater::Instance()->force_update(
         IUpdaterComponent::VMWARE);
+}
+
+void DlgAbout::btn_vagrant_vmware_utility_update_released() {
+  ui->pb_provider_vmare_utility->setHidden(false);
+  ui->btn_provider_vmware_utility_update->setHidden(false);
+  ui->btn_provider_vmware_utility_update->setEnabled(false);
+
+  if (ui->lbl_provider_vmware_utility_version->text() == "undefined")
+    CHubComponentsUpdater::Instance()->install(
+          IUpdaterComponent::VMWARE_UTILITY);
+  else
+    CHubComponentsUpdater::Instance()->force_update(
+          IUpdaterComponent::VMWARE_UTILITY);
 }
 ////////////////////////////////////////////////////////////////////////////
 /// \brief DlgAbout::btn_uninstall_components
@@ -963,6 +987,21 @@ void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
   }
 }
 
+void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
+  if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE_UTILITY) != this->m_dct_fpb.end()) {
+    if (version == "indefined") {
+      set_hidden_pb(IUpdaterComponent::VMWARE_UTILITY);
+      ui->btn_provider_vmware_utility_update->setHidden(false);
+      ui->cb_provider_vmware_utility->setHidden(false);
+      ui->btn_provider_vmware_utility_update->setText(tr("Install"));
+      ui->btn_provider_vmware_utility_update->activateWindow();
+    } else {
+      ui->btn_provider_vmware_utility_update->setText(tr("Update"));
+    }
+    ui->lbl_provider_vmware_utility_version->setText(version);
+  }
+}
+
 void DlgAbout::got_provider_version_sl(QString version) {
   QString COMPONENT_KEY = "";
 
@@ -1105,6 +1144,10 @@ void DlgAboutInitializer::do_initialization() {
     emit got_hypervisor_vmware_version(hypervisor_vmware_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
+    emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
     std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
                      IUpdaterComponent::X2GO,
@@ -1126,6 +1169,7 @@ void DlgAboutInitializer::do_initialization() {
     case VagrantProvider::VMWARE_DESKTOP:
       uas.push_back(IUpdaterComponent::VMWARE);
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+      uas.push_back(IUpdaterComponent::VMWARE_UTILITY);
       break;
     //case VagrantProvider::LIBVIRT:
     //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);

@@ -2407,7 +2407,8 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
   QString file_path = dir + QDir::separator() + file_name;
 
   // check file path
-  if (!QDir(file_path).exists()) {
+  QFileInfo check_file(file_path);
+  if (!check_file.exists()) {
     qDebug() << "Vagrant VMware Utility file path doesn't exist: "
              << file_path;
     return SCWE_CREATE_PROCESS;
@@ -2485,7 +2486,7 @@ template <class OS>
 system_call_wrapper_error_t uninstall_vmware_utility_internal(const QString &dir, const QString &file_name);
 
 template <>
-system_call_wrapper_error_t uninstall_vmware_utility_internal(const QString &dir, const QString &file_name) {
+system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_WIN>>(const QString &dir, const QString &file_name) {
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
   // wmic product where name="Vagrant VMware Utility" call uninstall
@@ -2535,7 +2536,7 @@ system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX>
   system_call_res_t scr;
   QStringList args;
   args << "apt-get"
-       << "remove"
+       << "purge"
        << "-y"
        << "vagrant-vmware-utility";
 
@@ -4881,7 +4882,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_LINUX> >(
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     QString ver = res.out[0];
-    version = version.remove(QRegularExpression("[a-zA-Z ]*"));
+    version = ver.remove(QRegExp(".*:"));
   }
 
   return res.res;

@@ -12,7 +12,7 @@
 #include "SystemCallWrapper.h"
 #include "updater/ExecutableUpdater.h"
 #include "updater/HubComponentsUpdater.h"
-#include "updater/UpdaterComponentVagrantVMwareUtility.h".h"
+#include "updater/UpdaterComponentVagrantVMwareUtility.h"
 
 CUpdaterComponentVagrantVMwareUtility::CUpdaterComponentVagrantVMwareUtility() {
   this->m_component_id = VMWARE_UTILITY;
@@ -28,8 +28,8 @@ QString CUpdaterComponentVagrantVMwareUtility::download_vmware_utility_path() {
 }
 
 bool CUpdaterComponentVagrantVMwareUtility::update_available_internal() {
-  QString version = "1.0.2";
-  //CSystemCallWrapper::vagrant_version(version); TODO implement version
+  QString version = "";
+  CSystemCallWrapper::vmware_utility_version(version);
   return version == "undefined";
 }
 

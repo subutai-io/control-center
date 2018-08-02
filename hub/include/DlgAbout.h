@@ -50,6 +50,7 @@ signals:
   void got_vbguest_plugin_version(QString version);
   void got_subutai_box_version(QString version);
   void got_hypervisor_vmware_version(QString version);
+  void got_vagrant_vmware_utility_version(QString version);
   void update_available(QString component_id, bool available);
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -110,6 +111,7 @@ private slots:
   void btn_provider_libvirt_updates_released();
   void btn_provider_vmware_update_released();
   void btn_hypervisor_vmware_update_released();
+  void btn_vagrant_vmware_utility_update_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
@@ -131,6 +133,7 @@ private slots:
   void got_provider_version_sl(QString version);
   void got_subutai_box_version_sl(QString version);
   void got_hypervisor_vmware_version_sl(QString version);
+  void got_vagrant_vmware_utility_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
 };
 
