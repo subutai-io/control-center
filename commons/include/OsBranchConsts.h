@@ -110,6 +110,7 @@ const QString& p2p_package_url();
 const QString& x2goclient_url();
 
 const QString& current_branch_name();
+const QString& current_branch_name_with_changes();
 const QString& branch_name_str();
 const QString& base_interface_name();
 void current_os_info(std::vector<std::pair<QString, QString> >& v);

@@ -678,7 +678,7 @@ void TrayControlWindow::launch_p2p() {
       CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
                                            "Either change the path setting in Settings or install the daemon if it is not installed. "
                                            "You can get the %1 daemon from <a href=\"%2\">here</a>.").
-                                  arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+                                  arg(current_branch_name_with_changes()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
   emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
 }
 

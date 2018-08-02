@@ -461,7 +461,7 @@ bool DlgPeer::change_configs() {
       QTextStream stream(&file);
       stream << "SUBUTAI_RAM : " << rh_ram << endl;
       stream << "SUBUTAI_CPU : " << rh_cpu << endl;
-      QString branch = current_branch_name();
+      QString branch = current_branch_name_with_changes();
       if (branch == "production")
         stream << "SUBUTAI_ENV : "
                << "prod" << endl;
