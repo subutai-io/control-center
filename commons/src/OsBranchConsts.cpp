@@ -301,7 +301,7 @@ subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
 
 const QString &
 subutai_box_name() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return subutai_box_name_internal<Branch2Type<BT_PROD> >();
   else if (branch == "stage")
@@ -325,7 +325,7 @@ hub_post_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_post_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_post_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -349,7 +349,7 @@ hub_register_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/regi
 
 const QString &
 hub_register_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_register_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -375,7 +375,7 @@ hub_user_profile_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/user
 
 const QString &
 hub_user_profile_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_user_profile_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -399,7 +399,7 @@ hub_get_url_temp_internal_def(BT_DEV,     "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_get_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_get_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -432,7 +432,7 @@ hub_health_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v
 
 const QString &
 hub_health_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_healt_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -456,7 +456,7 @@ hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/ku
 
 const QString &
 hub_gorjun_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_kurjun_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -480,7 +480,7 @@ hub_billing_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/%1"
 
 const QString &
 hub_billing_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_billing_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -750,7 +750,7 @@ p2p_dht_arg_internal_def(BT_DEV,    "eu0.devcdn.subutai.io:6881")
 
 const QString &
 p2p_dht_arg() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return p2p_dht_arg_temp_internal<Branch2Type<BT_PROD> > ();
   else  if (branch == "stage")
@@ -948,7 +948,7 @@ hub_site_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io")
 
 const QString &
 hub_site() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_site_temp_internal<Branch2Type<BT_PROD> > ();
   else  if (branch == "stage")
@@ -1074,7 +1074,7 @@ p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurj
 
 const QString &
 p2p_package_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return p2p_package_url_temp_internal<Branch2Type<BT_PROD>, Os2Type<CURRENT_OS> > ();
   else  if (branch == "stage")
@@ -1124,7 +1124,7 @@ branch_name_str_def(BT_PROD, QObject::tr(""))
 
 const QString&
 branch_name_str() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return branch_name_str_temp_internal<Branch2Type<BT_PROD>>();
   else if (branch == "stage")
