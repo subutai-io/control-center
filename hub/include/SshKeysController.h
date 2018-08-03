@@ -35,6 +35,7 @@ class CSshKeysController : public QObject {
  public:
   void refresh_key_files();
   void generate_new_ssh_key(QWidget* parent);
+  void remove_ssh_key();
   void send_data_to_hub();
   void reset_matrix_current();
 

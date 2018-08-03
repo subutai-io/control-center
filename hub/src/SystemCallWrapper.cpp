@@ -4367,6 +4367,34 @@ system_call_wrapper_error_t CSystemCallWrapper::generate_ssh_key(
 
   return res.res;
 }
+
+system_call_wrapper_error_t CSystemCallWrapper::remove_ssh_key(const QString &key_name) {
+  QString storage = CSettingsManager::Instance().ssh_keys_storage();
+  QFileInfo fi(storage);
+  if (!fi.isDir()) {
+    return SCWE_WRONG_FILE_NAME;
+  } else if (!fi.isWritable()) {
+    return SCWE_PERMISSION_DENIED;
+  }
+
+  QString public_key = storage + QDir::separator() + key_name;
+  if (QFile::exists(public_key)) {
+    QFile::remove(public_key);
+  }
+
+  QString private_key = storage + QDir::separator() + key_name.left(key_name.size() - 4);
+  if (QFile::exists(private_key)) {
+    QFile::remove(private_key);
+  }
+
+  qDebug() << "SSH-key removal has been completed:"
+           << public_key << (QFile::exists(public_key) ? "exists." : "has been removed.")
+           << private_key << (QFile::exists(private_key) ? "exists." : "has been removed.");
+
+  return (!QFile::exists(public_key) &&
+          !QFile::exists(private_key)) ? SCWE_SUCCESS : SCWE_CREATE_PROCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::run_libssh2_command(

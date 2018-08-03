@@ -275,6 +275,8 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t generate_ssh_key(const QString &comment,
                                                       const QString &file_path);
 
+  static system_call_wrapper_error_t remove_ssh_key(const QString &key_name);
+
   static system_call_wrapper_error_t is_rh_update_available(bool &available);
   static system_call_wrapper_error_t is_rh_management_update_available(
       bool &available);
