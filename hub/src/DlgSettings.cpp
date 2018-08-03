@@ -92,11 +92,13 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
         CSettingsManager::Instance().ssh_keys_storage());
+  ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
 
   ui->lbl_err_logs_storage->hide();
   ui->lbl_err_ssh_keys_storage->hide();
+  ui->lbl_err_vm_storage->hide();
   ui->lbl_err_ssh_user->hide();
   ui->lbl_err_p2p_command->hide();
   ui->lbl_err_x2goclient_command->hide();
@@ -221,6 +223,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_logs_storage_released);
   connect(ui->btn_ssh_keys_storage, &QPushButton::released, this,
           &DlgSettings::btn_ssh_keys_storage_released);
+  connect(ui->btn_vm_storage, &QPushButton::released, this,
+          &DlgSettings::btn_vm_storage_released);
   connect(ui->btn_refresh_rh_list, &QPushButton::released, this,
           &DlgSettings::btn_refresh_rh_list_released);
   connect(ui->lstv_resource_hosts, &QListView::doubleClicked, this,
@@ -341,7 +345,7 @@ void DlgSettings::btn_ok_released() {
     CSettingsManager::Instance().set_default_chrome_profile("Default");
   }
 
-  QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
+  QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage, ui->le_vm_storage,
                      ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command, ui->le_scp_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -361,6 +365,11 @@ void DlgSettings::btn_ok_released() {
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, folder_has_write_permission, 0,
+     folder_permission_validator_msg},
+
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
     {ui->le_logs_storage, ui->lbl_err_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
@@ -456,6 +465,8 @@ void DlgSettings::btn_ok_released() {
       }
     }
   }
+
+  CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
@@ -588,7 +599,14 @@ void DlgSettings::btn_ssh_keys_storage_released() {
   ui->le_ssh_keys_storage->setText(dir);
   qDebug() << "Selected directory " << dir;
 }
+////////////////////////////////////////////////////////////////////////////
 
+void DlgSettings::btn_vm_storage_released() {
+  QString dir = QFileDialog::getExistingDirectory(this, tr("VM storage"));
+  if (dir == "") return;
+  ui->le_vm_storage->setText(dir);
+  qDebug() << "Selected directory " << dir;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::lstv_resource_hosts_double_clicked(QModelIndex ix0) {

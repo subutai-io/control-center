@@ -1,5 +1,6 @@
 #include "DlgPeer.h"
 #include "DlgRegisterPeer.h"
+#include "Environment.h"
 #include "PeerController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
@@ -433,19 +434,28 @@ bool DlgPeer::check_configs() {
     CNotificationObserver::Error(tr("RAM size cannot be less than 2048 MB."),
                                  DlgNotification::N_NO_ACTION);
     return false;
-  }
-  if (cpu < 1) {
+  } else if (cpu < 1) {
     CNotificationObserver::Error(
         tr("CPU cores quantity cannot be less than 1."),
         DlgNotification::N_NO_ACTION);
     return false;
-  }
-  if (disk < rh_disk.toInt(&bool_me, base)) {
+  } else if (disk < rh_disk.toInt(&bool_me, base)) {
     CNotificationObserver::Error(tr("You can only increase disk size."),
                                  DlgNotification::N_NO_ACTION);
     return false;
+  } else if (ram > int(Environment::Instance()->ramSize())) {
+    CNotificationObserver::Error(tr("Ram size cannot be more than %1 MB")
+                                 .arg(Environment::Instance()->ramSize()),
+                                 DlgNotification::N_NO_ACTION);
+    return false;
+  } else if (disk > int(Environment::Instance()->diskSize())) {
+    CNotificationObserver::Error(tr("Disk size cannot be more than %1 GB")
+                                 .arg(Environment::Instance()->diskSize()),
+                                 DlgNotification::N_NO_ACTION);
+    return false;
+  } else {
+    return true;
   }
-  return true;
 }
 
 bool DlgPeer::change_configs() {

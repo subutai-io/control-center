@@ -548,6 +548,79 @@ QString CSystemCallWrapper::vagrant_ip(const QString &dir){
     return ip;
 }
 
+QString CSystemCallWrapper::get_virtualbox_vm_storage(){
+  // vboxmanage list systemproperties | grep folder
+  qDebug("Get virtualbox vm storage");
+  QStringList home_path = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QString vm_dir;
+  if (home_path.isEmpty()) {
+    qCritical("No home path on machine!");
+    return vm_dir;
+  } else {
+    vm_dir = home_path[0];
+  }
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  QString cmd = dir.absolutePath();
+  cmd += "/VBoxManage";
+  QStringList args;
+  args << "list" << "systemproperties";
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  if (res.res != SCWE_SUCCESS ||
+      res.exit_code != 0 || res.out.isEmpty()) {
+    return vm_dir;
+  } else { // need to parse data
+    QStringList parse_me = res.out;
+    QString flag;
+    QString value;
+    QString last_name;
+    bool reading_value = false;
+    for (auto s : parse_me) {
+      flag = value = "";
+      reading_value = false;
+      for (int i = 0; i < s.size(); i++) {
+        if (s[i] == '\r') {
+          continue;
+        } else if (reading_value) {
+          value += s[i];
+        } else if (s[i] == ':') {
+          flag = value;
+          value = "";
+        } else if (s[i] != ' ') {
+            if(value == "" && !flag.isEmpty())
+                reading_value = true;
+            value+=s[i];
+        }
+      }
+      if (flag == "Defaultmachinefolder") {
+        return value;
+      }
+    }
+  }
+  return vm_dir;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::set_virtualbox_vm_storage(const QString &vm_dir){
+  // vboxmanage setproperty machinefolder /path/to/directory/
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  QString cmd = dir.absolutePath();
+  cmd += "/VBoxManage";
+  QStringList args;
+  args << "setproperty" << "machinefolder" << vm_dir;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug() << "set vm folder finished"
+           << "exit code" << res.exit_code
+           << "result code" << res.res
+           << "output" << res.out;
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
 QString CSystemCallWrapper::vagrant_port(const QString &dir){
     QDir peer_dir(dir);
     QString  port = "undefined";
