@@ -72,6 +72,7 @@ private slots:
   void btn_ssh_keygen_command_released();
   void btn_logs_storage_released();
   void btn_ssh_keys_storage_released();
+  void btn_vm_storage_released();
   void btn_refresh_rh_list_released();
   void btn_vagrant_command_released();
 
