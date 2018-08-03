@@ -601,6 +601,26 @@ QString CSystemCallWrapper::get_virtualbox_vm_storage(){
   return vm_dir;
 }
 
+system_call_wrapper_error_t CSystemCallWrapper::set_virtualbox_vm_storage(const QString &vm_dir){
+  // vboxmanage setproperty machinefolder /path/to/directory/
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  QString cmd = dir.absolutePath();
+  cmd += "/VBoxManage";
+  QStringList args;
+  args << "setproperty" << "machinefolder" << vm_dir;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+  qDebug() << "set vm folder finished"
+           << "exit code" << res.exit_code
+           << "result code" << res.res
+           << "output" << res.out;
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+  return res.res;
+}
+
 QString CSystemCallWrapper::vagrant_port(const QString &dir){
     QDir peer_dir(dir);
     QString  port = "undefined";

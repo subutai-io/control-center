@@ -466,7 +466,7 @@ void DlgSettings::btn_ok_released() {
     }
   }
 
-  // need to implement for vm storage
+  CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
