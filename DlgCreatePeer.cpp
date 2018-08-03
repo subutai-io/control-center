@@ -82,7 +82,6 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // Password
   this->m_show_password_action =
       ui->le_pass->addAction(show_password_icon, QLineEdit::TrailingPosition);
-
   // Password Confirm
   this->m_show_confirm_password_action = ui->le_pass_confirm->addAction(
       show_password_icon, QLineEdit::TrailingPosition);
@@ -194,11 +193,22 @@ bool DlgCreatePeer::check_configurations() {
   if (disk.toInt() < 40) {
     ui->lbl_err_disk->setText(tr("Disk cannot be less than 40 GB."));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->setToolTip(tr("40 GB is the minimum"
+                                    "required disk size for the peer"));
     ui->lbl_err_disk->show();
     errors_exist = true;
   } else if (disk.toInt() > 2048) { // disk max size 2048 GB = 2 TB
     ui->lbl_err_disk->setText(tr("Disk cannot be more than 2048 GB."));
     ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->setToolTip(tr("2048 GB is a "
+                                    "maximum disk size in VirtualBox"));
+    ui->lbl_err_disk->show();
+    errors_exist = true;
+  } else if (disk.toInt() > int(Environment::Instance()->diskSize())) {
+    ui->lbl_err_disk->setText(tr("Disk cannot be more than %1 GB.").arg(Environment::Instance()->diskSize()));
+    ui->lbl_err_disk->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_disk->setToolTip(tr("Disk size of peer can't be more than\n"
+                                    "your available disk size on your machine."));
     ui->lbl_err_disk->show();
     errors_exist = true;
   } else {
@@ -344,6 +354,9 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     stream << "BRIDGE : "
            << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
            << endl;
+    stream << "SUBUTAI_DISK_PATH : "
+           << QString("\"%1\"")
+              .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
   }
   file.close();
   // write provision step file

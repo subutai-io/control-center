@@ -1,5 +1,6 @@
 #include "Environment.h"
 #include "OsBranchConsts.h"
+#include "SystemCallWrapper.h"
 #include <QStorageInfo>
 #include <thread>
 
@@ -88,10 +89,7 @@ unsigned int Environment::diskSize() {
   // On Virtualbox MAXIMUM Virtual Disk size is 2 TB.
   QStorageInfo storage;
   static QString provider = "virtualbox"; // will be implemented after multi hypervisor support
-  QString path = "/";
-  if (provider == "virtualbox") { // default storage for virtualbox is homepath
-    path = QDir::homePath();
-  }
+  QString path = CSystemCallWrapper::get_virtualbox_vm_storage();
   storage.setPath(path);
   qDebug() << storage.rootPath();
   if (storage.isReadOnly())
@@ -101,5 +99,5 @@ unsigned int Environment::diskSize() {
   qDebug() << "fileSystemType:" << storage.fileSystemType();
   qDebug() << "size:" << storage.bytesTotal()/1024/1024/1024 << "GB";
   qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024/1024 << "GB";
-  return storage.bytesAvailable()/1024/1024/1024;
+  return storage.bytesTotal()/1024/1024/1024;
 }
