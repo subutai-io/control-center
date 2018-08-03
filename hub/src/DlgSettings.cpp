@@ -92,7 +92,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
         CSettingsManager::Instance().ssh_keys_storage());
-  ui->le_vm_storage->setText("~/testing_dir/");
+  ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
 
