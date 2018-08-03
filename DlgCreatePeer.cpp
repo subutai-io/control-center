@@ -354,6 +354,9 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     stream << "BRIDGE : "
            << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
            << endl;
+    stream << "SUBUTAI_DISK_PATH : "
+           << QString("\"%1\"")
+              .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
   }
   file.close();
   // write provision step file
