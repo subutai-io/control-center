@@ -3663,11 +3663,22 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_WIN>>(const 
       .arg(profile_folder, file_name);
   QString cur_dir = dir + "\\" + file_name;
 
-  qDebug() << "copying xpi-file from" << cur_dir << "to" << ext_path;
+  QString ext_folder = home_paths_list[0] +
+      QString("\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\%1\\extensions\\")
+      .arg(profile_folder);
+
+  QDir dir_helper("");
+
+  if (!dir_helper.mkpath(ext_folder)) {
+    qCritical() << "Failed to create path:" << ext_folder;
+    return SCWE_CREATE_PROCESS;
+  }
 
   if (QFile::exists(ext_path)) {
     QFile::remove(ext_path);
   }
+
+  qDebug() << "copying xpi-file from" << cur_dir << "to" << ext_path;
 
   if (!QFile::copy(cur_dir, ext_path)) {
     qCritical() << "Failed to install e2e";
