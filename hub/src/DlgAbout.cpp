@@ -989,7 +989,7 @@ void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
 
 void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE_UTILITY) != this->m_dct_fpb.end()) {
-    if (version == "indefined") {
+    if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE_UTILITY);
       ui->btn_provider_vmware_utility_update->setHidden(false);
       ui->cb_provider_vmware_utility->setHidden(false);

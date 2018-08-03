@@ -2366,9 +2366,17 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(c
   QString file_path  = dir + "/" + file_name;
 
   args << "-e"
-       << QString("do shell script \"hdiutil attach %1; ").arg(file_path);
+       << QString("do shell script \"hdiutil attach %1;\"").arg(file_path);
 
-  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Mount Vagrant VMware Utility dmg"
+           << " exit code: "
+           << rs.exit_code
+           << " res code: "
+           << rs.res
+           << "output: "
+           << rs.out;
 
   if (rs.exit_code != 0 && rs.res != SCWE_SUCCESS) {
     qDebug() << QString("Failed mount %1 dmg file").arg(file_name);
@@ -4870,10 +4878,11 @@ system_call_wrapper_error_t vmware_utility_version_internal(QString &version);
 
 template <>
 system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QString &version) {
+  version = "undefined";
   QString cmd = "/opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility";
   QStringList args;
   args << "-v";
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 5000);
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 5000);
 
   qDebug() << "Got Vagrant VMware Utility version"
            << " exit code: "
@@ -4883,8 +4892,8 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QS
            << " output: "
            << res.out;
 
-  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
-    version = res.out[0];
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    version = "Installed";
   } else {
       res.res = SCWE_CREATE_PROCESS;
   }
