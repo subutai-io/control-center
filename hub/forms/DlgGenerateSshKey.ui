@@ -127,13 +127,6 @@
        </property>
       </spacer>
      </item>
-     <item row="4" column="0">
-      <widget class="QPushButton" name="btn_generate_new_key">
-       <property name="text">
-        <string>Generate New Key Pair</string>
-       </property>
-      </widget>
-     </item>
      <item row="4" column="2">
       <widget class="QPushButton" name="btn_send_to_hub">
        <property name="text">
@@ -148,6 +141,55 @@
        </property>
       </widget>
      </item>
+     <item row="4" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="btn_generate_new_key">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Generate new Key</string>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btn_remove_key">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Remove selected Key</string>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
     </layout>
    </item>
   </layout>
@@ -156,7 +198,6 @@
   <tabstop>btn_send_to_hub</tabstop>
   <tabstop>chk_select_all</tabstop>
   <tabstop>lstv_environments</tabstop>
-  <tabstop>btn_generate_new_key</tabstop>
   <tabstop>lstv_sshkeys</tabstop>
  </tabstops>
  <resources>
