@@ -152,10 +152,10 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Generate new Key</string>
+          <string>Generate new Key pair</string>
          </property>
          <property name="text">
-          <string>+</string>
+          <string>Generate Key</string>
          </property>
         </widget>
        </item>
@@ -168,10 +168,10 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Remove selected Key</string>
+          <string>Remove selected Key pair</string>
          </property>
          <property name="text">
-          <string>-</string>
+          <string>Remove Key</string>
          </property>
         </widget>
        </item>
