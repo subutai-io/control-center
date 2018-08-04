@@ -41,6 +41,9 @@ void DlgTransferFile::Init() {
   ui->btn_local_back->setToolTip("Go to the parent directory");
   ui->btn_remote_back->setToolTip("Go to the parent directory");
 
+  ui->btn_remove_local->setToolTip("Remove selected files and folders");
+  ui->btn_remove_remote->setToolTip("Remove selected files and folders");
+
   ui->local_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->remote_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -84,6 +87,12 @@ void DlgTransferFile::Init() {
 
   connect(ui->btn_refresh_remote, &QPushButton::clicked,
           this, &DlgTransferFile::refresh_button_remote);
+
+  connect(ui->btn_remove_local, &QPushButton::clicked,
+          this, &DlgTransferFile::remove_selected_local);
+
+  connect(ui->btn_remove_remote, &QPushButton::clicked,
+          this, &DlgTransferFile::remove_selected_remote);
 
   connect(ui->btn_local_back, &QPushButton::clicked,
           this, &DlgTransferFile::local_back);
@@ -249,8 +258,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
             output.join(",") +
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
-  }
-  else if(file_to_transfer.currentFileStatus() == FILE_TO_DOWNLOAD || file_to_transfer.currentFileStatus() == FILE_FAILED_TO_DOWNLOAD){
+  } else if(file_to_transfer.currentFileStatus() == FILE_TO_DOWNLOAD || file_to_transfer.currentFileStatus() == FILE_FAILED_TO_DOWNLOAD){
     if (res == SCWE_SUCCESS) {
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_DOWNLOAD);
       twi_operation_status->setText("Downloaded successfully");
@@ -266,6 +274,48 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       twi_operation_status->setIcon(transfer_failed_icon);
       if(file_to_transfer.fileInfo().fileName().contains("\\"))
         twi_operation_status->setText("Invalid file name");
+      twi_operation_status->setToolTip(output.join(",") +
+            " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
+    }
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_REMOVE_REMOTE ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_REMOVE_REMOTE) {
+    if (res == SCWE_SUCCESS) {
+      file_to_transfer.setTransferFileStatus(FILE_FINISHED_REMOVE);
+      twi_operation_status->setText("Removed successfully");
+      twi_operation_status->setIcon(transfer_finished_icon);
+      twi_operation_status->setToolTip("");
+    } else {
+      file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_REMOVE_REMOTE);
+      if (res == SCWE_PERMISSION_DENIED) {
+        twi_operation_status->setText("Permission denied");
+      } else {
+        twi_operation_status->setText("Failed to remove");
+      }
+      twi_operation_status->setIcon(transfer_failed_icon);
+      if (file_to_transfer.fileInfo().fileName().contains("\\")) {
+        twi_operation_status->setText("Invalid file name");
+      }
+      twi_operation_status->setToolTip(output.join(",") +
+            " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
+    }
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_REMOVE_LOCAL ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_REMOVE_LOCAL) {
+    if (res == SCWE_SUCCESS) {
+      file_to_transfer.setTransferFileStatus(FILE_FINISHED_REMOVE);
+      twi_operation_status->setText("Removed successfully");
+      twi_operation_status->setIcon(transfer_finished_icon);
+      twi_operation_status->setToolTip("");
+    } else {
+      file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_REMOVE_LOCAL);
+      if (res == SCWE_PERMISSION_DENIED) {
+        twi_operation_status->setText("Permission denied");
+      } else {
+        twi_operation_status->setText("Failed to remove");
+      }
+      twi_operation_status->setIcon(transfer_failed_icon);
+      if (file_to_transfer.fileInfo().fileName().contains("\\")) {
+        twi_operation_status->setText("Invalid file name");
+      }
       twi_operation_status->setToolTip(output.join(",") +
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
@@ -299,10 +349,15 @@ void DlgTransferFile::transfer_file(int tw_row) {
 
   twi_operation_status->setIcon(waiting_icon);
 
-  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD
-      || file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) twi_operation_status->setText("Uploading");
-  else twi_operation_status->setText("Downloading");
-
+  if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD ||
+      file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) {
+    twi_operation_status->setText("Uploading");
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_DOWNLOAD ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_DOWNLOAD) {
+    twi_operation_status->setText("Downloading");
+  } else {
+    twi_operation_status->setText("Removing");
+  }
   QFutureWatcher<system_call_wrapper_error_t> *watcher = new QFutureWatcher<system_call_wrapper_error_t>(this);
   QFuture<system_call_wrapper_error_t> res;
   watcher->setFuture(res);
@@ -318,8 +373,8 @@ void DlgTransferFile::transfer_file(int tw_row) {
             [tw_row, this](system_call_wrapper_error_t res, QStringList output){
       this->transfer_finished(tw_row, res, output);
     });
-  }
-  else {
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_DOWNLOAD ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_DOWNLOAD) {
     FileThreadDownloader *file_thread_uploader =
         new FileThreadDownloader(this);
     file_thread_uploader->init(remote_user, remote_ip, remote_port,
@@ -330,6 +385,29 @@ void DlgTransferFile::transfer_file(int tw_row) {
             [tw_row, this](system_call_wrapper_error_t res, QStringList output){
       this->transfer_finished(tw_row, res, output);
     });
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_REMOVE_REMOTE ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_REMOVE_REMOTE) {
+    RemoteCommandExecutor *remote_command_executor =
+        new RemoteCommandExecutor(this);
+
+    QString command = "rm -rf " + transfer_file_path;
+
+    remote_command_executor->init(remote_user, remote_ip, remote_port, command, key);
+    connect(remote_command_executor, &RemoteCommandExecutor::outputReceived,
+            [tw_row, this] (system_call_wrapper_error_t res, QStringList output) {
+      this->transfer_finished(tw_row, res, output);
+    });
+    remote_command_executor->startWork();
+  } else if (file_to_transfer.currentFileStatus() == FILE_TO_REMOVE_LOCAL ||
+             file_to_transfer.currentFileStatus() == FILE_FAILED_TO_REMOVE_LOCAL) {
+    LocalFileRemover *local_file_remover =
+        new LocalFileRemover(this);
+    local_file_remover->init(transfer_file_path);
+    connect(local_file_remover, &LocalFileRemover::outputReceived,
+            [tw_row, this] (system_call_wrapper_error_t res, QStringList output) {
+      this->transfer_finished(tw_row, res, output);
+    });
+    local_file_remover->startWork();
   }
 }
 
@@ -337,8 +415,9 @@ void DlgTransferFile::start_transfer_files() {
   set_buttons_enabled(false);
   if (ui->tw_transfer_file->selectedRanges().isEmpty()) {
     for (int row = 0 ; row < (int)files_to_transfer.size() ; row ++) {
-      if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
-          || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
+      if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD ||
+          files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD ||
+          files_to_transfer[row].currentFileStatus() == FILE_FINISHED_REMOVE)
         continue;
       transfer_file(row);
     }
@@ -346,15 +425,19 @@ void DlgTransferFile::start_transfer_files() {
   else {
     for (QTableWidgetSelectionRange table_range : ui->tw_transfer_file->selectedRanges()) {
       for (int row = table_range.bottomRow() ; row >= table_range.topRow() ; row --) {
-        if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD
-            || files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD)
+        if (files_to_transfer[row].currentFileStatus() == FILE_FINISHED_DOWNLOAD ||
+            files_to_transfer[row].currentFileStatus() == FILE_FINISHED_UPLOAD ||
+            files_to_transfer[row].currentFileStatus() == FILE_FINISHED_REMOVE)
           continue;
         if (files_to_transfer[row].currentFileStatus() == FILE_FAILED_TO_DOWNLOAD)
           files_to_transfer[row].setTransferFileStatus(FILE_TO_DOWNLOAD);
         if (files_to_transfer[row].currentFileStatus() == FIlE_FAILED_TO_UPLOAD)
           files_to_transfer[row].setTransferFileStatus(FILE_TO_UPLOAD);
+        if (files_to_transfer[row].currentFileStatus() == FILE_FAILED_TO_REMOVE_LOCAL)
+          files_to_transfer[row].setTransferFileStatus(FILE_FAILED_TO_REMOVE_LOCAL);
+        if (files_to_transfer[row].currentFileStatus() == FILE_FAILED_TO_REMOVE_REMOTE)
+          files_to_transfer[row].setTransferFileStatus(FILE_FAILED_TO_REMOVE_REMOTE);
         transfer_file(row);
-
       }
     }
   }
@@ -419,6 +502,7 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
   static QIcon ok_icon(":/hub/OK.png");
   static QIcon download_icon(":/hub/download");
   static QIcon upload_icon(":/hub/upload");
+  static QIcon remove_icon(":/hub/remove_ft.png");
 
 
   int current_row = ui->tw_transfer_file->rowCount();
@@ -426,14 +510,27 @@ void DlgTransferFile::file_transfer_field_add_file(const FileToTransfer &file, b
 
   ui->tw_transfer_file->insertRow(current_row);
   QTableWidgetItem *wi_source_file;
-  if (file.currentFileStatus() == FILE_TO_UPLOAD) wi_source_file = new QTableWidgetItem(upload_icon ,file.fileInfo().fileName());
-  else wi_source_file = new QTableWidgetItem(download_icon ,file.fileInfo().fileName());
+
+  if (file.currentFileStatus() == FILE_TO_UPLOAD) {
+    wi_source_file = new QTableWidgetItem(upload_icon ,file.fileInfo().fileName());
+  } else if (file.currentFileStatus() == FILE_TO_DOWNLOAD) {
+    wi_source_file = new QTableWidgetItem(download_icon ,file.fileInfo().fileName());
+  } else {
+    wi_source_file = new QTableWidgetItem(remove_icon, file.fileInfo().fileName());
+  }
+
   QTableWidgetItem *wi_file_path = new QTableWidgetItem(file.fileInfo().filePath());
   QTableWidgetItem *wi_destination_directory = new QTableWidgetItem(file.destinationPath());
   QTableWidgetItem *wi_file_size = new QTableWidgetItem(QString::number(file.fileInfo().fileSize()));
   QTableWidgetItem *wi_file_status;
-  if (file.currentFileStatus() == FILE_TO_UPLOAD) wi_file_status = new QTableWidgetItem(ok_icon,"Not yet Uploaded");
-  else wi_file_status = new QTableWidgetItem(ok_icon, "Not yet downloaded");
+
+  if (file.currentFileStatus() == FILE_TO_UPLOAD) {
+    wi_file_status = new QTableWidgetItem(ok_icon,"Not yet uploaded");
+  } else if (file.currentFileStatus() == FILE_TO_DOWNLOAD) {
+    wi_file_status = new QTableWidgetItem(ok_icon, "Not yet downloaded");
+  } else {
+    wi_file_status = new QTableWidgetItem(ok_icon, "Not yet removed");
+  }
 
   ui->tw_transfer_file->setItem(current_row, 0, wi_source_file);
   ui->tw_transfer_file->setItem(current_row, 1, wi_file_path);
@@ -675,6 +772,38 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
            remote_file);
 
   remote_files.push_back(remote_file);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void DlgTransferFile::remove_selected_local() {
+  set_buttons_enabled(false);
+  for (QTableWidgetSelectionRange table_range : ui->local_file_system->selectedRanges()) {
+    for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
+      FileToTransfer file_to_transfer;
+      file_to_transfer.setFileInfo(local_files[row]);
+      file_to_transfer.setDesinationPath("");
+      file_to_transfer.setSourceMachineType(LOCAL_MACHINE);
+      file_to_transfer.setTransferFileStatus(FILE_TO_REMOVE_LOCAL);
+      file_transfer_field_add_file(file_to_transfer, true);
+    }
+  }
+  set_buttons_enabled(true);
+}
+
+void DlgTransferFile::remove_selected_remote() {
+  set_buttons_enabled(false);
+  for (QTableWidgetSelectionRange table_range : ui->remote_file_system->selectedRanges()) {
+    for (int row = table_range.topRow() ; row <= table_range.bottomRow() ; row ++) {
+      FileToTransfer file_to_transfer;
+      file_to_transfer.setFileInfo(remote_files[row]);
+      file_to_transfer.setDesinationPath("");
+      file_to_transfer.setSourceMachineType(REMOTE_MACHINE);
+      file_to_transfer.setTransferFileStatus(FILE_TO_REMOVE_REMOTE);
+      file_transfer_field_add_file(file_to_transfer, true);
+    }
+  }
+  set_buttons_enabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

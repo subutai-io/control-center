@@ -115,6 +115,8 @@ class CSystemCallWrapper {
   static std::vector<QString> p2p_show();
   static std::vector<std::pair<QString, QString>> p2p_show_interfaces();
 
+  static std::pair<system_call_wrapper_error_t, QStringList> remove_file(const QString &file_path);
+
   static std::pair<system_call_wrapper_error_t, QStringList> send_command(
                                                   const QString &remote_user,
                                                   const QString &ip,

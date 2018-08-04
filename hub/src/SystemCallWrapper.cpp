@@ -217,6 +217,83 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS>
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal(const QString& file_path);
+
+template<>
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_LINUX>>(const QString& file_path) {
+  QString cmd("rm");
+  QStringList args;
+  args << "-rf" << file_path;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "Finished remove command:"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to remove file:" << file_path
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+  }
+  return std::make_pair(res.res, res.out);
+}
+
+template<>
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_MAC>>(const QString& file_path) {
+  QString cmd("osascript");
+  QStringList args;
+  args << "-e"
+       << QString("do shell script \"rm -rf %1\"").arg(file_path);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "Finished remove command:"
+           << "cmd:" << cmd
+           << "args:" << args;
+
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to remove file:" << file_path
+                << "exit code:" << res.exit_code
+                << "output:" << res.out;
+  }
+  return std::make_pair(res.res, res.out);
+}
+
+template<>
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_WIN>>(const QString& file_path) {
+  QFileInfo file_info(file_path);
+  if (!file_info.exists()) {
+    qCritical() << "File doesn't exist or wrong file name" << file_path;
+    return std::make_pair(SCWE_WRONG_FILE_NAME, QStringList());
+  }
+
+  if (!file_info.isWritable()) {
+    qCritical() << "File isn't editable" << file_path;
+    return std::make_pair(SCWE_PERMISSION_DENIED, QStringList());
+  }
+
+  if (file_info.isDir()) {
+    QDir dir(file_path);
+    if (!dir.removeRecursively()) {
+      qCritical() << "Failed to remove directory:" << file_path;
+      return std::make_pair(SCWE_COMMAND_FAILED, QStringList());
+    }
+  } else {
+    if (!QFile::remove(file_path)) {
+      qCritical() << "Failed to remove file:" << file_path;
+      return std::make_pair(SCWE_COMMAND_FAILED, QStringList());
+    }
+  }
+
+  return std::make_pair(SCWE_SUCCESS, QStringList());
+}
+
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::remove_file(const QString& file_path) {
+  return remove_file_internal<Os2Type<CURRENT_OS>>(file_path);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_command(
     const QString &remote_user, const QString &ip, const QString &port,
     const QString &commands, const QString &key) {
