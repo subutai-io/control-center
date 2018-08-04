@@ -104,7 +104,7 @@ void CUpdaterComponentVAGRANT_SUBUTAI::update_post_action(bool success) {
         DlgNotification::N_NO_ACTION);
   }
 }
-void CUpdaterComponentVAGRANT_SUBUTAI::install_post_interntal(bool success) {
+void CUpdaterComponentVAGRANT_SUBUTAI::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
         tr("Failed to install the Vagrant Subutai plugin. You may try manually "

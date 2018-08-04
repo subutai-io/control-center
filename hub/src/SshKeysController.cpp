@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 #include <algorithm>
@@ -176,6 +177,76 @@ void CSshKeysController::generate_new_ssh_key(QWidget *parent) {
     }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void CSshKeysController::remove_ssh_key() {
+  if (m_current_key.isEmpty()) {
+    return;
+  }
+  QString text, list_deployed;
+
+  for (int i = 0; i < (int) m_lst_healthy_environments.size(); i++) {
+    if (m_original_ke_matrix.size() < i ||
+        m_original_ke_matrix[i].size() < m_current_key_col) {
+      continue;
+    }
+    if (m_original_ke_matrix[i][m_current_key_col]) {
+      list_deployed += "<i>" + m_lst_healthy_environments[i].name() + "</i><br>";
+    }
+  }
+
+  if (!list_deployed.isEmpty()) {
+    text = QString("You are going to remove an SSH-key <i>%1</i>. This SSH-key "
+                   "is deployed to this environments:<br>%2Your SSH-key will be "
+                   "removed from all of the environments.<br>Do you want to "
+                   "proceed?").arg(m_current_key, list_deployed);
+  } else {
+    text = QString("You are going to remove an SSH-key <i>%1</i>. This "
+                   "SSH-key is not deployed to the environments.<br> "
+                   "Do you want to proceed?").arg(m_current_key);
+  }
+
+  QMessageBox *msg = new QMessageBox(
+        QMessageBox::Information, "Attention!", text,
+        QMessageBox::Yes | QMessageBox::No);
+  msg->setTextFormat(Qt::RichText);
+  connect(msg, &QMessageBox::finished, msg, &QMessageBox::deleteLater);
+
+  if (msg->exec() != QMessageBox::Yes) {
+    return;
+  }
+
+  for (int i = 0; i < (int) m_lst_healthy_environments.size(); i++) {
+    set_key_environments_bit(i, false);
+  }
+  send_data_to_hub();
+
+  system_call_wrapper_error_t res =
+      CSystemCallWrapper::remove_ssh_key(m_current_key);
+
+  if (res == SCWE_WRONG_FILE_NAME) {
+    CNotificationObserver::Error(
+          tr("Invalid SSH-keys storage path. Please change SSH-keys "
+             "storage in settings."), DlgNotification::N_SETTINGS);
+    return;
+  } else if (res == SCWE_PERMISSION_DENIED) {
+    CNotificationObserver::Error(
+          tr("You don't have administrator privileges to write into "
+             "SSH directory."), DlgNotification::N_NO_ACTION);
+    return;
+  } else if (res != SCWE_SUCCESS) {
+    CNotificationObserver::Error(
+          tr("An error occured while removing selected SSH-key. "
+             "Make sure that you have proper administrator privileges."),
+          DlgNotification::N_NO_ACTION);
+    return;
+  }
+
+  qDebug() << "SSH-key" << m_current_key << "has been removed.";
+  m_current_key.clear();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void CSshKeysController::send_data_to_hub() {

@@ -42,7 +42,7 @@ class IUpdaterComponent : public QObject {
   virtual chue_t update_internal() = 0;
   virtual void update_post_action(bool success) = 0;
   virtual chue_t install_internal() = 0;
-  virtual void install_post_interntal(bool success) = 0;
+  virtual void install_post_internal(bool success) = 0;
   virtual chue_t uninstall_internal() = 0;
   virtual void uninstall_post_internal(bool success) = 0;
 
@@ -55,6 +55,7 @@ class IUpdaterComponent : public QObject {
   static const QString VMWARE;
   static const QString VMWARE_UTILITY;
   static const QString CHROME;
+  static const QString FIREFOX;
   static const QString E2E;
   static const QString VAGRANT_SUBUTAI;
   static const QString VAGRANT_LIBVIRT;
@@ -62,6 +63,7 @@ class IUpdaterComponent : public QObject {
   static const QString VAGRANT_VMWARE_DESKTOP;
   static const QString VAGRANT_VBGUEST;
   static const QString SUBUTAI_BOX;
+  static const QString XQUARTZ; // only mac
 
   bool is_in_progress() { return m_in_progress; }
   std::pair<quint64, quint64> last_pb_value;
@@ -116,7 +118,7 @@ class IUpdaterComponent : public QObject {
   }
 
   void install_finished_sl(bool success) {
-    install_post_interntal(success);
+    install_post_internal(success);
     m_in_progress = false;
     emit install_finished(m_component_id, success);
   }

@@ -67,6 +67,7 @@ SOURCES += \
     hub/src/updater/UpdaterComponentX2go.cpp \
     hub/src/updater/UpdaterComponentVirtualbox.cpp \
     hub/src/updater/UpdaterComponentChrome.cpp \
+    hub/src/updater/UpdaterComponentFirefox.cpp \
     hub/src/updater/UpdaterComponentE2E.cpp \
     hub/src/updater/UpdaterComponentSubutaiBox.cpp \
     hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
@@ -77,6 +78,7 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantVmware.cpp \
     hub/src/updater/UpdaterComponentVMware.cpp \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp
+    hub/src/updater/UpdaterComponentXQuartz.cpp
 
 
 
@@ -129,6 +131,7 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentX2go.h \
     hub/include/updater/UpdaterComponentVirtualbox.h \
     hub/include/updater/UpdaterComponentChrome.h \
+    hub/include/updater/UpdaterComponentFirefox.h\
     hub/include/updater/UpdaterComponentE2E.h \
     hub/include/updater/UpdaterComponentSubutaiBox.h \
     hub/include/updater/UpdaterComponentVagrantSubutai.h \
@@ -138,7 +141,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVagrantParallels.h \
     hub/include/updater/UpdaterComponentVagrantVmware.h \
     hub/include/updater/UpdaterComponentVMware.h \
-    hub/include/updater/UpdaterComponentVagrantVMwareUtility.h
+    hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
+    hub/include/updater/UpdaterComponentXQuartz.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

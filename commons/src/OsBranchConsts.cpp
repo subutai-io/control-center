@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QSysInfo>
 #include "SystemCallWrapper.h"
@@ -67,6 +68,11 @@ p2p_package_name_def(BT_PROD,   OS_WIN,   "Subutai P2P")
 p2p_package_name_def(BT_MASTER, OS_MAC,   "")
 p2p_package_name_def(BT_DEV,    OS_MAC,   "")
 p2p_package_name_def(BT_PROD,   OS_MAC,   "")
+
+const QString& xquartz_kurjun_package_name() {
+  static QString res("XQuartz.pkg");
+  return res;
+}
 
 const QString &
 p2p_kurjun_file_name() {
@@ -227,6 +233,30 @@ const QString& chrome_kurjun_package_name(){
     return chrome_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
+template <class OS> const QString& firefox_kurjun_package_name_internal();
+#define firefox_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& firefox_kurjun_package_name_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+firefox_kurjun_package_name_def(OS_MAC, "Firefox-61.0.1.dmg")
+firefox_kurjun_package_name_def(OS_LINUX, "Firefox-61.0.1.deb")
+firefox_kurjun_package_name_def(OS_WIN, "Firefox-61.0.1.exe")
+const QString& firefox_kurjun_package_name(){
+    return firefox_kurjun_package_name_internal <Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& firefox_subutai_e2e_kurjun_package_name(){
+  static QString name = "jid1-KejrJUY3AaPCkZ@jetpack.xpi";
+  return name;
+}
+////////////////////////////////////////////////////////////////////////////
+const QString& safari_subutai_e2e_kurjun_package_name() {
+  static QString name = "e2e-plugin.safariextz";
+  return name;
+}
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal();
 
 #define tray_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
@@ -310,7 +340,7 @@ subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
 
 const QString &
 subutai_box_name() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return subutai_box_name_internal<Branch2Type<BT_PROD> >();
   else if (branch == "stage")
@@ -334,7 +364,7 @@ hub_post_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_post_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_post_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -358,7 +388,7 @@ hub_register_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/regi
 
 const QString &
 hub_register_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_register_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -384,7 +414,7 @@ hub_user_profile_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/user
 
 const QString &
 hub_user_profile_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_user_profile_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -408,7 +438,7 @@ hub_get_url_temp_internal_def(BT_DEV,     "https://devbazaar.subutai.io/rest/v1/
 
 const QString &
 hub_get_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_get_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -441,7 +471,7 @@ hub_health_url_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/rest/v
 
 const QString &
 hub_health_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_healt_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -465,7 +495,7 @@ hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/ku
 
 const QString &
 hub_gorjun_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_kurjun_url_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -489,7 +519,7 @@ hub_billing_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io/users/%1"
 
 const QString &
 hub_billing_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_billing_temp_internal<Branch2Type<BT_PROD> > ();
   else if (branch == "stage")
@@ -500,17 +530,36 @@ hub_billing_url() {
 
 template<class OS> const QStringList& supported_browsers_internal();
 
-#define supported_browsers_internal_def(OS_TYPE, STRING) \
-    template <> \
-    const QStringList& supported_browsers_internal<Os2Type <OS_TYPE> >() { \
-        static QString st(STRING); \
-        static QStringList res = st.split(" "); \
-        return res; \
-    }
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_LINUX>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox";
+  return res;
+}
 
-supported_browsers_internal_def(OS_WIN, "Chrome") // add edge, mozilla
-supported_browsers_internal_def(OS_LINUX, "Chrome") // add mozilla
-supported_browsers_internal_def(OS_MAC, "Chrome") // add safari , mozilla
+
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_MAC>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox" << "Safari";
+  return res;
+}
+
+
+template<>
+const QStringList& supported_browsers_internal<Os2Type<OS_WIN>>() {
+  static QStringList res;
+  res.clear();
+  res << "Chrome" << "Firefox";
+  QString ver = "undefined";
+  system_call_wrapper_error_t r = CSystemCallWrapper::edge_version(ver);
+  if (r == SCWE_SUCCESS && ver != "undefined") {
+    res << "Edge";
+  }
+  return res;
+}
 
 const QStringList& supported_browsers(){
     return supported_browsers_internal<Os2Type <CURRENT_OS> >();
@@ -608,6 +657,76 @@ const std::pair<QStringList, QStringList>& chrome_profiles(){
   return profiles;
 }
 ////////////////////////////////////////////////////////////////////////////
+
+template<class OS>
+const QString firefox_profiles_internal();
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_LINUX>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "/.mozilla/firefox/profiles.ini";
+}
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_MAC>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "/Library/Application Support/Firefox/profiles.ini";
+}
+
+template<>
+const QString firefox_profiles_internal<Os2Type<OS_WIN>>() {
+  QStringList paths_str = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  return paths_str[0] + "\\AppData\\Roaming\\Mozilla\\Firefox\\profiles.ini";
+}
+
+template<class OS>
+const int firefox_profiles_folder_path_cut();
+
+#define firefox_profiles_folder_path_cut_def(OS_TYPE, INT) \
+  template<> \
+  const int firefox_profiles_folder_path_cut<Os2Type<OS_TYPE>>() { \
+    return INT; \
+  }
+
+firefox_profiles_folder_path_cut_def(OS_LINUX, 5)
+firefox_profiles_folder_path_cut_def(OS_MAC, 14)
+firefox_profiles_folder_path_cut_def(OS_WIN, 14)
+
+const std::pair<QStringList, QStringList> &firefox_profiles() {
+  static std::pair<QStringList, QStringList> profiles;
+  profiles.first.clear();
+  profiles.second.clear();
+  QString ini_path = firefox_profiles_internal<Os2Type<CURRENT_OS>>();
+
+  qDebug() << "profiles.ini path:" << ini_path;
+
+  QFile ini_file(ini_path);
+
+  if (ini_file.open(QIODevice::ReadOnly)) {
+    QTextStream stream(&ini_file);
+
+    while (!stream.atEnd()) {
+      QString str = stream.readLine();
+
+      if (str.contains("Name=")) {
+        str = str.right(str.size() - 5);
+        str.replace(QRegularExpression("[\n\t]"), "");
+        profiles.first << str;
+      } else if (str.contains("Path=")) {
+        str = str.right(str.size() -
+                        firefox_profiles_folder_path_cut<Os2Type<CURRENT_OS>>());
+        str.replace(QRegularExpression("[\n\t]"), "");
+        profiles.second << str;
+      }
+    }
+  }
+
+  qDebug() << "got profiles list:" << profiles.first << profiles.second;
+
+  return profiles;
+}
+
+////////////////////////////////////////////////////////////////////////////
 template<class BR, class VER> const char* ssdp_rh_search_target_temp_internal();
 
 #define ssdp_rh_search_target_temp_internal_def(BT_TYPE, VERSION, STRING) \
@@ -670,7 +789,7 @@ p2p_dht_arg_internal_def(BT_DEV,    "eu0.devcdn.subutai.io:6881")
 
 const QString &
 p2p_dht_arg() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return p2p_dht_arg_temp_internal<Branch2Type<BT_PROD> > ();
   else  if (branch == "stage")
@@ -900,7 +1019,7 @@ hub_site_temp_internal_def(BT_DEV,    "https://devbazaar.subutai.io")
 
 const QString &
 hub_site() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return hub_site_temp_internal<Branch2Type<BT_PROD> > ();
   else  if (branch == "stage")
@@ -948,6 +1067,25 @@ default_chrome_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& default_firefox_path_internal();
+
+#define default_firefox_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_firefox_path_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_firefox_path_internal_def(OS_LINUX, "/usr/bin/firefox")
+default_firefox_path_internal_def(OS_MAC, "/Applications/Firefox.app/Contents/MacOS/Firefox")
+default_firefox_path_internal_def(OS_WIN, "C:\\Program Files\\Mozilla Firefox\\firefox.exe")
+
+const QString &
+default_firefox_path() {
+  return default_firefox_path_internal<Os2Type<CURRENT_OS> >();
+}
+
+////////////////////////////////////////////////////////////////////////////
 template<class BR> const QString& subutai_command_internal();
 
 #define subutai_command_internal_def(BT_TYPE, STRING) \
@@ -1007,7 +1145,7 @@ p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurj
 
 const QString &
 p2p_package_url() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return p2p_package_url_temp_internal<Branch2Type<BT_PROD>, Os2Type<CURRENT_OS> > ();
   else  if (branch == "stage")
@@ -1057,7 +1195,7 @@ branch_name_str_def(BT_PROD, QObject::tr(""))
 
 const QString&
 branch_name_str() {
-  const QString branch = set_application_branch();
+  const QString branch = current_branch_name_with_changes();
   if (branch == "production")
     return branch_name_str_temp_internal<Branch2Type<BT_PROD>>();
   else if (branch == "stage")
@@ -1102,6 +1240,24 @@ default_chrome_extensions_path_internal_def(OS_LINUX, "/.config/google-chrome/")
 const QString&
 default_chrome_extensions_path() {
     return default_chrome_extensions_path_internal< Os2Type<CURRENT_OS> >();
+}
+///////////////////////////////////////////////////////////////////////////////
+template<class OS> const QString& default_firefox_extensions_path_internal();
+
+#define default_firefox_extensions_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_firefox_extensions_path_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_firefox_extensions_path_internal_def(OS_WIN, "")
+default_firefox_extensions_path_internal_def(OS_MAC, "")
+default_firefox_extensions_path_internal_def(OS_LINUX, "")
+
+const QString&
+default_firefox_extensions_path() {
+    return default_firefox_extensions_path_internal< Os2Type<CURRENT_OS> >();
 }
 ///////////////////////////////////////////////////////////////////////////////
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
@@ -1153,19 +1309,42 @@ const QString&  default_default_chrome_profile() {
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////
-const QString& subutai_e2e_id(const QString& current_browser){
-    static QString res("ffddnlbamkjlbngpekmdpnoccckapcnh");
-    if(current_browser == "Chrome")
-        return res;
-    return res;
+const QString& default_default_firefox_profile() {
+  static QString res("default");
+  QStringList profiles = firefox_profiles().first;
+  if (!profiles.empty() && !profiles.contains(res)) {
+    res = *profiles.begin();
+  }
+  return res;
 }
 ////////////////////////////////////////////////////////////////////////////
+const QString& subutai_e2e_id(const QString& current_browser){
+  static QString res = "";
+  if (current_browser == "Chrome") {
+    res = "ffddnlbamkjlbngpekmdpnoccckapcnh";
+  } else if (current_browser == "Firefox") {
+    res = "jid1-KejrJUY3AaPCkZ";
+  }
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
+static QString application_branch_global;
+
 const QString& set_application_branch(QString branch) {
-  static QString application_branch(current_branch_name());
+  application_branch_global = current_branch_name();
   if (branch == "production" ||
       branch == "stage" ||
       branch == "development") {
-    application_branch = branch;
+    application_branch_global = branch;
   }
-  return application_branch;
+  return application_branch_global;
+}
+
+const QString& current_branch_name_with_changes() {
+  if (application_branch_global == "production" ||
+      application_branch_global == "stage" ||
+      application_branch_global == "development") {
+    return application_branch_global;
+  }
+  return current_branch_name();
 }

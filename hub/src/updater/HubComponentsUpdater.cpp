@@ -23,23 +23,27 @@
 #include "updater/UpdaterComponentVagrantVmware.h"
 #include "updater/UpdaterComponentVMware.h"
 #include "updater/UpdaterComponentVagrantVMwareUtility.h"
+#include "updater/UpdaterComponentFirefox.h"
+#include "updater/UpdaterComponentXQuartz.h"
 #include "updater/IUpdaterComponent.h"
 
 
 using namespace update_system;
 
 CHubComponentsUpdater::CHubComponentsUpdater() {
-  IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go,
+  IUpdaterComponent *uc_tray, *uc_p2p, *uc_x2go, *uc_firefox,
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_vagrant_parallels,
           *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box,
-          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility;
+          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility, *uc_xquartz;
+
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
   uc_x2go = new CUpdaterComponentX2GO;
   uc_vagrant = new CUpdaterComponentVAGRANT;
   uc_oracle_virtualbox = new CUpdaterComponentVIRTUALBOX;
   uc_chrome = new CUpdaterComponentCHROME;
+  uc_firefox = new CUpdaterComponentFIREFOX;
   uc_e2e = new CUpdaterComponentE2E;
   uc_vagrant_subutai = new CUpdaterComponentVAGRANT_SUBUTAI;
   uc_vagrant_vbguest = new CUpdaterComponentVAGRANT_VBGUEST;
@@ -49,13 +53,14 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_vmware = new CUpdaterComponentVAGRANT_VMWARE;
   uc_hypervisor_vmware = new CUpdaterComponentVMware;
   uc_vagrant_vmware_utility = new CUpdaterComponentVagrantVMwareUtility;
+  uc_xquartz = new CUpdaterComponentXQuartz;
 
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
                               uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
-                              uc_vagrant_vmware_utility, NULL};
+                              uc_vagrant_vmware_utility, uc_xquartz, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -63,6 +68,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT] = CUpdaterComponentItem(uc_vagrant);
   m_dct_components[IUpdaterComponent::ORACLE_VIRTUALBOX] = CUpdaterComponentItem(uc_oracle_virtualbox);
   m_dct_components[IUpdaterComponent::CHROME] = CUpdaterComponentItem(uc_chrome);
+  m_dct_components[IUpdaterComponent::FIREFOX] = CUpdaterComponentItem(uc_firefox);
   m_dct_components[IUpdaterComponent::E2E] = CUpdaterComponentItem(uc_e2e);
   m_dct_components[IUpdaterComponent::VAGRANT_SUBUTAI] = CUpdaterComponentItem(uc_vagrant_subutai);
   m_dct_components[IUpdaterComponent::VAGRANT_VBGUEST] = CUpdaterComponentItem(uc_vagrant_vbguest);
@@ -72,6 +78,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = CUpdaterComponentItem(uc_vagrant_vmware);
   m_dct_components[IUpdaterComponent::VMWARE] = CUpdaterComponentItem(uc_hypervisor_vmware);
   m_dct_components[IUpdaterComponent::VMWARE_UTILITY] = CUpdaterComponentItem(uc_vagrant_vmware_utility);
+  m_dct_components[IUpdaterComponent::XQUARTZ] = CUpdaterComponentItem(uc_xquartz);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -345,6 +352,9 @@ void SilentInstaller::silentInstallation(){
     case CC_CHROME:
         res = QtConcurrent::run(CSystemCallWrapper::install_chrome, m_dir, m_file_name);
         break;
+    case CC_FIREFOX:
+        res = QtConcurrent::run(CSystemCallWrapper::install_firefox, m_dir, m_file_name);
+        break;
     case CC_VAGRANT:
         res = QtConcurrent::run(CSystemCallWrapper::install_vagrant, m_dir, m_file_name);
         break;
@@ -361,7 +371,7 @@ void SilentInstaller::silentInstallation(){
         res = QtConcurrent::run(CSystemCallWrapper::install_x2go, m_dir, m_file_name);
         break;
     case CC_E2E:
-        res = QtConcurrent::run(CSystemCallWrapper::install_e2e);
+        res = QtConcurrent::run(CSystemCallWrapper::install_e2e, m_dir, m_file_name);
         break;
     case CC_VAGRANT_SUBUTAI:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
@@ -380,6 +390,9 @@ void SilentInstaller::silentInstallation(){
         break;
     case CC_VAGRANT_PARALLELS:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
+        break;
+    case CC_XQUARTZ:
+        res = QtConcurrent::run(CSystemCallWrapper::install_xquartz, m_dir, m_file_name);
         break;
     default:
         break;
@@ -458,6 +471,9 @@ void SilentUninstaller::silentUninstallation() {
   case CC_CHROME:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_chrome, m_dir, m_file_name);
     break;
+  case CC_FIREFOX:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_firefox, m_dir, m_file_name);
+    break;
   case CC_VB:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_oracle_virtualbox, m_dir, m_file_name);
     break;
@@ -466,6 +482,9 @@ void SilentUninstaller::silentUninstallation() {
     break;
   case CC_VMWARE_UTILITY:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_vmware_utility, m_dir, m_file_name);
+    break;
+  case CC_XQUARTZ:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_xquartz);
     break;
   default:
     break;

@@ -1,5 +1,6 @@
 #include "Environment.h"
 #include "OsBranchConsts.h"
+#include "SystemCallWrapper.h"
 #include <QStorageInfo>
 #include <thread>
 
@@ -34,7 +35,7 @@ unsigned int Environment::ramSize() {
              << " free: "
              << (int) (info.freeram * info.mem_unit / (1024 * 1024));
 
-    return (int) (info.freeram * info.mem_unit / (1024 * 1024)); //in MB
+    return (int) (info.totalram * info.mem_unit / (1024 * 1024)); //in MB
   }
 
   return 0; // if can't get ram info
@@ -53,7 +54,7 @@ unsigned int Environment::ramSize() {
            << " free: "
            << (float)statex.ullAvailPhys/(1024*1024);
 
-  return (float)statex.ullAvailPhys/(1024*1024); // in MB
+  return (float)statex.ullTotalPhys/(1024*1024); // in MB
 }
 #endif
 
@@ -83,15 +84,20 @@ unsigned int Environment::numCpu() {
   return n_cpu;
 }
 
+// Will be implemented get disk size by Hypervisor disk storage path.
 unsigned int Environment::diskSize() {
-  QStorageInfo storage = QStorageInfo::root();
+  // On Virtualbox MAXIMUM Virtual Disk size is 2 TB.
+  QStorageInfo storage;
+  static QString provider = "virtualbox"; // will be implemented after multi hypervisor support
+  QString path = CSystemCallWrapper::get_virtualbox_vm_storage();
+  storage.setPath(path);
   qDebug() << storage.rootPath();
   if (storage.isReadOnly())
       qDebug() << "isReadOnly:" << storage.isReadOnly();
 
   qDebug() << "name:" << storage.name();
   qDebug() << "fileSystemType:" << storage.fileSystemType();
-  qDebug() << "size:" << storage.bytesTotal()/1000/1000 << "MB";
-  qDebug() << "availableSize:" << storage.bytesAvailable()/1000/1000 << "MB";
-  return storage.bytesAvailable()/1000/1000/1000;
+  qDebug() << "size:" << storage.bytesTotal()/1024/1024/1024 << "GB";
+  qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024/1024 << "GB";
+  return storage.bytesTotal()/1024/1024/1024;
 }

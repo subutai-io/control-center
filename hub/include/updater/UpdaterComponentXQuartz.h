@@ -1,19 +1,17 @@
-#ifndef UPDATERCOMPONENTE2E_H
-#define UPDATERCOMPONENTE2E_H
-
-#endif  // UPDATERCOMPONENTE2E_H
+#ifndef UPDATERCOMPONENTXQUARTZ_H
+#define UPDATERCOMPONENTXQUARTZ_H
 #include "updater/IUpdaterComponent.h"
 
 namespace update_system {
 /**
- * @brief The CUpdaterComponentE2E class implements IUpdaterComponent. Works
- * with subutai e2e plugin
+ * @brief The CUpdaterComponentXQuartz class implements IUpdaterComponent. Works
+ * with XQuartz
  */
-class CUpdaterComponentE2E : public IUpdaterComponent {
+class CUpdaterComponentXQuartz : public IUpdaterComponent {
   // IUpdaterComponent interface
  public:
-  CUpdaterComponentE2E();
-  virtual ~CUpdaterComponentE2E();
+  CUpdaterComponentXQuartz();
+  virtual ~CUpdaterComponentXQuartz();
 
   // IUpdaterComponent interface
  protected:
@@ -26,6 +24,7 @@ class CUpdaterComponentE2E : public IUpdaterComponent {
   virtual void uninstall_post_internal(bool success);
 
  private:
-  QString download_e2e_path();
+  QString download_xquartz_path();
 };
 }  // namespace update_system
+#endif // UPDATERCOMPONENTXQUARTZ_H

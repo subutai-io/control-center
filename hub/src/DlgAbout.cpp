@@ -17,11 +17,6 @@ using namespace update_system;
 QString get_p2p_version() {
   QString p2p_version = "";
   CSystemCallWrapper::p2p_version(p2p_version);
-
-  p2p_version = p2p_version.remove("p2p");
-  p2p_version = p2p_version.remove("version");
-  p2p_version = p2p_version.remove("  ");
-
   return p2p_version;
 }
 
@@ -46,6 +41,18 @@ QString get_oracle_virtualbox_version() {
 QString get_chrome_version() {
   QString version = "";
   CSystemCallWrapper::chrome_version(version);
+  return version;
+}
+
+QString get_firefox_version() {
+  QString version = "";
+  CSystemCallWrapper::firefox_version(version);
+  return version;
+}
+
+QString get_safari_version() {
+  QString version = "";
+  CSystemCallWrapper::safari_version(version);
   return version;
 }
 
@@ -95,6 +102,20 @@ QString get_hypervisor_vmware_version() {
 QString get_vagrant_vmware_utility_version() {
   QString version = "";
   CSystemCallWrapper::vmware_utility_version(version);
+
+  return version;
+}
+
+QString get_edge_version() {
+  QString version = "";
+  CSystemCallWrapper::edge_version(version);
+
+  return version;
+}
+
+QString get_xquartz_version() {
+  QString version = "";
+  CSystemCallWrapper::xquartz_version(version);
 
   return version;
 }
@@ -243,9 +264,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
 
   set_visible_chrome("Chrome" == current_browser);
   set_visible_firefox("Firefox" == current_browser);
+  set_visible_edge("Edge" == current_browser);
+  set_visible_safari("Safari" == current_browser);
+  set_visible_xquartz(OS_MAC == CURRENT_OS);
 
-  QLabel* ilbls[] = {this->ui->lbl_chrome_info_icon,
-                     this->ui->lbl_p2p_info_icon,
+  QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
                      this->ui->lbl_tray_info_icon,
                      this->ui->lbl_x2go_info_icon,
                      this->ui->lbl_vagrant_info_icon,
@@ -255,6 +278,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_subutai_plugin_info_icon,
                      this->ui->lbl_vbguest_plugin_info_icon,
                      this->ui->lbl_subutai_box_info_icon,
+                     this->ui->lbl_firefox_info_icon,
+                     this->ui->lbl_edge_info_icon,
+                     this->ui->lbl_safari_info_icon,
+                     this->ui->lbl_xquartz_info_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -265,52 +292,63 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     (*i)->setTextFormat(Qt::RichText);
   }
 
-  this->ui->lbl_tray_info_icon->setToolTip(
+  this->ui->lbl_tray_info_icon->setToolTip(tr(
       "<nobr>Subutai Control Center is a tray application<br>"
-      "that is meant to ease bazaar usage.");
+      "that is meant to ease bazaar usage."));
 
-  this->ui->lbl_p2p_info_icon->setToolTip(
+  this->ui->lbl_p2p_info_icon->setToolTip(tr(
       "<nobr>Subutai P2P is powerful tool that establishes<br>"
-      "connections to peers and environments.");
+      "connections to peers and environments."));
 
-  this->ui->lbl_vagrant_info_icon->setToolTip(
+  this->ui->lbl_vagrant_info_icon->setToolTip(tr(
       "<nobr>Vagrant is a tool for building and<br>"
-      "managing virtual machine environments.");
+      "managing virtual machine environments."));
 
-  this->ui->lbl_e2e_info_icon->setToolTip(
+  this->ui->lbl_e2e_info_icon->setToolTip(tr(
       "<nobr>Subutai E2E is an extension for browser which<br>"
-      "helps to store and manage PGP-keys.");
+      "helps to store and manage PGP-keys."));
 
-  this->ui->lbl_vbox_info_icon->setToolTip(
+  this->ui->lbl_vbox_info_icon->setToolTip(tr(
       "<nobr>Oracle VirtualBox is hypervisor for<br>"
-      "managing virtual machine environments");
+      "managing virtual machine environments"));
 
-  this->ui->lbl_chrome_info_icon->setToolTip(
-      "Google Chrome is a web browser used by default.");
+  this->ui->lbl_chrome_info_icon->setToolTip(tr(
+      "Google Chrome is a web browser used by default."));
 
-  this->ui->lbl_subutai_box_info_icon->setToolTip(
-      "Subutai Box is the resource box for peer creation.");
+  this->ui->lbl_firefox_info_icon->setToolTip(tr(
+      "Mozilla Firefox is a web browser used by default."));
 
-  this->ui->lbl_subutai_plugin_info_icon->setToolTip(
+  this->ui->lbl_edge_info_icon->setToolTip(tr(
+      "Microsoft Edge is web browser used by default."));
+
+  this->ui->lbl_safari_info_icon->setToolTip(tr(
+      "Safari is web browser used by default."));
+
+  this->ui->lbl_subutai_box_info_icon->setToolTip(tr(
+      "Subutai Box is the resource box for peer creation."));
+
+  this->ui->lbl_subutai_plugin_info_icon->setToolTip(tr(
       "<nobr>The Vagrant Subutai plugin sets up<br>"
-      "peer parameters, like disk size and RAM.");
+      "peer parameters, like disk size and RAM."));
 
-  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(
+  this->ui->lbl_vbguest_plugin_info_icon->setToolTip(tr(
       "<nobr>The Vagrant VirtualBox plugin sets<br>"
-      "VirtualBox as your hypervisor for Vagrant.");
+      "VirtualBox as your hypervisor for Vagrant."));
 
-  this->ui->lbl_x2go_info_icon->setToolTip(
-      "X2Go client enables remote desktop access.");
+  this->ui->lbl_x2go_info_icon->setToolTip(tr(
+      "X2Go client enables remote desktop access."));
 
-  this->ui->lbl_firefox_info_icon->setToolTip(
-      "Mozilla Firefox is a web browser used by default.");
+  this->ui->lbl_xquartz_info_icon->setToolTip(tr(
+      "XQuartz is a tool for X2Go OS X client to use the OS X X11 server"));
 
   QLabel* lbls[] = {this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_tray_version_val,
                     this->ui->lbl_x2go_version_val,
-                    this->ui->lbl_vagrant_version_val,
+                    this->ui->lbl_firefox_version_val,
                     this->ui->lbl_chrome_version_val,
+                    this->ui->lbl_edge_version_val,
+                    this->ui->lbl_safari_version_val,
                     this->ui->lbl_subutai_e2e_val,
                     this->ui->lbl_subutai_plugin_version_val,
                     this->ui->lbl_vbguest_plugin_version_val,
@@ -318,6 +356,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_provider_libvirt_version,
                     this->ui->lbl_provider_parallels_version,
                     this->ui->lbl_provider_vmware_version,
+                    this->ui->lbl_xquartz_version,
                     nullptr};
 
   for (QLabel** i = lbls; *i; ++i) {
@@ -340,6 +379,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_oracle_virtualbox_update_released);
   connect(ui->btn_chrome, &QPushButton::released, this,
           &DlgAbout::btn_chrome_update_release);
+  connect(ui->btn_firefox, &QPushButton::released, this,
+          &DlgAbout::btn_firefox_update_released);
   connect(ui->btn_subutai_e2e, &QPushButton::released, this,
           &DlgAbout::btn_e2e_update_released);
   connect(ui->btn_subutai_plugin_update, &QPushButton::released, this,
@@ -348,6 +389,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_vbguest_plugin_update_released);
   connect(ui->btn_subutai_box, &QPushButton::released, this,
           &DlgAbout::btn_subutai_box_update_released);
+  connect(ui->btn_xquartz_update, &QPushButton::released, this,
+          &DlgAbout::btn_xquartz_update_released);
   connect(ui->btn_uninstall_components, &QPushButton::released, this,
           &DlgAbout::btn_uninstall_components);
   connect(ui->btn_close, &QPushButton::released, this,
@@ -379,37 +422,70 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &CHubComponentsUpdater::uninstalling_finished, this,
           &DlgAbout::uninstall_finished);
 
-  m_dct_fpb[IUpdaterComponent::P2P] = {ui->lbl_p2p_version_val, ui->pb_p2p,
-                                       ui->cb_p2p, ui->btn_p2p_update,
-                                       get_p2p_version};
+  m_dct_fpb[IUpdaterComponent::P2P] = {
+    ui->lbl_p2p_version_val, ui->pb_p2p,
+    ui->cb_p2p, ui->btn_p2p_update,
+    get_p2p_version
+  };
 
-  m_dct_fpb[IUpdaterComponent::TRAY] = {ui->lbl_tray_version_val, ui->pb_tray,
-                                        NULL, ui->btn_tray_update, NULL};
+  m_dct_fpb[IUpdaterComponent::TRAY] = {
+    ui->lbl_tray_version_val, ui->pb_tray,
+    NULL, ui->btn_tray_update, NULL
+  };
 
-  m_dct_fpb[IUpdaterComponent::X2GO] = {ui->lbl_x2go_version_val, ui->pb_x2go,
-                                        ui->cb_x2goclient, ui->btn_x2go_update,
-                                        get_x2go_version};
+  m_dct_fpb[IUpdaterComponent::X2GO] = {
+    ui->lbl_x2go_version_val, ui->pb_x2go,
+    ui->cb_x2goclient, ui->btn_x2go_update,
+    get_x2go_version
+  };
 
   m_dct_fpb[IUpdaterComponent::VAGRANT] = {
-      ui->lbl_vagrant_version_val, ui->pb_vagrant, ui->cb_vagrant,
-      ui->btn_vagrant_update, get_vagrant_version};
+    ui->lbl_vagrant_version_val, ui->pb_vagrant,
+    ui->cb_vagrant, ui->btn_vagrant_update,
+    get_vagrant_version
+  };
 
-  m_dct_fpb[IUpdaterComponent::CHROME] = {ui->lbl_chrome_version_val,
-                                          ui->pb_chrome, ui->cb_chrome,
-                                          ui->btn_chrome, get_chrome_version};
+  m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {
+    ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox,
+    ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
+    get_oracle_virtualbox_version
+  };
 
-  m_dct_fpb[IUpdaterComponent::E2E] = {ui->lbl_subutai_e2e_val, ui->pb_e2e,
-                                       ui->cb_subutai_e2e, ui->btn_subutai_e2e,
-                                       get_e2e_version};
+  m_dct_fpb[IUpdaterComponent::CHROME] = {
+    ui->lbl_chrome_version_val, ui->pb_chrome,
+    ui->cb_chrome, ui->btn_chrome,
+    get_chrome_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::FIREFOX] = {
+    ui->lbl_firefox_version_val, ui->pb_firefox,
+    ui->cb_firefox, ui->btn_firefox,
+    get_firefox_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::E2E] = {
+    ui->lbl_subutai_e2e_val, ui->pb_e2e,
+    ui->cb_subutai_e2e, ui->btn_subutai_e2e,
+    get_e2e_version
+  };
 
   m_dct_fpb[IUpdaterComponent::VAGRANT_SUBUTAI] = {
-      ui->lbl_subutai_plugin_version_val, ui->pb_subutai_plugin,
-      ui->cb_vagrant_subtuai_plugin, ui->btn_subutai_plugin_update,
-      get_vagrant_subutai_version};
+    ui->lbl_subutai_plugin_version_val, ui->pb_subutai_plugin,
+    ui->cb_vagrant_subtuai_plugin, ui->btn_subutai_plugin_update,
+    get_vagrant_subutai_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {
+    ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin,
+    ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update,
+    get_vagrant_vbguest_version
+  };
 
   m_dct_fpb[IUpdaterComponent::SUBUTAI_BOX] = {
-      ui->lbl_subutai_box_version, ui->pb_subutai_box, ui->cb_vagrant_box,
-      ui->btn_subutai_box, get_subutai_box_version};
+    ui->lbl_subutai_box_version, ui->pb_subutai_box,
+    ui->cb_vagrant_box, ui->btn_subutai_box,
+    get_subutai_box_version
+  };
 
   m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
     ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt, ui->cb_provider_libvirt,
@@ -429,6 +505,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::VMWARE] = {
     ui->lbl_hypervisor_vmware_version, ui->pb_hypervisor_vmware, ui->cb_hypervisor_vmware,
     ui->btn_hypervisor_vmware_update, get_hypervisor_vmware_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::XQUARTZ] = {
+    ui->lbl_xquartz_version_val, ui->pb_xquartz, ui->cb_xquartz,
+    ui->btn_xquartz_update, get_xquartz_version
   };
 
   // hide providers and add provider to components dictionary
@@ -481,15 +562,52 @@ void DlgAbout::set_visible_chrome(bool value) {
 
 void DlgAbout::set_visible_firefox(bool value) {
   ui->btn_firefox->setVisible(value);
-  ui->pb_firefox->setVisible(value);
   ui->lbl_firefox_version->setVisible(value);
   ui->lbl_firefox_info_icon->setVisible(value);
   ui->lbl_firefox_version_val->setVisible(value);
   ui->lbl_spacer_firefox->setVisible(value);
+  ui->pb_firefox->setVisible(value);
   ui->cb_firefox->setVisible(value);
   this->adjustSize();
 }
 
+void DlgAbout::set_visible_edge(bool value) {
+  ui->lbl_edge->setVisible(value);
+  ui->lbl_edge_info_icon->setVisible(value);
+  ui->lbl_edge_version_val->setVisible(value);
+  ui->lbl_spacer_edge->setVisible(value);
+  if (value) {
+    set_visible_e2e(false);
+  }
+  this->adjustSize();
+}
+
+void DlgAbout::set_visible_safari(bool value) {
+  ui->lbl_safari->setVisible(value);
+  ui->lbl_safari_info_icon->setVisible(value);
+  ui->lbl_safari_version_val->setVisible(value);
+  ui->lbl_spacer_safari->setVisible(value);
+  this->adjustSize();
+}
+
+void DlgAbout::set_visible_e2e(bool value) {
+  ui->btn_subutai_e2e->setVisible(value);
+  ui->cb_subutai_e2e->setVisible(value);
+  ui->lbl_e2e_info_icon->setVisible(value);
+  ui->lbl_e2e_version->setVisible(value);
+  ui->lbl_spacer_e2e->setVisible(value);
+  ui->lbl_subutai_e2e_val->setVisible(value);
+  ui->pb_e2e->setVisible(value);
+}
+
+void DlgAbout::set_visible_xquartz(bool value) {
+  ui->btn_xquartz_update->setVisible(value);
+  ui->lbl_xquartz_info_icon->setVisible(value);
+  ui->lbl_xquartz_version->setVisible(value);
+  ui->lbl_xquartz_version_val->setVisible(value);
+  ui->lbl_spacer_xquartz->setVisible(value);;
+  ui->pb_xquartz->setVisible(value);
+}
 DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -502,6 +620,12 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::initialization_finished);
   connect(di, &DlgAboutInitializer::got_chrome_version, this,
           &DlgAbout::got_chrome_version_sl);
+  connect(di, &DlgAboutInitializer::got_firefox_version, this,
+          &DlgAbout::got_firefox_version_sl);
+  connect(di, &DlgAboutInitializer::got_edge_version, this,
+          &DlgAbout::got_edge_version_sl);
+  connect(di, &DlgAboutInitializer::got_safari_version, this,
+          &DlgAbout::got_safari_version_sl);
   connect(di, &DlgAboutInitializer::got_p2p_version, this,
           &DlgAbout::got_p2p_version_sl);
   connect(di, &DlgAboutInitializer::got_x2go_version, this,
@@ -524,6 +648,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_hypervisor_vmware_version_sl);
   connect(di, &DlgAboutInitializer::got_vagrant_vmware_utility_version, this,
           &DlgAbout::got_vagrant_vmware_utility_version_sl);
+  connect(di, &DlgAboutInitializer::got_xquartz_version, this,
+          &DlgAbout::got_xquartz_version_sl);
   connect(di, &DlgAboutInitializer::update_available, this,
           &DlgAbout::update_available_sl);
   connect(di, &DlgAboutInitializer::init_progress, this,
@@ -591,6 +717,15 @@ void DlgAbout::btn_chrome_update_release() {
     CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::CHROME);
 }
 ////////////////////////////////////////////////////////////////////////////
+void DlgAbout::btn_firefox_update_released() {
+  ui->pb_firefox->setHidden(false);
+  ui->btn_firefox->setEnabled(false);
+  if (ui->lbl_firefox_version_val->text() == "undefined")
+    CHubComponentsUpdater::Instance()->install(IUpdaterComponent::FIREFOX);
+  else
+    CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::FIREFOX);
+}
+////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::btn_e2e_update_released() {
   ui->pb_e2e->setHidden(false);
@@ -638,6 +773,16 @@ void DlgAbout::btn_subutai_box_update_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::btn_xquartz_update_released() {
+  ui->pb_xquartz->setHidden(false);
+  ui->btn_xquartz_update->setEnabled(false);
+  if (ui->lbl_xquartz_version_val->text() == "undefined") {
+    CHubComponentsUpdater::Instance()->install(IUpdaterComponent::XQUARTZ);
+  } else {
+    CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::XQUARTZ);
+  }
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     it->second.btn->setEnabled(false);
@@ -790,13 +935,13 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   if (success) {
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setVisible(false);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(true);
     }
   } else {
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setEnabled(true);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(false);
     }
   }
@@ -837,17 +982,48 @@ void DlgAbout::got_p2p_version_sl(QString version) {
 
 void DlgAbout::got_chrome_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::CHROME) != this->m_dct_fpb.end()) {
-    ui->lbl_chrome_version_val->setText(version);
-    if (version == "undefined") {
-      set_hidden_pb(IUpdaterComponent::CHROME);
-      ui->btn_chrome->setHidden(false);
-      ui->cb_chrome->setVisible(false);
-      ui->btn_chrome->setText(tr("Install"));
-      ui->btn_chrome->activateWindow();
-    } else {
-      ui->btn_chrome->setText(tr("Update"));
+    if (CSettingsManager::Instance().default_browser() == "Chrome") {
+      ui->lbl_chrome_version_val->setText(version);
+      if (version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::CHROME);
+        ui->btn_chrome->setHidden(false);
+        ui->cb_chrome->setVisible(false);
+        ui->btn_chrome->setText(tr("Install"));
+        ui->btn_chrome->activateWindow();
+      } else {
+        ui->btn_chrome->setText(tr("Update"));
+      }
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::got_firefox_version_sl(QString version) {
+  if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    ui->lbl_firefox_version_val->setText(version);
+    if (version == "undefined") {
+      set_hidden_pb(IUpdaterComponent::FIREFOX);
+      ui->btn_firefox->setHidden(false);
+      ui->cb_firefox->setVisible(false);
+      ui->btn_firefox->setText(tr("Install"));
+      ui->btn_firefox->activateWindow();
+    } else {
+      ui->btn_firefox->setText(tr("Update"));
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::got_edge_version_sl(QString version) {
+  ui->lbl_edge_version_val->setText(version);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void DlgAbout::got_safari_version_sl(QString version) {
+  ui->lbl_safari_version_val->setText(version);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -855,17 +1031,21 @@ void DlgAbout::got_chrome_version_sl(QString version) {
 void DlgAbout::got_e2e_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::E2E) != this->m_dct_fpb.end()) {
     ui->lbl_subutai_e2e_val->setText(version);
-    if (version == "undefined") {
-      set_hidden_pb(IUpdaterComponent::E2E);
-      ui->btn_subutai_e2e->setHidden(false);
-      ui->cb_subutai_e2e->setVisible(false);
-      ui->btn_subutai_e2e->setText(tr("Install"));
-      ui->cb_subutai_e2e->setEnabled(true);
-    } else if(version == "No supported browser is available") {
-      ui->cb_subutai_e2e->setEnabled(false);
+    if (current_browser != "Edge") {
+      if (version == "undefined") {
+        set_hidden_pb(IUpdaterComponent::E2E);
+        ui->btn_subutai_e2e->setHidden(false);
+        ui->cb_subutai_e2e->setVisible(false);
+        ui->btn_subutai_e2e->setText(tr("Install"));
+        ui->cb_subutai_e2e->setEnabled(true);
+      } else if(version == "No supported browser is available") {
+        ui->cb_subutai_e2e->setEnabled(false);
+      } else {
+        ui->btn_subutai_e2e->setText(tr("Update"));
+        ui->cb_subutai_e2e->setEnabled(true);
+      }
     } else {
-      ui->btn_subutai_e2e->setText(tr("Update"));
-      ui->cb_subutai_e2e->setEnabled(true);
+      ui->btn_subutai_e2e->setVisible(false);
     }
   }
 }
@@ -1059,6 +1239,19 @@ void DlgAbout::got_provider_version_sl(QString version) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+void DlgAbout::got_xquartz_version_sl(QString version) {
+  if (OS_MAC != CURRENT_OS) return;
+  ui->lbl_xquartz_version_val->setText(version);
+  if (version == "undefined") {
+    set_hidden_pb(IUpdaterComponent::XQUARTZ);
+    ui->btn_xquartz_update->setHidden(false);
+    ui->cb_xquartz->setVisible(false);
+    ui->btn_xquartz_update->setText(tr("Install"));
+    ui->btn_xquartz_update->activateWindow();
+  } else
+    ui->btn_xquartz_update->setText(tr("Update"));
+}
+////////////////////////////////////////////////////////////////////////////
 void DlgAbout::set_hidden_pb(const QString& component_id) {
   if (CHubComponentsUpdater::Instance()->is_in_progress(component_id)) {
     m_dct_fpb[component_id].pb->setVisible(true);
@@ -1071,15 +1264,18 @@ void DlgAbout::set_hidden_pb(const QString& component_id) {
 void DlgAbout::update_available_sl(const QString& component_id,
                                    bool available) {
   bool update_available = available;
-
+  if (component_id == IUpdaterComponent::XQUARTZ
+      && OS_MAC != CURRENT_OS) {
+    return;
+  }
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) {
     return;
   }
   // update available component
   if (update_available) {
     qInfo() << "update available: " << component_id;
-    m_dct_fpb[component_id].btn->setVisible(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
+      m_dct_fpb[component_id].btn->setVisible(true);
       m_dct_fpb[component_id].cb->setHidden(true);
       m_dct_fpb[component_id].cb->setChecked(false);
     }
@@ -1088,6 +1284,22 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].btn->setHidden(true);
     m_dct_fpb[component_id].cb->setVisible(true);
   }
+
+  if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
   update_available =
       (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
        available);
@@ -1106,6 +1318,21 @@ void DlgAboutInitializer::do_initialization() {
     QString chrome_version;
     CSystemCallWrapper::chrome_version(chrome_version);
     emit got_chrome_version(chrome_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString firefox_version;
+    CSystemCallWrapper::firefox_version(firefox_version);
+    emit got_firefox_version(firefox_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString edge_version;
+    CSystemCallWrapper::edge_version(edge_version);
+    emit got_edge_version(edge_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+    QString safari_version;
+    CSystemCallWrapper::safari_version(safari_version);
+    emit got_safari_version(safari_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString x2go_version = get_x2go_version();
@@ -1148,14 +1375,23 @@ void DlgAboutInitializer::do_initialization() {
     emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
+    if (OS_MAC == CURRENT_OS) {
+      QString xquartz_version = get_xquartz_version();
+      emit got_xquartz_version(xquartz_version);
+    }
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+
     std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
                      IUpdaterComponent::X2GO,
                      IUpdaterComponent::E2E,
                      IUpdaterComponent::VAGRANT,
                      IUpdaterComponent::CHROME,
+                     IUpdaterComponent::FIREFOX,
                      IUpdaterComponent::VAGRANT_SUBUTAI,
-                     IUpdaterComponent::SUBUTAI_BOX
+                     IUpdaterComponent::SUBUTAI_BOX,
+                     IUpdaterComponent::XQUARTZ
                      };
 
     switch(VagrantProvider::Instance()->CurrentProvider()) {
@@ -1191,7 +1427,9 @@ void DlgAboutInitializer::do_initialization() {
     }
 
     for (int i = 0; i < (int) uas.size(); i++) {
-      emit update_available(uas.at(i), ua.at(i));
+      if (uas[i] != IUpdaterComponent::E2E || CSettingsManager::Instance().default_browser() != "Edge") {
+        emit update_available(uas[i], ua[i]);
+      }
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s",
@@ -1219,7 +1457,7 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
     m_dct_fpb[component_id].pb->setHidden(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setHidden(true);
-      m_dct_fpb[component_id].cb->setChecked(true);
+      m_dct_fpb[component_id].cb->setChecked(false);
       m_dct_fpb[component_id].cb->setVisible(true);
     }
   } else {
@@ -1246,6 +1484,7 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
     m_dct_fpb[component_id].btn->setEnabled(true);
     m_dct_fpb[component_id].btn->setText(tr("Install"));
   }
+  m_dct_fpb[component_id].cb->setChecked(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].pb->setVisible(false);

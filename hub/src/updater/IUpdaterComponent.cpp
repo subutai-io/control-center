@@ -34,6 +34,7 @@ const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::VMWARE = "vmware";
 const QString IUpdaterComponent::VMWARE_UTILITY = "vmware_utility";
 const QString IUpdaterComponent::CHROME = "Chrome";
+const QString IUpdaterComponent::FIREFOX = "Firefox";
 const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
 const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
@@ -41,6 +42,7 @@ const QString IUpdaterComponent::VAGRANT_LIBVIRT = "vagrant_libvirt";
 const QString IUpdaterComponent::VAGRANT_PARALLELS = "vagrant_parallels";
 const QString IUpdaterComponent::VAGRANT_VMWARE_DESKTOP = "vagrant_vmware_desktop";
 const QString IUpdaterComponent::SUBUTAI_BOX = "subutai_box";
+const QString IUpdaterComponent::XQUARTZ = "xquartz";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -51,10 +53,12 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {VAGRANT, "Vagrant"},
     {ORACLE_VIRTUALBOX, "Oracle Virtualbox"},
     {CHROME, "Google Chrome"},
+    {FIREFOX, "Mozilla Firefox"},
     {E2E, "Subutai E2E"},
     {VAGRANT_SUBUTAI, "Subutai plugin"},
     {VAGRANT_VBGUEST, "VirtualBox plugin"},
-    {SUBUTAI_BOX, "Subutai box"}
+    {SUBUTAI_BOX, "Subutai box"},
+    {XQUARTZ, "XQuartz"}
   };
   static const QString def = "";
 
@@ -71,6 +75,7 @@ IUpdaterComponent::component_id_changelog(const QString& id) {
     {VAGRANT, "https://github.com/hashicorp/vagrant/blob/master/CHANGELOG.md"},
     {ORACLE_VIRTUALBOX, "https://www.virtualbox.org/wiki/Changelog"},
     {CHROME, "https://chromereleases.googleblog.com/"},
+    {FIREFOX, "https://mozilla.org/en-US/firefox/releases/"},
     {E2E, "https://github.com/subutai-io/browser-plugins/releases/latest"},
     {VAGRANT_SUBUTAI, "https://github.com/subutai-io/vagrant/blob/master/CHANGELOG.md"},
     {VAGRANT_VBGUEST, "https://github.com/dotless-de/vagrant-vbguest/blob/master/CHANGELOG.md"},
@@ -91,9 +96,11 @@ IUpdaterComponent::component_id_to_notification_action(const QString& id) {
     {VAGRANT, DlgNotification::N_ABOUT},
     {ORACLE_VIRTUALBOX, DlgNotification::N_ABOUT},
     {CHROME, DlgNotification::N_ABOUT},
+    {FIREFOX, DlgNotification::N_ABOUT},
     {VAGRANT_SUBUTAI, DlgNotification::N_ABOUT},
     {VAGRANT_VBGUEST, DlgNotification::N_ABOUT},
-    {SUBUTAI_BOX, DlgNotification::N_ABOUT}
+    {SUBUTAI_BOX, DlgNotification::N_ABOUT},
+    {XQUARTZ, DlgNotification::N_ABOUT}
   };
   return dct.at(id);
 }

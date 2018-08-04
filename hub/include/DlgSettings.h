@@ -57,6 +57,7 @@ private:
   int m_refresh_rh_list_progress_val;
   QString current_browser;
   QString current_chrome_profile;
+  QString current_firefox_profile;
   void rebuild_rh_list_model();
 
 private slots:
@@ -71,6 +72,7 @@ private slots:
   void btn_ssh_keygen_command_released();
   void btn_logs_storage_released();
   void btn_ssh_keys_storage_released();
+  void btn_vm_storage_released();
   void btn_refresh_rh_list_released();
   void btn_vagrant_command_released();
 

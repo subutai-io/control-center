@@ -61,8 +61,12 @@ const QString& vmware_kurjun_package_name();
 const QString& vmware_utility_kurjun_package_name();
 const QString& oracle_virtualbox_kurjun_package_name();
 const QString& chrome_kurjun_package_name();
+const QString& firefox_kurjun_package_name();
+const QString& firefox_subutai_e2e_kurjun_package_name();
+const QString& safari_subutai_e2e_kurjun_package_name();
 const QString& subutai_box_kurjun_package_name(const QString &provider);
 const QString& subutai_box_name();
+const QString& xquartz_kurjun_package_name();
 const QString& p2p_dht_arg();
 const QString& p2p_rest_url();
 
@@ -88,8 +92,11 @@ const QString& default_hypervisor_path();
 const QString& default_default_browser();
 const QString& default_default_chrome_profile();
 const QString& default_chrome_extensions_path();
+const QString& default_default_firefox_profile();
+const QString& default_firefox_extensions_path();
 const QStringList& supported_browsers();
 const std::pair<QStringList, QStringList>& chrome_profiles();
+const std::pair<QStringList, QStringList>& firefox_profiles();
 
 const QString& hub_site();
 const QString& ssh_keygen_cmd_path();
@@ -98,6 +105,7 @@ const QString& scp_cmd_path();
 
 const QString& which_cmd();
 const QString& default_chrome_path();
+const QString& default_firefox_path();
 
 const QString& subutai_command();
 const QString& snap_p2p_path();
@@ -106,6 +114,7 @@ const QString& p2p_package_url();
 const QString& x2goclient_url();
 
 const QString& current_branch_name();
+const QString& current_branch_name_with_changes();
 const QString& branch_name_str();
 const QString& base_interface_name();
 void current_os_info(std::vector<std::pair<QString, QString> >& v);

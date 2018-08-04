@@ -160,34 +160,23 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_command_terminal(const QString &dir,
                                                               const QString &command,
                                                               const QString &name);
-
   static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
-
   static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
-
   static system_call_wrapper_error_t vagrant_box_update(const QString &box, const QString &provider);
-
   static system_call_wrapper_error_t vagrant_box_remove(const QString &box, const QString &provider);
-
   static QString vagrant_fingerprint(const QString &ip);
-
   static bool vagrant_set_password(const QString &ip,
                                    const QString &username,
                                    const QString &old_pass,
                                    const QString &new_pass);
-
   static QString vagrant_status(const QString &dir);
-
   static QString vagrant_ip(const QString &dir);
-
   static QString vagrant_port(const QString &dir);
-
   static system_call_wrapper_error_t vagrant_update_peeros(const QString &port, const QString &peer_name);
-
   static QString vagrant_is_peer_update_available(const QString &ip);
-
   static std::pair<QStringList, system_call_res_t> vagrant_update_information();
-
+  static QString get_virtualbox_vm_storage();
+  static system_call_wrapper_error_t set_virtualbox_vm_storage(const QString &dir);
 
   static bool check_peer_management_components();
 
@@ -240,11 +229,20 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_chrome(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_e2e();
+  static system_call_wrapper_error_t install_firefox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_firefox(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_error_t install_e2e(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_e2e();
 
   static system_call_wrapper_error_t install_e2e_chrome();
   static system_call_wrapper_error_t uninstall_e2e_chrome();
+
+  static system_call_wrapper_error_t install_e2e_firefox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_e2e_firefox();
+
+  static system_call_wrapper_error_t install_e2e_safari(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_e2e_safari();
 
   static system_call_wrapper_error_t install_vagrant_subutai();
 
@@ -252,13 +250,20 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_error_t install_xquartz(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_xquartz();
+
   static void run_linux_script(QStringList args);
 
   static system_call_wrapper_error_t install_libssl();
 
   static QStringList lsb_release();
 
-  static bool chrome_last_section();
+  static bool chrome_last_session();
+
+  static bool firefox_last_session();
+
+  static bool safari_last_session();
 
  // static system_call_res_t chrome_open_link();
 
@@ -276,6 +281,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t generate_ssh_key(const QString &comment,
                                                       const QString &file_path);
+
+  static system_call_wrapper_error_t remove_ssh_key(const QString &key_name);
 
   static system_call_wrapper_error_t is_rh_update_available(bool &available);
   static system_call_wrapper_error_t is_rh_management_update_available(
@@ -312,6 +319,12 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vmware_utility_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t vagrant_plugin_version(QString &version, QString plugin);
+  static system_call_wrapper_error_t subutai_e2e_chrome_version(QString &version);
+  static system_call_wrapper_error_t subutai_e2e_firefox_version(QString &version);
+  static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);
+  static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
+  static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
+  static system_call_wrapper_error_t xquartz_version(QString &version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
@@ -322,6 +335,9 @@ class CSystemCallWrapper {
 
 
   static system_call_wrapper_error_t chrome_version(QString &version);
+  static system_call_wrapper_error_t firefox_version(QString &version);
+  static system_call_wrapper_error_t edge_version(QString &version);
+  static system_call_wrapper_error_t safari_version(QString &version);
   static const QString &virtual_box_version();
   static const QString &scwe_error_to_str(system_call_wrapper_error_t err);
 
@@ -338,6 +354,7 @@ class CSystemCallWrapper {
   };
   static container_ip_and_port container_ip_from_ifconfig_analog(
       const QString &port, const QString &cont_ip, const QString &rh_ip);
+  static bool is_host_reachable(const QString &host);
   // varios system call wrappers for iupdater components
   static system_call_wrapper_error_t tray_post_update(const QString &version);
   static system_call_wrapper_error_t p2p_post_update();

@@ -32,8 +32,10 @@ const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
 const QString CSettingsManager::SM_VMWARE_PATH("VMWARE_Path");
+const QString CSettingsManager::SM_XQUARTZ_PATH("XQUARTZ_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
+const QString CSettingsManager::SM_DEFAULT_FIREFOX_PROFILE("Default_Firefox_Profile");
 
 const QString CSettingsManager::SM_NOTIFICATION_DELAY_SEC("Notification_Delay_Sec");
 const QString CSettingsManager::SM_PLUGIN_PORT("Plugin_Port");
@@ -77,6 +79,7 @@ const QString CSettingsManager::SM_SSH_KEYGEN_CMD("Ssh_Keygen_Cmd");
 
 const QString CSettingsManager::SM_AUTOSTART("Autostart");
 const QString CSettingsManager::SM_CHROME_PATH("ChromePath");
+const QString CSettingsManager::SM_FIREFOX_PATH("FirefoxPath");
 const QString CSettingsManager::SM_SUBUTAI_CMD("SubutaiCmd");
 
 const QString CSettingsManager::EMPTY_STRING("");
@@ -185,8 +188,10 @@ CSettingsManager::CSettingsManager()
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
       m_vmware_path(default_vmware_path()),
+      m_xquartz_path("/Applications/Utilities/XQuartz.app"),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
+      m_default_firefox_profile(default_default_firefox_profile()),
       m_notification_delay_sec(7),
       m_plugin_port(9998),
       m_ssh_path(ssh_cmd_path()),
@@ -222,6 +227,7 @@ CSettingsManager::CSettingsManager()
       m_ssh_keygen_cmd(ssh_keygen_cmd_path()),
       m_autostart(true),
       m_chrome_path(default_chrome_path()),
+      m_firefox_path(default_firefox_path()),
       m_subutai_cmd(subutai_command()) {
   static const char* FOLDERS_TO_CREATE[] = {".ssh", nullptr};
   QString* fields[] = {&m_ssh_keys_storage, nullptr};
@@ -241,7 +247,7 @@ CSettingsManager::CSettingsManager()
     }
   }
 
-  m_branch = current_branch_name();
+  m_branch = current_branch_name_with_changes();
 
   setting_val_t dct_settings_vals[] = {
       // str
@@ -267,9 +273,11 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
       {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
       {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
+      {(void*)&m_firefox_path, SM_FIREFOX_PATH, qvar_to_str},
       {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
       {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
       {(void*)&m_default_chrome_profile, SM_DEFAULT_CHROME_PROFILE, qvar_to_str},
+      {(void*)&m_default_firefox_profile, SM_DEFAULT_FIREFOX_PROFILE, qvar_to_str},
 
       // bool
       {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
@@ -592,6 +600,20 @@ const QString& CSettingsManager::default_chrome_profile() {
   }
   return m_default_chrome_profile;
 }
+/////////////////////////////////////////////////////////////
+
+void CSettingsManager::set_default_firefox_profile(QString fr) {
+  m_default_firefox_profile = fr;
+  m_settings.setValue(SM_DEFAULT_FIREFOX_PROFILE, m_default_firefox_profile);
+}
+
+const QString& CSettingsManager::default_firefox_profile() {
+  QStringList profiles_list = firefox_profiles().first;
+  if (!profiles_list.contains(m_default_firefox_profile)) {
+    set_default_firefox_profile(default_default_firefox_profile());
+  }
+  return m_default_firefox_profile;
+}
 
 const QString& CSettingsManager::current_hypervisor_path() {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
@@ -782,4 +804,6 @@ SET_FIELD_DEF(preferred_notifications_place, SM_PREFERRED_NOTIFICATIONS_PLACE,
               uint32_t)
 SET_FIELD_DEF(ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, QString&)
 SET_FIELD_DEF(chrome_path, SM_CHROME_PATH, QString&)
+SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
+SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 #undef SET_FIELD_DEF

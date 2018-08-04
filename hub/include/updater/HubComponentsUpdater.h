@@ -20,6 +20,7 @@ enum cc_component{
     CC_VAGRANT,
     CC_VB,
     CC_CHROME,
+    CC_FIREFOX,
     CC_E2E,
     CC_VAGRANT_SUBUTAI,
     CC_VAGRANT_LIBVIRT,
@@ -28,7 +29,8 @@ enum cc_component{
     CC_VAGRANT_VBGUEST,
     CC_SUBUTAI_BOX,
     CC_VMWARE,
-    CC_VMWARE_UTILITY
+    CC_VMWARE_UTILITY,
+    CC_XQUARTZ
 };
 
 namespace update_system {

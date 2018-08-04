@@ -625,6 +625,17 @@ void TrayControlWindow::desktop_to_container_triggered(
         DlgNotification::N_ABOUT);
     return;
   }
+  if (OS_MAC == CURRENT_OS) {
+    QString xquartz_version;
+    CSystemCallWrapper::xquartz_version(xquartz_version);
+    if (xquartz_version == "undefined") {
+      CNotificationObserver::Error(
+          QObject::tr("XQuartz is not launchable. Make sure XQuartz is "
+                      "installed from \"Components\"."),
+          DlgNotification::N_ABOUT);
+      return;
+    }
+  }
   CHubController::Instance().desktop_to_container_from_tray(env, cont);
 }
 
@@ -667,7 +678,7 @@ void TrayControlWindow::launch_p2p() {
       CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
                                            "Either change the path setting in Settings or install the daemon if it is not installed. "
                                            "You can get the %1 daemon from <a href=\"%2\">here</a>.").
-                                  arg(current_branch_name()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
+                                  arg(current_branch_name_with_changes()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
   emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
 }
 
@@ -1071,7 +1082,7 @@ void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
   }
   peer_updater->startWork();
 }
-
+// local peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CLocalPeer &peer_info) {
   qDebug() << "update peer button information wih local peer";
@@ -1104,7 +1115,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
   *(peer_button->m_local_peer) = peer_info;
   update_peer_icon(peer_id);
 }
-
+// hub peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CMyPeerInfo &peer_info) {
   qDebug() << "update peer button information wih hub peer";
@@ -1126,7 +1137,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
   *(peer_button->m_hub_peer) = peer_info;
   update_peer_icon(peer_id);
 }
-
+// lan peer
 void TrayControlWindow::update_peer_button(
     const QString &peer_id, const std::pair<QString, QString> &peer_info) {
   qDebug() << "update peer button information wih network peer(rh)";

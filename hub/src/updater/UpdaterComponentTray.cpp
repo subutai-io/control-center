@@ -127,7 +127,7 @@ chue_t CUpdaterComponentTray::install_internal(){
     return CHUE_SUCCESS;
 }
 
-void CUpdaterComponentTray::install_post_interntal(bool success) {
+void CUpdaterComponentTray::install_post_internal(bool success) {
   UNUSED_ARG(success);
   return;
 }

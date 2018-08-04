@@ -104,12 +104,14 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
         CSettingsManager::Instance().ssh_keys_storage());
+  ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
   ui->lbl_hypervisor_command->setText(VagrantProvider::Instance()->CurrentOpenFileTitle());
 
   ui->lbl_err_logs_storage->hide();
   ui->lbl_err_ssh_keys_storage->hide();
+  ui->lbl_err_vm_storage->hide();
   ui->lbl_err_ssh_user->hide();
   ui->lbl_err_p2p_command->hide();
   ui->lbl_err_x2goclient_command->hide();
@@ -192,13 +194,24 @@ DlgSettings::DlgSettings(QWidget* parent)
       }
   }
 
-  std::pair<QStringList, QStringList> profiles_list = chrome_profiles();
-  current_chrome_profile = CSettingsManager::Instance().default_chrome_profile();
-  ui->cb_profile->addItems(profiles_list.second);
-  for (int i = 0; i < profiles_list.first.size(); i++){
-      if (profiles_list.first[i] == current_chrome_profile){
-          ui->cb_profile->setCurrentIndex(i);
+  if (CSettingsManager::Instance().default_browser() == "Chrome") {
+    std::pair<QStringList, QStringList> chrome_profiles_list = chrome_profiles();
+    current_chrome_profile = CSettingsManager::Instance().default_chrome_profile();
+    ui->cb_profile->addItems(chrome_profiles_list.second);
+    for (int i = 0; i < chrome_profiles_list.first.size(); i++){
+      if (chrome_profiles_list.first[i] == current_chrome_profile){
+        ui->cb_profile->setCurrentIndex(i);
       }
+    }
+  } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    QStringList firefox_profiles_list = firefox_profiles().first;
+    current_firefox_profile = CSettingsManager::Instance().default_firefox_profile();
+    ui->cb_profile->addItems(firefox_profiles_list);
+    for (int i = 0; i < firefox_profiles_list.size(); i++) {
+      if (firefox_profiles_list[i] == current_firefox_profile) {
+        ui->cb_profile->setCurrentIndex(i);
+      }
+    }
   }
 
   rebuild_rh_list_model();
@@ -225,6 +238,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_logs_storage_released);
   connect(ui->btn_ssh_keys_storage, &QPushButton::released, this,
           &DlgSettings::btn_ssh_keys_storage_released);
+  connect(ui->btn_vm_storage, &QPushButton::released, this,
+          &DlgSettings::btn_vm_storage_released);
   connect(ui->btn_refresh_rh_list, &QPushButton::released, this,
           &DlgSettings::btn_refresh_rh_list_released);
   connect(ui->lstv_resource_hosts, &QListView::doubleClicked, this,
@@ -309,6 +324,22 @@ void DlgSettings::btn_ok_released() {
   static const QString can_launch_application_msg =
       tr("Cannot launch application");
 
+  if (ui->cb_browser->currentText() == "Edge" &&
+      CSettingsManager::Instance().default_browser() != "Edge") {
+    QString msg =
+        QObject::tr("You have selected Microsoft Edge as a default browser. "
+                    "Due to the <a href='https://docs.microsoft.com/en-us/legal"
+                    "/windows/agreements/microsoft-browser-extension-policy'>"
+                    "Microsoft browser extension policy</a>, Control Center "
+                    "can not install/uninstall the Subutai E2E Plugin. Please, "
+                    "install it manually.");
+    QMessageBox *msgbox =
+        new QMessageBox(QMessageBox::Information, QObject::tr("Attention!"),
+                        msg, QMessageBox::Close);
+    connect(msgbox, &QMessageBox::finished, msgbox, &QMessageBox::deleteLater);
+    msgbox->exec();
+  }
+
   CSettingsManager::Instance().set_default_browser(ui->cb_browser->currentText());
 
   QString profile_name = ui->cb_profile->currentText();
@@ -329,7 +360,7 @@ void DlgSettings::btn_ok_released() {
     CSettingsManager::Instance().set_default_chrome_profile("Default");
   }
 
-  QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage,
+  QLineEdit* le[] = {ui->le_logs_storage,  ui->le_ssh_keys_storage, ui->le_vm_storage,
                      ui->le_p2p_command,   ui->le_ssh_command, ui->le_vagrant_command, ui->le_scp_command};
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
@@ -349,6 +380,11 @@ void DlgSettings::btn_ok_released() {
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_le_empty_validate, 0, empty_validator_msg},
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, is_path_valid, 0, path_invalid_validator_msg},
     {ui->le_ssh_keys_storage, ui->lbl_err_ssh_keys_storage, folder_has_write_permission, 0,
+     folder_permission_validator_msg},
+
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, is_le_empty_validate, 0, empty_validator_msg},
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, is_path_valid, 0, path_invalid_validator_msg},
+    {ui->le_vm_storage, ui->lbl_err_vm_storage, folder_has_write_permission, 0,
      folder_permission_validator_msg},
 
     {ui->le_logs_storage, ui->lbl_err_logs_storage, is_le_empty_validate, 0, empty_validator_msg},
@@ -405,6 +441,14 @@ void DlgSettings::btn_ok_released() {
     lst_failed_validators.push_back(*tmp);
   } while ((++tmp)->fc);
 
+  for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
+    ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
+    lst_failed_validators[i].fc->setFocus();
+    lst_failed_validators[i].lbl_err->show();
+    lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
+                                              arg(lst_failed_validators[i].validator_msg));
+  }
+
   if (!lst_failed_validators.empty()) {
     QMessageBox* msg_box =
         new QMessageBox(QMessageBox::Question, tr("Attention! Wrong settings"),
@@ -416,13 +460,6 @@ void DlgSettings::btn_ok_released() {
     connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
 
     if (msg_box->exec() == QMessageBox::Yes) {
-      for (int8_t i = 0; i < (int8_t)lst_failed_validators.size(); ++i) {
-        ui->tabWidget->setCurrentIndex(lst_failed_validators[i].tab_index);
-        lst_failed_validators[i].fc->setFocus();
-        lst_failed_validators[i].lbl_err->show();
-        lst_failed_validators[i].lbl_err->setText(QString("<font color='red'>%1</font>").
-                                                  arg(lst_failed_validators[i].validator_msg));
-      }
       return;
     }
   }  // if !lst_failed_validators.empty()
@@ -443,6 +480,8 @@ void DlgSettings::btn_ok_released() {
       }
     }
   }
+
+  CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());
@@ -580,7 +619,14 @@ void DlgSettings::btn_ssh_keys_storage_released() {
   ui->le_ssh_keys_storage->setText(dir);
   qDebug() << "Selected directory " << dir;
 }
+////////////////////////////////////////////////////////////////////////////
 
+void DlgSettings::btn_vm_storage_released() {
+  QString dir = QFileDialog::getExistingDirectory(this, tr("VM storage"));
+  if (dir == "") return;
+  ui->le_vm_storage->setText(dir);
+  qDebug() << "Selected directory " << dir;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgSettings::lstv_resource_hosts_double_clicked(QModelIndex ix0) {
