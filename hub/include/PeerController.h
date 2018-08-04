@@ -213,6 +213,8 @@ class StopPeer : public QObject {
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
+            watcher, &QFutureWatcher<system_call_wrapper_error_t>::deleteLater);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -253,6 +255,8 @@ class CommandPeerTerminal : public QObject {
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
+        watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -286,6 +290,8 @@ class DestroyPeer : public QObject {
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
+        watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -319,6 +325,8 @@ class ReloadPeer : public QObject {
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
+        watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -354,6 +362,8 @@ class SetPasswordPeer : public QObject {
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<bool>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<bool>::finished,
+            watcher, &QFutureWatcher<bool>::deleteLater);
   }
  signals:
   void outputReceived(bool res);
@@ -392,6 +402,8 @@ class UpdateVMInformation : public QObject {
         watcher,
         &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
         [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
+        watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
  signals:
   void outputReceived(std::pair<QStringList, system_call_res_t> res);
@@ -427,6 +439,8 @@ public:
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
+            watcher, &QFutureWatcher<system_call_wrapper_error_t>::deleteLater);
   }
 
  private:
