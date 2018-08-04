@@ -130,7 +130,7 @@ void CUpdaterComponentVMware::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentVMware::install_post_interntal(bool success) {
+void CUpdaterComponentVMware::install_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
         tr("Failed to complete VMware installation. Try again later, "

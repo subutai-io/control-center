@@ -105,7 +105,7 @@ void CUpdaterComponentVAGRANT_VMWARE::update_post_action(bool success) {
         DlgNotification::N_NO_ACTION);
   }
 }
-void CUpdaterComponentVAGRANT_VMWARE::install_post_interntal(bool success) {
+void CUpdaterComponentVAGRANT_VMWARE::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
         tr("Failed to install the Vagrant VMware Desktop provider. You may try manually "

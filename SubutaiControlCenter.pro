@@ -77,7 +77,7 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantParallels.cpp \
     hub/src/updater/UpdaterComponentVagrantVmware.cpp \
     hub/src/updater/UpdaterComponentVMware.cpp \
-    hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp
+    hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
     hub/src/updater/UpdaterComponentXQuartz.cpp
 
 

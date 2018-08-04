@@ -126,7 +126,7 @@ void CUpdaterComponentVagrantVMwareUtility::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentVagrantVMwareUtility::install_post_interntal(bool success) {
+void CUpdaterComponentVagrantVMwareUtility::install_post_internal(bool success) {
   if (!success) {
     CNotificationObserver::Instance()->Info(
         tr("Failed to install the Vagrant VMware Utility. You may try manually "
