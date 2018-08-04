@@ -5890,7 +5890,8 @@ bool set_application_autostart_internal<Os2Type<OS_WIN>> (bool start) {
         qCritical() << "Couldn't create startup script.";
         return false;
       }
-      QString script = "Set WshShell = CreateObject(\"WScript.Shell\")\n"
+      QString script = "On Error Resume Next\n"
+                       "Set WshShell = CreateObject(\"WScript.Shell\")\n"
                        "WshShell.Run \"%1\", 0\n"
                        "Set WshShell = Nothing\n";
       vbs_file.write(script.arg(QCoreApplication::applicationFilePath())
