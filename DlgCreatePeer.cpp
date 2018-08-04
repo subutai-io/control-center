@@ -37,6 +37,27 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::ORACLE_VIRTUALBOX);
       });
+
+  // VMware Hypervisor
+  requirement vmware(
+        tr("VMware is not ready"), tr("Checking VMware..."),
+        tr("VMware is not ready. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VMWARE);
+        });
+
+  // Vagrant VMware Utility
+  requirement vagrant_vmware_utility(
+        tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
+        tr("Vagrant VMware Utility is not ready. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VMWARE_UTILITY);
+        });
+
   requirement vagrant(
       tr("Vagrant is not ready"), tr("Checking Vagrant..."),
       tr("Vagrant is not ready. You should install or update it from "
@@ -66,7 +87,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
        });
   // For Libvirt
   requirement libvirt_provider(
-        tr("Libvirt provider is not ready"), tr("Checking Libvirt provider..."),
+        tr("Vagrant Libvirt provider is not ready"), tr("Checking Libvirt provider..."),
         tr("Unable to run the Vagrant Libvirt provider, Make sure that you have it "
            "installed or updated successfully by going to the menu > "
            "Components."),
@@ -77,7 +98,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // For VMware. We use vagrant-vmware-desktop provider.
   // Which works both VMware Fusion and Workstation.
   requirement vmware_provider(
-        tr("VMware provider is not ready"), tr("Checking VMware provider..."),
+        tr("Vagrant VMware provider is not ready"), tr("Checking VMware provider..."),
         tr("Unable to run the Vagrant VMware provider, Make sure that you have it "
            "installed or updated successfully by going to the menu > "
            "Components."),
@@ -118,6 +139,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     break;
   case VagrantProvider::VMWARE_DESKTOP:
     m_requirements_ls.push_back(vmware_provider);
+    m_requirements_ls.push_back(vmware);
+    m_requirements_ls.push_back(vagrant_vmware_utility);
 
     ui->lbl_bridge->hide();
     ui->cmb_bridge->hide();
