@@ -23,6 +23,7 @@
 
 #include "P2PController.h"
 #include "PeerController.h"
+#include "VagrantProvider.h"
 
 namespace Ui {
   class TrayControlWindow;

@@ -23,6 +23,10 @@
 #include "SettingsManager.h"
 #include "LibsshController.h"
 #include "X2GoClient.h"
+#include "VagrantProvider.h"
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -716,71 +720,291 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
   return give_write_permissions_internal<Os2Type<CURRENT_OS> >(dir);
 }
 //////////////////////////////////////////////////////////////////////
-QStringList CSystemCallWrapper::list_interfaces(){
-    /*#1 how to get bridged interfaces
-     * using command VBoxManage get list of all bridged interfaces
-     * */
-    installer_is_busy.lock();
-    qDebug("Getting list of bridged interfaces");
-    QString vb_version;
-    CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-    QStringList interfaces;
-    if (vb_version == "undefined") {
-      installer_is_busy.unlock();
-      return interfaces;
-    }
-    QString path = CSettingsManager::Instance().oracle_virtualbox_path();
-    QDir dir(path);
-    dir.cdUp();
-    path = dir.absolutePath();
-    path += "/VBoxManage";
-    QStringList args;
-    args << "list" << "bridgedifs";
-    qDebug()<<path<<args;
-    system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
-    QString output;
-    for (auto s : res.out) {
-      output += s;
-    }
-    qDebug() << "Listing interfaces result:"
-             << "exit code:" << res.exit_code
-             << "result:" << res.res
-             << "output:" << output;
-    if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
-        return interfaces;
-    //time to parse data
-    QStringList parse_me = res.out;
-    QString flag;
-    QString value;
-    QString last_name;
-    bool reading_value = false;
-    for (auto s : parse_me){
-        flag = value = "";
-        reading_value = false;
-        for (int i=0; i < s.size(); i++){
-            if(s[i]=='\r')continue;
-            if(reading_value){
-                value += s[i];
-                continue;
-            }
-            if(s[i] == ':'){
-                flag = value;
-                value = "";
-                continue;
-            }
-            if(s[i] != ' '){
-                if(value == "" && !flag.isEmpty())
-                    reading_value = true;
-                value+=s[i];
-            }
-        }
-        if(flag == "Name")
-            last_name = value;
-        if(flag == "Status" && value == "Up")
-            interfaces.push_back(last_name);
-    }
+QStringList CSystemCallWrapper::list_interfaces() {
+  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+  QStringList empty;
+
+  switch (provider) {
+  case VagrantProvider::VIRTUALBOX:
+    return virtualbox_interfaces();
+  //case VagrantProvider::LIBVIRT:
+  //  return libvirt_interfaces();
+  //case VagrantProvider::HYPERV:
+  //  return hyperv_interfaces();
+  //case VagrantProvider::PARALLELS:
+  //  return parallels_interfaces();
+  default:
+    return empty;
+  }
+}
+
+QStringList CSystemCallWrapper::parallels_interfaces() {
+  installer_is_busy.lock();
+
+  qDebug("Getting list of bridged interfaces parallels");
+
+  QStringList interfaces;
+  QString cmd = "prlctl";
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
     return interfaces;
+  }
+
+  QStringList args;
+  args << "server"
+       << "info"
+       << "--json";
+
+  qDebug() << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
+
+  //QString output ="{\r\n    \"ID\": \"57bf3726-def4-43d4-a32f-cc0e8e357e16\",\r\n    \"Hostname\": \"127.0.0.1\",\r\n    \"Version\": \"Desktop 13.3.0-43321\",\r\n    \"OS\": \"Mac OS X 10.13.4(17E199)\",\r\n    \"Started as service\": \"off\",\r\n    \"VM home\": \"\\\/Users\\\/admin\\\/Parallels\",\r\n    \"Memory limit\": {\r\n        \"mode\": \"auto\"\r\n    },\r\n    \"Minimal security level\": \"low\",\r\n    \"Manage settings for new users\": \"allow\",\r\n    \"CEP mechanism\": \"off\",\r\n    \"Default encryption plugin\": \"<parallels-default-plugin>\",\r\n    \"Verbose log\": \"off\",\r\n    \"Allow mobile clients\": \"off\",\r\n    \"Proxy connection state\": \"disconnected\",\r\n    \"Direct connection\": \"off\",\r\n    \"Log rotation\": \"on\",\r\n    \"Advanced security mode\": \"off\",\r\n    \"External device auto connect\": \"ask\",\r\n    \"Proxy manager URL\": \"https:\\\/\\\/pax-manager.myparallels.com\\\/xmlrpc\\\/rpc.do\",\r\n    \"Web portal domain\": \"parallels.com\",\r\n    \"Host ID\": \"\",\r\n    \"Allow attach screenshots\": \"on\",\r\n    \"Custom password protection\": \"off\",\r\n    \"License\": {\r\n        \"state\": \"valid\",\r\n        \"key\": \"078-43914-64601-23907-20564-38467\",\r\n        \"restricted\": \"false\"\r\n    },\r\n    \"Hardware Id\": \"{d16e8ca5-3b60-5bbe-aff4-5ba1012dd0cc}\",\r\n    \"Signed In\": \"yes\",\r\n    \"Hardware info\": {\r\n        \"\/dev\/disk0\": {\r\n            \"name\": \"APPLE HDD ST1000DM003 (disk0)\",\r\n            \"type\": \"hdd\"\r\n        },\r\n        \"\/dev\/disk0s1\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s2\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s3\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"en0\": {\r\n            \"name\": \"Ethernet\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en1\": {\r\n            \"name\": \"Wi-Fi\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"p2p0\": {\r\n            \"name\": \"p2p0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"awdl0\": {\r\n            \"name\": \"awdl0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en2\": {\r\n            \"name\": \"en2\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en3\": {\r\n            \"name\": \"en3\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic0\": {\r\n            \"name\": \"vnic0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic1\": {\r\n            \"name\": \"vnic1\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"\/dev\/cu.Bluetooth-Incoming-Port\": {\r\n            \"name\": \"\\\/dev\\\/cu.Bluetooth-Incoming-Port\",\r\n            \"type\": \"serial\"\r\n        }\r\n    }\r\n}";
+  QString output;
+
+  for (auto s : res.out) {
+    output += s;
+  }
+
+  QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+  QJsonObject data = doc.object();
+  QJsonObject hardware_info = data["Hardware info"].toObject();
+
+  qDebug() << hardware_info;
+
+  QStringList keys = hardware_info.keys();
+  for(int i = 0; i < keys.count(); ++i){
+      QString key = keys.at(i);
+      QString name, type;
+      QJsonObject obj = hardware_info[key].toObject();
+
+      if (obj["type"].toString() == "net") {
+        interfaces.push_back(key);
+        qDebug() << "interface: "
+                 << key;
+      }
+  }
+
+  qDebug() << "Listing parallels interfaces result:"
+           << "exit code: "
+           << res.exit_code
+           << "result: "
+           << res.res
+           << "output:"
+           << output;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+
+  installer_is_busy.unlock();
+  return interfaces;
+}
+
+QStringList CSystemCallWrapper::hyperv_interfaces() {
+  installer_is_busy.lock();
+
+  qDebug("Getting list of bridged interfaces hyperv");
+
+  QStringList interfaces;
+  QString cmd = "powershell.exe";
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+
+  QStringList args; // powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass   -Command "$switches = Get-VMSwitch;  foreach ($switch in $switches) { Write-Debug $switch.Name }"
+  args << "-NoLogo"
+       << "-NoProfile"
+       << "-NonInteractive"
+       << "-ExecutionPolicy"
+       << "Bypass"
+       << "-Command"
+       << "Get-VMSwitch | Select Name";
+
+  qDebug() << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
+  QString output;
+
+  for (auto s : res.out) {
+    output += s;
+  }
+
+  qDebug() << "Listing Hyper interfaces result:"
+           << "exit code: "
+           << res.exit_code
+           << "result: "
+           << res.res
+           << "output:"
+           << output;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+
+  // parse virtual switches
+  qDebug() << "got hyperv switches: "
+           << res.out;
+
+  QStringList parse_me = res.out;
+  unsigned i = 0;
+  for (auto line : parse_me) {
+    if (i > 2) {
+      QString bridge = line.trimmed();
+
+      if (!bridge.isEmpty()) {
+        interfaces.push_back(bridge);
+        qDebug() << bridge
+                 << i;
+      }
+    }
+    i++;
+  }
+
+
+  installer_is_busy.unlock();
+  return interfaces;
+}
+
+QStringList CSystemCallWrapper::libvirt_interfaces() {
+  installer_is_busy.lock();
+
+  qDebug("Getting list of bridged interfaces libvirt");
+
+  QStringList interfaces;
+  QString cmd = "virsh";
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+
+  QStringList args;
+  args << "iface-list";
+
+  qDebug() << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
+  QString output;
+
+  for (auto s : res.out) {
+    output += s;
+  }
+
+  qDebug() << "Listing libvirt interfaces result:"
+           << "exit code: "
+           << res.exit_code
+           << "result: "
+           << res.res
+           << "output:"
+           << output;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+
+  // parse bridge interface
+  QStringList parse_me = res.out;
+  unsigned i = 0;
+  for (auto line : parse_me) {
+    if (i > 1) {
+      QStringList list = line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+      QString bridge = list.at(0);
+      QString state = list.at(1);
+
+      if (state == "active" && bridge != "lo") {
+        interfaces.push_back(bridge);
+      }
+
+      qDebug() << bridge
+               << state;
+
+    }
+    i++;
+  }
+
+  installer_is_busy.unlock();
+  return interfaces;
+}
+
+QStringList CSystemCallWrapper::virtualbox_interfaces() {
+  /*#1 how to get bridged interfaces
+   * using command VBoxManage get list of all bridged interfaces
+   * */
+  installer_is_busy.lock();
+  qDebug("Getting list of bridged interfaces virtualbox");
+  QString vb_version;
+  CSystemCallWrapper::oracle_virtualbox_version(vb_version);
+  QStringList interfaces;
+  if (vb_version == "undefined") {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+  QString path = CSettingsManager::Instance().oracle_virtualbox_path();
+  QDir dir(path);
+  dir.cdUp();
+  path = dir.absolutePath();
+  path += "/VBoxManage";
+  QStringList args;
+  args << "list" << "bridgedifs";
+  qDebug()<<path<<args;
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(path, args, true, true, 60000);
+  QString output;
+  for (auto s : res.out) {
+    output += s;
+  }
+  qDebug() << "Listing interfaces result:"
+           << "exit code:" << res.exit_code
+           << "result:" << res.res
+           << "output:" << output;
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
+      return interfaces;
+  //time to parse data
+  QStringList parse_me = res.out;
+  QString flag;
+  QString value;
+  QString last_name;
+  bool reading_value = false;
+  for (auto s : parse_me){
+      flag = value = "";
+      reading_value = false;
+      for (int i=0; i < s.size(); i++){
+          if(s[i]=='\r')continue;
+          if(reading_value){
+              value += s[i];
+              continue;
+          }
+          if(s[i] == ':'){
+              flag = value;
+              value = "";
+              continue;
+          }
+          if(s[i] != ' '){
+              if(value == "" && !flag.isEmpty())
+                  reading_value = true;
+              value+=s[i];
+          }
+      }
+      if(flag == "Name")
+          last_name = value;
+      if(flag == "Status" && value == "Up")
+          interfaces.push_back(last_name);
+  }
+  installer_is_busy.unlock();
+  return interfaces;
 }
 //////////////////////////////////////////////////////////////////////
 void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QString> > &plugins){
@@ -847,7 +1071,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
     QStringList args;
     args << "box"
          << "add" << box
-         << "--provider" << provider
+         << "--provider" << VagrantProvider::Instance()->CurrentVal()
          << box_dir
          << "--force";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
@@ -1339,7 +1563,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
          << "--box"
          << box
          << "--provider"
-         << provider;
+         << VagrantProvider::Instance()->CurrentVal();
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug() << "updating vagrant box: " << box << "provider:" << provider
              << "finished with" << "exit code: " << res.exit_code
@@ -2213,7 +2437,619 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
   installer_is_busy.unlock();
   return res.res;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         INSTALLATION VAGRANT VMWARE UTILITY                                        ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_vmware_utility_internal(const QString &dir, const QString &file_name);
 
+template <>
+system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1;\"").arg(file_path);
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Mount Vagrant VMware Utility dmg"
+           << " exit code: "
+           << rs.exit_code
+           << " res code: "
+           << rs.res
+           << "output: "
+           << rs.out;
+
+  if (rs.exit_code != 0 && rs.res != SCWE_SUCCESS) {
+    qDebug() << QString("Failed mount %1 dmg file").arg(file_name);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args.clear();
+
+  args << "-e"
+       << QString("do shell script \"installer -pkg /Volumes/Vagrant\\\\ VMware\\\\ Utility/*.pkg -target /\" with administrator privileges");
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  if (res.exit_code != 0) {
+    res.res = SCWE_CREATE_PROCESS;
+  }
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  QString cmd("msiexec");
+  QStringList args0;
+  args0 << "set_working_directory"
+        << dir
+        << "/i"
+        << file_name
+        << "/qn";
+
+  qDebug()
+          <<"Starting installation Vagrant VMware Utility:"
+          <<args0;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
+
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall "
+                                  "the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists "
+                                  "on your system or reinstall Linux.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your "
+                                  "file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vmware_utility_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString file_path = dir + QDir::separator() + file_name;
+
+  // check file path
+  QFileInfo check_file(file_path);
+  if (!check_file.exists()) {
+    qDebug() << "Vagrant VMware Utility file path doesn't exist: "
+             << file_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+    "#!/bin/bash\n"
+    "apt install -y %1"
+    "\n").arg(file_path).toUtf8();
+
+  qDebug() << "Vagrant VMware utility installation "
+           << "dir: "
+           << dir
+           << " file_name: "
+           << file_name;
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+
+  args2 << sh_path << tmpFilePath;
+
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+
+  qDebug() << "Vagrant VMware utility installation finished"
+           << "error code:"
+           << cr2.exit_code
+           << "output: "
+           << cr2.out
+           << "result: "
+           << cr2.res;
+
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_vmware_utility(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         UNINSTALLATION VAGRANT VMWARE UTILITY                                        ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t uninstall_vmware_utility_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  QString cmd("osascript");
+  QStringList args;
+  static QString file_path = "/opt/vagrant-vmware-desktop";
+
+  // Uninstall script
+  args << "-e"
+       << QString("do shell script \"/opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility service uninstall; /bin/rm -Rf %1\" "
+                  "with administrator privileges")
+          .arg(file_path);
+
+  qDebug() << "Uninstallation Vagrant VMware Utility"
+           << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (rs.exit_code != 0) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return rs.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // wmic product where name="Vagrant VMware Utility" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("name=\"%1\"").arg("Vagrant VMware Utility")
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstalling Vagrant VMware Utility: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Uninstall Vagrant VMware Utility finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  if (res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec apt-get remove -y vagrant-vmware-utility
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "apt-get"
+       << "purge"
+       << "-y"
+       << "vagrant-vmware-utility";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of Vagrant VMware Utility finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall Vagrant VMware Utility err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return scr.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware_utility(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                         INSTALLATION VMWARE FUSION, WORKSTATION                                    ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t install_vmware_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
+  // Installation process
+  // 1. Atttach VMware Fusion dmg file
+  // 2. Start installation process
+  // open -a /Volumes/VMware\ Fusion/VMware\ Fusion.app/
+  qDebug() << "Installation VMware Fusion";
+
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1; "
+                  "open -a /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/\" ").arg(file_path);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
+  // VMware-workstation-full-14.1.2-8497320.exe /s /v"/qn EULAS_AGREED=1
+  QString cmd(dir + "/" + file_name);
+  QStringList args;
+
+  qDebug() << "Installing package VMware: "
+           << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  qDebug() << "Installing package VMware finished: "
+           << " cmd: "
+           << cmd
+           << "args: "
+           << args
+           << " exit code: "
+           << res.exit_code
+           << " result: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
+      res.res = SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vmware_installer.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+    "#!/bin/bash\n"
+    "cd %1\n"
+    "chmod +x %2\n"
+    "./%2 --console --required --eulas-agreed"
+    "\n").arg(dir, file_name).toUtf8();
+
+  qDebug() << "VMware installation "
+           << "dir: "
+           << dir
+           << " file_name: "
+           << file_name;
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+
+  args2 << sh_path << tmpFilePath;
+
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+
+  qDebug() << "VMware worstation installation finished"
+           << "error code:"
+           << cr2.exit_code
+           << "output: "
+           << cr2.out
+           << "result: "
+           << cr2.res;
+
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+
+  return SCWE_SUCCESS;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::install_vmware(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = install_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 UNINSTALLATION VMWARE                                              ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <class OS>
+system_call_wrapper_error_t uninstall_vmware_internal(const QString &dir, const QString &file_name);
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_MAC> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // close VMware Fusion
+  // osascript -e "Tell application \"VMware Fusion\" to quit"
+
+  // clean following folders
+  // /Library/Preferences/VMware\ Fusion/
+  // /Library/Application Support/VMware
+  // /Applications/VMware\ Fusion.app/
+
+  if (!QDir("/Applications/VMware Fusion.app/").exists()) {
+    qDebug() << "Can't find VMware Fusion path: /Applications/VMware Fusion.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+
+  // Quit Application VMware Fusion
+  args << "-e"
+       << "Tell application \"VMware Fusion\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true);
+
+  if (res.exit_code != 0) {
+    qDebug() << "Failed to quit VMware Fusion application";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  args.clear();
+
+  // Clean VMware Fusion folders
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/VMware\\\\ Fusion.app/; "
+               "rm -rf /Library/Preferences/VMware\\\\ Fusion/; "
+               "rm -rf /Library/Preferences/VMware*/;"
+               "rm -rf /Library/Application\\\\ Support/VMware*;");
+
+  qDebug() << "Uninstallation VMware Fusion internal"
+           << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (rs.exit_code != 0) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  return rs.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_WIN> > (const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // wmic product where "Name like '%VMware%'" call uninstall
+  QString cmd("wmic");
+  QStringList args;
+
+  args << "product"
+       << "where"
+       << QString("Name like '%VMware%'")
+       << "call"
+       << "uninstall";
+
+  qDebug() << "Uninstall VMware: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+
+  qDebug() << "Uninstall VMware finished: "
+           << "exit code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
+
+  if (res.exit_code != 0)
+    return SCWE_CREATE_PROCESS;
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  // pkexec vmware-installer -u vmware-workstation --console --required --eulas-agreed
+  QString pkexec_path;
+  system_call_wrapper_error_t scre = CSystemCallWrapper::which("pkexec", pkexec_path);
+
+  if (scre != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  system_call_res_t scr;
+  QStringList args;
+  args << "vmware-installer"
+       << "-u"
+       << "vmware-workstation"
+       << "--console"
+       << "--required"
+       << "--eulas-agreed";
+
+  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+
+  qDebug() << "Uninstallation of VMware finished: "
+           << "exit code: "
+           << scr.exit_code
+           << " output: "
+           << scr.out;
+
+  if (scr.exit_code != 0 || scr.res != SCWE_SUCCESS ) {
+    QString err_msg = QObject::tr("Couldn't uninstall VMware Workstation err = %1")
+                             .arg(CSystemCallWrapper::scwe_error_to_str(scr.res));
+    qCritical() << err_msg;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  return scr.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_error_t res = uninstall_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  installer_is_busy.unlock();
+
+  return res;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
@@ -4952,8 +5788,223 @@ system_call_wrapper_error_t CSystemCallWrapper::oracle_virtualbox_version(
   return oracle_virtualbox_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
+//  VMWARE VERSION
+template <class OS>
+system_call_wrapper_error_t vmware_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_MAC> >(QString &version) {
+  QString path = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion/"; // TODO ADD PATH to CSettings
+  QDir dir(path);
+  dir.cdUp(); dir.cdUp();
+  path = dir.absolutePath();
+  path += "/Info.plist";
+
+  QFile info_plist(path);
+  QString line;
+  bool found = false;
+
+  if (!info_plist.exists()) {
+    version = "undefined";
+
+    return SCWE_SUCCESS;
+  }
+
+  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      QTextStream stream(&info_plist);
+      while (!stream.atEnd()) {
+        line = stream.readLine();
+        line = line.simplified();
+        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+        if (found) {
+            version = line;
+            break;
+        }
+        else if (line == "CFBundleShortVersionString") {
+            found = true;
+        }
+    }
+    info_plist.close();
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_WIN> >(QString &version) {
+  version = "undefined";
+  QString cmd("REG");
+  QStringList args;
+  // REG QUERY "HKLM\SOFTWARE\WOW6432Node\VMware, Inc.\VMware Workstation" /v ProductVersion
+  args << "QUERY"
+       << "HKLM\\SOFTWARE\\WOW6432Node\\VMware, Inc.\\VMware Workstation"
+       << "/v"
+       << "ProductVersion";
+
+  qDebug() << "Register query VMware: "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 3000);
+
+  qDebug() << "got VMware version"
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+    QRegExp pattern("ProductVersion*");
+    pattern.setPatternSyntax(QRegExp::Wildcard);
+
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+
+      if (pattern.exactMatch(s)) {
+        QStringList buf = s.split(" ", QString::SkipEmptyParts);
+        if (buf.size() == 3) {
+          version = buf[2];
+          break;
+        }
+      }
+    }
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  qDebug() << "VMware version";
+  version = "undefined";
+  QStringList args;
+  args << "--version";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      QString("/usr/bin/vmware"), args, true, true, 5000);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegularExpression("build-\\d*"));
+    version = version.remove(QRegularExpression("[a-zA-Z ]*"));
+
+  }
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vmware_version(QString &version) {
+  return vmware_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+////////////////////////////////////////////////////////////////////////////
+
+//  VMWARE VMWARE VERSION
+template <class OS>
+system_call_wrapper_error_t vmware_utility_version_internal(QString &version);
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QString &version) {
+  version = "undefined";
+  QString cmd = "/opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility";
+  QStringList args;
+  args << "-v";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 5000);
+
+  qDebug() << "Got Vagrant VMware Utility version"
+           << " exit code: "
+           << res.exit_code
+           << " res code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
+    version = "Installed";
+  } else {
+      res.res = SCWE_CREATE_PROCESS;
+  }
+
+  return res.res;
+}
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QString &version) {
+  version = "undefined";
+  QString cmd("wmic");
+  QStringList args;
+  // wmic product where name="Vagrant VMware Utility" get version
+  args << "product"
+       << "where"
+       << QString("name=\"%1\"").arg("Vagrant VMware Utility")
+       << "get"
+       << "version";
+
+  qDebug() << "Vagrant VMware utility version command "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "got Vagrant VMware utility version"
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+
+      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+      version = s;
+    }
+  }
+
+  return SCWE_SUCCESS;
+}
+
+template <>
+system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_LINUX> >(
+    QString &version) {
+  qDebug() << "Vagrant VMware Utility version";
+  //  dpkg-query -W -f='${Version}\n' vagrant-vmware-utility
+
+  version = "undefined";
+  QStringList args;
+  args << "-W"
+       << "-f='${Version}\\n'"
+       << "vagrant-vmware-utility";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      QString("dpkg-query"), args, true, true, 97);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegExp(".*:"));
+  }
+
+  return res.res;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &version) {
+  return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+
+////////////////////////////////////////////////////////////////////////////
+template <class OS>
+system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
+
 template<class OS>
 system_call_wrapper_error_t subutai_e2e_chrome_version_internal(QString &version);
+
 template<>
 system_call_wrapper_error_t subutai_e2e_chrome_version_internal<Os2Type <OS_MAC_LIN> >(QString &version){
     QString current_browser = CSettingsManager::Instance().default_browser();
@@ -5270,64 +6321,41 @@ system_call_wrapper_error_t CSystemCallWrapper::xquartz_version(QString &version
 }
 ////////////////////////////////////////////////////////////////////////////
 //* get vagrant plugin list and find there required plugin version *//
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_subutai_version(QString &version){
-    qDebug() << "getting version of vagrant subutai plugin";
-    vagrant_version(version);
-    QString subutai_plugin = "vagrant-subutai";
-    if (version == "undefined"){
-        version = QObject::tr("Install Vagrant first");
-        return SCWE_CREATE_PROCESS;
+system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_version(QString &version, QString vagrant_plugin) {
+  qDebug() << QString("Getting version of %1 plugin").arg(vagrant_plugin);
+
+  vagrant_version(version);
+
+  if (version == "undefined"){
+    version = QObject::tr("Install Vagrant first");
+    return SCWE_CREATE_PROCESS;
+  }
+
+  version = "undefined";
+  std::vector<std::pair<QString, QString> > plugin_list;
+  CSystemCallWrapper::vagrant_plugins_list(plugin_list);
+
+  auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [vagrant_plugin](const std::pair<QString, QString>& plugin) {
+    return vagrant_plugin == plugin.first;
+  });
+
+  if (it == plugin_list.end()) {
+    return SCWE_CREATE_PROCESS;
+  } else {
+    version = it->second;
+    if(version.size() >= 2) { //remove ( ) in the beginning and in the end
+      version.remove(0, 1);
+
+      if (version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n') {
+        version.remove(version.size() - 1, 1);
+      }
+          version.remove(version.size() - 1, 1);
     }
-    version = "undefined";
-    std::vector<std::pair<QString, QString> > plugin_list;
-    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
-    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [subutai_plugin](const std::pair<QString, QString>& plugin){
-        return subutai_plugin == plugin.first;
-    });
-    if(it == plugin_list.end()){
-        return SCWE_CREATE_PROCESS;
-    }
-    else{
-        version = it->second;
-        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
-            version.remove(0, 1);
-            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
-                version.remove(version.size() - 1, 1);
-            }
-            version.remove(version.size() - 1, 1);
-        }
-    }
-    return SCWE_SUCCESS;
+  }
+
+  return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_vbguest_version(QString &version){
-    qDebug() << "getting version of vagrant vbguest plugin";
-    vagrant_version(version);
-    QString vbguest_plugin = "vagrant-vbguest";
-    if (version == "undefined"){
-        version = QObject::tr("Install Vagrant first");
-        return SCWE_CREATE_PROCESS;
-    }
-    version = "undefined";
-    std::vector<std::pair<QString, QString> > plugin_list;
-    CSystemCallWrapper::vagrant_plugins_list(plugin_list);
-    auto it = std::find_if(plugin_list.begin(), plugin_list.end(), [vbguest_plugin](const std::pair<QString, QString>& plugin){
-        return vbguest_plugin == plugin.first;
-    });
-    if(it == plugin_list.end()){
-        return SCWE_CREATE_PROCESS;
-    }
-    else{
-        version = it->second;
-        if(version.size() >= 2){ //remove ( ) in the beginning and in the end
-            version.remove(0, 1);
-            if(version[version.size() - 1] == '\r' || version[version.size() - 1] == '\t' || version[version.size() - 1] == '\n'){
-                version.remove(version.size() - 1, 1);
-            }
-            version.remove(version.size() - 1, 1);
-        }
-    }
-    return SCWE_SUCCESS;
-}
+
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
   status = "";

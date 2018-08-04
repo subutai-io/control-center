@@ -8,6 +8,7 @@
 #include <vector>
 #include <QProcess>
 #include <QMutex>
+#include "VagrantProvider.h"
 
 //give type for restart p2p
 enum restart_p2p_type{
@@ -199,6 +200,14 @@ class CSystemCallWrapper {
 
   static QStringList list_interfaces();
 
+  static QStringList virtualbox_interfaces();
+
+  static QStringList libvirt_interfaces();
+
+  static QStringList hyperv_interfaces();
+
+  static QStringList parallels_interfaces();
+
   static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_p2p(const QString &dir, const QString &file_name);
 
@@ -210,6 +219,12 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_oracle_virtualbox(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_error_t install_vmware(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_vmware(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_error_t install_vmware_utility(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_chrome(const QString &dir, const QString &file_name);
@@ -300,7 +315,10 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t x2go_version(QString &version);
   static system_call_wrapper_error_t vagrant_version(QString &version);
   static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
+  static system_call_wrapper_error_t vmware_version(QString &version);
+  static system_call_wrapper_error_t vmware_utility_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
+  static system_call_wrapper_error_t vagrant_plugin_version(QString &version, QString plugin);
   static system_call_wrapper_error_t subutai_e2e_chrome_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_firefox_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_safari_version(QString &version);

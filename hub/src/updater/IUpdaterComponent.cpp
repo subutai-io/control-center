@@ -31,11 +31,16 @@ const QString IUpdaterComponent::TRAY = "SubutaiControlCenter.exe";
 const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
+const QString IUpdaterComponent::VMWARE = "vmware";
+const QString IUpdaterComponent::VMWARE_UTILITY = "vmware_utility";
 const QString IUpdaterComponent::CHROME = "Chrome";
 const QString IUpdaterComponent::FIREFOX = "Firefox";
 const QString IUpdaterComponent::E2E = "e2e";
 const QString IUpdaterComponent::VAGRANT_SUBUTAI = "vagrant_subutai";
 const QString IUpdaterComponent::VAGRANT_VBGUEST = "vagrant_vbguest";
+const QString IUpdaterComponent::VAGRANT_LIBVIRT = "vagrant_libvirt";
+const QString IUpdaterComponent::VAGRANT_PARALLELS = "vagrant_parallels";
+const QString IUpdaterComponent::VAGRANT_VMWARE_DESKTOP = "vagrant_vmware_desktop";
 const QString IUpdaterComponent::SUBUTAI_BOX = "subutai_box";
 const QString IUpdaterComponent::XQUARTZ = "xquartz";
 
