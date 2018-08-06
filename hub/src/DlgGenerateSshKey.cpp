@@ -136,7 +136,7 @@ void DlgGenerateSshKey::btn_generate_released() {
 void
 DlgGenerateSshKey::btn_send_to_hub_released() {
   ui->btn_send_to_hub->setEnabled(false);
-  ui->pb_send_to_hub->setVisible(true);
+  ui->pb_send_to_hub->setVisible(true);             
   ui->pb_send_to_hub->setValue(1);
   QtConcurrent::run(&CSshKeysController::Instance(),
                     &CSshKeysController::send_data_to_hub);

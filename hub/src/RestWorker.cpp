@@ -326,15 +326,17 @@ void CRestWorker::peer_finger(const QString& port,
   QTimer* timer = new QTimer(this);
   timer->setInterval(6000);
   timer->setSingleShot(true);
+  timer->start();
 
   connect(timer, &QTimer::timeout, [reply]() {
     if (reply) reply->close();
   });
-
-  timer->start();
-
   connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
   connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
+  connect(reply, &QNetworkReply::finished,
+          reply, &QNetworkReply::deleteLater);
 
   connect(reply, &QNetworkReply::finished, [reply, type, name, dir](){
     qDebug() << "Is reply null " << (reply == nullptr);
@@ -352,10 +354,6 @@ void CRestWorker::peer_finger(const QString& port,
     }
     CPeerController::Instance()->parse_peer_info(type, name, dir, finger);
   });
-  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
-          reply, &QNetworkReply::close);
-  connect(reply, &QNetworkReply::finished,
-          reply, &QNetworkReply::deleteLater);
 }
 
 void CRestWorker::peer_set_pass(const QString& port, const QString& username,
@@ -379,11 +377,11 @@ void CRestWorker::peer_set_pass(const QString& port, const QString& username,
   QTimer* timer = new QTimer(this);
   timer->setInterval(6000);
   timer->setSingleShot(true);
+  timer->start();
+
   connect(timer, &QTimer::timeout, [reply]() {
     if (reply) reply->close();
   });
-  timer->start();
-
   connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
   connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
@@ -406,13 +404,11 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   QTimer* timer = new QTimer(this);
   timer->setInterval(6000);
   timer->setSingleShot(true);
+  timer->start();
 
   connect(timer, &QTimer::timeout, [reply]() {
     if (reply) reply->close();
   });
-
-  timer->start();
-
   connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
   connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
   connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
@@ -435,8 +431,7 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
       // if user is not authorized
       if (http_code == 401 || QString(arr) == "User is not authorized") {
         // set password if not changed
-        QString old_pass = "secret";
-        QString user_name = "admin";
+        QString old_pass = "secret", user_name = "admin";
         QString new_pass = CSettingsManager::Instance().peer_pass(name);
         CRestWorker::Instance()->peer_set_pass(port, user_name, old_pass, new_pass);
         // login
@@ -445,11 +440,8 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
     } else {
       // get value from json file
       QJsonObject obj = doc.object();
-      QJsonValue val;
       if (obj.find(peer_info_type) != obj.end()) {
-        val = obj[peer_info_type];
-        bool value = val.toBool();
-        if (value) {
+        if (obj[peer_info_type].toBool()) {
           res = "true";
         } else {
           res = "false";
