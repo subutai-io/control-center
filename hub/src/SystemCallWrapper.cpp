@@ -333,16 +333,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
 }
 
 QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
-    qDebug()
-            <<"Trying to get fingerprint of "<<ip;
-    QString finger = "";
-    if(CRestWorker::Instance()->peer_finger(ip, finger) && !finger.isEmpty()){
-        return finger.toUpper();
-    }
-    else{
-        finger = "undefined";
-        return finger;
-    }
+  return QString("hehe");
 }
 
 bool CSystemCallWrapper::vagrant_set_password(const QString &ip,

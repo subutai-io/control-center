@@ -307,29 +307,41 @@ void CRestWorker::peer_register(const QString& port, const QString& token,
            << "Network Error " << network_error;
 }
 
-bool CRestWorker::peer_finger(const QString& port, QString& finger) {
+void CRestWorker::peer_finger(const QString& port,
+                              CPeerController::peer_info_t type,
+                              QString name,
+                              QString dir) {
   qInfo() << tr("Getting finger from %1").arg(port);
 
   const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/"
                                 "getpublickeyfingerprint")
                             .arg(port));
-  int http_code, err_code, network_error;
   QUrl url_finger(str_url);
-  QByteArray nothing;
-  QNetworkRequest request(url_finger);
-  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, 1, http_code,
-                                err_code, network_error, nothing, false);
+  QNetworkRequest req(url_finger);
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
 
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  try {
-    finger = QString(arr);
-  } catch (...) {
-    qCritical() << "failed to get finger of " << port;
-    finger = "";
-  }
-  return true;
+  connect(reply, &QNetworkReply::finished, [reply, type, name, dir](){
+    qDebug() << "Is reply null " << (reply == nullptr);
+    if (reply == nullptr) {
+      return;
+    }
+    int http_code, err_code, network_error;
+    pre_handle_reply(reply, http_code, err_code, network_error);
+    QString finger = "undefined";
+    QByteArray arr = reply->readAll();
+    try {
+      finger = QString(arr);
+    } catch (...) {
+      finger = "undefined";
+    }
+    CPeerController::Instance()->got_peer_info(type, name, dir, finger);
+  });
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
+  connect(reply, &QNetworkReply::finished,
+          reply, &QNetworkReply::deleteLater);
 }
 
 bool CRestWorker::peer_set_pass(const QString& port, const QString& username,

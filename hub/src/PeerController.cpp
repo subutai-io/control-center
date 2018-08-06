@@ -335,15 +335,9 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
     qDebug() << "Got ip of " << name << "ip:" << output;
     if (!output.isEmpty() && output != "undefined") {
       // get finger
-      GetPeerInfo *thread_for_finger = new GetPeerInfo(this);
-      peer_info_t finger_type = P_FINGER;
-      thread_for_finger->init(output, finger_type);
+      CRestWorker::Instance()->peer_finger(output, P_FINGER, name, dir);
       number_threads++;
-      thread_for_finger->startWork();
-      connect(thread_for_finger, &GetPeerInfo::outputReceived,
-              [dir, name, this](peer_info_t type, QString res) {
-                this->parse_peer_info(type, name, dir, res);
-              });
+      /*
       // set password
       SetPasswordPeer *thread_for_pass = new SetPasswordPeer(this);
       static QString user_name = "admin";
@@ -360,7 +354,7 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
       connect(thread_for_update, &GetPeerInfo::outputReceived,
               [dir, name, this](peer_info_t type, QString res) {
                 this->parse_peer_info(type, name, dir, res);
-              });
+              });*/
     }
   } else if (type == P_FINGER) {
     qDebug() << "Got finger of " << name << "finger:" << output;
