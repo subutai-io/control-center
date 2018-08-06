@@ -322,6 +322,22 @@ void CRestWorker::peer_finger(const QString& port,
   QNetworkReply* reply = get_reply(m_network_manager, req);
   reply->ignoreSslErrors();
 
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+
+  connect(timer, &QTimer::timeout, [reply]() {
+    CNotificationObserver::Instance()->Info(
+        "Connection timeout, can't connect to bazaar",
+        DlgNotification::N_NO_ACTION);
+    if (reply) reply->close();
+  });
+
+  timer->start();
+
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+
   connect(reply, &QNetworkReply::finished, [reply, type, name, dir](){
     qDebug() << "Is reply null " << (reply == nullptr);
     if (reply == nullptr) {
@@ -336,7 +352,7 @@ void CRestWorker::peer_finger(const QString& port,
     } catch (...) {
       finger = "undefined";
     }
-    CPeerController::Instance()->got_peer_info(type, name, dir, finger);
+    CPeerController::Instance()->parse_peer_info(type, name, dir, finger);
   });
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
           reply, &QNetworkReply::close);
@@ -363,7 +379,7 @@ bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
 
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
-      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+      query.toString(QUrl::FullyEncoded).toUtf8(), false, 6000);
 
   UNUSED_ARG(arr);
 
@@ -373,29 +389,58 @@ bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
   return peer_login(port, username, new_pass);
 }
 
-bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
-                                QJsonValue& peer_info_value) {
+void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
+                                CPeerController::peer_info_t type,
+                                QString name,
+                                QString dir) {
   // create request
-  int http_code, err_code, network_error;
   const QString str_url(QString("https://localhost:%1/rest/v1/system/management_updates").arg(port));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, true, http_code,
-                                err_code, network_error, QByteArray(), 0);
-  // get json file
-  QJsonDocument doc = QJsonDocument::fromJson(arr);
-  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical() << "couldn't get json file from" << port;
-    return false;
-  }
-  // get value from json file
-  QJsonObject obj = doc.object();
-  if (obj.find(peer_info_type) != obj.end()) {
-    peer_info_value = obj[peer_info_type];
-    return true;
-  }
-  return false;
+  QNetworkReply* reply = get_reply(m_network_manager, request);
+  reply->ignoreSslErrors();
+
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+
+  connect(timer, &QTimer::timeout, [reply]() {
+    CNotificationObserver::Instance()->Info(
+        "Connection timeout, can't connect to bazaar",
+        DlgNotification::N_NO_ACTION);
+    if (reply) reply->close();
+  });
+
+  timer->start();
+
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+
+  connect(reply, &QNetworkReply::finished, [reply, type, name, dir, peer_info_type](){
+    qDebug() << "Is reply null " << (reply == nullptr);
+    if (reply == nullptr) {
+      return;
+    }
+    int http_code, err_code, network_error;
+    pre_handle_reply(reply, http_code, err_code, network_error);
+    QByteArray arr = reply->readAll();
+    // get json file
+    QJsonDocument doc = QJsonDocument::fromJson(arr);
+    QString res = "false";
+    if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+      qCritical() << "couldn't get json file from" << name;
+    } else {
+      // get value from json file
+      QJsonObject obj = doc.object();
+      QJsonValue val;
+      if (obj.find(peer_info_type) != obj.end()) {
+        val = obj[peer_info_type];
+        res = val.toString() == "true" ? "true" : "false";
+      }
+    }
+    CPeerController::Instance()->parse_peer_info(type, name, dir, res);
+  });
 }
 
 bool CRestWorker::peer_login(const QString &port,
@@ -961,6 +1006,8 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
   QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
                    loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+                   reply, &QNetworkReply::close);
 
   reply->ignoreSslErrors();
 

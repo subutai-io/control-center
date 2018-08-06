@@ -166,13 +166,6 @@ class GetPeerInfo : public QObject {
       case 1:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_port, arg);
         break;
-      case 2:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_fingerprint, arg);
-        break;
-      case 3:
-        res = QtConcurrent::run(
-            CSystemCallWrapper::vagrant_is_peer_update_available, arg);
-        break;
       default:
         break;
     }

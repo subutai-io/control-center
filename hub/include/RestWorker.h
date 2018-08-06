@@ -150,9 +150,11 @@ public:
                      const QString& old_pass,
                      const QString& new_pass);
 
-  bool peer_get_info(const QString& port,
+  void peer_get_info(const QString& port,
                      QString peer_info_type,
-                     QJsonValue& peer_info_value);
+                     CPeerController::peer_info_t type,
+                     QString name,
+                     QString dir);
 
   bool peer_login(const QString& port,
                   const QString& username,
