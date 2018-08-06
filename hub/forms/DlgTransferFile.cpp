@@ -217,9 +217,13 @@ void DlgTransferFile::set_buttons_enabled(bool enabled) {
 
   ui->btn_local_back->setEnabled(enabled);
   ui->btn_remote_back->setEnabled(enabled);
+
+  ui->btn_remove_local->setEnabled(enabled);
+  ui->btn_remove_remote->setEnabled(enabled);
 }
 
 void  DlgTransferFile::set_remote_button_enabled(bool enabled){
+    ui->btn_remove_remote->setEnabled(enabled);
     ui->btn_refresh_remote->setEnabled(enabled);
     ui->btn_remote_back->setEnabled(enabled);
     ui->btn_download_file->setEnabled(enabled);

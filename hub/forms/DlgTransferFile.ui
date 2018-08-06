@@ -14,7 +14,45 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="0" colspan="11">
+   <item row="0" column="6" colspan="5">
+    <widget class="QLabel" name="lbl_remote_files">
+     <property name="text">
+      <string>Remote</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="10">
+    <widget class="QLineEdit" name="le_remote"/>
+   </item>
+   <item row="1" column="6" colspan="5">
+    <widget class="FileSystemTableWidget" name="remote_file_system"/>
+   </item>
+   <item row="2" column="8">
+    <widget class="QPushButton" name="btn_refresh_remote">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="6">
+    <widget class="QPushButton" name="btn_download_file">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/download.png</normaloff>:/hub/download.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="11">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Remote Machine Parameters</string>
@@ -63,103 +101,14 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" colspan="5">
-    <widget class="QLabel" name="lbl_local_files">
-     <property name="text">
-      <string>Local</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="8">
-    <widget class="QPushButton" name="btn_refresh_remote">
+   <item row="2" column="3">
+    <widget class="QPushButton" name="btn_remove_local">
      <property name="text">
       <string/>
      </property>
      <property name="icon">
       <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/hub/refresh.png</normaloff>:/hub/refresh.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="4">
-    <widget class="QLineEdit" name="le_local"/>
-   </item>
-   <item row="2" column="10">
-    <widget class="QLineEdit" name="le_remote"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="btn_upload_file">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/hub/upload-0.png</normaloff>:/hub/upload-0.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="10">
-    <widget class="QPushButton" name="btn_start_transfer">
-     <property name="text">
-      <string>Start to Transfer Files</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="6" colspan="5">
-    <widget class="FileSystemTableWidget" name="remote_file_system"/>
-   </item>
-   <item row="5" column="10">
-    <widget class="QPushButton" name="btn_clear_files">
-     <property name="text">
-      <string>Clear files</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="6">
-    <widget class="QPushButton" name="btn_download_file">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/hub/download.png</normaloff>:/hub/download.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="11">
-    <widget class="DropFileTableWidget" name="tw_transfer_file"/>
-   </item>
-   <item row="6" column="10">
-    <widget class="QCheckBox" name="more_info">
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>More Info about remote machine</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="7">
-    <widget class="QPushButton" name="btn_remote_back">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="6" colspan="5">
-    <widget class="QLabel" name="lbl_remote_files">
-     <property name="text">
-      <string>Remote</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+       <normaloff>:/hub/remove_ft.png</normaloff>:/hub/remove_ft.png</iconset>
      </property>
     </widget>
    </item>
@@ -174,8 +123,46 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="QPushButton" name="btn_remove_local">
+   <item row="3" column="0" colspan="11">
+    <widget class="DropFileTableWidget" name="tw_transfer_file"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="btn_upload_file">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/upload-0.png</normaloff>:/hub/upload-0.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QLineEdit" name="le_local"/>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QLabel" name="lbl_local_files">
+     <property name="text">
+      <string>Local</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="7">
+    <widget class="QPushButton" name="btn_remote_back">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../../resources/resources.qrc">
+       <normaloff>:/hub/back.png</normaloff>:/hub/back.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="9">
+    <widget class="QPushButton" name="btn_remove_remote">
      <property name="text">
       <string/>
      </property>
@@ -185,15 +172,15 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="5">
-    <widget class="FileSystemTableWidget" name="local_file_system"/>
-   </item>
    <item row="0" column="5" rowspan="3">
     <widget class="Line" name="line">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
     </widget>
+   </item>
+   <item row="1" column="0" colspan="5">
+    <widget class="FileSystemTableWidget" name="local_file_system"/>
    </item>
    <item row="2" column="2">
     <widget class="QPushButton" name="btn_refresh_local">
@@ -206,14 +193,30 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="9">
-    <widget class="QPushButton" name="btn_remove_remote">
+   <item row="4" column="9" colspan="2">
+    <widget class="QPushButton" name="btn_start_transfer">
      <property name="text">
-      <string/>
+      <string>Start to Transfer Files</string>
      </property>
-     <property name="icon">
-      <iconset resource="../../resources/resources.qrc">
-       <normaloff>:/hub/remove_ft.png</normaloff>:/hub/remove_ft.png</iconset>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="9" colspan="2">
+    <widget class="QPushButton" name="btn_clear_files">
+     <property name="text">
+      <string>Clear files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="9" colspan="2">
+    <widget class="QCheckBox" name="more_info">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>More Info about remote machine</string>
      </property>
     </widget>
    </item>
