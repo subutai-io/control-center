@@ -39,8 +39,10 @@ chue_t CUpdaterComponentVAGRANT_VMWARE::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant VMware Desktop provider sets up peer parameters, like disk size "
-          "and RAM.\n"
+          "The Vagrant VMware Desktop provider manage VMware machines."
+          " The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
+          "and require the <b>purchase of a license to operate</b>. To purchase a license, "
+          "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "
           "The Vagrant VMware Desktop provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);

@@ -124,19 +124,23 @@ QString get_xquartz_version() {
 void DlgAbout::set_hidden_libvirt(bool show_hide) {
   // Vagrant libvirt provider vagrant-libvirt
   ui->lbl_provider_libvirt->setHidden(show_hide);
+  ui->lbl_provider_libvirt_icon->setHidden(show_hide);
   ui->lbl_provider_libvirt_version->setHidden(show_hide);
   ui->btn_provider_libvirt_update->setHidden(show_hide);
   ui->cb_provider_libvirt->setHidden(show_hide);
   ui->pb_provider_libvirt->setHidden(show_hide);
+  ui->hl_vagrant_libvirt->setEnabled(!show_hide);
 }
 
 void DlgAbout::set_hidden_parallels(bool show_hide) {
   // Vagrant parallels provider vagrant-parallels
   ui->lbl_provider_parallels->setHidden(show_hide);
+  ui->lbl_provider_libvirt_icon->setHidden(show_hide);
   ui->lbl_provider_parallels_version->setHidden(show_hide);
   ui->btn_provider_parallels_update->setHidden(show_hide);
   ui->cb_provider_parallels->setHidden(show_hide);
   ui->pb_provider_parallels->setHidden(show_hide);
+  ui->hl_vagrant_parallels->setEnabled(!show_hide);
 }
 
 void DlgAbout::set_hidden_virtualbox(bool show_hide) {
@@ -162,24 +166,30 @@ void DlgAbout::set_hidden_virtualbox(bool show_hide) {
 void DlgAbout::set_hidden_vmware(bool show_hide) {
   // Vagrant provider vagrant-vmware-desktop
   ui->lbl_provider_vmware->setHidden(show_hide);
+  ui->lbl_provider_vmware_icon->setHidden(show_hide);
   ui->lbl_provider_vmware_version->setHidden(show_hide);
   ui->btn_provider_vmware_update->setHidden(show_hide);
   ui->cb_provider_vmware->setHidden(show_hide);
   ui->pb_provider_vmware->setHidden(show_hide);
+  ui->hl_vagrant_vmware->setEnabled(!show_hide);
 
   // Hypervisor VMware
   ui->lbl_hypervisor_vmware->setHidden(show_hide);
+  ui->lbl_hypervisor_vmware_icon->setHidden(show_hide);
   ui->lbl_hypervisor_vmware_version->setHidden(show_hide);
   ui->btn_hypervisor_vmware_update->setHidden(show_hide);
   ui->cb_hypervisor_vmware->setHidden(show_hide);
   ui->pb_hypervisor_vmware->setHidden(show_hide);
+  ui->hl_hypervisor_vmware->setEnabled(!show_hide);
 
   // Vagrant VMware Utility
   ui->lbl_provider_vmware_utility->setHidden(show_hide);
+  ui->lbl_provider_vmware_utility_icon->setHidden(show_hide);
   ui->lbl_provider_vmware_utility_version->setHidden(show_hide);
   ui->btn_provider_vmware_utility_update->setHidden(show_hide);
   ui->cb_provider_vmware_utility->setHidden(show_hide);
   ui->pb_provider_vmare_utility->setHidden(show_hide);
+  ui->hl_vagrant_vmware_utility->setEnabled(!show_hide);
 }
 
 void DlgAbout::set_hidden_providers() {
@@ -252,6 +262,7 @@ void DlgAbout::set_hidden_providers() {
  //   break;
   default:
     set_hidden_virtualbox(false);
+    break;
   }
 
   this->adjustSize();
@@ -282,6 +293,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_edge_info_icon,
                      this->ui->lbl_safari_info_icon,
                      this->ui->lbl_xquartz_info_icon,
+                     this->ui->lbl_provider_vmware_icon,
+                     this->ui->lbl_provider_vmware_utility_icon,
+                     this->ui->lbl_hypervisor_vmware_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -341,6 +355,17 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->ui->lbl_xquartz_info_icon->setToolTip(tr(
       "XQuartz is a tool for X2Go OS X client to use the OS X X11 server"));
 
+  this->ui->lbl_provider_vmware_icon->setToolTip(tr(
+      "The Vagrant VMware Desktop provider manage VMware machines."));
+
+  this->ui->lbl_provider_vmware_utility_icon->setToolTip(tr(
+      "The Vagrant VMware Utility provides the Vagrant VMware provider plugin"
+      " access to various VMware functionalities."));
+
+  this->ui->lbl_hypervisor_vmware_icon->setToolTip(tr(
+      "<nobr>VMware is hypervisor for<br>"
+      "managing virtual machine environments"));
+
   QLabel* lbls[] = {this->ui->lbl_chrome_version_val,
                     this->ui->lbl_p2p_version_val,
                     this->ui->lbl_tray_version_val,
@@ -356,6 +381,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_provider_libvirt_version,
                     this->ui->lbl_provider_parallels_version,
                     this->ui->lbl_provider_vmware_version,
+                    this->ui->lbl_provider_vmware_utility_version,
                     this->ui->lbl_xquartz_version,
                     nullptr};
 
@@ -507,6 +533,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     ui->btn_hypervisor_vmware_update, get_hypervisor_vmware_version
   };
 
+  m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
+    ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility, ui->cb_provider_vmware_utility,
+    ui->btn_provider_vmware_utility_update, get_vagrant_vmware_utility_version
+  };
+
   m_dct_fpb[IUpdaterComponent::XQUARTZ] = {
     ui->lbl_xquartz_version_val, ui->pb_xquartz, ui->cb_xquartz,
     ui->btn_xquartz_update, get_xquartz_version
@@ -568,6 +599,7 @@ void DlgAbout::set_visible_firefox(bool value) {
   ui->lbl_spacer_firefox->setVisible(value);
   ui->pb_firefox->setVisible(value);
   ui->cb_firefox->setVisible(value);
+  ui->hl_firefox->setEnabled(value);
   this->adjustSize();
 }
 
@@ -607,6 +639,7 @@ void DlgAbout::set_visible_xquartz(bool value) {
   ui->lbl_xquartz_version_val->setVisible(value);
   ui->lbl_spacer_xquartz->setVisible(value);;
   ui->pb_xquartz->setVisible(value);
+  ui->hl_xquartz->setEnabled(value);
 }
 DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
