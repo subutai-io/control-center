@@ -145,7 +145,7 @@ public:
                    QString name,
                    QString dir);
 
-  bool peer_set_pass(const QString& port,
+  void peer_set_pass(const QString& port,
                      const QString& username,
                      const QString& old_pass,
                      const QString& new_pass);
@@ -156,7 +156,7 @@ public:
                      QString name,
                      QString dir);
 
-  bool peer_login(const QString& port,
+  void peer_login(const QString& port,
                   const QString& username,
                   const QString& pass);
 

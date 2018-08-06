@@ -4,6 +4,7 @@
 #include <QTimer>
 
 #include "DlgNotification.h"
+#include "SettingsManager.h"
 #include "Locker.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -327,9 +328,6 @@ void CRestWorker::peer_finger(const QString& port,
   timer->setSingleShot(true);
 
   connect(timer, &QTimer::timeout, [reply]() {
-    CNotificationObserver::Instance()->Info(
-        "Connection timeout, can't connect to bazaar",
-        DlgNotification::N_NO_ACTION);
     if (reply) reply->close();
   });
 
@@ -360,7 +358,7 @@ void CRestWorker::peer_finger(const QString& port,
           reply, &QNetworkReply::deleteLater);
 }
 
-bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
+void CRestWorker::peer_set_pass(const QString& port, const QString& username,
                                 const QString& old_pass,
                                 const QString& new_pass) {
   qInfo() << tr("Setting password for %1").arg(port);
@@ -375,18 +373,22 @@ bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
   QNetworkRequest request(url_finger);
   request.setHeader(QNetworkRequest::ContentTypeHeader,
                     "application/x-www-form-urlencoded");
-  int http_code, err_code, network_error;
+  QNetworkReply *reply = post_reply(m_network_manager, query.toString(QUrl::FullyEncoded).toUtf8(), request);
+  reply->ignoreSslErrors();
 
-  QByteArray arr = send_request(
-      m_network_manager, request, false, http_code, err_code, network_error,
-      query.toString(QUrl::FullyEncoded).toUtf8(), false, 6000);
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  timer->start();
 
-  UNUSED_ARG(arr);
-
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  // after change of password make authorization
-  return peer_login(port, username, new_pass);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
 }
 
 void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
@@ -406,9 +408,6 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   timer->setSingleShot(true);
 
   connect(timer, &QTimer::timeout, [reply]() {
-    CNotificationObserver::Instance()->Info(
-        "Connection timeout, can't connect to bazaar",
-        DlgNotification::N_NO_ACTION);
     if (reply) reply->close();
   });
 
@@ -416,8 +415,11 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
 
   connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
   connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
 
-  connect(reply, &QNetworkReply::finished, [reply, type, name, dir, peer_info_type](){
+  connect(reply, &QNetworkReply::finished, [reply, port, type, name, dir, peer_info_type](){
     qDebug() << "Is reply null " << (reply == nullptr);
     if (reply == nullptr) {
       return;
@@ -430,20 +432,35 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
     QString res = "false";
     if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
       qCritical() << "couldn't get json file from" << name;
+      // if user is not authorized
+      if (http_code == 401 || QString(arr) == "User is not authorized") {
+        // set password if not changed
+        QString old_pass = "secret";
+        QString user_name = "admin";
+        QString new_pass = CSettingsManager::Instance().peer_pass(name);
+        CRestWorker::Instance()->peer_set_pass(port, user_name, old_pass, new_pass);
+        // login
+        CRestWorker::Instance()->peer_login(port, user_name, new_pass);
+      }
     } else {
       // get value from json file
       QJsonObject obj = doc.object();
       QJsonValue val;
       if (obj.find(peer_info_type) != obj.end()) {
         val = obj[peer_info_type];
-        res = val.toString() == "true" ? "true" : "false";
+        bool value = val.toBool();
+        if (value) {
+          res = "true";
+        } else {
+          res = "false";
+        }
       }
     }
     CPeerController::Instance()->parse_peer_info(type, name, dir, res);
   });
 }
 
-bool CRestWorker::peer_login(const QString &port,
+void CRestWorker::peer_login(const QString &port,
                              const QString &username,
                              const QString &pass){
   const QString str_url(QString("https://localhost:%1/login").arg(port));
@@ -455,22 +472,22 @@ bool CRestWorker::peer_login(const QString &port,
   QNetworkRequest request(url_finger);
   request.setHeader(QNetworkRequest::ContentTypeHeader,
                     "application/x-www-form-urlencoded");
-  int http_code, err_code, network_error;
+  QNetworkReply *reply = post_reply(m_network_manager, query.toString(QUrl::FullyEncoded).toUtf8(), request);
+  reply->ignoreSslErrors();
 
-  QByteArray arr = send_request(
-      m_network_manager, request, false, http_code, err_code, network_error,
-      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  timer->start();
 
-  UNUSED_ARG(arr);
-
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  if (err_code != RE_SUCCESS) {
-    qCritical() << "Failed to login in local peer: " << port;
-    return false;
-  } else {
-    return true;
-  }
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
 }
 
 ////////////////////////////////////////////////////////////////////////////
