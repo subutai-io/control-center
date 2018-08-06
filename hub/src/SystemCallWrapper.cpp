@@ -412,6 +412,28 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     }
     return res.res;
 }
+
+QString CSystemCallWrapper::vagrant_fingerprint(const QString &ip){
+    qDebug()
+            <<"Trying to get fingerprint of "<<ip;
+    QString finger = "";
+    if(CRestWorker::Instance()->peer_finger(ip, finger) && !finger.isEmpty()){
+        return finger.toUpper();
+    }
+    else{
+        finger = "undefined";
+        return finger;
+    }
+}
+
+bool CSystemCallWrapper::vagrant_set_password(const QString &ip,
+                                              const QString &username,
+                                              const QString &old_pass,
+                                              const QString &new_pass){
+    qDebug()
+            <<"Trying to set new password of "<<ip;
+    return CRestWorker::Instance()->peer_set_pass(ip, username, old_pass, new_pass);
+}
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
@@ -432,6 +454,20 @@ void parse_status_line(QString status_line,
         directory.remove(directory.size() -1 , 1);
     }
     return;
+}
+
+QString CSystemCallWrapper::vagrant_is_peer_update_available(const QString &ip){
+    qDebug()
+            <<"Trying to get update of peer: "<<ip;
+    QJsonValue update_available;
+    if (!CRestWorker::Instance()->peer_get_info(ip,
+        "isUpdatesAvailable", update_available)) {
+      return QString("false");
+    }
+    if(update_available.isBool()){
+      return update_available.toBool() ? QString("true") : QString("false");
+    }
+    return QString("false");
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
