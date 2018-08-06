@@ -340,25 +340,6 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
       CRestWorker::Instance()->peer_get_info(output, "isUpdatesAvailable",
                                              P_UPDATE, name, dir);
       number_threads++;
-      // set password
-      /*SetPasswordPeer *thread_for_pass = new SetPasswordPeer(this);
-      static QString user_name = "admin";
-      thread_for_pass->init(output, user_name,
-                            CSettingsManager::Instance().peer_pass(),
-                            CSettingsManager::Instance().peer_pass(name));
-      thread_for_pass->startWork();*/
-
-      /*
-      // get update info
-      GetPeerInfo *thread_for_update = new GetPeerInfo(this);
-      peer_info_t update_type = P_UPDATE;
-      thread_for_update->init(output, update_type);
-      number_threads++;
-      thread_for_update->startWork();
-      connect(thread_for_update, &GetPeerInfo::outputReceived,
-              [dir, name, this](peer_info_t type, QString res) {
-                this->parse_peer_info(type, name, dir, res);
-              });*/
     }
   } else if (type == P_FINGER) {
     qDebug() << "Got finger of " << name << "finger:" << output;
