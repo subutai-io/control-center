@@ -57,7 +57,12 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {E2E, "Subutai E2E"},
     {VAGRANT_SUBUTAI, "Subutai plugin"},
     {VAGRANT_VBGUEST, "VirtualBox plugin"},
-    {SUBUTAI_BOX, "Subutai box"},
+    {SUBUTAI_BOX, "Vagrant Subutai box"},
+    {VMWARE, "VMware"},
+    {VMWARE_UTILITY, "Vagrant VMware Utility"},
+    {VAGRANT_VMWARE_DESKTOP, "Vagrant VMware Provider"},
+    {VAGRANT_LIBVIRT, "Vagrant Libvirt Provider"},
+    {VAGRANT_PARALLELS, "Vagrant Parallels Provider"},
     {XQUARTZ, "XQuartz"}
   };
   static const QString def = "";
