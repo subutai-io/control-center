@@ -62,6 +62,7 @@ SOURCES += \
     hub/src/DlgRegisterPeer.cpp \
     DlgCreatePeer.cpp \
     hub/src/PeerController.cpp \
+    commons/src/VagrantProvider.cpp \
     hub/src/updater/UpdaterComponentVagrant.cpp \
     hub/src/updater/UpdaterComponentX2go.cpp \
     hub/src/updater/UpdaterComponentVirtualbox.cpp \
@@ -72,6 +73,11 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantSubutai.cpp \
     hub/src/updater/UpdaterComponentVagrantVBguest.cpp \
     commons/src/Environment.cpp \
+    hub/src/updater/UpdaterComponentVagrantLibvirt.cpp \
+    hub/src/updater/UpdaterComponentVagrantParallels.cpp \
+    hub/src/updater/UpdaterComponentVagrantVmware.cpp \
+    hub/src/updater/UpdaterComponentVMware.cpp \
+    hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
     hub/src/updater/UpdaterComponentXQuartz.cpp
 
 
@@ -120,6 +126,7 @@ HEADERS  += \
     hub/include/DlgRegisterPeer.h \
     DlgCreatePeer.h \
     hub/include/PeerController.h \
+    commons/include/VagrantProvider.h \
     hub/include/updater/UpdaterComponentVagrant.h \
     hub/include/updater/UpdaterComponentX2go.h \
     hub/include/updater/UpdaterComponentVirtualbox.h \
@@ -130,6 +137,11 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVagrantSubutai.h \
     hub/include/updater/UpdaterComponentVagrantVBguest.h \
     commons/include/Environment.h \
+    hub/include/updater/UpdaterComponentVagrantLibvirt.h \
+    hub/include/updater/UpdaterComponentVagrantParallels.h \
+    hub/include/updater/UpdaterComponentVagrantVmware.h \
+    hub/include/updater/UpdaterComponentVMware.h \
+    hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
     hub/include/updater/UpdaterComponentXQuartz.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \

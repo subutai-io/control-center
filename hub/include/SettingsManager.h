@@ -28,6 +28,7 @@ class CSettingsManager : public QObject {
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
+  static const QString SM_VMWARE_PATH;
   static const QString SM_XQUARTZ_PATH;
   static const QString SM_DEFAULT_BROWSER;
   static const QString SM_DEFAULT_CHROME_PROFILE;
@@ -59,6 +60,7 @@ class CSettingsManager : public QObject {
   static const QString SM_DCT_NOTIFICATIONS_IGNORE;
   static const QString SM_NOTIFICATIONS_LEVEL;
   static const QString SM_LOGS_LEVEL;
+  static const QString SM_VAGRANT_PROVIDER;
 
   static const QString SM_USE_ANIMATIONS;
   static const QString SM_PREFERRED_NOTIFICATIONS_PLACE;
@@ -87,6 +89,7 @@ class CSettingsManager : public QObject {
   QString m_p2p_path;
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
+  QString m_vmware_path;
   QString m_xquartz_path;
   QString m_default_browser;
   QString m_default_chrome_profile;
@@ -136,6 +139,7 @@ class CSettingsManager : public QObject {
   QMap<QString, QVariant> m_dct_notification_ignore;
   uint32_t m_notifications_level;
   uint32_t m_logs_level;
+  uint32_t m_vagrant_provider;
   uint32_t m_tray_skin;
   uint32_t m_locale;
 
@@ -206,6 +210,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
+  const QString& vmware_path() const { return m_vmware_path; }
   const QString& xquartz_path() const { return  m_xquartz_path; }
   const QString& default_browser() const { return m_default_browser; }
   const QString& default_chrome_profile();
@@ -252,6 +257,7 @@ class CSettingsManager : public QObject {
 
   uint32_t notifications_level() const { return m_notifications_level; }
   uint32_t logs_level() const { return m_logs_level; }
+  uint32_t vagrant_provider() const { return m_vagrant_provider; }
   uint32_t tray_skin() const { return m_tray_skin; }
   uint32_t preferred_notifications_place() const {
     return m_preferred_notifications_place;
@@ -276,6 +282,7 @@ class CSettingsManager : public QObject {
   /**********************/
 
   void set_logs_level(int logs_level);
+  void set_vagrant_provider(int provider);
   void set_p2p_update_freq(int fr);
   void set_tray_update_freq(int fr);
   void set_locale(int fr);
@@ -283,8 +290,11 @@ class CSettingsManager : public QObject {
   void set_vagrant_path(QString fr);
   void set_x2goclient_path(QString fr);
   void set_oracle_virtualbox_path(QString fr);
+  void set_hypervisor_path(QString fr);
+  void set_vmware_path(QString fr);
   void set_default_browser(QString fr);
   void set_default_chrome_profile(QString fr);
+  const QString& current_hypervisor_path();
   void set_default_firefox_profile(QString fr);
   void set_rh_pass(const QString &id, const QString &pass);
   void set_rh_user(const QString &id, const QString &user);
@@ -330,6 +340,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(use_animations, bool)
   SET_FIELD_DECL(notifications_level, uint32_t)
   SET_FIELD_DECL(logs_level, uint32_t)
+  SET_FIELD_DECL(vagrant_provider, uint32_t)
   SET_FIELD_DECL(tray_skin, uint32_t)
   SET_FIELD_DECL(preferred_notifications_place, uint32_t)
   SET_FIELD_DECL(ssh_keygen_cmd, QString&)

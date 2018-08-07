@@ -7,6 +7,7 @@
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "ui_DlgCreatePeer.h"
+#include "VagrantProvider.h"
 #include "Environment.h"
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
@@ -14,10 +15,13 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       m_password_state(0),
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
+  // Bridge interfaces
+  QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
   ui->setupUi(this);
   ui->le_disk->setText("100");
-  ui->cmb_bridge->addItems(CPeerController::Instance()->get_bridgedifs());
+  ui->cmb_bridge->addItems(bridges);
+  ui->lbl_provider->setText(VagrantProvider::Instance()->CurrentStr());
   hide_err_labels();
   this->adjustSize();
   // slots
@@ -33,6 +37,27 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::ORACLE_VIRTUALBOX);
       });
+
+  // VMware Hypervisor
+  requirement vmware(
+        tr("VMware is not ready"), tr("Checking VMware..."),
+        tr("VMware is not ready. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VMWARE);
+        });
+
+  // Vagrant VMware Utility
+  requirement vagrant_vmware_utility(
+        tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
+        tr("Vagrant VMware Utility is not ready. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VMWARE_UTILITY);
+        });
+
   requirement vagrant(
       tr("Vagrant is not ready"), tr("Checking Vagrant..."),
       tr("Vagrant is not ready. You should install or update it from "
@@ -50,9 +75,41 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::VAGRANT_SUBUTAI);
       });
+  // For Parallels
+  requirement parallels_provider(
+      tr("Parallels provider is not ready"), tr("Checking Parallels provider..."),
+      tr("Unable to run the Vagrant Parallels provider, Make sure that you have it "
+         "installed or updated successfully by going to the menu > "
+         "Components."),
+      DlgNotification::N_ABOUT, []() {
+        return !CHubComponentsUpdater::Instance()->is_update_available(
+              IUpdaterComponent::VAGRANT_PARALLELS);
+       });
+  // For Libvirt
+  requirement libvirt_provider(
+        tr("Vagrant Libvirt provider is not ready"), tr("Checking Libvirt provider..."),
+        tr("Unable to run the Vagrant Libvirt provider, Make sure that you have it "
+           "installed or updated successfully by going to the menu > "
+           "Components."),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VAGRANT_LIBVIRT);
+         });
+  // For VMware. We use vagrant-vmware-desktop provider.
+  // Which works both VMware Fusion and Workstation.
+  requirement vmware_provider(
+        tr("Vagrant VMware provider is not ready"), tr("Checking VMware provider..."),
+        tr("Unable to run the Vagrant VMware provider, Make sure that you have it "
+           "installed or updated successfully by going to the menu > "
+           "Components."),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+         });
+
   requirement vbguest_plugin(
       tr("VirtualBox plugin is not ready"), tr("Checking VirtualBox plugin..."),
-      tr("Vagrant VirtualBox plugin is not ready. You should install or update "
+      tr("Vagrant VBGuest plugin is not ready. You should install or update "
          "it from Components"),
       DlgNotification::N_ABOUT, []() {
         return !CHubComponentsUpdater::Instance()->is_update_available(
@@ -66,15 +123,49 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         return !CHubComponentsUpdater::Instance()->is_update_available(
             IUpdaterComponent::SUBUTAI_BOX);
       });
+
+  // Default requrements
   m_requirements_ls = std::vector<requirement>{
-      vagrant, virtualbox, subutai_plugin, vbguest_plugin, subutai_box};
+      vagrant, subutai_plugin, subutai_box};
+
+  // add provider requirements by hypervisor
+  switch(VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    m_requirements_ls.push_back(virtualbox);
+    m_requirements_ls.push_back(vbguest_plugin);
+    break;
+  case VagrantProvider::PARALLELS:
+    m_requirements_ls.push_back(parallels_provider);
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    m_requirements_ls.push_back(vmware_provider);
+    m_requirements_ls.push_back(vmware);
+    m_requirements_ls.push_back(vagrant_vmware_utility);
+
+    ui->lbl_bridge->hide();
+    ui->cmb_bridge->hide();
+
+    break;
+  case VagrantProvider::LIBVIRT:
+    m_requirements_ls.push_back(libvirt_provider);
+
+    if (bridges.size() == 0) {
+      ui->lbl_bridge->hide();
+      ui->cmb_bridge->hide();
+    }
+
+    break;
+  default:
+    break;
+  }
+
   // format
   ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
   ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
   ui->le_pass->setEchoMode(QLineEdit::Password);
   ui->le_pass_confirm->setEchoMode(QLineEdit::Password);
   ui->le_name->setMaxLength(20);
-  ui->pb_peer->setMaximum(m_requirements_ls.size() + 1);
+  ui->pb_peer->setMaximum((int)m_requirements_ls.size() + 1);
   m_invalid_chars.setPattern("\\W");
   static QIcon show_password_icon(":/hub/show-password.png");
   static QIcon hide_password_icon(":/hub/hide-password.png");
@@ -350,10 +441,15 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     else
       stream << "SUBUTAI_ENV : "
              << "master" << endl;
+
     stream << "DISK_SIZE : " << disk << endl;
-    stream << "BRIDGE : "
-           << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
-           << endl;
+
+    if (!this->ui->cmb_bridge->currentText().isEmpty()) {
+      stream << "BRIDGE : "
+             << QString("\"%1\"").arg(this->ui->cmb_bridge->currentText())
+             << endl;
+    }
+
     stream << "SUBUTAI_DISK_PATH : "
            << QString("\"%1\"")
               .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
@@ -370,7 +466,8 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
     stream << "0" << endl;
   }
   p_file.close();
-  static QString vagrant_up_string = "up --provider virtualbox";
+  QString vagrant_up_string = QString("up --provider %1").arg(
+        VagrantProvider::Instance()->CurrentVal());
   QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
   CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
   res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string,

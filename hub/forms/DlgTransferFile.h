@@ -192,6 +192,47 @@ signals:
   void outputReceived(system_call_wrapper_error_t res, const QStringList &output);
 };
 
+class LocalFileRemover : public QObject{
+  Q_OBJECT
+  QString file_path;
+
+public:
+  LocalFileRemover(QObject *parent = nullptr) : QObject (parent) {}
+  void init (const QString &file_path) {
+    this->file_path = file_path;
+  }
+
+  void startWork() {
+    QThread* thread = new QThread();
+    connect(thread, &QThread::started,
+            this, &LocalFileRemover::execute_local_remove);
+    connect(this, &LocalFileRemover::outputReceived,
+            thread, &QThread::quit);
+    connect(thread, &QThread::finished,
+            this, &RemoteCommandExecutor::deleteLater);
+    connect(thread, &QThread::finished,
+            thread, &QThread::deleteLater);
+    this->moveToThread(thread);
+    thread->start();
+  }
+
+
+  void execute_local_remove() {
+    //QStringList output;
+    QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>> *watcher
+        = new QFutureWatcher<std::pair<system_call_wrapper_error_t,QStringList> >(this);
+
+    QFuture<std::pair<system_call_wrapper_error_t, QStringList> >  res =
+        QtConcurrent::run(CSystemCallWrapper::remove_file, file_path);
+    watcher->setFuture(res);
+    connect(watcher, &QFutureWatcher<std::pair<system_call_wrapper_error_t, QStringList>>::finished, [this, res](){
+      emit this->outputReceived(res.result().first, res.result().second);
+    });
+  }
+
+signals:
+  void outputReceived(system_call_wrapper_error_t res, const QStringList &output);
+};
 
 enum FILE_TYPE {
   FILE_TYPE_SIMPLE = 0,
@@ -209,6 +250,12 @@ enum TRANSFER_FILE_STATUS{
   FILE_TO_DOWNLOAD,
   FILE_FINISHED_DOWNLOAD,
   FILE_FAILED_TO_DOWNLOAD,
+  // REMOVE STATUSES
+  FILE_TO_REMOVE_LOCAL,
+  FILE_TO_REMOVE_REMOTE,
+  FILE_FINISHED_REMOVE,
+  FILE_FAILED_TO_REMOVE_LOCAL,
+  FILE_FAILED_TO_REMOVE_REMOTE,
 };
 
 enum MACHINE_TYPE{
@@ -404,6 +451,9 @@ private:
 
   void upload_selected();
   void download_selected();
+
+  void remove_selected_local();
+  void remove_selected_remote();
 
   void refresh_button_local();
   void refresh_button_remote();
