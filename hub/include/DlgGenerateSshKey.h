@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QModelIndex>
+#include <QMutex>
 
 namespace Ui {
   class DlgGenerateSshKey;

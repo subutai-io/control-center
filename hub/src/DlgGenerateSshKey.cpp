@@ -143,9 +143,13 @@ void DlgGenerateSshKey::btn_generate_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgGenerateSshKey::btn_remove_released() {
+  ui->btn_remove_key->setEnabled(false);
+  ui->btn_generate_new_key->setEnabled(false);
   CSshKeysController::Instance().remove_ssh_key();
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
+  ui->btn_remove_key->setEnabled(true);
+  ui->btn_generate_new_key->setEnabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
