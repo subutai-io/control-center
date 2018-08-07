@@ -4,6 +4,7 @@
 #include <QTimer>
 
 #include "DlgNotification.h"
+#include "SettingsManager.h"
 #include "Locker.h"
 #include "NotificationObserver.h"
 #include "OsBranchConsts.h"
@@ -307,32 +308,55 @@ void CRestWorker::peer_register(const QString& port, const QString& token,
            << "Network Error " << network_error;
 }
 
-bool CRestWorker::peer_finger(const QString& port, QString& finger) {
+void CRestWorker::peer_finger(const QString& port,
+                              CPeerController::peer_info_t type,
+                              QString name,
+                              QString dir) {
   qInfo() << tr("Getting finger from %1").arg(port);
 
   const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/"
                                 "getpublickeyfingerprint")
                             .arg(port));
-  int http_code, err_code, network_error;
   QUrl url_finger(str_url);
-  QByteArray nothing;
-  QNetworkRequest request(url_finger);
-  request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, 1, http_code,
-                                err_code, network_error, nothing, false);
+  QNetworkRequest req(url_finger);
+  req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  QNetworkReply* reply = get_reply(m_network_manager, req);
+  reply->ignoreSslErrors();
 
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  try {
-    finger = QString(arr);
-  } catch (...) {
-    qCritical() << "failed to get finger of " << port;
-    finger = "";
-  }
-  return true;
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  timer->start();
+
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
+  connect(reply, &QNetworkReply::finished,
+          reply, &QNetworkReply::deleteLater);
+
+  connect(reply, &QNetworkReply::finished, [reply, type, name, dir](){
+    qDebug() << "Is reply null " << (reply == nullptr);
+    if (reply == nullptr) {
+      return;
+    }
+    int http_code, err_code, network_error;
+    pre_handle_reply(reply, http_code, err_code, network_error);
+    QString finger = "undefined";
+    QByteArray arr = reply->readAll();
+    try {
+      finger = QString(arr);
+    } catch (...) {
+      finger = "undefined";
+    }
+    CPeerController::Instance()->parse_peer_info(type, name, dir, finger);
+  });
 }
 
-bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
+void CRestWorker::peer_set_pass(const QString& port, const QString& username,
                                 const QString& old_pass,
                                 const QString& new_pass) {
   qInfo() << tr("Setting password for %1").arg(port);
@@ -347,46 +371,88 @@ bool CRestWorker::peer_set_pass(const QString& port, const QString& username,
   QNetworkRequest request(url_finger);
   request.setHeader(QNetworkRequest::ContentTypeHeader,
                     "application/x-www-form-urlencoded");
-  int http_code, err_code, network_error;
+  QNetworkReply *reply = post_reply(m_network_manager, query.toString(QUrl::FullyEncoded).toUtf8(), request);
+  reply->ignoreSslErrors();
 
-  QByteArray arr = send_request(
-      m_network_manager, request, false, http_code, err_code, network_error,
-      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  timer->start();
 
-  UNUSED_ARG(arr);
-
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  // after change of password make authorization
-  return peer_login(port, username, new_pass);
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
 }
 
-bool CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
-                                QJsonValue& peer_info_value) {
+void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
+                                CPeerController::peer_info_t type,
+                                QString name,
+                                QString dir) {
   // create request
-  int http_code, err_code, network_error;
   const QString str_url(QString("https://localhost:%1/rest/v1/system/management_updates").arg(port));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-  QByteArray arr = send_request(m_network_manager, request, true, http_code,
-                                err_code, network_error, QByteArray(), 0);
-  // get json file
-  QJsonDocument doc = QJsonDocument::fromJson(arr);
-  if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
-    qCritical() << "couldn't get json file from" << port;
-    return false;
-  }
-  // get value from json file
-  QJsonObject obj = doc.object();
-  if (obj.find(peer_info_type) != obj.end()) {
-    peer_info_value = obj[peer_info_type];
-    return true;
-  }
-  return false;
+  QNetworkReply* reply = get_reply(m_network_manager, request);
+  reply->ignoreSslErrors();
+
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  timer->start();
+
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
+
+  connect(reply, &QNetworkReply::finished, [reply, port, type, name, dir, peer_info_type](){
+    qDebug() << "Is reply null " << (reply == nullptr);
+    if (reply == nullptr) {
+      return;
+    }
+    int http_code, err_code, network_error;
+    pre_handle_reply(reply, http_code, err_code, network_error);
+    QByteArray arr = reply->readAll();
+    // get json file
+    QJsonDocument doc = QJsonDocument::fromJson(arr);
+    QString res = "false";
+    if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+      qCritical() << "couldn't get json file from" << name;
+      // if user is not authorized
+      if (http_code == 401 || QString(arr) == "User is not authorized") {
+        // set password if not changed
+        QString old_pass = "secret", user_name = "admin";
+        QString new_pass = CSettingsManager::Instance().peer_pass(name);
+        CRestWorker::Instance()->peer_set_pass(port, user_name, old_pass, new_pass);
+        // login
+        CRestWorker::Instance()->peer_login(port, user_name, new_pass);
+      }
+    } else {
+      // get value from json file
+      QJsonObject obj = doc.object();
+      if (obj.find(peer_info_type) != obj.end()) {
+        if (obj[peer_info_type].toBool()) {
+          res = "true";
+        } else {
+          res = "false";
+        }
+      }
+    }
+    CPeerController::Instance()->parse_peer_info(type, name, dir, res);
+  });
 }
 
-bool CRestWorker::peer_login(const QString &port,
+void CRestWorker::peer_login(const QString &port,
                              const QString &username,
                              const QString &pass){
   const QString str_url(QString("https://localhost:%1/login").arg(port));
@@ -398,22 +464,22 @@ bool CRestWorker::peer_login(const QString &port,
   QNetworkRequest request(url_finger);
   request.setHeader(QNetworkRequest::ContentTypeHeader,
                     "application/x-www-form-urlencoded");
-  int http_code, err_code, network_error;
+  QNetworkReply *reply = post_reply(m_network_manager, query.toString(QUrl::FullyEncoded).toUtf8(), request);
+  reply->ignoreSslErrors();
 
-  QByteArray arr = send_request(
-      m_network_manager, request, false, http_code, err_code, network_error,
-      query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
+  QTimer* timer = new QTimer(this);
+  timer->setInterval(6000);
+  timer->setSingleShot(true);
+  connect(timer, &QTimer::timeout, [reply]() {
+    if (reply) reply->close();
+  });
+  timer->start();
 
-  UNUSED_ARG(arr);
-
-  qDebug() << "Http code " << http_code << "Error code " << err_code
-           << "Network Error " << network_error;
-  if (err_code != RE_SUCCESS) {
-    qCritical() << "Failed to login in local peer: " << port;
-    return false;
-  } else {
-    return true;
-  }
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::stop);
+  connect(reply, &QNetworkReply::finished, timer, &QTimer::deleteLater);
+  connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+          reply, &QNetworkReply::close);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -949,6 +1015,8 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   QObject::connect(reply, &QNetworkReply::finished, loop, &QEventLoop::quit);
   QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
                    loop, &QEventLoop::quit);
+  QObject::connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
+                   reply, &QNetworkReply::close);
 
   reply->ignoreSslErrors();
 
