@@ -188,6 +188,7 @@ void CSshKeysController::remove_ssh_key() {
 
   for (int i = 0; i < (int) m_lst_healthy_environments.size(); i++) {
     if (m_original_ke_matrix.size() < i ||
+        m_current_key_col < 0 ||
         m_original_ke_matrix[i].size() < m_current_key_col) {
       continue;
     }
@@ -250,6 +251,7 @@ void CSshKeysController::remove_ssh_key() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSshKeysController::send_data_to_hub() {
+
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_send;
   std::map<QString, std::pair<QString, std::vector<QString> > > dct_to_remove;
   std::vector<size_t> lst_to_remove_idxs;
@@ -317,7 +319,9 @@ void CSshKeysController::send_data_to_hub() {
   }
 
   emit ssh_key_send_finished();
-  QtConcurrent::run(this, &CSshKeysController::rebuild_bit_matrix);
+  QFuture<void> result =
+      QtConcurrent::run(this, &CSshKeysController::rebuild_bit_matrix);
+  result.waitForFinished();
 }
 ////////////////////////////////////////////////////////////////////////////
 
