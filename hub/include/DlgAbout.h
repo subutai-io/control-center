@@ -96,10 +96,10 @@ private:
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
   void set_hidden_providers();
-  void set_hidden_virtualbox(bool show_hide);
-  void set_hidden_vmware(bool show_hide);
-  void set_hidden_parallels(bool show_hide);
-  void set_hidden_libvirt(bool show_hide);
+  void set_visible_virtualbox(bool value);
+  void set_visible_vmware(bool value);
+  void set_visible_parallels(bool value);
+  void set_visible_libvirt(bool value);
 
 private slots:
   void btn_tray_update_released();
