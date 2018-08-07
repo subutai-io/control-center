@@ -16,6 +16,7 @@
 #include <QString>
 #include <vector>
 #include "RestContainers.h"
+#include "PeerController.h"
 
 typedef enum rest_error {
   RE_SUCCESS = 0,
@@ -139,19 +140,23 @@ public:
                   int &http_code,
                   int &network_error);
 
-  bool peer_finger(const QString& port,
-                   QString& finger);
+  void peer_finger(const QString& port,
+                   CPeerController::peer_info_t type,
+                   QString name,
+                   QString dir);
 
-  bool peer_set_pass(const QString& port,
+  void peer_set_pass(const QString& port,
                      const QString& username,
                      const QString& old_pass,
                      const QString& new_pass);
 
-  bool peer_get_info(const QString& port,
+  void peer_get_info(const QString& port,
                      QString peer_info_type,
-                     QJsonValue& peer_info_value);
+                     CPeerController::peer_info_t type,
+                     QString name,
+                     QString dir);
 
-  bool peer_login(const QString& port,
+  void peer_login(const QString& port,
                   const QString& username,
                   const QString& pass);
 
