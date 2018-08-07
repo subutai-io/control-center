@@ -166,16 +166,10 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
   static system_call_wrapper_error_t vagrant_box_update(const QString &box, const QString &provider);
   static system_call_wrapper_error_t vagrant_box_remove(const QString &box, const QString &provider);
-  static QString vagrant_fingerprint(const QString &ip);
-  static bool vagrant_set_password(const QString &ip,
-                                   const QString &username,
-                                   const QString &old_pass,
-                                   const QString &new_pass);
   static QString vagrant_status(const QString &dir);
   static QString vagrant_ip(const QString &dir);
   static QString vagrant_port(const QString &dir);
   static system_call_wrapper_error_t vagrant_update_peeros(const QString &port, const QString &peer_name);
-  static QString vagrant_is_peer_update_available(const QString &ip);
   static std::pair<QStringList, system_call_res_t> vagrant_update_information();
   static QString get_virtualbox_vm_storage();
   static system_call_wrapper_error_t set_virtualbox_vm_storage(const QString &dir);
