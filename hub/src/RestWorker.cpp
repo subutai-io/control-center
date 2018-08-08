@@ -777,7 +777,7 @@ QNetworkReply* CRestWorker::download_file(const QUrl& url) {
                    QNetworkRequest::AlwaysNetwork);
   QNetworkReply* reply = m_network_manager->get(req);
   reply->ignoreSslErrors();
-  return m_network_manager->get(req);
+  return reply;
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -989,8 +989,8 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
   network_error = 0;
   http_status_code = -1;
 
-  QEventLoop* loop = new QEventLoop;
-  QTimer* timer = new QTimer;
+  QEventLoop* loop = new QEventLoop(this);
+  QTimer* timer = new QTimer(this);
   timer->setSingleShot(true);
   if (timeout_time == 0 || timeout_time == 30000) {
     timer->start(30000);
