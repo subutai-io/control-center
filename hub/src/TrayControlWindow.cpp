@@ -65,21 +65,21 @@ void InitTrayIconTriggerHandler(QSystemTrayIcon *icon, TrayControlWindow *win) {
 TrayControlWindow::TrayControlWindow(QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::TrayControlWindow),
-      m_tray_menu(NULL),
-      m_act_ssh_keys_management(NULL),
-      m_act_quit(NULL),
-      m_act_settings(NULL),
-      m_act_balance(NULL),
-      m_act_hub(NULL),
-      m_act_user_name(NULL),
-      m_act_launch_Hub(NULL),
-      m_act_about(NULL),
-      m_act_help(NULL),
-      m_act_logout(NULL),
-      m_sys_tray_icon(NULL),
-      m_act_create_peer(NULL),
-      m_act_p2p_start(NULL),
-      m_act_p2p_stop(NULL),
+      m_tray_menu(nullptr),
+      m_act_ssh_keys_management(nullptr),
+      m_act_quit(nullptr),
+      m_act_settings(nullptr),
+      m_act_balance(nullptr),
+      m_act_hub(nullptr),
+      m_act_user_name(nullptr),
+      m_act_launch_Hub(nullptr),
+      m_act_about(nullptr),
+      m_act_help(nullptr),
+      m_act_logout(nullptr),
+      m_sys_tray_icon(nullptr),
+      m_act_create_peer(nullptr),
+      m_act_p2p_start(nullptr),
+      m_act_p2p_stop(nullptr),
       in_peer_slot(false) {
   ui->setupUi(this);
 
@@ -204,16 +204,6 @@ void TrayControlWindow::check_components() {
 ///
 void TrayControlWindow::application_quit() {
   qDebug() << "Quitting the tray";
-  std::vector<QDialog *> lstActiveDialogs(m_dct_active_dialogs.size());
-  int i = 0;
-  // this extra copy because on dialog finish we are removing it from
-  // m_dct_active_dialogs
-  for (auto j = m_dct_active_dialogs.begin(); j != m_dct_active_dialogs.end();
-       ++j, ++i)
-    lstActiveDialogs[i] = j->second;
-  // close active dialogs
-  while (i--) lstActiveDialogs[i]->close();
-  // close active processes
   CProcessHandler::Instance()->clear_proc();
   QApplication::closeAllWindows();
   m_sys_tray_icon->hide();
@@ -1092,7 +1082,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
     my_peers_button_table[peer_id] = new_peer_button;
   }
   my_peer_button *peer_button = my_peers_button_table[peer_id];
-  if (peer_button->m_local_peer == NULL) {
+  if (peer_button->m_local_peer == nullptr) {
     peer_button->m_local_peer = new CLocalPeer;
   }
   if (peer_info.status() == "running") {
@@ -1109,7 +1099,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
   } else {
     peer_button->m_local_peer_state = 2;
   }
-  if (peer_button->m_hub_peer == NULL) {
+  if (peer_button->m_hub_peer == nullptr) {
     peer_button->peer_name = peer_info.name();
   }
   *(peer_button->m_local_peer) = peer_info;
@@ -1125,7 +1115,7 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
     my_peers_button_table[peer_id] = new_peer_button;
   }
   my_peer_button *peer_button = my_peers_button_table[peer_id];
-  if (peer_button->m_hub_peer == NULL) {
+  if (peer_button->m_hub_peer == nullptr) {
     peer_button->m_hub_peer = new CMyPeerInfo;
   }
   if (peer_info.status() == "ONLINE") {
@@ -1150,7 +1140,7 @@ void TrayControlWindow::update_peer_button(
   if ((peer_button->m_hub_peer_state || peer_button->m_local_peer_state) == 0) {
     peer_button->peer_name = peer_info.second;
   }
-  if (peer_button->m_network_peer == NULL) {
+  if (peer_button->m_network_peer == nullptr) {
     peer_button->m_network_peer = new std::pair<QString, QString>;
   }
   *(peer_button->m_network_peer) = peer_info;
@@ -1182,10 +1172,10 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id) {
        {local_hub, local_hub, local_machine_off_icon, unknown_icon},
        {local_hub, local_network_icon, local_machine_off_icon}}};
   my_peer_button *peer_button = my_peers_button_table[peer_id];
-  if (peer_button == NULL) {
+  if (peer_button == nullptr) {
     return;
   }
-  if (peer_button->m_my_peers_item == NULL) {
+  if (peer_button->m_my_peers_item == nullptr) {
     peer_button->m_my_peers_item = new QAction;
     connect(peer_button->m_my_peers_item, &QAction::triggered,
             [this, peer_id]() {
@@ -1199,7 +1189,7 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id) {
                [peer_button->m_local_peer_state]);
   if ((peer_button->m_local_peer_state || peer_button->m_hub_peer_state) ==
       0) {  // no information about hub and local peers
-    if (peer_button->m_my_peers_item != NULL) {
+    if (peer_button->m_my_peers_item != nullptr) {
       m_hub_peer_menu->removeAction(peer_button->m_my_peers_item);
       if (m_hub_peer_menu->actions().isEmpty()) {
         m_hub_peer_menu->addAction(m_empty_action);
@@ -1241,25 +1231,25 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id,
                                // configs
   switch (type) {
     case 0:
-      if (peer_button->m_local_peer != NULL) {
+      if (peer_button->m_local_peer != nullptr) {
         peer_backup_name = peer_button->peer_name;
         peer_local_backup_name = peer_button->m_local_peer->name();
         delete peer_button->m_local_peer;
-        peer_button->m_local_peer = NULL;
+        peer_button->m_local_peer = nullptr;
       }
       peer_button->m_local_peer_state = 0;
       break;
     case 1:
-      if (peer_button->m_hub_peer != NULL) {
+      if (peer_button->m_hub_peer != nullptr) {
         delete peer_button->m_hub_peer;
-        peer_button->m_hub_peer = NULL;
+        peer_button->m_hub_peer = nullptr;
       }
       peer_button->m_hub_peer_state = 0;
       break;
     case 2:
-      if (peer_button->m_network_peer != NULL) {
+      if (peer_button->m_network_peer != nullptr) {
         delete peer_button->m_network_peer;
-        peer_button->m_network_peer = NULL;
+        peer_button->m_network_peer = nullptr;
       }
       peer_button->m_network_peer_state = 0;
       break;
@@ -1438,7 +1428,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
   if (iter == m_dct_active_dialogs.end()) {
     QDialog *dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
-    Qt::WindowFlags flags = 0;
+    Qt::WindowFlags flags;
     flags = Qt::Window;
     flags |= Qt::WindowMinimizeButtonHint;
     flags |= Qt::WindowMaximizeButtonHint;
@@ -1573,7 +1563,7 @@ void TrayControlWindow::show_notifications_triggered() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-QDialog *TrayControlWindow::m_last_generated_env_dlg = NULL;
+QDialog *TrayControlWindow::m_last_generated_env_dlg = nullptr;
 
 QDialog *TrayControlWindow::last_generated_env_dlg(QWidget *p) {
   UNUSED_ARG(p);
@@ -1595,7 +1585,7 @@ void TrayControlWindow::generate_env_dlg(const CEnvironment *env) {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QDialog *TrayControlWindow::m_last_generated_tranferfile_dlg = NULL;
+QDialog *TrayControlWindow::m_last_generated_tranferfile_dlg = nullptr;
 
 QDialog *TrayControlWindow::last_generated_transferfile_dlg(QWidget *p) {
   UNUSED_ARG(p);
@@ -1612,7 +1602,7 @@ void TrayControlWindow::generate_transferfile_dlg() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-QDialog *TrayControlWindow::m_last_generated_peer_dlg = NULL;
+QDialog *TrayControlWindow::m_last_generated_peer_dlg = nullptr;
 
 QDialog *TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
   UNUSED_ARG(p);
