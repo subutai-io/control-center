@@ -1519,7 +1519,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
 
     cmd = CSettingsManager::Instance().terminal_cmd();
     QStringList args;
-    qInfo("Launch command : %s",str_command.toStdString().c_str());
+    qInfo("Launch command : %s", str_command.toStdString().c_str());
     if (cmd == "iTerm") {
     args << "-e" << QString("Tell application \"%1\"").arg(cmd)
          << "-e" << "activate"
@@ -5011,7 +5011,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
 system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     QString subutai_box = subutai_box_name();
-    QString subutai_provider = "virtualbox";
+    QString subutai_provider = VagrantProvider::Instance()->CurrentVal();
     system_call_wrapper_error_t res = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);
     if(res == SCWE_SUCCESS){
         QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);

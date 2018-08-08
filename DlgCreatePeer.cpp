@@ -322,6 +322,7 @@ void DlgCreatePeer::create_button_pressed() {
   }
   hide_err_labels();
   set_enabled_buttons(false);
+
   if (!check_machine()) {
     ui->btn_create->setEnabled(true);
     ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
@@ -332,6 +333,12 @@ void DlgCreatePeer::create_button_pressed() {
     directory_delete.removeRecursively();
     return;
   }
+
+  if (CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CNotificationObserver::Error(tr("Please install Vagrant VMware License keys or uninstall from Components."), DlgNotification::N_ABOUT);
+    return;
+  }
+
   ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
   ui->lbl_err_os->setText(tr("Initalializing environment..."));
   InitPeer *thread_init = new InitPeer(this);
@@ -360,6 +367,7 @@ bool DlgCreatePeer::check_machine() {
       break;
     }
   }
+
   return i == m_requirements_ls.size();
 }
 

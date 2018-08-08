@@ -22,7 +22,7 @@ CUpdaterComponentVAGRANT_SUBUTAI::~CUpdaterComponentVAGRANT_SUBUTAI() {}
 
 bool CUpdaterComponentVAGRANT_SUBUTAI::update_available_internal() {
   QString version;
-  QString subutai_plugin = "vagrant-subutai";
+  static QString subutai_plugin = "vagrant-subutai";
   system_call_wrapper_error_t res =
       CSystemCallWrapper::vagrant_plugin_version(version, subutai_plugin);
   QString cloud_version =

@@ -21,7 +21,7 @@ CUpdaterComponentVAGRANT_VBGUEST::~CUpdaterComponentVAGRANT_VBGUEST() {}
 
 bool CUpdaterComponentVAGRANT_VBGUEST::update_available_internal() {
   QString version;
-  QString subutai_plugin = "vagrant-vbguest";
+  static QString subutai_plugin = "vagrant-vbguest";
   system_call_wrapper_error_t res =
       CSystemCallWrapper::vagrant_plugin_version(version, subutai_plugin);
   QString cloud_version =

@@ -117,6 +117,49 @@ CCommons::IsTerminalLaunchable(const QString &terminal) {
   return false;
 }
 ////////////////////////////////////////////////////////////////////////////
+/// \brief CCommons::VagrantVMwareLicenseInstalled
+/// We can check Vagrant VMware License key is installed
+/// by Vagrant command exit code and Vagrant VMware installed
+/// \return 
+///
+bool
+CCommons::IsVagrantVMwareLicenseInstalled() {
+  // 1. Check Vagrant VMware Desktop plugin version
+  static QString vmware_plugin = "vagrant-vmware-desktop";
+  QStringList args;
+  QString version;
+  bool vagrant_command_not_available = false,
+       vagrant_vmware_installed = false;
+
+  system_call_wrapper_error_t res =
+      CSystemCallWrapper::vagrant_plugin_version(version, vmware_plugin);
+
+  if (version != "undefined" && res == SCWE_SUCCESS) {
+    // installed Vagrant VMware Desktop provider
+    vagrant_vmware_installed = true;
+  }
+
+  // 2. Check Vagrant command available
+
+  args << "list-commands";
+  QString cmd = "vagrant";
+  system_call_res_t res_vagrant =
+      CSystemCallWrapper::ssystem_th(cmd,
+                                  args, true, true, 20000);
+
+  if (res_vagrant.exit_code != 0) {
+    // Vagrant command not available
+    vagrant_command_not_available = true;
+  }
+
+
+  if (vagrant_command_not_available && vagrant_vmware_installed) {
+    return true;
+  }
+
+  return false;
+}
+////////////////////////////////////////////////////////////////////////////
 
 static std::map<QString, QString> dct_term_arg = {
   //linux

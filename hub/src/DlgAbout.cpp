@@ -1151,6 +1151,7 @@ void DlgAbout::got_subutai_plugin_version_sl(QString version) {
       ui->btn_subutai_plugin_update->setText(tr("Update"));
       ui->cb_vagrant_subtuai_plugin->setEnabled(true);
     }
+    ui->lbl_subutai_plugin_version_val->setText(version);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
