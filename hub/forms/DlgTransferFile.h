@@ -14,6 +14,7 @@
 #include <QTableWidget>
 #include <deque>
 #include <QMovie>
+#include <QMutex>
 
 
 namespace Ui {
@@ -410,6 +411,8 @@ signals:
   void file_was_dropped(const QString &file_path);
 };
 
+static QMutex refresher;
+static int refresh_queries;
 
 class DlgTransferFile : public QDialog
 {
