@@ -118,46 +118,37 @@ CCommons::IsTerminalLaunchable(const QString &terminal) {
 }
 ////////////////////////////////////////////////////////////////////////////
 /// \brief CCommons::VagrantVMwareLicenseInstalled
-/// We can check Vagrant VMware License key is installed
-/// by Vagrant command exit code and Vagrant VMware installed
-/// \return 
+/// \return bool
 ///
 bool
 CCommons::IsVagrantVMwareLicenseInstalled() {
-  // 1. Check Vagrant VMware Desktop plugin version
-  static QString vmware_plugin = "vagrant-vmware-desktop";
+  bool is_license_installed = true;
+
+  QString vagrant_path = CSettingsManager::Instance().vagrant_path();
+  QDir dir(vagrant_path);
   QStringList args;
-  QString version;
-  bool vagrant_command_not_available = false,
-       vagrant_vmware_installed = false;
-
-  system_call_wrapper_error_t res =
-      CSystemCallWrapper::vagrant_plugin_version(version, vmware_plugin);
-
-  if (version != "undefined" && res == SCWE_SUCCESS) {
-    // installed Vagrant VMware Desktop provider
-    vagrant_vmware_installed = true;
-  }
-
-  // 2. Check Vagrant command available
 
   args << "list-commands";
-  QString cmd = "vagrant";
-  system_call_res_t res_vagrant =
-      CSystemCallWrapper::ssystem_th(cmd,
-                                  args, true, true, 20000);
 
-  if (res_vagrant.exit_code != 0) {
-    // Vagrant command not available
-    vagrant_command_not_available = true;
+  system_call_res_t res = CSystemCallWrapper::ssystem_f(dir.absolutePath(),
+                                                         args, true,
+                                                         true, 30000);
+  if (!res.out.empty()) {
+    // check "license" and "required" words exist
+    for (QString str : res.out) {
+      if (str.contains("license") && str.contains("required")) {
+        is_license_installed = false;
+        break;
+      }
+    }
   }
 
+  qDebug() << "License output: "
+           << res.out
+           << res.res
+           << res.exit_code;
 
-  if (vagrant_command_not_available && vagrant_vmware_installed) {
-    return true;
-  }
-
-  return false;
+  return is_license_installed;
 }
 ////////////////////////////////////////////////////////////////////////////
 

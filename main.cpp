@@ -206,6 +206,9 @@ int main(int argc, char* argv[]) {
       P2PController::Instance().init();
       P2PStatus_checker::Instance().update_status();
 
+      qDebug() << "VMware license: "
+               << CCommons::IsVagrantVMwareLicenseInstalled();
+
       result = app.exec();
     } while (0);
   } catch (std::exception& ge) {

@@ -68,7 +68,137 @@ system_call_res_t CSystemCallWrapper::ssystem_th(const QString &cmd,
   return f1.result();
 }
 ////////////////////////////////////////////////////////////////////////////
+/// \brief CSystemCallWrapper::ssystem_f
+/// \param cmd
+/// \param args
+/// \param read_out
+/// \param log
+/// \param timeout_msec
+/// \brief Writes STDERR to "ouput" file in temp folder.
+/// \brief Returns system ouput from "output" file in temp folder.
+/// \return
+///
+system_call_res_t CSystemCallWrapper::ssystem_f(QString cmd, QStringList args,
+                                                bool read_out, bool log,
+                                                unsigned long timeout_msec) {
+  QProcess proc;
+  if(args.begin() != args.end() && args.size() >= 2){
+      if(*(args.begin())=="set_working_directory"){
+          args.erase(args.begin());
+          proc.setWorkingDirectory(*(args.begin()));
+          args.erase(args.begin());
+      }
+  }
+  system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
+  // Get temp folder path
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. "
+                                  "Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    res.res = SCWE_WRONG_TEMP_PATH;
+    return res;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "output";
+
+  QFile tmpFile(tmpFilePath);
+
+  QStringList tmp;
+  tmp = args;
+  args.clear();
+
+  switch (CURRENT_OS) {
+  case OS_LINUX:
+    args << "-c"
+         << QString("%1 %2 2> %3").arg(cmd, tmp.join(" "), tmpFilePath);
+
+    cmd = QString("sh");
+
+    qDebug() << "ssystem_f linux: "
+             << "cmd: "
+             << cmd
+             << "args: "
+             << args;
+    break;
+  case OS_MAC:
+    args << "-e"
+         << QString("do shell script \"%1 %2 2> %3\"").arg(cmd, tmp.join(" "), tmpFilePath);
+    cmd = "osascript";
+
+    qDebug() << "ssytem_f osx: "
+             << "cmd: "
+             << cmd
+             << "args: "
+             << args;
+    break;
+  default:
+    break;
+  }
+
+  proc.start(cmd, args);
+  proc_controller started_proc(proc);
+  if(timeout_msec == 97) {
+
+      if (!proc.waitForStarted(-1)) {
+        if (log) {
+          qCritical(
+              "Failed to wait for started process %s", cmd.toStdString().c_str());
+          qCritical(
+              "%s", proc.errorString().toStdString().c_str());
+        }
+        res.res = SCWE_CREATE_PROCESS;
+        return res;
+      }
+
+      if (!proc.waitForFinished(-1)) {
+        proc.terminate();
+        res.res = SCWE_TIMEOUT;
+        return res;
+      }
+  } else {
+      if (!proc.waitForStarted(timeout_msec)) {
+        if (log) {
+          qCritical(
+              "Failed to wait for started process %s", cmd.toStdString().c_str());
+          qCritical(
+              "%s", proc.errorString().toStdString().c_str());
+        }
+        res.res = SCWE_CREATE_PROCESS;
+        return res;
+      }
+
+      if (!proc.waitForFinished(timeout_msec)) {
+        proc.terminate();
+        res.res = SCWE_TIMEOUT;
+        return res;
+      }
+  }
+
+  if (read_out) {
+    QFileInfo info(tmpFilePath);
+    if (info.exists()) {
+      if (tmpFile.open(QIODevice::ReadWrite) ) {
+        QTextStream stream(&tmpFile);
+        QString output = QString(stream.readAll());
+        res.out = output.split("\n", QString::SkipEmptyParts);
+      } else {
+        res.res = SCWE_WRONG_FILE_NAME;
+        return res;
+      }
+    }
+  }
+
+  res.exit_code = proc.exitCode();
+  res.res = proc.exitStatus() == QProcess::NormalExit ? SCWE_SUCCESS
+                                                      : SCWE_PROCESS_CRASHED;
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
                                               QStringList &args,
                                               bool read_out, bool log,

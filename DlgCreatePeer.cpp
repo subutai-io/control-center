@@ -38,6 +38,17 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
             IUpdaterComponent::ORACLE_VIRTUALBOX);
       });
 
+  // check license_vmware
+  requirement vagrant_vmware_license(
+        tr("Vagrant VMWare Desktop provider license is not installed"),
+        tr("Checking Vagrant VMware License..."),
+        tr(" The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
+           "and require the <b>purchase of a license to operate</b>. To purchase a license, "
+           "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "),
+      DlgNotification::N_NO_ACTION, []() {
+        return CCommons::IsVagrantVMwareLicenseInstalled();
+      });
+
   // VMware Hypervisor
   requirement vmware(
         tr("VMware is not ready"), tr("Checking VMware..."),
@@ -141,6 +152,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     m_requirements_ls.push_back(vmware_provider);
     m_requirements_ls.push_back(vmware);
     m_requirements_ls.push_back(vagrant_vmware_utility);
+    m_requirements_ls.push_back(vagrant_vmware_license);
 
     ui->lbl_bridge->hide();
     ui->cmb_bridge->hide();
@@ -331,11 +343,6 @@ void DlgCreatePeer::create_button_pressed() {
     set_enabled_buttons(true);
     QDir directory_delete(dir);
     directory_delete.removeRecursively();
-    return;
-  }
-
-  if (CCommons::IsVagrantVMwareLicenseInstalled()) {
-    CNotificationObserver::Error(tr("Please install Vagrant VMware License keys or uninstall from Components."), DlgNotification::N_ABOUT);
     return;
   }
 
