@@ -242,12 +242,16 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
   //refresh_local_file_system();
   //refresh_remote_file_system();
 
+  bool remote_changed = false;
+  bool local_changed = false;
+
   if (file_to_transfer.currentFileStatus() == FILE_TO_UPLOAD || file_to_transfer.currentFileStatus() == FIlE_FAILED_TO_UPLOAD) {
     if (res == SCWE_SUCCESS) {
       file_to_transfer.setTransferFileStatus(FILE_FINISHED_UPLOAD);
       twi_operation_status->setText("Uploaded successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
       twi_operation_status->setToolTip("");
+      remote_changed = true;
     }
     else {
       file_to_transfer.setTransferFileStatus(FIlE_FAILED_TO_UPLOAD);
@@ -268,6 +272,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       twi_operation_status->setText("Downloaded successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
       twi_operation_status->setToolTip("");
+      local_changed = true;
     }
     else {
       file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_DOWNLOAD);
@@ -288,6 +293,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       twi_operation_status->setText("Removed successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
       twi_operation_status->setToolTip("");
+      remote_changed = true;
     } else {
       file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_REMOVE_REMOTE);
       if (res == SCWE_PERMISSION_DENIED) {
@@ -309,6 +315,7 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       twi_operation_status->setText("Removed successfully");
       twi_operation_status->setIcon(transfer_finished_icon);
       twi_operation_status->setToolTip("");
+      local_changed = true;
     } else {
       file_to_transfer.setTransferFileStatus(FILE_FAILED_TO_REMOVE_LOCAL);
       if (res == SCWE_PERMISSION_DENIED) {
@@ -323,6 +330,13 @@ void DlgTransferFile::transfer_finished(int tw_row, system_call_wrapper_error_t 
       twi_operation_status->setToolTip(output.join(",") +
             " Error Code: " + CSystemCallWrapper::scwe_error_to_str(res));
     }
+  }
+
+  if (remote_changed) {
+    refresh_button_remote();
+  }
+  if (local_changed) {
+    refresh_button_local();
   }
 }
 
@@ -394,7 +408,7 @@ void DlgTransferFile::transfer_file(int tw_row) {
     RemoteCommandExecutor *remote_command_executor =
         new RemoteCommandExecutor(this);
 
-    QString command = "rm -rf " + transfer_file_path;
+    QString command = "rm -rf '" + transfer_file_path + "'";
 
     remote_command_executor->init(remote_user, remote_ip, remote_port, command, key);
     connect(remote_command_executor, &RemoteCommandExecutor::outputReceived,
@@ -845,13 +859,12 @@ void DlgTransferFile::refresh_remote_file_system() {
           << "Refresh remote file system"
           << current_remote_dir;
 
-  set_remote_button_enabled(false);
   ui->lbl_remote_files->setMovie(remote_movie);
+  refresh_queries++;
   remote_movie->start();
+  set_buttons_enabled(false);
 
-  ui->remote_file_system->setRowCount(0);
   ui->le_remote->setText(current_remote_dir);
-  remote_files.clear();
 
   QString remote_user = ui->remote_user->text();
   QString remote_port = ui->remote_port->text();
@@ -866,6 +879,10 @@ void DlgTransferFile::refresh_remote_file_system() {
 }
 
 void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res, const QStringList &output) {
+  refresher.lock();
+  ui->remote_file_system->setRowCount(0);
+  remote_files.clear();
+
   for (QString file_info : output) {
     qDebug()
             << "files from remote: "
@@ -876,16 +893,19 @@ void DlgTransferFile::output_from_remote_command(system_call_wrapper_error_t res
     }
     add_file_remote(file_info);
   }
-  remote_movie->stop();
-  set_remote_button_enabled(true);
-  if (res == SCWE_SUCCESS) {
-    ui->lbl_remote_files->setStyleSheet("");
-    ui->lbl_remote_files->setText("Remote");
+  if (--refresh_queries == 0) {
+    remote_movie->stop();
+    set_buttons_enabled(true);
+    if (res == SCWE_SUCCESS) {
+      ui->lbl_remote_files->setStyleSheet("");
+      ui->lbl_remote_files->setText("Remote");
+    }
+    else {
+      ui->lbl_remote_files->setStyleSheet(" QLabel {color : red;} ");
+      ui->lbl_remote_files->setText("Failed to refresh remote directory.");
+    }
   }
-  else {
-    ui->lbl_remote_files->setStyleSheet(" QLabel {color : red;} ");
-    ui->lbl_remote_files->setText("Failed to refresh remote directory.");
-  }
+  refresher.unlock();
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
