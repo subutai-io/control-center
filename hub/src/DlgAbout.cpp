@@ -1259,20 +1259,6 @@ void DlgAbout::got_provider_version_sl(QString version) {
     this->m_dct_fpb[COMPONENT_KEY].lbl->setText(version);
     //ui->lbl_subutai_box_version->setText(version);
   }
-
-  if (version == "undefined") {
-    set_hidden_pb(IUpdaterComponent::SUBUTAI_BOX);
-    ui->btn_subutai_box->setHidden(false);
-    ui->cb_vagrant_box->setVisible(false);
-    ui->btn_subutai_box->setText(tr("Install"));
-    ui->btn_subutai_box->activateWindow();
-    ui->cb_vagrant_box->setEnabled(true);
-  } else if(version == "Install Vagrant first") {
-    ui->cb_vagrant_box->setEnabled(false);
-  } else {
-    ui->btn_subutai_box->setText(tr("Update"));
-    ui->cb_vagrant_box->setEnabled(true);
-  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
