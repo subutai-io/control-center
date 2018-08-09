@@ -116,29 +116,30 @@ system_call_res_t CSystemCallWrapper::ssystem_f(QString cmd, QStringList args,
   case OS_LINUX:
     args << "-c"
          << QString("%1 %2 2> %3").arg(cmd, tmp.join(" "), tmpFilePath);
-
     cmd = QString("sh");
 
-    qDebug() << "ssystem_f linux: "
-             << "cmd: "
-             << cmd
-             << "args: "
-             << args;
     break;
   case OS_MAC:
     args << "-e"
          << QString("do shell script \"%1 %2 2> %3\"").arg(cmd, tmp.join(" "), tmpFilePath);
     cmd = "osascript";
 
-    qDebug() << "ssytem_f osx: "
-             << "cmd: "
-             << cmd
-             << "args: "
-             << args;
+    break;
+  case OS_WIN:
+    args << "/k"
+         << QString("\"%1 %2 2> %3\"").arg(cmd, tmp.join(" "), tmpFilePath);
+    cmd = CSettingsManager::Instance().terminal_cmd();
+
     break;
   default:
     break;
   }
+
+  qDebug() << "ssytem_f: "
+           << "cmd: "
+           << cmd
+           << "args: "
+           << args;
 
   proc.start(cmd, args);
   proc_controller started_proc(proc);
