@@ -19,6 +19,8 @@
 #include "Logger.h"
 #include "LanguageController.h"
 #include "TraySkinController.h"
+#include "VagrantProvider.h"
+#include "PeerController.h"
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
@@ -36,6 +38,16 @@ static void fill_tray_skin_combobox(QComboBox* cb) {
 static void fill_locale_combobox(QComboBox* cb) {
   for (int i = 0; i <= LanguageController::LOCALE_LAST; ++i)
     cb->addItem(LanguageController::LocaleTypeToStr((LanguageController::LOCALE_TYPE)i));
+}
+//////////////////////////////////////////////////////////////////////////
+
+static void fill_vagrant_provider_combobox(QComboBox* cb) {
+  std::vector<int> providers_by_os = VagrantProvider::Instance()->List();
+
+  for (int i = 0; i < (int)providers_by_os.size(); i++) {
+    cb->addItem(VagrantProvider::ProviderToStr((VagrantProvider::PROVIDERS)providers_by_os.at(i)),
+                QVariant(providers_by_os.at(i)));
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +82,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->sb_refresh_timeout->setValue(
         CSettingsManager::Instance().refresh_time_sec());
   ui->le_p2p_command->setText(CSettingsManager::Instance().p2p_path());
-  ui->le_virtualbox_command->setText(CSettingsManager::Instance().oracle_virtualbox_path());
+  ui->le_hypervisor_command->setText(CSettingsManager::Instance().current_hypervisor_path());
   ui->le_vagrant_command->setText(CSettingsManager::Instance().vagrant_path());
   ui->sb_notification_delay->setMinimum(
         CSettingsManager::NOTIFICATION_DELAY_MIN);
@@ -95,6 +107,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
+  ui->lbl_hypervisor_command->setText(VagrantProvider::Instance()->CurrentOpenFileTitle());
 
   ui->lbl_err_logs_storage->hide();
   ui->lbl_err_ssh_keys_storage->hide();
@@ -119,6 +132,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   fill_notifications_level_combobox(ui->cb_notification_level);
   fill_log_level_combobox(ui->cb_log_level);
   fill_tray_skin_combobox(ui->cb_tray_skin);
+  fill_vagrant_provider_combobox(ui->cb_vagrant_provider);
 
   fill_locale_combobox(ui->cb_locale);
 
@@ -133,6 +147,7 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->cb_notification_level->setCurrentIndex(CSettingsManager::Instance().notifications_level());
   ui->cb_log_level->setCurrentIndex(CSettingsManager::Instance().logs_level());
   ui->cb_tray_skin->setCurrentIndex(CSettingsManager::Instance().tray_skin());
+  ui->cb_vagrant_provider->setCurrentText(VagrantProvider::Instance()->CurrentStr());
 
   ui->cb_locale->setCurrentIndex(CSettingsManager::Instance().locale());
 
@@ -209,8 +224,8 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::btn_p2p_file_dialog_released);
   connect(ui->btn_scp_command, &QPushButton::released, this,
          &DlgSettings::btn_scp_command_released);
-  connect(ui->btn_virtualbox_command, &QPushButton::released, this,
-        &DlgSettings::btn_virtualbox_command_release);
+  connect(ui->btn_hypervisor_command, &QPushButton::released, this,
+        &DlgSettings::btn_hypervisor_release);
   connect(ui->btn_ssh_command, &QPushButton::released, this,
           &DlgSettings::btn_ssh_command_released);
   connect(ui->btn_vagrant_command, &QPushButton::released, this,
@@ -235,7 +250,7 @@ DlgSettings::DlgSettings(QWidget* parent)
           &DlgSettings::refresh_rh_list_timer_timeout);
   connect(ui->le_terminal_cmd, &QLineEdit::textChanged, this,
           &DlgSettings::le_terminal_cmd_changed);
-  this->setMinimumWidth(this->width());
+
   this->adjustSize();
 }
 
@@ -389,8 +404,8 @@ void DlgSettings::btn_ok_released() {
     {ui->le_scp_command, ui->lbl_err_scp_command, can_launch_application, 1,
      can_launch_application_msg},
 
-    {ui->le_virtualbox_command, ui->lbl_err_virtualbox_command, is_le_empty_validate, 1, empty_validator_msg},
-    {ui->le_virtualbox_command, ui->lbl_err_virtualbox_command, can_launch_application, 1, can_launch_application_msg},
+    {ui->le_hypervisor_command, ui->lbl_err_hypervisor_command, is_le_empty_validate, 1, empty_validator_msg},
+    {ui->le_hypervisor_command, ui->lbl_err_hypervisor_command, can_launch_application, 1, can_launch_application_msg},
 
     {ui->le_ssh_command, ui->lbl_err_ssh_command, is_le_empty_validate, 1, empty_validator_msg},
     {ui->le_ssh_command, ui->lbl_err_ssh_command, can_launch_application, 1,
@@ -477,7 +492,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_x2goclient_path(ui->le_x2goclient_command->text());
   CSettingsManager::Instance().set_ssh_path(ui->le_ssh_command->text());
   CSettingsManager::Instance().set_scp_path(ui->le_scp_command->text());
-  CSettingsManager::Instance().set_oracle_virtualbox_path(ui->le_virtualbox_command->text());
+  CSettingsManager::Instance().set_hypervisor_path(ui->le_hypervisor_command->text());
 
   CSettingsManager::Instance().set_rh_host(ui->le_rhip_host->text());
   CSettingsManager::Instance().set_rh_pass(ui->le_rhip_password->text());
@@ -508,6 +523,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_tray_skin(ui->cb_tray_skin->currentIndex());
 
   CSettingsManager::Instance().set_locale(ui->cb_locale->currentIndex());
+  CSettingsManager::Instance().set_vagrant_provider(ui->cb_vagrant_provider->currentData().toInt());
 
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
   CSettingsManager::Instance().set_terminal_arg(ui->le_terminal_arg->text());
@@ -519,6 +535,10 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_autostart(ui->chk_autostart->checkState() ==
                                              Qt::Checked);
   CSettingsManager::Instance().save_all();
+
+  // Update peer info and interfaces list
+  CPeerController::Instance()->refresh();
+
   this->close();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -558,10 +578,10 @@ void DlgSettings::btn_ssh_command_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgSettings::btn_virtualbox_command_release() {
-  QString fn = QFileDialog::getOpenFileName(this, tr("VirtualBox command"));
+void DlgSettings::btn_hypervisor_release() {
+  QString fn = QFileDialog::getOpenFileName(this, VagrantProvider::Instance()->CurrentOpenFileTitle());
   if (fn == "") return;
-  ui->le_virtualbox_command->setText(fn);
+  ui->le_hypervisor_command->setText(fn);
   qDebug() << "Selected virtualbox path" << fn;
 }
 

@@ -67,7 +67,7 @@ private slots:
   void btn_p2p_file_dialog_released();
   void btn_scp_command_released();
   void btn_ssh_command_released();
-  void btn_virtualbox_command_release();
+  void btn_hypervisor_release();
   void btn_x2goclient_command_released();
   void btn_ssh_keygen_command_released();
   void btn_logs_storage_released();

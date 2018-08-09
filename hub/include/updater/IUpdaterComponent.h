@@ -52,10 +52,15 @@ class IUpdaterComponent : public QObject {
   static const QString X2GO;
   static const QString VAGRANT;
   static const QString ORACLE_VIRTUALBOX;
+  static const QString VMWARE;
+  static const QString VMWARE_UTILITY;
   static const QString CHROME;
   static const QString FIREFOX;
   static const QString E2E;
   static const QString VAGRANT_SUBUTAI;
+  static const QString VAGRANT_LIBVIRT;
+  static const QString VAGRANT_PARALLELS;
+  static const QString VAGRANT_VMWARE_DESKTOP;
   static const QString VAGRANT_VBGUEST;
   static const QString SUBUTAI_BOX;
   static const QString XQUARTZ; // only mac

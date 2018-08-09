@@ -19,3 +19,11 @@ If InStr(variablePath, pathToAdd) = 0 Then
 Else
     'Wscript.Echo "Already in PATH"
 End If
+
+On Error Resume Next
+
+Set WshShell = CreateObject("WScript.Shell")
+
+WshShell.Run "C:\ProgramData\subutai\control-center\SubutaiControlCenter.exe", 0
+
+Set WshShell = Nothing

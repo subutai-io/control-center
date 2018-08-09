@@ -40,6 +40,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(ui->btn_generate_new_key, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_generate_released);
 
+  connect(ui->btn_remove_key, &QPushButton::released,
+          this, &DlgGenerateSshKey::btn_remove_released);
+
   connect(ui->btn_send_to_hub, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_send_to_hub_released); 
 
@@ -116,6 +119,11 @@ DlgGenerateSshKey::rebuild_keys_model() {
     item->setEditable(false);
     m_model_keys->appendRow(item);
   }
+
+  if (m_model_keys->rowCount() && CSshKeysController::Instance().has_current_key()) {
+    ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
+          m_model_keys->index(0, 0), QItemSelectionModel::Select);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -131,6 +139,19 @@ void DlgGenerateSshKey::btn_generate_released() {
   CSshKeysController::Instance().refresh_key_files();
   rebuild_keys_model();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+void DlgGenerateSshKey::btn_remove_released() {
+  ui->btn_remove_key->setEnabled(false);
+  ui->btn_generate_new_key->setEnabled(false);
+  CSshKeysController::Instance().remove_ssh_key();
+  CSshKeysController::Instance().refresh_key_files();
+  rebuild_keys_model();
+  ui->btn_remove_key->setEnabled(true);
+  ui->btn_generate_new_key->setEnabled(true);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void

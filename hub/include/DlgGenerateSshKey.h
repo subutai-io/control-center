@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QModelIndex>
+#include <QMutex>
 
 namespace Ui {
   class DlgGenerateSshKey;
@@ -32,6 +33,7 @@ private:
 
 private slots:
   void btn_generate_released();
+  void btn_remove_released();
   void btn_send_to_hub_released();
 
   void environments_item_changed(QStandardItem* item);

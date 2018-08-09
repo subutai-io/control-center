@@ -80,6 +80,7 @@
         <file>hide-password.png</file>
         <file>show-password.png</file>
         <file>unknown.png</file>
+        <file>remove_ft.png</file>
     </qresource>
     <qresource prefix="/">
         <file>check_box.png</file>
