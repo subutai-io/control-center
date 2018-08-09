@@ -1121,6 +1121,9 @@ void DlgAbout::got_vagrant_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_oracle_virtualbox_version_sl(QString version) {
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VIRTUALBOX) {
+    return;
+  }
   if (this->m_dct_fpb.find(IUpdaterComponent::ORACLE_VIRTUALBOX) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::ORACLE_VIRTUALBOX);
@@ -1156,6 +1159,9 @@ void DlgAbout::got_subutai_plugin_version_sl(QString version) {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VIRTUALBOX) {
+    return;
+  }
   if (this->m_dct_fpb.find(IUpdaterComponent::VAGRANT_VBGUEST) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VAGRANT_VBGUEST);
@@ -1190,6 +1196,9 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 }
 
 void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+    return;
+  }
   if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE);
@@ -1205,6 +1214,9 @@ void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
 }
 
 void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+    return;
+  }
   if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE_UTILITY) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE_UTILITY);
@@ -1322,6 +1334,11 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].cb->setVisible(true);
   }
 
+  update_available =
+      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
+       available);
+  m_dct_fpb[component_id].btn->setEnabled(update_available);
+
   if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
@@ -1337,10 +1354,50 @@ void DlgAbout::update_available_sl(const QString& component_id,
     m_dct_fpb[component_id].btn->setVisible(false);
   }
 
-  update_available =
-      (!(CHubComponentsUpdater::Instance()->is_in_progress(component_id)) &&
-       available);
-  m_dct_fpb[component_id].btn->setEnabled(update_available);
+  VagrantProvider::PROVIDERS current_provider =
+      VagrantProvider::Instance()->CurrentProvider();
+
+  if (component_id == IUpdaterComponent::ORACLE_VIRTUALBOX &&
+      current_provider != VagrantProvider::VIRTUALBOX) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VAGRANT_VBGUEST &&
+      current_provider != VagrantProvider::VIRTUALBOX) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VMWARE &&
+      current_provider != VagrantProvider::VMWARE_DESKTOP) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VMWARE_UTILITY &&
+      current_provider != VagrantProvider::VMWARE_DESKTOP) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VAGRANT_VMWARE_DESKTOP &&
+      current_provider != VagrantProvider::VMWARE_DESKTOP) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VAGRANT_LIBVIRT &&
+      current_provider != VagrantProvider::LIBVIRT) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
+
+  if (component_id == IUpdaterComponent::VAGRANT_PARALLELS &&
+      current_provider != VagrantProvider::PARALLELS) {
+    m_dct_fpb[component_id].cb->setVisible(false);
+    m_dct_fpb[component_id].btn->setVisible(false);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 

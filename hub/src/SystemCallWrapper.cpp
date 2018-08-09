@@ -6961,7 +6961,7 @@ bool set_application_autostart_internal<Os2Type<OS_WIN>> (bool start) {
       }
       QString script = "On Error Resume Next\n"
                        "Set WshShell = CreateObject(\"WScript.Shell\")\n"
-                       "WshShell.Run \"%1\", 0\n"
+                       "WshShell.Run \"%1\"\n"
                        "Set WshShell = Nothing\n";
       vbs_file.write(script.arg(QCoreApplication::applicationFilePath())
                      .toStdString().c_str());
