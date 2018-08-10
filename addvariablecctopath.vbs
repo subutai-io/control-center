@@ -24,6 +24,6 @@ On Error Resume Next
 
 Set WshShell = CreateObject("WScript.Shell")
 
-WshShell.Run "SubutaiControlCenter.exe"
+WshShell.Run "C:\ProgramData\subutai\control-center\SubutaiControlCenter.exe"
 
 Set WshShell = Nothing
