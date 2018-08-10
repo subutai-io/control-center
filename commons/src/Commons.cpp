@@ -117,6 +117,45 @@ CCommons::IsTerminalLaunchable(const QString &terminal) {
   return false;
 }
 ////////////////////////////////////////////////////////////////////////////
+/// \brief CCommons::VagrantVMwareLicenseInstalled
+/// \return bool
+///
+bool
+CCommons::IsVagrantVMwareLicenseInstalled() {
+  bool is_license_installed = true;
+
+  QString vagrant_path = CSettingsManager::Instance().vagrant_path();
+  QDir dir(vagrant_path);
+  QStringList args;
+
+  args << "list-commands";
+
+  system_call_res_t res;
+  QFuture<system_call_res_t> f1 =
+      QtConcurrent::run(CSystemCallWrapper::ssystem_f, dir.absolutePath(),
+                        args, true,
+                        true, 1000 * 60 * 2);
+  f1.waitForFinished();
+  res = f1.result();
+
+  if (!res.out.empty()) {
+    // check "license" and "required" words exist
+    for (QString str : res.out) {
+      if (str.contains("license") && str.contains("required")) {
+        is_license_installed = false;
+        break;
+      }
+    }
+  }
+
+  qDebug() << "License output: "
+           << res.out
+           << res.res
+           << res.exit_code;
+
+  return is_license_installed;
+}
+////////////////////////////////////////////////////////////////////////////
 
 static std::map<QString, QString> dct_term_arg = {
   //linux

@@ -22,7 +22,7 @@ CUpdaterComponentVAGRANT_PARALLELS::~CUpdaterComponentVAGRANT_PARALLELS() {}
 
 bool CUpdaterComponentVAGRANT_PARALLELS::update_available_internal() {
   QString version;
-  QString vagrant_plugin = "vagrant-parallels";
+  static QString vagrant_plugin = "vagrant-parallels";
   system_call_wrapper_error_t res =
       CSystemCallWrapper::vagrant_plugin_version(version, vagrant_plugin);
   QString cloud_version =
