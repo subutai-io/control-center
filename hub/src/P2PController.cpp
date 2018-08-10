@@ -1,9 +1,13 @@
 #include "P2PController.h"
 #include <QThread>
+#include <QNetworkInterface>
+#include <QList>
+#include <QHostAddress>
 #include "Locker.h"
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 #include "RestWorker.h"
+#include "RhController.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +129,35 @@ void P2PConnector::check_status(const CEnvironment &env) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void P2PConnector::update_status() {
+  // find if container is on your machine
+  std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
+  std::vector<std::pair<QString, QString> > network_peers;
+  QList<QHostAddress> ip_addresses = QNetworkInterface::allAddresses();
+  for (std::pair<QString, QString> local_peer :
+       CRhController::Instance()->dct_resource_hosts()) {
+    network_peers.push_back(std::make_pair(
+        CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
+  }
+  for (CEnvironment env : hub_environments) {
+    for (CHubContainer cont : env.containers()) {
+      bool found = false;
+      QString peer_id = cont.peer_id();
+      for (auto lan_peer : network_peers) {
+        if (lan_peer.first == peer_id) { // found in the same network
+          for (auto ip : ip_addresses) {
+            if (ip.toString() == lan_peer.second) {
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+        if (found) break;
+      }
+      P2PController::Instance().rh_local_tbl[peer_id] = found;
+    }
+  }
+
   if (!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())
       || !CSystemCallWrapper::p2p_daemon_check()) {
     qDebug()<<"p2p path is:"<<CSettingsManager::Instance().p2p_path();
@@ -149,7 +182,6 @@ void P2PConnector::update_status() {
 
 
 
-  std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
   QStringList already_joined;
   QStringList hub_swarms;
   QStringList lst_interfaces;

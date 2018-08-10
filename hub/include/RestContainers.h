@@ -57,6 +57,8 @@ public:
 
   const QString& desk_env() const {return m_desk_env;}
 
+  const QString& peer_id() const {return m_peer_id;}
+
   bool str_to_bool(QString bol) {
     return bol == QString("true") ? true:false;
   }
