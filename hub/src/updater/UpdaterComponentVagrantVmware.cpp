@@ -22,7 +22,7 @@ CUpdaterComponentVAGRANT_VMWARE::~CUpdaterComponentVAGRANT_VMWARE() {}
 
 bool CUpdaterComponentVAGRANT_VMWARE::update_available_internal() {
   QString version;
-  QString vagrant_plugin = "vagrant-vmware-desktop";
+  static QString vagrant_plugin = "vagrant-vmware-desktop";
   system_call_wrapper_error_t res =
       CSystemCallWrapper::vagrant_plugin_version(version, vagrant_plugin);
   QString cloud_version =

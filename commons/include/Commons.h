@@ -43,6 +43,7 @@ public:
    */
   static bool IsApplicationLaunchable(const QString& file_path);
   static bool IsTerminalLaunchable(const QString& terminal);
+  static bool IsVagrantVMwareLicenseInstalled();
 
   /**
    * @brief If there is recommended argument for terminal "terminalCmd" in table
