@@ -137,7 +137,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
 
   // Default requrements
   m_requirements_ls = std::vector<requirement>{
-      vagrant, subutai_plugin, subutai_box};
+      vagrant, subutai_plugin};
 
   // add provider requirements by hypervisor
   switch(VagrantProvider::Instance()->CurrentProvider()) {
@@ -150,9 +150,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     break;
   case VagrantProvider::VMWARE_DESKTOP:
     m_requirements_ls.push_back(vmware_provider);
+    m_requirements_ls.push_back(vagrant_vmware_license);
     m_requirements_ls.push_back(vmware);
     m_requirements_ls.push_back(vagrant_vmware_utility);
-    m_requirements_ls.push_back(vagrant_vmware_license);
+
 
     ui->lbl_bridge->hide();
     ui->cmb_bridge->hide();
@@ -170,6 +171,9 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   default:
     break;
   }
+
+  // At the and check Vagrant Subutai Box
+  m_requirements_ls.push_back(subutai_box);
 
   // format
   ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
@@ -418,28 +422,41 @@ QString DlgCreatePeer::create_dir(const QString &name) {
   return current_local_dir.absolutePath();
 }
 
-void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
+void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,
                                    QString ram, QString cpu, QString disk) {
   if (res != SCWE_SUCCESS) {
-    CNotificationObserver::Instance()->Error(
-        tr("Coudn't create peer, sorry. Check if all software is installed "
-           "correctly"),
-        DlgNotification::N_NO_ACTION);
+    // Check Vagrant command available:
+    if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+      if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+        CNotificationObserver::Instance()->Error(
+              tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
+                 "In order to create peer, uninstall Vagrant VMWare Desktop Provider by following <b>Uninstall</b> button."), DlgNotification::N_UNINSTALL);
+      }
+    } else {
+      CNotificationObserver::Instance()->Error(
+          tr("Coudn't create peer, sorry. Check if all software is installed "
+             "correctly"),
+          DlgNotification::N_NO_ACTION);
+    }
+
     ui->btn_create->setEnabled(true);
     set_enabled_buttons(true);
     ui->pb_peer->setValue(0);
     ui->pb_peer->setEnabled(false);
     ui->lbl_err_os->setText(tr("Failed to initialize environment"));
     ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
-    QDir dir(dir);
-    dir.removeRecursively();
+    QDir dir(dir_peer);
+    if (dir.exists()) {
+      dir.removeRecursively();
+    }
+
     return;
   }
   CNotificationObserver::Instance()->Info(
       tr("Initialization is completed. Installing peer... Don't close terminal "
          "until installation is finished."),
       DlgNotification::N_NO_ACTION);
-  QString filename = QString("%1/vagrant-subutai.yml").arg(dir);
+  QString filename = QString("%1/vagrant-subutai.yml").arg(dir_peer);
   QFile file(filename);
   // write config file
   if (file.open(QIODevice::ReadWrite)) {
@@ -472,8 +489,8 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
   file.close();
   // write provision step file
   QDir pr_dir;
-  pr_dir.mkdir(dir + QDir::separator() + ".vagrant");
-  QString p_name = dir + QDir::separator() + ".vagrant" + QDir::separator() +
+  pr_dir.mkdir(dir_peer + QDir::separator() + ".vagrant");
+  QString p_name = dir_peer + QDir::separator() + ".vagrant" + QDir::separator() +
                    "provision_step";
   QFile p_file(p_name);
   if (p_file.open(QIODevice::ReadWrite)) {
@@ -485,7 +502,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir,
         VagrantProvider::Instance()->CurrentVal());
   QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
   CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
-  res = CSystemCallWrapper::vagrant_command_terminal(dir, vagrant_up_string,
+  res = CSystemCallWrapper::vagrant_command_terminal(dir_peer, vagrant_up_string,
                                                      ui->le_name->text());
   if (res != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry",

@@ -126,9 +126,7 @@ system_call_res_t CSystemCallWrapper::ssystem_f(QString cmd, QStringList args,
 
     break;
   case OS_WIN:
-    args << "/k"
-         << QString("\"%1 %2 2> %3\"").arg(cmd, tmp.join(" "), tmpFilePath);
-    cmd = CSettingsManager::Instance().terminal_cmd();
+    cmd = QString("%1 %2 2> %3").arg(cmd, tmp.join(" "), tmpFilePath);
 
     break;
   default:

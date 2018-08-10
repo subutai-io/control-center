@@ -130,9 +130,14 @@ CCommons::IsVagrantVMwareLicenseInstalled() {
 
   args << "list-commands";
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_f(dir.absolutePath(),
-                                                         args, true,
-                                                         true, 30000);
+  system_call_res_t res;
+  QFuture<system_call_res_t> f1 =
+      QtConcurrent::run(CSystemCallWrapper::ssystem_f, dir.absolutePath(),
+                        args, true,
+                        true, 1000 * 60 * 2);
+  f1.waitForFinished();
+  res = f1.result();
+
   if (!res.out.empty()) {
     // check "license" and "required" words exist
     for (QString str : res.out) {
