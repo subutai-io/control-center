@@ -482,9 +482,15 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
              << endl;
     }
 
-    stream << "SUBUTAI_DISK_PATH : "
-           << QString("\"%1\"")
-              .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+    switch (VagrantProvider::Instance()->CurrentProvider()) {
+    case VagrantProvider::VIRTUALBOX:
+      stream << "SUBUTAI_DISK_PATH : "
+             << QString("\"%1\"")
+                .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+      break;
+    default:
+      break;
+    }
   }
   file.close();
   // write provision step file
