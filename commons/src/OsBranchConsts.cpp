@@ -1260,6 +1260,26 @@ default_firefox_extensions_path() {
     return default_firefox_extensions_path_internal< Os2Type<CURRENT_OS> >();
 }
 ///////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& restricted_chars_internal();
+
+#define restricted_chars_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& restricted_chars_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+restricted_chars_internal_def(OS_LINUX, "/");
+restricted_chars_internal_def(OS_MAC, "/");
+restricted_chars_internal_def(OS_WIN, "<>:\"/\\|?*");
+
+const QString& restricted_chars() {
+  return restricted_chars_internal<Os2Type<CURRENT_OS>>();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void current_os_info(std::vector<std::pair<QString, QString> >& v){
     v.clear();
     QString flag, st;

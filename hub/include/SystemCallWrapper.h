@@ -45,6 +45,8 @@ enum system_call_wrapper_error_t {
   SCWE_LAST,
   SCWE_PERMISSION_DENIED,
   SCWE_WRONG_FILE_NAME,
+  SCWE_DIR_DOESNT_EXIST,
+  SCWE_DIR_EXISTS,
   SCWE_COMMAND_FAILED
 };
 ////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,8 @@ class CSystemCallWrapper {
   static std::vector<std::pair<QString, QString>> p2p_show_interfaces();
 
   static std::pair<system_call_wrapper_error_t, QStringList> remove_file(const QString &file_path);
+
+  static system_call_wrapper_error_t create_folder(const QString &dir, const QString &name);
 
   static std::pair<system_call_wrapper_error_t, QStringList> send_command(
                                                   const QString &remote_user,

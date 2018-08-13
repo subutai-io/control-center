@@ -81,6 +81,8 @@
         <file>show-password.png</file>
         <file>unknown.png</file>
         <file>remove_ft.png</file>
+        <file>create_folder_big.png</file>
+        <file>create_folder_small.png</file>
     </qresource>
     <qresource prefix="/">
         <file>check_box.png</file>

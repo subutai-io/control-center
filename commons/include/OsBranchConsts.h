@@ -103,6 +103,8 @@ const QString& ssh_keygen_cmd_path();
 const QString& ssh_cmd_path();
 const QString& scp_cmd_path();
 
+const QString& restricted_chars();
+
 const QString& which_cmd();
 const QString& default_chrome_path();
 const QString& default_firefox_path();

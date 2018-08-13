@@ -2,6 +2,7 @@
 #include "ui_DlgTransferFile.h"
 #include "QFileDialog"
 #include "NotificationObserver.h"
+#include "DlgCreateFolder.h"
 #include <QDateTime>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
@@ -43,6 +44,9 @@ void DlgTransferFile::Init() {
 
   ui->btn_remove_local->setToolTip("Remove selected files and folders");
   ui->btn_remove_remote->setToolTip("Remove selected files and folders");
+
+  ui->btn_create_folder_local->setToolTip("Create new folder");
+  ui->btn_create_folder_remote->setToolTip("Create new folder");
 
   ui->local_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->remote_file_system->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -93,6 +97,12 @@ void DlgTransferFile::Init() {
 
   connect(ui->btn_remove_remote, &QPushButton::clicked,
           this, &DlgTransferFile::remove_selected_remote);
+
+  connect(ui->btn_create_folder_local, &QPushButton::clicked,
+          this, &DlgTransferFile::create_folder_local);
+
+  connect(ui->btn_create_folder_remote, &QPushButton::clicked,
+          this, &DlgTransferFile::create_folder_remote);
 
   connect(ui->btn_local_back, &QPushButton::clicked,
           this, &DlgTransferFile::local_back);
@@ -220,6 +230,9 @@ void DlgTransferFile::set_buttons_enabled(bool enabled) {
 
   ui->btn_remove_local->setEnabled(enabled);
   ui->btn_remove_remote->setEnabled(enabled);
+
+  ui->btn_create_folder_local->setEnabled(enabled);
+  ui->btn_create_folder_remote->setEnabled(enabled);
 }
 
 void  DlgTransferFile::set_remote_button_enabled(bool enabled){
@@ -771,8 +784,10 @@ void DlgTransferFile::add_file_remote(const QString &file_info) {
   QString file_name = splitted[8];
   QString file_path = current_remote_dir + file_name;
 
-  if(file_path[file_path.size()-1] == '*')
+  if (file_path[file_path.size()-1] == '*') {
     file_path.chop(1); // remove last character, which is `*`
+    file_name.chop(1);
+  }
 
   QDateTime created = QDateTime::fromString(parseDate(file_month, file_day, file_year_or_time),
                                             "MM/d/yyyy");
@@ -822,6 +837,94 @@ void DlgTransferFile::remove_selected_remote() {
     }
   }
   set_buttons_enabled(true);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void DlgTransferFile::create_folder_local() {
+  DlgCreateFolder *create_folder = new DlgCreateFolder();
+  QThread *thread = new QThread;
+
+  create_folder->set_directory(QString("Local"), current_local_dir.absolutePath());
+  for (OneFile file: local_files) {
+    create_folder->add_existing_files(file.fileName());
+  }
+
+  connect(thread, &QThread::started, create_folder, &DlgCreateFolder::exec);
+  connect(thread, &QThread::finished, create_folder, &DlgCreateFolder::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  connect(create_folder, &DlgCreateFolder::got_new_folder_name,
+          [this, thread](bool success, QString name){
+    if (success) {
+      system_call_wrapper_error_t res =
+          CSystemCallWrapper::create_folder(current_local_dir.absolutePath(), name);
+      if (res == SCWE_SUCCESS) {
+        CNotificationObserver::Info(
+              tr("Successfully created new folder with name \"%1\" in \"%2\", local system.")
+              .arg(name, current_local_dir.absolutePath()), DlgNotification::N_NO_ACTION);
+        this->refresh_local_file_system();
+      } else {
+        CNotificationObserver::Error(
+              tr("Failed to create new folder with name \"%1\" in \"%2\", local system.\n"
+                 "Error code: %3.").arg(name, current_local_dir.absolutePath(),
+                                        CSystemCallWrapper::scwe_error_to_str(res)),
+              DlgNotification::N_NO_ACTION);
+      }
+    }
+    thread->quit();
+  });
+
+  this->moveToThread(thread);
+  thread->start();
+}
+
+void DlgTransferFile::create_folder_remote() {
+  set_buttons_enabled(false);
+  DlgCreateFolder *create_folder = new DlgCreateFolder();
+  QThread *thread = new QThread;
+
+  create_folder->set_directory(QString("Remote"), current_remote_dir);
+  for (OneFile file: remote_files) {
+    create_folder->add_existing_files(file.fileName());
+  }
+
+  connect(thread, &QThread::started, create_folder, &DlgCreateFolder::exec);
+  connect(thread, &QThread::finished, create_folder, &DlgCreateFolder::deleteLater);
+  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  connect(create_folder, &DlgCreateFolder::got_new_folder_name,
+          [this, thread](bool success, QString name){
+    if (success) {
+      QString remote_user = ui->remote_user->text();
+      QString remote_port = ui->remote_port->text();
+      QString remote_ip = ui->remote_ip->text();
+      QString remote_key = ui->remote_ssh_key_path->text();
+      QString command = QString("mkdir \"%1/%2\"").arg(current_remote_dir, name);
+      RemoteCommandExecutor *command_executor = new RemoteCommandExecutor(this);
+      command_executor->init(remote_user, remote_ip,remote_port, command, remote_key);
+      command_executor->startWork();
+      connect(command_executor, &RemoteCommandExecutor::outputReceived,
+              [this, name](system_call_wrapper_error_t res, QStringList output){
+        if (res == SCWE_SUCCESS) {
+          CNotificationObserver::Info(
+                tr("Successfully created new folder with name \"%1\" in \"%2\", remote system.")
+                .arg(name, current_remote_dir), DlgNotification::N_NO_ACTION);
+          this->refresh_remote_file_system();
+        } else {
+          CNotificationObserver::Error(
+                tr("Failed to create new folder with name \"%1\" in \"%2\", remote system.\n"
+                   "Error code: %3.").arg(name, current_remote_dir,
+                                          CSystemCallWrapper::scwe_error_to_str(res)),
+                DlgNotification::N_NO_ACTION);
+        }
+      });
+    } else {
+      set_buttons_enabled(true);
+    }
+    thread->quit();
+  });
+
+  this->moveToThread(thread);
+  thread->start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

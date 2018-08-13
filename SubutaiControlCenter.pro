@@ -78,7 +78,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantVmware.cpp \
     hub/src/updater/UpdaterComponentVMware.cpp \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
-    hub/src/updater/UpdaterComponentXQuartz.cpp
+    hub/src/updater/UpdaterComponentXQuartz.cpp \
+    hub/src/DlgCreateFolder.cpp
 
 
 
@@ -142,7 +143,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVagrantVmware.h \
     hub/include/updater/UpdaterComponentVMware.h \
     hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
-    hub/include/updater/UpdaterComponentXQuartz.h
+    hub/include/updater/UpdaterComponentXQuartz.h \
+    hub/include/DlgCreateFolder.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -160,7 +162,8 @@ FORMS    += \
     hub/forms/DlgPeer.ui \
     hub/forms/DlgTransferFile.ui \
     hub/forms/DlgRegisterPeer.ui \
-    DlgCreatePeer.ui
+    DlgCreatePeer.ui \
+    hub/forms/DlgCreateFolder.ui
 
 RESOURCES += \
     resources/resources.qrc \
@@ -183,7 +186,7 @@ DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_PROD
+GBV=BT_MASTER
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }
