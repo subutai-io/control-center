@@ -891,6 +891,9 @@ void DlgTransferFile::create_folder_remote() {
   connect(thread, &QThread::started, create_folder, &DlgCreateFolder::exec);
   connect(thread, &QThread::finished, create_folder, &DlgCreateFolder::deleteLater);
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  connect(create_folder, &DlgCreateFolder::finished, [this](){
+    this->set_buttons_enabled(true);
+  });
   connect(create_folder, &DlgCreateFolder::got_new_folder_name,
           [this, thread](bool success, QString name){
     if (success) {
