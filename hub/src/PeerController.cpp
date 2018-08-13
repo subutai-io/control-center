@@ -129,15 +129,38 @@ const QString &CPeerController::provision_step_description(const int &step) {
 void CPeerController::refresh_timer_timeout() { refresh(); }
 
 void CPeerController::search_local() {
-  // get correct path;
-  QStringList stdDirList =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
   QDir peers_dir;
-  QStringList::iterator stdDir = stdDirList.begin();
-  if (stdDir == stdDirList.end())
-    peers_dir.setCurrent("/");
-  else
-    peers_dir.setCurrent(*stdDir);
+  QStringList stdDirList;
+  QStringList::iterator stdDir;
+
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    // get correct path;
+    stdDirList =
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+    stdDir = stdDirList.begin();
+    if (stdDir == stdDirList.end())
+      peers_dir.setCurrent("/");
+    else
+      peers_dir.setCurrent(*stdDir);
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    peers_dir.setCurrent(CSettingsManager::Instance().vmware_vm_storage());
+    break;
+  default:
+    // get correct path;
+    stdDirList =
+        QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+    QStringList::iterator stdDir = stdDirList.begin();
+    if (stdDir == stdDirList.end())
+      peers_dir.setCurrent("/");
+    else
+      peers_dir.setCurrent(*stdDir);
+    break;
+  }
+
   peers_dir.mkdir("Subutai-peers");
   peers_dir.cd("Subutai-peers");
 
