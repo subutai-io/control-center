@@ -161,7 +161,10 @@ void CPeerController::search_local() {
     break;
   }
 
-  peers_dir.mkdir("Subutai-peers");
+  if (!peers_dir.absolutePath().contains("Subutai-peers")) {
+    peers_dir.mkdir("Subutai-peers");
+  }
+
   peers_dir.cd("Subutai-peers");
 
   // start looking each subfolder
@@ -175,16 +178,7 @@ void CPeerController::search_local() {
 // the most tricky part
 void CPeerController::check_logs() {
   // get correct path;
-  QStringList stdDirList =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-  QDir peers_dir;
-  QStringList::iterator stdDir = stdDirList.begin();
-  if (stdDir == stdDirList.end())
-    peers_dir.setCurrent("/");
-  else
-    peers_dir.setCurrent(*stdDir);
-  peers_dir.mkdir("Subutai-peers");
-  peers_dir.cd("Subutai-peers");
+  QDir peers_dir = VagrantProvider::Instance()->BasePeerDir();
 
   // start looking each subfolder
   QStringList file_name;
