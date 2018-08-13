@@ -133,19 +133,26 @@ void P2PConnector::update_status() {
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
   std::vector<std::pair<QString, QString> > network_peers;
   QList<QHostAddress> ip_addresses = QNetworkInterface::allAddresses();
+  qDebug() << "List of all lan peers:";
   for (std::pair<QString, QString> local_peer :
        CRhController::Instance()->dct_resource_hosts()) {
     network_peers.push_back(std::make_pair(
         CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
+    qDebug() << CCommons::GetFingerprintFromUid(local_peer.first) << " " << local_peer.second;
   }
   for (CEnvironment env : hub_environments) {
     for (CHubContainer cont : env.containers()) {
       bool found = false;
       QString peer_id = cont.peer_id();
+      qDebug() << "Checking container's rh" << peer_id;
       for (auto lan_peer : network_peers) {
         if (lan_peer.first == peer_id) { // found in the same network
           for (auto ip : ip_addresses) {
+            qDebug() << "comparing ip's of" << lan_peer.second
+                     << " " << ip.toString();
             if (ip.toString() == lan_peer.second) {
+              qDebug() << "Found cont in the machine"
+                       << "ip: " << ip.toString();
               found = true;
               break;
             }
