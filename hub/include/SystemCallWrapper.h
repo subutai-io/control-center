@@ -47,7 +47,8 @@ enum system_call_wrapper_error_t {
   SCWE_WRONG_FILE_NAME,
   SCWE_DIR_DOESNT_EXIST,
   SCWE_DIR_EXISTS,
-  SCWE_COMMAND_FAILED
+  SCWE_COMMAND_FAILED,
+  SCWE_WRONG_TEMP_PATH
 };
 ////////////////////////////////////////////////////////////////////////////
 
@@ -113,6 +114,10 @@ class CSystemCallWrapper {
   static system_call_res_t ssystem(const QString &cmd, QStringList &args,
                                    bool read_out, bool log,
                                    unsigned long timeout_msec = 30000);
+
+  static system_call_res_t ssystem_f(QString cmd, QStringList arg,
+                                     bool read_out, bool log,
+                                     unsigned long timeout_sec = 30000);
 
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();

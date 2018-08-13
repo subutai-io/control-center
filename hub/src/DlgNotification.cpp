@@ -49,7 +49,8 @@ DlgNotification::DlgNotification(
     {"Stop P2P", [](){
       int rse_err;
       CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STARTED_P2P);
-    }}
+    }},
+  {"Uninstall", []() { update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP); }}
   };
 
   if (action_type == N_NO_ACTION)
