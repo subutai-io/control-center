@@ -6,6 +6,10 @@
 #include <QApplication>
 #include "OsBranchConsts.h"
 #include <vector>
+#include <QDir>
+#include "QStandardPaths"
+#include <QStringList>
+#include <QStringListIterator>
 
 class VagrantProvider : QObject
 {
@@ -29,6 +33,9 @@ public:
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();
   static QString CurrentName();
+  QDir BasePeerDir();
+  QDir BasePeerDirVirtualbox();
+  QDir BasePeerDirVMware();
   static std::vector<int> List();
 
   template <class OS> static

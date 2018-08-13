@@ -104,7 +104,6 @@ DlgSettings::DlgSettings(QWidget* parent)
   ui->le_logs_storage->setText(CSettingsManager::Instance().logs_storage());
   ui->le_ssh_keys_storage->setText(
         CSettingsManager::Instance().ssh_keys_storage());
-  ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
   ui->le_ssh_keygen_command->setText(
         CSettingsManager::Instance().ssh_keygen_cmd());
   ui->lbl_hypervisor_command->setText(VagrantProvider::Instance()->CurrentOpenFileTitle());
@@ -212,6 +211,18 @@ DlgSettings::DlgSettings(QWidget* parent)
         ui->cb_profile->setCurrentIndex(i);
       }
     }
+  }
+
+  switch(VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VMWARE_DESKTOP:
+    ui->le_vm_storage->setText(CSettingsManager::Instance().vmware_vm_storage());
+    break;
+  case VagrantProvider::VIRTUALBOX:
+    ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
+    break;
+  default:
+    ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
+    break;
   }
 
   rebuild_rh_list_model();
@@ -481,7 +492,20 @@ void DlgSettings::btn_ok_released() {
     }
   }
 
-  CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    CSettingsManager::Instance().set_vmware_vm_storage(ui->le_vm_storage->text());
+
+    break;
+  default:
+    CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
+    break;
+  }
+
+  CSettingsManager::Instance().set_vm_storage(ui->le_vm_storage->text());
 
   CSettingsManager::Instance().set_ssh_user(ui->le_ssh_user->text());
   CSettingsManager::Instance().set_logs_storage(ui->le_logs_storage->text());

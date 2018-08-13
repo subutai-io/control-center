@@ -229,5 +229,11 @@ QString CCommons::GetFingerprintFromUid(const QString &uid) {
   return res;
 }
 
+QString CCommons::HomePath() {
+  QStringList lst_home =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QString home_folder = lst_home.empty() ? "~" : lst_home[0];
 
+  return home_folder;
+}
 ////////////////////////////////////////////////////////////////////////////

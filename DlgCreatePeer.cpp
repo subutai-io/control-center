@@ -405,21 +405,45 @@ void DlgCreatePeer::hide_err_labels() {
   ui->lbl_err_os->hide();
 }
 
-// for peers, empty if that peer dir exists
-QString DlgCreatePeer::create_dir(const QString &name) {
+// Create peer directory in home path on Virtualbox
+QString DlgCreatePeer::virtualbox_dir(const QString &name) {
   QString new_dir = "";
-  QDir current_local_dir;
-  QStringList stdDirList =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-  QStringList::iterator stdDir = stdDirList.begin();
-  if (stdDir == stdDirList.end())
-    current_local_dir.setCurrent("/");
-  else
-    current_local_dir.setCurrent(*stdDir);
-  current_local_dir.cd("Subutai-peers");
+  QDir current_local_dir = VagrantProvider::Instance()->BasePeerDir();
+
   if (!current_local_dir.mkdir(name)) return new_dir;
   current_local_dir.cd(name);
+
   return current_local_dir.absolutePath();
+}
+
+// Create peer directory by VM storage path on VMware
+QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
+
+  // 1. create "peer" folder.
+  QString empty;
+  QDir peer_dir = VagrantProvider::Instance()->BasePeerDir();
+
+  if (!peer_dir.mkdir(peer_folder)) {
+    return empty;
+  }
+  peer_dir.cd(peer_folder);
+
+  return peer_dir.absolutePath();
+}
+
+// for peers, empty if that peer dir exists
+QString DlgCreatePeer::create_dir(const QString &peer_folder) {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    return virtualbox_dir(peer_folder);
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
+    return vmware_dir(peer_folder);
+    break;
+  default:
+    return virtualbox_dir(peer_folder);
+    break;
+  }
 }
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,
@@ -482,9 +506,15 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
              << endl;
     }
 
-    stream << "SUBUTAI_DISK_PATH : "
-           << QString("\"%1\"")
-              .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+    switch (VagrantProvider::Instance()->CurrentProvider()) {
+    case VagrantProvider::VIRTUALBOX:
+      stream << "SUBUTAI_DISK_PATH : "
+             << QString("\"%1\"")
+                .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+      break;
+    default:
+      break;
+    }
   }
   file.close();
   // write provision step file
