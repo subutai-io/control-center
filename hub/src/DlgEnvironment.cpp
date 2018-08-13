@@ -237,9 +237,15 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
 
 void DlgEnvironment::check_container_status(const CHubContainer *cont) {
   qDebug() << "Checking the status of container: " << cont->name() << " in " << env.name();
-  P2PController::P2P_CONNECTION_STATUS
-      cont_status = P2PController::Instance().is_ready(env, *cont);
-  change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
+  if (P2PController::Instance().is_cont_in_machine(cont->peer_id())) {
+    change_cont_status(cont, 0);
+  } else if (TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING) {
+    change_cont_status(cont, 5);
+  } else {
+    P2PController::P2P_CONNECTION_STATUS
+        cont_status = P2PController::Instance().is_ready(env, *cont);
+    change_cont_status(cont, cont_status != P2PController::CONNECTION_SUCCESS);
+  }
   check_buttons();
 }
 
@@ -263,8 +269,6 @@ void DlgEnvironment::check_environment_status() {
     state_all = 2;
   else if(!env.healthy())
     state_all = 4;
-  else if(TrayControlWindow::Instance()->p2p_current_status != P2PStatus_checker::P2P_RUNNING)
-    state_all = 5;
   else {
     P2PController::P2P_CONNECTION_STATUS
       swarm_status = P2PController::Instance().is_swarm_connected(env);

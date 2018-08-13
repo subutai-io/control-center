@@ -176,6 +176,15 @@ public:
   static QString p2p_connection_status_to_str(P2P_CONNECTION_STATUS status);
   ssh_desktop_launch_error_t is_ready_sdle(const CEnvironment& env, const CHubContainer& cont);
   const std::vector<CP2PInstance> &p2p_instances()const {return m_p2p_instances;}
+  bool is_cont_in_machine(const QString& peer_id) {
+    if (rh_local_tbl.find(peer_id) == rh_local_tbl.end()) {
+      return false;
+    } else {
+      return rh_local_tbl[peer_id];
+    }
+  }
+
+  std::map<QString, bool> rh_local_tbl; // if true this rh in the machine
 
 private slots:
   void p2p_status_updated_sl(std::vector<CP2PInstance> new_p2p_instances,
