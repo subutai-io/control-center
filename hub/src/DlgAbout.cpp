@@ -126,6 +126,7 @@ void DlgAbout::set_visible_libvirt(bool value) {
   ui->lbl_provider_libvirt->setVisible(value);
   ui->lbl_provider_libvirt_icon->setVisible(value);
   ui->lbl_provider_libvirt_version->setVisible(value);
+  ui->lbl_spacer_vagrant_libvirt->setVisible(value);
   ui->btn_provider_libvirt_update->setVisible(value);
   ui->cb_provider_libvirt->setVisible(value);
   ui->pb_provider_libvirt->setVisible(value);
@@ -138,6 +139,7 @@ void DlgAbout::set_visible_parallels(bool value) {
   ui->lbl_provider_parallels->setVisible(value);
   ui->lbl_provider_parallels_icon->setVisible(value);
   ui->lbl_provider_parallels_version->setVisible(value);
+  ui->lbl_spacer_provider_parallels->setVisible(value);
   ui->btn_provider_parallels_update->setVisible(value);
   ui->cb_provider_parallels->setVisible(value);
   ui->pb_provider_parallels->setVisible(value);
@@ -171,6 +173,7 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->lbl_provider_vmware->setVisible(value);
   ui->lbl_provider_vmware_icon->setVisible(value);
   ui->lbl_provider_vmware_version->setVisible(value);
+  ui->lbl_spacer_provider_vmware->setVisible(value);
   ui->btn_provider_vmware_update->setVisible(value);
   ui->cb_provider_vmware->setVisible(value);
   ui->pb_provider_vmware->setVisible(value);
@@ -180,6 +183,7 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->lbl_hypervisor_vmware->setVisible(value);
   ui->lbl_hypervisor_vmware_icon->setVisible(value);
   ui->lbl_hypervisor_vmware_version->setVisible(value);
+  ui->lbl_spacer_hypervisor_vmware->setVisible(value);
   ui->btn_hypervisor_vmware_update->setVisible(value);
   ui->cb_hypervisor_vmware->setVisible(value);
   ui->pb_hypervisor_vmware->setVisible(value);
@@ -189,6 +193,7 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->lbl_provider_vmware_utility->setVisible(value);
   ui->lbl_provider_vmware_utility_icon->setVisible(value);
   ui->lbl_provider_vmware_utility_version->setVisible(value);
+  ui->lbl_spacer_vagrant_vmware_utility->setVisible(value);
   ui->btn_provider_vmware_utility_update->setVisible(value);
   ui->cb_provider_vmware_utility->setVisible(value);
   ui->pb_provider_vmare_utility->setVisible(value);
