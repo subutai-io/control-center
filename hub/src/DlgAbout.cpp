@@ -882,16 +882,27 @@ void DlgAbout::btn_hypervisor_vmware_update_released() {
 }
 
 void DlgAbout::btn_vagrant_vmware_utility_update_released() {
-  ui->pb_provider_vmare_utility->setHidden(false);
-  ui->btn_provider_vmware_utility_update->setHidden(false);
-  ui->btn_provider_vmware_utility_update->setEnabled(false);
+  // Check is VMware is installed
+  if (ui->lbl_hypervisor_vmware_version->text() == "undefined") {
+    // install first VMware
+    QMessageBox msg;
+    msg.setText(QObject::tr(
+                     "Vagrant VMware Utility requires a valid installation of VMware."
+                     " Please install VMware and then install Vagrant VMware Utility again!"
+                  ));
+    msg.exec();
+  } else {
+    ui->pb_provider_vmare_utility->setHidden(false);
+    ui->btn_provider_vmware_utility_update->setHidden(false);
+    ui->btn_provider_vmware_utility_update->setEnabled(false);
 
-  if (ui->lbl_provider_vmware_utility_version->text() == "undefined")
-    CHubComponentsUpdater::Instance()->install(
-          IUpdaterComponent::VMWARE_UTILITY);
-  else
-    CHubComponentsUpdater::Instance()->force_update(
-          IUpdaterComponent::VMWARE_UTILITY);
+    if (ui->lbl_provider_vmware_utility_version->text() == "undefined")
+      CHubComponentsUpdater::Instance()->install(
+            IUpdaterComponent::VMWARE_UTILITY);
+    else
+      CHubComponentsUpdater::Instance()->force_update(
+            IUpdaterComponent::VMWARE_UTILITY);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
 /// \brief DlgAbout::btn_uninstall_components
