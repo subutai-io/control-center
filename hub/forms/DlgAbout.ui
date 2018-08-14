@@ -775,6 +775,12 @@ min-height: 550pxk
         <layout class="QHBoxLayout" name="hl_vagrant_vmware_utility">
          <item>
           <widget class="QLabel" name="lbl_provider_vmware_utility">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Vagrant VMware Utility</string>
            </property>
@@ -782,6 +788,25 @@ min-height: 550pxk
          </item>
          <item alignment="Qt::AlignLeft">
           <widget class="QLabel" name="lbl_provider_vmware_utility_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_spacer_vagrant_vmware_utility">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -2259,6 +2284,25 @@ min-height: 550pxk
          </item>
          <item alignment="Qt::AlignLeft">
           <widget class="QLabel" name="lbl_hypervisor_vmware_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_spacer_hypervisor_vmware">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -2270,6 +2314,12 @@ min-height: 550pxk
         <layout class="QHBoxLayout" name="hl_vagrant_libvirt">
          <item>
           <widget class="QLabel" name="lbl_provider_libvirt">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Vagrant Libvirt Provider</string>
            </property>
@@ -2277,6 +2327,25 @@ min-height: 550pxk
          </item>
          <item alignment="Qt::AlignLeft">
           <widget class="QLabel" name="lbl_provider_libvirt_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_spacer_vagrant_libvirt">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -2288,6 +2357,12 @@ min-height: 550pxk
         <layout class="QHBoxLayout" name="hl_vagrant_vmware">
          <item>
           <widget class="QLabel" name="lbl_provider_vmware">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Vagrant VMware Desktop</string>
            </property>
@@ -2295,6 +2370,25 @@ min-height: 550pxk
          </item>
          <item alignment="Qt::AlignLeft">
           <widget class="QLabel" name="lbl_provider_vmware_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_spacer_provider_vmware">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -2306,6 +2400,12 @@ min-height: 550pxk
         <layout class="QHBoxLayout" name="hl_vagrant_parallels">
          <item>
           <widget class="QLabel" name="lbl_provider_parallels">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Vagrant Parallels Provider</string>
            </property>
@@ -2313,6 +2413,25 @@ min-height: 550pxk
          </item>
          <item alignment="Qt::AlignLeft">
           <widget class="QLabel" name="lbl_provider_parallels_icon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_spacer_provider_parallels">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string/>
            </property>
