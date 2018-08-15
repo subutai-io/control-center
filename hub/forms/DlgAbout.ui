@@ -802,7 +802,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_vagrant_vmware_utility">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -1367,7 +1367,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_xquartz">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2298,7 +2298,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_hypervisor_vmware">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2341,7 +2341,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_vagrant_libvirt">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2384,7 +2384,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_provider_vmware">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2427,7 +2427,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="lbl_spacer_provider_parallels">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
