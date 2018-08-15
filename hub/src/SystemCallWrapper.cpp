@@ -126,14 +126,20 @@ system_call_res_t CSystemCallWrapper::ssystem_f(QString cmd, QStringList args,
 
     break;
   case OS_WIN:
-    cmd = QString("%1 %2 2> %3").arg(cmd, tmp.join(" "), tmpFilePath);
-
+    args << "-NoLogo"
+         << "-NoProfile"
+         << "-NonInteractive"
+         << "-ExecutionPolicy"
+         << "Bypass"
+         << "-Command"
+         << QString("%1 %2 > \"%3\" 2>&1").arg(cmd, tmp.join(" "), tmpFilePath);
+    cmd = "powershell";
     break;
   default:
     break;
   }
 
-  qDebug() << "ssytem_f: "
+  qDebug() << "ssystem_f: "
            << "cmd: "
            << cmd
            << "args: "
