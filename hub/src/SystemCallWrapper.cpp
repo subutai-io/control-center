@@ -541,26 +541,42 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     }
     return res.res;
 }
+
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
+                       QString dir,
                        QString &id,
                        QString &name,
                        QString &provider,
                        QString &state,
-                       QString &directory){
-    QStringList seperated = status_line.split(" ", QString::SkipEmptyParts);
+                       QString &directory) {
+    state = "";
+    QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     if(seperated.size() < 5) return;
-    QString *args[] {&id, &name, &provider, &state};
-    for (size_t i = 0; i < 4; i++){
+    QString *args[] {&id, &name, &provider};
+
+    for (size_t i = 0; i < 3; i++){
         *args[i] = seperated[0];
         seperated.erase(seperated.begin());
     }
-    directory = status_line.remove(0, status_line.indexOf(seperated[0]));
-    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
-        directory.remove(directory.size() -1 , 1);
+
+    for (QString str : seperated) {
+      if (dir != str) {
+        state += " " + str;
+        seperated.erase(seperated.begin());
+      }
     }
-    return;
+
+    state = state.trimmed();
+
+    if (!seperated.empty()) {
+      directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+      while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+        directory.remove(directory.size() -1 , 1);
+      }
+      return;
+    }
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
@@ -590,7 +606,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     }
     QString p_name, p_id, p_state, p_provider, p_dir;
     for(auto s : res.out){
-        parse_status_line(s, p_id, p_name, p_provider, p_state, p_dir);
+        parse_status_line(s, dir, p_id, p_name, p_provider, p_state, p_dir);
         if(p_dir == dir){
             return p_state;
         }
