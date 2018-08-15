@@ -1238,7 +1238,7 @@ void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE_UTILITY);
       ui->btn_provider_vmware_utility_update->setHidden(false);
-      ui->cb_provider_vmware_utility->setHidden(false);
+      ui->cb_provider_vmware_utility->setVisible(false);
       ui->btn_provider_vmware_utility_update->setText(tr("Install"));
       ui->btn_provider_vmware_utility_update->activateWindow();
     } else {
