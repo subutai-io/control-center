@@ -102,6 +102,9 @@ const QString &CPeerController::status_description(const QString &status) {
           "specific "
           "VM, run `vagrant status NAME`.")},
 
+      {"not running", tr("The Peer is not running. To start the Peer, simply "
+                    "press 'start'")},
+
       {"undefined", ""}};
 
   if (dct_desp.find(status) == dct_desp.end()) {
