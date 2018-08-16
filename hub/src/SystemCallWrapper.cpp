@@ -520,7 +520,8 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 //////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir, const QString &box){
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -610,7 +611,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QStr
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
 
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       return "inaccessible";
     }
@@ -637,7 +639,8 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
-  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+  if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
     qCritical() << "vagrant vmware plugin license is not present.";
     CNotificationObserver::Error(
           QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -670,7 +673,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir)
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir){
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -704,7 +708,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &di
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -736,7 +741,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &d
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -770,7 +776,8 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
 }
 
 QString CSystemCallWrapper::vagrant_ip(const QString &dir){
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -925,7 +932,8 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
 std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
     qDebug() << "Starting to update information related to peer management";
 
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       return std::make_pair(QStringList(), system_call_res_t());
     }
@@ -1326,7 +1334,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
                                                                 const QString &provider,
                                                                 const QString &box_dir){
 
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -1822,7 +1831,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const Q
                                                                          const QString &command,
                                                                          const QString &name){
 
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -1837,7 +1847,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const Q
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider) {
     qDebug() << "updating vagrant box: " << box << "provider:" << provider;
 
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
       qCritical() << "vagrant vmware plugin license is not present.";
       CNotificationObserver::Error(
             QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -1867,7 +1878,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
                                                                    const QString &provider) {
 
-  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+  if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP &&
+        !CCommons::IsVagrantVMwareLicenseInstalled()) {
     qCritical() << "vagrant vmware plugin license is not present.";
     CNotificationObserver::Error(
           QObject::tr("You do not have license to use Vagrant VMWare plugin. "
@@ -7355,7 +7367,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const
 }
 template<>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
-  UNUSED_ARG(version);
+  qDebug() << "tray_post_update: version:" << version;
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
   // take product code
   QString product_code = "undefined";
@@ -7458,6 +7470,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
   return SCWE_SUCCESS;
 }
 system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
+  qDebug() << "tray_post_update: version" << version;
   return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
 }
 ////////////////////////////////////////////////////////////////////////////
