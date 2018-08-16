@@ -94,8 +94,6 @@ CUpdaterComponentTray::update_post_action(bool success) {
     return;
   }
 
-  qDebug() << "update_post_action: tray version:" << tray_cloud_version;
-
   system_call_wrapper_error_t res = CSystemCallWrapper::tray_post_update(tray_cloud_version);
   if (res != SCWE_SUCCESS) {
     qCritical("Failed to finish post install after tray update");
