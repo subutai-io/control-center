@@ -7,31 +7,19 @@ USER=jenkins
 EMAIL=jenkins@subut.ai
 
 upload_cdn (){
-    echo "Obtaining auth id..."
+    filename=$1
+    user="jenkins@subut.ai"
+    fingerprint="7CD0CB4AAA727A884B2B811918B54AF8076EEE5B"
+    cdnHost=$2
+    authId="$(curl -s https://${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+    echo "Auth id obtained and signed $authId"
 
-    curl -k "$2/auth/token?user=$USER" -o /tmp/filetosign
-    rm -rf /tmp/filetosign.asc
-    gpg --armor -u $EMAIL --clearsign /tmp/filetosign
-
-    SIGNED_AUTH_ID=$(cat /tmp/filetosign.asc)
-
-    echo "Auth id obtained and signed\\n$SIGNED_AUTH_ID"
-
-    TOKEN=$(curl -k -s -Fmessage="$SIGNED_AUTH_ID" -Fuser=$USER "$2/auth/token")
-
-    echo "Token obtained $TOKEN"
+    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
+    token="$(curl -s --data-urlencode "request=${sign}"  https://${cdnHost}/rest/v1/cdn/token)"
+    echo "Token obtained $token"
 
     echo "Uploading file..."
-
-    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Ftoken=$TOKEN "$2/raw/upload")
-
-    echo "File uploaded with ID $ID"
-    echo "URL: $2"
-    echo "Signing file..."
-
-    SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
-
-    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
+    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "https://${cdnHost}/rest/v1/cdn/uploadRaw"
 
     echo -e "\\nCompleted"
 }
