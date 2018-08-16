@@ -3325,7 +3325,7 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
        << "--required"
        << "--eulas-agreed";
 
-  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, true, true, 97);
 
   qDebug() << "Uninstallation of VMware finished: "
            << "exit code: "
