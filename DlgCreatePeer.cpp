@@ -9,6 +9,8 @@
 #include "ui_DlgCreatePeer.h"
 #include "VagrantProvider.h"
 #include "Environment.h"
+#include "updater/HubComponentsUpdater.h"
+#include <QMessageBox>
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
@@ -42,9 +44,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   requirement vagrant_vmware_license(
         tr("Vagrant VMWare Desktop provider license is not installed"),
         tr("Checking Vagrant VMware License..."),
-        tr(" The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
-           "and require the <b>purchase of a license to operate</b>. To purchase a license, "
-           "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "),
+        tr("You do not have a <b>license</b> to use <b>Vagrant VMWare Desktop provider.</b> "
+           "Please <a href=\"https://www.vagrantup.com/vmware/index.html\">visit</a> to purchase "
+           "a license. Once you purchase a license, you can install it "
+           "using <b>vagrant plugin license</b> "),
       DlgNotification::N_NO_ACTION, []() {
         return CCommons::IsVagrantVMwareLicenseInstalled();
       });
@@ -327,6 +330,24 @@ bool DlgCreatePeer::check_configurations() {
 }
 
 void DlgCreatePeer::create_button_pressed() {
+  // Check Vagrant command available:
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      QMessageBox* msg_box =
+         new QMessageBox(QMessageBox::Question, tr("Info"),
+                         tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
+                            "In order to create peer, uninstall Vagrant VMWare Desktop Provider.<br/>"
+                            "Do you want to proceed?"),
+                         QMessageBox::Yes | QMessageBox::No);
+      connect(msg_box, &QMessageBox::finished, msg_box,
+              &QMessageBox::deleteLater);
+
+      if (msg_box->exec() == QMessageBox::Yes) {
+          update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+      }
+    }
+  }
+
   if (check_configurations()) return;
 
   QString dir = create_dir("subutai-peer_" + ui->le_name->text());
@@ -448,20 +469,11 @@ QString DlgCreatePeer::create_dir(const QString &peer_folder) {
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,
                                    QString ram, QString cpu, QString disk) {
-  if (res != SCWE_SUCCESS) {
-    // Check Vagrant command available:
-    if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-      if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
-        CNotificationObserver::Instance()->Error(
-              tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
-                 "In order to create peer, uninstall Vagrant VMWare Desktop Provider by following <b>Uninstall</b> button."), DlgNotification::N_UNINSTALL);
-      }
-    } else {
-      CNotificationObserver::Instance()->Error(
-          tr("Coudn't create peer, sorry. Check if all software is installed "
-             "correctly"),
-          DlgNotification::N_NO_ACTION);
-    }
+  if (res != SCWE_SUCCESS) { 
+    CNotificationObserver::Instance()->Error(
+        tr("Coudn't create peer, sorry. Check if all software is installed "
+           "correctly"),
+        DlgNotification::N_NO_ACTION);
 
     ui->btn_create->setEnabled(true);
     set_enabled_buttons(true);
