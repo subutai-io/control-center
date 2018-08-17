@@ -58,6 +58,7 @@ public:
   static QStringList DefaultTerminals();
   static QStringList SupportTerminals();
   static QString GetFingerprintFromUid(const QString &uid);
+  static QString HomePath();
 
 };
 

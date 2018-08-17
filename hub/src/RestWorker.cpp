@@ -324,7 +324,7 @@ void CRestWorker::peer_finger(const QString& port,
   reply->ignoreSslErrors();
 
   QTimer* timer = new QTimer(this);
-  timer->setInterval(6000);
+  timer->setInterval(10000);
   timer->setSingleShot(true);
   timer->start();
 
@@ -375,7 +375,7 @@ void CRestWorker::peer_set_pass(const QString& port, const QString& username,
   reply->ignoreSslErrors();
 
   QTimer* timer = new QTimer(this);
-  timer->setInterval(6000);
+  timer->setInterval(10000);
   timer->setSingleShot(true);
   timer->start();
 
@@ -402,7 +402,7 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   reply->ignoreSslErrors();
 
   QTimer* timer = new QTimer(this);
-  timer->setInterval(6000);
+  timer->setInterval(10000);
   timer->setSingleShot(true);
   timer->start();
 

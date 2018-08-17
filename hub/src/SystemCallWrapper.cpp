@@ -126,14 +126,20 @@ system_call_res_t CSystemCallWrapper::ssystem_f(QString cmd, QStringList args,
 
     break;
   case OS_WIN:
-    cmd = QString("%1 %2 2> %3").arg(cmd, tmp.join(" "), tmpFilePath);
-
+    args << "-NoLogo"
+         << "-NoProfile"
+         << "-NonInteractive"
+         << "-ExecutionPolicy"
+         << "Bypass"
+         << "-Command"
+         << QString("%1 %2 > \"%3\" 2>&1").arg(cmd, tmp.join(" "), tmpFilePath);
+    cmd = "powershell";
     break;
   default:
     break;
   }
 
-  qDebug() << "ssytem_f: "
+  qDebug() << "ssystem_f: "
            << "cmd: "
            << cmd
            << "args: "
@@ -514,6 +520,15 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 //////////////////////////////////////////////////////////////////////
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir, const QString &box){
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -541,26 +556,42 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
     }
     return res.res;
 }
+
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
+                       QString dir,
                        QString &id,
                        QString &name,
                        QString &provider,
                        QString &state,
-                       QString &directory){
-    QStringList seperated = status_line.split(" ", QString::SkipEmptyParts);
+                       QString &directory) {
+    state = "";
+    QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     if(seperated.size() < 5) return;
-    QString *args[] {&id, &name, &provider, &state};
-    for (size_t i = 0; i < 4; i++){
+    QString *args[] {&id, &name, &provider};
+
+    for (size_t i = 0; i < 3; i++){
         *args[i] = seperated[0];
         seperated.erase(seperated.begin());
     }
-    directory = status_line.remove(0, status_line.indexOf(seperated[0]));
-    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
-        directory.remove(directory.size() -1 , 1);
+
+    for (QString str : seperated) {
+      if (dir != str) {
+        state += " " + str;
+        seperated.erase(seperated.begin());
+      }
     }
-    return;
+
+    state = state.trimmed();
+
+    if (!seperated.empty()) {
+      directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+      while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+        directory.remove(directory.size() -1 , 1);
+      }
+      return;
+    }
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
@@ -578,6 +609,13 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QStr
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir){
     qDebug() << "get vagrant status of" << dir;
+
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      return "inaccessible";
+    }
+
+
     system_call_res_t res;
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
@@ -590,7 +628,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     }
     QString p_name, p_id, p_state, p_provider, p_dir;
     for(auto s : res.out){
-        parse_status_line(s, p_id, p_name, p_provider, p_state, p_dir);
+        parse_status_line(s, dir, p_id, p_name, p_provider, p_state, p_dir);
         if(p_dir == dir){
             return p_state;
         }
@@ -599,6 +637,16 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir){
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    qCritical() << "vagrant vmware plugin license is not present.";
+    CNotificationObserver::Error(
+          QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                      "Please purchase a license or uninstall Vagrant VMWare "
+                      "plugin from \"Components\""), DlgNotification::N_ABOUT);
+    return SCWE_CREATE_PROCESS;
+  }
+
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -622,6 +670,15 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir)
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir){
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -647,6 +704,15 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &di
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir){
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args<< "set_working_directory"
@@ -670,6 +736,15 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &d
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir){
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return std::make_pair(SCWE_CREATE_PROCESS, QStringList());
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -695,6 +770,15 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
 }
 
 QString CSystemCallWrapper::vagrant_ip(const QString &dir){
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return QString();
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args
@@ -840,6 +924,12 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
 
 std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
     qDebug() << "Starting to update information related to peer management";
+
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      return std::make_pair(QStringList(), system_call_res_t());
+    }
+
     QStringList bridges = CSystemCallWrapper::list_interfaces();
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
@@ -1235,6 +1325,16 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_latest_box_version(const
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &box,
                                                                 const QString &provider,
                                                                 const QString &box_dir){
+
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     qDebug() << "adding vagrant box:" << box << "for provider:" << provider
              << "box dir:" << box_dir;
     QString cmd = CSettingsManager::Instance().vagrant_path();
@@ -1721,11 +1821,31 @@ UNUSED_ARG(command);
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_command_terminal(const QString &dir,
                                                                          const QString &command,
                                                                          const QString &name){
+
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     return vagrant_command_terminal_internal<Os2Type<CURRENT_OS> >(dir, command, name);
 }
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString &box, const QString &provider) {
     qDebug() << "updating vagrant box: " << box << "provider:" << provider;
+
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      qCritical() << "vagrant vmware plugin license is not present.";
+      CNotificationObserver::Error(
+            QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                        "Please purchase a license or uninstall Vagrant VMWare "
+                        "plugin from \"Components\""), DlgNotification::N_ABOUT);
+      return SCWE_CREATE_PROCESS;
+    }
+
     QString cmd = CSettingsManager::Instance().vagrant_path();
     QStringList args;
     args << "box"
@@ -1746,6 +1866,16 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
                                                                    const QString &provider) {
+
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    qCritical() << "vagrant vmware plugin license is not present.";
+    CNotificationObserver::Error(
+          QObject::tr("You do not have license to use Vagrant VMWare plugin. "
+                      "Please purchase a license or uninstall Vagrant VMWare "
+                      "plugin from \"Components\""), DlgNotification::N_ABOUT);
+    return SCWE_CREATE_PROCESS;
+  }
+
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;   // vagrant box remove box_name --provider provider_name --all
 
@@ -7225,7 +7355,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const
 }
 template<>
 system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
-  UNUSED_ARG(version);
+  qDebug() << "tray_post_update: version:" << version;
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
   // take product code
   QString product_code = "undefined";

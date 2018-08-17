@@ -434,6 +434,12 @@ ssh_desktop_launch_error_t CHubController::ssh_to_container_internal(const CEnvi
 
   ssh_desktop_launch_error_t
         container_status = P2PController::Instance().is_ready_sdle(env, cont);
+
+  // check if container inside of machine
+  if (P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
+    container_status = SDLE_SUCCESS;
+  }
+
   if (container_status != SDLE_SUCCESS) {
     return container_status;
   }
@@ -506,6 +512,10 @@ ssh_desktop_launch_error_t CHubController::desktop_to_container_internal(const C
 
   ssh_desktop_launch_error_t
       container_status = P2PController::Instance().is_ready_sdle(env, cont);
+
+  if (P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
+    container_status = SDLE_SUCCESS;
+  }
 
   if (container_status != SDLE_SUCCESS) {
     return container_status;
