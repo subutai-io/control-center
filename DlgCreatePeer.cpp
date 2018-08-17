@@ -44,9 +44,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   requirement vagrant_vmware_license(
         tr("Vagrant VMWare Desktop provider license is not installed"),
         tr("Checking Vagrant VMware License..."),
-        tr(" The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
-           "and require the <b>purchase of a license to operate</b>. To purchase a license, "
-           "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "),
+        tr("You do not have a <b>license</b> to use <b>Vagrant VMWare Desktop provider.</b> "
+           "Please <a href=\"https://www.vagrantup.com/vmware/index.html\">visit</a> to purchase "
+           "a license. Once you purchase a license, you can install it "
+           "using <b>vagrant plugin license</b> "),
       DlgNotification::N_NO_ACTION, []() {
         return CCommons::IsVagrantVMwareLicenseInstalled();
       });

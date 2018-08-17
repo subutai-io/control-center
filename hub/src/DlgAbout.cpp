@@ -805,6 +805,11 @@ void DlgAbout::btn_vbguest_plugin_update_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::btn_subutai_box_update_released() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CCommons::InfoVagrantVMwareLicense();
+    return;
+  }
+
   ui->pb_subutai_box->setHidden(false);
   ui->btn_subutai_box->setEnabled(false);
   if (ui->lbl_subutai_box_version->text() == "undefined") {

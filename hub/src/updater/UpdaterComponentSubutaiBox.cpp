@@ -132,6 +132,12 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
 }
 
 chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CCommons::InfoVagrantVMwareLicense();
+    emit uninstall_finished_sl(false);
+    return CHUE_SUCCESS;
+  }
+
   size_t total = TrayControlWindow::Instance()->machine_peers_table.size();
   qDebug() << "Total machine peers: " << total;
 
