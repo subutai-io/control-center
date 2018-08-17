@@ -640,6 +640,11 @@ void DlgPeer::hideEnvs() {
 }
 
 void DlgPeer::rh_stop_or_start_sl() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CCommons::InfoVagrantVMwareLicense();
+    return;
+  }
+
   ui->btn_start_stop->text() == tr("Start peer") ? rh_start() : rh_stop();
 }
 
@@ -736,6 +741,11 @@ void DlgPeer::rh_ssh() {
 }
 
 void DlgPeer::rh_destroy_sl() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CCommons::InfoVagrantVMwareLicense();
+    return;
+  }
+
   if (hub_available) {
     CNotificationObserver::Error(tr("Registered peers cannot be destroyed. "
                                     "Before destroying this peer, you must "
@@ -789,6 +799,12 @@ void DlgPeer::rh_destroy_sl() {
 }
 
 void DlgPeer::rh_reload_sl() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    qCritical() << "vagrant vmware plugin license is not present.";
+    CCommons::InfoVagrantVMwareLicense();
+    return;
+  }
+
   static QString reload_command = "reload";
   enabled_peer_buttons(false);
   if (ui->change_configure->isChecked()) {

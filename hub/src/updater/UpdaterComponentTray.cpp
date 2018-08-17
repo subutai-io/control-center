@@ -93,6 +93,7 @@ CUpdaterComponentTray::update_post_action(bool success) {
     CNotificationObserver::Error(tr("Failed to update the Control Center. Make sure that you have the required permissions."), DlgNotification::N_SETTINGS);
     return;
   }
+
   system_call_wrapper_error_t res = CSystemCallWrapper::tray_post_update(tray_cloud_version);
   if (res != SCWE_SUCCESS) {
     qCritical("Failed to finish post install after tray update");
