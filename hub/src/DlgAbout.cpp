@@ -280,12 +280,11 @@ void DlgAbout::set_hidden_providers() {
 DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->setupUi(this);
   ui->lbl_tray_version_val->setText(TRAY_VERSION + branch_name_str());
-  current_browser = CSettingsManager::Instance().default_browser();
 
-  set_visible_chrome("Chrome" == current_browser);
-  set_visible_firefox("Firefox" == current_browser);
-  set_visible_edge("Edge" == current_browser);
-  set_visible_safari("Safari" == current_browser);
+  set_visible_chrome("Chrome" == CSettingsManager::Instance().default_browser());
+  set_visible_firefox("Firefox" == CSettingsManager::Instance().default_browser());
+  set_visible_edge("Edge" == CSettingsManager::Instance().default_browser());
+  set_visible_safari("Safari" == CSettingsManager::Instance().default_browser());
   set_visible_xquartz(OS_MAC == CURRENT_OS);
 
   QLabel* ilbls[] = {this->ui->lbl_p2p_info_icon,
@@ -831,6 +830,54 @@ void DlgAbout::btn_xquartz_update_released() {
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::btn_recheck_released() {
+  set_visible_chrome("Chrome" == CSettingsManager::Instance().default_browser());
+  set_visible_firefox("Firefox" == CSettingsManager::Instance().default_browser());
+  set_visible_edge("Edge" == CSettingsManager::Instance().default_browser());
+  set_visible_safari("Safari" == CSettingsManager::Instance().default_browser());
+
+  set_hidden_providers();
+
+  for (const auto& component : m_dct_fpb) {
+    if (component.second.cb != nullptr) {
+      component.second.cb->setVisible(false);
+    }
+    component.second.btn->setVisible(true);
+    if (component.first == IUpdaterComponent::XQUARTZ &&
+        CURRENT_OS != OS_MAC) {
+      component.second.btn->setVisible(false);
+    }
+
+    if (component.first == IUpdaterComponent::CHROME &&
+        CSettingsManager::Instance().default_browser() != "Chrome") {
+      component.second.btn->setVisible(false);
+    }
+    if (component.first == IUpdaterComponent::FIREFOX &&
+        CSettingsManager::Instance().default_browser() != "Firefox") {
+      component.second.btn->setVisible(false);
+    }
+
+    if ((component.first == IUpdaterComponent::ORACLE_VIRTUALBOX ||
+         component.first == IUpdaterComponent::VAGRANT_VBGUEST) &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VIRTUALBOX) {
+      component.second.btn->setVisible(false);
+    }
+    if (component.first == IUpdaterComponent::VAGRANT_PARALLELS &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::PARALLELS) {
+      component.second.btn->setVisible(false);
+    }
+    if ((component.first == IUpdaterComponent::VAGRANT_VMWARE_DESKTOP ||
+         component.first == IUpdaterComponent::VMWARE ||
+         component.first == IUpdaterComponent::VMWARE_UTILITY) &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+      component.second.btn->setVisible(false);
+    }
+    if (component.first == IUpdaterComponent::VAGRANT_LIBVIRT &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::LIBVIRT) {
+      component.second.btn->setVisible(false);
+    }
+    set_hidden_pb(component.first);
+  }
+
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     it->second.btn->setEnabled(false);
   }
@@ -1089,7 +1136,7 @@ void DlgAbout::got_safari_version_sl(QString version) {
 void DlgAbout::got_e2e_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::E2E) != this->m_dct_fpb.end()) {
     ui->lbl_subutai_e2e_val->setText(version);
-    if (current_browser != "Edge") {
+    if (CSettingsManager::Instance().default_browser() != "Edge") {
       if (version == "undefined") {
         set_hidden_pb(IUpdaterComponent::E2E);
         ui->btn_subutai_e2e->setHidden(false);
@@ -1352,17 +1399,17 @@ void DlgAbout::update_available_sl(const QString& component_id,
        available);
   m_dct_fpb[component_id].btn->setEnabled(update_available);
 
-  if (component_id == IUpdaterComponent::E2E && current_browser == "Edge") {
+  if (component_id == IUpdaterComponent::E2E && CSettingsManager::Instance().default_browser() == "Edge") {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
   }
 
-  if (component_id == IUpdaterComponent::FIREFOX && current_browser != "Firefox") {
+  if (component_id == IUpdaterComponent::FIREFOX && CSettingsManager::Instance().default_browser() != "Firefox") {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
   }
 
-  if (component_id == IUpdaterComponent::CHROME && current_browser != "Chrome") {
+  if (component_id == IUpdaterComponent::CHROME && CSettingsManager::Instance().default_browser() != "Chrome") {
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].btn->setVisible(false);
   }
