@@ -842,6 +842,11 @@ void DlgAbout::btn_recheck_released() {
       component.second.cb->setVisible(false);
     }
     component.second.btn->setVisible(true);
+    if (component.first == IUpdaterComponent::XQUARTZ &&
+        CURRENT_OS != OS_MAC) {
+      component.second.btn->setVisible(false);
+    }
+
     if (component.first == IUpdaterComponent::CHROME &&
         CSettingsManager::Instance().default_browser() != "Chrome") {
       component.second.btn->setVisible(false);
