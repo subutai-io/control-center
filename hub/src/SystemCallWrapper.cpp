@@ -3325,7 +3325,7 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
        << "--required"
        << "--eulas-agreed";
 
-  scr = CSystemCallWrapper::ssystem(QString("pkexec"), args, false, true, 60000);
+  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, true, true, 97);
 
   qDebug() << "Uninstallation of VMware finished: "
            << "exit code: "
@@ -6212,7 +6212,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QS
   QString cmd = "/opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility";
   QStringList args;
   args << "-v";
-  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 5000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_f(cmd, args, true, true, 5000);
 
   qDebug() << "Got Vagrant VMware Utility version"
            << " exit code: "
@@ -6223,7 +6223,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QS
            << res.out;
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0) {
-    version = "Installed";
+    version = res.out[0];
   } else {
       res.res = SCWE_CREATE_PROCESS;
   }

@@ -1235,6 +1235,7 @@ void DlgAbout::got_vbguest_plugin_version_sl(QString version) {
       ui->btn_vbguest_plugin_update->setText(tr("Update"));
       ui->cb_vagrant_vbguest_plugin->setEnabled(true);
     }
+    ui->lbl_vbguest_plugin_version_val->setText(version);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1247,6 +1248,8 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
       ui->cb_vagrant_box->setVisible(false);
       ui->btn_subutai_box->setText(tr("Install"));
       ui->btn_subutai_box->activateWindow();
+    } else if(version == "Install Vagrant first") {
+      ui->cb_vagrant_box->setEnabled(false);
     } else {
       ui->btn_subutai_box->setText(tr("Update"));
     }
@@ -1323,6 +1326,8 @@ void DlgAbout::got_provider_version_sl(QString version) {
       //ui->btn_subutai_box->setText(tr("Install"));
       this->m_dct_fpb[COMPONENT_KEY].btn->activateWindow();
       //ui->btn_subutai_box->activateWindow();
+    } else if (version == "Install Vagrant first") {
+      this->m_dct_fpb[COMPONENT_KEY].cb->setEnabled(false);
     } else {
       this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Update"));
       //ui->btn_subutai_box->setText(tr("Update"));
