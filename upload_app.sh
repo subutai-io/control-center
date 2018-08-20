@@ -36,7 +36,7 @@ upload_cdn (){
     echo "Removing previous"
     if [[ -z "$id" ]]; then
         echo "File not found"
-    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    else curl -k -s -X DELETE "https://$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
     fi
 
     echo -e "\\nCompleted"
