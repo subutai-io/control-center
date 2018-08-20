@@ -22,7 +22,7 @@ upload_cdn (){
             id=${id_src:8:46}
         }       
 
-    json=`curl -k -s -X GET $cdnUrl/v1/cdn/raw?name=$filename`
+    json=`curl -k -s -X GET $cdnHost/rest/v1/cdn/raw?name=$filename`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"

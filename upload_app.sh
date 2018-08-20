@@ -18,7 +18,7 @@ upload_cdn (){
             id=${id_src:8:46}
         }       
 
-    json=`curl -k -s -X GET $cdnUrl/v1/cdn/raw?name=$filename`
+    json=`curl -k -s -X GET https://$cdnHost/rest/v1/cdn/raw?name=$filename`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"
@@ -34,7 +34,10 @@ upload_cdn (){
     curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "https://${cdnHost}/rest/v1/cdn/uploadRaw"
 
     echo "Removing previous"
-    curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    if [[ -z "$id" ]]; then
+        echo "File not found"
+    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    fi
 
     echo -e "\\nCompleted"
 }
