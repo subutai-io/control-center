@@ -2960,9 +2960,35 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
-                  "open -a /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/\" ").arg(file_path);
+                  "cp -R /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/ /Applications/VMware\\\\ Fusion.app; open -a VMware\\\\ Fusion.app;\" with administrator privileges").arg(file_path);
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
+    qCritical() << "Failed installation VMware Fusion: "
+                << res.res
+                << " exit code: "
+                << res.exit_code
+                << res.out;
+
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args.clear();
+
+  args << "-e"
+       << QString("do shell script \"open -a /Applications/VMware\\\\ Fusion.app;\"");
+  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
+    qCritical() << "Failed open VMware Fusion: "
+                << res.res
+                << " exit code: "
+                << res.exit_code
+                << res.out;
+
+    return SCWE_CREATE_PROCESS;
+  }
 
   return res.res;
 }
@@ -6001,40 +6027,41 @@ system_call_wrapper_error_t vmware_version_internal(QString &version);
 
 template <>
 system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_MAC> >(QString &version) {
-  QString path = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion/"; // TODO ADD PATH to CSettings
-  QDir dir(path);
-  dir.cdUp(); dir.cdUp();
-  path = dir.absolutePath();
-  path += "/Info.plist";
 
-  QFile info_plist(path);
-  QString line;
-  bool found = false;
+  QString path = CSettingsManager::Instance().vmware_path();
+   QDir dir(path);
+   dir.cdUp(); dir.cdUp();
+   path = dir.absolutePath();
+   path += "/Info.plist";
 
-  if (!info_plist.exists()) {
-    version = "undefined";
+   QFile info_plist(path);
+   QString line;
+   bool found = false;
 
-    return SCWE_SUCCESS;
-  }
+   if (!info_plist.exists()) {
+     version = "undefined";
 
-  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream stream(&info_plist);
-      while (!stream.atEnd()) {
-        line = stream.readLine();
-        line = line.simplified();
-        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
-        if (found) {
-            version = line;
-            break;
-        }
-        else if (line == "CFBundleShortVersionString") {
-            found = true;
-        }
-    }
-    info_plist.close();
-  }
+     return SCWE_SUCCESS;
+   }
 
-  return SCWE_SUCCESS;
+   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+       QTextStream stream(&info_plist);
+       while (!stream.atEnd()) {
+         line = stream.readLine();
+         line = line.simplified();
+         line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+         if (found) {
+             version = line;
+             break;
+         }
+         else if (line == "CFBundleShortVersionString") {
+             found = true;
+         }
+     }
+     info_plist.close();
+   }
+
+   return SCWE_SUCCESS;
 }
 
 template <>
