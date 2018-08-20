@@ -266,12 +266,12 @@ template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal(
     return res; \
   }
 
-tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter")
-tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter_osx")
-tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter.exe")
-tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter")
-tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter_osx")
-tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter-master")
+tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter-master_osx")
+tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter-master.exe")
+tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter-dev")
+tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter-dev_osx")
+tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter-dev.exe")
 tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiControlCenter")
 tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiControlCenter_osx")
 tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiControlCenter.exe")
