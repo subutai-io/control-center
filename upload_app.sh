@@ -7,31 +7,37 @@ USER=jenkins
 EMAIL=jenkins@subut.ai
 
 upload_cdn (){
-    echo "Obtaining auth id..."
+    filename=$1
+    user="jenkins@subut.ai"
+    fingerprint="7CD0CB4AAA727A884B2B811918B54AF8076EEE5B"
+    cdnHost=$2
 
-    curl -k "$2/auth/token?user=$USER" -o /tmp/filetosign
-    rm -rf /tmp/filetosign.asc
-    gpg --armor -u $EMAIL --clearsign /tmp/filetosign
+    extract_id()
+        {
+            id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
+            id=${id_src:8:46}
+        }       
 
-    SIGNED_AUTH_ID=$(cat /tmp/filetosign.asc)
+    json=`curl -k -s -X GET https://$cdnHost/rest/v1/cdn/raw?name=$filename`
+    echo "Received: $json"
+    extract_id
+    echo "Previous file ID is $id"
 
-    echo "Auth id obtained and signed\\n$SIGNED_AUTH_ID"
+    authId="$(curl -s https://${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+    echo "Auth id obtained and signed $authId"
 
-    TOKEN=$(curl -k -s -Fmessage="$SIGNED_AUTH_ID" -Fuser=$USER "$2/auth/token")
-
-    echo "Token obtained $TOKEN"
+    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
+    token="$(curl -s --data-urlencode "request=${sign}"  https://${cdnHost}/rest/v1/cdn/token)"
+    echo "Token obtained $token"
 
     echo "Uploading file..."
+    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "https://${cdnHost}/rest/v1/cdn/uploadRaw"
 
-    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Ftoken=$TOKEN "$2/raw/upload")
-
-    echo "File uploaded with ID $ID"
-    echo "URL: $2"
-    echo "Signing file..."
-
-    SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
-
-    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
+    echo "Removing previous"
+    if [[ -z "$id" ]]; then
+        echo "File not found"
+    else curl -k -s -X DELETE "https://$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    fi
 
     echo -e "\\nCompleted"
 }
