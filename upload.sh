@@ -11,37 +11,33 @@ USER=jenkins
 EMAIL=jenkins@subut.ai
 
 upload_cdn (){
-    filename=$1
-    user="jenkins@subut.ai"
-    fingerprint="7CD0CB4AAA727A884B2B811918B54AF8076EEE5B"
-    cdnHost=$2
+    echo "Obtaining auth id..."
 
-    extract_id()
-        {
-           id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
-            id=${id_src:8:46}
-        }       
+    curl -k "$2/auth/token?user=$USER" -o /tmp/filetosign
+    rm -rf /tmp/filetosign.asc
+    gpg --armor -u $EMAIL --clearsign /tmp/filetosign
 
-    json=`curl -k -s -X GET $cdnHost/rest/v1/cdn/raw?name=$filename`
-    echo "Received: $json"
-    extract_id
-    echo "Previous file ID is $id"
+    SIGNED_AUTH_ID=$(cat /tmp/filetosign.asc)
 
-    authId="$(curl -s ${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
-    echo "Auth id obtained and signed $authId"
+    echo "Auth id obtained and signed\\n$SIGNED_AUTH_ID"
 
-    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
-    token="$(curl -s --data-urlencode "request=${sign}"  ${cdnHost}/rest/v1/cdn/token)"
-    echo "Token obtained $token"
+    TOKEN=$(curl -k -s -Fmessage="$SIGNED_AUTH_ID" -Fuser=$USER "$2/auth/token")
+
+    echo "Token obtained $TOKEN"
 
     echo "Uploading file..."
-    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw"
 
-    echo "Removing previous"
-    if [[ -z "$id" ]]; then
-        echo "File not found"
-    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
-    fi
+    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Fversion=$3 -Ftoken=$TOKEN "$2/raw/upload")
+
+    echo "File uploaded with ID $ID"
+    echo "URL: $2"
+    echo "VERSION: $3"
+    echo "Signing file..."
+
+    SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
+
+    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
+
     echo -e "\\nCompleted"
 }
 
@@ -62,28 +58,28 @@ esac
 case $BRANCH in
     dev)
         PKGNAME="subutai-control-center-dev$PKG_EXT"
-        BINNAME="SubutaiControlCenter-dev$BINARY_EXT"
-        mv subutai_control_center_bin/SubutaiControlCenter$BINARY_EXT subutai_control_center_bin/$BINNAME
-        URL=https://devbazaar.subutai.io
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL 
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        BINNAME="SubutaiControlCenter$BINARY_EXT"
+        URL=https://devcdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     master)
         PKGNAME="subutai-control-center-master$PKG_EXT"
-        BINNAME="SubutaiControlCenter-master$BINARY_EXT"
-        mv subutai_control_center_bin/SubutaiControlCenter$BINARY_EXT subutai_control_center_bin/$BINNAME
-        URL=https://masterbazaar.subutai.io
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        BINNAME="SubutaiControlCenter$BINARY_EXT"
+        URL=https://mastercdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         if [ $OS = Linux ]
         then
-        URL=https://bazaar.subutai.io
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        URL=https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
         ;;
     HEAD)
@@ -91,9 +87,9 @@ case $BRANCH in
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         if [ $OS = Linux ]
         then
-        URL=https://bazaar.subutai.io
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL
-        upload_cdn subutai_control_center_bin/$BINNAME $URL
+        URL=https://cdn.subutai.io:8338/kurjun/rest
+        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
+        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
         fi
         ;;
 esac
