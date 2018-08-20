@@ -2974,22 +2974,6 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
     return SCWE_CREATE_PROCESS;
   }
 
-  args.clear();
-
-  args << "-e"
-       << QString("do shell script \"open -a /Applications/VMware\\\\ Fusion.app;\"");
-  res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
-
-  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
-    qCritical() << "Failed open VMware Fusion: "
-                << res.res
-                << " exit code: "
-                << res.exit_code
-                << res.out;
-
-    return SCWE_CREATE_PROCESS;
-  }
-
   return res.res;
 }
 
