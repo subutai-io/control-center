@@ -38,8 +38,10 @@ upload_cdn (){
     curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "https://${cdnHost}/rest/v1/cdn/uploadRaw"
 
     echo "Removing previous"
-    curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
-
+    if [[ -z "$id" ]]; then
+        echo "File not found"
+    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    fi
     echo -e "\\nCompleted"
 }
 
