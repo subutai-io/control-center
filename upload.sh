@@ -16,32 +16,32 @@ upload_cdn (){
     fingerprint="7CD0CB4AAA727A884B2B811918B54AF8076EEE5B"
     cdnHost=$2
 
-    #extract_id()
-    #    {
-    #       id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
-    #        id=${id_src:8:46}
-     #   }       
+    extract_id()
+        {
+           id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
+            id=${id_src:8:46}
+        }       
 
-    #json=`curl -k -s -X GET $cdnUrl/v1/cdn/raw?name=$filename`
-    #echo "Received: $json"
-    #extract_id
-    #echo "Previous file ID is $id"
+    json=`curl -k -s -X GET $cdnUrl/v1/cdn/raw?name=$filename`
+    echo "Received: $json"
+    extract_id
+    echo "Previous file ID is $id"
 
-    authId="$(curl -s https://${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+    authId="$(curl -s ${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
     echo "Auth id obtained and signed $authId"
 
     sign="$(echo ${authId} | gpg --clearsign -u ${user})"
-    token="$(curl -s --data-urlencode "request=${sign}"  https://${cdnHost}/rest/v1/cdn/token)"
+    token="$(curl -s --data-urlencode "request=${sign}"  ${cdnHost}/rest/v1/cdn/token)"
     echo "Token obtained $token"
 
     echo "Uploading file..."
-    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "https://${cdnHost}/rest/v1/cdn/uploadRaw"
+    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw"
 
-    #echo "Removing previous"
-    #if [[ -z "$id" ]]; then
-    #    echo "File not found"
-    #else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
-    #fi
+    echo "Removing previous"
+    if [[ -z "$id" ]]; then
+        echo "File not found"
+    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    fi
     echo -e "\\nCompleted"
 }
 
