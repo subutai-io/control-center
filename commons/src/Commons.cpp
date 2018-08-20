@@ -236,4 +236,22 @@ QString CCommons::HomePath() {
 
   return home_folder;
 }
+
+void CCommons::InfoVagrantVMwareLicense() {
+  switch (VagrantProvider::Instance()->Instance()->CurrentProvider()) {
+  case VagrantProvider::VMWARE_DESKTOP:
+    CNotificationObserver::Error(
+          QObject::tr("You do not have a <b>license</b> to use <b>Vagrant VMWare Desktop provider.</b> "
+                      "Please <a href=\"https://www.vagrantup.com/vmware/index.html\">visit</a> to purchase "
+                      "a license. Once you purchase a license, you can install it "
+                      "using <b>vagrant plugin license</b> "), DlgNotification::N_ABOUT);
+    break;
+  default:
+    CNotificationObserver::Error(
+          QObject::tr("You do not have a license for Vagrant VMWare Desktop provider. "
+                      "In order to perform action <b>please uninstall</b> Vagrant VMware provider "
+                      " by clicking following \"Uninstall\" button."), DlgNotification::N_UNINSTALL);
+    break;
+  }
+}
 ////////////////////////////////////////////////////////////////////////////
