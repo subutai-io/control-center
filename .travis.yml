@@ -4,14 +4,13 @@ branches:
   - master
   - dev
   - "/^\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
-  - ipfs
 env:
   global:
     secure: 4nZiTYw/3IlsbtnZatqTG54vXT4cbuC3AgeI5jIHGEFSSz4CMoYWqy2E+lceA4w+LfbMrmMrV/VbENrc5SovcQlv5sY4QwOsOL7ei2r7WzasZs0/XJ6ouBiE3bldSYbFgktGGTcqADMvVk+Zpl6q0qhUm6H96tiIlzSkpmpZZldk3D4K4N05EXyZN82kA8OF+fqe8k4dN0qw4AhziDa/43Muo69iIvvR9ij6DMmH0uKmME+NcEY4kNgli00w7qlNLL7Jve/PmyT4OYjrGb6T73wUvLADierki8jMsMB/INno30wjswghPrKj6mQ/nykfEpBCjJjsAV6hmBSaGDFGlfpdzOuHZXp498r2PzNjA0Xmbg/sWUvEq++cz8/m8JYIyzGDjL4UK6rKoFkWh58qZiL1yr+bJyKC1uukUN1mooScelKCirDyLMQ3cHKRd38U6r4aubNUiB87h9UURXcHH+S5gPiaUlOduMJ8utYv5tu/sdhaEzqNWA4znQulWbCA93u16xPwNaSwUjPSm+pSRwLViWhFQup+63YgIr6m0jbT3refjtl5CDk0DoWwgHfg78jR0RgqsSW44f7yEQk8jNu74DDAUwZcBrh5Uc0VyBRtnciJ0wvhflBnIsaGXe9DmXRyur0wN+YQuiNxt7Pb2ORF36i5EJM879xqXPX3BxA=
 matrix:
   include:
   - os: linux
-    if: branch = master || branch = dev || ipfs
+    if: branch = master || branch = dev
     dist: trusty
     sudo: required
     before_install:
@@ -38,22 +37,17 @@ matrix:
     - ls subutai_control_center_bin
     deploy:
     - provider: script
-      script: sudo bash upload-ipfs.sh $TRAVIS_BRANCH
-      skip_cleanup: true
-      on:
-        branch: ipfs
-    - provider: script
       script: sudo bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: dev
     - provider: script
-      script: bash upload.sh $TRAVIS_BRANCH
+      script: sudo bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: master
     - provider: script
-      script: bash upload.sh HEAD
+      script: sudo bash upload.sh HEAD
       skip_cleanup: true
       on:
         tags: true
@@ -77,22 +71,17 @@ matrix:
     - ls subutai_control_center_bin
     deploy:
     - provider: script
-      script: sudo bash upload-ipfs.sh $TRAVIS_BRANCH
-      skip_cleanup: true
-      on:
-        branch: ipfs
-    - provider: script
       script: sudo bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: dev
     - provider: script
-      script: bash upload.sh $TRAVIS_BRANCH
+      script: sudo bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: master
     - provider: script
-      script: bash upload.sh HEAD
+      script: sudo bash upload.sh HEAD
       skip_cleanup: true
       on:
         tags: true
