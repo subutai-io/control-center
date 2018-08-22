@@ -2555,7 +2555,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const 
   QStringList args;
   args
     << "product" << "where"
-    << "name=\"vagrant\""
+    << "Name like 'Vagrant'"
     << "get" << "IdentifyingNumber";
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   qDebug() << "got product code of vagrant"
