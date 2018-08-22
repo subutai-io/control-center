@@ -2617,7 +2617,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
        << command // might be: uninstall, install, update
        << name;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 30000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)
