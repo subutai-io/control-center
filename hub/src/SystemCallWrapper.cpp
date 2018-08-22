@@ -3056,7 +3056,7 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
     "#!/bin/bash\n"
     "cd %1\n"
     "chmod +x %2\n"
-    "./%2 --console --required --eulas-agreed"
+    "./%2"
     "\n").arg(dir, file_name).toUtf8();
 
   qDebug() << "VMware installation "
