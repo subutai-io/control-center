@@ -15,8 +15,7 @@ matrix:
     dist: trusty
     sudo: required
     before_install:
-    - openssl aes-256-cbc -k "$decrypt_keys" -in /home/travis/build/subutai-io/control-center/travis.tar.gz.enc
-      -out /home/travis/build/subutai-io/control-center/travis.tar.gz -d
+    - openssl aes-256-cbc -k "$decrypt_keys" -in /home/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /home/travis/build/subutai-io/control-center/travis.tar.gz -d
     - tar -xf travis.tar.gz -C /home/travis/build/subutai-io/control-center/
     - gpg --allow-secret-key-import --import /home/travis/build/subutai-io/control-center/jenkins-subutai
       && rm -f /home/travis/build/subutai-io/control-center/jenkins-subutai
@@ -61,8 +60,7 @@ matrix:
   - os: osx
     osx_image: xcode9
     before_install:
-    - openssl aes-256-cbc -k "$decrypt_keys" -in /Users/travis/build/subutai-io/control-center/travis.tar.gz.enc
-      -out /Users/travis/build/subutai-io/control-center/travis.tar.gz -d
+    - openssl aes-256-cbc -k "$decrypt_keys" -in /Users/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /Users/travis/build/subutai-io/control-center/travis.tar.gz -d
     - tar -xf travis.tar.gz -C /Users/travis/build/subutai-io/control-center/
     - gpg --allow-secret-key-import --import /Users/travis/build/subutai-io/control-center/jenkins-subutai
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-subutai
