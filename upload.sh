@@ -45,14 +45,14 @@ upload_ipfs (){
     user="jenkins@optimal-dynamics.com"
     fingerprint="877B586E74F170BC4CF6ECABB971E2AC63D23DC9"
     cdnHost=$2
-
+    echo $filename
     extract_id()
         {
-           id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
+            id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
             id=${id_src:8:46}
         }       
 
-    json=`curl -k -s -X GET $cdnHost/rest/v1/cdn/raw?name=$filename`
+    json=`curl -k -s -X GET ${cdnHost}/rest/v1/cdn/raw?name=$filename`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"
