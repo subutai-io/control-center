@@ -48,8 +48,8 @@ upload_ipfs (){
     echo $filename
     extract_id()
         {
-            id_src=$(echo $json | grep -Po '"id" : ".*?[^\\]"')
-            id=${id_src:8:46}
+            id_src=$(echo $json | grep "id")
+            id=${id_src:10:46}
         }       
 
     json=`curl -k -s -X GET ${cdnHost}/rest/v1/cdn/raw?name=$filename`
