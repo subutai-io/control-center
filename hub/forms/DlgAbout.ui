@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>503</width>
+    <width>511</width>
     <height>846</height>
    </rect>
   </property>
@@ -946,7 +946,7 @@ min-height: 550pxk
   {
     image: url(:/hub/check_box.png);
   }
-
+  
   QCheckBox::indicator:checked:disabled
   {
     image: url(:/hub/unknown.png);
