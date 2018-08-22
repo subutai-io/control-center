@@ -946,6 +946,7 @@ min-height: 550pxk
   {
     image: url(:/hub/check_box.png);
   }
+  
   QCheckBox::indicator:checked:disabled
   {
     image: url(:/hub/unknown.png);
@@ -1424,6 +1425,31 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
+       <item row="14" column="3">
+        <widget class="QProgressBar" name="pb_firefox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
        <item row="22" column="2">
         <widget class="QLabel" name="lbl_safari_version_val">
          <property name="text">
@@ -1438,8 +1464,8 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="14" column="3">
-        <widget class="QProgressBar" name="pb_firefox">
+       <item row="3" column="3">
+        <widget class="QProgressBar" name="pb_p2p">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1543,38 +1569,6 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="7" column="2">
-        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QProgressBar" name="pb_p2p">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="3">
         <widget class="QProgressBar" name="pb_tray">
          <property name="enabled">
@@ -1600,8 +1594,59 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
+       <item row="7" column="2">
+        <widget class="QLabel" name="lbl_oracle_virtualbox_version_val">
+         <property name="text">
+          <string>undefined</string>
+         </property>
+        </widget>
+       </item>
        <item row="17" column="3">
         <widget class="QProgressBar" name="pb_provider_libvirt">
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="3">
+        <widget class="QProgressBar" name="pb_xquartz">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="3">
+        <widget class="QProgressBar" name="pb_subutai_box">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -1690,27 +1735,8 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="13" column="3">
-        <widget class="QProgressBar" name="pb_xquartz">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="3">
-        <widget class="QProgressBar" name="pb_subutai_box">
+       <item row="12" column="3">
+        <widget class="QProgressBar" name="pb_x2go">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1806,15 +1832,8 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="9" column="2">
-        <widget class="QLabel" name="lbl_subutai_box_version">
-         <property name="text">
-          <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="3">
-        <widget class="QProgressBar" name="pb_x2go">
+       <item row="8" column="3">
+        <widget class="QProgressBar" name="pb_chrome">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1835,6 +1854,13 @@ min-height: 550pxk
          </property>
          <property name="textVisible">
           <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="2">
+        <widget class="QLabel" name="lbl_subutai_box_version">
+         <property name="text">
+          <string>undefined</string>
          </property>
         </widget>
        </item>
@@ -1990,31 +2016,6 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="8" column="3">
-        <widget class="QProgressBar" name="pb_chrome">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
        <item row="10" column="2">
         <widget class="QLabel" name="lbl_subutai_plugin_version_val">
          <property name="text">
@@ -2115,6 +2116,31 @@ min-height: 550pxk
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="10" column="3">
+        <widget class="QProgressBar" name="pb_subutai_plugin">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
        <item row="14" column="2">
         <widget class="QLabel" name="lbl_firefox_version_val">
@@ -2319,23 +2345,8 @@ min-height: 550pxk
          </item>
         </layout>
        </item>
-       <item row="10" column="3">
-        <widget class="QProgressBar" name="pb_subutai_plugin">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
+       <item row="16" column="3">
+        <widget class="QProgressBar" name="pb_provider_vmware">
          <property name="value">
           <number>0</number>
          </property>
@@ -2357,8 +2368,8 @@ min-height: 550pxk
          </property>
         </widget>
        </item>
-       <item row="16" column="3">
-        <widget class="QProgressBar" name="pb_provider_vmware">
+       <item row="20" column="3">
+        <widget class="QProgressBar" name="pb_provider_vmare_utility">
          <property name="value">
           <number>0</number>
          </property>
@@ -2450,16 +2461,6 @@ min-height: 550pxk
         <widget class="QLabel" name="lbl_provider_libvirt_version">
          <property name="text">
           <string>undefined</string>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="3">
-        <widget class="QProgressBar" name="pb_provider_vmare_utility">
-         <property name="value">
-          <number>0</number>
-         </property>
-         <property name="textVisible">
-          <bool>false</bool>
          </property>
         </widget>
        </item>

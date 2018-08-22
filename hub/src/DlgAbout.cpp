@@ -131,6 +131,7 @@ void DlgAbout::set_visible_libvirt(bool value) {
   ui->cb_provider_libvirt->setVisible(value);
   ui->pb_provider_libvirt->setVisible(value);
   ui->hl_vagrant_libvirt->setEnabled(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -144,6 +145,7 @@ void DlgAbout::set_visible_parallels(bool value) {
   ui->cb_provider_parallels->setVisible(value);
   ui->pb_provider_parallels->setVisible(value);
   ui->hl_vagrant_parallels->setEnabled(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -165,6 +167,7 @@ void DlgAbout::set_visible_virtualbox(bool value) {
   ui->pb_vbguest_plugin->setVisible(value);
   ui->btn_vbguest_plugin_update->setVisible(value);
   ui->cb_vagrant_vbguest_plugin->setVisible(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -198,6 +201,7 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->cb_provider_vmware_utility->setVisible(value);
   ui->pb_provider_vmare_utility->setVisible(value);
   ui->hl_vagrant_vmware_utility->setEnabled(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -274,6 +278,7 @@ void DlgAbout::set_hidden_providers() {
     break;
   }
 
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -582,7 +587,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
   this->setMinimumWidth(600);
-  this->setMaximumHeight(450);
+  this->setMaximumHeight(550);
+  this->setMinimumHeight(550);
   this->adjustSize();
 
   check_for_versions_and_updates();
@@ -596,6 +602,7 @@ void DlgAbout::set_visible_chrome(bool value) {
   ui->lbl_spacer_chrome->setVisible(value);
   ui->pb_chrome->setVisible(value);
   ui->cb_chrome->setVisible(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -608,6 +615,7 @@ void DlgAbout::set_visible_firefox(bool value) {
   ui->pb_firefox->setVisible(value);
   ui->cb_firefox->setVisible(value);
   ui->hl_firefox->setEnabled(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -619,6 +627,7 @@ void DlgAbout::set_visible_edge(bool value) {
   if (value) {
     set_visible_e2e(false);
   }
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -627,6 +636,7 @@ void DlgAbout::set_visible_safari(bool value) {
   ui->lbl_safari_info_icon->setVisible(value);
   ui->lbl_safari_version_val->setVisible(value);
   ui->lbl_spacer_safari->setVisible(value);
+  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
