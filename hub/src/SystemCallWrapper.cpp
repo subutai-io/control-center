@@ -3029,35 +3029,10 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
     return SCWE_WHICH_CALL_FAILED;
   }
 
-  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-
-  if (lst_temp.empty()) {
-    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
   QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + "vmware_installer.sh";
+      dir + QDir::separator() + file_name;
 
   qDebug() << tmpFilePath;
-
-  QFile tmpFile(tmpFilePath);
-  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                      .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  QByteArray install_script = QString(
-    "#!/bin/bash\n"
-    "cd %1\n"
-    "chmod +x %2\n"
-    "./%2"
-    "\n").arg(dir, file_name).toUtf8();
 
   qDebug() << "VMware installation "
            << "dir: "
@@ -3065,34 +3040,10 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
            << " file_name: "
            << file_name;
 
-  if (tmpFile.write(install_script) != install_script.size()) {
-    QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                             .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  tmpFile.close();  // save
-
-  if (!QFile::setPermissions(
-          tmpFilePath,
-          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-
-    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
-    qCritical() << err_msg;
-
-    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
   system_call_res_t cr2;
   QStringList args2;
 
-  args2 << sh_path << tmpFilePath;
+  args2 << sh_path << tmpFilePath << "--gtk" << "--eulas-agreed" << "-I" << "--required";
 
   cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
 
@@ -3103,8 +3054,6 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
            << cr2.out
            << "result: "
            << cr2.res;
-
-  tmpFile.remove();
 
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
@@ -3232,9 +3181,10 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
   args << "vmware-installer"
        << "-u"
        << "vmware-workstation"
-       << "--console"
+       << "--gtk"
        << "--required"
-       << "--eulas-agreed";
+       << "--eulas-agreed"
+       << "-I";
 
   scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, true, true, 97);
 
