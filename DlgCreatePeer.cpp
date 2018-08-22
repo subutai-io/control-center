@@ -522,7 +522,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
     case VagrantProvider::VIRTUALBOX:
       stream << "SUBUTAI_DISK_PATH : "
              << QString("\"%1\"")
-                .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+                .arg(QDir::fromNativeSeparators(CSystemCallWrapper::get_virtualbox_vm_storage()));
       break;
     default:
       break;
