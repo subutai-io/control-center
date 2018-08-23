@@ -177,6 +177,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_update_peeros(const QString &port, const QString &peer_name);
   static std::pair<QStringList, system_call_res_t> vagrant_update_information();
   static QString get_virtualbox_vm_storage();
+  static QString get_parallels_vm_storage();
   static system_call_wrapper_error_t set_virtualbox_vm_storage(const QString &dir);
 
   static bool check_peer_management_components();

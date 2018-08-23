@@ -32,6 +32,7 @@ const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
 const QString CSettingsManager::SM_VMWARE_PATH("VMWARE_Path");
+const QString CSettingsManager::SM_PARALLELS_PATH("Parallels_Path");
 const QString CSettingsManager::SM_XQUARTZ_PATH("XQUARTZ_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
@@ -55,6 +56,7 @@ const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_VMWARE_VM_STORAGE("VMware_Vm_Storage");
+const QString CSettingsManager::SM_PARALLELS_VM_STORAGE("Parallels_Vm_Storage");
 const QString CSettingsManager::SM_VM_STORAGE("Vm_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
@@ -190,6 +192,7 @@ CSettingsManager::CSettingsManager()
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
       m_vmware_path(default_vmware_path()),
+      m_parallels_path(default_parallels_path()),
       m_xquartz_path("/Applications/Utilities/XQuartz.app"),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
@@ -212,6 +215,7 @@ CSettingsManager::CSettingsManager()
       m_ssh_keys_storage(QApplication::applicationDirPath()),
       m_peers_storage(CCommons::HomePath()),
       m_vmware_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
+      m_parallels_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Parallels")),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_tray_update_freq(UF_MIN30),
@@ -259,6 +263,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
       {(void*)&m_oracle_virtualbox_path, SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
       {(void*)&m_vmware_path, SM_VMWARE_PATH, qvar_to_str},
+      {(void*)&m_parallels_path, SM_PARALLELS_PATH, qvar_to_str},
       {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
       {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
       {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
@@ -272,6 +277,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
       {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
       {(void*)&m_vmware_vm_storage, SM_VMWARE_VM_STORAGE, qvar_to_str},
+      {(void*)&m_parallels_vm_storage, SM_PARALLELS_VM_STORAGE, qvar_to_str},
       {(void*)&m_vm_storage, SM_VM_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
@@ -626,6 +632,8 @@ const QString& CSettingsManager::current_hypervisor_path() {
     return oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_path();
+  case VagrantProvider::PARALLELS:
+    return parallels_path();
   default:
     return oracle_virtualbox_path();
   }
@@ -641,6 +649,12 @@ void CSettingsManager::set_vmware_path(QString vmware_path) {
   QString sl = QFile::symLinkTarget(vmware_path);
   m_vmware_path = sl == "" ? vmware_path : sl;
   m_settings.setValue(SM_VMWARE_PATH, m_vmware_path);
+}
+
+void CSettingsManager::set_parallels_path(QString fr) {
+  QString sl = QFile::symLinkTarget(fr);
+  m_parallels_path = sl == "" ? fr : sl;
+  m_settings.setValue(SM_PARALLELS_PATH, m_parallels_path);
 }
 
 void CSettingsManager::set_hypervisor_path(QString fr) {
@@ -813,4 +827,5 @@ SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
 SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 SET_FIELD_DEF(vm_storage, SM_VM_STORAGE, QString&)
 SET_FIELD_DEF(vmware_vm_storage, SM_VMWARE_VM_STORAGE, QString&)
+SET_FIELD_DEF(parallels_vm_storage, SM_PARALLELS_VM_STORAGE, QString&)
 #undef SET_FIELD_DEF

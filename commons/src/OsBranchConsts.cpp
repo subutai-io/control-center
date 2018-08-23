@@ -200,6 +200,23 @@ vmware_kurjun_package_name() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& parallels_kurjun_package_name_temp_internal();
+
+#define parallels_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& parallels_kurjun_package_name_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+parallels_kurjun_package_name_def(OS_MAC,    "parallels-desktop-osx.dmg")
+
+const QString &
+parallels_kurjun_package_name() {
+    return parallels_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class OS> const QString& vmware_utility_kurjun_package_name_temp_internal();
 
 #define vmware_utility_kurjun_package_name_def(OS_TYPE, STRING) \
@@ -870,6 +887,23 @@ default_vmware_path_internal_def(OS_MAC, "/Applications/VMware Fusion.app/Conten
 const QString & default_vmware_path() {
     return default_vmware_path_temp_internal<Os2Type<CURRENT_OS > >();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+template<class OS> const QString& default_parallels_path_temp_internal();
+
+#define default_parallels_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_parallels_path_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_parallels_path_internal_def(OS_MAC, "/usr/local/bin/prlctl")
+
+const QString & default_parallels_path() {
+    return default_parallels_path_temp_internal<Os2Type<CURRENT_OS > >();
+}
 ////////////////////////////////////////////////////////////////////////////
 
 // Gives default hypervisor path by Vagrant Provider
@@ -879,6 +913,8 @@ const QString & default_hypervisor_path() {
     return default_oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return default_vmware_path();
+  case VagrantProvider::PARALLELS:
+    return default_parallels_path();
   default:
     return default_oracle_virtualbox_path();
   }

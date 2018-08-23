@@ -926,8 +926,8 @@ QStringList CSystemCallWrapper::list_interfaces() {
   //  return libvirt_interfaces();
   //case VagrantProvider::HYPERV:
   //  return hyperv_interfaces();
-  //case VagrantProvider::PARALLELS:
-  //  return parallels_interfaces();
+  case VagrantProvider::PARALLELS:
+    return parallels_interfaces();
   default:
     return empty;
   }
@@ -940,50 +940,28 @@ QStringList CSystemCallWrapper::parallels_interfaces() {
 
   QStringList interfaces;
   QString cmd = "prlctl";
-  QString empty;
+  QString path;
 
   system_call_wrapper_error_t cr;
 
-  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+  if ((cr = CSystemCallWrapper::which(cmd, path)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
     return interfaces;
   }
+
+  // assign cmd full path
+  cmd = path;
 
   QStringList args;
   args << "server"
        << "info"
        << "--json";
 
-  qDebug() << cmd
+  qDebug() << "Parallels interface command:"
+           << cmd
            << args;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
-
-  //QString output ="{\r\n    \"ID\": \"57bf3726-def4-43d4-a32f-cc0e8e357e16\",\r\n    \"Hostname\": \"127.0.0.1\",\r\n    \"Version\": \"Desktop 13.3.0-43321\",\r\n    \"OS\": \"Mac OS X 10.13.4(17E199)\",\r\n    \"Started as service\": \"off\",\r\n    \"VM home\": \"\\\/Users\\\/admin\\\/Parallels\",\r\n    \"Memory limit\": {\r\n        \"mode\": \"auto\"\r\n    },\r\n    \"Minimal security level\": \"low\",\r\n    \"Manage settings for new users\": \"allow\",\r\n    \"CEP mechanism\": \"off\",\r\n    \"Default encryption plugin\": \"<parallels-default-plugin>\",\r\n    \"Verbose log\": \"off\",\r\n    \"Allow mobile clients\": \"off\",\r\n    \"Proxy connection state\": \"disconnected\",\r\n    \"Direct connection\": \"off\",\r\n    \"Log rotation\": \"on\",\r\n    \"Advanced security mode\": \"off\",\r\n    \"External device auto connect\": \"ask\",\r\n    \"Proxy manager URL\": \"https:\\\/\\\/pax-manager.myparallels.com\\\/xmlrpc\\\/rpc.do\",\r\n    \"Web portal domain\": \"parallels.com\",\r\n    \"Host ID\": \"\",\r\n    \"Allow attach screenshots\": \"on\",\r\n    \"Custom password protection\": \"off\",\r\n    \"License\": {\r\n        \"state\": \"valid\",\r\n        \"key\": \"078-43914-64601-23907-20564-38467\",\r\n        \"restricted\": \"false\"\r\n    },\r\n    \"Hardware Id\": \"{d16e8ca5-3b60-5bbe-aff4-5ba1012dd0cc}\",\r\n    \"Signed In\": \"yes\",\r\n    \"Hardware info\": {\r\n        \"\/dev\/disk0\": {\r\n            \"name\": \"APPLE HDD ST1000DM003 (disk0)\",\r\n            \"type\": \"hdd\"\r\n        },\r\n        \"\/dev\/disk0s1\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s2\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s3\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"en0\": {\r\n            \"name\": \"Ethernet\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en1\": {\r\n            \"name\": \"Wi-Fi\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"p2p0\": {\r\n            \"name\": \"p2p0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"awdl0\": {\r\n            \"name\": \"awdl0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en2\": {\r\n            \"name\": \"en2\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en3\": {\r\n            \"name\": \"en3\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic0\": {\r\n            \"name\": \"vnic0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic1\": {\r\n            \"name\": \"vnic1\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"\/dev\/cu.Bluetooth-Incoming-Port\": {\r\n            \"name\": \"\\\/dev\\\/cu.Bluetooth-Incoming-Port\",\r\n            \"type\": \"serial\"\r\n        }\r\n    }\r\n}";
-  QString output;
-
-  for (auto s : res.out) {
-    output += s;
-  }
-
-  QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-  QJsonObject data = doc.object();
-  QJsonObject hardware_info = data["Hardware info"].toObject();
-
-  qDebug() << hardware_info;
-
-  QStringList keys = hardware_info.keys();
-  for(int i = 0; i < keys.count(); ++i){
-      QString key = keys.at(i);
-      QString name, type;
-      QJsonObject obj = hardware_info[key].toObject();
-
-      if (obj["type"].toString() == "net") {
-        interfaces.push_back(key);
-        qDebug() << "interface: "
-                 << key;
-      }
-  }
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000*3*60);
 
   qDebug() << "Listing parallels interfaces result:"
            << "exit code: "
@@ -991,7 +969,40 @@ QStringList CSystemCallWrapper::parallels_interfaces() {
            << "result: "
            << res.res
            << "output:"
-           << output;
+           << res.out;
+
+  //QString output ="{\r\n    \"ID\": \"57bf3726-def4-43d4-a32f-cc0e8e357e16\",\r\n    \"Hostname\": \"127.0.0.1\",\r\n    \"Version\": \"Desktop 13.3.0-43321\",\r\n    \"OS\": \"Mac OS X 10.13.4(17E199)\",\r\n    \"Started as service\": \"off\",\r\n    \"VM home\": \"\\\/Users\\\/admin\\\/Parallels\",\r\n    \"Memory limit\": {\r\n        \"mode\": \"auto\"\r\n    },\r\n    \"Minimal security level\": \"low\",\r\n    \"Manage settings for new users\": \"allow\",\r\n    \"CEP mechanism\": \"off\",\r\n    \"Default encryption plugin\": \"<parallels-default-plugin>\",\r\n    \"Verbose log\": \"off\",\r\n    \"Allow mobile clients\": \"off\",\r\n    \"Proxy connection state\": \"disconnected\",\r\n    \"Direct connection\": \"off\",\r\n    \"Log rotation\": \"on\",\r\n    \"Advanced security mode\": \"off\",\r\n    \"External device auto connect\": \"ask\",\r\n    \"Proxy manager URL\": \"https:\\\/\\\/pax-manager.myparallels.com\\\/xmlrpc\\\/rpc.do\",\r\n    \"Web portal domain\": \"parallels.com\",\r\n    \"Host ID\": \"\",\r\n    \"Allow attach screenshots\": \"on\",\r\n    \"Custom password protection\": \"off\",\r\n    \"License\": {\r\n        \"state\": \"valid\",\r\n        \"key\": \"078-43914-64601-23907-20564-38467\",\r\n        \"restricted\": \"false\"\r\n    },\r\n    \"Hardware Id\": \"{d16e8ca5-3b60-5bbe-aff4-5ba1012dd0cc}\",\r\n    \"Signed In\": \"yes\",\r\n    \"Hardware info\": {\r\n        \"\/dev\/disk0\": {\r\n            \"name\": \"APPLE HDD ST1000DM003 (disk0)\",\r\n            \"type\": \"hdd\"\r\n        },\r\n        \"\/dev\/disk0s1\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s2\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s3\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"en0\": {\r\n            \"name\": \"Ethernet\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en1\": {\r\n            \"name\": \"Wi-Fi\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"p2p0\": {\r\n            \"name\": \"p2p0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"awdl0\": {\r\n            \"name\": \"awdl0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en2\": {\r\n            \"name\": \"en2\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en3\": {\r\n            \"name\": \"en3\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic0\": {\r\n            \"name\": \"vnic0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic1\": {\r\n            \"name\": \"vnic1\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"\/dev\/cu.Bluetooth-Incoming-Port\": {\r\n            \"name\": \"\\\/dev\\\/cu.Bluetooth-Incoming-Port\",\r\n            \"type\": \"serial\"\r\n        }\r\n    }\r\n}";
+  if (!res.out.empty()) {
+    QString output;
+
+    for (auto s : res.out) {
+      output += s;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+    QJsonObject data = doc.object();
+    QJsonObject hardware_info = data["Hardware info"].toObject();
+    QString vm_storage = data["VM home"].toString();
+
+    if (vm_storage != "") {
+      CSettingsManager::Instance().set_parallels_vm_storage(vm_storage);
+    }
+
+    qDebug() << hardware_info;
+
+    QStringList keys = hardware_info.keys();
+    for(int i = 0; i < keys.count(); ++i){
+        QString key = keys.at(i);
+        QString name, type;
+        QJsonObject obj = hardware_info[key].toObject();
+
+        if (obj["type"].toString() == "net") {
+          interfaces.push_back(key);
+          qDebug() << "interface: "
+                   << key;
+        }
+    }
+  }
 
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
       return interfaces;
@@ -2617,7 +2628,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
        << command // might be: uninstall, install, update
        << name;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 3);
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)

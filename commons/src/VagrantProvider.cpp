@@ -9,7 +9,7 @@ std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALB
                                                      };
 // For Darwin providers
 std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUALBOX,
-                                                      //  VagrantProvider::PARALLELS,
+                                                        VagrantProvider::PARALLELS,
                                                         VagrantProvider::VMWARE_DESKTOP
                                                       };
 // For Windows providers
@@ -50,7 +50,8 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
 
 const QString& VagrantProvider::CurrentOpenFileTitle() {
   static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox Command")},
-                                                 {VMWARE_DESKTOP, tr("VMware Command")}
+                                                 {VMWARE_DESKTOP, tr("VMware Command")},
+                                                 {PARALLELS, tr("Parallels Command")}
                                                 };
   return p_title[CurrentProvider()];
 }
@@ -87,7 +88,7 @@ QString VagrantProvider::CurrentName() {
 VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::VIRTUALBOX;
 
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
     provider = (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider();
   }
 
@@ -97,7 +98,7 @@ VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
 QString VagrantProvider::CurrentStr() {
   QString provider = VagrantProvider::ProviderToStr(VagrantProvider::VIRTUALBOX);
 
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
     provider = VagrantProvider::ProviderToStr(
              (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
   }

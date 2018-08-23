@@ -145,6 +145,7 @@ void DlgAbout::set_visible_parallels(bool value) {
   ui->cb_provider_parallels->setVisible(value);
   ui->pb_provider_parallels->setVisible(value);
   ui->hl_vagrant_parallels->setEnabled(value);
+
   this->setMinimumHeight(550);
   this->adjustSize();
 }
@@ -230,15 +231,15 @@ void DlgAbout::set_hidden_providers() {
       get_vagrant_vbguest_version};
 
     break;
-  //case VagrantProvider::PARALLELS:
-  //  set_visible_parallels(true);
+  case VagrantProvider::PARALLELS:
+    set_visible_parallels(true);
 
-  //  this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
-  //    ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
-  //    ui->cb_provider_parallels, ui->btn_provider_parallels_update,
-  //    get_vagrant_provider_version};
+    this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
+      ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
+      ui->cb_provider_parallels, ui->btn_provider_parallels_update,
+      get_vagrant_provider_version};
 
-  //  break;
+    break;
   case VagrantProvider::VMWARE_DESKTOP:
     set_visible_vmware(true);
 
@@ -307,6 +308,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_safari_info_icon,
                      this->ui->lbl_xquartz_info_icon,
                      this->ui->lbl_provider_vmware_icon,
+                     this->ui->lbl_provider_parallels_icon,
                      this->ui->lbl_provider_vmware_utility_icon,
                      this->ui->lbl_hypervisor_vmware_icon,
                      nullptr};
@@ -369,7 +371,10 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       "XQuartz is a tool for X2Go OS X client to use the OS X X11 server"));
 
   this->ui->lbl_provider_vmware_icon->setToolTip(tr(
-      "The Vagrant VMware Desktop provider manage VMware machines."));
+      "The Vagrant VMware Desktop provider manage VMware virtual machines."));
+
+  this->ui->lbl_provider_parallels_icon->setToolTip(tr(
+      "The Vagrant Parallels Provider manage Parallels virtual machines."));
 
   this->ui->lbl_provider_vmware_utility_icon->setToolTip(tr(
       "The Vagrant VMware Utility provides the Vagrant VMware provider plugin"
@@ -394,6 +399,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                     this->ui->lbl_provider_libvirt_version,
                     this->ui->lbl_provider_parallels_version,
                     this->ui->lbl_provider_vmware_version,
+                    this->ui->lbl_provider_parallels_version,
                     this->ui->lbl_provider_vmware_utility_version,
                     this->ui->lbl_xquartz_version,
                     nullptr};
@@ -1317,9 +1323,9 @@ void DlgAbout::got_provider_version_sl(QString version) {
   QString COMPONENT_KEY = "";
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
-  //case VagrantProvider::PARALLELS:
-  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
-  //  break;
+  case VagrantProvider::PARALLELS:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
+    break;
   case VagrantProvider::VMWARE_DESKTOP:
     COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
     break;
@@ -1563,9 +1569,9 @@ void DlgAboutInitializer::do_initialization() {
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
       uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
       break;
-    //case VagrantProvider::PARALLELS:
-    //  uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
-    //  break;
+    case VagrantProvider::PARALLELS:
+      uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
+      break;
     case VagrantProvider::VMWARE_DESKTOP:
       uas.push_back(IUpdaterComponent::VMWARE);
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);

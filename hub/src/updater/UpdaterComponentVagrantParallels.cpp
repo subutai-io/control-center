@@ -39,8 +39,7 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant Parallels provider sets up peer parameters, like disk size "
-          "and RAM.\n"
+          "The Vagrant Parallel provider manage Parallels virtual machines."
           "The Vagrant Parallels provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);

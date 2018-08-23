@@ -32,6 +32,7 @@ const QString IUpdaterComponent::X2GO = "x2go";
 const QString IUpdaterComponent::VAGRANT = "vagrant";
 const QString IUpdaterComponent::ORACLE_VIRTUALBOX = "oracle_virtualbox";
 const QString IUpdaterComponent::VMWARE = "vmware";
+const QString IUpdaterComponent::PARALLELS = "parallels";
 const QString IUpdaterComponent::VMWARE_UTILITY = "vmware_utility";
 const QString IUpdaterComponent::CHROME = "Chrome";
 const QString IUpdaterComponent::FIREFOX = "Firefox";
@@ -59,6 +60,7 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {VAGRANT_VBGUEST, "VirtualBox plugin"},
     {SUBUTAI_BOX, "Vagrant Subutai box"},
     {VMWARE, "VMware"},
+    {PARALLELS, "Parallels Desktop"},
     {VMWARE_UTILITY, "Vagrant VMware Utility"},
     {VAGRANT_VMWARE_DESKTOP, "Vagrant VMware Provider"},
     {VAGRANT_LIBVIRT, "Vagrant Libvirt Provider"},

@@ -855,6 +855,15 @@ min-height: 550pxk
   QCheckBox::indicator:unchecked:pressed
   {
     image: url(:/hub/check_box.png);
+  }
+  
+  QCheckBox::indicator:checked:disabled
+  {
+    image: url(:/hub/unknown.png);
+  }
+  QCheckBox::indicator:unchecked:disabled
+  {
+    image: url(:/hub/unknown.png);
   }</string>
            </property>
            <property name="text">

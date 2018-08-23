@@ -78,7 +78,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantVmware.cpp \
     hub/src/updater/UpdaterComponentVMware.cpp \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
-    hub/src/updater/UpdaterComponentXQuartz.cpp
+    hub/src/updater/UpdaterComponentXQuartz.cpp \
+    hub/src/updater/UpdaterComponentParallels.cpp
 
 
 
@@ -142,7 +143,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVagrantVmware.h \
     hub/include/updater/UpdaterComponentVMware.h \
     hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
-    hub/include/updater/UpdaterComponentXQuartz.h
+    hub/include/updater/UpdaterComponentXQuartz.h \
+    hub/include/updater/UpdaterComponentParallels.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
