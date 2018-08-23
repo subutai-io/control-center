@@ -138,7 +138,7 @@ void CUpdaterComponentVMware::install_post_internal(bool success) {
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("VMare has been installed."), DlgNotification::N_NO_ACTION);
+        tr("VMware has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 void CUpdaterComponentVMware::uninstall_post_internal(bool success) {

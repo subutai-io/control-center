@@ -2555,7 +2555,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const 
   QStringList args;
   args
     << "product" << "where"
-    << "name=\"vagrant\""
+    << "Name like 'Vagrant'"
     << "get" << "IdentifyingNumber";
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   qDebug() << "got product code of vagrant"
@@ -2960,9 +2960,19 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
-                  "open -a /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/\" ").arg(file_path);
+                  "cp -R /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/ /Applications/VMware\\\\ Fusion.app; open -a VMware\\\\ Fusion.app;\" with administrator privileges").arg(file_path);
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
+    qCritical() << "Failed installation VMware Fusion: "
+                << res.res
+                << " exit code: "
+                << res.exit_code
+                << res.out;
+
+    return SCWE_CREATE_PROCESS;
+  }
 
   return res.res;
 }
@@ -3019,35 +3029,10 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
     return SCWE_WHICH_CALL_FAILED;
   }
 
-  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-
-  if (lst_temp.empty()) {
-    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
   QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + "vmware_installer.sh";
+      dir + QDir::separator() + file_name;
 
   qDebug() << tmpFilePath;
-
-  QFile tmpFile(tmpFilePath);
-  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                      .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  QByteArray install_script = QString(
-    "#!/bin/bash\n"
-    "cd %1\n"
-    "chmod +x %2\n"
-    "./%2 --console --required --eulas-agreed"
-    "\n").arg(dir, file_name).toUtf8();
 
   qDebug() << "VMware installation "
            << "dir: "
@@ -3055,34 +3040,10 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
            << " file_name: "
            << file_name;
 
-  if (tmpFile.write(install_script) != install_script.size()) {
-    QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                             .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  tmpFile.close();  // save
-
-  if (!QFile::setPermissions(
-          tmpFilePath,
-          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-
-    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
-    qCritical() << err_msg;
-
-    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
   system_call_res_t cr2;
   QStringList args2;
 
-  args2 << sh_path << tmpFilePath;
+  args2 << sh_path << tmpFilePath << "--gtk" << "--eulas-agreed" << "-I" << "--required";
 
   cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
 
@@ -3093,8 +3054,6 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
            << cr2.out
            << "result: "
            << cr2.res;
-
-  tmpFile.remove();
 
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
@@ -3222,9 +3181,10 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
   args << "vmware-installer"
        << "-u"
        << "vmware-workstation"
-       << "--console"
+       << "--gtk"
        << "--required"
-       << "--eulas-agreed";
+       << "--eulas-agreed"
+       << "-I";
 
   scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, true, true, 97);
 
@@ -6001,40 +5961,41 @@ system_call_wrapper_error_t vmware_version_internal(QString &version);
 
 template <>
 system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_MAC> >(QString &version) {
-  QString path = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion/"; // TODO ADD PATH to CSettings
-  QDir dir(path);
-  dir.cdUp(); dir.cdUp();
-  path = dir.absolutePath();
-  path += "/Info.plist";
 
-  QFile info_plist(path);
-  QString line;
-  bool found = false;
+  QString path = CSettingsManager::Instance().vmware_path();
+   QDir dir(path);
+   dir.cdUp(); dir.cdUp();
+   path = dir.absolutePath();
+   path += "/Info.plist";
 
-  if (!info_plist.exists()) {
-    version = "undefined";
+   QFile info_plist(path);
+   QString line;
+   bool found = false;
 
-    return SCWE_SUCCESS;
-  }
+   if (!info_plist.exists()) {
+     version = "undefined";
 
-  if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream stream(&info_plist);
-      while (!stream.atEnd()) {
-        line = stream.readLine();
-        line = line.simplified();
-        line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
-        if (found) {
-            version = line;
-            break;
-        }
-        else if (line == "CFBundleShortVersionString") {
-            found = true;
-        }
-    }
-    info_plist.close();
-  }
+     return SCWE_SUCCESS;
+   }
 
-  return SCWE_SUCCESS;
+   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+       QTextStream stream(&info_plist);
+       while (!stream.atEnd()) {
+         line = stream.readLine();
+         line = line.simplified();
+         line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+         if (found) {
+             version = line;
+             break;
+         }
+         else if (line == "CFBundleShortVersionString") {
+             found = true;
+         }
+     }
+     info_plist.close();
+   }
+
+   return SCWE_SUCCESS;
 }
 
 template <>
