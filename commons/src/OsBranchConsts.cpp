@@ -213,7 +213,7 @@ parallels_kurjun_package_name_def(OS_MAC,    "parallels-desktop-osx.dmg")
 
 const QString &
 parallels_kurjun_package_name() {
-    return parallels_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
+    return parallels_kurjun_package_name_temp_internal<Os2Type<OS_MAC> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -890,19 +890,9 @@ const QString & default_vmware_path() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-template<class OS> const QString& default_parallels_path_temp_internal();
-
-#define default_parallels_path_internal_def(OS_TYPE, STRING) \
-  template<> \
-  const QString& default_parallels_path_temp_internal<Os2Type<OS_TYPE> >() { \
-    static QString res(STRING); \
-    return res; \
-  }
-
-default_parallels_path_internal_def(OS_MAC, "/usr/local/bin/prlctl")
-
 const QString & default_parallels_path() {
-    return default_parallels_path_temp_internal<Os2Type<CURRENT_OS > >();
+  static QString parallels("/usr/local/bin/prlctl");
+  return parallels;
 }
 ////////////////////////////////////////////////////////////////////////////
 
