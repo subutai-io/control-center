@@ -974,7 +974,8 @@ void DlgAbout::btn_uninstall_components() {
   static QStringList high_priority_component = {IUpdaterComponent::SUBUTAI_BOX,
                                                 IUpdaterComponent::VAGRANT_VBGUEST,
                                                 IUpdaterComponent::VAGRANT_SUBUTAI,
-                                                IUpdaterComponent::E2E}; // components with 1 priority, other will be 0
+                                                IUpdaterComponent::E2E,
+                                                IUpdaterComponent::VMWARE_UTILITY}; // components with 1 priority, other will be 0
 
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
@@ -982,7 +983,8 @@ void DlgAbout::btn_uninstall_components() {
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
       if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
-          m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
+          m_dct_fpb[component.first].lbl->text() == "No supported browser is available" ||
+          m_dct_fpb[component.first].lbl->text() == "Install VMware first") {
         continue;
       }
       uninstalling_components_str += "<i>" + IUpdaterComponent::component_id_to_user_view(component.first) + "</i><br>";
@@ -1306,6 +1308,8 @@ void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
       ui->cb_provider_vmware_utility->setVisible(false);
       ui->btn_provider_vmware_utility_update->setText(tr("Install"));
       ui->btn_provider_vmware_utility_update->activateWindow();
+    } else if (version == "Install VMware first") {
+      ui->cb_provider_vmware_utility->setEnabled(false);
     } else {
       ui->btn_provider_vmware_utility_update->setText(tr("Update"));
     }
@@ -1479,25 +1483,33 @@ void DlgAboutInitializer::do_initialization() {
     emit got_p2p_version(p2p_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString chrome_version;
-    CSystemCallWrapper::chrome_version(chrome_version);
-    emit got_chrome_version(chrome_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Chrome") {
+      QString chrome_version;
+      CSystemCallWrapper::chrome_version(chrome_version);
+      emit got_chrome_version(chrome_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString firefox_version;
-    CSystemCallWrapper::firefox_version(firefox_version);
-    emit got_firefox_version(firefox_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      QString firefox_version;
+      CSystemCallWrapper::firefox_version(firefox_version);
+      emit got_firefox_version(firefox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString edge_version;
-    CSystemCallWrapper::edge_version(edge_version);
-    emit got_edge_version(edge_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Edge") {
+      QString edge_version;
+      CSystemCallWrapper::edge_version(edge_version);
+      emit got_edge_version(edge_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString safari_version;
-    CSystemCallWrapper::safari_version(safari_version);
-    emit got_safari_version(safari_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Safari") {
+      QString safari_version;
+      CSystemCallWrapper::safari_version(safari_version);
+      emit got_safari_version(safari_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
@@ -1507,9 +1519,15 @@ void DlgAboutInitializer::do_initialization() {
     emit got_vagrant_version(vagrant_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString oracle_virtualbox_version = get_oracle_virtualbox_version();
-    emit got_oracle_virtualbox_version(oracle_virtualbox_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VIRTUALBOX) {
+      QString oracle_virtualbox_version = get_oracle_virtualbox_version();
+      emit got_oracle_virtualbox_version(oracle_virtualbox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+      QString vbguest_plugin_version = get_vagrant_vbguest_version();
+      emit got_vbguest_plugin_version(vbguest_plugin_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     QString subutai_e2e_version = get_e2e_version();
     emit got_e2e_version(subutai_e2e_version);
@@ -1517,10 +1535,6 @@ void DlgAboutInitializer::do_initialization() {
 
     QString subutai_plugin_versin = get_vagrant_subutai_version();
     emit got_subutai_plugin_version(subutai_plugin_versin);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
-    QString vbguest_plugin_version = get_vagrant_vbguest_version();
-    emit got_vbguest_plugin_version(vbguest_plugin_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString subutai_box_version = get_subutai_box_version();
@@ -1531,13 +1545,15 @@ void DlgAboutInitializer::do_initialization() {
     emit got_provider_version(vagrant_provider_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString hypervisor_vmware_version = get_hypervisor_vmware_version();
-    emit got_hypervisor_vmware_version(hypervisor_vmware_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
+      QString hypervisor_vmware_version = get_hypervisor_vmware_version();
+      emit got_hypervisor_vmware_version(hypervisor_vmware_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
-    emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
+      emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     if (OS_MAC == CURRENT_OS) {
       QString xquartz_version = get_xquartz_version();
