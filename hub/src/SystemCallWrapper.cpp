@@ -3222,6 +3222,86 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware(const QString &
 
   return res;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 INSTALLATION Parallels Desktop                                     ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_error_t CSystemCallWrapper::install_parallels(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  qDebug() << "Installation Parallels Desktop";
+
+  QString cmd("osascript");
+  QStringList args;
+  QString file_path  = dir + "/" + file_name;
+
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1; "
+                  "cp -R /Volumes/Parallels\\\\ Desktop\\\\ 14/Parallels\\\\ Desktop.app/ /Applications/Parallels\\\\ Desktop.app/;; "
+                  "open -a Parallels\\\\ Desktop.app;\" with administrator privileges").arg(file_path);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
+    qCritical() << "Failed installation Parallels Desktop: "
+                << res.res
+                << " exit code: "
+                << res.exit_code
+                << res.out;
+
+    return SCWE_CREATE_PROCESS;
+  }
+
+  installer_is_busy.unlock();
+  return res.res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 UNINSTALLATION Parallels Desktop                                     ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::uninstall_parallels(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+
+  if (!QDir("/Applications/Parallels Desktop.app/").exists()) {
+    qDebug() << "Can't find Parallels Desktop path: /Applications/Parallels Desktop.app";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+
+  // Quit Application VMware Fusion
+  args << "-e"
+       << "Tell application \"Parallels Desktop.app\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true);
+
+  if (res.exit_code != 0) {
+    qDebug() << "Failed to quit Parallels Desktop application";
+    return SCWE_COMMAND_FAILED;
+  }
+
+  args.clear();
+
+  // Clean Parallels Desktop folders
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/Parallels\\\\ Desktop.app/; ");
+
+  qDebug() << "Uninstallation Parallels Desktop"
+           << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+
+  if (rs.exit_code != 0) {
+    return SCWE_COMMAND_FAILED;
+  }
+
+  installer_is_busy.unlock();
+  return rs.res;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class OS>
 system_call_wrapper_error_t install_oracle_virtualbox_internal(const QString &dir, const QString &file_name);
@@ -6078,6 +6158,43 @@ system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(
 
 system_call_wrapper_error_t CSystemCallWrapper::vmware_version(QString &version) {
   return vmware_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::parallels_version(QString &version) {
+  QString path = CSettingsManager::Instance().parallels_path();
+   QDir dir(path);
+   dir.cdUp(); dir.cdUp();
+   path = dir.absolutePath();
+   path += "/Info.plist";
+
+   QFile info_plist(path);
+   QString line;
+   bool found = false;
+
+   if (!info_plist.exists()) {
+     version = "undefined";
+
+     return SCWE_SUCCESS;
+   }
+
+   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+       QTextStream stream(&info_plist);
+       while (!stream.atEnd()) {
+         line = stream.readLine();
+         line = line.simplified();
+         line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+         if (found) {
+             version = line;
+             break;
+         }
+         else if (line == "CFBundleShortVersionString") {
+             found = true;
+         }
+     }
+     info_plist.close();
+   }
+
+   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

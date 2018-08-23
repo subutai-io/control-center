@@ -891,7 +891,7 @@ const QString & default_vmware_path() {
 ////////////////////////////////////////////////////////////////////////////
 
 const QString & default_parallels_path() {
-  static QString parallels("/usr/local/bin/prlctl");
+  static QString parallels("/Applications/Parallels Desktop.app/Contents/MacOs/prlctl");
   return parallels;
 }
 ////////////////////////////////////////////////////////////////////////////

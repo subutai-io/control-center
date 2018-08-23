@@ -29,7 +29,7 @@ QString CUpdaterComponentParallels::download_parallels_path() {
 
 bool CUpdaterComponentParallels::update_available_internal() {
   QString version;
-  CSystemCallWrapper::vmware_version(version);
+  CSystemCallWrapper::parallels_version(version);
   return version == "undefined";
 }
 
