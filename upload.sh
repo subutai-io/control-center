@@ -40,6 +40,40 @@ upload_cdn (){
 
     echo -e "\\nCompleted"
 }
+upload_ipfs (){
+    filename=$1
+    user="jenkins@optimal-dynamics.com"
+    fingerprint="877B586E74F170BC4CF6ECABB971E2AC63D23DC9"
+    cdnHost=$2
+    echo $filename
+    extract_id()
+        {
+            id_src=$(echo $json | grep "id")
+            id=${id_src:10:46}
+        }       
+
+    json=`curl -k -s -X GET ${cdnHost}/rest/v1/cdn/raw?name=$filename`
+    echo "Received: $json"
+    extract_id
+    echo "Previous file ID is $id"
+
+    authId="$(curl -s ${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+    echo "Auth id obtained and signed $authId"
+
+    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
+    token="$(curl -s --data-urlencode "request=${sign}"  ${cdnHost}/rest/v1/cdn/token)"
+    echo "Token obtained $token"
+
+    echo "Uploading file..."
+    curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw"
+
+    echo "Removing previous"
+    if [[ -z "$id" ]]; then
+        echo "File not found"
+    else curl -k -s -X DELETE "$cdnHost/rest/v1/cdn/raw?token=${token}&id=$id"
+    fi
+    echo -e "\\nCompleted"
+}
 
 case $OS in
     Linux)
@@ -59,14 +93,22 @@ case $BRANCH in
     dev)
         PKGNAME="subutai-control-center-dev$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
+        IPFSBIN="SubutaiControlCenter-dev$BINARY_EXT"
+        cp subutai_control_center_bin/SubutaiControlCenter$BINARY_EXT subutai_control_center_bin/$IPFSBIN
+        cd subutai_control_center_bin
+        IPFSURL=https://devbazaar.subutai.io
         URL=https://devcdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
+        upload_ipfs $PKGNAME $IPFSURL
+        upload_ipfs $IPFSBIN $IPFSURL
+        upload_cdn $PKGNAME $URL $VERSION
+        upload_cdn $BINNAME $URL $VERSION
+        upload_cdn $PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     master)
         PKGNAME="subutai-control-center-master$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
+        IPFSBIN="SubutaiControlCenter-master$BINARY_EXT"
+        IPFSURL=https://masterbazaar.subutai.io
         URL=https://mastercdn.subutai.io:8338/kurjun/rest
         upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
         upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
