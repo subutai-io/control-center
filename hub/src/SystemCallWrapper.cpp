@@ -2818,6 +2818,12 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
 
 system_call_wrapper_error_t CSystemCallWrapper::install_vmware_utility(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
+  QString vmware_ver;
+  vmware_version(vmware_ver);
+  if (vmware_ver == "undefined") {
+    qCritical() << "Install VMware first";
+    return SCWE_CREATE_PROCESS;
+  }
   system_call_wrapper_error_t res = install_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
   installer_is_busy.unlock();
 
@@ -2933,6 +2939,12 @@ system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX>
 
 system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware_utility(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
+  QString vmware_ver;
+  vmware_version(vmware_ver);
+  if (vmware_ver == "undefined") {
+    qCritical() << "Install VMware first";
+    return SCWE_CREATE_PROCESS;
+  }
   system_call_wrapper_error_t res = uninstall_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
   installer_is_busy.unlock();
 
@@ -6163,6 +6175,12 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_LINUX> >(
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &version) {
+  QString vmware_ver;
+  vmware_version(vmware_ver);
+  if (vmware_ver == "undefined") {
+    version = "Install VMware first";
+    return SCWE_SUCCESS;
+  }
   return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 
