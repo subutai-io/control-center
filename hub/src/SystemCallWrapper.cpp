@@ -2759,9 +2759,18 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
   }
 
   QByteArray install_script = QString(
-    "#!/bin/bash\n"
-    "apt install -y %1"
-    "\n").arg(file_path).toUtf8();
+                                  "#!/bin/bash\n"
+                                  "dpkg -i %1\n"
+                                  "if [ $? -gt 0 ]\n"
+                                  "then\n"
+                                  "dpkg --remove --force-remove-reinstreq %1\n"
+                                  "apt-get install -y -f\n"
+                                  "dpkg -i %1\n"
+                                  "else\n"
+                                  "rm %1\n"
+                                  "fi\n")
+                                  .arg(file_path)
+                                  .toUtf8();
 
   qDebug() << "Vagrant VMware utility installation "
            << "dir: "
@@ -2808,10 +2817,10 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
            << "result: "
            << cr2.res;
 
-  tmpFile.remove();
-
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
+
+  tmpFile.remove();
 
   return SCWE_SUCCESS;
 }
@@ -2919,7 +2928,7 @@ system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX>
        << "-y"
        << "vagrant-vmware-utility";
 
-  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 97);
+  scr = CSystemCallWrapper::ssystem_th(pkexec_path, args, true, true, 97);
 
   qDebug() << "Uninstallation of Vagrant VMware Utility finished: "
            << "exit code: "
