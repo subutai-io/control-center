@@ -6122,7 +6122,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QS
 
 template <>
 system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QString &version) {
-  version = "undefined";
+  /*version = "undefined";
   QString cmd("wmic");
   QStringList args;
   // wmic product where name="Vagrant VMware Utility" get version
@@ -6156,6 +6156,31 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
       version = s;
     }
   }
+
+  return SCWE_SUCCESS;*/
+
+  version = "undefined";
+
+  QString path;
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKLM\\SYSTEM\\CurrentControlSet\\Services\\VagrantVMware";
+  qDebug() << "REG QUERY started"
+           << "args:" << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "REG QUERY finished:"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "REG QUERY failed.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  version = "installed";
 
   return SCWE_SUCCESS;
 }
