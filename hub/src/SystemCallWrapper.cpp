@@ -2808,10 +2808,10 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
            << "result: "
            << cr2.res;
 
-  tmpFile.remove();
-
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
+
+  tmpFile.remove();
 
   return SCWE_SUCCESS;
 }
