@@ -48,7 +48,7 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
 
