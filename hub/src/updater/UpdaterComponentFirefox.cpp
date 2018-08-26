@@ -48,7 +48,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
 
@@ -61,7 +61,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -78,7 +78,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),

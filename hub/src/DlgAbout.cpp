@@ -1043,13 +1043,10 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   m_dct_fpb[component_id].btn->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
-
-  if (m_dct_fpb[component_id].pf_version) {
-    m_dct_fpb[component_id].pb->setHidden(true);
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
-  }
+  m_dct_fpb[component_id].pb->setHidden(true);
 
   if (success) {
+    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setVisible(false);
       m_dct_fpb[component_id].cb->setChecked(false);
@@ -1274,6 +1271,7 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
       ui->cb_vagrant_box->setEnabled(false);
     } else {
       ui->btn_subutai_box->setText(tr("Update"));
+      ui->cb_vagrant_box->setEnabled(true);
     }
     ui->lbl_subutai_box_version->setText(version);
   }
@@ -1308,6 +1306,7 @@ void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
       ui->cb_provider_vmware_utility->setVisible(false);
       ui->btn_provider_vmware_utility_update->setText(tr("Install"));
       ui->btn_provider_vmware_utility_update->activateWindow();
+      ui->cb_provider_vmware_utility->setEnabled(true);
     } else if (version == "Install VMware first") {
       ui->cb_provider_vmware_utility->setEnabled(false);
     } else {
@@ -1541,17 +1540,21 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vagrant_provider_version = get_vagrant_provider_version();
-    emit got_provider_version(vagrant_provider_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
     if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
+      QString vagrant_provider_version = get_vagrant_provider_version();
+      emit got_provider_version(vagrant_provider_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
       QString hypervisor_vmware_version = get_hypervisor_vmware_version();
       emit got_hypervisor_vmware_version(hypervisor_vmware_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
       emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    } else {
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
@@ -1620,20 +1623,23 @@ void DlgAboutInitializer::do_initialization() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgAbout::install_finished(const QString& component_id, bool success) {
+void DlgAbout::install_finished(const QString& component_id, bool success, const QString& version) {
   qDebug() << "Install finished for: " << component_id << "with result"
-           << success;
+           << success
+           << " version: "
+           << version;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   m_dct_fpb[component_id].btn->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].btn->setText(tr("Update"));
-  if (m_dct_fpb[component_id].pf_version) {
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
-  }
+  //if (m_dct_fpb[component_id].pf_version) {
+  //  m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+  //}
 
   if (success) {
+    m_dct_fpb[component_id].lbl->setText(version);
     m_dct_fpb[component_id].pb->setHidden(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setHidden(true);
@@ -1651,13 +1657,15 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
   }
 }
 
-void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
+void DlgAbout::uninstall_finished(const QString& component_id, bool success, const QString& version) {
   qDebug() << "Uninstall finished for: " << component_id << "with result"
-           << success;
+           << success
+           << " version: "
+           << version;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   if (success) {
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+    m_dct_fpb[component_id].lbl->setText(version);
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].cb->setChecked(false);
     m_dct_fpb[component_id].btn->setVisible(true);
