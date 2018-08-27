@@ -1311,6 +1311,7 @@ void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
       ui->cb_provider_vmware_utility->setEnabled(false);
     } else {
       ui->btn_provider_vmware_utility_update->setText(tr("Update"));
+      ui->cb_provider_vmware_utility->setEnabled(true);
     }
     ui->lbl_provider_vmware_utility_version->setText(version);
   }
@@ -1342,21 +1343,16 @@ void DlgAbout::got_provider_version_sl(QString version) {
     if (version == "undefined") {
       set_hidden_pb(COMPONENT_KEY);
       this->m_dct_fpb[COMPONENT_KEY].btn->setHidden(false);
-      //ui->btn_subutai_box->setHidden(false);
       this->m_dct_fpb[COMPONENT_KEY].cb->setVisible(false);
-      //ui->cb_vagrant_box->setVisible(false);
       this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Install"));
-      //ui->btn_subutai_box->setText(tr("Install"));
       this->m_dct_fpb[COMPONENT_KEY].btn->activateWindow();
-      //ui->btn_subutai_box->activateWindow();
     } else if (version == "Install Vagrant first") {
       this->m_dct_fpb[COMPONENT_KEY].cb->setEnabled(false);
     } else {
       this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Update"));
-      //ui->btn_subutai_box->setText(tr("Update"));
+      this->m_dct_fpb[COMPONENT_KEY].cb->setEnabled(true);
     }
     this->m_dct_fpb[COMPONENT_KEY].lbl->setText(version);
-    //ui->lbl_subutai_box_version->setText(version);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
