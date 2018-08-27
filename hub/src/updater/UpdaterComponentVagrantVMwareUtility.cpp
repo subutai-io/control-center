@@ -34,6 +34,7 @@ bool CUpdaterComponentVagrantVMwareUtility::update_available_internal() {
 }
 
 chue_t CUpdaterComponentVagrantVMwareUtility::install_internal() {
+  QString version = "undefined";
   qDebug() << "Starting installation vagrant-vmware-utility";
 
   QMessageBox *msg_box = new QMessageBox(
@@ -49,13 +50,13 @@ chue_t CUpdaterComponentVagrantVMwareUtility::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_SUCCESS;
   }
 
   QString file_name = vmware_utility_kurjun_package_name();
   QString file_dir = download_vmware_utility_path();
-  QString str_vmware_downloaded_path = file_dir + "/" + file_name;
+  QString str_vmware_downloaded_path = file_dir + QDir::separator() + file_name;
 
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(file_name);
@@ -63,7 +64,7 @@ chue_t CUpdaterComponentVagrantVMwareUtility::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_NOT_ON_KURJUN;
   }
 
@@ -82,7 +83,7 @@ chue_t CUpdaterComponentVagrantVMwareUtility::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(

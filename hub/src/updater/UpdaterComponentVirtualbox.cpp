@@ -34,6 +34,7 @@ bool CUpdaterComponentVIRTUALBOX::update_available_internal() {
 }
 
 chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
+  QString version = "undefined";
   qDebug() << "Starting install oracle virtualbox";
 
   QMessageBox *msg_box = new QMessageBox(
@@ -49,7 +50,7 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_SUCCESS;
   }
   QString file_name = oracle_virtualbox_kurjun_package_name();
@@ -61,7 +62,7 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -78,7 +79,7 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
@@ -108,14 +109,14 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
           "Please stop all your running virtual machines and press \'Yes\" to continue."),
       QMessageBox::Yes | QMessageBox::No);
   if(msg_box->exec() != QMessageBox::Yes) {
-    uninstall_finished_sl(false);
+    uninstall_finished_sl(false, tr("undefined"));
     return CHUE_FAILED;
   }
   static QString empty_string = "";
   if (CURRENT_OS == OS_MAC) {
     QString file_name = "VirtualBox_Uninstall.tool";
     QString file_dir = download_virtualbox_path();
-    QString str_oracle_virtualbox_downloaded_path = file_dir + "/" + file_name;
+    QString str_oracle_virtualbox_downloaded_path = file_dir + QDir::separator() + file_name;
 
     std::vector<CGorjunFileInfo> fi =
         CRestWorker::Instance()->get_gorjun_file_info(
@@ -123,7 +124,7 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun",
                 m_component_id.toStdString().c_str());
-      install_finished_sl(false);
+      install_finished_sl(false, "undefined");
       return CHUE_NOT_ON_KURJUN;
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -141,7 +142,7 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
     connect(dm, &CDownloadFileManager::finished,
             [this, silent_uninstaller](bool success) {
               if (!success) {
-                silent_uninstaller->outputReceived(success);
+                silent_uninstaller->outputReceived(success, tr("undefined"));
               } else {
                 this->update_progress_sl(0,0);
                 silent_uninstaller->startWork();

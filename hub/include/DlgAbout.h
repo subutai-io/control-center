@@ -126,9 +126,9 @@ private slots:
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
  // void unavailable(const QString &file_id);
-  void update_finished(const QString &file_id, bool success);  
-  void install_finished(const QString &file_id, bool success);
-  void uninstall_finished(const QString& component_id, bool success);
+  void update_finished(const QString &file_id, bool success);
+  void install_finished(const QString &file_id, bool success, const QString& version);
+  void uninstall_finished(const QString& component_id, bool success, const QString& version);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);

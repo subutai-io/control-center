@@ -32,6 +32,7 @@ bool CUpdaterComponentX2GO::update_available_internal() {
 }
 
 chue_t CUpdaterComponentX2GO::install_internal() {
+  QString version = "undefined";
   qDebug() << "Starting install x2go";
 
   QMessageBox *msg_box = new QMessageBox(
@@ -48,7 +49,7 @@ chue_t CUpdaterComponentX2GO::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_SUCCESS;
   }
 
@@ -64,7 +65,7 @@ chue_t CUpdaterComponentX2GO::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, version);
     return CHUE_NOT_ON_KURJUN;
   }
 
@@ -84,7 +85,7 @@ chue_t CUpdaterComponentX2GO::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
