@@ -2493,7 +2493,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
             <<"pkexec_path:"<<pkexec_path
             <<"args2:"<<args2;
 
-    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60);
     qDebug()<<"Vagrant installation finished:"
             <<"exit code:"<<cr2.exit_code
             <<"result code:"<<cr2.res
@@ -2533,7 +2533,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
        << "-y"
        << "vagrant";
 
-  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 97);
+  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 1000 * 60 * 60);
 
   qDebug() << "Uninstallation of Vagrant finished: "
            << "exit code: "
@@ -2669,7 +2669,7 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_plugin(const QString &
        << command // might be: uninstall, install, update
        << name;
 
-  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 7); // 7 minutes timeout
+  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 10); // 10 minutes timeout
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)
