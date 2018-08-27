@@ -6324,7 +6324,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_MAC> >(QS
 
 template <>
 system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QString &version) {
-  /*version = "undefined";
+  version = "undefined";
   QString cmd("wmic");
   QStringList args;
   // wmic product where name="Vagrant VMware Utility" get version
@@ -6359,7 +6359,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
     }
   }
 
-  return SCWE_SUCCESS;*/
+  return SCWE_SUCCESS;/*
 
   version = "undefined";
 
@@ -6384,7 +6384,7 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
 
   version = "installed";
 
-  return SCWE_SUCCESS;
+  return SCWE_SUCCESS;*/
 }
 
 template <>
