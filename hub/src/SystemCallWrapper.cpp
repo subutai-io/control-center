@@ -4795,6 +4795,8 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
   args << "-e"
        << QString("do shell script \"rm -rf %1\"").arg(ext_path);
 
+  qDebug() << "uninstall e2e ggwp" << cmd << args;
+
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
     qCritical() << "Failed to uninstall e2e"

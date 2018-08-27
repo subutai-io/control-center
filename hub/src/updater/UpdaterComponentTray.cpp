@@ -56,6 +56,7 @@ CUpdaterComponentTray::update_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
   CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
                                                   str_tray_path);
+
   if (item->md5_sum() == CCommons::FileMd5(str_tray_download_path)) {
     qInfo("Already have new version of tray in %s",
                   str_tray_download_path.toStdString().c_str());
@@ -68,7 +69,10 @@ CUpdaterComponentTray::update_internal() {
     return CHUE_SUCCESS;
   }
   tray_cloud_version = item->version();
-  CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+
+  qDebug() << "version" << tray_cloud_version;
+
+  CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                       str_tray_download_path,
                                                       item->size());
 

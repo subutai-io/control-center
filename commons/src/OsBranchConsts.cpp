@@ -489,9 +489,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_PROD,     "https://bazaar.subutai.io/rest/v1/cdn/raw")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://masterbazaar.subutai.io/rest/v1/cdn/raw")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devbazaar.subutai.io/rest/v1/cdn/raw")
 
 const QString &
 hub_gorjun_url() {
@@ -1133,15 +1133,15 @@ template<class BR, class OS> const QString& p2p_package_url_temp_internal();
     return res; \
   }
 
-p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.deb")
-p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.pkg")
-p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.msi")
-p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.deb")
-p2p_package_url_def(BT_DEV,        OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
-p2p_package_url_def(BT_DEV,        OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.msi")
-p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
-p2p_package_url_def(BT_PROD,       OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg")
-p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.msi")
+p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.deb")
+p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.pkg")
+p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.msi")
+p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.deb")
+p2p_package_url_def(BT_DEV,        OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.deb")
+p2p_package_url_def(BT_DEV,        OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.msi")
+p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.deb")
+p2p_package_url_def(BT_PROD,       OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.pkg")
+p2p_package_url_def(BT_PROD,       OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.msi")
 
 const QString &
 p2p_package_url() {

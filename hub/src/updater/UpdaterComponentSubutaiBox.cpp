@@ -83,8 +83,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
   QString str_downloaded_path = file_dir + "/" + file_name;
 
   std::vector<CGorjunFileInfo> fi =
-      CRestWorker::Instance()->get_gorjun_file_info(
-          file_name, "https://cdn.subutai.io:8338/kurjun/rest/raw/info");
+      CRestWorker::Instance()->get_gorjun_file_info(file_name);
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
@@ -96,7 +95,6 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
   CDownloadFileManager *dm =
       new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
 
-  dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_SUBUTAI_BOX);
 

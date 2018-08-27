@@ -615,10 +615,9 @@ void CRestWorker::update_balance() {
 
 std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     const QString& file_name, QString link) {
-  static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
   if (link.isEmpty()) {
-    link = hub_gorjun_url().arg(str_fi);
+    link = hub_gorjun_url();
   }
   QUrl url_gorjun_fi(link);
   QUrlQuery query_gorjun_fi;
@@ -759,14 +758,12 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id,
+QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
                                                  QString link) {
-  static const QString str_file_url("raw/download");
-  if (link.isEmpty()) link = hub_gorjun_url().arg(str_file_url);
-  QUrl url(link);
-  QUrlQuery query;
-  query.addQueryItem("id", file_id);
-  url.setQuery(query);
+  if (link.isEmpty()) link = hub_gorjun_url();
+  static const QString str_file_url =
+      QString("%1?name=%2&download").arg(link, file_name);
+  QUrl url(str_file_url);
   return download_file(url);
 }
 ////////////////////////////////////////////////////////////////////////////
