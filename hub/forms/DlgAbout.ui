@@ -68,6 +68,12 @@ min-height: 550pxk
       <layout class="QGridLayout" name="gl_components" rowstretch="2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0,0">
        <item row="15" column="3">
         <widget class="QProgressBar" name="pb_provider_parallels">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -1011,6 +1017,12 @@ min-height: 550pxk
        </item>
        <item row="18" column="3">
         <widget class="QProgressBar" name="pb_hypervisor_vmware">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -1612,6 +1624,12 @@ min-height: 550pxk
        </item>
        <item row="17" column="3">
         <widget class="QProgressBar" name="pb_provider_libvirt">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -2356,6 +2374,12 @@ min-height: 550pxk
        </item>
        <item row="16" column="3">
         <widget class="QProgressBar" name="pb_provider_vmware">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -2379,6 +2403,12 @@ min-height: 550pxk
        </item>
        <item row="20" column="3">
         <widget class="QProgressBar" name="pb_provider_vmare_utility">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="value">
           <number>0</number>
          </property>
@@ -2478,7 +2508,7 @@ min-height: 550pxk
          <item>
           <widget class="QLabel" name="label">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
