@@ -1819,7 +1819,7 @@ template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
@@ -1861,7 +1861,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
 
 template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2077,7 +2077,7 @@ template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
                   "cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
@@ -2087,7 +2087,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
-    QString cmd(dir+"/"+file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "/S";
 
@@ -2109,7 +2109,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2372,7 +2372,7 @@ template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
@@ -2407,7 +2407,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QS
 }
 template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2493,7 +2493,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
             <<"pkexec_path:"<<pkexec_path
             <<"args2:"<<args2;
 
-    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60);
     qDebug()<<"Vagrant installation finished:"
             <<"exit code:"<<cr2.exit_code
             <<"result code:"<<cr2.res
@@ -2533,7 +2533,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
        << "-y"
        << "vagrant";
 
-  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 97);
+  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 1000 * 60 * 60);
 
   qDebug() << "Uninstallation of Vagrant finished: "
            << "exit code: "
@@ -2669,7 +2669,7 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_plugin(const QString &
        << command // might be: uninstall, install, update
        << name;
 
-  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 10); // 10 minutes timeout
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)
@@ -2705,7 +2705,7 @@ template <>
 system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1;\"").arg(file_path);
@@ -2730,7 +2730,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(c
   args << "-e"
        << QString("do shell script \"installer -pkg /Volumes/Vagrant\\\\ VMware\\\\ Utility/*.pkg -target /\" with administrator privileges");
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 10);
 
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
@@ -2753,7 +2753,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_WIN> >(c
           <<"Starting installation Vagrant VMware Utility:"
           <<args0;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 10);
 
   if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
       res.res = SCWE_CREATE_PROCESS;
@@ -2868,7 +2868,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
 
   args2 << sh_path << tmpFilePath;
 
-  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 10); // 10 minutes
 
   qDebug() << "Vagrant VMware utility installation finished"
            << "error code:"
@@ -3061,13 +3061,13 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
                   "cp -R /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/ /Applications/VMware\\\\ Fusion.app; open -a VMware\\\\ Fusion.app;\" with administrator privileges").arg(file_path);
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 60); // 1 hour timeout
 
   if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
     qCritical() << "Failed installation VMware Fusion: "
@@ -3085,7 +3085,7 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 template <>
 system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   // VMware-workstation-full-14.1.2-8497320.exe /s /v"/qn EULAS_AGREED=1
-  QString cmd(dir + "/" + file_name);
+  QString cmd(dir + QDir::separator() + file_name);
   QStringList args;
 
   qDebug() << "Installing package VMware: "
@@ -3148,9 +3148,9 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
   system_call_res_t cr2;
   QStringList args2;
 
-  args2 << sh_path << tmpFilePath << "--gtk" << "--eulas-agreed" << "-I" << "--required";
+  args2 << sh_path << tmpFilePath << "--gtk" << "--required" << "--ignore-errors" << "--eulas-agreed";
 
-  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60 * 1); // 1 hour timeout
 
   qDebug() << "VMware worstation installation finished"
            << "error code:"
@@ -3338,7 +3338,7 @@ template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   qDebug()
@@ -3356,7 +3356,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> 
 }
 template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
-    QString cmd(dir + "/" + file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "--silent";
 
@@ -3512,7 +3512,7 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_MAC>
   // run downloaded uninstallation script easy
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"chmod +x %1; %1 --unattended\" with administrator privileges").arg(file_path);
   qDebug() << "ARGS=" << args;
@@ -3707,7 +3707,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
     qInfo() << "CC started to install google chrome";
     QString cmd("osascript");
     QStringList args;
-    QString file_path  = dir + "/" + file_name;
+    QString file_path  = dir + QDir::separator() + file_name;
     args << "-e"
          << QString("do shell script \"hdiutil attach -nobrowse %1; "
                     "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
@@ -3723,7 +3723,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
 }
 template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -3827,7 +3827,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
 template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
-    QString cmd(dir+"/"+file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "/install";
 
@@ -4355,7 +4355,7 @@ system_call_wrapper_error_t install_firefox_internal(const QString &dir, const Q
 
 template<>
 system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
-  QString file_info =  dir + "/" + file_name;
+  QString file_info =  dir + QDir::separator() + file_name;
   QString pkexec_path;
   system_call_wrapper_error_t scr =
       CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -4468,7 +4468,7 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QStr
   qInfo() << "CC started to install firefox";
   QString cmd("osascript");
   QStringList args;
-  QString file_path = dir + "/" + file_name;
+  QString file_path = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"hdiutil attach -nobrowse %1; "
                   "cp -R /Volumes/Firefox/Firefox.app "
@@ -4490,7 +4490,7 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QStr
 
 template<>
 system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
-  QString cmd(dir + "/" + file_name);
+  QString cmd(dir + QDir::separator() + file_name);
   QStringList args0;
   args0 << "/install";
   qDebug() << "installing firefox:" << args0;
@@ -4717,7 +4717,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(cons
   }
 
   ext_path += QString("/.mozilla/firefox/%1/extensions/").arg(profile_folder);
-  QString cur_dir = dir + "/" + file_name;
+  QString cur_dir = dir + QDir::separator() + file_name;
   args.clear();
   cmd = "pkexec";
   args << "bash"
@@ -4782,7 +4782,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
   ext_path +=
       QString("/Library/Application\\\\ Support/Firefox/Profiles/%1/extensions/")
       .arg(profile_folder);
-  QString cur_dir = dir + "/" + file_name;
+  QString cur_dir = dir + QDir::separator() + file_name;
   args.clear();
   cmd = "osascript";
   args << "-e"
@@ -5043,7 +5043,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_firefox() {
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString &dir, const QString &file_name) {
   QString cmd = "open";
   QStringList args;
-  args << dir + "/" + file_name;
+  args << dir + QDir::separator() + file_name;
   qDebug() << "insalling e2e on safari"
            << "cmd:" << cmd
            << "args:" << args;
