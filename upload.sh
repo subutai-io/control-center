@@ -108,11 +108,15 @@ case $BRANCH in
         PKGNAME="subutai-control-center-master$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
         IPFSBIN="SubutaiControlCenter-master$BINARY_EXT"
+        cp subutai_control_center_bin/SubutaiControlCenter$BINARY_EXT subutai_control_center_bin/$IPFSBIN
+        cd subutai_control_center_bin
         IPFSURL=https://masterbazaar.subutai.io
         URL=https://mastercdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
+        upload_ipfs $PKGNAME $IPFSURL
+        upload_ipfs $IPFSBIN $IPFSURL
+        upload_cdn $PKGNAME $URL $VERSION
+        upload_cdn $BINNAME $URL $VERSION
+        upload_cdn $PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
