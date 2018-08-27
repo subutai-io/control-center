@@ -3148,7 +3148,7 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
   system_call_res_t cr2;
   QStringList args2;
 
-  args2 << sh_path << tmpFilePath << "--gtk" << "--required" << "--ignore-errors" << "--eulas-agreed";
+  args2 << sh_path << tmpFilePath << "--console" << "--required" << "--ignore-errors" << "--eulas-agreed";
 
   cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60 * 1); // 1 hour timeout
 
