@@ -104,7 +104,7 @@ chue_t CUpdaterComponentP2P::install_internal() {
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
-    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+    CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                         str_p2p_downloaded_path,
                                                         item->size());
 

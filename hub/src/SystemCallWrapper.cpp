@@ -7479,7 +7479,23 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version_cdn){
+  // new CDN doesn't provide version of CC
+  UNUSED_ARG(version_cdn);
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   qDebug() << "tray_post_update: version:" << version;
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
   // take product code
@@ -7532,7 +7548,23 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version_cdn){
+  // new CDN doesn't provide version of CC
+  UNUSED_ARG(version_cdn);
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   QDir dir(QApplication::applicationDirPath());
   dir.cdUp();
   QFile file(dir.absolutePath() + "/Info.plist");

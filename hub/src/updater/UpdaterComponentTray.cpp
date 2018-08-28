@@ -123,7 +123,7 @@ QString
 CUpdaterComponentTray::download_tray_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]) +
-                                QDir::separator() + TRAY;
+                                QDir::separator() + TRAY + "-dev";
 }
 
 ////////////////////////////////////////////////////////////////////////////

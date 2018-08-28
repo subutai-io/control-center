@@ -770,8 +770,8 @@ QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
 
 QNetworkReply* CRestWorker::download_file(const QUrl& url) {
   QNetworkRequest req(url);
-  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-                   QNetworkRequest::AlwaysNetwork);
+  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+  req.setMaximumRedirectsAllowed(1);
   QNetworkReply* reply = m_network_manager->get(req);
   reply->ignoreSslErrors();
   return reply;
