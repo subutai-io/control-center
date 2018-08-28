@@ -185,7 +185,7 @@ CUpdaterComponentP2P::update_internal() {
     return CHUE_SUCCESS;
   }
 
-  CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+  CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                       str_p2p_downloaded_path,
                                                       item->size());
   connect(dm, &CDownloadFileManager::download_progress_sig,

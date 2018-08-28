@@ -67,7 +67,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm = new CDownloadFileManager(
-      item->id(), str_vmware_downloaded_path, item->size());
+      item->name(), str_vmware_downloaded_path, item->size());
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_VMWARE);

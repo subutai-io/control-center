@@ -68,7 +68,7 @@ chue_t CUpdaterComponentVIRTUALBOX::install_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm = new CDownloadFileManager(
-      item->id(), str_oracle_virtualbox_downloaded_path, item->size());
+      item->name(), str_oracle_virtualbox_downloaded_path, item->size());
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_VB);
@@ -129,7 +129,7 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
     CDownloadFileManager *dm = new CDownloadFileManager(
-        item->id(), str_oracle_virtualbox_downloaded_path, item->size());
+        item->name(), str_oracle_virtualbox_downloaded_path, item->size());
 
     SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
     silent_uninstaller->init(file_dir, file_name, CC_VB);
