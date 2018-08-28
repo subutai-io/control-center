@@ -119,7 +119,8 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
     QString str_oracle_virtualbox_downloaded_path = file_dir + QDir::separator() + file_name;
 
     std::vector<CGorjunFileInfo> fi =
-        CRestWorker::Instance()->get_gorjun_file_info(file_name);
+        CRestWorker::Instance()->get_gorjun_file_info(
+          file_name, "https://bazaar.subutai.io/rest/v1/cdn/raw");
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun",
                 m_component_id.toStdString().c_str());
@@ -130,6 +131,7 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
 
     CDownloadFileManager *dm = new CDownloadFileManager(
         item->name(), str_oracle_virtualbox_downloaded_path, item->size());
+    dm->set_link("https://bazaar.subutai.io/rest/v1/cdn/raw");
 
     SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
     silent_uninstaller->init(file_dir, file_name, CC_VB);
