@@ -23,9 +23,8 @@ bool is_update_available_vmware_utility_th() {
   QFuture<bool> res =
       QtConcurrent::run(non_static_vmware_utility_update_available);
   watcher->setFuture(res);
-  QObject::connect(watcher, &QFutureWatcher<bool>::finished, [res]() {
-    return !res.result();
-  });
+  watcher->waitForFinished();
+  return res.result();
 }
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
@@ -84,7 +83,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         tr("Vagrant VMware Utility is not ready. You should install it from "
            "Components"),
         DlgNotification::N_ABOUT, []() {
-          return is_update_available_vmware_utility_th();
+          return !is_update_available_vmware_utility_th();
         });
 
   requirement vagrant(
