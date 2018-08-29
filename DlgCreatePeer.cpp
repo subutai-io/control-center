@@ -12,6 +12,22 @@
 #include "updater/HubComponentsUpdater.h"
 #include <QMessageBox>
 
+bool non_static_vmware_utility_update_available() {
+  QString version;
+  CSystemCallWrapper::vmware_utility_version(version);
+  return version == "undefined";
+}
+
+bool is_update_available_vmware_utility_th() {
+  QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+  QFuture<bool> res =
+      QtConcurrent::run(non_static_vmware_utility_update_available);
+  watcher->setFuture(res);
+  QObject::connect(watcher, &QFutureWatcher<bool>::finished, [res]() {
+    return !res.result();
+  });
+}
+
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
       m_password_state(0),
@@ -68,8 +84,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
         tr("Vagrant VMware Utility is not ready. You should install it from "
            "Components"),
         DlgNotification::N_ABOUT, []() {
-          return !CHubComponentsUpdater::Instance()->is_update_available(
-                IUpdaterComponent::VMWARE_UTILITY);
+          return is_update_available_vmware_utility_th();
         });
 
   requirement vagrant(
