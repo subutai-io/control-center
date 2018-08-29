@@ -75,7 +75,7 @@ void DlgRegisterPeer::registerPeer() {
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
     QString token;
-    static int err_code, http_code, network_error, dialog_id = ip_addr.toInt() - 9999;
+    static int err_code, http_code, network_error;
     CRestWorker::Instance()->peer_token(ip_addr, login, password,
                                         token, err_code, http_code, network_error);
     const QString peer_name = ui->lne_peername->text();
@@ -86,14 +86,14 @@ void DlgRegisterPeer::registerPeer() {
             << "Http code " << http_code
             << "Error code " << err_code
             << "Network Error " << network_error;
-    if(!dialog_used[dialog_id]) return;
+    if(!dialog_used[ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error);
     if(kill_me){
         CRestWorker::Instance()->peer_register(ip_addr, token,
                                                CHubController::Instance().current_email(), CSettingsManager::Instance().password(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error);
-        if(!dialog_used[dialog_id]) return;
+        if(!dialog_used[ip_addr.toInt() - 9999]) return;
         bool kill_me = check_errors(err_code, http_code, network_error);
         if (kill_me){
             CHubController::Instance().force_refresh();
@@ -120,7 +120,7 @@ void DlgRegisterPeer::unregisterPeer(){
     const QString login=ui->lne_username->text();
     const QString password=ui->lne_password->text();
     QString token;
-    static int err_code, http_code, network_error, dialog_id = ip_addr.toInt() - 9999;
+    static int err_code, http_code, network_error;
     ui->btn_cancel->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->lne_password->setEnabled(false);
@@ -134,11 +134,11 @@ void DlgRegisterPeer::unregisterPeer(){
             << "Error code " << err_code
             << "Network Error " << network_error;
 
-    if(!dialog_used[dialog_id]) return;
+    if(!dialog_used[ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error);
     if(kill_me){
         CRestWorker::Instance()->peer_unregister(ip_addr, token, err_code, http_code, network_error);
-        if(!dialog_used[dialog_id]) return;
+        if(!dialog_used[ip_addr.toInt() - 9999]) return;
         kill_me = check_errors(err_code, http_code, network_error);
         if (kill_me){
             dialog_running[ip_addr.toInt() - 9999] = 0;
@@ -237,9 +237,9 @@ bool DlgRegisterPeer::check_errors(const int &err_code,
 
 void DlgRegisterPeer::init(const QString local_ip,
                            const QString name){
-    ip_addr = local_ip;
+    ip_addr = local_ip.toStdString().c_str();
     dialog_used[ip_addr.toInt() - 9999] = 1;
-    peer_name = name;
+    peer_name = name.toStdString().c_str();
     ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
     ui->lne_peername->setText(this->peer_name);
 }
