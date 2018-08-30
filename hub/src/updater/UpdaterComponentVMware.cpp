@@ -49,7 +49,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
   QString file_name = vmware_kurjun_package_name();
@@ -61,7 +61,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
@@ -79,7 +79,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
@@ -109,7 +109,7 @@ chue_t CUpdaterComponentVMware::uninstall_internal() {
           "Please stop all your running virtual machines and press \'Yes\" to continue."),
       QMessageBox::Yes | QMessageBox::No);
   if(msg_box->exec() != QMessageBox::Yes) {
-    uninstall_finished_sl(false);
+    uninstall_finished_sl(false, tr("undefined"));
     return CHUE_FAILED;
   }
 

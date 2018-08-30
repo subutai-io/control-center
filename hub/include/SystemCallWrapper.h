@@ -55,6 +55,11 @@ struct system_call_res_t {
   QStringList out;
   int exit_code;
 };
+
+struct system_call_wrapper_install_t {
+  system_call_wrapper_error_t res;
+  QString version;
+};
 ////////////////////////////////////////////////////////////////////////////
 
 enum restart_service_error_t { RSE_SUCCESS, RSE_MANUAL };
@@ -170,7 +175,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_destroy(const QString &dir);
   static system_call_wrapper_error_t vagrant_init(const QString &dir, const QString &box);
   static system_call_wrapper_error_t vagrant_box_update(const QString &box, const QString &provider);
-  static system_call_wrapper_error_t vagrant_box_remove(const QString &box, const QString &provider);
+  static system_call_wrapper_install_t vagrant_box_remove(const QString &box, const QString &provider);
   static QString vagrant_status(const QString &dir);
   static QString vagrant_ip(const QString &dir);
   static QString vagrant_port(const QString &dir);
@@ -210,34 +215,34 @@ class CSystemCallWrapper {
 
   static QStringList parallels_interfaces();
 
-  static system_call_wrapper_error_t install_p2p(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_p2p(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_x2go(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_x2go();
+  static system_call_wrapper_install_t install_x2go(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_x2go();
 
-  static system_call_wrapper_error_t install_vagrant(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_vagrant(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_vagrant(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_vagrant(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_oracle_virtualbox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_oracle_virtualbox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_oracle_virtualbox(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_vmware(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_vmware(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t install_parallels(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_parallels(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_vmware(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_vmware(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_parallels(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_parallels(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_vmware_utility(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_vmware_utility(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_chrome(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_chrome(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_chrome(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_chrome(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_firefox(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_firefox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_firefox(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_firefox(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_e2e(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_e2e();
+  static system_call_wrapper_install_t install_e2e(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_e2e();
 
   static system_call_wrapper_error_t install_e2e_chrome();
   static system_call_wrapper_error_t uninstall_e2e_chrome();
@@ -248,14 +253,14 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t install_e2e_safari(const QString &dir, const QString &file_name);
   static system_call_wrapper_error_t uninstall_e2e_safari();
 
-  static system_call_wrapper_error_t install_vagrant_subutai();
+  static system_call_wrapper_install_t install_vagrant_subutai();
 
-  static system_call_wrapper_error_t install_vagrant_vbguest();
+  static system_call_wrapper_install_t install_vagrant_vbguest();
 
-  static system_call_wrapper_error_t install_subutai_box(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t install_subutai_box(const QString &dir, const QString &file_name);
 
-  static system_call_wrapper_error_t install_xquartz(const QString &dir, const QString &file_name);
-  static system_call_wrapper_error_t uninstall_xquartz();
+  static system_call_wrapper_install_t install_xquartz(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t uninstall_xquartz();
 
   static void run_linux_script(QStringList args);
 
@@ -349,7 +354,7 @@ class CSystemCallWrapper {
   static bool set_application_autostart(bool start);
   static bool application_autostart();
 
-  static system_call_wrapper_error_t vagrant_plugin(const QString& name,
+  static system_call_wrapper_install_t vagrant_plugin(const QString& name,
                                                     const QString& command);
 
   struct container_ip_and_port {

@@ -27,6 +27,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <thread>
+#include <chrono>
 
 #ifdef RT_OS_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
@@ -1781,10 +1783,11 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_update(const QString
     return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
+system_call_wrapper_install_t CSystemCallWrapper::vagrant_box_remove(const QString &box,
                                                                    const QString &provider) {
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;   // vagrant box remove box_name --provider provider_name --all
+  QString version;
 
   args << "box"
        << "remove"
@@ -1793,6 +1796,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
        << provider
        << "--all";
 
+  system_call_wrapper_install_t res_install;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
 
   qDebug() << "Removing vagrant box: "
@@ -1806,7 +1810,14 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_box_remove(const QString
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
   }
-  return res.res;
+  res_install.res = res.res;
+
+  if (res_install.res == SCWE_SUCCESS) {
+    vagrant_latest_box_version(box, provider, version);
+    res_install.version = version;
+  }
+
+  return res_install;
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class OS>
@@ -1819,7 +1830,7 @@ template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
@@ -1861,7 +1872,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_WIN> >(const QStrin
 
 template<>
 system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2046,16 +2057,25 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
   return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
-    system_call_wrapper_error_t res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+    system_call_wrapper_install_t res;
+    res.res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
     installer_is_busy.unlock();
     return res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_p2p_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_p2p_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    p2p_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -2068,7 +2088,7 @@ template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
                   "cp -R /Volumes/x2goclient/x2goclient.app /Applications/x2goclient.app \" with administrator privileges").arg(file_path);
@@ -2078,7 +2098,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_MAC> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
-    QString cmd(dir+"/"+file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "/S";
 
@@ -2100,7 +2120,7 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2188,9 +2208,17 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QSt
     return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
     installer_is_busy.lock();
-    system_call_wrapper_error_t res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+    QString version;
+    system_call_wrapper_install_t res;
+    res.res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+
+    if (res.res == SCWE_SUCCESS) {
+      x2go_version(version);
+      res.version = version;
+    }
+
     installer_is_busy.unlock();
     return res;
 }
@@ -2329,9 +2357,17 @@ system_call_wrapper_error_t uninstall_x2go_internal< Os2Type <OS_MAC> >() {
   return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_x2go() {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_x2go() {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_x2go_internal<Os2Type <CURRENT_OS> >();
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_x2go_internal<Os2Type <CURRENT_OS> >();
+
+  if (res.res == SCWE_SUCCESS) {
+    x2go_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -2347,7 +2383,7 @@ template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
@@ -2382,7 +2418,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_WIN> >(const QS
 }
 template<>
 system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name){
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -2468,7 +2504,7 @@ system_call_wrapper_error_t install_vagrant_internal<Os2Type <OS_LINUX> >(const 
             <<"pkexec_path:"<<pkexec_path
             <<"args2:"<<args2;
 
-    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60000);
+    cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60);
     qDebug()<<"Vagrant installation finished:"
             <<"exit code:"<<cr2.exit_code
             <<"result code:"<<cr2.res
@@ -2508,7 +2544,7 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_LINUX> >(cons
        << "-y"
        << "vagrant";
 
-  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 97);
+  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 1000 * 60 * 60);
 
   qDebug() << "Uninstallation of Vagrant finished: "
            << "exit code: "
@@ -2594,16 +2630,32 @@ system_call_wrapper_error_t uninstall_vagrant_internal<Os2Type <OS_WIN> >(const 
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_vagrant(const QString &dir, const QString &file_name){
    installer_is_busy.lock();
-   system_call_wrapper_error_t res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+   QString version;
+   system_call_wrapper_install_t res;
+   res.res = install_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+
+   if (res.res == SCWE_SUCCESS) {
+     vagrant_version(version);
+     res.version = version;
+   }
+
    installer_is_busy.unlock();
    return res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_vagrant(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_vagrant(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_vagrant_internal<Os2Type <CURRENT_OS> >(dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    vagrant_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -2615,7 +2667,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_vagrant(const QString 
 /// accepted commands are: uninstall, install, update
 /// \return
 ///
-system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &name,
+system_call_wrapper_install_t CSystemCallWrapper::vagrant_plugin(const QString &name,
                                                                const QString &command) {
   installer_is_busy.lock();
   qDebug() << QString("Vagrant plugin %1 %2 started.")
@@ -2628,22 +2680,32 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin(const QString &na
        << command // might be: uninstall, install, update
        << name;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 3);
+  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 10); // 10 minutes timeout
+
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)
            << " Exist code: "
-           << res.exit_code
+           << res_t.exit_code
            << " Result: "
-           << res.res
+           << res_t.res
            << " Output: "
-           << res.out;
+           << res_t.out;
 
-  if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-          res.res = SCWE_CREATE_PROCESS;
+  if(res_t.res == SCWE_SUCCESS && res_t.exit_code != 0)
+          res_t.res = SCWE_CREATE_PROCESS;
+
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = res_t.res;
+
+  if (res.res == SCWE_SUCCESS) {
+    vagrant_plugin_version(version, name);
+    res.version = version;
+  }
 
   installer_is_busy.unlock();
-  return res.res;
+  return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                         INSTALLATION VAGRANT VMWARE UTILITY                                        ///
@@ -2655,7 +2717,7 @@ template <>
 system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name) {
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1;\"").arg(file_path);
@@ -2680,7 +2742,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_MAC> >(c
   args << "-e"
        << QString("do shell script \"installer -pkg /Volumes/Vagrant\\\\ VMware\\\\ Utility/*.pkg -target /\" with administrator privileges");
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 10);
 
   if (res.exit_code != 0) {
     res.res = SCWE_CREATE_PROCESS;
@@ -2703,7 +2765,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_WIN> >(c
           <<"Starting installation Vagrant VMware Utility:"
           <<args0;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args0, true, true,  1000 * 60 * 10);
 
   if(res.exit_code != 0 && res.res == SCWE_SUCCESS)
       res.res = SCWE_CREATE_PROCESS;
@@ -2770,9 +2832,18 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
   }
 
   QByteArray install_script = QString(
-    "#!/bin/bash\n"
-    "apt install -y %1"
-    "\n").arg(file_path).toUtf8();
+                                  "#!/bin/bash\n"
+                                  "dpkg -i %1\n"
+                                  "if [ $? -gt 0 ]\n"
+                                  "then\n"
+                                  "dpkg --remove --force-remove-reinstreq %1\n"
+                                  "apt-get install -y -f\n"
+                                  "dpkg -i %1\n"
+                                  "else\n"
+                                  "rm %1\n"
+                                  "fi\n")
+                                  .arg(file_path)
+                                  .toUtf8();
 
   qDebug() << "Vagrant VMware utility installation "
            << "dir: "
@@ -2809,7 +2880,7 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
 
   args2 << sh_path << tmpFilePath;
 
-  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 10); // 10 minutes
 
   qDebug() << "Vagrant VMware utility installation finished"
            << "error code:"
@@ -2819,17 +2890,35 @@ system_call_wrapper_error_t install_vmware_utility_internal<Os2Type <OS_LINUX> >
            << "result: "
            << cr2.res;
 
-  tmpFile.remove();
-
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
+
+  tmpFile.remove();
 
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_vmware_utility(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_vmware_utility(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = install_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  QString vmware_ver;
+  QString version;
+  system_call_wrapper_install_t res;
+  vmware_version(vmware_ver);
+
+  if (vmware_ver == "undefined") {
+    qCritical() << "Install VMware first";
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+
+  res.res = install_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    vmware_utility_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -2924,7 +3013,7 @@ system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX>
        << "-y"
        << "vagrant-vmware-utility";
 
-  scr = CSystemCallWrapper::ssystem_th(QString("pkexec"), args, false, true, 97);
+  scr = CSystemCallWrapper::ssystem_th(pkexec_path, args, true, true, 97);
 
   qDebug() << "Uninstallation of Vagrant VMware Utility finished: "
            << "exit code: "
@@ -2942,9 +3031,26 @@ system_call_wrapper_error_t uninstall_vmware_utility_internal<Os2Type <OS_LINUX>
   return scr.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware_utility(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_vmware_utility(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  QString vmware_ver;
+  QString version;
+  vmware_version(vmware_ver);
+  system_call_wrapper_install_t res;
+
+  if (vmware_ver == "undefined") {
+    qCritical() << "Install VMware first";
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  res.res = uninstall_vmware_utility_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    vmware_utility_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -2967,13 +3073,13 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
                   "cp -R /Volumes/VMware\\\\ Fusion/VMware\\\\ Fusion.app/ /Applications/VMware\\\\ Fusion.app; open -a VMware\\\\ Fusion.app;\" with administrator privileges").arg(file_path);
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 60); // 1 hour timeout
 
   if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
     qCritical() << "Failed installation VMware Fusion: "
@@ -2991,7 +3097,7 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_MAC> >(const QSt
 template <>
 system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
   // VMware-workstation-full-14.1.2-8497320.exe /s /v"/qn EULAS_AGREED=1
-  QString cmd(dir + "/" + file_name);
+  QString cmd(dir + QDir::separator() + file_name);
   QStringList args;
 
   qDebug() << "Installing package VMware: "
@@ -3054,9 +3160,9 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
   system_call_res_t cr2;
   QStringList args2;
 
-  args2 << sh_path << tmpFilePath << "--gtk" << "--eulas-agreed" << "-I" << "--required";
+  args2 << sh_path << tmpFilePath << "--console" << "--required" << "--ignore-errors" << "--eulas-agreed";
 
-  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 97);
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 1000 * 60 * 60 * 1); // 1 hour timeout
 
   qDebug() << "VMware worstation installation finished"
            << "error code:"
@@ -3072,9 +3178,17 @@ system_call_wrapper_error_t install_vmware_internal<Os2Type <OS_LINUX> >(const Q
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_vmware(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_vmware(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = install_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = install_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    vmware_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -3215,9 +3329,16 @@ system_call_wrapper_error_t uninstall_vmware_internal<Os2Type <OS_LINUX> >(const
   return scr.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_vmware(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_vmware_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    vmware_version(version);
+    res.version = version;
+  }
   installer_is_busy.unlock();
 
   return res;
@@ -3226,13 +3347,14 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_vmware(const QString &
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                 INSTALLATION Parallels Desktop                                     ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::install_parallels(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_parallels(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
   qDebug() << "Installation Parallels Desktop";
 
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString version;
+  QString file_path  = dir + QDir::separator() + file_name;
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
@@ -3240,6 +3362,8 @@ system_call_wrapper_error_t CSystemCallWrapper::install_parallels(const QString 
                   "open -a Parallels\\\\ Desktop.app;\" with administrator privileges").arg(file_path);
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_wrapper_install_t res_install;
+  res_install.res = res.res;
 
   if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
     qCritical() << "Failed installation Parallels Desktop: "
@@ -3248,25 +3372,34 @@ system_call_wrapper_error_t CSystemCallWrapper::install_parallels(const QString 
                 << res.exit_code
                 << res.out;
 
-    return SCWE_CREATE_PROCESS;
+    res_install.res = SCWE_CREATE_PROCESS;
+    return res_install;
+  }
+
+  if (res_install.res == SCWE_SUCCESS) {
+    parallels_version(version);
+    res_install.version = version;
   }
 
   installer_is_busy.unlock();
-  return res.res;
+  return res_install;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                 UNINSTALLATION Parallels Desktop                                     ///
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_parallels(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
   UNUSED_ARG(dir);
   UNUSED_ARG(file_name);
+  QString version;
+  system_call_wrapper_install_t res_install;
 
   if (!QDir("/Applications/Parallels Desktop.app/").exists()) {
     qDebug() << "Can't find Parallels Desktop path: /Applications/Parallels Desktop.app";
-    return SCWE_COMMAND_FAILED;
+    res_install.res = SCWE_CREATE_PROCESS;
+    return res_install;
   }
 
   QString cmd("osascript");
@@ -3279,7 +3412,8 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_parallels(const QStrin
 
   if (res.exit_code != 0) {
     qDebug() << "Failed to quit Parallels Desktop application";
-    return SCWE_COMMAND_FAILED;
+    res_install.res = SCWE_COMMAND_FAILED;
+    return res_install;
   }
 
   args.clear();
@@ -3296,11 +3430,17 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_parallels(const QStrin
   system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
 
   if (rs.exit_code != 0) {
-    return SCWE_COMMAND_FAILED;
+    res_install.res = SCWE_COMMAND_FAILED;
+    return res_install;
+  }
+
+  if (res_install.res == SCWE_SUCCESS) {
+    parallels_version(version);
+    res_install.version = version;
   }
 
   installer_is_busy.unlock();
-  return rs.res;
+  return res_install;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class OS>
@@ -3309,7 +3449,7 @@ template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> >(const QString &dir, const QString &file_name){
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
   qDebug()
@@ -3327,7 +3467,7 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_MAC> 
 }
 template<>
 system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name){
-    QString cmd(dir + "/" + file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "--silent";
 
@@ -3460,9 +3600,17 @@ system_call_wrapper_error_t install_oracle_virtualbox_internal<Os2Type <OS_LINUX
 
     return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_oracle_virtualbox(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
-    system_call_wrapper_error_t res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+    QString version;
+    system_call_wrapper_install_t res;
+    res.res = install_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+    if (res.res == SCWE_SUCCESS) {
+      oracle_virtualbox_version(version);
+      res.version = version;
+    }
+
     installer_is_busy.unlock();
     return res;
 }
@@ -3475,7 +3623,7 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_MAC>
   // run downloaded uninstallation script easy
   QString cmd("osascript");
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"chmod +x %1; %1 --unattended\" with administrator privileges").arg(file_path);
   qDebug() << "ARGS=" << args;
@@ -3644,9 +3792,17 @@ system_call_wrapper_error_t uninstall_oracle_virtualbox_internal<Os2Type<OS_WIN>
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) return SCWE_CREATE_PROCESS;
   return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_oracle_virtualbox(const QString &dir, const QString &file_name){
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_oracle_virtualbox_internal<Os2Type<CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    oracle_virtualbox_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
   return res;
 }
@@ -3662,7 +3818,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
     qInfo() << "CC started to install google chrome";
     QString cmd("osascript");
     QStringList args;
-    QString file_path  = dir + "/" + file_name;
+    QString file_path  = dir + QDir::separator() + file_name;
     args << "-e"
          << QString("do shell script \"hdiutil attach -nobrowse %1; "
                     "cp -R /Volumes/Google\\\\ Chrome/Google\\\\ Chrome.app /Applications/Google\\\\ Chrome.app \" with administrator privileges").arg(file_path);
@@ -3678,7 +3834,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_MAC> > (const QS
 }
 template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const QString& dir, const QString &file_name) {
-    QString file_info = dir + "/" + file_name;
+    QString file_info = dir + QDir::separator() + file_name;
     QString pkexec_path;
     system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
     if (scr != SCWE_SUCCESS) {
@@ -3782,7 +3938,7 @@ system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_LINUX> > (const 
 
 template<>
 system_call_wrapper_error_t install_chrome_internal<Os2Type <OS_WIN> >(const QString &dir, const QString &file_name) {
-    QString cmd(dir+"/"+file_name);
+    QString cmd(dir + QDir::separator() + file_name);
     QStringList args0;
     args0 << "/install";
 
@@ -3972,17 +4128,34 @@ system_call_wrapper_error_t uninstall_chrome_internal<Os2Type <OS_MAC> > (const 
   return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_chrome(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+
+  system_call_wrapper_install_t res;
+  QString version;
+  res.res = install_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    chrome_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_chrome(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_chrome(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_chrome_internal <Os2Type <CURRENT_OS> > (dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    chrome_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
 
   return res;
@@ -4111,16 +4284,24 @@ system_call_wrapper_error_t CSystemCallWrapper::install_e2e_chrome(){
     installer_is_busy.unlock();
     return res;
 }
-system_call_wrapper_error_t CSystemCallWrapper::install_e2e(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_e2e(const QString &dir, const QString &file_name) {
+  system_call_wrapper_install_t res;
+  QString version;
   QString current_browser = CSettingsManager::Instance().default_browser();
   if (current_browser == "Chrome") {
-    return install_e2e_chrome();
+    res.res = install_e2e_chrome();
   } else if (current_browser == "Firefox") {
-    return install_e2e_firefox(dir, file_name);
+    res.res = install_e2e_firefox(dir, file_name);
   } else if (current_browser == "Safari") {
-    return install_e2e_safari(dir, file_name);
+    res.res = install_e2e_safari(dir, file_name);
   }
-  return SCWE_SUCCESS;
+
+  if (res.res == SCWE_SUCCESS) {
+    subutai_e2e_version(version);
+    res.version = version;
+  }
+
+  return res;
 }
 
 template<class OS>
@@ -4285,7 +4466,7 @@ system_call_wrapper_error_t install_firefox_internal(const QString &dir, const Q
 
 template<>
 system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
-  QString file_info =  dir + "/" + file_name;
+  QString file_info =  dir + QDir::separator() + file_name;
   QString pkexec_path;
   system_call_wrapper_error_t scr =
       CSystemCallWrapper::which("pkexec", pkexec_path);
@@ -4398,7 +4579,7 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QStr
   qInfo() << "CC started to install firefox";
   QString cmd("osascript");
   QStringList args;
-  QString file_path = dir + "/" + file_name;
+  QString file_path = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"hdiutil attach -nobrowse %1; "
                   "cp -R /Volumes/Firefox/Firefox.app "
@@ -4420,7 +4601,7 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_MAC>>(const QStr
 
 template<>
 system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_WIN>>(const QString &dir, const QString &file_name) {
-  QString cmd(dir + "/" + file_name);
+  QString cmd(dir + QDir::separator() + file_name);
   QStringList args0;
   args0 << "/install";
   qDebug() << "installing firefox:" << args0;
@@ -4438,9 +4619,17 @@ system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_WIN>>(const QStr
   return res.res;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::install_firefox(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_firefox(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = install_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = install_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    firefox_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
   return res;
 }
@@ -4584,9 +4773,17 @@ system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_WIN>>(const QS
   return SCWE_SUCCESS;
 }
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_firefox(const QString &dir, const QString &file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_firefox(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  system_call_wrapper_error_t res = uninstall_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+  QString version;
+  system_call_wrapper_install_t res;
+  res.res = uninstall_firefox_internal<Os2Type<CURRENT_OS>>(dir, file_name);
+
+  if (res.res == SCWE_SUCCESS) {
+    firefox_version(version);
+    res.version = version;
+  }
+
   installer_is_busy.unlock();
   return res;
 }
@@ -4631,7 +4828,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_LINUX>>(cons
   }
 
   ext_path += QString("/.mozilla/firefox/%1/extensions/").arg(profile_folder);
-  QString cur_dir = dir + "/" + file_name;
+  QString cur_dir = dir + QDir::separator() + file_name;
   args.clear();
   cmd = "pkexec";
   args << "bash"
@@ -4696,7 +4893,7 @@ system_call_wrapper_error_t install_e2e_firefox_internal<Os2Type<OS_MAC>>(const 
   ext_path +=
       QString("/Library/Application\\\\ Support/Firefox/Profiles/%1/extensions/")
       .arg(profile_folder);
-  QString cur_dir = dir + "/" + file_name;
+  QString cur_dir = dir + QDir::separator() + file_name;
   args.clear();
   cmd = "osascript";
   args << "-e"
@@ -4957,7 +5154,7 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_firefox() {
 system_call_wrapper_error_t CSystemCallWrapper::install_e2e_safari(const QString &dir, const QString &file_name) {
   QString cmd = "open";
   QStringList args;
-  args << dir + "/" + file_name;
+  args << dir + QDir::separator() + file_name;
   qDebug() << "insalling e2e on safari"
            << "cmd:" << cmd
            << "args:" << args;
@@ -5176,36 +5373,49 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e_safari() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_e2e() {
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_e2e() {
   QString current_browser = CSettingsManager::Instance().default_browser();
+  QString version;
+  system_call_wrapper_install_t res;
+
   if (current_browser == "Chrome") {
-    return uninstall_e2e_chrome();
+    res.res = uninstall_e2e_chrome();
   } else if (current_browser == "Firefox") {
-    return uninstall_e2e_firefox();
+    res.res = uninstall_e2e_firefox();
   } else if (current_browser == "Safari") {
-    return uninstall_e2e_safari();
+    res.res = uninstall_e2e_safari();
   }
-  return SCWE_SUCCESS;
+
+  if (res.res == SCWE_SUCCESS) {
+    subutai_e2e_version(version);
+    res.version = version;
+  }
+
+  return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_subutai_box(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
+    QString version;
+    system_call_wrapper_install_t res;
     QString subutai_box = subutai_box_name();
     QString subutai_provider = VagrantProvider::Instance()->CurrentVal();
-    system_call_wrapper_error_t res = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);
-    if(res == SCWE_SUCCESS){
+    system_call_wrapper_error_t res_t = vagrant_add_box(subutai_box, subutai_provider, dir + QDir::separator() + file_name);
+    if(res_t == SCWE_SUCCESS) {
         QStringList lst_home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
         if(lst_home.isEmpty()){
             qCritical() << "Failed to get home directory";
             installer_is_busy.unlock();
-            return SCWE_CREATE_PROCESS;
+            res.res = SCWE_CREATE_PROCESS;
+            return res;
         }
         QDir boxes_path(lst_home[0] + QDir::separator() + ".vagrant.d" + QDir::separator() + "boxes");
         if(!boxes_path.exists()){
             qCritical() << "Vagrant is not installed correctly";
             installer_is_busy.unlock();
-            return SCWE_CREATE_PROCESS;
+            res.res = SCWE_CREATE_PROCESS;
+            return res;
         }
         QStringList parsed_box = subutai_box.split("/");
         QDir new_box_path(boxes_path.absolutePath() + QDir::separator() +
@@ -5214,13 +5424,15 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
         if(!new_box_path.exists()){
             qCritical() << "vagrant box is not correctly installed";
             installer_is_busy.unlock();
-            return SCWE_CREATE_PROCESS;
+            res.res = SCWE_CREATE_PROCESS;
+            return res;
         }
         QString cloud_version = CRestWorker::Instance()->get_vagrant_box_cloud_version(subutai_box, subutai_provider);
         if(cloud_version == "undefined"){
             qCritical() << "couldn't get box cloud version";
             installer_is_busy.unlock();
-            return SCWE_CREATE_PROCESS;
+            res.res = SCWE_CREATE_PROCESS;
+            return res;
         }
         QDir cloud_box_path(boxes_path.absolutePath() + QDir::separator() +
                           parsed_box[0] + "-VAGRANTSLASH-" + parsed_box[1] +
@@ -5229,14 +5441,16 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
             if(!cloud_box_path.mkdir(cloud_box_path.absolutePath())){
                 qCritical() << "Failed to create directory for the new installed box";
                 installer_is_busy.unlock();
-                return SCWE_CREATE_PROCESS;
+                res.res = SCWE_CREATE_PROCESS;
+                return res;
             }
         }
         QDir move;
         if(!move.rename(new_box_path.absolutePath(), cloud_box_path.absolutePath() + QDir::separator() + subutai_provider)){
             qCritical() << "failed to move" << new_box_path.absolutePath()
                         << "to" << cloud_box_path.absolutePath();
-            res = SCWE_CREATE_PROCESS;
+            res.res = SCWE_CREATE_PROCESS;
+            return res;
         }
         QString metada_url(boxes_path.absolutePath() + QDir::separator() +
                            parsed_box[0] + "-VAGRANTSLASH-" + parsed_box[1] + QDir::separator() + "metadata_url");
@@ -5249,36 +5463,58 @@ system_call_wrapper_error_t CSystemCallWrapper::install_subutai_box(const QStrin
             } else {
                 qCritical() << "failed to created metadata_url file:" << file_info.absoluteFilePath();
                 installer_is_busy.unlock();
-                return SCWE_CREATE_PROCESS;
+                res.res = SCWE_CREATE_PROCESS;
+                return res;
             }
         }
     }
+    res.res = res_t;
+
+    if (res.res == SCWE_SUCCESS) {
+      vagrant_latest_box_version(subutai_box, subutai_provider, version);
+      res.version = version;
+    }
+
     installer_is_busy.unlock();
     return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-system_call_wrapper_error_t CSystemCallWrapper::install_xquartz(const QString &dir,
-                                                                const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_xquartz(const QString &dir,
+                                                                const QString &file_name) {
+  installer_is_busy.lock();
   QString cmd("osascript");
+  QString version;
   QStringList args;
-  QString file_path  = dir + "/" + file_name;
+  QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_wrapper_install_t res;
+  system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   qDebug() << "xquartz installation has finished"
-           << "exit code: " << res.exit_code
-           << "result code: " << res.res
-           << "output: " << res.out;
-  if (res.exit_code != 0) {
-    res.res = SCWE_CREATE_PROCESS;
+           << "exit code: " << res_t.exit_code
+           << "result code: " << res_t.res
+           << "output: " << res_t.out;
+
+  if (res_t.exit_code != 0) {
+    res_t.res = SCWE_CREATE_PROCESS;
   }
-  return res.res;
+  res.res = res_t.res;
+
+  if (res.res == SCWE_SUCCESS) {
+    xquartz_version(version);
+    res.version = version;
+  }
+
+  installer_is_busy.unlock();
+  return res;
 }
-system_call_wrapper_error_t CSystemCallWrapper::uninstall_xquartz(){
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_xquartz() {
   qDebug("Uninstalling xquartz");
   // sudo launchctl unload /Library/LaunchDaemons/io.subutai.p2p.daemon.plist
   QString cmd("osascript");
   QStringList args;
+  QString version;
+  system_call_wrapper_install_t res_install;
 
   args << "-e"
        << QString("do shell script \"launchctl unload /Library/LaunchDaemons/org.macosforge.xquartz.privileged_startx.plist; "
@@ -5286,7 +5522,14 @@ system_call_wrapper_error_t CSystemCallWrapper::uninstall_xquartz(){
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
   if (res.exit_code != 0) res.res = SCWE_CREATE_PROCESS;
 
-  return res.res;
+  res_install.res = res.res;
+
+  if (res_install.res == SCWE_SUCCESS) {
+    xquartz_version(version);
+    res_install.version = version;
+  }
+
+  return res_install;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::install_libssl(){
@@ -6264,7 +6507,32 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_WIN> >(QS
     }
   }
 
-  return SCWE_SUCCESS;
+  return SCWE_SUCCESS;/*
+
+  version = "undefined";
+
+  QString path;
+  QString cmd("REG");
+  QStringList args;
+  args << "QUERY"
+       << "HKLM\\SYSTEM\\CurrentControlSet\\Services\\VagrantVMware";
+  qDebug() << "REG QUERY started"
+           << "args:" << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "REG QUERY finished:"
+           << "exit code:" << res.exit_code
+           << "output:" << res.out;
+
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    qCritical() << "REG QUERY failed.";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  version = "installed";
+
+  return SCWE_SUCCESS;*/
 }
 
 template <>
@@ -6291,6 +6559,13 @@ system_call_wrapper_error_t vmware_utility_version_internal<Os2Type<OS_LINUX> >(
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &version) {
+  //std::this_thread::sleep_for(std::chrono::milliseconds(20 * 1000));
+  QString vmware_ver;
+  vmware_version(vmware_ver);
+  if (vmware_ver == "undefined") {
+    version = "Install VMware first";
+    return SCWE_SUCCESS;
+  }
   return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
 }
 
@@ -7584,4 +7859,3 @@ void CProcessHandler::clear_proc(){
     m_proc_mutex.unlock();
 }
 ////////////////////////////////////////////////////////////////////////////
-

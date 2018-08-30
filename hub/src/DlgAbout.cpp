@@ -131,7 +131,6 @@ void DlgAbout::set_visible_libvirt(bool value) {
   ui->cb_provider_libvirt->setVisible(value);
   ui->pb_provider_libvirt->setVisible(value);
   ui->hl_vagrant_libvirt->setEnabled(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -178,7 +177,6 @@ void DlgAbout::set_visible_virtualbox(bool value) {
   ui->pb_vbguest_plugin->setVisible(value);
   ui->btn_vbguest_plugin_update->setVisible(value);
   ui->cb_vagrant_vbguest_plugin->setVisible(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -212,7 +210,6 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->cb_provider_vmware_utility->setVisible(value);
   ui->pb_provider_vmare_utility->setVisible(value);
   ui->hl_vagrant_vmware_utility->setEnabled(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -289,7 +286,6 @@ void DlgAbout::set_hidden_providers() {
     break;
   }
 
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -603,8 +599,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
   this->setMinimumWidth(600);
-  this->setMaximumHeight(550);
-  this->setMinimumHeight(550);
+#ifdef RT_OS_DARWIN
+  this->setFixedHeight(600);
+#else
+  this->setFixedHeight(550);
+#endif
   this->adjustSize();
 
   check_for_versions_and_updates();
@@ -618,7 +617,6 @@ void DlgAbout::set_visible_chrome(bool value) {
   ui->lbl_spacer_chrome->setVisible(value);
   ui->pb_chrome->setVisible(value);
   ui->cb_chrome->setVisible(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -631,7 +629,6 @@ void DlgAbout::set_visible_firefox(bool value) {
   ui->pb_firefox->setVisible(value);
   ui->cb_firefox->setVisible(value);
   ui->hl_firefox->setEnabled(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -643,7 +640,6 @@ void DlgAbout::set_visible_edge(bool value) {
   if (value) {
     set_visible_e2e(false);
   }
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -652,7 +648,6 @@ void DlgAbout::set_visible_safari(bool value) {
   ui->lbl_safari_info_icon->setVisible(value);
   ui->lbl_safari_version_val->setVisible(value);
   ui->lbl_spacer_safari->setVisible(value);
-  this->setMinimumHeight(550);
   this->adjustSize();
 }
 
@@ -990,7 +985,8 @@ void DlgAbout::btn_uninstall_components() {
   static QStringList high_priority_component = {IUpdaterComponent::SUBUTAI_BOX,
                                                 IUpdaterComponent::VAGRANT_VBGUEST,
                                                 IUpdaterComponent::VAGRANT_SUBUTAI,
-                                                IUpdaterComponent::E2E}; // components with 1 priority, other will be 0
+                                                IUpdaterComponent::E2E,
+                                                IUpdaterComponent::VMWARE_UTILITY}; // components with 1 priority, other will be 0
 
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
@@ -998,7 +994,8 @@ void DlgAbout::btn_uninstall_components() {
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
       if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
-          m_dct_fpb[component.first].lbl->text() == "No supported browser is available") {
+          m_dct_fpb[component.first].lbl->text() == "No supported browser is available" ||
+          m_dct_fpb[component.first].lbl->text() == "Install VMware first") {
         continue;
       }
       uninstalling_components_str += "<i>" + IUpdaterComponent::component_id_to_user_view(component.first) + "</i><br>";
@@ -1057,13 +1054,10 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   m_dct_fpb[component_id].btn->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
-
-  if (m_dct_fpb[component_id].pf_version) {
-    m_dct_fpb[component_id].pb->setHidden(true);
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
-  }
+  m_dct_fpb[component_id].pb->setHidden(true);
 
   if (success) {
+    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setVisible(false);
       m_dct_fpb[component_id].cb->setChecked(false);
@@ -1288,6 +1282,7 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
       ui->cb_vagrant_box->setEnabled(false);
     } else {
       ui->btn_subutai_box->setText(tr("Update"));
+      ui->cb_vagrant_box->setEnabled(true);
     }
     ui->lbl_subutai_box_version->setText(version);
   }
@@ -1322,8 +1317,12 @@ void DlgAbout::got_vagrant_vmware_utility_version_sl(QString version) {
       ui->cb_provider_vmware_utility->setVisible(false);
       ui->btn_provider_vmware_utility_update->setText(tr("Install"));
       ui->btn_provider_vmware_utility_update->activateWindow();
+      ui->cb_provider_vmware_utility->setEnabled(true);
+    } else if (version == "Install VMware first") {
+      ui->cb_provider_vmware_utility->setEnabled(false);
     } else {
       ui->btn_provider_vmware_utility_update->setText(tr("Update"));
+      ui->cb_provider_vmware_utility->setEnabled(true);
     }
     ui->lbl_provider_vmware_utility_version->setText(version);
   }
@@ -1355,21 +1354,16 @@ void DlgAbout::got_provider_version_sl(QString version) {
     if (version == "undefined") {
       set_hidden_pb(COMPONENT_KEY);
       this->m_dct_fpb[COMPONENT_KEY].btn->setHidden(false);
-      //ui->btn_subutai_box->setHidden(false);
       this->m_dct_fpb[COMPONENT_KEY].cb->setVisible(false);
-      //ui->cb_vagrant_box->setVisible(false);
       this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Install"));
-      //ui->btn_subutai_box->setText(tr("Install"));
       this->m_dct_fpb[COMPONENT_KEY].btn->activateWindow();
-      //ui->btn_subutai_box->activateWindow();
     } else if (version == "Install Vagrant first") {
       this->m_dct_fpb[COMPONENT_KEY].cb->setEnabled(false);
     } else {
       this->m_dct_fpb[COMPONENT_KEY].btn->setText(tr("Update"));
-      //ui->btn_subutai_box->setText(tr("Update"));
+      this->m_dct_fpb[COMPONENT_KEY].cb->setEnabled(true);
     }
     this->m_dct_fpb[COMPONENT_KEY].lbl->setText(version);
-    //ui->lbl_subutai_box_version->setText(version);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1495,25 +1489,33 @@ void DlgAboutInitializer::do_initialization() {
     emit got_p2p_version(p2p_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString chrome_version;
-    CSystemCallWrapper::chrome_version(chrome_version);
-    emit got_chrome_version(chrome_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Chrome") {
+      QString chrome_version;
+      CSystemCallWrapper::chrome_version(chrome_version);
+      emit got_chrome_version(chrome_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString firefox_version;
-    CSystemCallWrapper::firefox_version(firefox_version);
-    emit got_firefox_version(firefox_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      QString firefox_version;
+      CSystemCallWrapper::firefox_version(firefox_version);
+      emit got_firefox_version(firefox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString edge_version;
-    CSystemCallWrapper::edge_version(edge_version);
-    emit got_edge_version(edge_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Edge") {
+      QString edge_version;
+      CSystemCallWrapper::edge_version(edge_version);
+      emit got_edge_version(edge_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
-    QString safari_version;
-    CSystemCallWrapper::safari_version(safari_version);
-    emit got_safari_version(safari_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (CSettingsManager::Instance().default_browser() == "Safari") {
+      QString safari_version;
+      CSystemCallWrapper::safari_version(safari_version);
+      emit got_safari_version(safari_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
@@ -1523,9 +1525,15 @@ void DlgAboutInitializer::do_initialization() {
     emit got_vagrant_version(vagrant_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString oracle_virtualbox_version = get_oracle_virtualbox_version();
-    emit got_oracle_virtualbox_version(oracle_virtualbox_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VIRTUALBOX) {
+      QString oracle_virtualbox_version = get_oracle_virtualbox_version();
+      emit got_oracle_virtualbox_version(oracle_virtualbox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+      QString vbguest_plugin_version = get_vagrant_vbguest_version();
+      emit got_vbguest_plugin_version(vbguest_plugin_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     QString subutai_e2e_version = get_e2e_version();
     emit got_e2e_version(subutai_e2e_version);
@@ -1535,25 +1543,27 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_plugin_version(subutai_plugin_versin);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vbguest_plugin_version = get_vagrant_vbguest_version();
-    emit got_vbguest_plugin_version(vbguest_plugin_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
     QString subutai_box_version = get_subutai_box_version();
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vagrant_provider_version = get_vagrant_provider_version();
-    emit got_provider_version(vagrant_provider_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
+      QString vagrant_provider_version = get_vagrant_provider_version();
+      emit got_provider_version(vagrant_provider_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString hypervisor_vmware_version = get_hypervisor_vmware_version();
-    emit got_hypervisor_vmware_version(hypervisor_vmware_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      QString hypervisor_vmware_version = get_hypervisor_vmware_version();
+      emit got_hypervisor_vmware_version(hypervisor_vmware_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
-    emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
+      emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    } else {
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
 
     if (OS_MAC == CURRENT_OS) {
       QString xquartz_version = get_xquartz_version();
@@ -1620,20 +1630,23 @@ void DlgAboutInitializer::do_initialization() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void DlgAbout::install_finished(const QString& component_id, bool success) {
+void DlgAbout::install_finished(const QString& component_id, bool success, const QString& version) {
   qDebug() << "Install finished for: " << component_id << "with result"
-           << success;
+           << success
+           << " version: "
+           << version;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   m_dct_fpb[component_id].btn->setEnabled(false);
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].btn->setText(tr("Update"));
-  if (m_dct_fpb[component_id].pf_version) {
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
-  }
+  //if (m_dct_fpb[component_id].pf_version) {
+  //  m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+  //}
 
   if (success) {
+    m_dct_fpb[component_id].lbl->setText(version);
     m_dct_fpb[component_id].pb->setHidden(true);
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setHidden(true);
@@ -1651,13 +1664,15 @@ void DlgAbout::install_finished(const QString& component_id, bool success) {
   }
 }
 
-void DlgAbout::uninstall_finished(const QString& component_id, bool success) {
+void DlgAbout::uninstall_finished(const QString& component_id, bool success, const QString& version) {
   qDebug() << "Uninstall finished for: " << component_id << "with result"
-           << success;
+           << success
+           << " version: "
+           << version;
 
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   if (success) {
-    m_dct_fpb[component_id].lbl->setText(m_dct_fpb[component_id].pf_version());
+    m_dct_fpb[component_id].lbl->setText(version);
     m_dct_fpb[component_id].cb->setVisible(false);
     m_dct_fpb[component_id].cb->setChecked(false);
     m_dct_fpb[component_id].btn->setVisible(true);

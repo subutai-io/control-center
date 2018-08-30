@@ -118,16 +118,16 @@ class IUpdaterComponent : public QObject {
     emit update_finished(m_component_id, success);
   }
 
-  void install_finished_sl(bool success) {
+  void install_finished_sl(bool success, const QString& version) {
     install_post_internal(success);
     m_in_progress = false;
-    emit install_finished(m_component_id, success);
+    emit install_finished(m_component_id, success, version);
   }
 
-  void uninstall_finished_sl(bool success) {
+  void uninstall_finished_sl(bool success, const QString& version) {
     uninstall_post_internal(success);
     m_in_progress = false;
-    emit uninstall_finished(m_component_id, success);
+    emit uninstall_finished(m_component_id, success, version);
   }
 
   void update_progress_sl(qint64 part, qint64 total) {
@@ -139,8 +139,8 @@ class IUpdaterComponent : public QObject {
  signals:
   void update_progress(const QString& component_id, qint64 part, qint64 total);
   void update_finished(const QString& component_id, bool success);
-  void install_finished(const QString& component_id, bool success);
-  void uninstall_finished(const QString& component_id, bool success);
+  void install_finished(const QString& component_id, bool success, const QString& version);
+  void uninstall_finished(const QString& component_id, bool success, const QString& version);
   void update_available_changed(const QString& component_id);
 };
 

@@ -74,7 +74,8 @@ CUpdaterComponentP2P::update_available_internal() {
   return md5_current != md5_kurjun;
 }
 ////////////////////////////////////////////////////////////////////////////
-chue_t CUpdaterComponentP2P::install_internal(){
+chue_t CUpdaterComponentP2P::install_internal() {
+    QString version = "undefined";
     qDebug()
             << "Starting install P2P";
 
@@ -88,7 +89,7 @@ chue_t CUpdaterComponentP2P::install_internal(){
 
     QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
     if (msg_box->exec() != QMessageBox::Yes) {
-        install_finished_sl(false);
+        install_finished_sl(false, version);
         return CHUE_SUCCESS;
     }
 
@@ -114,7 +115,7 @@ chue_t CUpdaterComponentP2P::install_internal(){
     connect(dm, &CDownloadFileManager::finished,
             [this, silent_installer](bool success) {
               if (!success) {
-                silent_installer->outputReceived(success);
+                silent_installer->outputReceived(success, "undefined");
               } else {
                 this->update_progress_sl(0,0);
                 CNotificationObserver::Instance()->Info(
