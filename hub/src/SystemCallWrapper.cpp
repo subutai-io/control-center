@@ -1145,8 +1145,13 @@ QStringList CSystemCallWrapper::virtualbox_interfaces() {
   qDebug("Getting list of bridged interfaces virtualbox");
   QString vb_version;
   CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-  QStringList interfaces;
+  static QStringList interfaces;
   if (vb_version == "undefined") {
+    installer_is_busy.unlock();
+    return interfaces;
+  }
+  if (!interfaces.empty()) {
+    qDebug() << "Interfaces list is not empty, returning old list.";
     installer_is_busy.unlock();
     return interfaces;
   }
