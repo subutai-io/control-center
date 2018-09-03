@@ -577,9 +577,9 @@ min-height: 550pxk
         </layout>
        </item>
        <item row="18" column="0">
-        <layout class="QHBoxLayout" name="hl_hypervisor_vmware">
+        <layout class="QHBoxLayout" name="hl_hypervisor">
          <item>
-          <widget class="QLabel" name="lbl_hypervisor_vmware">
+          <widget class="QLabel" name="lbl_hypervisor">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -592,7 +592,7 @@ min-height: 550pxk
           </widget>
          </item>
          <item alignment="Qt::AlignLeft">
-          <widget class="QLabel" name="lbl_hypervisor_vmware_icon">
+          <widget class="QLabel" name="lbl_hypervisor_icon">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -605,7 +605,7 @@ min-height: 550pxk
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="lbl_spacer_hypervisor_vmware">
+          <widget class="QLabel" name="lbl_spacer_hypervisor">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -882,7 +882,7 @@ min-height: 550pxk
        <item row="18" column="4">
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <item>
-          <widget class="QPushButton" name="btn_hypervisor_vmware_update">
+          <widget class="QPushButton" name="btn_hypervisor_update">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -892,7 +892,7 @@ min-height: 550pxk
           </widget>
          </item>
          <item alignment="Qt::AlignRight">
-          <widget class="QCheckBox" name="cb_hypervisor_vmware">
+          <widget class="QCheckBox" name="cb_hypervisor">
            <property name="styleSheet">
             <string notr="true">QCheckBox::indicator {
      width: 24px;
@@ -1016,7 +1016,7 @@ min-height: 550pxk
         </layout>
        </item>
        <item row="18" column="3">
-        <widget class="QProgressBar" name="pb_hypervisor_vmware">
+        <widget class="QProgressBar" name="pb_hypervisor">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -2418,7 +2418,7 @@ min-height: 550pxk
         </widget>
        </item>
        <item row="18" column="2">
-        <widget class="QLabel" name="lbl_hypervisor_vmware_version">
+        <widget class="QLabel" name="lbl_hypervisor_version">
          <property name="text">
           <string>undefined</string>
          </property>

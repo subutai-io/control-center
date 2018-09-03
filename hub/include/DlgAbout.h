@@ -120,7 +120,7 @@ private slots:
   void btn_provider_parallels_update_released();
   void btn_provider_libvirt_updates_released();
   void btn_provider_vmware_update_released();
-  void btn_hypervisor_vmware_update_released();
+  void btn_hypervisor_update_released();
   void btn_vagrant_vmware_utility_update_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);

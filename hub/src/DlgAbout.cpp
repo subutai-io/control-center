@@ -180,14 +180,14 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->hl_vagrant_vmware->setEnabled(value);
 
   // Hypervisor VMware
-  ui->lbl_hypervisor_vmware->setVisible(value);
-  ui->lbl_hypervisor_vmware_icon->setVisible(value);
-  ui->lbl_hypervisor_vmware_version->setVisible(value);
-  ui->lbl_spacer_hypervisor_vmware->setVisible(value);
-  ui->btn_hypervisor_vmware_update->setVisible(value);
-  ui->cb_hypervisor_vmware->setVisible(value);
-  ui->pb_hypervisor_vmware->setVisible(value);
-  ui->hl_hypervisor_vmware->setEnabled(value);
+  ui->lbl_hypervisor->setVisible(value);
+  ui->lbl_hypervisor_icon->setVisible(value);
+  ui->lbl_hypervisor_version->setVisible(value);
+  ui->lbl_spacer_hypervisor->setVisible(value);
+  ui->btn_hypervisor_update->setVisible(value);
+  ui->cb_hypervisor->setVisible(value);
+  ui->pb_hypervisor->setVisible(value);
+  ui->hl_hypervisor->setEnabled(value);
 
   // Vagrant VMware Utility
   ui->lbl_provider_vmware_utility->setVisible(value);
@@ -245,8 +245,8 @@ void DlgAbout::set_hidden_providers() {
     };
 
     this->m_dct_fpb[IUpdaterComponent::VMWARE] = {
-      ui->lbl_hypervisor_vmware_version, ui->pb_hypervisor_vmware,
-      ui->cb_hypervisor_vmware, ui->btn_hypervisor_vmware_update,
+      ui->lbl_hypervisor_version, ui->pb_hypervisor,
+      ui->cb_hypervisor, ui->btn_hypervisor_update,
       get_hypervisor_vmware_version
     };
 
@@ -266,9 +266,9 @@ void DlgAbout::set_hidden_providers() {
  //     get_vagrant_provider_version};
 
     break;
-  //case VagrantProvider::HYPERV:
+  case VagrantProvider::HYPERV:
     // do nothing
- //   break;
+    break;
   default:
     set_visible_virtualbox(true);
     break;
@@ -303,7 +303,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
                      this->ui->lbl_xquartz_info_icon,
                      this->ui->lbl_provider_vmware_icon,
                      this->ui->lbl_provider_vmware_utility_icon,
-                     this->ui->lbl_hypervisor_vmware_icon,
+                     this->ui->lbl_hypervisor_icon,
                      nullptr};
 
   static QPixmap info_icon = QPixmap(":/hub/info_icon.png");
@@ -370,7 +370,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       "The Vagrant VMware Utility provides the Vagrant VMware provider plugin"
       " access to various VMware functionalities."));
 
-  this->ui->lbl_hypervisor_vmware_icon->setToolTip(tr(
+  this->ui->lbl_hypervisor_icon->setToolTip(tr(
       "<nobr>VMware is hypervisor for<br>"
       "managing virtual machine environments"));
 
@@ -435,8 +435,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
           &DlgAbout::btn_provider_parallels_update_released);
   connect(ui->btn_provider_vmware_update, &QPushButton::released, this,
           &DlgAbout::btn_provider_vmware_update_released);
-  connect(ui->btn_hypervisor_vmware_update, &QPushButton::released, this,
-          &DlgAbout::btn_hypervisor_vmware_update_released);
+  connect(ui->btn_hypervisor_update, &QPushButton::released, this,
+          &DlgAbout::btn_hypervisor_update_released);
   connect(ui->btn_provider_vmware_utility_update, &QPushButton::released, this,
           &DlgAbout::btn_vagrant_vmware_utility_update_released);
 
@@ -537,8 +537,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   };
 
   m_dct_fpb[IUpdaterComponent::VMWARE] = {
-    ui->lbl_hypervisor_vmware_version, ui->pb_hypervisor_vmware, ui->cb_hypervisor_vmware,
-    ui->btn_hypervisor_vmware_update, get_hypervisor_vmware_version
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_hypervisor_vmware_version
   };
 
   m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
@@ -925,11 +925,11 @@ void DlgAbout::btn_provider_vmware_update_released() {
         IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
 }
 
-void DlgAbout::btn_hypervisor_vmware_update_released() {
-  ui->pb_hypervisor_vmware->setHidden(false);
-  ui->btn_hypervisor_vmware_update->setHidden(false);
-  ui->btn_hypervisor_vmware_update->setEnabled(false);
-  if (ui->lbl_hypervisor_vmware_version->text() == "undefined")
+void DlgAbout::btn_hypervisor_update_released() {
+  ui->pb_hypervisor->setHidden(false);
+  ui->btn_hypervisor_update->setHidden(false);
+  ui->btn_hypervisor_update->setEnabled(false);
+  if (ui->lbl_hypervisor_version->text() == "undefined")
     CHubComponentsUpdater::Instance()->install(
         IUpdaterComponent::VMWARE);
   else
@@ -939,7 +939,7 @@ void DlgAbout::btn_hypervisor_vmware_update_released() {
 
 void DlgAbout::btn_vagrant_vmware_utility_update_released() {
   // Check is VMware is installed
-  if (ui->lbl_hypervisor_vmware_version->text() == "undefined") {
+  if (ui->lbl_hypervisor_version->text() == "undefined") {
     // install first VMware
     QMessageBox msg;
     msg.setText(QObject::tr(
@@ -1278,14 +1278,14 @@ void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE);
-      ui->btn_hypervisor_vmware_update->setHidden(false);
-      ui->cb_hypervisor_vmware->setVisible(false);
-      ui->btn_hypervisor_vmware_update->setText(tr("Install"));
-      ui->btn_hypervisor_vmware_update->activateWindow();
+      ui->btn_hypervisor_update->setHidden(false);
+      ui->cb_hypervisor->setVisible(false);
+      ui->btn_hypervisor_update->setText(tr("Install"));
+      ui->btn_hypervisor_update->activateWindow();
     } else {
-      ui->btn_hypervisor_vmware_update->setText(tr("Update"));
+      ui->btn_hypervisor_update->setText(tr("Update"));
     }
-    ui->lbl_hypervisor_vmware_version->setText(version);
+    ui->lbl_hypervisor_version->setText(version);
   }
 }
 
@@ -1515,6 +1515,9 @@ void DlgAboutInitializer::do_initialization() {
 
       QString vbguest_plugin_version = get_vagrant_vbguest_version();
       emit got_vbguest_plugin_version(vbguest_plugin_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    } else {
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 

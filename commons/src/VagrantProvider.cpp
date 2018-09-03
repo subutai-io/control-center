@@ -14,7 +14,7 @@ std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUAL
                                                       };
 // For Windows providers
 std::vector<int> VagrantProvider::m_provider_win = { VagrantProvider::VIRTUALBOX,
-                                                    // VagrantProvider::HYPERV,
+                                                     VagrantProvider::HYPERV,
                                                      VagrantProvider::VMWARE_DESKTOP
                                                    };
 
