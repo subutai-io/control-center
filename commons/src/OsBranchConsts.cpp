@@ -49,12 +49,12 @@ template<class BR, class OS> const QString& p2p_package_name_temp_internal();
     return res; \
   }
 
-p2p_kurjun_file_name_def(BT_MASTER,     OS_LINUX,   "p2p")
-p2p_kurjun_file_name_def(BT_MASTER,     OS_MAC,     "p2p_osx")
-p2p_kurjun_file_name_def(BT_MASTER,     OS_WIN,     "p2p.exe")
-p2p_kurjun_file_name_def(BT_DEV,        OS_LINUX,   "p2p")
-p2p_kurjun_file_name_def(BT_DEV,        OS_MAC,     "p2p_osx")
-p2p_kurjun_file_name_def(BT_DEV,        OS_WIN,     "p2p.exe")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_LINUX,   "p2p-master")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_MAC,     "p2p-master_osx")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_WIN,     "p2p-master.exe")
+p2p_kurjun_file_name_def(BT_DEV,        OS_LINUX,   "p2p-dev")
+p2p_kurjun_file_name_def(BT_DEV,        OS_MAC,     "p2p-dev_osx")
+p2p_kurjun_file_name_def(BT_DEV,        OS_WIN,     "p2p-dev.exe")
 p2p_kurjun_file_name_def(BT_PROD,      OS_LINUX,   "p2p")
 p2p_kurjun_file_name_def(BT_PROD,      OS_MAC,     "p2p_osx")
 p2p_kurjun_file_name_def(BT_PROD,      OS_WIN,     "p2p.exe")
@@ -310,11 +310,11 @@ const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_MASTER> >
 }
 template<>
 const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_DEV> >(const QString& provider){
-    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware.box"},
-                                                   {"parallels", "vagrant-subutai-stretch-parallels.box"},
-                                                   {"hyperv", "vagrant-subutai-stretch-hyperv.box"},
-                                                   {"libvirt", "vagrant-subutai-stretch-libvirt.box"},
-                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox.box"},
+    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware-master.box"},
+                                                   {"parallels", "vagrant-subutai-stretch-parallels-master.box"},
+                                                   {"hyperv", "vagrant-subutai-stretch-hyperv-master.box"},
+                                                   {"libvirt", "vagrant-subutai-stretch-libvirt-master.box"},
+                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox-master.box"},
                                                    {"undefined", "undefined"}};
     if(box_names.find(provider) == box_names.end()){
         return box_names["undefined"];
@@ -336,7 +336,7 @@ template<class BR> const QString& subutai_box_name_internal();
 
 subutai_box_name_internal_def(BT_PROD,   "subutai/stretch")
 subutai_box_name_internal_def(BT_MASTER, "subutai/stretch-master")
-subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
+subutai_box_name_internal_def(BT_DEV,    "subutai/stretch-master")
 
 const QString &
 subutai_box_name() {
