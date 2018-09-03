@@ -42,6 +42,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
           "<a href='https://www.vmware.com/'>VMware</a>"
           " is used as the hypervisor.<br>"
           "VMware will be installed on your machine.<br>"
+          "It is recommended to reboot your machine after installation VMware.<br>"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
   msg_box->setTextFormat(Qt::RichText);
