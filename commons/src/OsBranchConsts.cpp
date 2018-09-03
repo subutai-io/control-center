@@ -1137,7 +1137,7 @@ p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://bazaar.subutai.io/rest/v
 p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.pkg&download")
 p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.msi&download")
 p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.deb&download")
-p2p_package_url_def(BT_DEV,        OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.deb&download")
+p2p_package_url_def(BT_DEV,        OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.pkg&download")
 p2p_package_url_def(BT_DEV,        OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.msi&download")
 p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.deb&download")
 p2p_package_url_def(BT_PROD,       OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.pkg&download")
