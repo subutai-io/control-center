@@ -2,10 +2,10 @@
 #include "RestWorker.h"
 #include "NotificationObserver.h"
 
-CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
+CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_name,
                                            const QString &dst_file,
                                            int expected_size) :
-  m_kurjun_file_id(kurjun_file_id),
+  m_kurjun_file_name(kurjun_file_name),
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
   m_network_reply(NULL),
@@ -14,7 +14,7 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_id,
 {
   m_dst_file = new QFile(m_dst_file_path);
   m_dst_file->open(QIODevice::WriteOnly);
-  qDebug() << kurjun_file_id << " " << dst_file;
+  qDebug() << kurjun_file_name << " " << dst_file;
 }
 
 CDownloadFileManager::~CDownloadFileManager() {
@@ -67,7 +67,7 @@ CDownloadFileManager::reply_finished() {
 void
 CDownloadFileManager::start_download() {
   if (m_network_reply != NULL) return;
-  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_id, m_link);
+  m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_name, m_link);
   connect(m_network_reply, &QNetworkReply::downloadProgress,
           this, &CDownloadFileManager::download_progress);
   connect(m_network_reply, &QNetworkReply::readyRead,
