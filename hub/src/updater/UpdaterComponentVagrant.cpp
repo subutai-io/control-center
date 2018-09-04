@@ -69,6 +69,7 @@ chue_t CUpdaterComponentVAGRANT::install_internal() {
 
   CDownloadFileManager *dm = new CDownloadFileManager(
       item->name(), str_vagrant_downloaded_path, item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_VAGRANT);
