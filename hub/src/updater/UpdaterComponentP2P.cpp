@@ -80,6 +80,8 @@ chue_t CUpdaterComponentP2P::install_internal() {
   return install_internal(false);
 }
 
+// if bool update is true, then we are installing an update
+// if bool update is false, then we are installing p2p for the first time
 chue_t CUpdaterComponentP2P::install_internal(bool update) {
     QString version = "undefined";
     qDebug()
@@ -133,7 +135,7 @@ chue_t CUpdaterComponentP2P::install_internal(bool update) {
                 }
               });
       connect(silent_installer, &SilentInstaller::outputReceived,
-              this, &CUpdaterComponentP2P::update_finished_sl);
+              this, &CUpdaterComponentP2P::install_finished_sl);
     } else {
       connect(dm, &CDownloadFileManager::download_progress_sig,
               [this](qint64 rec, qint64 total){update_progress_sl(rec, total);});
