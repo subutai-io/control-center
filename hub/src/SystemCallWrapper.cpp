@@ -1387,15 +1387,15 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
     QStringList args;
     if (type == STARTED_P2P) {
-      args << "stop" << "p2p";
+      args << "stop" << "subutai-p2p";
     } else if (type == STOPPED_P2P) {
-      args << "start" << "p2p";
+      args << "start" << "subutai-p2p";
     } else {
-      args << "restart" << "p2p";
+      args << "restart" << "subutai-p2p";
     }
     system_call_res_t res = CSystemCallWrapper::ssystem(systemctl_path, args, true, true, 60000);
     if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
+      QString err_msg = QObject::tr("Couldn't reload subutai-p2p.service. ec = %1, err = %2")
                                .arg(res.exit_code)
                                .arg(CSystemCallWrapper::scwe_error_to_str(res.res));
       qCritical() << err_msg;
