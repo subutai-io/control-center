@@ -75,8 +75,7 @@ CUpdaterComponentTray::update_internal() {
   CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                       str_tray_download_path,
                                                       item->size());
-
-
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   connect(dm, &CDownloadFileManager::download_progress_sig,
           this, &CUpdaterComponentTray::update_progress_sl);
@@ -123,7 +122,7 @@ QString
 CUpdaterComponentTray::download_tray_path() {
     QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     return (lst_temp.isEmpty() ? QApplication::applicationDirPath() : lst_temp[0]) +
-                                QDir::separator() + TRAY + "-dev";
+                                QDir::separator() + TRAY;
 }
 
 ////////////////////////////////////////////////////////////////////////////

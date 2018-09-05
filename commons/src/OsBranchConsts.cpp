@@ -808,7 +808,7 @@ template<class OS> const QString& default_p2p_path_temp_internal();
     return res; \
   }
 
-default_p2p_path_internal_def(OS_LINUX, "/opt/subutai/bin/p2p")
+default_p2p_path_internal_def(OS_LINUX, "/usr/bin/p2p")
 default_p2p_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
 default_p2p_path_internal_def(OS_MAC, "/usr/local/bin/p2p")
 
@@ -1347,4 +1347,10 @@ const QString& current_branch_name_with_changes() {
     return application_branch_global;
   }
   return current_branch_name();
+}
+
+const QString& ipfs_download_url() {
+  static const QString ipfs_url("https://ipfs.subutai.io/ipfs/%1/%2");
+
+  return ipfs_url;
 }

@@ -93,6 +93,7 @@ chue_t CUpdaterComponentE2E::install_internal() {
 
     CDownloadFileManager *dm =
         new CDownloadFileManager(item->name(), str_downloaded_path, item->size());
+    dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
     silent_installer->init(file_dir, file_name, CC_E2E);
     connect(dm, &CDownloadFileManager::download_progress_sig,

@@ -761,8 +761,8 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
                                                  QString link) {
   if (link.isEmpty()) link = hub_gorjun_url();
-  static const QString str_file_url =
-      QString("%1?name=%2&download").arg(link, file_name);
+  QString str_file_url =
+      QString("%1").arg(link);
   QUrl url(str_file_url);
   return download_file(url);
 }
@@ -770,8 +770,8 @@ QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
 
 QNetworkReply* CRestWorker::download_file(const QUrl& url) {
   QNetworkRequest req(url);
-  req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-  req.setMaximumRedirectsAllowed(1);
+  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+                   QNetworkRequest::AlwaysNetwork);
   QNetworkReply* reply = m_network_manager->get(req);
   reply->ignoreSslErrors();
   return reply;
