@@ -156,7 +156,6 @@ chue_t CUpdaterComponentP2P::install_internal(bool update) {
     }
     connect(silent_installer, &SilentInstaller::outputReceived,
             dm, &CDownloadFileManager::deleteLater);
-    this->update_progress_sl(0, 100);
     dm->start_download();
     return CHUE_SUCCESS;
 }
