@@ -104,9 +104,10 @@ chue_t CUpdaterComponentP2P::install_internal() {
     }
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
-    CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+    CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                         str_p2p_downloaded_path,
                                                         item->size());
+    dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
     SilentInstaller *silent_installer = new SilentInstaller(this);
     silent_installer->init(file_dir, file_name, CC_P2P);
@@ -185,9 +186,11 @@ CUpdaterComponentP2P::update_internal() {
     return CHUE_SUCCESS;
   }
 
-  CDownloadFileManager *dm = new CDownloadFileManager(item->id(),
+  CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                       str_p2p_downloaded_path,
                                                       item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
+
   connect(dm, &CDownloadFileManager::download_progress_sig,
           this, &CUpdaterComponentP2P::update_progress_sl);
   connect(dm, &CDownloadFileManager::finished,

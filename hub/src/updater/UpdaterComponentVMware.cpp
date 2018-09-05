@@ -42,6 +42,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
           "<a href='https://www.vmware.com/'>VMware</a>"
           " is used as the hypervisor.<br>"
           "VMware will be installed on your machine.<br>"
+          "It is recommended to reboot your machine after installation VMware.<br>"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
   msg_box->setTextFormat(Qt::RichText);
@@ -67,7 +68,8 @@ chue_t CUpdaterComponentVMware::install_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm = new CDownloadFileManager(
-      item->id(), str_vmware_downloaded_path, item->size());
+      item->name(), str_vmware_downloaded_path, item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_VMWARE);

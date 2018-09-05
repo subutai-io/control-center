@@ -183,7 +183,7 @@ public:
   void send_health_request(const QString &p2p_version,
                            const QString &p2p_status);
 
-  QNetworkReply* download_gorjun_file(const QString& file_id, QString link = "");
+  QNetworkReply* download_gorjun_file(const QString& file_name, QString link = "");
   QNetworkReply* download_file(const QUrl& url);
 
   static const QString& rest_err_to_str(rest_error_t err);
