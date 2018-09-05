@@ -5948,6 +5948,8 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   version = version.remove("p2p");
   version = version.remove("version");
   version = version.remove("  ");
+  int id = version.indexOf("+");
+  version = version.left(id);
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
