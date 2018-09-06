@@ -6420,7 +6420,49 @@ system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &
   }
   return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
 }
+////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::hyperv_version(QString &version) {
+  version = "undefined";
+  QString cmd("wmic");
+  QStringList args;
+  // wmic datafile where name="c:\\windows\\system32\\vmms.exe" get version
+  args << "datafile"
+       << "where"
+       << QString("name=\"%1\"").arg("c:\\windows\\system32\\vmms.exe")
+       << "get"
+       << "version";
+
+  qDebug() << "HyperV version command "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+
+  qDebug() << "got HyperV version"
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS &&
+      res.exit_code == 0 && !res.out.empty()) {
+
+    for (QString s : res.out) {
+      s = s.trimmed();
+      if (s.isEmpty()) continue;
+
+      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+
+      if (s.isEmpty()) {
+        version = s;
+      }
+    }
+  }
+
+  return SCWE_SUCCESS;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);

@@ -119,6 +119,13 @@ QString get_xquartz_version() {
 
   return version;
 }
+
+QString get_hyperv_version() {
+  QString version = "";
+  CSystemCallWrapper::hyperv_version(version);
+
+  return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::set_visible_libvirt(bool value) {
@@ -145,6 +152,19 @@ void DlgAbout::set_visible_parallels(bool value) {
   ui->pb_provider_parallels->setVisible(value);
   ui->hl_vagrant_parallels->setEnabled(value);
   this->adjustSize();
+}
+
+void DlgAbout::set_visible_hypervisor(bool value, const QString& name) {
+  ui->lbl_hypervisor->setVisible(value);
+  ui->lbl_hypervisor_icon->setVisible(value);
+  ui->lbl_hypervisor_version->setVisible(value);
+  ui->lbl_spacer_hypervisor->setVisible(value);
+  ui->btn_hypervisor_update->setVisible(value);
+  ui->cb_hypervisor->setVisible(value);
+  ui->pb_hypervisor->setVisible(value);
+  ui->hl_hypervisor->setEnabled(value);
+
+  ui->lbl_hypervisor->setText(name);
 }
 
 void DlgAbout::set_visible_virtualbox(bool value) {
@@ -180,14 +200,7 @@ void DlgAbout::set_visible_vmware(bool value) {
   ui->hl_vagrant_vmware->setEnabled(value);
 
   // Hypervisor VMware
-  ui->lbl_hypervisor->setVisible(value);
-  ui->lbl_hypervisor_icon->setVisible(value);
-  ui->lbl_hypervisor_version->setVisible(value);
-  ui->lbl_spacer_hypervisor->setVisible(value);
-  ui->btn_hypervisor_update->setVisible(value);
-  ui->cb_hypervisor->setVisible(value);
-  ui->pb_hypervisor->setVisible(value);
-  ui->hl_hypervisor->setEnabled(value);
+  set_visible_hypervisor(value, "VMware");
 
   // Vagrant VMware Utility
   ui->lbl_provider_vmware_utility->setVisible(value);
@@ -267,7 +280,7 @@ void DlgAbout::set_hidden_providers() {
 
     break;
   case VagrantProvider::HYPERV:
-    // do nothing
+    set_visible_hypervisor(true, "Hyper-V");
     break;
   default:
     set_visible_virtualbox(true);
@@ -551,6 +564,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     ui->btn_xquartz_update, get_xquartz_version
   };
 
+  m_dct_fpb[IUpdaterComponent::HYPERV] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_hyperv_version
+  };
+
   // hide providers and add provider to components dictionary
   set_hidden_providers();
 
@@ -689,8 +707,8 @@ void DlgAbout::check_for_versions_and_updates() {
           &DlgAbout::got_subutai_box_version_sl);
   connect(di, &DlgAboutInitializer::got_provider_version, this,
           &DlgAbout::got_provider_version_sl);
-  connect(di, &DlgAboutInitializer::got_hypervisor_vmware_version, this,
-          &DlgAbout::got_hypervisor_vmware_version_sl);
+  connect(di, &DlgAboutInitializer::got_hypervisor_version, this,
+          &DlgAbout::got_hypervisor_version_sl);
   connect(di, &DlgAboutInitializer::got_vagrant_vmware_utility_version, this,
           &DlgAbout::got_vagrant_vmware_utility_version_sl);
   connect(di, &DlgAboutInitializer::got_xquartz_version, this,
@@ -1271,10 +1289,7 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
   }
 }
 
-void DlgAbout::got_hypervisor_vmware_version_sl(QString version) {
-  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-    return;
-  }
+void DlgAbout::got_hypervisor_version_sl(QString version) {
   if (this->m_dct_fpb.find(IUpdaterComponent::VMWARE) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
       set_hidden_pb(IUpdaterComponent::VMWARE);
@@ -1539,7 +1554,7 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString hypervisor_vmware_version = get_hypervisor_vmware_version();
-      emit got_hypervisor_vmware_version(hypervisor_vmware_version);
+      emit got_hypervisor_version(hypervisor_vmware_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
@@ -1548,6 +1563,12 @@ void DlgAboutInitializer::do_initialization() {
     } else {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+      QString hyperv_ver = get_hyperv_version();
+      emit got_hypervisor_version(hyperv_ver);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
@@ -1585,9 +1606,6 @@ void DlgAboutInitializer::do_initialization() {
       break;
     //case VagrantProvider::LIBVIRT:
     //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
-    //  break;
-    //case VagrantProvider::HYPERV:
-      // do nothing
     //  break;
     default:
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);

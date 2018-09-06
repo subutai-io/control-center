@@ -52,7 +52,7 @@ signals:
   void got_provider_version(QString version);
   void got_vbguest_plugin_version(QString version);
   void got_subutai_box_version(QString version);
-  void got_hypervisor_vmware_version(QString version);
+  void got_hypervisor_version(QString version);
   void got_vagrant_vmware_utility_version(QString version);
   void got_xquartz_version(QString version);
   void update_available(QString component_id, bool available);
@@ -100,6 +100,7 @@ private:
   void set_visible_vmware(bool value);
   void set_visible_parallels(bool value);
   void set_visible_libvirt(bool value);
+  void set_visible_hypervisor(bool value, const QString& name);
 
 private slots:
   void btn_tray_update_released();
@@ -145,7 +146,7 @@ private slots:
   void got_vbguest_plugin_version_sl(QString version);
   void got_provider_version_sl(QString version);
   void got_subutai_box_version_sl(QString version);
-  void got_hypervisor_vmware_version_sl(QString version);
+  void got_hypervisor_version_sl(QString version);
   void got_vagrant_vmware_utility_version_sl(QString version);
   void got_xquartz_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);
