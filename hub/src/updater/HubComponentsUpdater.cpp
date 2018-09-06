@@ -550,6 +550,9 @@ void SilentUpdater::silentUpdate() {
     case CC_VAGRANT_PARALLELS:
       res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
       break;
+    case CC_P2P:
+      res = QtConcurrent::run(CSystemCallWrapper::update_p2p, m_dir, m_file_name);
+      break;
     default:
         break;
     }

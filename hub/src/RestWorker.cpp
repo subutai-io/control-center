@@ -760,6 +760,7 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 
 QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
                                                  QString link) {
+  UNUSED_ARG(file_name);
   if (link.isEmpty()) link = hub_gorjun_url();
   QString str_file_url =
       QString("%1").arg(link);
