@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QtConcurrent/QtConcurrent>
 
 #include "updater/UpdaterComponentP2P.h"
 #include "updater/ExecutableUpdater.h"
@@ -74,67 +75,76 @@ CUpdaterComponentP2P::update_available_internal() {
   return md5_current != md5_kurjun;
 }
 ////////////////////////////////////////////////////////////////////////////
+
 chue_t CUpdaterComponentP2P::install_internal() {
-    QString version = "undefined";
-    qDebug()
-            << "Starting install P2P";
+  QString version = "undefined";
+      qDebug()
+              << "Starting install P2P";
 
-    QMessageBox *msg_box = new QMessageBox(
-          QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
-            "<a href='https://subutai.io/getting-started.html#P2P'>Subutai P2P</a>"
-            " handles the connection between peers and environments.<br>"
-            "Subutai P2P will be installed on your machine.<br>"
-            "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
-    msg_box->setTextFormat(Qt::RichText);
+      QMessageBox *msg_box = new QMessageBox(
+            QMessageBox::Information, QObject::tr("Attention!"), QObject::tr(
+              "<a href='https://subutai.io/getting-started.html#P2P'>Subutai P2P</a>"
+              " handles the connection between peers and environments.<br>"
+              "Subutai P2P will be installed on your machine.<br>"
+              "Do you want to proceed?"), QMessageBox::Yes | QMessageBox::No);
+      msg_box->setTextFormat(Qt::RichText);
 
-    QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
-    if (msg_box->exec() != QMessageBox::Yes) {
-        install_finished_sl(false, version);
-        return CHUE_SUCCESS;
-    }
+      QObject::connect(msg_box, &QMessageBox::finished, msg_box, &QMessageBox::deleteLater);
+      if (msg_box->exec() != QMessageBox::Yes) {
+          install_finished_sl(false, version);
+          return CHUE_SUCCESS;
+      }
 
-    QString file_name = p2p_kurjun_package_name();
-    QString file_dir = download_p2p_path();
-    QString str_p2p_downloaded_path = file_dir + "/" + file_name;
+      QString file_name = p2p_kurjun_package_name();
+      QString file_dir = download_p2p_path();
+      QString str_p2p_downloaded_path = file_dir + "/" + file_name;
 
-    std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_package_name());
-    if (fi.empty()) {
-      qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
-      return CHUE_NOT_ON_KURJUN;
-    }
-    std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+      std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_package_name());
+      if (fi.empty()) {
+        qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+        return CHUE_NOT_ON_KURJUN;
+      }
+      std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
-    CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
-                                                        str_p2p_downloaded_path,
-                                                        item->size());
-    dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
+      CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
+                                                          str_p2p_downloaded_path,
+                                                          item->size());
+      dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
-    SilentInstaller *silent_installer = new SilentInstaller(this);
-    silent_installer->init(file_dir, file_name, CC_P2P);
-    connect(dm, &CDownloadFileManager::download_progress_sig,
-            [this](qint64 rec, qint64 total){update_progress_sl(rec, total);});
-    connect(dm, &CDownloadFileManager::finished,
-            [this, silent_installer](bool success) {
-              if (!success) {
-                silent_installer->outputReceived(success, "undefined");
-              } else {
-                this->update_progress_sl(0,0);
-                CNotificationObserver::Instance()->Info(
-                    tr("Running installation scripts."),
-                    DlgNotification::N_NO_ACTION);
-                silent_installer->startWork();
-              }
-            });
-    connect(silent_installer, &SilentInstaller::outputReceived,
-            this, &CUpdaterComponentP2P::install_finished_sl);
-    connect(silent_installer, &SilentInstaller::outputReceived,
-            dm, &CDownloadFileManager::deleteLater);
-    dm->start_download();
-    return CHUE_SUCCESS;
+      SilentInstaller *silent_installer = new SilentInstaller(this);
+      silent_installer->init(file_dir, file_name, CC_P2P);
+      connect(dm, &CDownloadFileManager::download_progress_sig,
+              [this](qint64 rec, qint64 total){update_progress_sl(rec, total);});
+      connect(dm, &CDownloadFileManager::finished,
+              [this, silent_installer](bool success) {
+                if (!success) {
+                  silent_installer->outputReceived(success, "undefined");
+                } else {
+                  this->update_progress_sl(0,0);
+                  CNotificationObserver::Instance()->Info(
+                      tr("Running installation scripts."),
+                      DlgNotification::N_NO_ACTION);
+                  silent_installer->startWork();
+                }
+              });
+      connect(silent_installer, &SilentInstaller::outputReceived,
+              this, &CUpdaterComponentP2P::install_finished_sl);
+      connect(silent_installer, &SilentInstaller::outputReceived,
+              dm, &CDownloadFileManager::deleteLater);
+      dm->start_download();
+      return CHUE_SUCCESS;
+}
+
+chue_t CUpdaterComponentP2P::update_internal() {
+#ifdef RT_OS_LINUX
+  return update_internal_linux();
+#else
+  return update_internal_mac_win();
+#endif
 }
 
 chue_t
-CUpdaterComponentP2P::update_internal() {
+CUpdaterComponentP2P::update_internal_mac_win() {
   qDebug() << "Starting to update P2P";
   QString str_p2p_path = p2p_path();
   if(str_p2p_path == "Not found"){
@@ -156,7 +166,7 @@ CUpdaterComponentP2P::update_internal() {
   //this file will replace original file
   QString file_name = P2P;
   QString file_dir = download_p2p_path();
-  QString str_p2p_downloaded_path = file_dir + "/" + file_name;
+  QString str_p2p_downloaded_path = file_dir + QDir::separator() + file_name;
 
   std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
                                       p2p_kurjun_file_name());
@@ -204,6 +214,83 @@ CUpdaterComponentP2P::update_internal() {
   dm->start_download();
   return CHUE_SUCCESS;
 }
+
+chue_t CUpdaterComponentP2P::update_internal_linux() {
+  qDebug() << "Starting to update P2P";
+  QString str_p2p_path = p2p_path();
+  if(str_p2p_path == "Not found"){
+      CNotificationObserver::Instance()->Error(tr("To continue, you must install the P2P Daemon first."), DlgNotification::N_INSTALL_P2P);
+      return CHUE_FAILED;
+  }
+  if (str_p2p_path.isNull() ||
+      str_p2p_path.isEmpty() ||
+      str_p2p_path == P2P) {
+    qCritical("Update p2p failed. Path = %s",
+                                          (str_p2p_path.isNull() || str_p2p_path.isEmpty() ?
+                                             "empty" : str_p2p_path.toStdString().c_str()));
+    return CHUE_FAILED;
+  }
+
+  QString file_name = p2p_kurjun_package_name();
+  QString file_dir = download_p2p_path();
+  QString str_p2p_downloaded_path = file_dir + QDir::separator() + file_name;
+
+  std::vector<CGorjunFileInfo> fi = CRestWorker::Instance()->get_gorjun_file_info(
+                                      p2p_kurjun_package_name());
+
+  if (fi.empty()) {
+    qCritical("File %s isn't presented on kurjun", m_component_id.toStdString().c_str());
+    return CHUE_NOT_ON_KURJUN;
+  }
+
+  std::vector<CGorjunFileInfo>::iterator item = fi.begin();
+
+  if (item->md5_sum() == CCommons::FileMd5(str_p2p_downloaded_path))
+  {
+    qInfo("Already have new version of p2p in %s",
+                str_p2p_downloaded_path.toStdString().c_str());
+
+    this->update_progress_sl(100, 100);
+
+    SilentUpdater *silent_updater = new SilentUpdater(this);
+    silent_updater->init(download_p2p_path(), p2p_kurjun_package_name(), CC_P2P);
+
+    connect(silent_updater, &SilentUpdater::outputReceived, this,
+            &CUpdaterComponentP2P::update_finished_sl);
+
+    silent_updater->startWork();
+    return CHUE_SUCCESS;
+  }
+
+  CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
+                                                      str_p2p_downloaded_path,
+                                                      item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
+
+  SilentUpdater *silent_updater = new SilentUpdater(this);
+  silent_updater->init(file_dir, file_name, CC_P2P);
+  connect(dm, &CDownloadFileManager::download_progress_sig,
+          [this](qint64 rec, qint64 total){update_progress_sl(rec, total);});
+  connect(dm, &CDownloadFileManager::finished,
+          [this, silent_updater](bool success) {
+            if (!success) {
+              silent_updater->outputReceived(success);
+            } else {
+              this->update_progress_sl(0,0);
+              CNotificationObserver::Instance()->Info(
+                  tr("Running update scripts."),
+                  DlgNotification::N_NO_ACTION);
+              silent_updater->startWork();
+            }
+          });
+  connect(silent_updater, &SilentUpdater::outputReceived,
+          this, &CUpdaterComponentP2P::update_finished_sl);
+  connect(silent_updater, &SilentUpdater::outputReceived,
+          dm, &CDownloadFileManager::deleteLater);
+  dm->start_download();
+  return CHUE_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 void
