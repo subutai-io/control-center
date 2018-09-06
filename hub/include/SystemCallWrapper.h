@@ -216,6 +216,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_install_t install_p2p(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t update_p2p_linux(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t update_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_install_t install_x2go(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_x2go();
