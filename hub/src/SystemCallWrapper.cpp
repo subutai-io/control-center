@@ -4302,7 +4302,15 @@ system_call_wrapper_install_t CSystemCallWrapper::install_e2e(const QString &dir
     res.res = install_e2e_safari(dir, file_name);
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
@@ -5394,7 +5402,15 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_e2e() {
     res.res = uninstall_e2e_safari();
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
