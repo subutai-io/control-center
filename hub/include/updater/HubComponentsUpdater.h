@@ -30,7 +30,8 @@ enum cc_component{
     CC_SUBUTAI_BOX,
     CC_VMWARE,
     CC_VMWARE_UTILITY,
-    CC_XQUARTZ
+    CC_XQUARTZ,
+    CC_HYPERV
 };
 
 namespace update_system {

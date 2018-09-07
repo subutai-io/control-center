@@ -944,15 +944,27 @@ void DlgAbout::btn_provider_vmware_update_released() {
 }
 
 void DlgAbout::btn_hypervisor_update_released() {
+  QString component_id;
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VMWARE_DESKTOP:
+    component_id = IUpdaterComponent::VMWARE;
+    break;
+  case VagrantProvider::HYPERV:
+    component_id = IUpdaterComponent::HYPERV;
+    break;
+  default:
+    break;
+  }
+
   ui->pb_hypervisor->setHidden(false);
   ui->btn_hypervisor_update->setHidden(false);
   ui->btn_hypervisor_update->setEnabled(false);
   if (ui->lbl_hypervisor_version->text() == "undefined")
     CHubComponentsUpdater::Instance()->install(
-        IUpdaterComponent::VMWARE);
+        component_id);
   else
     CHubComponentsUpdater::Instance()->force_update(
-        IUpdaterComponent::VMWARE);
+        component_id);
 }
 
 void DlgAbout::btn_vagrant_vmware_utility_update_released() {
@@ -986,6 +998,7 @@ void DlgAbout::btn_uninstall_components() {
   static QStringList high_priority_component = {IUpdaterComponent::SUBUTAI_BOX,
                                                 IUpdaterComponent::VAGRANT_VBGUEST,
                                                 IUpdaterComponent::VAGRANT_SUBUTAI,
+                                                IUpdaterComponent::VAGRANT_VMWARE_DESKTOP,
                                                 IUpdaterComponent::E2E,
                                                 IUpdaterComponent::VMWARE_UTILITY}; // components with 1 priority, other will be 0
 
@@ -1296,6 +1309,7 @@ void DlgAbout::got_hypervisor_version_sl(QString version) {
       ui->btn_hypervisor_update->setHidden(false);
       ui->cb_hypervisor->setVisible(false);
       ui->btn_hypervisor_update->setText(tr("Install"));
+      ui->btn_hypervisor_update->setEnabled(true);
       ui->btn_hypervisor_update->activateWindow();
     } else {
       ui->btn_hypervisor_update->setText(tr("Update"));

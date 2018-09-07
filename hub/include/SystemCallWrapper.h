@@ -229,6 +229,9 @@ class CSystemCallWrapper {
   static system_call_wrapper_install_t install_vmware(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_vmware(const QString &dir, const QString &file_name);
 
+  static system_call_wrapper_install_t install_hyperv();
+  static system_call_wrapper_install_t uninstall_hyperv();
+
   static system_call_wrapper_install_t install_vmware_utility(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
 
