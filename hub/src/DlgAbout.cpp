@@ -565,6 +565,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       uint value = (progress.first * 100) / progress.second;
       it->second.pb->setValue(value);
     }
+#ifndef RT_OS_DARWIN
+    it->second.btn->setFixedWidth(100);
+#endif
   }
 
   ui->pb_initialization_progress->setMaximum(
@@ -586,6 +589,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->setFixedHeight(600);
 #else
   this->setFixedHeight(550);
+  ui->label_2->setFixedWidth(100);
 #endif
   this->adjustSize();
 
