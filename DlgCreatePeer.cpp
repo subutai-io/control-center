@@ -32,6 +32,8 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       m_password_state(0),
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
+  // Check existing peers
+  CPeerController::Instance()->refresh();
   // Bridge interfaces
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
@@ -385,16 +387,37 @@ void DlgCreatePeer::create_button_pressed() {
     return;
   }
 
+  int port = 9999;
+  system_call_res_t rs = CPeerController::Instance()->get_global_status();
+  if (rs.res == SCWE_SUCCESS && rs.exit_code == 0 && !rs.out.isEmpty()) {
+    int id = rs.out.begin()->indexOf("directory");
+    QStringList cr = CPeerController::Instance()->get_global_status().out;
+    for (QString s: cr) {
+      if (s.left(7).contains(' ') || s.left(7).contains('-')) {
+        continue;
+      }
+      QString dir = s.right(s.size() - id).trimmed();
+      QString cur_port_str = CSystemCallWrapper::vagrant_port(dir);
+      cur_port_str.remove(QRegularExpression("[^0-9]"));
+      int cur_port = cur_port_str.toInt();
+      if (cur_port >= port) {
+        port = cur_port + 1;
+      }
+    }
+  }
+
+  qDebug() << "port: " << port;
+
   ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
   ui->lbl_err_os->setText(tr("Initalializing environment..."));
   InitPeer *thread_init = new InitPeer(this);
   thread_init->init(dir, ui->cmb_os->currentText());
   thread_init->startWork();
   connect(thread_init, &InitPeer::outputReceived,
-          [dir, this](system_call_wrapper_error_t res) {
+          [dir, this, port](system_call_wrapper_error_t res) {
             this->init_completed(res, dir, this->ui->le_ram->text(),
                                  this->ui->cmb_cpu->currentText(),
-                                 this->ui->le_disk->text());
+                                 this->ui->le_disk->text(), port);
           });
 }
 
@@ -482,7 +505,7 @@ QString DlgCreatePeer::create_dir(const QString &peer_folder) {
 }
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,
-                                   QString ram, QString cpu, QString disk) {
+                                   QString ram, QString cpu, QString disk, int port) {
   if (res != SCWE_SUCCESS) { 
     CNotificationObserver::Instance()->Error(
         tr("Coudn't create peer, sorry. Check if all software is installed "
@@ -511,6 +534,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
   // write config file
   if (file.open(QIODevice::ReadWrite)) {
     QTextStream stream(&file);
+    stream << "DESIRED_CONSOLE_PORT : " << port << endl;
     stream << "SUBUTAI_RAM : " << ram << endl;
     stream << "SUBUTAI_CPU : " << cpu << endl;
     QString branch = current_branch_name_with_changes();
