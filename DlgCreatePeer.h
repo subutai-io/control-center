@@ -63,7 +63,7 @@ class DlgCreatePeer : public QDialog {
   void hide_err_labels();
   void set_enabled_buttons(bool state);
   void init_completed(system_call_wrapper_error_t res, QString dir, QString ram,
-                      QString cpu, QString disk);
+                      QString cpu, QString disk, int port);
   bool check_configurations();
   bool check_machine();
 
