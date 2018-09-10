@@ -77,6 +77,16 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                 IUpdaterComponent::VMWARE);
         });
 
+  // Hyper-V Hypervisor
+  requirement hyperv(
+        tr("Hyper-V is not ready"), tr("Checking Hyper-V..."),
+        tr("Hyper-V is not reaady. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::HYPERV);
+        });
+
   // Vagrant VMware Utility
   requirement vagrant_vmware_utility(
         tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
@@ -184,6 +194,12 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       ui->cmb_bridge->hide();
     }
 
+    break;
+  case VagrantProvider::HYPERV:
+    m_requirements_ls.push_back(hyperv);
+
+    ui->lbl_bridge->hide();
+    ui->cmb_bridge->hide();
     break;
   default:
     break;

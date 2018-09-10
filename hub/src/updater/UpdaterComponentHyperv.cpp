@@ -21,8 +21,9 @@ CUpdaterComponentHyperv::CUpdaterComponentHyperv() {
 CUpdaterComponentHyperv::~CUpdaterComponentHyperv() {}
 
 bool CUpdaterComponentHyperv::update_available_internal() {
-  // update not supported
-  return false;
+  QString version;
+  CSystemCallWrapper::hyperv_version(version);
+  return version == "undefined";
 }
 
 chue_t CUpdaterComponentHyperv::install_internal() {

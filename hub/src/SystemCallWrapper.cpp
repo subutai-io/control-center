@@ -1025,7 +1025,7 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
        << "-ExecutionPolicy"
        << "Bypass"
        << "-Command"
-       << "Get-VMSwitch | Select Name";
+       << "Get-VMSwitch";
 
   qDebug() << cmd
            << args;
@@ -1033,6 +1033,7 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
   QString output;
 
+  // TODO parse
   for (auto s : res.out) {
     output += s;
   }
@@ -6496,42 +6497,52 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_hyperv() {
 
 system_call_wrapper_error_t CSystemCallWrapper::hyperv_version(QString &version) {
   version = "undefined";
-  QString cmd = "wmic";
-  QStringList args;
-  // wmic datafile where name="C:/Windows/System32/vmms.exe" get version
-  args << "datafile"
-       << "where"
-       << QString("name=\"%1\"").arg("C:\\Windows\\System32\\vmms.exe")
-       << "get"
-       << "version";
+  QString cmd("powershell.exe");
+  QString empty;
 
-  qDebug() << "HyperV version command "
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+    qDebug() << "powershell command not found: check hyperv enabled";
+  }
+
+  QStringList args; //  powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy  Bypass -Command { $hyperv = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online; echo $hyperv.State; }
+  args << "-NoLogo"
+       << "-NoProfile"
+       << "-NonInteractive"
+       << "-ExecutionPolicy"
+       << "Bypass"
+       << "-Command"
+       << "Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online";
+
+  qDebug() << "Hyper-V version command: "
+           << cmd
            << args;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 30000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60);
 
-  qDebug() << "got HyperV version"
-           << " exit code: "
+  qDebug() << "Hyper-v version command finished: "
+           << "exit code: "
            << res.exit_code
-           << " result code: "
-           << res.res
            << " output: "
-           << res.out;
+           << res.out
+           << " res: "
+           << res.res;
 
   if (res.res == SCWE_SUCCESS &&
-      res.exit_code == 0 && !res.out.empty()) {
+        res.exit_code == 0 && !res.out.empty()) {
+    for (QString line : res.out) {
+      if (line.contains("State")) {
+        line.remove("State");
+        line.remove(":");
+        version = line.trimmed();
 
-    for (QString s : res.out) {
-      s = s.trimmed();
-      if (s.isEmpty()) continue;
-
-      s.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
-
-      if (s.isEmpty()) {
-        version = s;
+        if (version == "Disabled")
+          version = "undefined";
+        break;
       }
     }
-  }
+   }
 
   return SCWE_SUCCESS;
 }
