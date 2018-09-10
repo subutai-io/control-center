@@ -387,7 +387,11 @@ void DlgCreatePeer::create_button_pressed() {
     return;
   }
 
+  // Use minimum not-used port
+  std::vector<int> used_ports;
+  used_ports.emplace_back(9998);
   int port = 9999;
+
   system_call_res_t rs = CPeerController::Instance()->get_global_status();
   if (rs.res == SCWE_SUCCESS && rs.exit_code == 0 && !rs.out.isEmpty()) {
     int id = rs.out.begin()->indexOf("directory");
@@ -400,13 +404,35 @@ void DlgCreatePeer::create_button_pressed() {
       QString cur_port_str = CSystemCallWrapper::vagrant_port(dir);
       cur_port_str.remove(QRegularExpression("[^0-9]"));
       int cur_port = cur_port_str.toInt();
-      if (cur_port >= port) {
-        port = cur_port + 1;
+      if (cur_port < 9999) {
+        continue;
       }
+      used_ports.emplace_back(cur_port);
+    }
+  }
+  // We will store in TrayControlWindow::Instance()->reserved_ports
+  // ports that were used to create peer, but not reserved by vagrant yet.
+  for (int i: TrayControlWindow::Instance()->reserved_ports) {
+    used_ports.emplace_back(i);
+  }
+  sort(used_ports.begin(), used_ports.end());
+
+  for (std::vector<int>::size_type i = 0; i < used_ports.size(); i++) {
+    // if this is last port number in our used_port or
+    // the next one is greater than current + 1,
+    // current + 1 will be the minimum excluded number, hence it will be free.
+    if (i + 1 == used_ports.size() || used_ports[i] + 1 < used_ports[i + 1]) {
+      port = used_ports[i] + 1;
+      break;
     }
   }
 
   qDebug() << "port: " << port;
+  //reserve this port until vagrant gets it. Timeout is 2 minutes.
+  TrayControlWindow::Instance()->reserved_ports.insert(port);
+  QTimer::singleShot(120 * 1000, [port]() {
+    TrayControlWindow::Instance()->reserved_ports.erase(port);
+  });
 
   ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
   ui->lbl_err_os->setText(tr("Initalializing environment..."));
