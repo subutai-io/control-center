@@ -1146,7 +1146,8 @@ QStringList CSystemCallWrapper::virtualbox_interfaces() {
   qDebug("Getting list of bridged interfaces virtualbox");
   QString vb_version;
   CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-  QStringList interfaces;
+  static QStringList interfaces;
+  interfaces.clear();
   if (vb_version == "undefined") {
     installer_is_busy.unlock();
     return interfaces;
@@ -1388,15 +1389,15 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
     QStringList args;
     if (type == STARTED_P2P) {
-      args << "stop" << "p2p";
+      args << "stop" << "subutai-p2p";
     } else if (type == STOPPED_P2P) {
-      args << "start" << "p2p";
+      args << "start" << "subutai-p2p";
     } else {
-      args << "restart" << "p2p";
+      args << "restart" << "subutai-p2p";
     }
     system_call_res_t res = CSystemCallWrapper::ssystem(systemctl_path, args, true, true, 60000);
     if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
+      QString err_msg = QObject::tr("Couldn't reload subutai-p2p.service. ec = %1, err = %2")
                                .arg(res.exit_code)
                                .arg(CSystemCallWrapper::scwe_error_to_str(res.res));
       qCritical() << err_msg;
@@ -2050,9 +2051,125 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
 system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_install_t res;
+    QString version;
+
     res.res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+
+    if (res.res == SCWE_SUCCESS) {
+      p2p_version(version);
+      res.version = version;
+    }
+
     installer_is_busy.unlock();
     return res;
+}
+
+system_call_wrapper_install_t CSystemCallWrapper::update_p2p(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_install_t res_v;
+  system_call_wrapper_error_t res;
+  QString version;
+
+  res = update_p2p_linux(dir, file_name);
+  res_v.res = res;
+
+  if (res_v.res == SCWE_SUCCESS) {
+    p2p_version(version);
+    res_v.version = version;
+  }
+  installer_is_busy.unlock();
+  return res_v;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &dir, const QString &file_name) {
+  QString file_info = dir + QDir::separator() + file_name;
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "p2p_updater.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create updater script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+                                  "#!/bin/bash\n"
+                                  "apt-get remove -y '^%1.*'\n"
+                                  "dpkg -i %2")
+                                  .arg(p2p_package_name(), file_info)
+                                  .toUtf8();
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write updater script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path
+        << tmpFilePath;
+  qDebug()
+          <<"updater of p2p started:"
+          <<"args: "<<args2;
+  cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 97);
+  qDebug()
+          <<"updater of p2p finished:"
+          <<"error code: "<<cr2.exit_code
+          <<"output: "<<cr2.out
+          <<"result: "<<cr2.res;
+  tmpFile.remove();
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_install_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
@@ -4186,7 +4303,15 @@ system_call_wrapper_install_t CSystemCallWrapper::install_e2e(const QString &dir
     res.res = install_e2e_safari(dir, file_name);
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
@@ -4973,6 +5098,8 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
   args << "-e"
        << QString("do shell script \"rm -rf %1\"").arg(ext_path);
 
+  qDebug() << "uninstall e2e ggwp" << cmd << args;
+
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
     qCritical() << "Failed to uninstall e2e"
@@ -5276,7 +5403,15 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_e2e() {
     res.res = uninstall_e2e_safari();
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
@@ -5947,6 +6082,8 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   version = version.remove("p2p");
   version = version.remove("version");
   version = version.remove("  ");
+  int id = version.indexOf("+");
+  version = version.left(id);
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -7602,7 +7739,23 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version_cdn){
+  // new CDN doesn't provide version of CC
+  UNUSED_ARG(version_cdn);
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   qDebug() << "tray_post_update: version:" << version;
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
   // take product code
@@ -7655,7 +7808,23 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version_cdn){
+  // new CDN doesn't provide version of CC
+  UNUSED_ARG(version_cdn);
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   QDir dir(QApplication::applicationDirPath());
   dir.cdUp();
   QFile file(dir.absolutePath() + "/Info.plist");

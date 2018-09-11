@@ -3,6 +3,7 @@
 
 QString X2GoClient::x2goclient_config_path() {
   static const QString config_file = "x2goclient_session.ini";
+  QString conf_file_path;
   QStringList lst_config=
       QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
   qDebug() << "Finding a path for x2goclient conig files";
@@ -25,14 +26,35 @@ QString X2GoClient::x2goclient_config_path() {
       //todo log this
       break;
     }
-    qDebug() << "Selected path: " << dir_path + QDir::separator() + config_file;
 
-    return dir_path + QDir::separator() + config_file;
+    conf_file_path = dir_path + QDir::separator() + config_file;
+    QFile conf_file(conf_file_path);
+
+    qDebug() << "X2Go session file path: "
+             << conf_file_path;
+
+    if (conf_file.exists()) {
+      conf_file.remove();
+      qDebug() << "Removed old file X2Go session: "
+               << conf_file_path;
+    }
+
+    return conf_file_path;
   } while (false);
 
-  qDebug() << "Selected path: " << QApplication::applicationDirPath() + QDir::separator() + config_file;
+  conf_file_path = QApplication::applicationDirPath() + QDir::separator() + config_file;
+  QFile conf_file(conf_file_path);
 
-  return QApplication::applicationDirPath() + QDir::separator() + config_file;
+  qDebug() << "X2GO session file path: "
+           << conf_file_path;
+
+  if (conf_file.exists()) {
+    conf_file.remove();
+    qDebug() << "Removed old file X2Go session: "
+             << conf_file_path;
+  }
+
+  return conf_file_path;
 }
 
 X2GoClient::X2GoClient(QObject *parent) :

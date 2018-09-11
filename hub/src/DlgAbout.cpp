@@ -583,6 +583,9 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       uint value = (progress.first * 100) / progress.second;
       it->second.pb->setValue(value);
     }
+#ifndef RT_OS_DARWIN
+    it->second.btn->setFixedWidth(100);
+#endif
   }
 
   ui->pb_initialization_progress->setMaximum(
@@ -604,6 +607,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   this->setFixedHeight(600);
 #else
   this->setFixedHeight(550);
+  ui->label_2->setFixedWidth(100);
 #endif
   this->adjustSize();
 
@@ -1047,8 +1051,10 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setMinimum(0);
     m_dct_fpb[component_id].pb->setMaximum(0);
+    m_dct_fpb[component_id].btn->setText(tr("Installing"));
   } else {
     m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+    m_dct_fpb[component_id].btn->setText(tr("Downloading"));
   }
 }
 
@@ -1066,6 +1072,7 @@ void DlgAbout::update_finished(const QString& component_id, bool success) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
 
   m_dct_fpb[component_id].btn->setEnabled(false);
+  m_dct_fpb[component_id].btn->setText(tr("Update"));
   m_dct_fpb[component_id].pb->setValue(0);
   m_dct_fpb[component_id].pb->setRange(0, 100);
   m_dct_fpb[component_id].pb->setHidden(true);
@@ -1688,6 +1695,7 @@ void DlgAbout::uninstall_finished(const QString& component_id, bool success, con
            << " version: "
            << version;
 
+  m_dct_fpb[component_id].btn->setText(tr("Uninstall"));
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
   if (success) {
     m_dct_fpb[component_id].lbl->setText(version);
