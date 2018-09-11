@@ -206,7 +206,12 @@ int main(int argc, char* argv[]) {
       P2PController::Instance().init();
       P2PStatus_checker::Instance().update_status();
 
-      CSystemCallWrapper::hyperv_interfaces();
+      QProcess process;
+      process.start("powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass \"&('C:\\Users\\subutai\\POWERSHELL\\get_switches.ps1')\"");
+      process.waitForFinished();
+      qDebug() << "HYPERV bridge interface: "
+               << process.readAllStandardOutput()
+               << process.readAllStandardError();
 
       result = app.exec();
     } while (0);

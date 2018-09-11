@@ -364,6 +364,11 @@ void DlgPeer::updateUI() {
 void DlgPeer::launch_console_sl() {
   QString console_address =
       advanced ? "https://localhost:%1" : "https://%1:8443";
+
+  if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+    console_address = "https://%1:8443";
+  }
+
   CHubController::Instance().launch_browser(
       QString(console_address).arg(this->ssh_ip));
 }
