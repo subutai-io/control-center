@@ -1209,6 +1209,7 @@ void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QSt
     qDebug()
             <<"get list of installed vagrant plugins";
     QString cmd = CSettingsManager::Instance().vagrant_path();
+    QString tmp;
     QStringList args;
     args << "plugin"
          << "list";
@@ -1225,8 +1226,10 @@ void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QSt
     for (auto s : res.out){
         plugin.clear();
         plugin = s.split(' ');
-        if(plugin.size() == 2){
-            plugins.push_back(std::make_pair(plugin[0], plugin[1]));
+        if(plugin.size() >= 2) {
+          tmp = plugin[1];
+          tmp.remove(QRegularExpression("/[^0-9.]/g"));
+          plugins.push_back(std::make_pair(plugin[0], tmp));
         }
     }
 }
