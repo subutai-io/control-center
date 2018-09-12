@@ -19,7 +19,8 @@
 DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     : QDialog(parent), ui(new Ui::DlgPeer) {
   peer_fingerprint = peer_id;
-  qDebug() << "Peer dialog is initialized";
+  qDebug() << "Peer dialog is initialized: "
+           << peer_fingerprint;
   // ui
   ui->setupUi(this);
   this->setMinimumWidth(this->width());

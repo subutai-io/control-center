@@ -193,14 +193,14 @@ void CRestWorker::login(const QString& login, const QString& password,
 
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////* console rest API */////////////////////////////////
-void CRestWorker::peer_token(const QString& port, const QString& login,
+void CRestWorker::peer_token(const QString& url_management, const QString& login,
                              const QString& password, QString& token,
                              int& err_code, int& http_code,
                              int& network_error) {
-  qInfo() << tr("Getting token of %1").arg(port);
+  qInfo() << tr("Getting token of %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
+      QString("https://%1/rest/v1/identity/gettoken").arg(url_management));
 
   QUrl url_login(str_url);
   QUrlQuery query_login;
@@ -257,14 +257,14 @@ bool CRestWorker::peer_update_management(const QString &port){
   return true;
 }
 
-void CRestWorker::peer_unregister(const QString& port, const QString& token,
+void CRestWorker::peer_unregister(const QString& url_management, const QString& token,
                                   int& err_code, int& http_code,
                                   int& network_error) {
-  qInfo() << tr("Unregistering peer %1").arg(port);
+  qInfo() << tr("Unregistering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2")
-          .arg(port, token));
+      QString("https://%1/rest/v1/hub/unregister?sptoken=%2")
+          .arg(url_management, token));
 
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
@@ -279,16 +279,16 @@ void CRestWorker::peer_unregister(const QString& port, const QString& token,
            << "Network Error " << network_error;
 }
 
-void CRestWorker::peer_register(const QString& port, const QString& token,
+void CRestWorker::peer_register(const QString& url_management, const QString& token,
                                 const QString& login, const QString& password,
                                 const QString& peer_name,
                                 const QString& peer_scope, int& err_code,
                                 int& http_code, int& network_error) {
-  qInfo() << tr("Registering peer %1").arg(port);
+  qInfo() << tr("Registering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2")
-          .arg(port, token));
+      QString("https://%1/rest/v1/hub/register?sptoken=%2")
+          .arg(url_management, token));
   QUrl url_login(str_url);
   QUrlQuery query;
 

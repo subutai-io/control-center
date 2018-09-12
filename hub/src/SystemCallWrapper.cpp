@@ -1027,59 +1027,60 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
 
   if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
+    qCritical() << "Now found powershell";
     return interfaces;
   }
 
-  QStringList args; // powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass   -Command "$switches = Get-VMSwitch;  foreach ($switch in $switches) { Write-Debug $switch.Name }"
-  args << "-NoLogo"
-       << "-NoProfile"
-       << "-NonInteractive"
-       << "-ExecutionPolicy"
-       << "Bypass"
-       << "-Command"
-       << "Get-VMSwitch";
 
-  qDebug() << cmd
-           << args;
+  QStringList tmp_dir = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
-  QString output;
+  if (!tmp_dir.empty()) {
+    QString tmpScript =
+        tmp_dir[0] + QDir::separator() + "get_switches.ps1";
+    QFileInfo file(tmpScript);
 
-  // TODO parse
-  for (auto s : res.out) {
-    output += s;
-  }
+    if (!file.exists())
+      QFile::copy(":/hub/get_switches.ps1", tmpScript);
 
-  qDebug() << "Listing Hyper interfaces result:"
-           << "exit code: "
-           << res.exit_code
-           << "result: "
-           << res.res
-           << "output:"
-           << output;
+    if (file.exists()) {
 
-  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
-      return interfaces;
+      QStringList args;
+      args << "-NoLogo"
+           << "-NoProfile"
+           << "-NonInteractive"
+           << "-ExecutionPolicy"
+           << "Bypass"
+           << QString("\"&('%1')\"").arg(tmpScript);
 
-  // parse virtual switches
-  qDebug() << "got hyperv switches: "
-           << res.out;
+      system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,
+                                                             1000 * 60 * 2); //2 minutes timeout
+      qDebug() << cmd
+               << args;
+      if (res.exit_code != 0 && res.res != SCWE_SUCCESS) {
+        qCritical() << "Failed script hyperv bridge: "
+                    << "exit code: "
+                    << res.exit_code
+                    << res.res
+                    << res.out;
 
-  QStringList parse_me = res.out;
-  unsigned i = 0;
-  for (auto line : parse_me) {
-    if (i > 2) {
-      QString bridge = line.trimmed();
-
-      if (!bridge.isEmpty()) {
-        interfaces.push_back(bridge);
-        qDebug() << bridge
-                 << i;
+        installer_is_busy.unlock();
+        return interfaces;
       }
+
+      // TODO parse json files
+      qInfo() << "TODO PARSE JSON: "
+              << res.out
+              << file.absoluteFilePath();
+
+      //QFile(tmpfile()).remove();
+
+      installer_is_busy.unlock();
+      return interfaces;
     }
-    i++;
   }
 
+  qCritical() << "Tmp directory not valid"
+              << " OR can't copy script file to tmp dir";
 
   installer_is_busy.unlock();
   return interfaces;
