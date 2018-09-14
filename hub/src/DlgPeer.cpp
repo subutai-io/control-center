@@ -79,7 +79,8 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     ui->le_cpu->setReadOnly(!checked);
     ui->le_ram->setReadOnly(!checked);
     ui->le_disk->setReadOnly(!checked);
-    ui->cmb_bridge->setEnabled(checked);
+    if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::HYPERV)
+      ui->cmb_bridge->setEnabled(checked);
     if (checked == false) {
       this->configs();
     }

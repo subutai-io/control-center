@@ -932,14 +932,22 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
 QStringList CSystemCallWrapper::list_interfaces() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
   QStringList empty;
+  static QStringList hyperv;
+  static QStringList virtualbox;
 
   switch (provider) {
   case VagrantProvider::VIRTUALBOX:
-    return virtualbox_interfaces();
+    if (virtualbox.empty())
+      virtualbox = virtualbox_interfaces();
+
+    return virtualbox;
   //case VagrantProvider::LIBVIRT:
   //  return libvirt_interfaces();
-  //case VagrantProvider::HYPERV:
-  //  return hyperv_interfaces();
+  case VagrantProvider::HYPERV:
+    if (hyperv.empty())
+      hyperv = hyperv_interfaces();
+
+    return hyperv;
   //case VagrantProvider::PARALLELS:
   //  return parallels_interfaces();
   default:
@@ -1031,7 +1039,6 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
     return interfaces;
   }
 
-
   QStringList tmp_dir = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
   if (!tmp_dir.empty()) {
@@ -1043,36 +1050,38 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
       QFile::copy(":/hub/get_switches.ps1", tmpScript);
 
     if (file.exists()) {
+      QProcess proc;
+      QString output;
 
-      QStringList args;
-      args << "-NoLogo"
-           << "-NoProfile"
-           << "-NonInteractive"
-           << "-ExecutionPolicy"
-           << "Bypass"
-           << QString("\"&('%1')\"").arg(tmpScript);
+      proc.start(QString("%1 -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass \"&('%2')\"").arg(cmd, tmpScript));
+      proc_controller started_proc(proc);
+      proc.waitForFinished();
 
-      system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,
-                                                             1000 * 60 * 2); //2 minutes timeout
-      qDebug() << cmd
-               << args;
-      if (res.exit_code != 0 && res.res != SCWE_SUCCESS) {
+      output = QString(proc.readAllStandardOutput());
+
+      qDebug() << "Got hyper-v interface: "
+               << output;
+
+      if (proc.exitCode() != 0) {
         qCritical() << "Failed script hyperv bridge: "
                     << "exit code: "
-                    << res.exit_code
-                    << res.res
-                    << res.out;
+                    << proc.exitCode()
+                    << proc.readAllStandardError();
 
         installer_is_busy.unlock();
         return interfaces;
       }
 
-      // TODO parse json files
-      qInfo() << "TODO PARSE JSON: "
-              << res.out
-              << file.absoluteFilePath();
+      QJsonDocument json_doc = QJsonDocument::fromJson(output.toUtf8());
+      QJsonArray arr = json_doc.array();
 
-      //QFile(tmpfile()).remove();
+      foreach (const QJsonValue & val, arr) {
+        QJsonObject obj = val.toObject();
+        interfaces.append(obj["Name"].toString());
+
+        qInfo() << "BRIDGE NAME: "
+                << obj["Name"].toString();
+      }
 
       installer_is_busy.unlock();
       return interfaces;

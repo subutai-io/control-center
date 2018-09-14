@@ -200,8 +200,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   case VagrantProvider::HYPERV:
     m_requirements_ls.push_back(hyperv);
 
-    ui->lbl_bridge->hide();
-    ui->cmb_bridge->hide();
+    if (bridges.size() <= 1) {
+      ui->lbl_bridge->hide();
+      ui->cmb_bridge->hide();
+    }
     break;
   default:
     break;
