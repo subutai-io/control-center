@@ -173,8 +173,9 @@ static std::map<QString, QString> dct_term_arg = {
   {"evilvte", "-e bash -c"},
   {"aterm", "-e bash -c"},
   {"lxterminal", "-l -e"},
-  {"Terminal", "do script"}, // macos terminal
-  {"iTerm", "create window with default profile command"}, // macos terminal
+  //macos
+  {"Terminal", "do script"},
+  {"iTerm", "create window with default profile command"},
 };
 
 bool
@@ -211,8 +212,16 @@ CCommons::SupportTerminals() {
 QStringList
 CCommons::DefaultTerminals() {
   QStringList lst_res;
-  for (auto i : dct_term_arg)
-    lst_res << i.first;
+#ifdef RT_OS_LINUX
+  for (auto i : dct_term_arg) {
+    if (i.first != "Terminal" || i.first != "iTerm") {
+      lst_res << i.first;
+    }
+  }
+#endif
+#ifdef RT_OS_DARWIN
+  lst_res << "Terminal" << "iTerm";
+#endif
   return lst_res;
 }
 
