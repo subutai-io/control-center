@@ -584,10 +584,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->gridLayout->setSizeConstraint(QLayout::SetFixedSize);
   ui->gl_components->setSizeConstraint(QLayout::SetFixedSize);
   ui->gridLayout_3->setSizeConstraint(QLayout::SetFixedSize);
-  this->setMinimumWidth(600);
 #ifdef RT_OS_DARWIN
+  this->setMinimumWidth(615);
   this->setFixedHeight(600);
 #else
+  this->setMinimumWidth(600);
   this->setFixedHeight(550);
   ui->label_2->setFixedWidth(100);
 #endif
