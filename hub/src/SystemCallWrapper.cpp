@@ -2171,6 +2171,15 @@ system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &
   tmpFile.remove();
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
     return SCWE_CREATE_PROCESS;
+
+  QString p2p_path;
+  scr = CSystemCallWrapper::which("p2p", p2p_path);
+  if (scr == SCWE_SUCCESS) {
+    CSettingsManager::Instance().set_p2p_path(p2p_path);
+  } else {
+    qCritical() << "Unable to find p2p command.";
+  }
+
   return SCWE_SUCCESS;
 }
 
