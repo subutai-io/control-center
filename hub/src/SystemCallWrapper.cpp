@@ -7619,16 +7619,13 @@ QStringList CSystemCallWrapper::lsb_release(){
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class  OS>
-system_call_wrapper_error_t tray_post_update_internal(const QString &version);
+system_call_wrapper_error_t tray_post_update_internal();
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const QString &version){
-  UNUSED_ARG(version);
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (){
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version_cdn){
-  // new CDN doesn't provide version of CC
-  UNUSED_ARG(version_cdn);
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (){
   // take version by -v
   system_call_res_t rs =
       CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
@@ -7695,9 +7692,7 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version_cdn){
-  // new CDN doesn't provide version of CC
-  UNUSED_ARG(version_cdn);
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (){
   // take version by -v
   system_call_res_t rs =
       CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
@@ -7761,8 +7756,8 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
   }
   return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
-  return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
+system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(){
+  return tray_post_update_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class OS>

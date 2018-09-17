@@ -619,10 +619,8 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
   if (link.isEmpty()) {
     link = hub_gorjun_url();
   }
+  link += QString("?name=%1&latest").arg(file_name);
   QUrl url_gorjun_fi(link);
-  QUrlQuery query_gorjun_fi;
-  query_gorjun_fi.addQueryItem("name", file_name);
-  url_gorjun_fi.setQuery(query_gorjun_fi);
   QNetworkRequest request(url_gorjun_fi);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
@@ -636,14 +634,24 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     return lst_res;
   }
 
-  if (doc.isArray()) {
-    QJsonArray json_arr = doc.array();
-    for (auto i = json_arr.begin(); i != json_arr.end(); ++i) {
-      if (i->isNull() || !i->isObject()) continue;
-      lst_res.push_back(CGorjunFileInfo(i->toObject()));
-    }
-  } else if (doc.isObject()) {
-    lst_res.push_back(CGorjunFileInfo(doc.object()));
+  if (doc.isObject()) {
+    QStringList dbg;
+    QJsonObject obj = QJsonObject();
+
+    obj.insert("id", doc["id"]);
+    dbg << QString("id=%1").arg(doc["id"].toString());
+    obj.insert("filename", doc["filename"]);
+    dbg << QString("filename=%1").arg(doc["filename"].toString());
+
+    QJsonObject tmp_obj = doc["raw_details"].toArray().begin()->toObject();
+
+    obj.insert("md5", tmp_obj["md5"]);
+    dbg << QString("md5=%1").arg(tmp_obj["md5"].toString());
+    obj.insert("size", tmp_obj["size"]);
+    dbg << QString("size=%1").arg(tmp_obj["size"].toInt());
+
+    qDebug() << "Parsed json doc:" << dbg;
+    lst_res.emplace_back(CGorjunFileInfo(obj));
   }
 
   return lst_res;
