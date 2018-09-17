@@ -553,13 +553,13 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
-                       QString dir,
+                       int index_state,
+                       int index_directory,
                        QString &id,
                        QString &name,
                        QString &provider,
                        QString &state,
                        QString &directory) {
-  UNUSED_ARG(dir);
   state = "";
   QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
   if(seperated.size() < 5) return;
@@ -570,17 +570,12 @@ void parse_status_line(QString status_line,
       seperated.erase(seperated.begin());
   }
 
-  int i = 0, size = seperated.size();
+  int size = seperated.size();
 
   if (size > 2) {
-    for (QString str : seperated) {
-      if (i < size - 1) {
-        state += " " + str;
-        seperated.erase(seperated.begin());
-      }
-      i = i+1;
-    }
-    state = state.trimmed();
+    state = status_line.mid(index_state, index_directory - index_state).trimmed();
+    directory = status_line.mid(index_directory, status_line.size() - index_directory).trimmed();
+    return;
   } else {
     state = seperated[0];
     seperated.erase(seperated.begin());
@@ -901,10 +896,15 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
   global_status.out.clear();
 
   QString p_id, p_name, p_provider, p_state, p_directory;
+  int index_state, index_directory;
+  index_state = tmp.begin()->indexOf("state");
+  index_directory = tmp.begin()->indexOf("directory");
 
   for (auto s : tmp) {
-    parse_status_line(s, "", p_id, p_name, p_provider, p_state, p_directory);
+    parse_status_line(s, index_state, index_directory, p_id, p_name, p_provider,
+                      p_state, p_directory);
     // ckeck is this Subutai peer
+    p_directory = QDir::fromNativeSeparators(p_directory);
     QString generated_file_path = p_directory + QDir::separator() +
         ".vagrant" + QDir::separator() + "generated.yml";
     QFileInfo generated_file(generated_file_path);

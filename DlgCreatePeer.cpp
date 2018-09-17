@@ -394,7 +394,6 @@ void DlgCreatePeer::create_button_pressed() {
 
   system_call_res_t rs = CPeerController::Instance()->get_global_status();
   if (rs.res == SCWE_SUCCESS && rs.exit_code == 0 && !rs.out.isEmpty()) {
-    int id = rs.out.begin()->indexOf("directory");
     QStringList cr = CPeerController::Instance()->get_global_status().out;
     for (QString dir: cr) {
       QString cur_port_str = CSystemCallWrapper::vagrant_port(dir);
