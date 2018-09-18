@@ -86,8 +86,9 @@ class CPeerController : public QObject {
   QString get_error_messages(QDir peer_dir, QString command);
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
+
   QStringList bridged_interfaces;  // list of current bridged interfaces
-  system_call_res_t vagrant_global_status;  // list of current VMs
+  system_call_res_t vagrant_global_status;  // list of current VMs directory(Only Subutai peers)
   int number_threads;                       // to emit signal when all finished
   QString get_pr_step_fi(QFile &p_file); // get provision step from file
   bool is_provision_running(QDir peer_dir);

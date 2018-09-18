@@ -553,38 +553,41 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
-                       QString dir,
+                       int index_state,
+                       int index_directory,
                        QString &id,
                        QString &name,
                        QString &provider,
                        QString &state,
                        QString &directory) {
-    state = "";
-    QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-    if(seperated.size() < 5) return;
-    QString *args[] {&id, &name, &provider};
+  state = "";
+  QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+  if(seperated.size() < 5) return;
+  QString *args[] {&id, &name, &provider};
 
-    for (size_t i = 0; i < 3; i++){
-        *args[i] = seperated[0];
-        seperated.erase(seperated.begin());
+  for (size_t i = 0; i < 3; i++){
+      *args[i] = seperated[0];
+      seperated.erase(seperated.begin());
+  }
+
+  int size = seperated.size();
+
+  if (size > 2) {
+    state = status_line.mid(index_state, index_directory - index_state).trimmed();
+    directory = status_line.mid(index_directory, status_line.size() - index_directory).trimmed();
+    return;
+  } else {
+    state = seperated[0];
+    seperated.erase(seperated.begin());
+  }
+
+  if (!seperated.empty()) {
+    directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+      directory.remove(directory.size() -1 , 1);
     }
-
-    for (QString str : seperated) {
-      if (dir != str) {
-        state += " " + str;
-        seperated.erase(seperated.begin());
-      }
-    }
-
-    state = state.trimmed();
-
-    if (!seperated.empty()) {
-      directory = status_line.remove(0, status_line.indexOf(seperated[0]));
-      while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
-        directory.remove(directory.size() -1 , 1);
-      }
-      return;
-    }
+    return;
+  }
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
@@ -608,18 +611,24 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir){
     QStringList args;
     QString status("not_created");
 
-    args << "global-status";
+    args << "set_working_directory"
+         << dir
+         << "status"
+         << "--machine-readable";
+
     res = ssystem_th(cmd, args, true, true, 20000);
+
     if(res.res != SCWE_SUCCESS || res.exit_code != 0){
         return status;
     }
-    QString p_name, p_id, p_state, p_provider, p_dir;
-    for(auto s : res.out){
-        parse_status_line(s, dir, p_id, p_name, p_provider, p_state, p_dir);
-        if(p_dir == dir){
-            return p_state;
-        }
+
+    for (auto s : res.out) {
+      QStringList seperated = s.split(",");
+      if (seperated.contains("state")) {
+        status = seperated.takeLast();
+      }
     }
+
     return status;
 }
 
@@ -864,18 +873,61 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir){
 }
 
 std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
-    qDebug() << "Starting to update information related to peer management";
+  qDebug() << "Starting to update information related to peer management";
 
-    QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CSystemCallWrapper::list_interfaces();
 
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args << "global-status"
-         << "--prune";
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "global-status";
 
-    system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
 
-    return std::make_pair(bridges, global_status);
+  qInfo() << "Vagrant global-status"
+          << args
+          << "exit code: "
+          << global_status.exit_code
+          << " res: "
+          << global_status.res
+          << global_status.out;
+
+  // Clear global_status
+  QStringList tmp = global_status.out;
+  global_status.out.clear();
+
+  QString p_id, p_name, p_provider, p_state, p_directory;
+  int index_state, index_directory;
+  index_state = tmp.begin()->indexOf("state");
+  index_directory = tmp.begin()->indexOf("directory");
+
+  for (auto s : tmp) {
+    parse_status_line(s, index_state, index_directory, p_id, p_name, p_provider,
+                      p_state, p_directory);
+    // ckeck is this Subutai peer
+    p_directory = QDir::fromNativeSeparators(p_directory);
+    QString generated_file_path = p_directory + QDir::separator() +
+        ".vagrant" + QDir::separator() + "generated.yml";
+    QFileInfo generated_file(generated_file_path);
+
+    if (p_provider == VagrantProvider::Instance()->CurrentVal() && QDir(p_directory).exists() &&
+        generated_file.exists()) {
+      global_status.out.append(p_directory);
+      qDebug() << "Vagrant found local peers: "
+               << VagrantProvider::Instance()->CurrentVal()
+               << " ID: "
+               << p_id
+               << " NAME: "
+               << p_name
+               << " PROVIDER: "
+               << p_provider
+               << " STATE: "
+               << p_state
+               << " DIRECTORY: "
+               << p_directory;
+    }
+  }
+
+  return std::make_pair(bridges, global_status);
 }
 //////////////////////////////////////////////////////////////////////
 
@@ -920,10 +972,14 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
 QStringList CSystemCallWrapper::list_interfaces() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
   QStringList empty;
+  static  QStringList virtualbox; // It gets one time when application launched.
 
   switch (provider) {
   case VagrantProvider::VIRTUALBOX:
-    return virtualbox_interfaces();
+    if (virtualbox.empty())
+      virtualbox = virtualbox_interfaces();
+
+    return virtualbox;
   //case VagrantProvider::LIBVIRT:
   //  return libvirt_interfaces();
   //case VagrantProvider::HYPERV:

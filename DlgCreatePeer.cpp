@@ -394,13 +394,8 @@ void DlgCreatePeer::create_button_pressed() {
 
   system_call_res_t rs = CPeerController::Instance()->get_global_status();
   if (rs.res == SCWE_SUCCESS && rs.exit_code == 0 && !rs.out.isEmpty()) {
-    int id = rs.out.begin()->indexOf("directory");
     QStringList cr = CPeerController::Instance()->get_global_status().out;
-    for (QString s: cr) {
-      if (s.left(7).contains(' ') || s.left(7).contains('-')) {
-        continue;
-      }
-      QString dir = s.right(s.size() - id).trimmed();
+    for (QString dir: cr) {
       QString cur_port_str = CSystemCallWrapper::vagrant_port(dir);
       cur_port_str.remove(QRegularExpression("[^0-9]"));
       int cur_port = cur_port_str.toInt();
