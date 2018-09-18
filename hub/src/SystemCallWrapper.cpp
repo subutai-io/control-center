@@ -603,129 +603,156 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QStr
   return SCWE_SUCCESS;
 }
 
-QString CSystemCallWrapper::vagrant_status(const QString &dir){
-    qDebug() << "get vagrant status of" << dir;
+QString CSystemCallWrapper::vagrant_status(const QString &dir) {
+  vagrant_is_busy.lock();
+  qDebug() << "get vagrant status of" << dir;
 
-    system_call_res_t res;
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    QString status("not_created");
+  system_call_res_t res;
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  QString status("not_created");
 
-    args << "set_working_directory"
-         << dir
-         << "status"
-         << "--machine-readable";
+  args << "set_working_directory"
+       << dir
+       << "status"
+       << "--machine-readable";
 
-    res = ssystem_th(cmd, args, true, true, 20000);
+  res = ssystem_th(cmd, args, true, true, 20000);
 
-    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
-        return status;
-    }
-
-    for (auto s : res.out) {
-      QStringList seperated = s.split(",");
-      if (seperated.contains("state")) {
-        status = seperated.takeLast();
-      }
-    }
-
+  if(res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    vagrant_is_busy.unlock();
     return status;
+  }
+
+  for (auto s : res.out) {
+    QStringList seperated = s.split(",");
+    if (seperated.contains("state")) {
+      status = seperated.takeLast();
+    }
+  }
+
+  vagrant_is_busy.unlock();
+  return status;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "halt";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "set_working_directory"
+       << dir
+       << "halt";
 
-    qDebug()
-            <<"Starting to halt peer. Args:"
-            <<args;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "Starting to halt peer. Args:"
+           << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Halt finished:"
-            <<dir
-            <<res.res;
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return res.res;
+  qDebug() << "Halt finished:"
+           << dir
+           << res.res;
+
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "reload";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args
+      << "set_working_directory"
+      << dir
+      << "reload";
 
-    qDebug()
-            <<"Starting to reload peer. Args:"
-            <<args;
+  qDebug()
+          <<"Starting to reload peer. Args:"
+          <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Reload finished:"
-            <<dir
-            <<res.res;
+  qDebug()
+          <<"Reload finished:"
+          <<dir
+          <<res.res;
 
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return res.res;
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args<< "set_working_directory"
-        << dir
-        << "destroy"
-        << "-f";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "set_working_directory"
+       << dir
+       << "destroy"
+       << "-f";
 
-    qDebug()
-            <<"Starting to destroy peer. Args:"<<args;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
-    qDebug()<<"Destroying peer finished"
-            <<"Exit code:"<<res.exit_code
-            <<"Result:"<<res.res
-            <<"Output:"<<res.out;
-    if(res.exit_code !=0 || res.res != SCWE_SUCCESS)
-        return SCWE_CREATE_PROCESS;
-    QDir dir_path(dir);
-    if(dir_path.removeRecursively())
-        return SCWE_SUCCESS;
-    else return SCWE_CREATE_PROCESS;
+  qDebug() << "Starting to destroy peer. Args:"
+           << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "Destroying peer finished"
+           << "Exit code:"
+           << res.exit_code
+           << "Result:"
+           << res.res
+           << "Output:"
+           << res.out;
+
+  if(res.exit_code !=0 || res.res != SCWE_SUCCESS) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QDir dir_path(dir);
+
+  if(dir_path.removeRecursively()) {
+    vagrant_is_busy.unlock();
+    return SCWE_SUCCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return SCWE_CREATE_PROCESS;
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "up";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args
+      << "set_working_directory"
+      << dir
+      << "up";
 
-    qDebug()
-            <<"Vagrant up. Args:"
-            <<args;
+  qDebug()
+          <<"Vagrant up. Args:"
+          <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Finished vagrant up:"
-            <<dir
-            <<"exit code:"<<res.exit_code
-            <<"result code:"<<res.res;
+  qDebug()
+          <<"Finished vagrant up:"
+          <<dir
+          <<"exit code:"<<res.exit_code
+          <<"result code:"<<res.res;
 
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    return std::make_pair(res.res, res.out);
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+      res.res = SCWE_CREATE_PROCESS;
+
+  vagrant_is_busy.unlock();
+  return std::make_pair(res.res, res.out);
 }
 
 QString CSystemCallWrapper::vagrant_ip(const QString &dir) {
