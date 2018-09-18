@@ -133,14 +133,63 @@ void CPeerController::refresh_timer_timeout() { refresh(); }
 
 void CPeerController::search_local() {
   // check each peer status
-  for (QString s : this->vagrant_global_status.out) {
-    QFileInfo fi(s);
-    QDir dir(s);
-    get_peer_info(fi, dir);
-  }
+  if (this->vagrant_global_status.out.empty()) {
+    QDir peers_dir;
+    QStringList stdDirList;
+    QStringList::iterator stdDir;
 
-  if (number_threads == 0) {
-    emit got_peer_info(P_STATUS, "update", "peer", "menu");
+    switch (VagrantProvider::Instance()->CurrentProvider()) {
+    case VagrantProvider::VIRTUALBOX:
+      // get correct path;
+      stdDirList =
+          QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+      stdDir = stdDirList.begin();
+      if (stdDir == stdDirList.end())
+        peers_dir.setCurrent("/");
+      else
+        peers_dir.setCurrent(*stdDir);
+      break;
+    case VagrantProvider::VMWARE_DESKTOP:
+      peers_dir.setCurrent(CSettingsManager::Instance().vmware_vm_storage());
+      break;
+    default:
+      // get correct path;
+      stdDirList =
+          QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+
+      QStringList::iterator stdDir = stdDirList.begin();
+      if (stdDir == stdDirList.end())
+        peers_dir.setCurrent("/");
+      else
+        peers_dir.setCurrent(*stdDir);
+      break;
+    }
+
+    if (!peers_dir.absolutePath().contains("Subutai-peers")) {
+      peers_dir.mkdir("Subutai-peers");
+    }
+
+    peers_dir.cd("Subutai-peers");
+
+    // start looking each subfolder
+    for (QFileInfo fi : peers_dir.entryInfoList()) {
+      peers_dir.cd(fi.fileName());
+      get_peer_info(fi, peers_dir);
+    }
+    if (number_threads == 0) {
+      emit got_peer_info(P_STATUS, "update", "peer", "menu");
+    }
+  } else {
+    for (QString s : this->vagrant_global_status.out) {
+      QFileInfo fi(s);
+      QDir dir(s);
+      get_peer_info(fi, dir);
+    }
+
+    if (number_threads == 0) {
+      emit got_peer_info(P_STATUS, "update", "peer", "menu");
+    }
   }
 }
 // the most tricky part

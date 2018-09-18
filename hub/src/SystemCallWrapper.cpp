@@ -529,7 +529,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
         << dir
         << "init";
     if (box == "Debian Stretch")
-        CURRENT_BRANCH == BT_MASTER ? args << "subutai/stretch-master" : args << "subutai/stretch";
+        CURRENT_BRANCH == BT_PROD ? args << "subutai/stretch" : args << "subutai/stretch-master";
     else args << "subutai/xenial";
 
 
@@ -1681,7 +1681,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
     }
 
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
                                                                 name, *(command.split(" ").begin()));
@@ -1724,7 +1724,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
     }
 
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
                                                                 name, *(command.split(" ").begin()));
@@ -1764,7 +1764,7 @@ UNUSED_ARG(command);
       return SCWE_CREATE_PROCESS;
   }
 
-  QString str_command = QString("cd %1 & %2 %3 2> %4_%5 & ").arg(dir,
+  QString str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
                                                               CSettingsManager::Instance().vagrant_path(),
                                                               command,
                                                               name, *(command.split(" ").begin()));
