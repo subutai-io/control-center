@@ -632,7 +632,7 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
   }
 
   vagrant_is_busy.unlock();
-  return status;
+  return status.simplified();
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir) {
