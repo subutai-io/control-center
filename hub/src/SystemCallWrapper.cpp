@@ -856,7 +856,7 @@ system_call_wrapper_error_t CSystemCallWrapper::set_virtualbox_vm_storage(const 
   return res.res;
 }
 
-QString CSystemCallWrapper::vagrant_port(const QString &dir){
+QString CSystemCallWrapper::vagrant_port(const QString &dir) {
     QDir peer_dir(dir);
     QString  port = "undefined";
     if(peer_dir.cd(".vagrant")){

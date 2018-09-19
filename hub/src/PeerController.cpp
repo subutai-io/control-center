@@ -132,7 +132,6 @@ const QString &CPeerController::provision_step_description(const int &step) {
 void CPeerController::refresh_timer_timeout() { refresh(); }
 
 void CPeerController::search_local() {
-  // check each peer status
   if (this->vagrant_global_status.out.empty()) {
     QDir peers_dir;
     QStringList stdDirList;
@@ -174,7 +173,6 @@ void CPeerController::search_local() {
 
     // start looking each subfolder
     for (QFileInfo fi : peers_dir.entryInfoList()) {
-      peers_dir.cd(fi.fileName());
       get_peer_info(fi, peers_dir);
     }
     if (number_threads == 0) {
@@ -314,6 +312,9 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
   QString peer_name = parse_name(fi.fileName());
   static peer_info_t status_type = P_STATUS;
   if (peer_name == "") return;
+
+  if (this->vagrant_global_status.out.empty())
+    dir.cd(fi.fileName());
 
   // get status of peer
   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
