@@ -227,58 +227,16 @@ void DlgAbout::set_hidden_providers() {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
     set_visible_virtualbox(true);
-
-    this->m_dct_fpb[IUpdaterComponent::ORACLE_VIRTUALBOX] = {
-      ui->lbl_oracle_virtualbox_version_val, ui->pb_oracle_virtualbox,
-      ui->cb_oracle_virtualbox, ui->btn_oracle_virtualbox_update,
-      get_oracle_virtualbox_version};
-
-    this->m_dct_fpb[IUpdaterComponent::VAGRANT_VBGUEST] = {
-      ui->lbl_vbguest_plugin_version_val, ui->pb_vbguest_plugin,
-      ui->cb_vagrant_vbguest_plugin, ui->btn_vbguest_plugin_update,
-      get_vagrant_vbguest_version};
-
     break;
   //case VagrantProvider::PARALLELS:
   //  set_visible_parallels(true);
-
-  //  this->m_dct_fpb[IUpdaterComponent::VAGRANT_PARALLELS] = {
-  //    ui->lbl_provider_parallels_version, ui->pb_provider_parallels,
-  //    ui->cb_provider_parallels, ui->btn_provider_parallels_update,
-  //    get_vagrant_provider_version};
-
   //  break;
   case VagrantProvider::VMWARE_DESKTOP:
     set_visible_vmware(true);
-
-    this->m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
-      ui->lbl_provider_vmware_version, ui->pb_provider_vmware,
-      ui->cb_provider_vmware, ui->btn_provider_vmware_update,
-      get_vagrant_provider_version
-    };
-
-    this->m_dct_fpb[IUpdaterComponent::VMWARE] = {
-      ui->lbl_hypervisor_version, ui->pb_hypervisor,
-      ui->cb_hypervisor, ui->btn_hypervisor_update,
-      get_hypervisor_vmware_version
-    };
-
-    this->m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
-      ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility,
-      ui->cb_provider_vmware_utility, ui->btn_provider_vmware_utility_update,
-      get_vagrant_vmware_utility_version
-    };
-
     break;
   //case VagrantProvider::LIBVIRT:
   //  set_visible_libvirt(true);
-
- //   this->m_dct_fpb[IUpdaterComponent::VAGRANT_LIBVIRT] = {
- //     ui->lbl_provider_libvirt_version, ui->pb_provider_libvirt,
- //     ui->cb_provider_libvirt, ui->btn_provider_libvirt_update,
- //     get_vagrant_provider_version};
-
-    break;
+  // break;
   case VagrantProvider::HYPERV:
     set_visible_hypervisor(true, "Hyper-V");
     break;
@@ -477,7 +435,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
 
   m_dct_fpb[IUpdaterComponent::TRAY] = {
     ui->lbl_tray_version_val, ui->pb_tray,
-    NULL, ui->btn_tray_update, NULL
+    nullptr, ui->btn_tray_update, nullptr
   };
 
   m_dct_fpb[IUpdaterComponent::X2GO] = {
@@ -549,30 +507,25 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     ui->btn_xquartz_update, get_xquartz_version
   };
 
-  switch(VagrantProvider::Instance()->CurrentProvider()) {
-  case VagrantProvider::HYPERV:
-    m_dct_fpb[IUpdaterComponent::HYPERV] = {
-      ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
-      ui->btn_hypervisor_update, get_hyperv_version
-    };
-    break;
-  case VagrantProvider::VMWARE_DESKTOP:
-    m_dct_fpb[IUpdaterComponent::VMWARE] = {
-      ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
-      ui->btn_hypervisor_update, get_hypervisor_vmware_version
-    };
+  m_dct_fpb[IUpdaterComponent::HYPERV] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_hyperv_version
+  };
 
-    m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
-      ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility, ui->cb_provider_vmware_utility,
-      ui->btn_provider_vmware_utility_update, get_vagrant_vmware_utility_version
-    };
+  m_dct_fpb[IUpdaterComponent::VMWARE] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_hypervisor_vmware_version
+  };
 
-    m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
-      ui->lbl_provider_vmware_version, ui->pb_provider_vmware, ui->cb_provider_vmware,
-      ui->btn_provider_vmware_update, get_vagrant_provider_version
-    };
-    break;
-  }
+  m_dct_fpb[IUpdaterComponent::VMWARE_UTILITY] = {
+    ui->lbl_provider_vmware_utility_version, ui->pb_provider_vmare_utility, ui->cb_provider_vmware_utility,
+    ui->btn_provider_vmware_utility_update, get_vagrant_vmware_utility_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::VAGRANT_VMWARE_DESKTOP] = {
+    ui->lbl_provider_vmware_version, ui->pb_provider_vmware, ui->cb_provider_vmware,
+    ui->btn_provider_vmware_update, get_vagrant_provider_version
+  };
 
   // hide providers and add provider to components dictionary
   set_hidden_providers();

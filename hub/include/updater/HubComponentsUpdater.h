@@ -48,7 +48,7 @@ namespace update_system {
     //PUBLIC FIELD!!! ACHTUNG!!! :-D
     bool autoupdate;
 
-    CUpdaterComponentItem() : m_component(NULL), autoupdate(false){
+    CUpdaterComponentItem() : m_component(nullptr), autoupdate(false){
       connect(&m_timer, &QTimer::timeout, this, &CUpdaterComponentItem::timer_timeout_sl);
     }
 
