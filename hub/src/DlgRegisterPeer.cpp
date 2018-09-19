@@ -89,8 +89,8 @@ void DlgRegisterPeer::registerPeer() {
     if(!dialog_used[ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error);
     if(kill_me){
-        CRestWorker::Instance()->peer_register(m_url_management, token,
-                                               CHubController::Instance().current_email(), CSettingsManager::Instance().password(),
+        CRestWorker::Instance()->peer_register(ip_addr, token,
+                                               CHubController::Instance().current_email(), CHubController::Instance().current_pass(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error);
         if(!dialog_used[ip_addr.toInt() - 9999]) return;
