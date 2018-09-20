@@ -924,8 +924,11 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
 
   QString p_id, p_name, p_provider, p_state, p_directory;
   int index_state, index_directory;
-  index_state = tmp.begin()->indexOf("state");
-  index_directory = tmp.begin()->indexOf("directory");
+
+  if (!tmp.empty()) {
+    index_state = tmp.begin()->indexOf("state");
+    index_directory = tmp.begin()->indexOf("directory");
+  }
 
   for (auto s : tmp) {
     parse_status_line(s, index_state, index_directory, p_id, p_name, p_provider,
