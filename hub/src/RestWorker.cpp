@@ -635,15 +635,16 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
   }
 
   if (doc.isObject()) {
+    QJsonObject json_obj = doc.object();
     QStringList dbg;
     QJsonObject obj = QJsonObject();
 
-    obj.insert("id", doc["id"]);
-    dbg << QString("id=%1").arg(doc["id"].toString());
-    obj.insert("filename", doc["filename"]);
-    dbg << QString("filename=%1").arg(doc["filename"].toString());
+    obj.insert("id", json_obj["id"]);
+    dbg << QString("id=%1").arg(json_obj["id"].toString());
+    obj.insert("filename", json_obj["filename"]);
+    dbg << QString("filename=%1").arg(json_obj["filename"].toString());
 
-    QJsonObject tmp_obj = doc["raw_details"].toArray().begin()->toObject();
+    QJsonObject tmp_obj = json_obj["raw_details"].toArray().begin()->toObject();
 
     obj.insert("md5", tmp_obj["md5"]);
     dbg << QString("md5=%1").arg(tmp_obj["md5"].toString());
