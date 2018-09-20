@@ -121,7 +121,7 @@ chue_t CUpdaterComponentVIRTUALBOX::uninstall_internal() {
 
     std::vector<CGorjunFileInfo> fi =
         CRestWorker::Instance()->get_gorjun_file_info(
-          file_name, "");
+          file_name);
     if (fi.empty()) {
       qCritical("File %s isn't presented on kurjun",
                 m_component_id.toStdString().c_str());
