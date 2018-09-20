@@ -34,7 +34,8 @@ chue_t CUpdaterComponentHyperv::install_internal() {
       QObject::tr(
           "Hyper-V is used as the hypervisor.<br>"
           "The Hyper-V will be enabling on your machine.\n"
-          "After enabling the Hyper-V, <b>it is required</b> to reboot machine.\n"
+          "<b>After enabling the Hyper-V, "
+          "it is required to reboot machine.</b>\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
 
@@ -66,7 +67,7 @@ chue_t CUpdaterComponentHyperv::uninstall_internal() {
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
           "The <br>Hyper-V</br> will be disabling on your machine.\n"
-          "After disabling the Hyper-V, <b>it is required</b> to reboot machine.\n"
+          "After disabling the Hyper-V, <b>it is required to reboot machine.</b>\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
 

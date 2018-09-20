@@ -68,9 +68,6 @@ CUpdaterComponentTray::update_internal() {
     eu->replace_executables(true);
     return CHUE_SUCCESS;
   }
-  tray_cloud_version = item->version();
-
-  qDebug() << "version" << tray_cloud_version;
 
   CDownloadFileManager *dm = new CDownloadFileManager(item->name(),
                                                       str_tray_download_path,
@@ -97,7 +94,7 @@ CUpdaterComponentTray::update_post_action(bool success) {
     return;
   }
 
-  system_call_wrapper_error_t res = CSystemCallWrapper::tray_post_update(tray_cloud_version);
+  system_call_wrapper_error_t res = CSystemCallWrapper::tray_post_update();
   if (res != SCWE_SUCCESS) {
     qCritical("Failed to finish post install after tray update");
   }

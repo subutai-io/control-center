@@ -224,7 +224,7 @@ void DlgPeer::parse_yml() {
   if (ui->change_configure->isChecked()) return;
   QString filename = QString("%1/vagrant-subutai.yml").arg(rh_dir);
   QFile file(filename);
-  if (file.open(QIODevice::ReadWrite)) {
+  if (QFileInfo(filename).exists() && file.open(QIODevice::ReadWrite)) {
     QTextStream stream(&file);
     QString output = QString(stream.readAll());
     QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);

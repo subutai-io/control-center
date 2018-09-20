@@ -965,6 +965,13 @@ void DlgAbout::btn_uninstall_components() {
                                                 IUpdaterComponent::E2E,
                                                 IUpdaterComponent::VMWARE_UTILITY}; // components with 1 priority, other will be 0
 
+  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+  if (provider == VagrantProvider::HYPERV) {
+    m_dct_fpb[IUpdaterComponent::VMWARE].cb = nullptr;
+  } else if (provider == VagrantProvider::VMWARE_DESKTOP) {
+    m_dct_fpb[IUpdaterComponent::HYPERV].cb = nullptr;
+  }
+
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
     if (component.second.cb == nullptr) {continue;}
@@ -1006,14 +1013,22 @@ void DlgAbout::btn_uninstall_components() {
 void DlgAbout::download_progress(const QString& component_id, qint64 rec,
                                  qint64 total) {
   if (m_dct_fpb.find(component_id) == m_dct_fpb.end()) return;
+  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+
   if (total == 0) {
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setMinimum(0);
     m_dct_fpb[component_id].pb->setMaximum(0);
-    m_dct_fpb[component_id].btn->setText(tr("Installing"));
+    if (provider == VagrantProvider::HYPERV)
+      m_dct_fpb[component_id].btn->setText(tr("Enabling"));
+    else
+      m_dct_fpb[component_id].btn->setText(tr("Installing"));
+
   } else {
     m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
-    m_dct_fpb[component_id].btn->setText(tr("Downloading"));
+
+    if (provider != VagrantProvider::HYPERV)
+      m_dct_fpb[component_id].btn->setText(tr("Downloading"));
   }
 }
 
@@ -1277,6 +1292,7 @@ void DlgAbout::got_hypervisor_version_sl(QString version) {
       ui->btn_hypervisor_update->setText(tr("Install"));
       ui->btn_hypervisor_update->activateWindow();
       ui->cb_hypervisor->setEnabled(true);
+      ui->btn_hypervisor_update->setEnabled(true);
     } else {
       ui->btn_hypervisor_update->setText(tr("Update"));
       ui->btn_hypervisor_update->setHidden(true);
