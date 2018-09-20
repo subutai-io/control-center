@@ -365,7 +365,7 @@ class CSystemCallWrapper {
       const QString &port, const QString &cont_ip, const QString &rh_ip);
   static bool is_host_reachable(const QString &host);
   // varios system call wrappers for iupdater components
-  static system_call_wrapper_error_t tray_post_update(const QString &version);
+  static system_call_wrapper_error_t tray_post_update();
   static system_call_wrapper_error_t p2p_post_update();
 };
 /*
