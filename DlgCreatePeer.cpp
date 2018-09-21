@@ -513,7 +513,7 @@ QString DlgCreatePeer::virtualbox_dir(const QString &name) {
   return current_local_dir.absolutePath();
 }
 
-// Create peer directory by VM storage path on VMware
+// Create peer directory by VM storage path on VMware, Hyper-V
 QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
 
   // 1. create "peer" folder.
@@ -533,13 +533,12 @@ QString DlgCreatePeer::create_dir(const QString &peer_folder) {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
     return virtualbox_dir(peer_folder);
-    break;
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_dir(peer_folder);
-    break;
+  case VagrantProvider::HYPERV:
+    return vmware_dir(peer_folder);
   default:
     return virtualbox_dir(peer_folder);
-    break;
   }
 }
 

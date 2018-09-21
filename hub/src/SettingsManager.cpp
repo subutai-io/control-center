@@ -55,6 +55,7 @@ const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_VMWARE_VM_STORAGE("VMware_Vm_Storage");
+const QString CSettingsManager::SM_HYPERV_VM_STORAGE("Hyperv_Vm_Storage");
 const QString CSettingsManager::SM_VM_STORAGE("Vm_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
@@ -212,6 +213,7 @@ CSettingsManager::CSettingsManager()
       m_ssh_keys_storage(QApplication::applicationDirPath()),
       m_peers_storage(CCommons::HomePath()),
       m_vmware_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
+      m_hyperv_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_tray_update_freq(UF_MIN30),
@@ -272,6 +274,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
       {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
       {(void*)&m_vmware_vm_storage, SM_VMWARE_VM_STORAGE, qvar_to_str},
+      {(void*)&m_hyperv_vm_storage, SM_HYPERV_VM_STORAGE, qvar_to_str},
       {(void*)&m_vm_storage, SM_VM_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
@@ -813,4 +816,5 @@ SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
 SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 SET_FIELD_DEF(vm_storage, SM_VM_STORAGE, QString&)
 SET_FIELD_DEF(vmware_vm_storage, SM_VMWARE_VM_STORAGE, QString&)
+SET_FIELD_DEF(hyperv_vm_storage, SM_HYPERV_VM_STORAGE, QString&)
 #undef SET_FIELD_DEF

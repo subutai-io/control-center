@@ -911,7 +911,8 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir) {
   return port;
 }
 
-std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information() {
+  vagrant_is_busy.lock();
   qDebug() << "Starting to update information related to peer management";
 
   QStringList bridges = CSystemCallWrapper::list_interfaces();
@@ -969,6 +970,7 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
     }
   }
 
+  vagrant_is_busy.unlock();
   return std::make_pair(bridges, global_status);
 }
 //////////////////////////////////////////////////////////////////////
@@ -1812,13 +1814,31 @@ UNUSED_ARG(command);
       return SCWE_CREATE_PROCESS;
   }
 
-  QString str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
-                                                              CSettingsManager::Instance().vagrant_path(),
-                                                              command,
-                                                              name, *(command.split(" ").begin()));
+  QStorageInfo root_storage = QStorageInfo::root(); //c:/
+  QStorageInfo peer_drive(dir);
+  QString str_command;
+
+  if (root_storage.rootPath() == peer_drive.rootPath()) {
+    str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+  } else {
+    QString drive = peer_drive.rootPath();
+    drive.remove("/");
+    drive.remove("\\");
+    str_command = QString("%1 & cd \"%2\" & %3 %4 2> %5_%6 & ").arg(drive, dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+  }
+
   if(command == "reload"){
       str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
   }
+
+  qInfo() << "Vagrant start stop commands: "
+          << str_command;
 
   str_command += QString("echo finished > %1_finished & echo Peer finished to %1 with following messages: "
                          "& type %2_%1 &"

@@ -33,9 +33,11 @@ public:
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();
   static QString CurrentName();
+  static QString VmStorage();
   QDir BasePeerDir();
   QDir BasePeerDirVirtualbox();
   QDir BasePeerDirVMware();
+  QDir BasePeerDirHyperv();
   static std::vector<int> List();
 
   template <class OS> static

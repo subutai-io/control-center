@@ -159,7 +159,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   advanced = true;
   ssh_available = true;
   rh_status = peer.status();
-  rh_dir = peer.dir();
+  rh_dir = QDir::toNativeSeparators(peer.dir());
   rh_name = peer.name();
   rh_provision_step = CPeerController::Instance()->getProvisionStep(rh_dir);
   management_ua = peer.update_available() == "true" ? true : false;
@@ -687,6 +687,8 @@ void DlgPeer::rh_stop() {
 }
 
 void DlgPeer::rh_start() {
+  qDebug() << "START RH DIR: "
+           << rh_dir;
   static QString up_command = "up";
   enabled_peer_buttons(false);
   if (ui->change_configure->isChecked()) {
