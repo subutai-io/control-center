@@ -1754,24 +1754,11 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
     }
 
     UNUSED_ARG(name);
-
-		QStorageInfo root_storage = QStorageInfo::root(); //c:/
-		QStorageInfo another_storage(dir);
-		QString str_command;
-		if (root_storage.rootPath() == another_storage.rootPath()) {
-			str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
-																																	CSettingsManager::Instance().vagrant_path(),
-																																	command,
-																																	name, *(command.split(" ").begin()));
-		} else {
-			QString root = another_storage.rootPath();
-			root = root.left(root.size() - 1);
-			str_command = QString("%1 & cd \"%2\" & %3 %4 2> %5_%6 & ")
-					.arg(root, dir, CSettingsManager::Instance().vagrant_path(),
-							 command, name, *(command.split(" ").begin()));
-		}
-
-		if (command == "reload"){
+    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+    if(command == "reload"){
         str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
     }
 
@@ -1803,15 +1790,26 @@ UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
 
-  if(command.isEmpty()){
+  if (command.isEmpty()){
       return SCWE_CREATE_PROCESS;
   }
 
-  QString str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
-                                                              CSettingsManager::Instance().vagrant_path(),
-                                                              command,
-                                                              name, *(command.split(" ").begin()));
-  if(command == "reload"){
+  QStorageInfo root_storage = QStorageInfo::root(); //c:/
+  QStorageInfo another_storage(dir);
+  QString str_command;
+  if (root_storage.rootPath() == another_storage.rootPath()) {
+    str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ")
+        .arg(dir, CSettingsManager::Instance().vagrant_path(),
+             command, name, *(command.split(" ").begin()));
+  } else {
+    QString root = another_storage.rootPath();
+    root = root.left(root.size() - 1);
+    str_command = QString("%1 & cd \"%2\" & %3 %4 2> %5_%6 & ")
+        .arg(root, dir, CSettingsManager::Instance().vagrant_path(),
+             command, name, *(command.split(" ").begin()));
+  }
+
+  if (command == "reload"){
       str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
   }
 
