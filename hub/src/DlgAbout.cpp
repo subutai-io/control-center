@@ -1019,7 +1019,7 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
     m_dct_fpb[component_id].pb->setValue(0);
     m_dct_fpb[component_id].pb->setMinimum(0);
     m_dct_fpb[component_id].pb->setMaximum(0);
-    if (provider == VagrantProvider::HYPERV)
+    if (provider == VagrantProvider::HYPERV && component_id == IUpdaterComponent::HYPERV)
       m_dct_fpb[component_id].btn->setText(tr("Enabling"));
     else
       m_dct_fpb[component_id].btn->setText(tr("Installing"));
@@ -1027,7 +1027,7 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
   } else {
     m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
 
-    if (provider != VagrantProvider::HYPERV)
+    if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV)
       m_dct_fpb[component_id].btn->setText(tr("Downloading"));
   }
 }

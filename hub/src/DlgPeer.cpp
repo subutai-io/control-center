@@ -167,7 +167,11 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
       peer.ip() != "loading") {
     ssh_ip = peer.ip();
-    ui->label->setText(tr("Host port:"));
+    if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+      ui->label->setText(tr("IP:"));
+    } else {
+      ui->label->setText(tr("Host port:"));
+    }
     ui->btn_launch_console->setEnabled(true);
   } else {  // no port no management
     ui->btn_launch_console->setEnabled(false);
