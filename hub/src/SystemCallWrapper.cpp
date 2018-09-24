@@ -1814,7 +1814,7 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 
-  QStorageInfo root_storage = QStorageInfo::root(); //c:/
+  QStorageInfo root_storage(QCoreApplication::applicationDirPath());
   QStorageInfo peer_drive(dir);
   QString str_command;
 
