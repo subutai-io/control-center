@@ -1810,8 +1810,8 @@ UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
 
-  if(command.isEmpty()){
-      return SCWE_CREATE_PROCESS;
+  if (command.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
   }
 
   QStorageInfo root_storage = QStorageInfo::root(); //c:/
@@ -1833,8 +1833,8 @@ UNUSED_ARG(command);
                                                                 name, *(command.split(" ").begin()));
   }
 
-  if(command == "reload"){
-      str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  if (command == "reload") {
+    str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
   }
 
   qInfo() << "Vagrant start stop commands: "
