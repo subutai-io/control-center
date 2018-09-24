@@ -79,6 +79,16 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                 IUpdaterComponent::VMWARE);
         });
 
+  // Hyper-V Hypervisor
+  requirement hyperv(
+        tr("Hyper-V is not ready"), tr("Checking Hyper-V..."),
+        tr("Hyper-V is not reaady. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::HYPERV);
+        });
+
   // Vagrant VMware Utility
   requirement vagrant_vmware_utility(
         tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
@@ -186,6 +196,14 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       ui->cmb_bridge->hide();
     }
 
+    break;
+  case VagrantProvider::HYPERV:
+    m_requirements_ls.push_back(hyperv);
+
+    if (bridges.size() <= 1) {
+      ui->lbl_bridge->hide();
+      ui->cmb_bridge->hide();
+    }
     break;
   default:
     break;
@@ -495,7 +513,7 @@ QString DlgCreatePeer::virtualbox_dir(const QString &name) {
   return current_local_dir.absolutePath();
 }
 
-// Create peer directory by VM storage path on VMware
+// Create peer directory by VM storage path on VMware, Hyper-V
 QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
 
   // 1. create "peer" folder.
@@ -515,13 +533,12 @@ QString DlgCreatePeer::create_dir(const QString &peer_folder) {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
     return virtualbox_dir(peer_folder);
-    break;
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_dir(peer_folder);
-    break;
+  case VagrantProvider::HYPERV:
+    return vmware_dir(peer_folder);
   default:
     return virtualbox_dir(peer_folder);
-    break;
   }
 }
 

@@ -46,6 +46,7 @@ class CSettingsManager : public QObject {
   static const QString SM_SSH_KEYS_STORAGE;
   static const QString SM_PEERS_STORAGE;
   static const QString SM_VMWARE_VM_STORAGE;
+  static const QString SM_HYPERV_VM_STORAGE;
   static const QString SM_VM_STORAGE;
 
   static const QString SM_TRAY_GUID;
@@ -116,6 +117,7 @@ class CSettingsManager : public QObject {
   QString m_ssh_keys_storage;
   QString m_peers_storage;
   QString m_vmware_vm_storage;
+  QString m_hyperv_vm_storage;
   QString m_vm_storage;
   QString m_tray_guid;
 
@@ -240,6 +242,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_keys_storage() const { return m_ssh_keys_storage; }
   const QString& peer_storage() const { return m_peers_storage; }
   const QString& vmware_vm_storage() const { return m_vmware_vm_storage; }
+  const QString& hyperv_vm_storage() const { return m_hyperv_vm_storage; }
   const QString& vm_storage() const { return m_vm_storage; }
   const QString& tray_guid() const { return m_tray_guid; }
 
@@ -356,6 +359,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(subutai_cmd, QString&)
   SET_FIELD_DECL(xquartz_path, QString&)
   SET_FIELD_DECL(vmware_vm_storage, QString&)
+  SET_FIELD_DECL(hyperv_vm_storage, QString&)
   SET_FIELD_DECL(vm_storage, QString&)
 #undef SET_FIELD_DECL
 

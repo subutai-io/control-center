@@ -9,9 +9,8 @@
 #include <QProcess>
 #include <QNetworkReply>
 
-
-
 const char* CCommons::RESTARTED_ARG = "restarted";
+const char* CCommons::PEER_PATH = "Subutai-peers";
 
 QString
 CCommons::FileMd5(const QString &file_path) {
