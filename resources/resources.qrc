@@ -81,6 +81,7 @@
         <file>show-password.png</file>
         <file>unknown.png</file>
         <file>remove_ft.png</file>
+        <file>get_switches.ps1</file>
     </qresource>
     <qresource prefix="/">
         <file>check_box.png</file>
