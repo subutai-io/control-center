@@ -822,7 +822,7 @@ void DlgAbout::btn_recheck_released() {
 
   set_hidden_providers();
 
-  for (const auto& component : m_dct_fpb) {
+  for (auto& component : m_dct_fpb) {
     if (component.second.cb != nullptr) {
       component.second.cb->setVisible(false);
     }
@@ -851,8 +851,13 @@ void DlgAbout::btn_recheck_released() {
       component.second.btn->setVisible(false);
     }
     if ((component.first == IUpdaterComponent::VAGRANT_VMWARE_DESKTOP ||
-         component.first == IUpdaterComponent::VMWARE ||
          component.first == IUpdaterComponent::VMWARE_UTILITY) &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+      component.second.btn->setVisible(false);
+    }
+    if ((component.first == IUpdaterComponent::VMWARE ||
+         component.first == IUpdaterComponent::HYPERV) &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::HYPERV &&
         VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
       component.second.btn->setVisible(false);
     }
@@ -1291,13 +1296,9 @@ void DlgAbout::got_hypervisor_version_sl(QString version) {
       ui->cb_hypervisor->setVisible(false);
       ui->btn_hypervisor_update->setText(tr("Install"));
       ui->btn_hypervisor_update->activateWindow();
-      ui->cb_hypervisor->setEnabled(true);
-      ui->btn_hypervisor_update->setEnabled(true);
     } else {
       ui->btn_hypervisor_update->setText(tr("Update"));
       ui->btn_hypervisor_update->setHidden(true);
-      ui->cb_hypervisor->setVisible(true);
-      ui->cb_hypervisor->setEnabled(true);
     }
     ui->lbl_hypervisor_version->setText(version);
   }
@@ -1574,8 +1575,10 @@ void DlgAboutInitializer::do_initialization() {
     if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
       QString hyperv_ver = get_hyperv_version();
       emit got_hypervisor_version(hyperv_ver);
-      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
+
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
 
     if (OS_MAC == CURRENT_OS) {
       QString xquartz_version = get_xquartz_version();
@@ -1612,6 +1615,9 @@ void DlgAboutInitializer::do_initialization() {
     //case VagrantProvider::LIBVIRT:
     //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
     //  break;
+    case VagrantProvider::HYPERV:
+      uas.push_back(IUpdaterComponent::HYPERV);
+      break;
     default:
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
       uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
