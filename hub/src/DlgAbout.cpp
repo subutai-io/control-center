@@ -145,16 +145,6 @@ void DlgAbout::set_visible_parallels(bool value) {
   ui->pb_provider_parallels->setVisible(value);
   ui->hl_vagrant_parallels->setEnabled(value);
 
-  // Parallels Desktop hypervisor
-  ui->lbl_hypervisor_parallels->setVisible(value);
-  ui->lbl_hypervisor_parallels_icon->setVisible(value);
-  ui->lbl_hypervisor_parallels_version->setVisible(value);
-  ui->lbl_spacer_hypervisor_parallels->setVisible(value);
-  ui->btn_hypervisor_parallels_update->setVisible(value);
-  ui->cb_hypervisor_parallels->setVisible(value);
-  ui->pb_hypervisor_parallels->setVisible(value);
-  ui->hl_hypervisor_parallels->setEnabled(value);
-
   this->setMinimumHeight(550);
   this->adjustSize();
 }
