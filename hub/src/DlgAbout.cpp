@@ -1289,16 +1289,23 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 }
 
 void DlgAbout::got_hypervisor_version_sl(QString version) {
-  if (this->m_dct_fpb.find(IUpdaterComponent::HYPERV) != this->m_dct_fpb.end()) {
+  QString component_id;
+  if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+    component_id = IUpdaterComponent::HYPERV;
+  } else {
+    component_id = IUpdaterComponent::VMWARE;
+  }
+
+  if (this->m_dct_fpb.find(component_id) != this->m_dct_fpb.end()) {
     if (version == "undefined") {
-      set_hidden_pb(IUpdaterComponent::VMWARE);
+      set_hidden_pb(component_id);
       ui->btn_hypervisor_update->setHidden(false);
       ui->cb_hypervisor->setVisible(false);
       ui->btn_hypervisor_update->setText(tr("Install"));
       ui->btn_hypervisor_update->activateWindow();
     } else {
       ui->btn_hypervisor_update->setText(tr("Update"));
-      ui->btn_hypervisor_update->setHidden(true);
+      ui->cb_hypervisor->setEnabled(true);
     }
     ui->lbl_hypervisor_version->setText(version);
   }
