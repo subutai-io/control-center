@@ -51,6 +51,8 @@ public:
     return m_default_peer_id;
   }
 
+  std::set<int> reserved_ports;
+
   struct my_peer_button{
       // peer containers
       CLocalPeer *m_local_peer;

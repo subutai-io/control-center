@@ -92,7 +92,8 @@ chue_t CUpdaterComponentE2E::install_internal() {
     std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
     CDownloadFileManager *dm =
-        new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
+        new CDownloadFileManager(item->name(), str_downloaded_path, item->size());
+    dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
     silent_installer->init(file_dir, file_name, CC_E2E);
     connect(dm, &CDownloadFileManager::download_progress_sig,
@@ -166,9 +167,7 @@ void CUpdaterComponentE2E::install_post_internal(bool success) {
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);
     if (msg_box->exec() == QMessageBox::Ok) {
-      if (CSettingsManager::Instance().default_browser() == "Chrome") {
-        CSystemCallWrapper::chrome_last_session();
-      } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+      if (CSettingsManager::Instance().default_browser() == "Firefox") {
         CSystemCallWrapper::firefox_last_session();
       }
     }
@@ -185,16 +184,13 @@ void CUpdaterComponentE2E::uninstall_post_internal(bool success) {
   }
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
-      QObject::tr("Subutai E2E has been uninstalled from your browser<br>"
-                  "Press OK to restore your browser session."),
-      QMessageBox::Ok);
+      QObject::tr("Subutai E2E has been uninstalled from your browser<br>"),
+        QMessageBox::Ok);
   msg_box->setTextFormat(Qt::RichText);
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() == QMessageBox::Ok) {
-    if (CSettingsManager::Instance().default_browser() == "Chrome") {
-      CSystemCallWrapper::chrome_last_session();
-    } else if (CSettingsManager::Instance().default_browser() == "Firefox") {
+    if (CSettingsManager::Instance().default_browser() == "Firefox") {
       CSystemCallWrapper::firefox_last_session();
     } else if (CSettingsManager::Instance().default_browser() == "Safari") {
       CSystemCallWrapper::safari_last_session();

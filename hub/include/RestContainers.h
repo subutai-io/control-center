@@ -190,17 +190,13 @@ private:
   QString m_name;
   int m_size;
   QString m_id;
-  QString m_version;
 
 public:
   explicit CGorjunFileInfo(const QJsonObject& obj) {
-    QJsonObject tmp = obj["hash"].toObject();
-    if (!tmp.isEmpty())
-      m_md5_sum = tmp["md5"].toString();
-    m_name = obj["name"].toString();
+    m_md5_sum = obj["md5"].toString();
+    m_name = obj["filename"].toString();
     m_size = obj["size"].toInt();
     m_id = obj["id"].toString();
-    m_version = obj["version"].toString();
   }
   ~CGorjunFileInfo() {}
 
@@ -208,7 +204,6 @@ public:
   const QString& name() const {return m_name;}
   int size() const {return m_size;}
   const QString& id() const {return m_id;}
-  const QString& version() const {return m_version;}
 
   bool operator==(const CGorjunFileInfo& gfi) const {
     return m_id == gfi.m_id;

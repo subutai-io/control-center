@@ -79,7 +79,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVMware.cpp \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
     hub/src/updater/UpdaterComponentXQuartz.cpp \
-    hub/src/updater/UpdaterComponentParallels.cpp
+    hub/src/updater/UpdaterComponentParallels.cpp \
+    hub/src/updater/UpdaterComponentHyperv.cpp
 
 
 
@@ -144,7 +145,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVMware.h \
     hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
     hub/include/updater/UpdaterComponentXQuartz.h \
-    hub/include/updater/UpdaterComponentParallels.h
+    hub/include/updater/UpdaterComponentParallels.h \
+    hub/include/updater/UpdaterComponentHyperv.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -185,7 +187,7 @@ DEFINES += TRAY_BUILD_NUMBER=\\\"$$TRAY_BUILD_NUMBER\\\"
 GIT_BRANCH_STR = $$system(git rev-parse --abbrev-ref HEAD)
 DEFINES += GIT_BRANCH=\\\"$$GIT_BRANCH_STR\\\"
 
-GBV=BT_PROD
+GBV=BT_DEV
 equals(GIT_BRANCH_STR, "master") {
   GBV=BT_MASTER
 }

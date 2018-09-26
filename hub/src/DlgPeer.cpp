@@ -19,7 +19,8 @@
 DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     : QDialog(parent), ui(new Ui::DlgPeer) {
   peer_fingerprint = peer_id;
-  qDebug() << "Peer dialog is initialized";
+  qDebug() << "Peer dialog is initialized: "
+           << peer_fingerprint;
   // ui
   ui->setupUi(this);
   this->setMinimumWidth(this->width());
@@ -78,7 +79,8 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
     ui->le_cpu->setReadOnly(!checked);
     ui->le_ram->setReadOnly(!checked);
     ui->le_disk->setReadOnly(!checked);
-    ui->cmb_bridge->setEnabled(checked);
+    if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::HYPERV)
+      ui->cmb_bridge->setEnabled(checked);
     if (checked == false) {
       this->configs();
     }
@@ -157,7 +159,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   advanced = true;
   ssh_available = true;
   rh_status = peer.status();
-  rh_dir = peer.dir();
+  rh_dir = QDir::toNativeSeparators(peer.dir());
   rh_name = peer.name();
   rh_provision_step = CPeerController::Instance()->getProvisionStep(rh_dir);
   management_ua = peer.update_available() == "true" ? true : false;
@@ -165,7 +167,11 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
       peer.ip() != "loading") {
     ssh_ip = peer.ip();
-    ui->label->setText(tr("Host port:"));
+    if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+      ui->label->setText(tr("IP:"));
+    } else {
+      ui->label->setText(tr("Host port:"));
+    }
     ui->btn_launch_console->setEnabled(true);
   } else {  // no port no management
     ui->btn_launch_console->setEnabled(false);
@@ -222,7 +228,7 @@ void DlgPeer::parse_yml() {
   if (ui->change_configure->isChecked()) return;
   QString filename = QString("%1/vagrant-subutai.yml").arg(rh_dir);
   QFile file(filename);
-  if (file.open(QIODevice::ReadWrite)) {
+  if (QFileInfo(filename).exists() && file.open(QIODevice::ReadWrite)) {
     QTextStream stream(&file);
     QString output = QString(stream.readAll());
     QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
@@ -364,6 +370,11 @@ void DlgPeer::updateUI() {
 void DlgPeer::launch_console_sl() {
   QString console_address =
       advanced ? "https://localhost:%1" : "https://%1:8443";
+
+  if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+    console_address = "https://%1:8443";
+  }
+
   CHubController::Instance().launch_browser(
       QString(console_address).arg(this->ssh_ip));
 }
@@ -680,6 +691,8 @@ void DlgPeer::rh_stop() {
 }
 
 void DlgPeer::rh_start() {
+  qDebug() << "START RH DIR: "
+           << rh_dir;
   static QString up_command = "up";
   enabled_peer_buttons(false);
   if (ui->change_configure->isChecked()) {

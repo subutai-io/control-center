@@ -529,7 +529,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
         << dir
         << "init";
     if (box == "Debian Stretch")
-        CURRENT_BRANCH == BT_MASTER ? args << "subutai/stretch-master" : args << "subutai/stretch";
+        CURRENT_BRANCH == BT_PROD ? args << "subutai/stretch" : args << "subutai/stretch-master";
     else args << "subutai/xenial";
 
 
@@ -553,38 +553,41 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
 // parse into args line of vagrant global-status
 // algo: just seperate string into 5 and parse
 void parse_status_line(QString status_line,
-                       QString dir,
+                       int index_state,
+                       int index_directory,
                        QString &id,
                        QString &name,
                        QString &provider,
                        QString &state,
                        QString &directory) {
-    state = "";
-    QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
-    if(seperated.size() < 5) return;
-    QString *args[] {&id, &name, &provider};
+  state = "";
+  QStringList seperated = status_line.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+  if(seperated.size() < 5) return;
+  QString *args[] {&id, &name, &provider};
 
-    for (size_t i = 0; i < 3; i++){
-        *args[i] = seperated[0];
-        seperated.erase(seperated.begin());
+  for (size_t i = 0; i < 3; i++){
+      *args[i] = seperated[0];
+      seperated.erase(seperated.begin());
+  }
+
+  int size = seperated.size();
+
+  if (size > 2) {
+    state = status_line.mid(index_state, index_directory - index_state).trimmed();
+    directory = status_line.mid(index_directory, status_line.size() - index_directory).trimmed();
+    return;
+  } else {
+    state = seperated[0];
+    seperated.erase(seperated.begin());
+  }
+
+  if (!seperated.empty()) {
+    directory = status_line.remove(0, status_line.indexOf(seperated[0]));
+    while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
+      directory.remove(directory.size() -1 , 1);
     }
-
-    for (QString str : seperated) {
-      if (dir != str) {
-        state += " " + str;
-        seperated.erase(seperated.begin());
-      }
-    }
-
-    state = state.trimmed();
-
-    if (!seperated.empty()) {
-      directory = status_line.remove(0, status_line.indexOf(seperated[0]));
-      while (!directory[directory.size() -1].isLetterOrNumber() && !directory.isEmpty()) {
-        directory.remove(directory.size() -1 , 1);
-      }
-      return;
-    }
+    return;
+  }
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QString &port, const QString &peer_name){
@@ -600,123 +603,156 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QStr
   return SCWE_SUCCESS;
 }
 
-QString CSystemCallWrapper::vagrant_status(const QString &dir){
-    qDebug() << "get vagrant status of" << dir;
+QString CSystemCallWrapper::vagrant_status(const QString &dir) {
+  vagrant_is_busy.lock();
+  qDebug() << "get vagrant status of" << dir;
 
-    system_call_res_t res;
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    QString status("not_created");
+  system_call_res_t res;
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  QString status("not_created");
 
-    args << "global-status";
-    res = ssystem_th(cmd, args, true, true, 20000);
-    if(res.res != SCWE_SUCCESS || res.exit_code != 0){
-        return status;
-    }
-    QString p_name, p_id, p_state, p_provider, p_dir;
-    for(auto s : res.out){
-        parse_status_line(s, dir, p_id, p_name, p_provider, p_state, p_dir);
-        if(p_dir == dir){
-            return p_state;
-        }
-    }
+  args << "set_working_directory"
+       << dir
+       << "status"
+       << "--machine-readable";
+
+  res = ssystem_th(cmd, args, true, true, 20000);
+
+  if(res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    vagrant_is_busy.unlock();
     return status;
+  }
+
+  for (auto s : res.out) {
+    QStringList seperated = s.split(",");
+    if (seperated.contains("state")) {
+      status = seperated.takeLast();
+    }
+  }
+
+  vagrant_is_busy.unlock();
+  return status.simplified();
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "halt";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "set_working_directory"
+       << dir
+       << "halt";
 
-    qDebug()
-            <<"Starting to halt peer. Args:"
-            <<args;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  qDebug() << "Starting to halt peer. Args:"
+           << args;
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Halt finished:"
-            <<dir
-            <<res.res;
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return res.res;
+  qDebug() << "Halt finished:"
+           << dir
+           << res.res;
+
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "reload";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args
+      << "set_working_directory"
+      << dir
+      << "reload";
 
-    qDebug()
-            <<"Starting to reload peer. Args:"
-            <<args;
+  qDebug()
+          <<"Starting to reload peer. Args:"
+          <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Reload finished:"
-            <<dir
-            <<res.res;
+  qDebug()
+          <<"Reload finished:"
+          <<dir
+          <<res.res;
 
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0){
-        return SCWE_CREATE_PROCESS;
-    }
-    return res.res;
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args<< "set_working_directory"
-        << dir
-        << "destroy"
-        << "-f";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "set_working_directory"
+       << dir
+       << "destroy"
+       << "-f";
 
-    qDebug()
-            <<"Starting to destroy peer. Args:"<<args;
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
-    qDebug()<<"Destroying peer finished"
-            <<"Exit code:"<<res.exit_code
-            <<"Result:"<<res.res
-            <<"Output:"<<res.out;
-    if(res.exit_code !=0 || res.res != SCWE_SUCCESS)
-        return SCWE_CREATE_PROCESS;
-    QDir dir_path(dir);
-    if(dir_path.removeRecursively())
-        return SCWE_SUCCESS;
-    else return SCWE_CREATE_PROCESS;
+  qDebug() << "Starting to destroy peer. Args:"
+           << args;
+
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+
+  qDebug() << "Destroying peer finished"
+           << "Exit code:"
+           << res.exit_code
+           << "Result:"
+           << res.res
+           << "Output:"
+           << res.out;
+
+  if(res.exit_code !=0 || res.res != SCWE_SUCCESS) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QDir dir_path(dir);
+
+  if(dir_path.removeRecursively()) {
+    vagrant_is_busy.unlock();
+    return SCWE_SUCCESS;
+  }
+
+  vagrant_is_busy.unlock();
+  return SCWE_CREATE_PROCESS;
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir) {
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args
-        << "set_working_directory"
-        << dir
-        << "up";
+  vagrant_is_busy.lock();
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args
+      << "set_working_directory"
+      << dir
+      << "up";
 
-    qDebug()
-            <<"Vagrant up. Args:"
-            <<args;
+  qDebug()
+          <<"Vagrant up. Args:"
+          <<args;
 
-    system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 97);
 
-    qDebug()
-            <<"Finished vagrant up:"
-            <<dir
-            <<"exit code:"<<res.exit_code
-            <<"result code:"<<res.res;
+  qDebug()
+          <<"Finished vagrant up:"
+          <<dir
+          <<"exit code:"<<res.exit_code
+          <<"result code:"<<res.res;
 
-    if(res.res == SCWE_SUCCESS && res.exit_code != 0)
-        res.res = SCWE_CREATE_PROCESS;
-    return std::make_pair(res.res, res.out);
+  if(res.res == SCWE_SUCCESS && res.exit_code != 0)
+      res.res = SCWE_CREATE_PROCESS;
+
+  vagrant_is_busy.unlock();
+  return std::make_pair(res.res, res.out);
 }
 
 QString CSystemCallWrapper::vagrant_ip(const QString &dir) {
@@ -820,62 +856,122 @@ system_call_wrapper_error_t CSystemCallWrapper::set_virtualbox_vm_storage(const 
   return res.res;
 }
 
-QString CSystemCallWrapper::vagrant_port(const QString &dir){
-    QDir peer_dir(dir);
-    QString  port = "undefined";
-    if(peer_dir.cd(".vagrant")){
-        QFile file(QString(peer_dir.absolutePath() + "/generated.yml"));
-        QString file_name = file.fileName();
-        if(file.exists()){
-            if (file.open(QIODevice::ReadWrite) ){
-                QTextStream stream( &file );
-                QString output = QString(stream.readAll());
-                QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
-                for (auto s : vagrant_info){
-                    QString flag, value;
-                    bool reading_value = false;
-                    flag = value = "";
-                    reading_value = false;
-                    for (int i=0; i < s.size(); i++){
-                        if(s[i]=='\r')continue;
-                        if(reading_value){
-                            value += s[i];
-                            continue;
-                        }
-                        if(s[i] == ':'){
-                            flag = value;
-                            value = "";
-                            continue;
-                        }
-                        if(s[i] != ' '){
-                            if(value == "" && !flag.isEmpty())
-                                reading_value = true;
-                            value+=s[i];
-                        }
-                    }
-                    if(flag == "_CONSOLE_PORT")
-                        port = value;
-                    }
-                }
-            file.close();
-        }
+QString CSystemCallWrapper::vagrant_port(const QString &dir) {
+  QString port_or_ip_address = "_CONSOLE_PORT";
+
+  if (VagrantProvider::Instance()->CurrentProvider()
+      == VagrantProvider::HYPERV) {
+    port_or_ip_address = "_IP_HYPERV";
+  }
+
+  QDir peer_dir(dir);
+  QString  port = "undefined";
+
+  if (peer_dir.cd(".vagrant")) {
+    QFile file(QString(peer_dir.absolutePath() + QDir::separator() + "generated.yml"));
+    QString file_name = file.fileName();
+
+    if (file.exists()) {
+      if (file.open(QIODevice::ReadWrite)) {
+        QTextStream stream(&file);
+        QString output = QString(stream.readAll());
+        QStringList vagrant_info = output.split("\n", QString::SkipEmptyParts);
+
+        for (auto s : vagrant_info) {
+          QString flag, value;
+          bool reading_value = false;
+          flag = value = "";
+          reading_value = false;
+
+          for (int i=0; i < s.size(); i++) {
+            if (s[i]=='\r') continue;
+            if (reading_value) {
+                value += s[i];
+                continue;
+            }
+            if (s[i] == ':') {
+                flag = value;
+                value = "";
+                continue;
+            }
+            if (s[i] != ' ') {
+                if(value == "" && !flag.isEmpty())
+                    reading_value = true;
+                value+=s[i];
+            }
+          }
+
+          if (flag == port_or_ip_address)
+              port = value;
+          }
+      }
+      file.close();
     }
-    return port;
+  }
+  return port;
 }
 
-std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(){
-    qDebug() << "Starting to update information related to peer management";
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information() {
+  vagrant_is_busy.lock();
+  qDebug() << "Starting to update information related to peer management";
 
-    QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CSystemCallWrapper::list_interfaces();
 
-    QString cmd = CSettingsManager::Instance().vagrant_path();
-    QStringList args;
-    args << "global-status"
-         << "--prune";
+  QString cmd = CSettingsManager::Instance().vagrant_path();
+  QStringList args;
+  args << "global-status";
 
-    system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
 
-    return std::make_pair(bridges, global_status);
+  qInfo() << "Vagrant global-status"
+          << args
+          << "exit code: "
+          << global_status.exit_code
+          << " res: "
+          << global_status.res
+          << global_status.out;
+
+  // Clear global_status
+  QStringList tmp = global_status.out;
+  global_status.out.clear();
+
+  QString p_id, p_name, p_provider, p_state, p_directory;
+  int index_state, index_directory;
+
+  if (!tmp.empty()) {
+    index_state = tmp.begin()->indexOf("state");
+    index_directory = tmp.begin()->indexOf("directory");
+  }
+
+  for (auto s : tmp) {
+    parse_status_line(s, index_state, index_directory, p_id, p_name, p_provider,
+                      p_state, p_directory);
+    // ckeck is this Subutai peer
+    p_directory = QDir::fromNativeSeparators(p_directory);
+    QString generated_file_path = p_directory + QDir::separator() +
+        ".vagrant" + QDir::separator() + "generated.yml";
+    QFileInfo generated_file(generated_file_path);
+
+    if (p_provider == VagrantProvider::Instance()->CurrentVal() && QDir(p_directory).exists() &&
+        generated_file.exists()) {
+      global_status.out.append(p_directory);
+      qDebug() << "Vagrant found local peers: "
+               << VagrantProvider::Instance()->CurrentVal()
+               << " ID: "
+               << p_id
+               << " NAME: "
+               << p_name
+               << " PROVIDER: "
+               << p_provider
+               << " STATE: "
+               << p_state
+               << " DIRECTORY: "
+               << p_directory;
+    }
+  }
+
+  vagrant_is_busy.unlock();
+  return std::make_pair(bridges, global_status);
 }
 //////////////////////////////////////////////////////////////////////
 
@@ -918,18 +1014,29 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
 }
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces() {
-  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
-  QStringList empty;
+  static QStringList empty;
+  static QStringList hyperv; // It gets one time when application launched.
+  static QStringList virtualbox;
+  static QStringList parallels;
 
-  switch (provider) {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
-    return virtualbox_interfaces();
+    if (virtualbox.empty())
+      virtualbox = virtualbox_interfaces();
+
+    return virtualbox;
   //case VagrantProvider::LIBVIRT:
   //  return libvirt_interfaces();
-  //case VagrantProvider::HYPERV:
-  //  return hyperv_interfaces();
   case VagrantProvider::PARALLELS:
-    return parallels_interfaces();
+    if (parallels.empty())
+      parallels = parallels_interfaces();
+
+    return parallels;
+  case VagrantProvider::HYPERV:
+    if (hyperv.empty())
+      hyperv = hyperv_interfaces();
+
+    return hyperv;
   default:
     return empty;
   }
@@ -1026,58 +1133,61 @@ QStringList CSystemCallWrapper::hyperv_interfaces() {
 
   if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
+    qCritical() << "Now found powershell";
     return interfaces;
   }
 
-  QStringList args; // powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass   -Command "$switches = Get-VMSwitch;  foreach ($switch in $switches) { Write-Debug $switch.Name }"
-  args << "-NoLogo"
-       << "-NoProfile"
-       << "-NonInteractive"
-       << "-ExecutionPolicy"
-       << "Bypass"
-       << "-Command"
-       << "Get-VMSwitch | Select Name";
+  QStringList tmp_dir = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
 
-  qDebug() << cmd
-           << args;
+  if (!tmp_dir.empty()) {
+    QString tmpScript =
+        tmp_dir[0] + QDir::separator() + "get_switches.ps1";
+    QFileInfo file(tmpScript);
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
-  QString output;
+    if (!file.exists())
+      QFile::copy(":/hub/get_switches.ps1", tmpScript);
 
-  for (auto s : res.out) {
-    output += s;
-  }
+    if (file.exists()) {
+      QProcess proc;
+      QString output;
 
-  qDebug() << "Listing Hyper interfaces result:"
-           << "exit code: "
-           << res.exit_code
-           << "result: "
-           << res.res
-           << "output:"
-           << output;
+      proc.start(QString("%1 -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass \"&('%2')\"").arg(cmd, tmpScript));
+      proc_controller started_proc(proc);
+      proc.waitForFinished();
 
-  if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
-      return interfaces;
+      output = QString(proc.readAllStandardOutput());
 
-  // parse virtual switches
-  qDebug() << "got hyperv switches: "
-           << res.out;
+      qDebug() << "Got hyper-v interface: "
+               << output;
 
-  QStringList parse_me = res.out;
-  unsigned i = 0;
-  for (auto line : parse_me) {
-    if (i > 2) {
-      QString bridge = line.trimmed();
+      if (proc.exitCode() != 0) {
+        qCritical() << "Failed script hyperv bridge: "
+                    << "exit code: "
+                    << proc.exitCode()
+                    << proc.readAllStandardError();
 
-      if (!bridge.isEmpty()) {
-        interfaces.push_back(bridge);
-        qDebug() << bridge
-                 << i;
+        installer_is_busy.unlock();
+        return interfaces;
       }
+
+      QJsonDocument json_doc = QJsonDocument::fromJson(output.toUtf8());
+      QJsonArray arr = json_doc.array();
+
+      foreach (const QJsonValue & val, arr) {
+        QJsonObject obj = val.toObject();
+        interfaces.append(obj["Name"].toString());
+
+        qInfo() << "BRIDGE NAME: "
+                << obj["Name"].toString();
+      }
+
+      installer_is_busy.unlock();
+      return interfaces;
     }
-    i++;
   }
 
+  qCritical() << "Tmp directory not valid"
+              << " OR can't copy script file to tmp dir";
 
   installer_is_busy.unlock();
   return interfaces;
@@ -1156,7 +1266,8 @@ QStringList CSystemCallWrapper::virtualbox_interfaces() {
   qDebug("Getting list of bridged interfaces virtualbox");
   QString vb_version;
   CSystemCallWrapper::oracle_virtualbox_version(vb_version);
-  QStringList interfaces;
+  static QStringList interfaces;
+  interfaces.clear();
   if (vb_version == "undefined") {
     installer_is_busy.unlock();
     return interfaces;
@@ -1219,6 +1330,7 @@ void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QSt
     qDebug()
             <<"get list of installed vagrant plugins";
     QString cmd = CSettingsManager::Instance().vagrant_path();
+    QString tmp;
     QStringList args;
     args << "plugin"
          << "list";
@@ -1235,8 +1347,10 @@ void CSystemCallWrapper::vagrant_plugins_list(std::vector<std::pair<QString, QSt
     for (auto s : res.out){
         plugin.clear();
         plugin = s.split(' ');
-        if(plugin.size() == 2){
-            plugins.push_back(std::make_pair(plugin[0], plugin[1]));
+        if(plugin.size() >= 2) {
+          tmp = plugin[1];
+          tmp.remove(QRegularExpression("/[^0-9.]/g"));
+          plugins.push_back(std::make_pair(plugin[0], tmp));
         }
     }
 }
@@ -1398,15 +1512,15 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_LINUX> >(
     }
     QStringList args;
     if (type == STARTED_P2P) {
-      args << "stop" << "p2p";
+      args << "stop" << "subutai-p2p";
     } else if (type == STOPPED_P2P) {
-      args << "start" << "p2p";
+      args << "start" << "subutai-p2p";
     } else {
-      args << "restart" << "p2p";
+      args << "restart" << "subutai-p2p";
     }
     system_call_res_t res = CSystemCallWrapper::ssystem(systemctl_path, args, true, true, 60000);
     if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Couldn't reload p2p.service. ec = %1, err = %2")
+      QString err_msg = QObject::tr("Couldn't reload subutai-p2p.service. ec = %1, err = %2")
                                .arg(res.exit_code)
                                .arg(CSystemCallWrapper::scwe_error_to_str(res.res));
       qCritical() << err_msg;
@@ -1627,24 +1741,26 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
                                                                                  const QString &name){
-    if(command.isEmpty()){
+    if (command.isEmpty()) {
         return SCWE_CREATE_PROCESS;
     }
 
-    UNUSED_ARG(name);
+    QString tmp = name;
+    tmp.remove("\"");
+
     QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
-                                                                name, *(command.split(" ").begin()));
-    if(command == "reload"){
-        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+                                                                tmp, *(command.split(" ").begin()));
+    if (command == "reload") {
+        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
     }
 
     str_command += QString("echo finished > %1_finished; "
                            "echo 'Peer finished to %1 with following errors:'; "
                            "cat %2_%1; "
                            "echo 'Press any key to finish:'; "
-                           "read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
+                           "read -s -n 1; exit").arg(*(command.split(" ").begin()), tmp);
 
     QString cmd;
 
@@ -1662,6 +1778,8 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
       args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
                 .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
     }
+    qDebug() << "BUGGGGGGGGGGG:"
+             << args;
     return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                               : SCWE_CREATE_PROCESS;
 }
@@ -1675,7 +1793,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
     }
 
     UNUSED_ARG(name);
-    QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
                                                                 name, *(command.split(" ").begin()));
@@ -1711,17 +1829,35 @@ UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
 
-  if(command.isEmpty()){
-      return SCWE_CREATE_PROCESS;
+  if (command.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
   }
 
-  QString str_command = QString("cd %1 & %2 %3 2> %4_%5 & ").arg(dir,
-                                                              CSettingsManager::Instance().vagrant_path(),
-                                                              command,
-                                                              name, *(command.split(" ").begin()));
-  if(command == "reload"){
-      str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  QStorageInfo root_storage(QCoreApplication::applicationDirPath());
+  QStorageInfo peer_drive(dir);
+  QString str_command;
+
+  if (root_storage.rootPath() == peer_drive.rootPath()) {
+    str_command = QString("cd \"%1\" & %2 %3 2> %4_%5 & ").arg(dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
+  } else {
+    QString drive = peer_drive.rootPath();
+    drive.remove("/");
+    drive.remove("\\");
+    str_command = QString("%1 & cd \"%2\" & %3 %4 2> %5_%6 & ").arg(drive, dir,
+                                                                CSettingsManager::Instance().vagrant_path(),
+                                                                command,
+                                                                name, *(command.split(" ").begin()));
   }
+
+  if (command == "reload") {
+    str_command += QString("%1 provision 2>> %3_%2 & ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  }
+
+  qInfo() << "Vagrant start stop commands: "
+          << str_command;
 
   str_command += QString("echo finished > %1_finished & echo Peer finished to %1 with following messages: "
                          "& type %2_%1 &"
@@ -2060,9 +2196,134 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
 system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
     installer_is_busy.lock();
     system_call_wrapper_install_t res;
+    QString version;
+
     res.res = install_p2p_internal<Os2Type<CURRENT_OS> >(dir, file_name);
+
+    if (res.res == SCWE_SUCCESS) {
+      p2p_version(version);
+      res.version = version;
+    }
+
     installer_is_busy.unlock();
     return res;
+}
+
+system_call_wrapper_install_t CSystemCallWrapper::update_p2p(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  system_call_wrapper_install_t res_v;
+  system_call_wrapper_error_t res;
+  QString version;
+
+  res = update_p2p_linux(dir, file_name);
+  res_v.res = res;
+
+  if (res_v.res == SCWE_SUCCESS) {
+    p2p_version(version);
+    res_v.version = version;
+  }
+  installer_is_busy.unlock();
+  return res_v;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &dir, const QString &file_name) {
+  QString file_info = dir + QDir::separator() + file_name;
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      return SCWE_WHICH_CALL_FAILED;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "p2p_updater.sh";
+
+  qDebug() << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create updater script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QByteArray install_script = QString(
+                                  "#!/bin/bash\n"
+                                  "apt-get remove -y '^%1.*'\n"
+                                  "dpkg -i %2")
+                                  .arg(p2p_package_name(), file_info)
+                                  .toUtf8();
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write updater script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return SCWE_CREATE_PROCESS;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path
+        << tmpFilePath;
+  qDebug()
+          <<"updater of p2p started:"
+          <<"args: "<<args2;
+  cr2 = CSystemCallWrapper::ssystem(pkexec_path, args2, true, true, 97);
+  qDebug()
+          <<"updater of p2p finished:"
+          <<"error code: "<<cr2.exit_code
+          <<"output: "<<cr2.out
+          <<"result: "<<cr2.res;
+  tmpFile.remove();
+  if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS)
+    return SCWE_CREATE_PROCESS;
+
+  QString p2p_path;
+  scr = CSystemCallWrapper::which("p2p", p2p_path);
+  if (scr == SCWE_SUCCESS) {
+    CSettingsManager::Instance().set_p2p_path(p2p_path);
+  } else {
+    qCritical() << "Unable to find p2p command.";
+  }
+
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_install_t CSystemCallWrapper::uninstall_p2p(const QString &dir, const QString &file_name) {
@@ -3349,7 +3610,9 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vmware(const QString
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_install_t CSystemCallWrapper::install_parallels(const QString &dir, const QString &file_name) {
   installer_is_busy.lock();
-  qDebug() << "Installation Parallels Desktop";
+  qDebug() << "Installation Parallels Desktop"
+           << dir
+           << file_name;
 
   QString cmd("osascript");
   QStringList args;
@@ -3358,7 +3621,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_parallels(const QStrin
 
   args << "-e"
        << QString("do shell script \"hdiutil attach %1; "
-                  "cp -R /Volumes/Parallels\\\\ Desktop\\\\ 14/Parallels\\\\ Desktop.app/ /Applications/Parallels\\\\ Desktop.app/;; "
+                  "cp -R /Volumes/Parallels\\\\ Desktop\\\\ 14/Parallels\\\\ Desktop.app/ /Applications/Parallels\\\\ Desktop.app/; "
                   "open -a Parallels\\\\ Desktop.app;\" with administrator privileges").arg(file_path);
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
@@ -3428,6 +3691,10 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QStr
            << args;
 
   system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+  qDebug() << "parallels uninstall finished: "
+           << rs.exit_code
+           << rs.out
+           << rs.res;
 
   if (rs.exit_code != 0) {
     res_install.res = SCWE_COMMAND_FAILED;
@@ -4296,7 +4563,15 @@ system_call_wrapper_install_t CSystemCallWrapper::install_e2e(const QString &dir
     res.res = install_e2e_safari(dir, file_name);
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
@@ -5083,6 +5358,8 @@ system_call_wrapper_error_t uninstall_e2e_firefox_internal<Os2Type<OS_MAC>>() {
   args << "-e"
        << QString("do shell script \"rm -rf %1\"").arg(ext_path);
 
+  qDebug() << "uninstall e2e ggwp" << cmd << args;
+
   res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
     qCritical() << "Failed to uninstall e2e"
@@ -5386,7 +5663,15 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_e2e() {
     res.res = uninstall_e2e_safari();
   }
 
-  if (res.res == SCWE_SUCCESS) {
+  if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
+    chrome_last_session();
+    QTime dieTime = QTime::currentTime().addSecs(2);
+    while (QTime::currentTime() < dieTime) {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+    }
+    subutai_e2e_version(version);
+    res.version = version;
+  } else if (res.res == SCWE_SUCCESS) {
     subutai_e2e_version(version);
     res.version = version;
   }
@@ -6057,6 +6342,8 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   version = version.remove("p2p");
   version = version.remove("version");
   version = version.remove("  ");
+  int id = version.indexOf("+");
+  version = version.left(id);
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -6568,7 +6855,122 @@ system_call_wrapper_error_t CSystemCallWrapper::vmware_utility_version(QString &
   }
   return vmware_utility_version_internal<Os2Type<CURRENT_OS> >(version);
 }
+////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_install_t CSystemCallWrapper::install_hyperv() {
+  QString version("undefined");
+  system_call_wrapper_install_t res_ins;
+  QString cmd("DISM");
+  QStringList args;
+  // DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V /NoRestart
+  args << "/Online"
+       << "/Enable-Feature"
+       << "/All"
+       << "/FeatureName:Microsoft-Hyper-V"
+       << "/NoRestart";
 
+  qDebug() << "HyperV enable command "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 30); // timeout 30 minutes
+
+  qDebug() << "Hyperv enable: "
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  if (res.res == SCWE_SUCCESS && !res.out.empty()) {
+    version = "Enabled";
+  }
+
+  res_ins.res = res.res;
+  res_ins.version = version;
+
+  return res_ins;
+}
+
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_hyperv() {
+  QString version("undefined");
+  system_call_wrapper_install_t res_ins;
+  QString cmd("DISM");
+  QStringList args;
+  // DISM /Online /Disable-Feature:Microsoft-Hyper-V-All /NoRestart
+  args << "/Online"
+       << "/Disable-Feature:Microsoft-Hyper-V-All"
+       << "/NoRestart";
+
+  qDebug() << "HyperV disable command "
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 30); // timeout 30 minutes
+
+  qDebug() << "Hyperv disable: "
+           << " exit code: "
+           << res.exit_code
+           << " result code: "
+           << res.res
+           << " output: "
+           << res.out;
+
+  res_ins.res = res.res;
+  res_ins.version = version;
+
+  return res_ins;
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::hyperv_version(QString &version) {
+  version = "undefined";
+  QString cmd("powershell.exe");
+  QString empty;
+
+  system_call_wrapper_error_t cr;
+
+  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+    qDebug() << "powershell command not found: check hyperv enabled";
+  }
+
+  QStringList args; //  powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy  Bypass -Command { $hyperv = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online; echo $hyperv.State; }
+  args << "-NoLogo"
+       << "-NoProfile"
+       << "-NonInteractive"
+       << "-ExecutionPolicy"
+       << "Bypass"
+       << "-Command"
+       << "Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online";
+
+  qDebug() << "Hyper-V version command: "
+           << cmd
+           << args;
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60);
+
+  qDebug() << "Hyper-v version command finished: "
+           << "exit code: "
+           << res.exit_code
+           << " output: "
+           << res.out
+           << " res: "
+           << res.res;
+
+  if (res.res == SCWE_SUCCESS &&
+        res.exit_code == 0 && !res.out.empty()) {
+    for (QString line : res.out) {
+      if (line.contains("State")) {
+        line.remove("State");
+        line.remove(":");
+        version = line.trimmed();
+
+        if (version == "Disabled")
+          version = "undefined";
+        break;
+      }
+    }
+   }
+
+  return SCWE_SUCCESS;
+}
 ////////////////////////////////////////////////////////////////////////////
 template <class OS>
 system_call_wrapper_error_t subutai_e2e_version_internal(QString &version);
@@ -7618,14 +8020,27 @@ QStringList CSystemCallWrapper::lsb_release(){
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class  OS>
-system_call_wrapper_error_t tray_post_update_internal(const QString &version);
+system_call_wrapper_error_t tray_post_update_internal();
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (const QString &version){
-  UNUSED_ARG(version);
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_LINUX> > (){
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (){
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   qDebug() << "tray_post_update: version:" << version;
   if (version.isEmpty()) return SCWE_CREATE_PROCESS;
   // take product code
@@ -7678,7 +8093,21 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_WIN> > (const Q
   return SCWE_SUCCESS;
 }
 template<>
-system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const QString &version){
+system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (){
+  // take version by -v
+  system_call_res_t rs =
+      CSystemCallWrapper::ssystem_th(QCoreApplication::applicationFilePath(),
+                                     QStringList() << "-v", true, true, 3000);
+
+  if (rs.res != SCWE_SUCCESS || rs.exit_code != 0 || rs.out.empty()) {
+    qCritical() << "Failed to get TRAY VERSION";
+    return SCWE_CREATE_PROCESS;
+  }
+
+  QString version = *rs.out.begin();
+  version = version.left(version.indexOf("branch"));
+  version.remove(QRegularExpression("[a-zA-Z ]"));
+
   QDir dir(QApplication::applicationDirPath());
   dir.cdUp();
   QFile file(dir.absolutePath() + "/Info.plist");
@@ -7728,8 +8157,8 @@ system_call_wrapper_error_t tray_post_update_internal<Os2Type<OS_MAC> > (const Q
   }
   return SCWE_SUCCESS;
 }
-system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(const QString &version){
-  return tray_post_update_internal<Os2Type<CURRENT_OS> >(version);
+system_call_wrapper_error_t CSystemCallWrapper::tray_post_update(){
+  return tray_post_update_internal<Os2Type<CURRENT_OS> >();
 }
 ////////////////////////////////////////////////////////////////////////////
 template<class OS>

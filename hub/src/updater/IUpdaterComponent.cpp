@@ -44,6 +44,7 @@ const QString IUpdaterComponent::VAGRANT_PARALLELS = "vagrant_parallels";
 const QString IUpdaterComponent::VAGRANT_VMWARE_DESKTOP = "vagrant_vmware_desktop";
 const QString IUpdaterComponent::SUBUTAI_BOX = "subutai_box";
 const QString IUpdaterComponent::XQUARTZ = "xquartz";
+const QString IUpdaterComponent::HYPERV = "hyperv";
 
 const QString &
 IUpdaterComponent::component_id_to_user_view(const QString& id) {
@@ -65,7 +66,8 @@ IUpdaterComponent::component_id_to_user_view(const QString& id) {
     {VAGRANT_VMWARE_DESKTOP, "Vagrant VMware Provider"},
     {VAGRANT_LIBVIRT, "Vagrant Libvirt Provider"},
     {VAGRANT_PARALLELS, "Vagrant Parallels Provider"},
-    {XQUARTZ, "XQuartz"}
+    {XQUARTZ, "XQuartz"},
+    {HYPERV, "Hyper-V"}
   };
   static const QString def = "";
 

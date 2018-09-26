@@ -17,7 +17,7 @@ Q_OBJECT
 public:
   enum PROVIDERS {VIRTUALBOX = 0, VMWARE_DESKTOP,
                   PARALLELS, HYPERV, LIBVIRT,
-                  PROVIDER_LAST = PARALLELS // LAST PROVIDER IS PARALLELS
+                  PROVIDER_LAST = HYPERV   // LAST PROVIDER PARALLELS
                  };
 
   static std::vector<int> m_provider_linux,
@@ -33,9 +33,11 @@ public:
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();
   static QString CurrentName();
+  static QString VmStorage();
   QDir BasePeerDir();
   QDir BasePeerDirVirtualbox();
   QDir BasePeerDirVMware();
+  QDir BasePeerDirHyperv();
   static std::vector<int> List();
 
   template <class OS> static

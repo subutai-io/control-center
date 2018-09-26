@@ -57,6 +57,7 @@ const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_VMWARE_VM_STORAGE("VMware_Vm_Storage");
 const QString CSettingsManager::SM_PARALLELS_VM_STORAGE("Parallels_Vm_Storage");
+const QString CSettingsManager::SM_HYPERV_VM_STORAGE("Hyperv_Vm_Storage");
 const QString CSettingsManager::SM_VM_STORAGE("Vm_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
@@ -216,6 +217,7 @@ CSettingsManager::CSettingsManager()
       m_peers_storage(CCommons::HomePath()),
       m_vmware_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_parallels_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Parallels")),
+      m_hyperv_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_tray_update_freq(UF_MIN30),
@@ -278,6 +280,7 @@ CSettingsManager::CSettingsManager()
       {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
       {(void*)&m_vmware_vm_storage, SM_VMWARE_VM_STORAGE, qvar_to_str},
       {(void*)&m_parallels_vm_storage, SM_PARALLELS_VM_STORAGE, qvar_to_str},
+      {(void*)&m_hyperv_vm_storage, SM_HYPERV_VM_STORAGE, qvar_to_str},
       {(void*)&m_vm_storage, SM_VM_STORAGE, qvar_to_str},
       {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
       {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
@@ -757,32 +760,32 @@ quint16 CSettingsManager::rh_port(const QString &id)  {
 
 
 void CSettingsManager::set_peer_pass(const QString &peer_name, const QString &pass){
-    m_peer_passes[peer_name] = pass;
-    m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
+  m_peer_passes[peer_name] = pass;
+  m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
 }
 
 void CSettingsManager::set_peer_finger(const QString &peer_name, const QString &finger){
-    m_peer_fingers[peer_name] = finger;
-    m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
-    qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
+  m_peer_fingers[peer_name] = finger;
+  m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
+  qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
 }
 
 const QString& CSettingsManager::peer_pass(const QString &peer_name){
-    if(m_peer_passes.find(peer_name) == m_peer_passes.end()){
-        if(m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
-    }
-    return m_peer_passes[peer_name];
+  if (m_peer_passes.find(peer_name) == m_peer_passes.end()) {
+    if (m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
+  }
+  return m_peer_passes[peer_name];
 }
 
 const QString& CSettingsManager::peer_finger(const QString &peer_name){
-    if(m_peer_fingers.find(peer_name) == m_peer_fingers.end()){
-        if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
-    }
-    return m_peer_fingers[peer_name];
+  if (m_peer_fingers.find(peer_name) == m_peer_fingers.end()) {
+    if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
+  }
+  return m_peer_fingers[peer_name];
 }
 
 void CSettingsManager::set_branch(const QString &branch){
@@ -828,4 +831,5 @@ SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 SET_FIELD_DEF(vm_storage, SM_VM_STORAGE, QString&)
 SET_FIELD_DEF(vmware_vm_storage, SM_VMWARE_VM_STORAGE, QString&)
 SET_FIELD_DEF(parallels_vm_storage, SM_PARALLELS_VM_STORAGE, QString&)
+SET_FIELD_DEF(hyperv_vm_storage, SM_HYPERV_VM_STORAGE, QString&)
 #undef SET_FIELD_DEF

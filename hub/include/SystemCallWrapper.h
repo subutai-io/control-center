@@ -66,6 +66,7 @@ enum restart_service_error_t { RSE_SUCCESS, RSE_MANUAL };
 ////////////////////////////////////////////////////////////////////////////
 
 static QMutex installer_is_busy;
+static QMutex vagrant_is_busy;
 
 ////////////////////////////////////////////////////////////////////////////
 class CSystemCallThreadWrapper : public QObject {
@@ -217,6 +218,8 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_install_t install_p2p(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_p2p(const QString &dir, const QString &file_name);
+  static system_call_wrapper_error_t update_p2p_linux(const QString &dir, const QString &file_name);
+  static system_call_wrapper_install_t update_p2p(const QString &dir, const QString &file_name);
 
   static system_call_wrapper_install_t install_x2go(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_x2go();
@@ -231,6 +234,9 @@ class CSystemCallWrapper {
   static system_call_wrapper_install_t uninstall_vmware(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t install_parallels(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_parallels(const QString &dir, const QString &file_name);
+
+  static system_call_wrapper_install_t install_hyperv();
+  static system_call_wrapper_install_t uninstall_hyperv();
 
   static system_call_wrapper_install_t install_vmware_utility(const QString &dir, const QString &file_name);
   static system_call_wrapper_install_t uninstall_vmware_utility(const QString &dir, const QString &file_name);
@@ -326,6 +332,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t oracle_virtualbox_version(QString &version);
   static system_call_wrapper_error_t vmware_version(QString &version);
   static system_call_wrapper_error_t parallels_version(QString &version);
+  static system_call_wrapper_error_t hyperv_version(QString &version);
   static system_call_wrapper_error_t vmware_utility_version(QString &version);
   static system_call_wrapper_error_t subutai_e2e_version(QString &version);
   static system_call_wrapper_error_t vagrant_plugin_version(QString &version, QString plugin);
@@ -366,7 +373,7 @@ class CSystemCallWrapper {
       const QString &port, const QString &cont_ip, const QString &rh_ip);
   static bool is_host_reachable(const QString &host);
   // varios system call wrappers for iupdater components
-  static system_call_wrapper_error_t tray_post_update(const QString &version);
+  static system_call_wrapper_error_t tray_post_update();
   static system_call_wrapper_error_t p2p_post_update();
 };
 /*

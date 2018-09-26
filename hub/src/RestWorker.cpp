@@ -193,14 +193,14 @@ void CRestWorker::login(const QString& login, const QString& password,
 
 ////////////////////////////////////////////////////////////////////////////
 ///////////////////////* console rest API */////////////////////////////////
-void CRestWorker::peer_token(const QString& port, const QString& login,
+void CRestWorker::peer_token(const QString& url_management, const QString& login,
                              const QString& password, QString& token,
                              int& err_code, int& http_code,
                              int& network_error) {
-  qInfo() << tr("Getting token of %1").arg(port);
+  qInfo() << tr("Getting token of %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/identity/gettoken").arg(port));
+      QString("https://%1/rest/v1/identity/gettoken").arg(url_management));
 
   QUrl url_login(str_url);
   QUrlQuery query_login;
@@ -257,14 +257,14 @@ bool CRestWorker::peer_update_management(const QString &port){
   return true;
 }
 
-void CRestWorker::peer_unregister(const QString& port, const QString& token,
+void CRestWorker::peer_unregister(const QString& url_management, const QString& token,
                                   int& err_code, int& http_code,
                                   int& network_error) {
-  qInfo() << tr("Unregistering peer %1").arg(port);
+  qInfo() << tr("Unregistering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/hub/unregister?sptoken=%2")
-          .arg(port, token));
+      QString("https://%1/rest/v1/hub/unregister?sptoken=%2")
+          .arg(url_management, token));
 
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
@@ -279,16 +279,16 @@ void CRestWorker::peer_unregister(const QString& port, const QString& token,
            << "Network Error " << network_error;
 }
 
-void CRestWorker::peer_register(const QString& port, const QString& token,
+void CRestWorker::peer_register(const QString& url_management, const QString& token,
                                 const QString& login, const QString& password,
                                 const QString& peer_name,
                                 const QString& peer_scope, int& err_code,
                                 int& http_code, int& network_error) {
-  qInfo() << tr("Registering peer %1").arg(port);
+  qInfo() << tr("Registering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/hub/register?sptoken=%2")
-          .arg(port, token));
+      QString("https://%1/rest/v1/hub/register?sptoken=%2")
+          .arg(url_management, token));
   QUrl url_login(str_url);
   QUrlQuery query;
 
@@ -308,15 +308,15 @@ void CRestWorker::peer_register(const QString& port, const QString& token,
            << "Network Error " << network_error;
 }
 
-void CRestWorker::peer_finger(const QString& port,
+void CRestWorker::peer_finger(const QString& url_management,
                               CPeerController::peer_info_t type,
                               QString name,
                               QString dir) {
-  qInfo() << tr("Getting finger from %1").arg(port);
+  qInfo() << tr("Getting finger from %1").arg(url_management);
 
-  const QString str_url(QString("https://localhost:%1/rest/v1/security/keyman/"
+  const QString str_url(QString("https://%1/rest/v1/security/keyman/"
                                 "getpublickeyfingerprint")
-                            .arg(port));
+                            .arg(url_management));
   QUrl url_finger(str_url);
   QNetworkRequest req(url_finger);
   req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -356,14 +356,13 @@ void CRestWorker::peer_finger(const QString& port,
   });
 }
 
-void CRestWorker::peer_set_pass(const QString& port, const QString& username,
+void CRestWorker::peer_set_pass(const QString& url_mangement, const QString& username,
                                 const QString& old_pass,
                                 const QString& new_pass) {
-  qInfo() << tr("Setting password for %1").arg(port);
+  qInfo() << tr("Setting password for %1").arg(url_mangement);
 
-  const QString str_url(QString("https://localhost:%1/login").arg(port));
+  const QString str_url(QString("https://%1/login").arg(url_mangement));
   QUrl url_finger(str_url);
-  url_finger.setPort(port.toInt());
   QUrlQuery query;
   query.addQueryItem("username", username);
   query.addQueryItem("password", old_pass);
@@ -389,12 +388,12 @@ void CRestWorker::peer_set_pass(const QString& port, const QString& username,
           reply, &QNetworkReply::close);
 }
 
-void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
+void CRestWorker::peer_get_info(const QString& url_management, QString peer_info_type,
                                 CPeerController::peer_info_t type,
                                 QString name,
                                 QString dir) {
   // create request
-  const QString str_url(QString("https://localhost:%1/rest/v1/system/management_updates").arg(port));
+  const QString str_url(QString("https://%1/rest/v1/system/management_updates").arg(url_management));
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -415,7 +414,7 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit,
           reply, &QNetworkReply::close);
 
-  connect(reply, &QNetworkReply::finished, [reply, port, type, name, dir, peer_info_type](){
+  connect(reply, &QNetworkReply::finished, [reply, url_management, type, name, dir, peer_info_type]() {
     qDebug() << "Is reply null " << (reply == nullptr);
     if (reply == nullptr) {
       return;
@@ -433,9 +432,9 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
         // set password if not changed
         QString old_pass = "secret", user_name = "admin";
         QString new_pass = CSettingsManager::Instance().peer_pass(name);
-        CRestWorker::Instance()->peer_set_pass(port, user_name, old_pass, new_pass);
+        CRestWorker::Instance()->peer_set_pass(url_management, user_name, old_pass, new_pass);
         // login
-        CRestWorker::Instance()->peer_login(port, user_name, new_pass);
+        CRestWorker::Instance()->peer_login(url_management, user_name, new_pass);
       }
     } else {
       // get value from json file
@@ -452,12 +451,11 @@ void CRestWorker::peer_get_info(const QString& port, QString peer_info_type,
   });
 }
 
-void CRestWorker::peer_login(const QString &port,
+void CRestWorker::peer_login(const QString &url_management,
                              const QString &username,
                              const QString &pass){
-  const QString str_url(QString("https://localhost:%1/login").arg(port));
+  const QString str_url(QString("https://%1/login").arg(url_management));
   QUrl url_finger(str_url);
-  url_finger.setPort(port.toInt());
   QUrlQuery query;
   query.addQueryItem("username", username);
   query.addQueryItem("password", pass);
@@ -615,15 +613,12 @@ void CRestWorker::update_balance() {
 
 std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     const QString& file_name, QString link) {
-  static const QString str_fi("raw/info");
   int http_code, err_code, network_error;
   if (link.isEmpty()) {
-    link = hub_gorjun_url().arg(str_fi);
+    link = hub_gorjun_url();
   }
+  link += QString("?name=%1&latest").arg(file_name);
   QUrl url_gorjun_fi(link);
-  QUrlQuery query_gorjun_fi;
-  query_gorjun_fi.addQueryItem("name", file_name);
-  url_gorjun_fi.setQuery(query_gorjun_fi);
   QNetworkRequest request(url_gorjun_fi);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
   QByteArray arr = send_request(m_network_manager, request, true, http_code,
@@ -637,14 +632,25 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     return lst_res;
   }
 
-  if (doc.isArray()) {
-    QJsonArray json_arr = doc.array();
-    for (auto i = json_arr.begin(); i != json_arr.end(); ++i) {
-      if (i->isNull() || !i->isObject()) continue;
-      lst_res.push_back(CGorjunFileInfo(i->toObject()));
-    }
-  } else if (doc.isObject()) {
-    lst_res.push_back(CGorjunFileInfo(doc.object()));
+  if (doc.isObject()) {
+    QJsonObject json_obj = doc.object();
+    QStringList dbg;
+    QJsonObject obj = QJsonObject();
+
+    obj.insert("id", json_obj["id"]);
+    dbg << QString("id=%1").arg(json_obj["id"].toString());
+    obj.insert("filename", json_obj["filename"]);
+    dbg << QString("filename=%1").arg(json_obj["filename"].toString());
+
+    QJsonObject tmp_obj = json_obj["raw_details"].toArray().begin()->toObject();
+
+    obj.insert("md5", tmp_obj["md5"]);
+    dbg << QString("md5=%1").arg(tmp_obj["md5"].toString());
+    obj.insert("size", tmp_obj["size"]);
+    dbg << QString("size=%1").arg(tmp_obj["size"].toInt());
+
+    qDebug() << "Parsed json doc:" << dbg;
+    lst_res.emplace_back(CGorjunFileInfo(obj));
   }
 
   return lst_res;
@@ -759,14 +765,13 @@ void CRestWorker::send_health_request(const QString& p2p_version,
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_id,
+QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
                                                  QString link) {
-  static const QString str_file_url("raw/download");
-  if (link.isEmpty()) link = hub_gorjun_url().arg(str_file_url);
-  QUrl url(link);
-  QUrlQuery query;
-  query.addQueryItem("id", file_id);
-  url.setQuery(query);
+  UNUSED_ARG(file_name);
+  if (link.isEmpty()) link = hub_gorjun_url();
+  QString str_file_url =
+      QString("%1").arg(link);
+  QUrl url(str_file_url);
   return download_file(url);
 }
 ////////////////////////////////////////////////////////////////////////////

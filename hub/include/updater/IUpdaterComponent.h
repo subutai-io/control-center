@@ -55,6 +55,7 @@ class IUpdaterComponent : public QObject {
   static const QString VMWARE;
   static const QString PARALLELS;
   static const QString VMWARE_UTILITY;
+  static const QString HYPERV;
   static const QString CHROME;
   static const QString FIREFOX;
   static const QString E2E;
