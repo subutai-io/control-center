@@ -1725,92 +1725,106 @@ system_call_wrapper_error_t vagrant_command_terminal_internal(const QString &dir
 template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
-                                                                                 const QString &name){
-    if(command.isEmpty()){
-        return SCWE_CREATE_PROCESS;
-    }
+                                                                                 const QString &name) {
+  vagrant_is_busy.lock();
+  if(command.isEmpty()) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
 
-    UNUSED_ARG(name);
-    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
-                                                                CSettingsManager::Instance().vagrant_path(),
-                                                                command,
-                                                                name, *(command.split(" ").begin()));
-    if(command == "reload"){
-        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
-    }
+  UNUSED_ARG(name);
+  QString tmp;
+  tmp = name;
+  tmp.remove("\"");
+  QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+                                                              CSettingsManager::Instance().vagrant_path(),
+                                                              command,
+                                                              tmp, *(command.split(" ").begin()));
+  if (command == "reload") {
+    str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
+  }
 
-    str_command += QString("echo finished > %1_finished; "
-                           "echo 'Peer finished to %1 with following errors:'; "
-                           "cat %2_%1; "
-                           "echo 'Press any key to finish:'; "
-                           "read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
+  str_command += QString("echo finished > %1_finished; "
+                         "echo 'Peer finished to %1 with following errors:'; "
+                         "cat %2_%1; "
+                         "echo 'Press any key to finish:'; "
+                         "read -s -n 1; exit").arg(*(command.split(" ").begin()), tmp);
 
-    QString cmd;
+  QString cmd;
 
-    cmd = CSettingsManager::Instance().terminal_cmd();
-    QStringList args;
-    qInfo("Launch command : %s", str_command.toStdString().c_str());
-    if (cmd == "iTerm") {
-    args << "-e" << QString("Tell application \"%1\"").arg(cmd)
-         << "-e" << "activate"
-         << "-e" << "tell current window"
-         << "-e" << "create window with default profile"
-         << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
-         << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
-    } else {
-      args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
-                .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
-    }
-    return QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
-                                              : SCWE_CREATE_PROCESS;
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args;
+  qInfo("Launch command : %s", str_command.toStdString().c_str());
+  if (cmd == "iTerm") {
+  args << "-e" << QString("Tell application \"%1\"").arg(cmd)
+       << "-e" << "activate"
+       << "-e" << "tell current window"
+       << "-e" << "create window with default profile"
+       << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
+       << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
+  } else {
+    args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
+              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  }
+  system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
+                                                                                        : SCWE_CREATE_PROCESS;
+  vagrant_is_busy.unlock();
+  return res;
 }
 
 template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
-                                                                                  const QString &name){
-    if(command.isEmpty()){
-        return SCWE_CREATE_PROCESS;
-    }
+                                                                                  const QString &name) {
+  vagrant_is_busy.lock();
+  if (command.isEmpty()) {
+    vagrant_is_busy.unlock();
+    return SCWE_CREATE_PROCESS;
+  }
 
-    UNUSED_ARG(name);
-    QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
+  UNUSED_ARG(name);
+  QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
                                                                 CSettingsManager::Instance().vagrant_path(),
                                                                 command,
                                                                 name, *(command.split(" ").begin()));
-    if(command == "reload"){
-        str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
-    }
+  if (command == "reload") {
+    str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, name);
+  }
 
-    str_command += QString("echo finished > %1_finished; echo 'Peer finished to %1 with following errors:'; cat %2_%1; echo 'Press any key to finish:'; read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
+  str_command += QString("echo finished > %1_finished; echo 'Peer finished to %1 with following errors:'; cat %2_%1; echo 'Press any key to finish:'; read -s -n 1; exit").arg(*(command.split(" ").begin()), name);
 
-    QString cmd;
-    QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
-    if (!cmd_file.exists()) {
-      system_call_wrapper_error_t tmp_res;
-      if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
-          SCWE_SUCCESS) {
-        return tmp_res;
-      }
+  QString cmd;
+  QFile cmd_file(CSettingsManager::Instance().terminal_cmd());
+  if (!cmd_file.exists()) {
+    system_call_wrapper_error_t tmp_res;
+    if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
+        SCWE_SUCCESS) {
+      vagrant_is_busy.unlock();
+      return tmp_res;
     }
-    cmd = CSettingsManager::Instance().terminal_cmd();
-    QStringList args = CSettingsManager::Instance().terminal_arg().split(
-                         QRegularExpression("\\s"));
-    args << QString("%1").arg(str_command);
-    return QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
-                                              : SCWE_CREATE_PROCESS;
+  }
+  cmd = CSettingsManager::Instance().terminal_cmd();
+  QStringList args = CSettingsManager::Instance().terminal_arg().split(
+                       QRegularExpression("\\s"));
+  args << QString("%1").arg(str_command);
+  system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
+                                                                       : SCWE_CREATE_PROCESS;
+  vagrant_is_busy.unlock();
+  return res;
 }
 
 template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
                                                                                   const QString &command,
-                                                                                  const QString &name){
+                                                                                  const QString &name) {
+  vagrant_is_busy.lock();
 UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
 
   if (command.isEmpty()) {
+    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
@@ -1850,6 +1864,7 @@ UNUSED_ARG(command);
     system_call_wrapper_error_t tmp_res;
     if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
         SCWE_SUCCESS) {
+      vagrant_is_busy.unlock();
       return tmp_res;
     }
   }
@@ -1867,9 +1882,11 @@ UNUSED_ARG(command);
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
         GetLastError());
+    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 #endif
+  vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
