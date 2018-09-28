@@ -87,20 +87,22 @@ private:
 
   void check_for_versions_and_updates();
   //hide some soft
-  void set_visible_chrome(bool value);
-  void set_visible_firefox(bool value);
-  void set_visible_safari(bool value);
-  void set_visible_edge(bool value);
+  void set_visible_chrome();
+  void set_visible_firefox();
+  void set_visible_safari();
+  void set_visible_edge();
   void set_visible_e2e(bool value);
   void set_visible_xquartz(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
   void set_hidden_providers();
-  void set_visible_virtualbox(bool value);
-  void set_visible_vmware(bool value);
-  void set_visible_parallels(bool value);
-  void set_visible_libvirt(bool value);
-  void set_visible_hypervisor(bool value, const QString& name);
+  void set_visible_virtualbox();
+  void set_visible_vmware();
+  void set_visible_parallels();
+  void set_visible_libvirt();
+  void set_visible_hyperv();
+  void set_visible_provider_plugin(bool value);
+  void set_visible_vagrant_vmware_utility(bool value);
 
 private slots:
   void btn_tray_update_released();
