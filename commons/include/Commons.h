@@ -16,6 +16,7 @@
 class CCommons {
 public:
   static const char* RESTARTED_ARG;
+  static const char* PEER_PATH;
 
   /**
    * @brief MD5 hash of file (like md5sum)

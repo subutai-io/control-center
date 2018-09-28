@@ -30,7 +30,8 @@ enum cc_component{
     CC_SUBUTAI_BOX,
     CC_VMWARE,
     CC_VMWARE_UTILITY,
-    CC_XQUARTZ
+    CC_XQUARTZ,
+    CC_HYPERV
 };
 
 namespace update_system {
@@ -47,7 +48,7 @@ namespace update_system {
     //PUBLIC FIELD!!! ACHTUNG!!! :-D
     bool autoupdate;
 
-    CUpdaterComponentItem() : m_component(NULL), autoupdate(false){
+    CUpdaterComponentItem() : m_component(nullptr), autoupdate(false){
       connect(&m_timer, &QTimer::timeout, this, &CUpdaterComponentItem::timer_timeout_sl);
     }
 
