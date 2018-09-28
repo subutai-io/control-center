@@ -231,10 +231,18 @@ void CRestWorker::peer_token(const QString& url_management, const QString& login
 }
 
 bool CRestWorker::peer_update_management(const QString &port){
-  qInfo() << "Request to update management %1" << port;
+  qInfo() << "Request to update management %1" << port
+          << " provider: " << VagrantProvider::Instance()->CurrentVal();
+  QString port_or_ip;
+
+  if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+    port_or_ip = QString("%1:8443").arg(port);
+  } else{
+    port_or_ip = QString("localhost:%1").arg(port);
+  }
 
   const QString str_url(
-      QString("https://localhost:%1/rest/v1/system/update_management").arg(port));
+      QString("https://%1/rest/v1/system/update_management").arg(port_or_ip));
 
   QUrl url_login(str_url);
   QNetworkRequest request(url_login);
@@ -248,7 +256,8 @@ bool CRestWorker::peer_update_management(const QString &port){
   qDebug () << "Update peer management is finished with "
             << "Error code: " << err_code
             << "Network error" << network_error
-            << "Http code" << http_code;
+            << "Http code" << http_code
+            << "ip " << port_or_ip;
 
   if (err_code != RE_SUCCESS) {
     if (http_code == 500) err_code = RE_FAILED_ERROR;
