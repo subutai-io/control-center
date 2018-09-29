@@ -963,12 +963,65 @@ void DlgAbout::btn_uninstall_components() {
                                                 IUpdaterComponent::VAGRANT_VMWARE_DESKTOP,
                                                 IUpdaterComponent::E2E,
                                                 IUpdaterComponent::VMWARE_UTILITY}; // components with 1 priority, other will be 0
-  current_browser = CSettingsManager::Instance().default_browser();
-  QString current_hypervisor = VagrantProvider::Instance()->CurrentName();
-  // TODO : check only active components :B
+  QStringList hypervisors = {
+    IUpdaterComponent::HYPERV,
+    IUpdaterComponent::ORACLE_VIRTUALBOX,
+    IUpdaterComponent::VMWARE,
+    //IUpdaterComponent::LIBVIRT,
+    //IUpdaterComponent::PARALLELS
+  };
+  QStringList browsers = {
+    IUpdaterComponent::CHROME,
+    IUpdaterComponent::FIREFOX
+  };
+  QStringList provider_plugins {
+    IUpdaterComponent::VAGRANT_LIBVIRT,
+    IUpdaterComponent::VAGRANT_PARALLELS,
+    IUpdaterComponent::VAGRANT_VBGUEST,
+    IUpdaterComponent::VAGRANT_VMWARE_DESKTOP
+  };
+
+  QString current_browser_id = CSettingsManager::Instance().default_browser();
+  if (current_browser_id == "Chrome") {
+    current_browser_id = IUpdaterComponent::CHROME;
+  } else if (current_browser_id == "Firefox") {
+    current_browser_id = IUpdaterComponent::FIREFOX;
+  } else {
+    current_browser_id = "EDGE or SAFARI";
+  }
+
+  QString current_hypervisor_id = VagrantProvider::Instance()->CurrentName();
+  QString current_provider_plugin_id;
+  if (current_hypervisor_id == "virtualbox") {
+    current_hypervisor_id = IUpdaterComponent::ORACLE_VIRTUALBOX;
+    current_provider_plugin_id = IUpdaterComponent::VAGRANT_VBGUEST;
+  } else if (current_hypervisor_id == "hyperv") {
+    current_hypervisor_id = IUpdaterComponent::HYPERV;
+    current_provider_plugin_id = "HYPERV";
+  } else if (current_hypervisor_id == "vmware_desktop") {
+    current_hypervisor_id = IUpdaterComponent::VMWARE;
+    current_provider_plugin_id = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
+  } else if (current_hypervisor_id == "libvirt") {
+    current_hypervisor_id = //IUpdaterComponent::ORACLE_VIRTUALBOX;
+                            "LIBVIRT";
+    current_provider_plugin_id = IUpdaterComponent::VAGRANT_LIBVIRT;
+  } else if (current_hypervisor_id == "parallels") {
+    current_hypervisor_id = //IUpdaterComponent::ORACLE_VIRTUALBOX;
+                            "PARALLELS";
+    current_provider_plugin_id = IUpdaterComponent::VAGRANT_PARALLELS;
+  }
+
+  //TODO: need to fix hypervisor and provider_plugin uninstallation
+
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
-    if (component.second.cb == nullptr) {continue;}
+    if (component.second.cb == nullptr ||
+        (component.first == IUpdaterComponent::VMWARE_UTILITY && current_hypervisor_id != IUpdaterComponent::VMWARE) ||
+        (hypervisors.contains(component.first) && current_hypervisor_id != component.first) ||
+        (browsers.contains(component.first) && current_browser_id != component.first) ||
+        (provider_plugins.contains(component.first) && current_provider_plugin_id != component.first)) {
+      continue;
+    }
     if (component.second.cb->isChecked() && component.second.cb->isVisible()) {
       qDebug() << "Checkbox enabled: " << component.first;
       if (m_dct_fpb[component.first].lbl->text() == "Install Vagrant first" ||
