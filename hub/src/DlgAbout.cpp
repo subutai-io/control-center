@@ -990,7 +990,7 @@ void DlgAbout::btn_uninstall_components() {
     current_browser_id = "EDGE or SAFARI";
   }
 
-  QString current_hypervisor_id = VagrantProvider::Instance()->CurrentName();
+  QString current_hypervisor_id = VagrantProvider::Instance()->CurrentVal();
   QString current_provider_plugin_id;
   if (current_hypervisor_id == "virtualbox") {
     current_hypervisor_id = IUpdaterComponent::ORACLE_VIRTUALBOX;
@@ -1010,8 +1010,6 @@ void DlgAbout::btn_uninstall_components() {
                             "PARALLELS";
     current_provider_plugin_id = IUpdaterComponent::VAGRANT_PARALLELS;
   }
-
-  //TODO: need to fix hypervisor and provider_plugin uninstallation
 
   QString uninstalling_components_str;
   for (const auto& component : m_dct_fpb) {
