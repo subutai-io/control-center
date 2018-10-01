@@ -630,7 +630,7 @@ DlgAbout::~DlgAbout() { delete ui; }
 void DlgAbout::check_for_versions_and_updates() {
   // There are 2 steps of initialization: version checking and update checking
   // see DlgAboutInitializer::do_initialization() for more details
-  int cur_components_count = DlgAboutInitializer::COMPONENTS_COUNT;
+  int cur_components_count = DlgAboutInitializer::COMPONENTS_COUNT - 1; // -1 for CC version check
   QString current_hypervisor = VagrantProvider::Instance()->CurrentVal();
   QString current_browser = CSettingsManager::Instance().default_browser();
   if (current_hypervisor != "vmware_desktop") {
