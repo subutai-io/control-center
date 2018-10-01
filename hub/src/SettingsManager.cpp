@@ -392,6 +392,7 @@ CSettingsManager::CSettingsManager()
   CSystemCallWrapper::set_application_autostart(m_autostart);
   m_autostart = CSystemCallWrapper::application_autostart();  // second check %)
   init_password();
+  set_default_browser(m_settings.value(SM_DEFAULT_BROWSER, default_default_browser()).toString());
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -591,7 +592,8 @@ void CSettingsManager::set_vagrant_path(QString vagrant_path) {
 }
 
 void CSettingsManager::set_default_browser(QString fr){
-    m_default_browser = fr;
+    m_default_browser = fr.toLower();
+    m_default_browser[0] = m_default_browser[0].toUpper();
     m_settings.setValue(SM_DEFAULT_BROWSER, m_default_browser);
 }
 /////////////////////////////////////////////////////////////
