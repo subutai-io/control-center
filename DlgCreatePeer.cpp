@@ -9,12 +9,31 @@
 #include "ui_DlgCreatePeer.h"
 #include "VagrantProvider.h"
 #include "Environment.h"
+#include "updater/HubComponentsUpdater.h"
+#include <QMessageBox>
+
+bool non_static_vmware_utility_update_available() {
+  QString version;
+  CSystemCallWrapper::vmware_utility_version(version);
+  return version == "undefined";
+}
+
+bool is_update_available_vmware_utility_th() {
+  QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+  QFuture<bool> res =
+      QtConcurrent::run(non_static_vmware_utility_update_available);
+  watcher->setFuture(res);
+  watcher->waitForFinished();
+  return res.result();
+}
 
 DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     : QDialog(parent),
       m_password_state(0),
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
+  // Check existing peers
+  CPeerController::Instance()->refresh();
   // Bridge interfaces
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
@@ -42,9 +61,10 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   requirement vagrant_vmware_license(
         tr("Vagrant VMWare Desktop provider license is not installed"),
         tr("Checking Vagrant VMware License..."),
-        tr(" The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
-           "and require the <b>purchase of a license to operate</b>. To purchase a license, "
-           "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "),
+        tr("You do not have a <b>license</b> to use <b>Vagrant VMWare Desktop provider.</b> "
+           "Please <a href=\"https://www.vagrantup.com/vmware/index.html\">visit</a> to purchase "
+           "a license. Once you purchase a license, you can install it "
+           "using <b>vagrant plugin license</b> "),
       DlgNotification::N_NO_ACTION, []() {
         return CCommons::IsVagrantVMwareLicenseInstalled();
       });
@@ -59,14 +79,23 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                 IUpdaterComponent::VMWARE);
         });
 
+  // Hyper-V Hypervisor
+  requirement hyperv(
+        tr("Hyper-V is not ready"), tr("Checking Hyper-V..."),
+        tr("Hyper-V is not reaady. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::HYPERV);
+        });
+
   // Vagrant VMware Utility
   requirement vagrant_vmware_utility(
         tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
         tr("Vagrant VMware Utility is not ready. You should install it from "
            "Components"),
         DlgNotification::N_ABOUT, []() {
-          return !CHubComponentsUpdater::Instance()->is_update_available(
-                IUpdaterComponent::VMWARE_UTILITY);
+          return !is_update_available_vmware_utility_th();
         });
 
   requirement vagrant(
@@ -167,6 +196,14 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       ui->cmb_bridge->hide();
     }
 
+    break;
+  case VagrantProvider::HYPERV:
+    m_requirements_ls.push_back(hyperv);
+
+    if (bridges.size() <= 1) {
+      ui->lbl_bridge->hide();
+      ui->cmb_bridge->hide();
+    }
     break;
   default:
     break;
@@ -327,6 +364,24 @@ bool DlgCreatePeer::check_configurations() {
 }
 
 void DlgCreatePeer::create_button_pressed() {
+  // Check Vagrant command available:
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      QMessageBox* msg_box =
+         new QMessageBox(QMessageBox::Question, tr("Info"),
+                         tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
+                            "In order to create peer, uninstall Vagrant VMWare Desktop Provider.<br/>"
+                            "Do you want to proceed?"),
+                         QMessageBox::Yes | QMessageBox::No);
+      connect(msg_box, &QMessageBox::finished, msg_box,
+              &QMessageBox::deleteLater);
+
+      if (msg_box->exec() == QMessageBox::Yes) {
+          update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+      }
+    }
+  }
+
   if (check_configurations()) return;
 
   QString dir = create_dir("subutai-peer_" + ui->le_name->text());
@@ -350,16 +405,58 @@ void DlgCreatePeer::create_button_pressed() {
     return;
   }
 
+  // Use minimum not-used port
+  std::vector<int> used_ports;
+  used_ports.emplace_back(9998);
+  int port = 9999;
+
+  system_call_res_t rs = CPeerController::Instance()->get_global_status();
+  if (rs.res == SCWE_SUCCESS && rs.exit_code == 0 && !rs.out.isEmpty()) {
+    QStringList cr = CPeerController::Instance()->get_global_status().out;
+    for (QString dir: cr) {
+      QString cur_port_str = CSystemCallWrapper::vagrant_port(dir);
+      cur_port_str.remove(QRegularExpression("[^0-9]"));
+      int cur_port = cur_port_str.toInt();
+      if (cur_port < 9999) {
+        continue;
+      }
+      used_ports.emplace_back(cur_port);
+    }
+  }
+  // We will store in TrayControlWindow::Instance()->reserved_ports
+  // ports that were used to create peer, but not reserved by vagrant yet.
+  for (int i: TrayControlWindow::Instance()->reserved_ports) {
+    used_ports.emplace_back(i);
+  }
+  sort(used_ports.begin(), used_ports.end());
+
+  for (std::vector<int>::size_type i = 0; i < used_ports.size(); i++) {
+    // if this is last port number in our used_port or
+    // the next one is greater than current + 1,
+    // current + 1 will be the minimum excluded number, hence it will be free.
+    if (i + 1 == used_ports.size() || used_ports[i] + 1 < used_ports[i + 1]) {
+      port = used_ports[i] + 1;
+      break;
+    }
+  }
+
+  qDebug() << "port: " << port;
+  //reserve this port until vagrant gets it. Timeout is 2 minutes.
+  TrayControlWindow::Instance()->reserved_ports.insert(port);
+  QTimer::singleShot(120 * 1000, [port]() {
+    TrayControlWindow::Instance()->reserved_ports.erase(port);
+  });
+
   ui->lbl_err_os->setStyleSheet("QLabel {color : green}");
   ui->lbl_err_os->setText(tr("Initalializing environment..."));
   InitPeer *thread_init = new InitPeer(this);
   thread_init->init(dir, ui->cmb_os->currentText());
   thread_init->startWork();
   connect(thread_init, &InitPeer::outputReceived,
-          [dir, this](system_call_wrapper_error_t res) {
+          [dir, this, port](system_call_wrapper_error_t res) {
             this->init_completed(res, dir, this->ui->le_ram->text(),
                                  this->ui->cmb_cpu->currentText(),
-                                 this->ui->le_disk->text());
+                                 this->ui->le_disk->text(), port);
           });
 }
 
@@ -405,39 +502,53 @@ void DlgCreatePeer::hide_err_labels() {
   ui->lbl_err_os->hide();
 }
 
-// for peers, empty if that peer dir exists
-QString DlgCreatePeer::create_dir(const QString &name) {
+// Create peer directory in home path on Virtualbox
+QString DlgCreatePeer::virtualbox_dir(const QString &name) {
   QString new_dir = "";
-  QDir current_local_dir;
-  QStringList stdDirList =
-      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
-  QStringList::iterator stdDir = stdDirList.begin();
-  if (stdDir == stdDirList.end())
-    current_local_dir.setCurrent("/");
-  else
-    current_local_dir.setCurrent(*stdDir);
-  current_local_dir.cd("Subutai-peers");
+  QDir current_local_dir = VagrantProvider::Instance()->BasePeerDir();
+
   if (!current_local_dir.mkdir(name)) return new_dir;
   current_local_dir.cd(name);
+
   return current_local_dir.absolutePath();
 }
 
+// Create peer directory by VM storage path on VMware, Hyper-V
+QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
+
+  // 1. create "peer" folder.
+  QString empty;
+  QDir peer_dir = VagrantProvider::Instance()->BasePeerDir();
+
+  if (!peer_dir.mkdir(peer_folder)) {
+    return empty;
+  }
+  peer_dir.cd(peer_folder);
+
+  return peer_dir.absolutePath();
+}
+
+// for peers, empty if that peer dir exists
+QString DlgCreatePeer::create_dir(const QString &peer_folder) {
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::VIRTUALBOX:
+    return virtualbox_dir(peer_folder);
+  case VagrantProvider::VMWARE_DESKTOP:
+    return vmware_dir(peer_folder);
+  case VagrantProvider::HYPERV:
+    return vmware_dir(peer_folder);
+  default:
+    return virtualbox_dir(peer_folder);
+  }
+}
+
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,
-                                   QString ram, QString cpu, QString disk) {
-  if (res != SCWE_SUCCESS) {
-    // Check Vagrant command available:
-    if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-      if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
-        CNotificationObserver::Instance()->Error(
-              tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
-                 "In order to create peer, uninstall Vagrant VMWare Desktop Provider by following <b>Uninstall</b> button."), DlgNotification::N_UNINSTALL);
-      }
-    } else {
-      CNotificationObserver::Instance()->Error(
-          tr("Coudn't create peer, sorry. Check if all software is installed "
-             "correctly"),
-          DlgNotification::N_NO_ACTION);
-    }
+                                   QString ram, QString cpu, QString disk, int port) {
+  if (res != SCWE_SUCCESS) { 
+    CNotificationObserver::Instance()->Error(
+        tr("Coudn't create peer, sorry. Check if all software is installed "
+           "correctly"),
+        DlgNotification::N_NO_ACTION);
 
     ui->btn_create->setEnabled(true);
     set_enabled_buttons(true);
@@ -461,6 +572,7 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
   // write config file
   if (file.open(QIODevice::ReadWrite)) {
     QTextStream stream(&file);
+    stream << "DESIRED_CONSOLE_PORT : " << port << endl;
     stream << "SUBUTAI_RAM : " << ram << endl;
     stream << "SUBUTAI_CPU : " << cpu << endl;
     QString branch = current_branch_name_with_changes();
@@ -482,9 +594,15 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
              << endl;
     }
 
-    stream << "SUBUTAI_DISK_PATH : "
-           << QString("\"%1\"")
-              .arg(CSystemCallWrapper::get_virtualbox_vm_storage());
+    switch (VagrantProvider::Instance()->CurrentProvider()) {
+    case VagrantProvider::VIRTUALBOX:
+      stream << "SUBUTAI_DISK_PATH : "
+             << QString("\"%1\"")
+                .arg(QDir::fromNativeSeparators(CSystemCallWrapper::get_virtualbox_vm_storage()));
+      break;
+    default:
+      break;
+    }
   }
   file.close();
   // write provision step file

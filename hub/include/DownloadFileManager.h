@@ -20,7 +20,7 @@ typedef enum download_file_manager_errors {
 class CDownloadFileManager : public QObject {
   Q_OBJECT
 private:
-  QString m_kurjun_file_id;
+  QString m_kurjun_file_name;
   QString m_dst_file_path;
   int m_expected_size;
   QNetworkReply* m_network_reply;
@@ -28,7 +28,7 @@ private:
   QString m_link;
 
 public:
-  CDownloadFileManager(const QString& kurjun_file_id,
+  CDownloadFileManager(const QString& kurjun_file_name,
                        const QString& dst_file,
                        int expected_size);
   ~CDownloadFileManager();

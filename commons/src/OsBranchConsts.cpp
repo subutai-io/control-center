@@ -49,18 +49,18 @@ template<class BR, class OS> const QString& p2p_package_name_temp_internal();
     return res; \
   }
 
-p2p_kurjun_file_name_def(BT_MASTER,     OS_LINUX,   "p2p")
-p2p_kurjun_file_name_def(BT_MASTER,     OS_MAC,     "p2p_osx")
-p2p_kurjun_file_name_def(BT_MASTER,     OS_WIN,     "p2p.exe")
-p2p_kurjun_file_name_def(BT_DEV,        OS_LINUX,   "p2p")
-p2p_kurjun_file_name_def(BT_DEV,        OS_MAC,     "p2p_osx")
-p2p_kurjun_file_name_def(BT_DEV,        OS_WIN,     "p2p.exe")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_LINUX,   "p2p-master")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_MAC,     "p2p-master_osx")
+p2p_kurjun_file_name_def(BT_MASTER,     OS_WIN,     "p2p-master.exe")
+p2p_kurjun_file_name_def(BT_DEV,        OS_LINUX,   "p2p-dev")
+p2p_kurjun_file_name_def(BT_DEV,        OS_MAC,     "p2p-dev_osx")
+p2p_kurjun_file_name_def(BT_DEV,        OS_WIN,     "p2p-dev.exe")
 p2p_kurjun_file_name_def(BT_PROD,      OS_LINUX,   "p2p")
 p2p_kurjun_file_name_def(BT_PROD,      OS_MAC,     "p2p_osx")
 p2p_kurjun_file_name_def(BT_PROD,      OS_WIN,     "p2p.exe")
 
-p2p_package_name_def(BT_MASTER, OS_LINUX, "subutai-p2p-master")
-p2p_package_name_def(BT_DEV,    OS_LINUX, "subutai-p2p-dev")
+p2p_package_name_def(BT_MASTER, OS_LINUX, "subutai-p2p")
+p2p_package_name_def(BT_DEV,    OS_LINUX, "subutai-p2p")
 p2p_package_name_def(BT_PROD,   OS_LINUX, "subutai-p2p")
 p2p_package_name_def(BT_MASTER, OS_WIN,   "Subutai P2P")
 p2p_package_name_def(BT_DEV,    OS_WIN,   "Subutai P2P")
@@ -266,12 +266,12 @@ template<class BR, class OS> const QString& tray_kurjun_file_name_temp_internal(
     return res; \
   }
 
-tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter")
-tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter_osx")
-tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter.exe")
-tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter")
-tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter_osx")
-tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter.exe")
+tray_kurjun_file_name_def(BT_MASTER,    OS_LINUX,   "SubutaiControlCenter-master")
+tray_kurjun_file_name_def(BT_MASTER,    OS_MAC,     "SubutaiControlCenter-master_osx")
+tray_kurjun_file_name_def(BT_MASTER,    OS_WIN,     "SubutaiControlCenter-master.exe")
+tray_kurjun_file_name_def(BT_DEV,       OS_LINUX,   "SubutaiControlCenter-dev")
+tray_kurjun_file_name_def(BT_DEV,       OS_MAC,     "SubutaiControlCenter-dev_osx")
+tray_kurjun_file_name_def(BT_DEV,       OS_WIN,     "SubutaiControlCenter-dev.exe")
 tray_kurjun_file_name_def(BT_PROD,     OS_LINUX,   "SubutaiControlCenter")
 tray_kurjun_file_name_def(BT_PROD,     OS_MAC,     "SubutaiControlCenter_osx")
 tray_kurjun_file_name_def(BT_PROD,     OS_WIN,     "SubutaiControlCenter.exe")
@@ -310,11 +310,11 @@ const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_MASTER> >
 }
 template<>
 const QString& subutai_box_kurjun_package_name_internal<Branch2Type<BT_DEV> >(const QString& provider){
-    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware.box"},
-                                                   {"parallels", "vagrant-subutai-stretch-parallels.box"},
-                                                   {"hyperv", "vagrant-subutai-stretch-hyperv.box"},
-                                                   {"libvirt", "vagrant-subutai-stretch-libvirt.box"},
-                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox.box"},
+    static std::map<QString, QString> box_names = {{"vmware_desktop", "vagrant-subutai-stretch-vmware-master.box"},
+                                                   {"parallels", "vagrant-subutai-stretch-parallels-master.box"},
+                                                   {"hyperv", "vagrant-subutai-stretch-hyperv-master.box"},
+                                                   {"libvirt", "vagrant-subutai-stretch-libvirt-master.box"},
+                                                   {"virtualbox", "vagrant-subutai-stretch-virtualbox-master.box"},
                                                    {"undefined", "undefined"}};
     if(box_names.find(provider) == box_names.end()){
         return box_names["undefined"];
@@ -336,7 +336,7 @@ template<class BR> const QString& subutai_box_name_internal();
 
 subutai_box_name_internal_def(BT_PROD,   "subutai/stretch")
 subutai_box_name_internal_def(BT_MASTER, "subutai/stretch-master")
-subutai_box_name_internal_def(BT_DEV,    "subutai/stretch")
+subutai_box_name_internal_def(BT_DEV,    "subutai/stretch-master")
 
 const QString &
 subutai_box_name() {
@@ -489,9 +489,9 @@ template<class BR> const QString& hub_kurjun_url_temp_internal();
     return res; \
   }
 
-hub_kurjun_url_temp_internal_def(BT_PROD,     "https://cdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://mastercdn.subutai.io:8338/kurjun/rest/%1")
-hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devcdn.subutai.io:8338/kurjun/rest/%1")
+hub_kurjun_url_temp_internal_def(BT_PROD,     "https://bazaar.subutai.io/rest/v1/cdn/raw")
+hub_kurjun_url_temp_internal_def(BT_MASTER,   "https://masterbazaar.subutai.io/rest/v1/cdn/raw")
+hub_kurjun_url_temp_internal_def(BT_DEV,      "https://devbazaar.subutai.io/rest/v1/cdn/raw")
 
 const QString &
 hub_gorjun_url() {
@@ -680,11 +680,11 @@ const QString firefox_profiles_internal<Os2Type<OS_WIN>>() {
 }
 
 template<class OS>
-const int firefox_profiles_folder_path_cut();
+int firefox_profiles_folder_path_cut();
 
 #define firefox_profiles_folder_path_cut_def(OS_TYPE, INT) \
   template<> \
-  const int firefox_profiles_folder_path_cut<Os2Type<OS_TYPE>>() { \
+  int firefox_profiles_folder_path_cut<Os2Type<OS_TYPE>>() { \
     return INT; \
   }
 
@@ -768,7 +768,7 @@ ssdp_rh_search_target_arr() {
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<4> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<5> >(),
     ssdp_rh_search_target_temp_internal<Branch2Type<CURRENT_BRANCH>, Int2Type<6> >(),
-    NULL
+    nullptr
   };
   return targets;
 }
@@ -808,7 +808,7 @@ template<class OS> const QString& default_p2p_path_temp_internal();
     return res; \
   }
 
-default_p2p_path_internal_def(OS_LINUX, "/opt/subutai/bin/p2p")
+default_p2p_path_internal_def(OS_LINUX, "/usr/bin/p2p")
 default_p2p_path_internal_def(OS_WIN, "C:\\ProgramData\\subutai\\bin\\p2p.exe")
 default_p2p_path_internal_def(OS_MAC, "/usr/local/bin/p2p")
 
@@ -1133,15 +1133,15 @@ template<class BR, class OS> const QString& p2p_package_url_temp_internal();
     return res; \
   }
 
-p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.deb")
-p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.pkg")
-p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-master.msi")
-p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.deb")
-p2p_package_url_def(BT_DEV,        OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
-p2p_package_url_def(BT_DEV,        OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p-dev.msi")
-p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.deb")
-p2p_package_url_def(BT_PROD,       OS_MAC,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.pkg")
-p2p_package_url_def(BT_PROD,       OS_WIN,     "https://cdn.subutai.io:8338/kurjun/rest/raw/get?name=subutai-p2p.msi")
+p2p_package_url_def(BT_MASTER,     OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.deb&download")
+p2p_package_url_def(BT_MASTER,     OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.pkg&download")
+p2p_package_url_def(BT_MASTER,     OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-master.msi&download")
+p2p_package_url_def(BT_DEV,        OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.deb&download")
+p2p_package_url_def(BT_DEV,        OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.pkg&download")
+p2p_package_url_def(BT_DEV,        OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p-dev.msi&download")
+p2p_package_url_def(BT_PROD,       OS_LINUX,   "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.deb&download")
+p2p_package_url_def(BT_PROD,       OS_MAC,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.pkg&download")
+p2p_package_url_def(BT_PROD,       OS_WIN,     "https://bazaar.subutai.io/rest/v1/cdn/raw?name=subutai-p2p.msi&download")
 
 const QString &
 p2p_package_url() {
@@ -1367,4 +1367,10 @@ const QString& current_branch_name_with_changes() {
     return application_branch_global;
   }
   return current_branch_name();
+}
+
+const QString& ipfs_download_url() {
+  static const QString ipfs_url("https://ipfs.subutai.io/ipfs/%1/%2");
+
+  return ipfs_url;
 }

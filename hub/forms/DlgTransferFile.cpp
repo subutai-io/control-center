@@ -907,6 +907,7 @@ void DlgTransferFile::create_folder_remote() {
       command_executor->startWork();
       connect(command_executor, &RemoteCommandExecutor::outputReceived,
               [this, name](system_call_wrapper_error_t res, QStringList output){
+        UNUSED_ARG(output);
         if (res == SCWE_SUCCESS) {
           CNotificationObserver::Info(
                 tr("Successfully created new folder with name \"%1\" in \"%2\", remote system.")

@@ -30,7 +30,8 @@ enum cc_component{
     CC_SUBUTAI_BOX,
     CC_VMWARE,
     CC_VMWARE_UTILITY,
-    CC_XQUARTZ
+    CC_XQUARTZ,
+    CC_HYPERV
 };
 
 namespace update_system {
@@ -47,7 +48,7 @@ namespace update_system {
     //PUBLIC FIELD!!! ACHTUNG!!! :-D
     bool autoupdate;
 
-    CUpdaterComponentItem() : m_component(NULL), autoupdate(false){
+    CUpdaterComponentItem() : m_component(nullptr), autoupdate(false){
       connect(&m_timer, &QTimer::timeout, this, &CUpdaterComponentItem::timer_timeout_sl);
     }
 
@@ -151,15 +152,15 @@ namespace update_system {
     void update_component_timer_timeout(const QString& component_id);
     void update_component_progress_sl(const QString& component_id, qint64 cur, qint64 full);
     void update_component_finished_sl(const QString& component_id, bool replaced);
-    void install_component_finished_sl(const QString& component_id, bool replaced);
-    void uninstall_component_finished_sl(const QString& component_id, bool success);
+    void install_component_finished_sl(const QString& component_id, bool replaced, const QString& version);
+    void uninstall_component_finished_sl(const QString& component_id, bool success, const QString& version);
 
   signals:
     void download_file_progress(const QString& component_id, qint64 rec, qint64 total);
     void updating_finished(const QString& component_id, bool success);
     void update_available(const QString& component_id);
-    void installing_finished(const QString& component_id, bool success);
-    void uninstalling_finished(const QString& component_id, bool success);
+    void installing_finished(const QString& component_id, bool success, const QString& version);
+    void uninstalling_finished(const QString& component_id, bool success, const QString& version);
     void install_component_started(const QString& component_id);
     void uninstalling_component_finished(const QString& component_id, bool success);
     void uninstall_component_started(const QString& component_id);
@@ -181,7 +182,7 @@ private:
     cc_component m_type;
 
 signals:
-    void outputReceived(bool success);
+    void outputReceived(bool success, const QString& version);
 };
 
 /////* class updates cc components in silent mode *///////////////
@@ -216,6 +217,6 @@ private:
   cc_component m_type;
 
 signals:
-  void outputReceived(bool success);
+  void outputReceived(bool success, const QString& version);
 };
 #endif // HUBCOMPONENTSUPDATER_H

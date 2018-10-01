@@ -52,7 +52,7 @@ signals:
   void got_provider_version(QString version);
   void got_vbguest_plugin_version(QString version);
   void got_subutai_box_version(QString version);
-  void got_hypervisor_vmware_version(QString version);
+  void got_hypervisor_version(QString version);
   void got_vagrant_vmware_utility_version(QString version);
   void got_xquartz_version(QString version);
   void update_available(QString component_id, bool available);
@@ -87,19 +87,22 @@ private:
 
   void check_for_versions_and_updates();
   //hide some soft
-  void set_visible_chrome(bool value);
-  void set_visible_firefox(bool value);
-  void set_visible_safari(bool value);
-  void set_visible_edge(bool value);
+  void set_visible_chrome();
+  void set_visible_firefox();
+  void set_visible_safari();
+  void set_visible_edge();
   void set_visible_e2e(bool value);
   void set_visible_xquartz(bool value);
   void set_hidden_pb(const QString& component_id);
   QString current_browser;
   void set_hidden_providers();
-  void set_visible_virtualbox(bool value);
-  void set_visible_vmware(bool value);
-  void set_visible_parallels(bool value);
-  void set_visible_libvirt(bool value);
+  void set_visible_virtualbox();
+  void set_visible_vmware();
+  void set_visible_parallels();
+  void set_visible_libvirt();
+  void set_visible_hyperv();
+  void set_visible_provider_plugin(bool value);
+  void set_visible_vagrant_vmware_utility(bool value);
 
 private slots:
   void btn_tray_update_released();
@@ -120,15 +123,15 @@ private slots:
   void btn_provider_parallels_update_released();
   void btn_provider_libvirt_updates_released();
   void btn_provider_vmware_update_released();
-  void btn_hypervisor_vmware_update_released();
+  void btn_hypervisor_update_released();
   void btn_vagrant_vmware_utility_update_released();
 
   void download_progress(const QString &file_id, qint64 rec, qint64 total);
   void update_available(const QString &file_id);
  // void unavailable(const QString &file_id);
-  void update_finished(const QString &file_id, bool success);  
-  void install_finished(const QString &file_id, bool success);
-  void uninstall_finished(const QString& component_id, bool success);
+  void update_finished(const QString &file_id, bool success);
+  void install_finished(const QString &file_id, bool success, const QString& version);
+  void uninstall_finished(const QString& component_id, bool success, const QString& version);
 
   void initialization_finished();
   void init_progress_sl(int part, int total);
@@ -145,7 +148,7 @@ private slots:
   void got_vbguest_plugin_version_sl(QString version);
   void got_provider_version_sl(QString version);
   void got_subutai_box_version_sl(QString version);
-  void got_hypervisor_vmware_version_sl(QString version);
+  void got_hypervisor_version_sl(QString version);
   void got_vagrant_vmware_utility_version_sl(QString version);
   void got_xquartz_version_sl(QString version);
   void update_available_sl(const QString &component_id, bool available);

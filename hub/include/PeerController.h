@@ -86,8 +86,9 @@ class CPeerController : public QObject {
   QString get_error_messages(QDir peer_dir, QString command);
   void get_peer_info(const QFileInfo &fi, QDir dir);
   QString parse_name(const QString &name);
+
   QStringList bridged_interfaces;  // list of current bridged interfaces
-  system_call_res_t vagrant_global_status;  // list of current VMs
+  system_call_res_t vagrant_global_status;  // list of current VMs directory(Only Subutai peers)
   int number_threads;                       // to emit signal when all finished
   QString get_pr_step_fi(QFile &p_file); // get provision step from file
   bool is_provision_running(QDir peer_dir);
@@ -244,7 +245,7 @@ class CommandPeerTerminal : public QObject {
     QFutureWatcher<system_call_wrapper_error_t> *watcher =
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res = QtConcurrent::run(
-        CSystemCallWrapper::vagrant_command_terminal, directory, command, name);
+        CSystemCallWrapper::vagrant_command_terminal, directory, command, QString("\"%1\"").arg(name));
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });

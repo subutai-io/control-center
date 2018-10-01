@@ -16,6 +16,7 @@
 class CCommons {
 public:
   static const char* RESTARTED_ARG;
+  static const char* PEER_PATH;
 
   /**
    * @brief MD5 hash of file (like md5sum)
@@ -44,6 +45,7 @@ public:
   static bool IsApplicationLaunchable(const QString& file_path);
   static bool IsTerminalLaunchable(const QString& terminal);
   static bool IsVagrantVMwareLicenseInstalled();
+  static void InfoVagrantVMwareLicense();
 
   /**
    * @brief If there is recommended argument for terminal "terminalCmd" in table
@@ -58,6 +60,7 @@ public:
   static QStringList DefaultTerminals();
   static QStringList SupportTerminals();
   static QString GetFingerprintFromUid(const QString &uid);
+  static QString HomePath();
 
 };
 

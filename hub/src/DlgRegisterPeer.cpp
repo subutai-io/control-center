@@ -75,8 +75,8 @@ void DlgRegisterPeer::registerPeer() {
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
     QString token;
-    static int err_code, http_code, network_error, dialog_id = ip_addr.toInt() - 9999;
-    CRestWorker::Instance()->peer_token(ip_addr, login, password,
+    static int err_code, http_code, network_error;
+    CRestWorker::Instance()->peer_token(m_url_management, login, password,
                                         token, err_code, http_code, network_error);
     const QString peer_name = ui->lne_peername->text();
     const QString peer_scope = ui->cmb_peer_scope->currentText();
@@ -86,14 +86,14 @@ void DlgRegisterPeer::registerPeer() {
             << "Http code " << http_code
             << "Error code " << err_code
             << "Network Error " << network_error;
-    if(!dialog_used[dialog_id]) return;
+    if(!dialog_used[ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error);
     if(kill_me){
-        CRestWorker::Instance()->peer_register(ip_addr, token,
-                                               CHubController::Instance().current_email(), CSettingsManager::Instance().password(),
+        CRestWorker::Instance()->peer_register(m_url_management, token,
+                                               CHubController::Instance().current_email(), CHubController::Instance().current_pass(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error);
-        if(!dialog_used[dialog_id]) return;
+        if(!dialog_used[ip_addr.toInt() - 9999]) return;
         bool kill_me = check_errors(err_code, http_code, network_error);
         if (kill_me){
             CHubController::Instance().force_refresh();
@@ -120,13 +120,13 @@ void DlgRegisterPeer::unregisterPeer(){
     const QString login=ui->lne_username->text();
     const QString password=ui->lne_password->text();
     QString token;
-    static int err_code, http_code, network_error, dialog_id = ip_addr.toInt() - 9999;
+    static int err_code, http_code, network_error;
     ui->btn_cancel->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->lne_password->setEnabled(false);
     ui->lne_username->setEnabled(false);
 
-    CRestWorker::Instance()->peer_token(ip_addr, login, password,
+    CRestWorker::Instance()->peer_token(m_url_management, login, password,
                                             token, err_code, http_code, network_error);
     qDebug()
             << "Unregister peer: Get token errors: "
@@ -134,11 +134,11 @@ void DlgRegisterPeer::unregisterPeer(){
             << "Error code " << err_code
             << "Network Error " << network_error;
 
-    if(!dialog_used[dialog_id]) return;
+    if(!dialog_used[ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error);
     if(kill_me){
-        CRestWorker::Instance()->peer_unregister(ip_addr, token, err_code, http_code, network_error);
-        if(!dialog_used[dialog_id]) return;
+        CRestWorker::Instance()->peer_unregister(m_url_management, token, err_code, http_code, network_error);
+        if(!dialog_used[ip_addr.toInt() - 9999]) return;
         kill_me = check_errors(err_code, http_code, network_error);
         if (kill_me){
             dialog_running[ip_addr.toInt() - 9999] = 0;
@@ -236,10 +236,24 @@ bool DlgRegisterPeer::check_errors(const int &err_code,
 }
 
 void DlgRegisterPeer::init(const QString local_ip,
-                           const QString name){
-    ip_addr = local_ip;
-    dialog_used[ip_addr.toInt() - 9999] = 1;
-    peer_name = name;
-    ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
-    ui->lne_peername->setText(this->peer_name);
+                           const QString name) {
+  QStringList ip_split;
+  ip_addr = local_ip.toStdString().c_str();
+  peer_name = name.toStdString().c_str();
+  ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
+  ui->lne_peername->setText(this->peer_name);
+
+  switch(VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::HYPERV:
+    m_url_management = ip_addr + ":8443";
+    ip_split = ip_addr.split(".");
+    ip_addr = ip_split.takeLast();
+    ip_addr = ip_addr.toInt() + 9999;
+    break;
+  default:
+    m_url_management = "localhost:" + ip_addr;
+    break;
+  }
+
+  dialog_used[ip_addr.toInt() - 9999] = 1;
 }

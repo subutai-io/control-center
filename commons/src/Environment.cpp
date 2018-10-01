@@ -88,13 +88,14 @@ unsigned int Environment::numCpu() {
 unsigned int Environment::diskSize() {
   // On Virtualbox MAXIMUM Virtual Disk size is 2 TB.
   QStorageInfo storage;
-  static QString provider = "virtualbox"; // will be implemented after multi hypervisor support
-  QString path = CSystemCallWrapper::get_virtualbox_vm_storage();
+  QString path = VagrantProvider::Instance()->VmStorage();
   storage.setPath(path);
   qDebug() << storage.rootPath();
   if (storage.isReadOnly())
       qDebug() << "isReadOnly:" << storage.isReadOnly();
 
+  qDebug() << "Check disk path: " << path;
+  qDebug() << "Provider: " << VagrantProvider::Instance()->CurrentVal();
   qDebug() << "name:" << storage.name();
   qDebug() << "fileSystemType:" << storage.fileSystemType();
   qDebug() << "size:" << storage.bytesTotal()/1024/1024/1024 << "GB";

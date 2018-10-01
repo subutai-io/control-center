@@ -6,6 +6,10 @@
 #include <QApplication>
 #include "OsBranchConsts.h"
 #include <vector>
+#include <QDir>
+#include "QStandardPaths"
+#include <QStringList>
+#include <QStringListIterator>
 
 class VagrantProvider : QObject
 {
@@ -13,7 +17,7 @@ Q_OBJECT
 public:
   enum PROVIDERS {VIRTUALBOX = 0, VMWARE_DESKTOP,
                   PARALLELS, HYPERV, LIBVIRT,
-                  PROVIDER_LAST = VMWARE_DESKTOP
+                  PROVIDER_LAST = HYPERV
                  };
 
   static std::vector<int> m_provider_linux,
@@ -29,6 +33,11 @@ public:
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();
   static QString CurrentName();
+  static QString VmStorage();
+  QDir BasePeerDir();
+  QDir BasePeerDirVirtualbox();
+  QDir BasePeerDirVMware();
+  QDir BasePeerDirHyperv();
   static std::vector<int> List();
 
   template <class OS> static

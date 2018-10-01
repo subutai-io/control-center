@@ -73,7 +73,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);
     if (msg_box->exec() != QMessageBox::Yes) {
-      install_finished_sl(false);
+      install_finished_sl(false, "undefined");
       return CHUE_SUCCESS;
     }
   }
@@ -83,20 +83,19 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
   QString str_downloaded_path = file_dir + "/" + file_name;
 
   std::vector<CGorjunFileInfo> fi =
-      CRestWorker::Instance()->get_gorjun_file_info(
-          file_name, "https://cdn.subutai.io:8338/kurjun/rest/raw/info");
+      CRestWorker::Instance()->get_gorjun_file_info(file_name);
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm =
-      new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
+      new CDownloadFileManager(item->name(), str_downloaded_path, item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
-  dm->set_link("https://cdn.subutai.io:8338/kurjun/rest/raw/download");
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_SUBUTAI_BOX);
 
@@ -108,7 +107,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
@@ -132,6 +131,12 @@ chue_t CUpdaterComponentSUBUTAI_BOX::install_internal(bool update){
 }
 
 chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
+  if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+    CCommons::InfoVagrantVMwareLicense();
+    emit uninstall_finished_sl(false, tr("undefined"));
+    return CHUE_SUCCESS;
+  }
+
   size_t total = TrayControlWindow::Instance()->machine_peers_table.size();
   qDebug() << "Total machine peers: " << total;
 
@@ -150,7 +155,7 @@ chue_t CUpdaterComponentSUBUTAI_BOX::uninstall_internal() {
     QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                      &QMessageBox::deleteLater);
     if (msg_box->exec() != QMessageBox::Yes) {
-      emit uninstall_finished_sl(false);
+      emit uninstall_finished_sl(false, tr("undefined"));
       return CHUE_SUCCESS;
     }
   }

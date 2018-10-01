@@ -48,7 +48,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
 
@@ -61,13 +61,14 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm =
-      new CDownloadFileManager(item->id(), str_downloaded_path, item->size());
+      new CDownloadFileManager(item->name(), str_downloaded_path, item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_FIREFOX);
@@ -78,7 +79,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),

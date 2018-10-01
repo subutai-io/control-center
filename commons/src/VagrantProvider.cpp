@@ -1,5 +1,7 @@
 #include <VagrantProvider.h>
 #include <SettingsManager.h>
+#include <SystemCallWrapper.h>
+#include <Commons.h>
 #include <map>
 
 // For Linux providers
@@ -14,9 +16,10 @@ std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUAL
                                                       };
 // For Windows providers
 std::vector<int> VagrantProvider::m_provider_win = { VagrantProvider::VIRTUALBOX,
-                                                    // VagrantProvider::HYPERV,
+                                                     VagrantProvider::HYPERV,
                                                      VagrantProvider::VMWARE_DESKTOP
                                                    };
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 VagrantProvider::VagrantProvider() {
 }
@@ -102,6 +105,82 @@ QString VagrantProvider::CurrentStr() {
   }
 
   return provider;
+}
+
+QDir VagrantProvider::BasePeerDirVirtualbox() {
+  QDir base_peer_dir_virt;
+  QStringList stdDirList =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QStringList::iterator stdDir = stdDirList.begin();
+  if (stdDir == stdDirList.end())
+    base_peer_dir_virt.setCurrent("/");
+  else
+    base_peer_dir_virt.setCurrent(*stdDir);
+
+  base_peer_dir_virt.mkdir("Subutai-peers");
+  base_peer_dir_virt.cd("Subutai-peers");
+
+  return base_peer_dir_virt;
+}
+
+QDir VagrantProvider::BasePeerDirHyperv() {
+  QString base_peer_path = CSettingsManager::Instance().hyperv_vm_storage();
+
+  if (!base_peer_path.contains("Subutai-peers") &&
+      !QDir().exists(base_peer_path + QDir::separator() + "Subutai-peers")) {
+    base_peer_path = base_peer_path + QDir::separator() + "Subutai-peers";
+    QDir().mkdir(base_peer_path);
+  }
+
+  // 2. create "peer" folder.
+  QString empty;
+  QDir base_peer_dir_hyperv(base_peer_path);
+  base_peer_dir_hyperv.cd("Subutai-peers");
+
+  return base_peer_dir_hyperv;
+}
+
+QDir VagrantProvider::BasePeerDirVMware() {
+  QString base_peer_path = CSettingsManager::Instance().vmware_vm_storage();
+
+  if (!base_peer_path.contains("Subutai-peers") &&
+      !QDir().exists(base_peer_path + QDir::separator() + "Subutai-peers")) {
+    base_peer_path = base_peer_path + QDir::separator() + "Subutai-peers";
+    QDir().mkdir(base_peer_path);
+  }
+
+  // 2. create "peer" folder.
+  QString empty;
+  QDir base_peer_dir_vmware(base_peer_path);
+  base_peer_dir_vmware.cd("Subutai-peers");
+
+  return base_peer_dir_vmware;
+}
+
+QDir VagrantProvider::BasePeerDir() {
+  switch (CurrentProvider()) {
+  case VIRTUALBOX:
+    return BasePeerDirVirtualbox();
+  case VMWARE_DESKTOP:
+    return BasePeerDirVMware();
+  case HYPERV:
+    return BasePeerDirHyperv();
+  default:
+    return BasePeerDirVirtualbox();
+  }
+}
+
+QString VagrantProvider::VmStorage() {
+  switch (CurrentProvider()) {
+  case HYPERV:
+    return CSettingsManager::Instance().hyperv_vm_storage();
+  case VMWARE_DESKTOP:
+    return CSettingsManager::Instance().vmware_vm_storage();
+  case VIRTUALBOX:
+    return CSystemCallWrapper::get_virtualbox_vm_storage();
+  default:
+    return CCommons::HomePath() + QDir::separator() + CCommons::PEER_PATH;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -38,7 +38,7 @@ public:
     }
     ~env_label_info(){}
   };
-  explicit DlgPeer(QWidget *parent = 0, QString peer_id = "");
+  explicit DlgPeer(QWidget *parent = nullptr, QString peer_id = "");
   ~DlgPeer();
   void addPeer(CMyPeerInfo *hub_peer, std::pair<QString, QString> local_peer, std::vector<CLocalPeer> lp); // take all data about peer
   void addLocalPeer(std::pair<QString, QString> peer); // take lan peer data, you need only fingeprint and ip

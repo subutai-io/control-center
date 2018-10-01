@@ -42,6 +42,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
           "<a href='https://www.vmware.com/'>VMware</a>"
           " is used as the hypervisor.<br>"
           "VMware will be installed on your machine.<br>"
+          "It is recommended to reboot your machine after installation VMware.<br>"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
   msg_box->setTextFormat(Qt::RichText);
@@ -49,7 +50,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
   if (msg_box->exec() != QMessageBox::Yes) {
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
   QString file_name = vmware_kurjun_package_name();
@@ -61,13 +62,14 @@ chue_t CUpdaterComponentVMware::install_internal() {
   if (fi.empty()) {
     qCritical("File %s isn't presented on kurjun",
               m_component_id.toStdString().c_str());
-    install_finished_sl(false);
+    install_finished_sl(false, "undefined");
     return CHUE_NOT_ON_KURJUN;
   }
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm = new CDownloadFileManager(
-      item->id(), str_vmware_downloaded_path, item->size());
+      item->name(), str_vmware_downloaded_path, item->size());
+  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(file_dir, file_name, CC_VMWARE);
@@ -79,7 +81,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
             if (!success) {
-              silent_installer->outputReceived(success);
+              silent_installer->outputReceived(success, "undefined");
             } else {
               this->update_progress_sl(0,0);
               CNotificationObserver::Instance()->Info(
@@ -109,7 +111,7 @@ chue_t CUpdaterComponentVMware::uninstall_internal() {
           "Please stop all your running virtual machines and press \'Yes\" to continue."),
       QMessageBox::Yes | QMessageBox::No);
   if(msg_box->exec() != QMessageBox::Yes) {
-    uninstall_finished_sl(false);
+    uninstall_finished_sl(false, tr("undefined"));
     return CHUE_FAILED;
   }
 
@@ -138,7 +140,7 @@ void CUpdaterComponentVMware::install_post_internal(bool success) {
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("VMare has been installed."), DlgNotification::N_NO_ACTION);
+        tr("VMware has been installed."), DlgNotification::N_NO_ACTION);
 }
 
 void CUpdaterComponentVMware::uninstall_post_internal(bool success) {

@@ -1502,13 +1502,19 @@ void TrayControlWindow::dialog_closed(int unused) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-QDialog *create_settings_dialog(QWidget *p) { return new DlgSettings(p); }
+QDialog *create_settings_dialog(QWidget *p) {
+  UNUSED_ARG(p);
+  return new DlgSettings();
+}
 void TrayControlWindow::show_settings_dialog() {
   show_dialog(create_settings_dialog, tr("Settings"));
 }
 ////////////////////////////////////////////////////////////////////////////
 
-QDialog *create_create_peer_dialog(QWidget *p) { return new DlgCreatePeer(p); }
+QDialog *create_create_peer_dialog(QWidget *p) {
+  UNUSED_ARG(p);
+  return new DlgCreatePeer();
+}
 void TrayControlWindow::show_create_dialog() {
   QString vg_version;
   //CSystemCallWrapper::oracle_virtualbox_version(vb_version);
@@ -1538,7 +1544,10 @@ void TrayControlWindow::show_create_dialog() {
   show_dialog(create_create_peer_dialog, tr("Create Peer"));
 }
 ////////////////////////////////////////////////////////////////////////////
-QDialog *create_about_dialog(QWidget *p) { return new DlgAbout(p); }
+QDialog *create_about_dialog(QWidget *p) {
+  UNUSED_ARG(p);
+  return new DlgAbout();
+}
 void TrayControlWindow::show_about() {
   show_dialog(create_about_dialog, tr("Components"));
 }
@@ -1546,14 +1555,16 @@ void TrayControlWindow::show_about() {
 ////////////////////////////////////////////////////////////////////////////
 
 QDialog *create_ssh_key_generate_dialog(QWidget *p) {
-  return new DlgGenerateSshKey(p);
+  UNUSED_ARG(p);
+  return new DlgGenerateSshKey();
 }
 void TrayControlWindow::ssh_key_generate_triggered() {
   show_dialog(create_ssh_key_generate_dialog, tr("SSH Key Manager"));
 }
 
 QDialog *create_notifications_dialog(QWidget *p) {
-  QDialog *dlg = new DlgNotifications(p);
+  UNUSED_ARG(p);
+  QDialog *dlg = new DlgNotifications();
   dlg->setFixedWidth(dlg->width());
   return dlg;
 }
@@ -1610,7 +1621,7 @@ QDialog *TrayControlWindow::last_generated_peer_dlg(QWidget *p) {
 }
 
 QString TrayControlWindow::generate_peer_dlg(const QString& peer_id) {  // local_peer -> pair of fingerprint and local ip
-  DlgPeer *dlg_peer = new DlgPeer(this, peer_id);
+  DlgPeer *dlg_peer = new DlgPeer(nullptr, peer_id);
   connect(dlg_peer, &DlgPeer::ssh_to_rh_sig, this,
           &TrayControlWindow::ssh_to_rh_triggered);
   connect(dlg_peer, &DlgPeer::peer_update_peeros, this,

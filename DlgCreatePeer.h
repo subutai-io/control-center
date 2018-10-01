@@ -44,6 +44,8 @@ class DlgCreatePeer : public QDialog {
   explicit DlgCreatePeer(QWidget *parent = 0);
   ~DlgCreatePeer();
   QString create_dir(const QString &name);
+  QString virtualbox_dir(const QString &name);
+  QString vmware_dir(const QString &name);
   enum pass_err {
     PASS_EMPTY = 0,  // when empty password
     PASS_SMALL,      // when too small
@@ -51,6 +53,7 @@ class DlgCreatePeer : public QDialog {
     PASS_FINE
   };
   bool m_password_state, m_password_confirm_state;
+  const QString BASE_PEER_FOLDER = "Subutai-peers";
 
  private:
   Ui::DlgCreatePeer *ui;
@@ -60,7 +63,7 @@ class DlgCreatePeer : public QDialog {
   void hide_err_labels();
   void set_enabled_buttons(bool state);
   void init_completed(system_call_wrapper_error_t res, QString dir, QString ram,
-                      QString cpu, QString disk);
+                      QString cpu, QString disk, int port);
   bool check_configurations();
   bool check_machine();
 

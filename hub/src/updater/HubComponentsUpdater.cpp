@@ -25,6 +25,7 @@
 #include "updater/UpdaterComponentVagrantVMwareUtility.h"
 #include "updater/UpdaterComponentFirefox.h"
 #include "updater/UpdaterComponentXQuartz.h"
+#include "updater/UpdaterComponentHyperv.h"
 #include "updater/IUpdaterComponent.h"
 
 
@@ -35,7 +36,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_vagrant_parallels,
           *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box,
-          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility, *uc_xquartz;
+          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility, *uc_xquartz, *uc_hyperv;
 
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
@@ -54,13 +55,14 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_hypervisor_vmware = new CUpdaterComponentVMware;
   uc_vagrant_vmware_utility = new CUpdaterComponentVagrantVMwareUtility;
   uc_xquartz = new CUpdaterComponentXQuartz;
+  uc_hyperv = new CUpdaterComponentHyperv;
 
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
                               uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
-                              uc_vagrant_vmware_utility, uc_xquartz, NULL};
+                              uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, NULL};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -79,6 +81,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VMWARE] = CUpdaterComponentItem(uc_hypervisor_vmware);
   m_dct_components[IUpdaterComponent::VMWARE_UTILITY] = CUpdaterComponentItem(uc_vagrant_vmware_utility);
   m_dct_components[IUpdaterComponent::XQUARTZ] = CUpdaterComponentItem(uc_xquartz);
+  m_dct_components[IUpdaterComponent::HYPERV] = CUpdaterComponentItem(uc_hyperv);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -282,12 +285,14 @@ CHubComponentsUpdater::update_component_finished_sl(const QString& file_id, bool
 }
 
 ////////////////////////////////////////////////////////////////////////////
-void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced) {
-    emit installing_finished(file_id, replaced);
+void CHubComponentsUpdater::install_component_finished_sl(const QString &file_id, bool replaced,
+                                                          const QString& version) {
+    emit installing_finished(file_id, replaced, version);
 }
 
-void CHubComponentsUpdater::uninstall_component_finished_sl(const QString &component_id, bool success) {
-  emit uninstalling_finished(component_id, success);
+void CHubComponentsUpdater::uninstall_component_finished_sl(const QString &component_id, bool success,
+                                                            const QString& version) {
+  emit uninstalling_finished(component_id, success, version);
 }
 /////////////////////////////////////////////////////////////////////////////
 QString CHubComponentsUpdater::component_name(const QString &component_id) {
@@ -313,7 +318,7 @@ const std::pair <quint64, quint64>& CHubComponentsUpdater::get_last_pb_value(con
 }
 
 ///////* class installs cc components in silent mode *///////////
-void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type){
+void SilentInstaller::init(const QString &dir, const QString &file_name, cc_component type) {
     m_dir = dir;
     m_file_name = file_name;
     m_type = type;
@@ -334,9 +339,9 @@ void SilentInstaller::startWork(){
 }
 
 void SilentInstaller::silentInstallation(){
-    QFutureWatcher<system_call_wrapper_error_t> *watcher
-        = new QFutureWatcher<system_call_wrapper_error_t>(this);
-    QFuture<system_call_wrapper_error_t>  res;
+    QFutureWatcher<system_call_wrapper_install_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_install_t>(this);
+    QFuture<system_call_wrapper_install_t>  res;
 
     static QString subutai_plugin_name = "vagrant-subutai";
     static QString vbguest_plugin_name = "vagrant-vbguest";
@@ -394,12 +399,17 @@ void SilentInstaller::silentInstallation(){
     case CC_XQUARTZ:
         res = QtConcurrent::run(CSystemCallWrapper::install_xquartz, m_dir, m_file_name);
         break;
+    case CC_HYPERV:
+        res = QtConcurrent::run(CSystemCallWrapper::install_hyperv);
+        break;
     default:
         break;
     }
     watcher->setFuture(res);
-    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
-      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res]() {
+      qDebug() << "SilentInstaller output received version: "
+               << res.result().version;
+      emit this->outputReceived(res.result().res == SCWE_SUCCESS, res.result().version);
     });
 }
 
@@ -425,9 +435,9 @@ void SilentUninstaller::startWork() {
 }
 
 void SilentUninstaller::silentUninstallation() {
-  QFutureWatcher<system_call_wrapper_error_t> *watcher
-      = new QFutureWatcher<system_call_wrapper_error_t>(this);
-  QFuture<system_call_wrapper_error_t>  res;
+  QFutureWatcher<system_call_wrapper_install_t> *watcher
+      = new QFutureWatcher<system_call_wrapper_install_t>(this);
+  QFuture<system_call_wrapper_install_t>  res;
 
   static QString subutai_plugin_name = "vagrant-subutai";
   static QString vbguest_plugin_name = "vagrant-vbguest";
@@ -486,14 +496,17 @@ void SilentUninstaller::silentUninstallation() {
   case CC_XQUARTZ:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_xquartz);
     break;
+  case CC_HYPERV:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_hyperv);
+    break;
   default:
     break;
   }
 
   watcher->setFuture(res);
 
-  connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res]() {
-    emit this->outputReceived(res.result() == SCWE_SUCCESS);
+  connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res]() {
+    emit this->outputReceived(res.result().res == SCWE_SUCCESS, res.result().version);
   });
 }
 
@@ -519,9 +532,9 @@ void SilentUpdater::startWork() {
 }
 
 void SilentUpdater::silentUpdate() {
-    QFutureWatcher<system_call_wrapper_error_t> *watcher
-        = new QFutureWatcher<system_call_wrapper_error_t>(this);
-    QFuture<system_call_wrapper_error_t>  res;
+    QFutureWatcher<system_call_wrapper_install_t> *watcher
+        = new QFutureWatcher<system_call_wrapper_install_t>(this);
+    QFuture<system_call_wrapper_install_t>  res;
 
     static QString subutai_plugin_name = "vagrant-subutai";
     static QString vbguest_plugin_name = "vagrant-vbguest";
@@ -532,27 +545,30 @@ void SilentUpdater::silentUpdate() {
 
     switch (m_type) {
     case CC_VAGRANT_SUBUTAI:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
-        break;
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, subutai_plugin_name, command);
+      break;
     case CC_VAGRANT_VBGUEST:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
-        break;
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vbguest_plugin_name, command);
+      break;
     case CC_VAGRANT_LIBVIRT:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
-        break;
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
+      break;
     case CC_VAGRANT_VMWARE_DESKTOP:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);
-        break;
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);
+      break;
     case CC_VAGRANT_PARALLELS:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
-        break;
+      res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, parallels_provider, command);
+      break;
+    case CC_P2P:
+      res = QtConcurrent::run(CSystemCallWrapper::update_p2p, m_dir, m_file_name);
+      break;
     default:
         break;
     }
 
     watcher->setFuture(res);
 
-    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
-      emit this->outputReceived(res.result() == SCWE_SUCCESS);
+    connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res](){
+      emit this->outputReceived(res.result().res == SCWE_SUCCESS);
     });
 }

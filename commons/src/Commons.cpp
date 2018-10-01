@@ -9,9 +9,8 @@
 #include <QProcess>
 #include <QNetworkReply>
 
-
-
 const char* CCommons::RESTARTED_ARG = "restarted";
+const char* CCommons::PEER_PATH = "Subutai-peers";
 
 QString
 CCommons::FileMd5(const QString &file_path) {
@@ -173,8 +172,9 @@ static std::map<QString, QString> dct_term_arg = {
   {"evilvte", "-e bash -c"},
   {"aterm", "-e bash -c"},
   {"lxterminal", "-l -e"},
-  {"Terminal", "do script"}, // macos terminal
-  {"iTerm", "create window with default profile command"}, // macos terminal
+  //macos
+  {"Terminal", "do script"},
+  {"iTerm", "create window with default profile command"},
 };
 
 bool
@@ -211,8 +211,16 @@ CCommons::SupportTerminals() {
 QStringList
 CCommons::DefaultTerminals() {
   QStringList lst_res;
-  for (auto i : dct_term_arg)
-    lst_res << i.first;
+#ifdef RT_OS_LINUX
+  for (auto i : dct_term_arg) {
+    if (i.first != "Terminal" || i.first != "iTerm") {
+      lst_res << i.first;
+    }
+  }
+#endif
+#ifdef RT_OS_DARWIN
+  lst_res << "Terminal" << "iTerm";
+#endif
   return lst_res;
 }
 
@@ -229,5 +237,29 @@ QString CCommons::GetFingerprintFromUid(const QString &uid) {
   return res;
 }
 
+QString CCommons::HomePath() {
+  QStringList lst_home =
+      QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+  QString home_folder = lst_home.empty() ? "~" : lst_home[0];
 
+  return home_folder;
+}
+
+void CCommons::InfoVagrantVMwareLicense() {
+  switch (VagrantProvider::Instance()->Instance()->CurrentProvider()) {
+  case VagrantProvider::VMWARE_DESKTOP:
+    CNotificationObserver::Error(
+          QObject::tr("You do not have a <b>license</b> to use <b>Vagrant VMWare Desktop provider.</b> "
+                      "Please <a href=\"https://www.vagrantup.com/vmware/index.html\">visit</a> to purchase "
+                      "a license. Once you purchase a license, you can install it "
+                      "using <b>vagrant plugin license</b> "), DlgNotification::N_ABOUT);
+    break;
+  default:
+    CNotificationObserver::Error(
+          QObject::tr("You do not have a license for Vagrant VMWare Desktop provider. "
+                      "In order to perform action <b>please uninstall</b> Vagrant VMware provider "
+                      " by clicking following \"Uninstall\" button."), DlgNotification::N_UNINSTALL);
+    break;
+  }
+}
 ////////////////////////////////////////////////////////////////////////////
