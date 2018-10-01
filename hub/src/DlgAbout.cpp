@@ -559,7 +559,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
 
 void DlgAbout::set_visible_chrome() {
   ui->lbl_browser_version->setText("Google Chrome");
-  ui->lbl_browser_version_val->setText("undefined");
+  //ui->lbl_browser_version_val->setText("undefined");
   ui->lbl_browser_info_icon->setToolTip(
         tr("Google Chrome is web browser used by default."));
   ui->btn_browser->setVisible(true);
@@ -571,7 +571,7 @@ void DlgAbout::set_visible_chrome() {
 
 void DlgAbout::set_visible_firefox() {
   ui->lbl_browser_version->setText("Mozilla Firefox");
-  ui->lbl_browser_version_val->setText("undefined");
+  //ui->lbl_browser_version_val->setText("undefined");
   ui->lbl_browser_info_icon->setToolTip(
         tr("Mozilla Firefox is web browser used by default."));
   ui->btn_browser->setVisible(true);
@@ -583,10 +583,10 @@ void DlgAbout::set_visible_firefox() {
 
 void DlgAbout::set_visible_edge() {
   ui->lbl_browser_version->setText("Microsoft Edge");
-  ui->lbl_browser_version_val->setText("undefined");
+  //ui->lbl_browser_version_val->setText("undefined");
   ui->lbl_browser_info_icon->setToolTip(
         tr("Microsoft Edge is web browser used by default."));
-  ui->btn_browser->setVisible(false);
+  ui->btn_browser->setVisible(true);
   ui->cb_browser->setVisible(false);
   ui->pb_browser->setVisible(false);
   set_visible_e2e(false);
@@ -595,10 +595,10 @@ void DlgAbout::set_visible_edge() {
 
 void DlgAbout::set_visible_safari() {
   ui->lbl_browser_version->setText("Safari");
-  ui->lbl_browser_version_val->setText("undefined");
+  //ui->lbl_browser_version_val->setText("undefined");
   ui->lbl_browser_info_icon->setToolTip(
         tr("Safari is web browser used by default."));
-  ui->btn_browser->setVisible(false);
+  ui->btn_browser->setVisible(true);
   ui->cb_browser->setVisible(false);
   ui->pb_browser->setVisible(false);
   set_visible_e2e(true);
@@ -628,6 +628,36 @@ DlgAbout::~DlgAbout() { delete ui; }
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::check_for_versions_and_updates() {
+  // There are 2 steps of initialization: version checking and update checking
+  // see DlgAboutInitializer::do_initialization() for more details
+  int cur_components_count = DlgAboutInitializer::COMPONENTS_COUNT;
+  QString current_hypervisor = VagrantProvider::Instance()->CurrentVal();
+  QString current_browser = CSettingsManager::Instance().default_browser();
+  if (current_hypervisor != "vmware_desktop") {
+    // other hypervisors do not have vmware utility
+    cur_components_count -= 2;
+  }
+  if (current_hypervisor == "hyperv") {
+    // hyperv have no any vagrant plugin
+    cur_components_count -= 2;
+  }
+
+  // TODO: check LIBVIRT and PARALLELS cases
+
+  if (current_browser == "Edge" || current_browser == "Safari") {
+    // Do not check for updates of Edge and Safari
+    cur_components_count--;
+  }
+  if (current_browser == "Edge") {
+    // exclude E2E while using Edge
+    cur_components_count -= 2;
+  }
+#ifndef RT_OS_DARWIN
+  // xquartz is available only on macos;
+  cur_components_count -= 2;
+#endif
+  ui->pb_initialization_progress->setMaximum(cur_components_count);
+
   ui->btn_recheck->setEnabled(false);
   ui->pb_initialization_progress->setEnabled(true);
   DlgAboutInitializer* di = new DlgAboutInitializer();
@@ -823,48 +853,35 @@ void DlgAbout::btn_recheck_released() {
     component.second.btn->setVisible(true);
     if (component.first == IUpdaterComponent::XQUARTZ &&
         CURRENT_OS != OS_MAC) {
+      // do not show xquartz button on linux or windows
+      component.second.btn->setVisible(false);
+    }
+    if (component.first == IUpdaterComponent::E2E &&
+        CSettingsManager::Instance().default_browser() == "Edge") {
+      // do not show E2E button for edge
+      component.second.btn->setVisible(false);
+    }
+    if (component.first == IUpdaterComponent::VMWARE_UTILITY &&
+        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+      // do not show vagrant vmware utility button for non-vmware hypervisors
+      component.second.btn->setVisible(false);
+    }
+    if ((component.first == IUpdaterComponent::VAGRANT_LIBVIRT ||
+         component.first == IUpdaterComponent::VAGRANT_PARALLELS ||
+         component.first == IUpdaterComponent::VAGRANT_VBGUEST ||
+         component.first == IUpdaterComponent::VAGRANT_VMWARE_DESKTOP) &&
+        VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+      // do not show provider plugin button for hyperv
       component.second.btn->setVisible(false);
     }
 
-    if (component.first == IUpdaterComponent::CHROME &&
-        CSettingsManager::Instance().default_browser() != "Chrome") {
-      component.second.btn->setVisible(false);
-    }
-    if (component.first == IUpdaterComponent::FIREFOX &&
-        CSettingsManager::Instance().default_browser() != "Firefox") {
-      component.second.btn->setVisible(false);
-    }
-
-    if ((component.first == IUpdaterComponent::ORACLE_VIRTUALBOX ||
-         component.first == IUpdaterComponent::VAGRANT_VBGUEST) &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VIRTUALBOX) {
-      component.second.btn->setVisible(false);
-    }
-    if (component.first == IUpdaterComponent::VAGRANT_PARALLELS &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::PARALLELS) {
-      component.second.btn->setVisible(false);
-    }
-    if ((component.first == IUpdaterComponent::VAGRANT_VMWARE_DESKTOP ||
-         component.first == IUpdaterComponent::VMWARE_UTILITY) &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-      component.second.btn->setVisible(false);
-    }
-    if ((component.first == IUpdaterComponent::VMWARE ||
-         component.first == IUpdaterComponent::HYPERV) &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::HYPERV &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-      component.second.btn->setVisible(false);
-    }
-    if (component.first == IUpdaterComponent::VAGRANT_LIBVIRT &&
-        VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::LIBVIRT) {
-      component.second.btn->setVisible(false);
-    }
     set_hidden_pb(component.first);
   }
 
   for (auto it = m_dct_fpb.begin(); it != m_dct_fpb.end(); it++) {
     it->second.btn->setEnabled(false);
   }
+  this->adjustSize();
   check_for_versions_and_updates();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -1476,29 +1493,29 @@ void DlgAboutInitializer::do_initialization() {
       QString chrome_version;
       CSystemCallWrapper::chrome_version(chrome_version);
       emit got_chrome_version(chrome_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     if (CSettingsManager::Instance().default_browser() == "Firefox") {
       QString firefox_version;
       CSystemCallWrapper::firefox_version(firefox_version);
       emit got_firefox_version(firefox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     if (CSettingsManager::Instance().default_browser() == "Edge") {
       QString edge_version;
       CSystemCallWrapper::edge_version(edge_version);
       emit got_edge_version(edge_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     if (CSettingsManager::Instance().default_browser() == "Safari") {
       QString safari_version;
       CSystemCallWrapper::safari_version(safari_version);
       emit got_safari_version(safari_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString x2go_version = get_x2go_version();
     emit got_x2go_version(x2go_version);
@@ -1511,12 +1528,12 @@ void DlgAboutInitializer::do_initialization() {
     if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VIRTUALBOX) {
       QString oracle_virtualbox_version = get_oracle_virtualbox_version();
       emit got_oracle_virtualbox_version(oracle_virtualbox_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString vbguest_plugin_version = get_vagrant_vbguest_version();
       emit got_vbguest_plugin_version(vbguest_plugin_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     QString subutai_e2e_version = get_e2e_version();
     emit got_e2e_version(subutai_e2e_version);
@@ -1533,31 +1550,28 @@ void DlgAboutInitializer::do_initialization() {
     if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
       QString vagrant_provider_version = get_vagrant_provider_version();
       emit got_provider_version(vagrant_provider_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString hypervisor_vmware_version = get_hypervisor_vmware_version();
       emit got_hypervisor_version(hypervisor_vmware_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
       QString vagrant_vmware_utility_version = get_vagrant_vmware_utility_version();
       emit got_vagrant_vmware_utility_version(vagrant_vmware_utility_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
     if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
       QString hyperv_ver = get_hyperv_version();
       emit got_hypervisor_version(hyperv_ver);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
 
     if (OS_MAC == CURRENT_OS) {
       QString xquartz_version = get_xquartz_version();
       emit got_xquartz_version(xquartz_version);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
-    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-
 
     std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
@@ -1617,7 +1631,6 @@ void DlgAboutInitializer::do_initialization() {
               ex.what());
   }
 
-  emit init_progress(COMPONENTS_COUNT, COMPONENTS_COUNT);
   emit finished();
 }
 ////////////////////////////////////////////////////////////////////////////
