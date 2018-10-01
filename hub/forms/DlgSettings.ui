@@ -222,7 +222,7 @@
            <item row="10" column="2">
             <widget class="QCheckBox" name="chk_autostart">
              <property name="text">
-              <string>Start on login</string>
+              <string>Start automatically on login</string>
              </property>
             </widget>
            </item>
