@@ -57,7 +57,7 @@ void DlgCreateFolder::btn_create_released() {
     ui->lbl_err->setVisible(true);
     ui->lbl_err->setStyleSheet("QLabel {color : red}");
     ui->lbl_err->setText(tr("Folder name can not be empty"));
-  } else if (CURRENT_OS == OS_WIN && (name.back() == ' ' || name.back() == '.')) {
+  } else if (CURRENT_OS == OS_WIN && (name.at(name.size() - 1) == ' ' || name.at(name.size() - 1) == '.')) {
     ui->lbl_err->setVisible(true);
     ui->lbl_err->setStyleSheet("QLabel {color : red}");
     ui->lbl_err->setText(tr("Folder name can not end with whitespaces"));
