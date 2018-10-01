@@ -38,8 +38,8 @@ void DlgCreateFolder::set_directory(const QString &type, const QString &dir) {
 }
 
 void DlgCreateFolder::add_existing_files(const QString &file) {
-  if (file.back() == '/') {
-    existing_files.append(file.chopped(1));
+  if (file.at(file.size() - 1) == '/') {
+    existing_files.append(file.right(file.size() - 1));
   } else {
     existing_files.append(file);
   }
