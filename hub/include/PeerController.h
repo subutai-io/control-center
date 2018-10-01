@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 #include <map>
+#include <set>
 #include "RestContainers.h"
 #include "SystemCallWrapper.h"
 
@@ -80,6 +81,23 @@ class CPeerController : public QObject {
 
   QTimer m_refresh_timer;
   QTimer m_logs_timer;
+  std::set<QString> checking_statutes; // Saves peer cheking status, key: peer name, value: peer directory)
+
+  void insert_checking_status(QString dir) {
+    qDebug() << "LOCKED PEER STATE: "
+             << QDir::toNativeSeparators(dir);
+    checking_statutes.insert(QDir::toNativeSeparators(dir));
+  }
+
+  void remove_checking_status(QString dir) {
+    std::set<QString>::iterator ite;
+    ite = checking_statutes.find(QDir::toNativeSeparators(dir));
+    if (ite != checking_statutes.end()) {
+      checking_statutes.erase(ite);
+      qDebug() << "UNLOCKED PEER STATE: "
+               << QDir::toNativeSeparators(dir);
+    }
+  }
 
   void search_local();
   void check_logs();
@@ -125,6 +143,14 @@ class CPeerController : public QObject {
   const QString &status_description(const QString &status);
   const QString &provision_step_description(const int &step);
   int getProvisionStep(const QString &dir);
+
+  bool is_checking_status(QString dir) {
+    if (checking_statutes.count(dir)) {
+      return true;
+    }
+
+    return false;
+  }
 
  private slots:
   void refresh_timer_timeout();

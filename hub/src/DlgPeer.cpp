@@ -105,6 +105,12 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   refresh_timer->start();
 }
 
+void DlgPeer::set_enabled_vagrant_commands(bool state) {
+  ui->btn_start_stop->setEnabled(state);
+  ui->btn_destroy->setEnabled(state);
+  ui->btn_reload->setEnabled(state);
+}
+
 void DlgPeer::updatePeer() {
   if (TrayControlWindow::Instance()->my_peers_button_table.find(
           peer_fingerprint) ==
@@ -113,6 +119,7 @@ void DlgPeer::updatePeer() {
     this->close();
     return;
   } else {
+
     TrayControlWindow::my_peer_button *peer_info =
         TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
     if (peer_info == nullptr) {
@@ -129,6 +136,14 @@ void DlgPeer::updatePeer() {
                 ? std::make_pair("", "")
                 : *(peer_info->m_network_peer),
             local_peer_info);  // local peer info
+
+    // lock vagrant commands if CC is checking peer status
+    // Vagrant can only exacute one command per peer
+    if (CPeerController::Instance()->is_checking_status(rh_dir)) {
+      set_enabled_vagrant_commands(false);
+    } else {
+      set_enabled_vagrant_commands(true);
+    }
   }
   this->adjustSize();
 }
