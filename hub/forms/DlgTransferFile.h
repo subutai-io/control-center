@@ -419,7 +419,7 @@ class DlgTransferFile : public QDialog
   Q_OBJECT
 
 public:
-  explicit DlgTransferFile(QWidget *parent = 0);
+  explicit DlgTransferFile(QWidget *parent = nullptr);
   ~DlgTransferFile();
   void addSSHKey(const QString &key);
   void addIPPort(const QString &ip, const QString &port);
@@ -457,6 +457,9 @@ private:
 
   void remove_selected_local();
   void remove_selected_remote();
+
+  void create_folder_local();
+  void create_folder_remote();
 
   void refresh_button_local();
   void refresh_button_remote();
