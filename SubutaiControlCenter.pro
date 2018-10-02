@@ -79,7 +79,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVMware.cpp \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
     hub/src/updater/UpdaterComponentXQuartz.cpp \
-    hub/src/updater/UpdaterComponentHyperv.cpp
+    hub/src/updater/UpdaterComponentHyperv.cpp \
+    hub/src/DlgCreateFolder.cpp
 
 
 
@@ -144,7 +145,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVMware.h \
     hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
     hub/include/updater/UpdaterComponentXQuartz.h \
-    hub/include/updater/UpdaterComponentHyperv.h
+    hub/include/updater/UpdaterComponentHyperv.h \
+    hub/include/DlgCreateFolder.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \
@@ -162,7 +164,8 @@ FORMS    += \
     hub/forms/DlgPeer.ui \
     hub/forms/DlgTransferFile.ui \
     hub/forms/DlgRegisterPeer.ui \
-    DlgCreatePeer.ui
+    DlgCreatePeer.ui \
+    hub/forms/DlgCreateFolder.ui
 
 RESOURCES += \
     resources/resources.qrc \

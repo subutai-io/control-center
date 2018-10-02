@@ -359,10 +359,10 @@ std::vector<QString> CSystemCallWrapper::p2p_show() {
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS>
-std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal(const QString& file_path);
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal(const QString &file_path);
 
 template<>
-std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_LINUX>>(const QString& file_path) {
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_LINUX>>(const QString &file_path) {
   QString cmd("rm");
   QStringList args;
   args << "-rf" << file_path;
@@ -381,7 +381,7 @@ std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type
 }
 
 template<>
-std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_MAC>>(const QString& file_path) {
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_MAC>>(const QString &file_path) {
   QString cmd("osascript");
   QStringList args;
   args << "-e"
@@ -401,7 +401,7 @@ std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type
 }
 
 template<>
-std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_WIN>>(const QString& file_path) {
+std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type<OS_WIN>>(const QString &file_path) {
   QFileInfo file_info(file_path);
   if (!file_info.exists()) {
     qCritical() << "File doesn't exist or wrong file name" << file_path;
@@ -429,8 +429,33 @@ std::pair<system_call_wrapper_error_t, QStringList> remove_file_internal<Os2Type
   return std::make_pair(SCWE_SUCCESS, QStringList());
 }
 
-std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::remove_file(const QString& file_path) {
+std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::remove_file(const QString &file_path) {
   return remove_file_internal<Os2Type<CURRENT_OS>>(file_path);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_error_t CSystemCallWrapper::create_folder(const QString &dir, const QString &name) {
+  qDebug() << "started create_folder with args:" << dir << name;
+
+  QDir current_dir(dir);
+  if (!current_dir.exists()) {
+    qCritical() << dir << "doesn't exist";
+    return SCWE_DIR_DOESNT_EXIST;
+  }
+
+  if (current_dir.cd(name) || current_dir.exists(name)) {
+    qCritical() << "'" << name << "' in '" << dir << "' already exists";
+    return SCWE_DIR_EXISTS;
+  }
+
+  if (!current_dir.mkdir(name)) {
+    qCritical() << "Can't create" << name << "in" << dir << "permission denied";
+    return SCWE_PERMISSION_DENIED;
+  }
+
+  qDebug() << "Successfully created folder" << name << "in" << dir;
+  return SCWE_SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -7547,7 +7572,13 @@ const QString &CSystemCallWrapper::scwe_error_to_str(
                                 "call timeout",
                                 "which call failed",
                                 "process crashed",
-                                "command failed"};
+                                "scwe_last",
+                                "permission denied",
+                                "wrong file name",
+                                "direcory does not exist",
+                                "directory already exists",
+                                "command failed",
+                                "wrong temp path"};
   return (err >= 0 && err < SCWE_LAST) ? error_str[err] : unknown;
 }
 ////////////////////////////////////////////////////////////////////////////

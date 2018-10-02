@@ -61,6 +61,7 @@ public:
   void configs();
   bool change_configs();
   void enabled_peer_buttons(bool state);
+  void set_enabled_vagrant_commands(bool state);
   //hub peer functions
   void update_environments(const std::vector<CMyPeerInfo::env_info> &envs);
   // interaction with tray menu
