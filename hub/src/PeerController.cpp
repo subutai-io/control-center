@@ -284,7 +284,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
 
   // get status of peer
   if (status_type == peer_info_t::P_STATUS)
-    insert_checking_status(dir.absolutePath());
+    insert_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
 
   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
   number_threads++;
@@ -293,7 +293,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
   connect(thread_for_status, &GetPeerInfo::outputReceived,
           [dir, peer_name, this](peer_info_t type, QString res) {
             if (type == CPeerController::P_STATUS)
-              CPeerController::Instance()->remove_checking_status(dir.absolutePath());
+              CPeerController::Instance()->remove_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
 
             this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
           });

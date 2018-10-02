@@ -81,21 +81,24 @@ class CPeerController : public QObject {
 
   QTimer m_refresh_timer;
   QTimer m_logs_timer;
-  std::set<QString> checking_statutes; // Saves peer cheking status, key: peer name, value: peer directory)
+  // Saves peer checking status by peer directory
+  // Vagrant locks peer state while checking status
+  // Vagrant can perform one command per machine
+  std::set<QString> checking_statutes;
 
   void insert_checking_status(QString dir) {
-    qDebug() << "LOCKED PEER STATE: "
-             << QDir::toNativeSeparators(dir);
-    checking_statutes.insert(QDir::toNativeSeparators(dir));
+    qInfo() << "Locked peer state: "
+             << dir;
+    checking_statutes.insert(dir);
   }
 
   void remove_checking_status(QString dir) {
     std::set<QString>::iterator ite;
-    ite = checking_statutes.find(QDir::toNativeSeparators(dir));
+    ite = checking_statutes.find(dir);
     if (ite != checking_statutes.end()) {
       checking_statutes.erase(ite);
-      qDebug() << "UNLOCKED PEER STATE: "
-               << QDir::toNativeSeparators(dir);
+      qInfo() << "Unlocked peer state: "
+               << dir;
     }
   }
 
