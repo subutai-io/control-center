@@ -15,7 +15,7 @@ CPeerController::CPeerController(QObject *parent) : QObject(parent) {}
 CPeerController::~CPeerController() {}
 
 void CPeerController::init() {
-  m_refresh_timer.setInterval(6 * 1000);  // each 6 seconds update peer list
+  m_refresh_timer.setInterval(13 * 1000);  // each 13 seconds update peer list
   m_logs_timer.setInterval(3 * 1000);     // 3 seconds update peer list
   number_threads = 0;
   connect(&m_refresh_timer, &QTimer::timeout, this,
@@ -283,12 +283,18 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
     dir.cd(fi.fileName());
 
   // get status of peer
+  if (status_type == peer_info_t::P_STATUS)
+    insert_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
+
   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
   number_threads++;
   thread_for_status->init(dir.absolutePath(), status_type);
   thread_for_status->startWork();
   connect(thread_for_status, &GetPeerInfo::outputReceived,
           [dir, peer_name, this](peer_info_t type, QString res) {
+            if (type == CPeerController::P_STATUS)
+              CPeerController::Instance()->remove_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
+
             this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
           });
   return;

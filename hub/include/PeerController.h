@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QtConcurrent/QtConcurrent>
 #include <map>
+#include <set>
 #include "RestContainers.h"
 #include "SystemCallWrapper.h"
 
@@ -80,6 +81,26 @@ class CPeerController : public QObject {
 
   QTimer m_refresh_timer;
   QTimer m_logs_timer;
+  // Saves peer checking status by peer directory
+  // Vagrant locks peer state while checking status
+  // Vagrant can perform one command per machine
+  std::set<QString> checking_statutes;
+
+  void insert_checking_status(QString dir) {
+    qInfo() << "Locked peer state: "
+             << dir;
+    checking_statutes.insert(dir);
+  }
+
+  void remove_checking_status(QString dir) {
+    std::set<QString>::iterator ite;
+    ite = checking_statutes.find(dir);
+    if (ite != checking_statutes.end()) {
+      checking_statutes.erase(ite);
+      qInfo() << "Unlocked peer state: "
+               << dir;
+    }
+  }
 
   void search_local();
   void check_logs();
@@ -125,6 +146,14 @@ class CPeerController : public QObject {
   const QString &status_description(const QString &status);
   const QString &provision_step_description(const int &step);
   int getProvisionStep(const QString &dir);
+
+  bool is_checking_status(QString dir) {
+    if (checking_statutes.count(dir)) {
+      return true;
+    }
+
+    return false;
+  }
 
  private slots:
   void refresh_timer_timeout();
