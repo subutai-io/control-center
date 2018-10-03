@@ -102,9 +102,9 @@ case $BRANCH in
         URL=https://devcdn.subutai.io:8338/kurjun/rest
         upload_ipfs $PKGNAME $IPFSURL
         upload_ipfs $IPFSBIN $IPFSURL
-        upload_cdn $PKGNAME $URL $VERSION
-        upload_cdn $BINNAME $URL $VERSION
-        upload_cdn $PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
+#        upload_cdn $PKGNAME $URL $VERSION
+#        upload_cdn $BINNAME $URL $VERSION
+#        upload_cdn $PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     master)
         PKGNAME="subutai-control-center-master$PKG_EXT"
@@ -116,29 +116,16 @@ case $BRANCH in
         URL=https://mastercdn.subutai.io:8338/kurjun/rest
         upload_ipfs $PKGNAME $IPFSURL
         upload_ipfs $IPFSBIN $IPFSURL
-        upload_cdn $PKGNAME $URL $VERSION
-        upload_cdn $BINNAME $URL $VERSION
-        upload_cdn $PKGNAME https://cdn.subutai.io:8338/kurjun/rest $VERSION
         ;;
     head)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
-        if [ $OS = Linux ]
-        then
-        URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
-        fi
+
         ;;
     HEAD)
         PKGNAME="subutai-control-center$PKG_EXT"
         BINNAME="SubutaiControlCenter$BINARY_EXT"
-        if [ $OS = Linux ]
-        then
-        URL=https://cdn.subutai.io:8338/kurjun/rest
-        upload_cdn subutai_control_center_bin/$PKGNAME $URL $VERSION
-        upload_cdn subutai_control_center_bin/$BINNAME $URL $VERSION
-        fi
+
         ;;
 esac
 
