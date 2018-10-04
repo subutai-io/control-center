@@ -32,7 +32,8 @@ private:
 
     bool check_errors(const int &err_code,
                       const int &http_code,
-                      const int &network_error);
+                      const int &network_error,
+                      const QString& body);
 
 private slots:
     void registerPeer();

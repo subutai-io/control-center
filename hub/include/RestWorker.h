@@ -123,13 +123,15 @@ public:
                      const QString& peer_scope,
                      int &err_code,
                      int &http_code,
-                     int &network_error);
+                     int &network_error,
+                     QString& body);
 
   void peer_unregister(const QString& port,
                        const QString& token,
                        int &err_code,
                        int &http_code,
-                       int &network_error);
+                       int &network_error,
+                       QString& body);
 
 
   void peer_token(const QString& port,
