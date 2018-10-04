@@ -268,7 +268,7 @@ bool CRestWorker::peer_update_management(const QString &port){
 
 void CRestWorker::peer_unregister(const QString& url_management, const QString& token,
                                   int& err_code, int& http_code,
-                                  int& network_error) {
+                                  int& network_error, QString& body) {
   qInfo() << tr("Unregistering peer %1").arg(url_management);
 
   const QString str_url(
@@ -283,8 +283,9 @@ void CRestWorker::peer_unregister(const QString& url_management, const QString& 
   QByteArray arr =
       send_request(m_network_manager, request, 3, http_code, err_code,
                    network_error, QByteArray(), false, 60000);
-  UNUSED_ARG(arr);
-  qDebug() << "Http code " << http_code << "Error code " << err_code
+  body = QString(arr);
+  qDebug() << "peer unregister body " << body
+           << "Http code " << http_code << "Error code " << err_code
            << "Network Error " << network_error;
 }
 
@@ -1045,7 +1046,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
     err_code = RE_TIMEOUT;
     reply->deleteLater();
     timer->deleteLater();
-    return QByteArray();
+    return reply->readAll();
   }
 
   timer->stop();
@@ -1064,7 +1065,7 @@ QByteArray CRestWorker::send_request(QNetworkAccessManager* nam,
         reply->attribute(QNetworkRequest::HttpStatusCodeAttribute)
             .toInt(&parsed);
     reply->deleteLater();
-    return QByteArray();
+    return reply->readAll();
   }
 
   bool parsed = false;
