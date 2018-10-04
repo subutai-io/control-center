@@ -24,6 +24,9 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
     ui->lne_username->setText("admin");
     m_invalid_chars.setPattern("\\W");
 
+    ui->lbl_info->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    ui->lbl_info->setWordWrap(true);
+
     // QLineEdit Show password action
     static QIcon show_password_icon(":/hub/show-password.png");
     static QIcon hide_password_icon(":/hub/hide-password.png");
@@ -74,7 +77,7 @@ void DlgRegisterPeer::registerPeer() {
 
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
-    QString token;
+    QString token, body;
     static int err_code, http_code, network_error;
     CRestWorker::Instance()->peer_token(m_url_management, login, password,
                                         token, err_code, http_code, network_error);
@@ -87,14 +90,14 @@ void DlgRegisterPeer::registerPeer() {
             << "Error code " << err_code
             << "Network Error " << network_error;
     if(!dialog_used[ip_addr.toInt() - 9999]) return;
-    bool kill_me = check_errors(err_code, http_code, network_error);
+    bool kill_me = check_errors(err_code, http_code, network_error, QString(""));
     if(kill_me){
         CRestWorker::Instance()->peer_register(m_url_management, token,
                                                CHubController::Instance().current_email(), CHubController::Instance().current_pass(),
                                                peer_name, peer_scope,
-                                               err_code, http_code, network_error);
+                                               err_code, http_code, network_error, body);
         if(!dialog_used[ip_addr.toInt() - 9999]) return;
-        bool kill_me = check_errors(err_code, http_code, network_error);
+        bool kill_me = check_errors(err_code, http_code, network_error, body);
         if (kill_me){
             CHubController::Instance().force_refresh();
             emit register_finished();
@@ -121,6 +124,8 @@ void DlgRegisterPeer::unregisterPeer(){
     const QString password=ui->lne_password->text();
     QString token;
     static int err_code, http_code, network_error;
+    QString body;
+
     ui->btn_cancel->setEnabled(false);
     ui->btn_unregister->setEnabled(false);
     ui->lne_password->setEnabled(false);
@@ -135,11 +140,11 @@ void DlgRegisterPeer::unregisterPeer(){
             << "Network Error " << network_error;
 
     if(!dialog_used[ip_addr.toInt() - 9999]) return;
-    bool kill_me = check_errors(err_code, http_code, network_error);
+    bool kill_me = check_errors(err_code, http_code, network_error, body);
     if(kill_me){
-        CRestWorker::Instance()->peer_unregister(m_url_management, token, err_code, http_code, network_error);
+        CRestWorker::Instance()->peer_unregister(m_url_management, token, err_code, http_code, network_error, body);
         if(!dialog_used[ip_addr.toInt() - 9999]) return;
-        kill_me = check_errors(err_code, http_code, network_error);
+        kill_me = check_errors(err_code, http_code, network_error, body);
         if (kill_me){
             dialog_running[ip_addr.toInt() - 9999] = 0;
             CHubController::Instance().force_refresh();
@@ -200,7 +205,8 @@ void DlgRegisterPeer::setRegistrationMode(){
 
 bool DlgRegisterPeer::check_errors(const int &err_code,
                                    const int &http_code,
-                                   const int &network_error){
+                                   const int &network_error,
+                                   const QString &body) {
   switch (err_code) {
     case RE_SUCCESS:
       return true;
@@ -221,9 +227,7 @@ bool DlgRegisterPeer::check_errors(const int &err_code,
       break;
     case RE_NETWORK_ERROR:
       ui->lbl_info->setVisible(true);
-      ui->lbl_info->setText(QString("<font color='red'>%1 : %2</font>").
-                              arg(tr("Network error. Code")).
-                              arg(CCommons::NetworkErrorToString(network_error)));
+      ui->lbl_info->setText(QString("<font color='red'>%1</font>").arg(body));
       break;
     default:
       ui->lbl_info->setVisible(true);
