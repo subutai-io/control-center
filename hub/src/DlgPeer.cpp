@@ -585,14 +585,6 @@ void DlgPeer::rh_register() {
 }
 
 void DlgPeer::rh_unregister() {
-  if (envs_available) {
-    CNotificationObserver::Error(
-        tr("Peers connected to environments cannot be unregistered. "
-           "Remove the peer from the environment first before unregistering it "
-           "from Bazaar."),
-        DlgNotification::N_GO_TO_HUB);
-    return;
-  }
   ui->btn_register_unregister->setEnabled(false);
   DlgRegisterPeer *dlg_unregister = new DlgRegisterPeer();
   dlg_unregister->setAttribute(Qt::WA_DeleteOnClose);
@@ -653,9 +645,32 @@ void DlgPeer::hidePeer() {
          "Specific functions are available only for peers in your machine."));
 }
 
+void DlgPeer::removeEnvs() {
+  qDebug() << "searching deleted environments in" << peer_name;
+  std::vector <std::map <int, env_label_info>::iterator> delete_me;
+  for (auto env_item = env_info_table.begin(); env_item != env_info_table.end(); env_item++) {
+    if (env_item->second.is_deleted) {
+      env_item->second.m_env_name->deleteLater();
+      env_item->second.m_env_user->deleteLater();
+      env_item->second.m_env_status->deleteLater();
+      delete_me.push_back(env_item);
+    } else {
+      env_item->second.is_deleted = true;
+    }
+  }
+  for (auto del_me : delete_me){
+    env_info_table.erase(del_me);
+  }
+}
+
 void DlgPeer::hideEnvs() {
   if (hub_available) ui->lbl_env_info->setText(tr("No \"environments\" on this peer."));
-  else ui->lbl_env_info->setText(tr("This peer is not registered to your bazaar account"));
+  else {
+    // hide peer environments
+    // delete removed envs from ui
+    removeEnvs();
+    ui->lbl_env_info->setText(tr("This peer is not registered to your bazaar account"));
+  }
   ui->lbl_env_info->setVisible(true);
   ui->lbl_env->hide();
   ui->lbl_env_owner->hide();
@@ -881,6 +896,12 @@ void DlgPeer::update_environments(
     const std::vector<CMyPeerInfo::env_info> &envs) {
   qDebug() << "updating information about environments in " << peer_name;
   if (!envs.empty()) {
+    ui->lbl_env->show();
+    ui->lbl_env_owner->show();
+    ui->lbl_env_status->show();
+    ui->line_1->show();
+    ui->line_2->show();
+    ui->line_3->show();
     ui->lbl_env_info->setVisible(false);
     envs_available = true;
     for (CMyPeerInfo::env_info env : envs) {
@@ -932,21 +953,7 @@ void DlgPeer::update_environments(
     hideEnvs();
   }
   // delete removed envs
-  qDebug() << "searching deleted environments in" << peer_name;
-  std::vector <std::map <int, env_label_info>::iterator> delete_me;
-  for (auto env_item = env_info_table.begin(); env_item != env_info_table.end(); env_item++) {
-    if (env_item->second.is_deleted) {
-      env_item->second.m_env_name->deleteLater();
-      env_item->second.m_env_user->deleteLater();
-      env_item->second.m_env_status->deleteLater();
-      delete_me.push_back(env_item);
-    } else {
-      env_item->second.is_deleted = true;
-    }
-  }
-  for (auto del_me : delete_me){
-    env_info_table.erase(del_me);
-  }
+  removeEnvs();
 }
 
 DlgPeer::~DlgPeer() {

@@ -50,6 +50,7 @@ public:
   void hideSSH();
   void hidePeer();
   void hideEnvs();
+  void removeEnvs(); // remove deleted or unregistered peer environments
   //peer management functions
   void rh_start();
   void rh_stop();
