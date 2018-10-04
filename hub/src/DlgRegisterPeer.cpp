@@ -77,7 +77,7 @@ void DlgRegisterPeer::registerPeer() {
 
     const QString login = ui->lne_username->text();
     const QString password = ui->lne_password->text();
-    QString token;
+    QString token, body;
     static int err_code, http_code, network_error;
     CRestWorker::Instance()->peer_token(m_url_management, login, password,
                                         token, err_code, http_code, network_error);
@@ -95,9 +95,9 @@ void DlgRegisterPeer::registerPeer() {
         CRestWorker::Instance()->peer_register(m_url_management, token,
                                                CHubController::Instance().current_email(), CHubController::Instance().current_pass(),
                                                peer_name, peer_scope,
-                                               err_code, http_code, network_error);
+                                               err_code, http_code, network_error, body);
         if(!dialog_used[ip_addr.toInt() - 9999]) return;
-        bool kill_me = check_errors(err_code, http_code, network_error, QString(""));
+        bool kill_me = check_errors(err_code, http_code, network_error, body);
         if (kill_me){
             CHubController::Instance().force_refresh();
             emit register_finished();

@@ -293,7 +293,7 @@ void CRestWorker::peer_register(const QString& url_management, const QString& to
                                 const QString& login, const QString& password,
                                 const QString& peer_name,
                                 const QString& peer_scope, int& err_code,
-                                int& http_code, int& network_error) {
+                                int& http_code, int& network_error, QString& body) {
   qInfo() << tr("Registering peer %1").arg(url_management);
 
   const QString str_url(
@@ -313,8 +313,10 @@ void CRestWorker::peer_register(const QString& url_management, const QString& to
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
       query.toString(QUrl::FullyEncoded).toUtf8(), false, 60000);
-  UNUSED_ARG(arr);
-  qDebug() << "Http code " << http_code
+  body = QString(arr);
+
+  qDebug() << "body " << body
+           << "Http code " << http_code
            << "Error code " << err_code
            << "Network Error " << network_error
            << "URL " << str_url;
