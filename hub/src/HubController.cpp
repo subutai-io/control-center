@@ -467,16 +467,16 @@ void CHubController::ssh_to_container_from_tray(const CEnvironment &env, const C
 }
 
 void CHubController::ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
+  CEnvironment *env = nullptr;
+  const CHubContainer *cont = nullptr;
   std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
   env = res.first;
   cont = res.second;
-  if (env == NULL) {
+  if (env == nullptr) {
     emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
   }
   else
-  if (cont == NULL) {
+  if (cont == nullptr) {
     emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
   }
   else {
@@ -543,16 +543,16 @@ void CHubController::desktop_to_container_from_tray(const CEnvironment &env, con
 }
 
 void CHubController::desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
+  CEnvironment *env = nullptr;
+  const CHubContainer *cont = nullptr;
   std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_id(env_id, cont_id);
   env = res.first;
   cont = res.second;
-  if (env == NULL) {
+  if (env == nullptr) {
     emit desktop_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
   }
   else
-  if (cont == NULL) {
+  if (cont == nullptr) {
     emit desktop_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
   }
   else {
@@ -600,8 +600,8 @@ const QString CHubController::get_env_key(const QString &env_id) {
 
 std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_id(const QString &env_id,
                                           const QString &cont_id) {
-  CEnvironment *env = NULL;
-  const CHubContainer *cont = NULL;
+  CEnvironment *env = nullptr;
+  const CHubContainer *cont = nullptr;
   qDebug()
       << "Environment ID: " << env_id
       << "Container ID: " << cont_id;
@@ -613,7 +613,7 @@ std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by
       env = &(*i);
       break;
     }
-    if (env == NULL) {
+    if (env == nullptr) {
       return std::make_pair(nullptr, nullptr);
     }
 
@@ -623,7 +623,7 @@ std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by
       break;
     }
 
-    if (cont == NULL) {
+    if (cont == nullptr) {
       return std::make_pair(env, nullptr);
     }
   }

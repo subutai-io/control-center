@@ -68,7 +68,7 @@ unsigned int Environment::ramSize() {
   mib[0] = CTL_HW;
   mib[1] = HW_MEMSIZE;
   length = sizeof(int64_t);
-  sysctl(mib, 2, &physical_memory, &length, NULL, 0);
+  sysctl(mib, 2, &physical_memory, &length, nullptr, 0);
   qDebug() << "RAM: "
            << (int)(physical_memory/(1024*1024));
 

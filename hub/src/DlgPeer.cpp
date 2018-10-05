@@ -128,11 +128,11 @@ void DlgPeer::updatePeer() {
       return;
     }
     std::vector<CLocalPeer> local_peer_info;
-    if (peer_info->m_local_peer != NULL) {
+    if (peer_info->m_local_peer != nullptr) {
       local_peer_info.push_back(*(peer_info->m_local_peer));
     }
     addPeer(peer_info->m_hub_peer,             // bazaar peer info
-            peer_info->m_network_peer == NULL  // lan peer info
+            peer_info->m_network_peer == nullptr  // lan peer info
                 ? std::make_pair("", "")
                 : *(peer_info->m_network_peer),
             local_peer_info);  // local peer info
