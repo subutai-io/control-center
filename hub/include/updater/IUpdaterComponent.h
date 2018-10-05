@@ -131,8 +131,8 @@ class IUpdaterComponent : public QObject {
   }
 
   void update_progress_sl(qint64 part, qint64 total) {
-    last_pb_value.first = part;
-    last_pb_value.second = total;
+    last_pb_value.first = quint64(part);
+    last_pb_value.second = quint64(total);
     emit update_progress(m_component_id, part, total);
   }
 
