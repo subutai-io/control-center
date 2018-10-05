@@ -11,7 +11,7 @@ std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALB
                                                      };
 // For Darwin providers
 std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUALBOX,
-                                                      //  VagrantProvider::PARALLELS,
+                                                        VagrantProvider::PARALLELS,
                                                         VagrantProvider::VMWARE_DESKTOP
                                                       };
 // For Windows providers

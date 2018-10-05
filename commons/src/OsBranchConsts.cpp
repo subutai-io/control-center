@@ -854,6 +854,25 @@ const QString & default_oracle_virtualbox_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& default_parallels_path_temp_internal();
+
+#define default_parallels_path_internal_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& default_parallels_path_temp_internal<Os2Type<OS_TYPE>>() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+default_parallels_path_internal_def(OS_MAC, "/usr/local/bin/parallels");
+default_parallels_path_internal_def(OS_LINUX, "");
+default_parallels_path_internal_def(OS_WIN, "");
+
+const QString& default_parallels_path() {
+  return default_parallels_path_temp_internal<Os2Type<CURRENT_OS>>();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 template<class OS> const QString& default_vmware_path_temp_internal();
 
 #define default_vmware_path_internal_def(OS_TYPE, STRING) \
@@ -879,6 +898,8 @@ const QString & default_hypervisor_path() {
     return default_oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return default_vmware_path();
+  case VagrantProvider::PARALLELS:
+    return default_parallels_path();
   default:
     return default_oracle_virtualbox_path();
   }

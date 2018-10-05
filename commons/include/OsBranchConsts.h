@@ -87,6 +87,7 @@ const QString& default_terminal();
 const QString& default_x2goclient_path();
 const QString& default_term_arg();
 const QString& default_oracle_virtualbox_path();
+const QString& default_parallels_path();
 const QString& default_vmware_path();
 const QString& default_hypervisor_path();
 const QString& default_default_browser();
