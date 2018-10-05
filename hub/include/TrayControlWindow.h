@@ -35,7 +35,7 @@ class TrayControlWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  explicit TrayControlWindow(QWidget *parent = 0);
+  explicit TrayControlWindow(QWidget *parent = nullptr);
   virtual ~TrayControlWindow();
   P2PStatus_checker::P2P_STATUS p2p_current_status;
   static TrayControlWindow* Instance(){
@@ -64,10 +64,10 @@ public:
       my_peer_button(const QString &peer_id_, const QString &peer_name_){
         peer_id = peer_id_;
         peer_name = peer_name_;
-        m_local_peer = NULL;
-        m_hub_peer = NULL;
-        m_network_peer = NULL;
-        m_my_peers_item = NULL;
+        m_local_peer = nullptr;
+        m_hub_peer = nullptr;
+        m_network_peer = nullptr;
+        m_my_peers_item = nullptr;
         m_network_peer_state = 0;
         m_hub_peer_state = 0;
         m_local_peer_state = 0;

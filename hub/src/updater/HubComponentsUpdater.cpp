@@ -62,7 +62,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
                               uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
-                              uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, NULL};
+                              uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, nullptr};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);

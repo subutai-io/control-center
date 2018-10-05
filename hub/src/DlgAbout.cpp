@@ -522,7 +522,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       it->second.pb->setMaximum(0);
       it->second.pb->setMinimum(0);
     } else {
-      uint value = (progress.first * 100) / progress.second;
+      int value = int((progress.first * 100) / progress.second);
       it->second.pb->setValue(value);
     }
 #ifndef RT_OS_DARWIN
@@ -1087,7 +1087,7 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
       m_dct_fpb[component_id].btn->setText(tr("Installing"));
 
   } else {
-    m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+    m_dct_fpb[component_id].pb->setValue(int((rec * 100) / total));
 
     if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV)
       m_dct_fpb[component_id].btn->setText(tr("Downloading"));
@@ -1430,6 +1430,7 @@ void DlgAbout::got_provider_version_sl(QString version) {
 
 void DlgAbout::got_xquartz_version_sl(QString version) {
   if (OS_MAC != CURRENT_OS) return;
+#ifdef RT_OS_DARWIN
   ui->lbl_xquartz_version_val->setText(version);
   if (version == "undefined") {
     set_hidden_pb(IUpdaterComponent::XQUARTZ);
@@ -1439,6 +1440,9 @@ void DlgAbout::got_xquartz_version_sl(QString version) {
     ui->btn_xquartz_update->activateWindow();
   } else
     ui->btn_xquartz_update->setText(tr("Update"));
+#else
+  UNUSED_ARG(version);
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::set_hidden_pb(const QString& component_id) {
@@ -1567,11 +1571,11 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-    if (OS_MAC == CURRENT_OS) {
+#ifdef RT_OS_DARWIN
       QString xquartz_version = get_xquartz_version();
       emit got_xquartz_version(xquartz_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-    }
+#endif
 
     std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
@@ -1617,14 +1621,17 @@ void DlgAboutInitializer::do_initialization() {
     }
 
     std::vector<bool> ua;
-    for (int i = 0; i < (int) uas.size(); ++i) {
+    for (int i = 0; i < int(uas.size()); ++i) {
       ua.push_back(
-          CHubComponentsUpdater::Instance()->is_update_available(uas.at(i)));
+          CHubComponentsUpdater::Instance()->
+            is_update_available(uas.at(std::vector<QString>::size_type(i))));
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-    for (int i = 0; i < (int) uas.size(); i++) {
-        emit update_available(uas[i], ua[i]);
+    for (int i = 0; i < int(uas.size()); i++) {
+        emit update_available(
+            uas[std::vector<QString>::size_type(i)],
+             ua[std::vector<bool>::size_type(i)]);
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s",
