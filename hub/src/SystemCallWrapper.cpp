@@ -220,7 +220,15 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
   }
   system_call_res_t res = {SCWE_SUCCESS, QStringList(), 0};
 
+#ifdef RT_OS_DARWIN
+  // Vagrant can't find VBoxManage binary path while checking peer status by vagrant status
+  QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  env.insert("PATH", env.value("PATH") + ":/usr/local/bin");
+  proc.setProcessEnvironment(env);
+#endif
+
   proc.start(cmd, args);
+
   proc_controller started_proc(proc);
   if(timeout_msec == 97) {
 
@@ -642,7 +650,14 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
        << "status"
        << "--machine-readable";
 
-  res = ssystem_th(cmd, args, true, true, 20000);
+  res = ssystem_th(cmd, args, true, true, 50000);
+
+  qDebug() << "Vagrant status result: "
+           << res.res
+           << res.exit_code
+           << res.out
+           << "args: "
+           << args;
 
   if(res.res != SCWE_SUCCESS || res.exit_code != 0) {
     vagrant_is_busy.unlock();

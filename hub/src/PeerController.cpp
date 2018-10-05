@@ -139,7 +139,11 @@ void CPeerController::search_local() {
 
     // start looking each subfolder
     for (QFileInfo fi : peers_dir.entryInfoList()) {
-      get_peer_info(fi, peers_dir);
+      QString p_directory(peers_dir.absolutePath() + QDir::separator() + fi.fileName());
+      QString vagrant_dir = p_directory + QDir::separator() + ".vagrant";
+
+      if (QDir(vagrant_dir).exists())
+        get_peer_info(fi, peers_dir);
     }
     if (number_threads == 0) {
       emit got_peer_info(P_STATUS, "update", "peer", "menu");
