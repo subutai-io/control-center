@@ -29,6 +29,7 @@ enum cc_component{
     CC_VAGRANT_VBGUEST,
     CC_SUBUTAI_BOX,
     CC_VMWARE,
+    CC_PARALLELS,
     CC_VMWARE_UTILITY,
     CC_XQUARTZ,
     CC_HYPERV

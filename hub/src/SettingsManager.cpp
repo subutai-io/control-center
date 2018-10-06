@@ -637,6 +637,8 @@ const QString& CSettingsManager::current_hypervisor_path() {
     return oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_path();
+  case VagrantProvider::PARALLELS:
+    return parallels_path();
   default:
     return oracle_virtualbox_path();
   }
@@ -763,32 +765,32 @@ quint16 CSettingsManager::rh_port(const QString &id)  {
 
 
 void CSettingsManager::set_peer_pass(const QString &peer_name, const QString &pass){
-    m_peer_passes[peer_name] = pass;
-    m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
+  m_peer_passes[peer_name] = pass;
+  m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
 }
 
 void CSettingsManager::set_peer_finger(const QString &peer_name, const QString &finger){
-    m_peer_fingers[peer_name] = finger;
-    m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
-    qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
+  m_peer_fingers[peer_name] = finger;
+  m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
+  qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
 }
 
 const QString& CSettingsManager::peer_pass(const QString &peer_name){
-    if(m_peer_passes.find(peer_name) == m_peer_passes.end()){
-        if(m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
-    }
-    return m_peer_passes[peer_name];
+  if (m_peer_passes.find(peer_name) == m_peer_passes.end()) {
+    if (m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
+  }
+  return m_peer_passes[peer_name];
 }
 
 const QString& CSettingsManager::peer_finger(const QString &peer_name){
-    if(m_peer_fingers.find(peer_name) == m_peer_fingers.end()){
-        if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
-    }
-    return m_peer_fingers[peer_name];
+  if (m_peer_fingers.find(peer_name) == m_peer_fingers.end()) {
+    if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
+  }
+  return m_peer_fingers[peer_name];
 }
 
 void CSettingsManager::set_branch(const QString &branch){

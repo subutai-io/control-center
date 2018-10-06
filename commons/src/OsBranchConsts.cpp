@@ -200,6 +200,23 @@ vmware_kurjun_package_name() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& parallels_kurjun_package_name_temp_internal();
+
+#define parallels_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& parallels_kurjun_package_name_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+parallels_kurjun_package_name_def(OS_MAC,    "parallels-desktop-osx.dmg")
+
+const QString &
+parallels_kurjun_package_name() {
+    return parallels_kurjun_package_name_temp_internal<Os2Type<OS_MAC> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class OS> const QString& vmware_utility_kurjun_package_name_temp_internal();
 
 #define vmware_utility_kurjun_package_name_def(OS_TYPE, STRING) \
@@ -854,25 +871,6 @@ const QString & default_oracle_virtualbox_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-template<class OS> const QString& default_parallels_path_temp_internal();
-
-#define default_parallels_path_internal_def(OS_TYPE, STRING) \
-  template<> \
-  const QString& default_parallels_path_temp_internal<Os2Type<OS_TYPE>>() { \
-    static QString res(STRING); \
-    return res; \
-  }
-
-default_parallels_path_internal_def(OS_MAC, "/usr/local/bin/parallels");
-default_parallels_path_internal_def(OS_LINUX, "");
-default_parallels_path_internal_def(OS_WIN, "");
-
-const QString& default_parallels_path() {
-  return default_parallels_path_temp_internal<Os2Type<CURRENT_OS>>();
-}
-
-////////////////////////////////////////////////////////////////////////////
-
 template<class OS> const QString& default_vmware_path_temp_internal();
 
 #define default_vmware_path_internal_def(OS_TYPE, STRING) \
@@ -888,6 +886,13 @@ default_vmware_path_internal_def(OS_MAC, "/Applications/VMware Fusion.app/Conten
 
 const QString & default_vmware_path() {
     return default_vmware_path_temp_internal<Os2Type<CURRENT_OS > >();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+const QString & default_parallels_path() {
+  static QString parallels("/Applications/Parallels Desktop.app/Contents/MacOs/prlctl");
+  return parallels;
 }
 ////////////////////////////////////////////////////////////////////////////
 

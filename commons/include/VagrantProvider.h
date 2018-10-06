@@ -17,7 +17,7 @@ Q_OBJECT
 public:
   enum PROVIDERS {VIRTUALBOX = 0, VMWARE_DESKTOP,
                   PARALLELS, HYPERV, LIBVIRT,
-                  PROVIDER_LAST = HYPERV
+                  PROVIDER_LAST = HYPERV   // LAST PROVIDER PARALLELS
                  };
 
   static std::vector<int> m_provider_linux,

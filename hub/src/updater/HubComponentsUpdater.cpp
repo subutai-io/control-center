@@ -27,6 +27,7 @@
 #include "updater/UpdaterComponentXQuartz.h"
 #include "updater/UpdaterComponentHyperv.h"
 #include "updater/IUpdaterComponent.h"
+#include "updater/UpdaterComponentParallels.h"
 
 
 using namespace update_system;
@@ -36,7 +37,8 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
           *uc_vagrant, *uc_oracle_virtualbox, *uc_chrome, *uc_e2e,
           *uc_vagrant_subutai, *uc_vagrant_vbguest, *uc_vagrant_parallels,
           *uc_vagrant_vmware, *uc_vagrant_libvirt, *uc_subutai_box,
-          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility, *uc_xquartz, *uc_hyperv;
+          *uc_hypervisor_vmware, *uc_vagrant_vmware_utility, *uc_xquartz,
+          *uc_hyperv, *uc_parallels;
 
   uc_tray = new CUpdaterComponentTray;
   uc_p2p  = new CUpdaterComponentP2P;
@@ -56,13 +58,15 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   uc_vagrant_vmware_utility = new CUpdaterComponentVagrantVMwareUtility;
   uc_xquartz = new CUpdaterComponentXQuartz;
   uc_hyperv = new CUpdaterComponentHyperv;
+  uc_parallels = new CUpdaterComponentParallels;
 
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
                               uc_chrome, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
                               uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
-                              uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, nullptr};
+                              uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, uc_parallels,
+                              nullptr};
 
   m_dct_components[IUpdaterComponent::TRAY] = CUpdaterComponentItem(uc_tray);
   m_dct_components[IUpdaterComponent::P2P]  = CUpdaterComponentItem(uc_p2p);
@@ -82,6 +86,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
   m_dct_components[IUpdaterComponent::VMWARE_UTILITY] = CUpdaterComponentItem(uc_vagrant_vmware_utility);
   m_dct_components[IUpdaterComponent::XQUARTZ] = CUpdaterComponentItem(uc_xquartz);
   m_dct_components[IUpdaterComponent::HYPERV] = CUpdaterComponentItem(uc_hyperv);
+  m_dct_components[IUpdaterComponent::PARALLELS] = CUpdaterComponentItem(uc_parallels);
 
   for(int i = 0; ucs[i] ;++i) {
     connect(&m_dct_components[ucs[i]->component_id()], &CUpdaterComponentItem::timer_timeout,
@@ -402,6 +407,9 @@ void SilentInstaller::silentInstallation(){
     case CC_HYPERV:
         res = QtConcurrent::run(CSystemCallWrapper::install_hyperv);
         break;
+    case CC_PARALLELS:
+        res = QtConcurrent::run(CSystemCallWrapper::install_parallels, m_dir, m_file_name);
+        break;
     default:
         break;
     }
@@ -498,6 +506,9 @@ void SilentUninstaller::silentUninstallation() {
     break;
   case CC_HYPERV:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_hyperv);
+    break;
+  case CC_PARALLELS:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_parallels, m_dir, m_file_name);
     break;
   default:
     break;

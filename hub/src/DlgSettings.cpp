@@ -220,6 +220,9 @@ DlgSettings::DlgSettings(QWidget* parent)
   case VagrantProvider::VIRTUALBOX:
     ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
     break;
+  case VagrantProvider::PARALLELS:
+    ui->le_vm_storage->setText(CSettingsManager::Instance().parallels_vm_storage());
+    ui->btn_vm_storage->setEnabled(false);
   case VagrantProvider::HYPERV:
     ui->le_vm_storage->setText(CSettingsManager::Instance().hyperv_vm_storage());
     break;

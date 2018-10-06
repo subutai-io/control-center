@@ -126,6 +126,13 @@ QString get_hyperv_version() {
 
   return version;
 }
+
+QString get_parallels_version() {
+  QString version = "";
+  CSystemCallWrapper::parallels_version(version);
+
+  return version;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::set_visible_provider_plugin(bool value) {
@@ -155,12 +162,14 @@ void DlgAbout::set_visible_parallels() {
   // Vagrant parallels provider vagrant-parallels
   ui->lbl_hypervisor->setText("Parallels");
   ui->lbl_hypervisor_version->setText("undefined");
-  ui->lbl_hypervisor_icon->setToolTip(tr(""));
+  ui->lbl_hypervisor_icon->setToolTip(
+        tr("<nobr>Parallels is hypervisor for<br>"
+           "managing virtual machine environments"));
 
   ui->lbl_provider_plugin->setText("Vagrant Parallels Desktop");
   ui->lbl_provider_plugin_version->setText("undefined");
-  ui->lbl_provider_plugin_icon->setToolTip(tr(""));
-
+  ui->lbl_provider_plugin_icon->setToolTip(
+        tr("The Vagrant Parallels Provider manage Parallels virtual machines."));
   this->adjustSize();
 }
 
@@ -233,9 +242,9 @@ void DlgAbout::set_hidden_providers() {
   case VagrantProvider::VIRTUALBOX:
     set_visible_virtualbox();
     break;
-  //case VagrantProvider::PARALLELS:
-  //  set_visible_parallels();
-  //  break;
+  case VagrantProvider::PARALLELS:
+    set_visible_parallels();
+    break;
   case VagrantProvider::VMWARE_DESKTOP:
     set_visible_vmware();
     break;
@@ -492,6 +501,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   m_dct_fpb[IUpdaterComponent::HYPERV] = {
     ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
     ui->btn_hypervisor_update, get_hyperv_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::PARALLELS] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_parallels_version
   };
 
   m_dct_fpb[IUpdaterComponent::VMWARE] = {
@@ -931,6 +945,9 @@ void DlgAbout::btn_hypervisor_update_released() {
   case VagrantProvider::HYPERV:
     component_id = IUpdaterComponent::HYPERV;
     break;
+  case VagrantProvider::PARALLELS:
+    component_id = IUpdaterComponent::PARALLELS;
+    break;
   default:
     break;
   }
@@ -1345,10 +1362,13 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 
 void DlgAbout::got_hypervisor_version_sl(QString version) {
   QString component_id;
-  if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
+  if (VagrantProvider::HYPERV == provider) {
     component_id = IUpdaterComponent::HYPERV;
-  } else {
+  } else if (VagrantProvider::VMWARE_DESKTOP == provider) {
     component_id = IUpdaterComponent::VMWARE;
+  } else {
+    component_id = IUpdaterComponent::PARALLELS;
   }
 
   if (this->m_dct_fpb.find(component_id) != this->m_dct_fpb.end()) {
@@ -1392,9 +1412,9 @@ void DlgAbout::got_provider_version_sl(QString version) {
   QString COMPONENT_KEY = "";
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
-  //case VagrantProvider::PARALLELS:
-  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
-  //  break;
+  case VagrantProvider::PARALLELS:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_PARALLELS;
+    break;
   case VagrantProvider::VMWARE_DESKTOP:
     COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
     break;
@@ -1488,6 +1508,7 @@ void DlgAbout::update_available_sl(const QString& component_id,
 void DlgAboutInitializer::do_initialization() {
   try {
     int initialized_component_count = 0;
+    VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
 
     QString p2p_version = get_p2p_version();
     emit got_p2p_version(p2p_version);
@@ -1529,7 +1550,7 @@ void DlgAboutInitializer::do_initialization() {
     emit got_vagrant_version(vagrant_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VIRTUALBOX) {
+    if (provider == VagrantProvider::VIRTUALBOX) {
       QString oracle_virtualbox_version = get_oracle_virtualbox_version();
       emit got_oracle_virtualbox_version(oracle_virtualbox_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -1551,7 +1572,7 @@ void DlgAboutInitializer::do_initialization() {
     emit got_subutai_box_version(subutai_box_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 
-    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
+    if (provider == VagrantProvider::VMWARE_DESKTOP) {
       QString vagrant_provider_version = get_vagrant_provider_version();
       emit got_provider_version(vagrant_provider_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -1565,16 +1586,26 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+    if (provider == VagrantProvider::HYPERV) {
       QString hyperv_ver = get_hyperv_version();
       emit got_hypervisor_version(hyperv_ver);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-#ifdef RT_OS_DARWIN
-      QString xquartz_version = get_xquartz_version();
-      emit got_xquartz_version(xquartz_version);
+    if (provider == VagrantProvider::PARALLELS) {
+      QString provider_parallels = get_vagrant_provider_version();
+      emit got_provider_version(provider_parallels);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+      QString parallels = get_parallels_version();
+      emit got_hypervisor_version(parallels);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+
+#ifdef RT_OS_DARWIN
+    QString xquartz_version = get_xquartz_version();
+    emit got_xquartz_version(xquartz_version);
+    emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
 #endif
 
     std::vector<QString> uas = {IUpdaterComponent::P2P,
@@ -1600,9 +1631,10 @@ void DlgAboutInitializer::do_initialization() {
       uas.push_back(IUpdaterComponent::ORACLE_VIRTUALBOX);
       uas.push_back(IUpdaterComponent::VAGRANT_VBGUEST);
       break;
-    //case VagrantProvider::PARALLELS:
-    //  uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
-    //  break;
+    case VagrantProvider::PARALLELS:
+      uas.push_back(IUpdaterComponent::PARALLELS);
+      uas.push_back(IUpdaterComponent::VAGRANT_PARALLELS);
+      break;
     case VagrantProvider::VMWARE_DESKTOP:
       uas.push_back(IUpdaterComponent::VMWARE);
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
