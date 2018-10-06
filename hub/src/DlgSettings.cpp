@@ -508,6 +508,9 @@ void DlgSettings::btn_ok_released() {
   case VagrantProvider::HYPERV:
     CSettingsManager::Instance().set_hyperv_vm_storage(ui->le_vm_storage->text());
     break;
+  case VagrantProvider::PARALLELS:
+    CSettingsManager::Instance().set_parallels_vm_storage(ui->le_vm_storage->text());
+    break;
   default:
     CSystemCallWrapper::set_virtualbox_vm_storage(ui->le_vm_storage->text());
     break;
