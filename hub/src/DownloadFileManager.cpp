@@ -8,8 +8,8 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_name,
   m_kurjun_file_name(kurjun_file_name),
   m_dst_file_path(dst_file),
   m_expected_size(expected_size),
-  m_network_reply(NULL),
-  m_dst_file(NULL),
+  m_network_reply(nullptr),
+  m_dst_file(nullptr),
   m_link("")
 {
   m_dst_file = new QFile(m_dst_file_path);
@@ -18,10 +18,10 @@ CDownloadFileManager::CDownloadFileManager(const QString &kurjun_file_name,
 }
 
 CDownloadFileManager::~CDownloadFileManager() {
-  if (m_network_reply != NULL)
+  if (m_network_reply != nullptr)
     m_network_reply->deleteLater();
 
-  if (m_dst_file != NULL) {
+  if (m_dst_file != nullptr) {
     m_dst_file->flush();
     m_dst_file->close();
     delete m_dst_file;
@@ -38,7 +38,7 @@ CDownloadFileManager::download_progress(qint64 read_bytes,
 
 void
 CDownloadFileManager::network_reply_ready_read() {
-  if (m_dst_file == NULL) return;
+  if (m_dst_file == nullptr) return;
   m_dst_file->write(m_network_reply->readAll());
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ CDownloadFileManager::network_reply_ready_read() {
 void
 CDownloadFileManager::reply_finished() {
   //DON'T REMOVE THIS !!!!
-  if (m_dst_file != NULL) {
+  if (m_dst_file != nullptr) {
     m_dst_file->flush();
     m_dst_file->close();
   }
@@ -66,7 +66,7 @@ CDownloadFileManager::reply_finished() {
 
 void
 CDownloadFileManager::start_download() {
-  if (m_network_reply != NULL) return;
+  if (m_network_reply != nullptr) return;
   m_network_reply = CRestWorker::Instance()->download_gorjun_file(m_kurjun_file_name, m_link);
   connect(m_network_reply, &QNetworkReply::downloadProgress,
           this, &CDownloadFileManager::download_progress);

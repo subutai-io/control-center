@@ -91,8 +91,8 @@ wait_ssh_socket_event(int socket_fd,
   struct timeval timeout;
   int rc;
   fd_set fd;
-  fd_set *writefd = NULL;
-  fd_set *readfd = NULL;
+  fd_set *writefd = nullptr;
+  fd_set *readfd = nullptr;
   int dir;
 
   timeout.tv_sec = 10;
@@ -109,7 +109,7 @@ wait_ssh_socket_event(int socket_fd,
   if (dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
     writefd = &fd;
 
-  rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+  rc = select(socket_fd + 1, readfd, writefd, nullptr, &timeout);
   return rc;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ wait_socket_connected(int socket_fd, int timeout_sec) {
   timeout.tv_usec = 0;
   FD_ZERO(&fd);
   FD_SET(socket_fd, &fd);
-  return select(socket_fd + 1, NULL, &fd, NULL, &timeout);
+  return select(socket_fd + 1, nullptr, &fd, nullptr, &timeout);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -296,12 +296,12 @@ run_ssh_command_internal(const char *str_host,
       }
 
       LIBSSH2_CHANNEL *channel;
-      while ((channel = libssh2_channel_open_session(sa.session)) == NULL &&
-             libssh2_session_last_error(sa.session, NULL, NULL, 0) == LIBSSH2_ERROR_EAGAIN) {
+      while ((channel = libssh2_channel_open_session(sa.session)) == nullptr &&
+             libssh2_session_last_error(sa.session, nullptr, nullptr, 0) == LIBSSH2_ERROR_EAGAIN) {
         wait_ssh_socket_event(sock, sa.session);
       }
 
-      if (channel == NULL) {
+      if (channel == nullptr) {
         res = RLE_LIBSSH2_CHANNEL_OPEN;
         break;
       }
@@ -351,11 +351,11 @@ run_ssh_command_internal(const char *str_host,
       if (rc == 0) {
         exitcode = libssh2_channel_get_exit_status(channel);
         libssh2_channel_get_exit_signal(channel, &exitsignal,
-                                        NULL, NULL, NULL, NULL, NULL);
+                                        nullptr, nullptr, nullptr, nullptr, nullptr);
       }
 
       libssh2_channel_free(channel);
-      channel = NULL;
+      channel = nullptr;
     } while (0);
   } while(0);
 

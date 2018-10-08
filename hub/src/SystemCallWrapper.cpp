@@ -1505,7 +1505,7 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
 system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
     const QString &hash) {
-  if (hash == NULL || !is_in_swarm(hash)) return SCWE_SUCCESS;
+  if (hash == nullptr || !is_in_swarm(hash)) return SCWE_SUCCESS;
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "stop"
@@ -1737,8 +1737,8 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
       QString("\"%1\" /k \"%2 -o UserKnownHostsFile=\"%3\"\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
@@ -1918,8 +1918,8 @@ UNUSED_ARG(command);
       QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
@@ -5885,8 +5885,8 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
       QString("\"%1\" /k \"%2 -o UserKnownHostsFile=%3\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
