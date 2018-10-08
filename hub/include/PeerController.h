@@ -85,9 +85,10 @@ class CPeerController : public QObject {
   // Vagrant locks peer state while checking status
   // Vagrant can perform one command per machine
   std::set<QString> checking_statutes;
+  std::set<QString> running_commands; // vagrant reload, up, halt, destroy
 
   void insert_checking_status(QString dir) {
-    qInfo() << "Locked peer state: "
+    qInfo() << "Vagrant status Locked peer state: "
              << dir;
     checking_statutes.insert(dir);
   }
@@ -97,7 +98,7 @@ class CPeerController : public QObject {
     ite = checking_statutes.find(dir);
     if (ite != checking_statutes.end()) {
       checking_statutes.erase(ite);
-      qInfo() << "Unlocked peer state: "
+      qInfo() << "Vagrant status Unlocked peer state: "
                << dir;
     }
   }
@@ -147,10 +148,32 @@ class CPeerController : public QObject {
   const QString &provision_step_description(const int &step);
   int getProvisionStep(const QString &dir);
 
-  bool is_checking_status(QString dir) {
-    if (checking_statutes.count(dir)) {
-      return true;
+  void insert_running_command(QString dir) {
+    qInfo() << "Vagrant command Locked peer state: "
+             << dir;
+    running_commands.insert(dir);
+  }
+
+  void remove_running_command(QString dir) {
+    std::set<QString>::iterator ite;
+    ite = running_commands.find(dir);
+    if (ite != running_commands.end()) {
+      running_commands.erase(ite);
+      qInfo() << "Vagrant command Unlocked peer state: "
+               << dir;
     }
+  }
+
+  bool is_running_command(QString dir) {
+    if  (running_commands.count(dir))
+      return true;
+
+    return false;
+  }
+
+  bool is_checking_status(QString dir) {
+    if (checking_statutes.count(dir))
+      return true;
 
     return false;
   }
@@ -271,13 +294,16 @@ class CommandPeerTerminal : public QObject {
   }
 
   void execute_remote_command() {
+    CPeerController::Instance()->insert_running_command(directory);
     QFutureWatcher<system_call_wrapper_error_t> *watcher =
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res = QtConcurrent::run(
         CSystemCallWrapper::vagrant_command_terminal, directory, command, QString("\"%1\"").arg(name));
     watcher->setFuture(res);
-    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
-            [this, res]() { emit this->outputReceived(res); });
+    connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res]() {
+      CPeerController::Instance()->remove_running_command(this->directory);
+      emit this->outputReceived(res);
+    });
     connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
         watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
