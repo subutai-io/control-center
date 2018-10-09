@@ -6,7 +6,7 @@
 
 // For Linux providers
 std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALBOX,
-                                                     //  VagrantProvider::LIBVIRT,
+                                                       VagrantProvider::LIBVIRT,
                                                        VagrantProvider::VMWARE_DESKTOP
                                                      };
 // For Darwin providers
@@ -38,8 +38,8 @@ VagrantProvider* VagrantProvider::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
   static QString p_str[] = {tr("Virtualbox"), tr("VMware"),
-                            tr("Parallels"), tr("Hyper-V"),
-                            tr("Libvirt")};
+                            tr("Hyper-V"), tr("Libvirt"),
+                            tr("Parallels")};
 
   return p_str[p];
 }
@@ -51,16 +51,17 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
 }
 
 const QString& VagrantProvider::CurrentOpenFileTitle() {
-  static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox Command")},
-                                                 {VMWARE_DESKTOP, tr("VMware Command")}
+  static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox command")},
+                                                 {VMWARE_DESKTOP, tr("VMware command")},
+                                                 {LIBVIRT, tr("KVM command")}
                                                 };
   return p_title[CurrentProvider()];
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   static QString p_val[] = {"virtualbox", "vmware_desktop",
-                            "parallels", "hyperv",
-                            "libvirt"};
+                            "hyperv", "libvirt",
+                            "parallels"};
   return p_val[p];
 }
 

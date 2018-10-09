@@ -388,7 +388,7 @@ void SilentInstaller::silentInstallation(){
         res = QtConcurrent::run(CSystemCallWrapper::install_subutai_box, m_dir, m_file_name);
         break;
     case CC_VAGRANT_LIBVIRT:
-        res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, libvirt_provider, command);
+        res = QtConcurrent::run(CSystemCallWrapper::install_vagrant_libvirt);
         break;
     case CC_VAGRANT_VMWARE_DESKTOP:
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_plugin, vmware_provider, command);

@@ -223,6 +223,9 @@ DlgSettings::DlgSettings(QWidget* parent)
   case VagrantProvider::HYPERV:
     ui->le_vm_storage->setText(CSettingsManager::Instance().hyperv_vm_storage());
     break;
+  case VagrantProvider::LIBVIRT:
+    ui->le_vm_storage->setText(CSettingsManager::Instance().kvm_vm_storage());
+    break;
   default:
     ui->le_vm_storage->setText(CSystemCallWrapper::get_virtualbox_vm_storage());
     break;
@@ -501,6 +504,9 @@ void DlgSettings::btn_ok_released() {
     break;
   case VagrantProvider::VMWARE_DESKTOP:
     CSettingsManager::Instance().set_vmware_vm_storage(ui->le_vm_storage->text());
+    break;
+  case VagrantProvider::LIBVIRT:
+    CSettingsManager::Instance().set_kvm_vm_storage(ui->le_vm_storage->text());
     break;
   case VagrantProvider::HYPERV:
     CSettingsManager::Instance().set_hyperv_vm_storage(ui->le_vm_storage->text());

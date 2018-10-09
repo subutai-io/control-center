@@ -870,6 +870,11 @@ default_vmware_path_internal_def(OS_MAC, "/Applications/VMware Fusion.app/Conten
 const QString & default_vmware_path() {
     return default_vmware_path_temp_internal<Os2Type<CURRENT_OS > >();
 }
+
+const QString& default_kvm_path() {
+  static QString kvm_path = "/usr/bin/kvm";
+  return kvm_path;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 // Gives default hypervisor path by Vagrant Provider

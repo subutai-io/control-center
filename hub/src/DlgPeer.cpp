@@ -138,7 +138,7 @@ void DlgPeer::updatePeer() {
             local_peer_info);  // local peer info
 
     // lock vagrant commands if CC is checking peer status
-    // Vagrant can only exacute one command per peer
+    // Vagrant can only execute one command per peer
     if (CPeerController::Instance()->is_checking_status(rh_dir)) {
       set_enabled_vagrant_commands(false);
     } else {

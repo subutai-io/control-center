@@ -144,7 +144,7 @@ void DlgAbout::set_visible_libvirt() {
   ui->lbl_hypervisor_version->setText("undefined");
   ui->lbl_hypervisor_icon->setToolTip(tr(""));
 
-  ui->lbl_provider_plugin->setText("Vagrant Libvirt Desktop");
+  ui->lbl_provider_plugin->setText("Vagrant Libvirt");
   ui->lbl_provider_plugin_version->setText("undefined");
   ui->lbl_provider_plugin_icon->setToolTip(tr(""));
 
@@ -239,9 +239,9 @@ void DlgAbout::set_hidden_providers() {
   case VagrantProvider::VMWARE_DESKTOP:
     set_visible_vmware();
     break;
-  //case VagrantProvider::LIBVIRT:
-  //  set_visible_libvirt(true);
-  // break;
+  case VagrantProvider::LIBVIRT:
+    set_visible_libvirt();
+    break;
   case VagrantProvider::HYPERV:
     set_visible_hyperv();
     break;
@@ -378,6 +378,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       this->btn_vbguest_plugin_update_released();
     } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
       this->btn_provider_vmware_update_released();
+    } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::LIBVIRT) {
+      this->btn_provider_libvirt_updates_released();
     }
   });
   connect(ui->btn_hypervisor_update, &QPushButton::released,
@@ -1398,9 +1400,9 @@ void DlgAbout::got_provider_version_sl(QString version) {
   case VagrantProvider::VMWARE_DESKTOP:
     COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
     break;
-  //case VagrantProvider::LIBVIRT:
-  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
-  //  break;
+  case VagrantProvider::LIBVIRT:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
+    break;
   default:
     break;
   }
@@ -1567,6 +1569,12 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::LIBVIRT) {
+      QString vagrant_libvirt = get_vagrant_provider_version();
+      emit got_provider_version(vagrant_libvirt);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+
     if (OS_MAC == CURRENT_OS) {
       QString xquartz_version = get_xquartz_version();
       emit got_xquartz_version(xquartz_version);
@@ -1604,9 +1612,9 @@ void DlgAboutInitializer::do_initialization() {
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
       uas.push_back(IUpdaterComponent::VMWARE_UTILITY);
       break;
-    //case VagrantProvider::LIBVIRT:
-    //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
-    //  break;
+    case VagrantProvider::LIBVIRT:
+      uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
+      break;
     case VagrantProvider::HYPERV:
       uas.push_back(IUpdaterComponent::HYPERV);
       break;

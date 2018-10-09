@@ -29,6 +29,7 @@ class CSettingsManager : public QObject {
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
   static const QString SM_VMWARE_PATH;
+  static const QString SM_KVM_PATH;
   static const QString SM_XQUARTZ_PATH;
   static const QString SM_DEFAULT_BROWSER;
   static const QString SM_DEFAULT_CHROME_PROFILE;
@@ -46,6 +47,7 @@ class CSettingsManager : public QObject {
   static const QString SM_SSH_KEYS_STORAGE;
   static const QString SM_PEERS_STORAGE;
   static const QString SM_VMWARE_VM_STORAGE;
+  static const QString SM_KVM_VM_STORAGE;
   static const QString SM_HYPERV_VM_STORAGE;
   static const QString SM_VM_STORAGE;
 
@@ -93,6 +95,7 @@ class CSettingsManager : public QObject {
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
   QString m_vmware_path;
+  QString m_kvm_path;
   QString m_xquartz_path;
   QString m_default_browser;
   QString m_default_chrome_profile;
@@ -117,6 +120,7 @@ class CSettingsManager : public QObject {
   QString m_ssh_keys_storage;
   QString m_peers_storage;
   QString m_vmware_vm_storage;
+  QString m_kvm_vm_storage;
   QString m_hyperv_vm_storage;
   QString m_vm_storage;
   QString m_tray_guid;
@@ -217,6 +221,7 @@ class CSettingsManager : public QObject {
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
   const QString& vmware_path() const { return m_vmware_path; }
+  const QString& kvm_path() const { return m_kvm_path; }
   const QString& xquartz_path() const { return  m_xquartz_path; }
   const QString& default_browser() const { return m_default_browser; }
   const QString& default_chrome_profile();
@@ -242,6 +247,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_keys_storage() const { return m_ssh_keys_storage; }
   const QString& peer_storage() const { return m_peers_storage; }
   const QString& vmware_vm_storage() const { return m_vmware_vm_storage; }
+  const QString& kvm_vm_storage() const { return m_kvm_vm_storage; }
   const QString& hyperv_vm_storage() const { return m_hyperv_vm_storage; }
   const QString& vm_storage() const { return m_vm_storage; }
   const QString& tray_guid() const { return m_tray_guid; }
@@ -301,6 +307,7 @@ class CSettingsManager : public QObject {
   void set_oracle_virtualbox_path(QString fr);
   void set_hypervisor_path(QString fr);
   void set_vmware_path(QString fr);
+  void set_kvm_path(QString fr);
   void set_default_browser(QString fr);
   void set_default_chrome_profile(QString fr);
   const QString& current_hypervisor_path();
@@ -359,6 +366,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(subutai_cmd, QString&)
   SET_FIELD_DECL(xquartz_path, QString&)
   SET_FIELD_DECL(vmware_vm_storage, QString&)
+  SET_FIELD_DECL(kvm_vm_storage, QString&)
   SET_FIELD_DECL(hyperv_vm_storage, QString&)
   SET_FIELD_DECL(vm_storage, QString&)
 #undef SET_FIELD_DECL

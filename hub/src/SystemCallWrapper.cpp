@@ -1057,6 +1057,7 @@ QStringList CSystemCallWrapper::list_interfaces() {
   QStringList empty;
   static QStringList hyperv; // It gets one time when application launched.
   static QStringList virtualbox;
+  static QStringList libvirt;
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
@@ -1064,8 +1065,11 @@ QStringList CSystemCallWrapper::list_interfaces() {
       virtualbox = virtualbox_interfaces();
 
     return virtualbox;
-  //case VagrantProvider::LIBVIRT:
-  //  return libvirt_interfaces();
+  case VagrantProvider::LIBVIRT:
+    if (libvirt.empty())
+      libvirt = libvirt_interfaces();
+
+    return libvirt;
   case VagrantProvider::HYPERV:
     if (hyperv.empty())
       hyperv = hyperv_interfaces();
@@ -2959,6 +2963,108 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vagrant(const QStrin
 
   return res;
 }
+
+system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
+  // install dependency packages
+  // more info here https://github.com/vagrant-libvirt/vagrant-libvirt#vagrant-libvirt-provider
+  system_call_wrapper_install_t res;
+  res.version = "undefined";
+
+  QString pkexec_path;
+  system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
+  if (scr != SCWE_SUCCESS) {
+    QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+    res.res = SCWE_WHICH_CALL_FAILED;
+    return res;
+  }
+
+  QString sh_path;
+  scr = CSystemCallWrapper::which("sh", sh_path);
+  if (scr != SCWE_SUCCESS) {
+      QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
+      qCritical() << err_msg;
+      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
+      res.res = SCWE_WHICH_CALL_FAILED;
+      return res;
+  }
+
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + "vagrant_libvirt_installer.sh";
+
+  qDebug() << "Dependency installation package script path:"
+           << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  QByteArray install_script = QString(
+    "#!/bin/bash\n"
+    "apt-get build-dep ruby-libvirt\n"
+    "apt-get install qemu libvirt-bin ebtables dnsmasq\n"
+    "apt-get install libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev\n").toUtf8();
+
+  if (tmpFile.write(install_script) != install_script.size()) {
+    QString err_msg = QObject::tr("Couldn't write install script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to install script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  system_call_res_t cr2;
+  QStringList args2;
+  args2 << sh_path << tmpFilePath;
+  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60 * 1000 * 10); // 10 min
+
+  qDebug() << "Vagrant libvirt dependency package script executed: "
+           << "exit code: " << cr2.exit_code
+           << "output: " << cr2.out
+           << "result: " << cr2.res;
+
+  tmpFile.remove();
+
+  static QString plugin = "vagrant-libvirt";
+  static QString command = "install";
+  res = vagrant_plugin(plugin, command);
+
+  return res;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief CSystemCallWrapper::vagrant_plugin
 /// \param name of vagrant plugin
