@@ -147,7 +147,7 @@ CTrayServer::process_text_msg(QString msg) {
     {"cmd:ss_ip", handle_ss_ip},
     {"cmd:ssh", handle_ssh},
     {"cmd:desktop", handle_desktop},
-    {NULL, handle_wrong_command}
+    {nullptr, handle_wrong_command}
   };
 
   cmd_t* tc = dct_commands;

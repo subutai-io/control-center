@@ -20,6 +20,12 @@ QString get_p2p_version() {
   return p2p_version;
 }
 
+QString get_kvm_version() {
+  QString version;
+  CSystemCallWrapper::kvm_version(version);
+  return version;
+}
+
 QString get_x2go_version() {
   QString x2go_version = "";
   CSystemCallWrapper::x2go_version(x2go_version);
@@ -140,7 +146,7 @@ void DlgAbout::set_visible_provider_plugin(bool value) {
 
 void DlgAbout::set_visible_libvirt() {
   // Vagrant libvirt provider vagrant-libvirt
-  ui->lbl_hypervisor->setText("Libvirt");
+  ui->lbl_hypervisor->setText("KVM");
   ui->lbl_hypervisor_version->setText("undefined");
   ui->lbl_hypervisor_icon->setToolTip(tr(""));
 
@@ -513,6 +519,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     get_vagrant_provider_version
   };
 
+  m_dct_fpb[IUpdaterComponent::KVM] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_kvm_version
+  };
+
   // hide providers and add provider to components dictionary
   set_hidden_providers();
 
@@ -524,7 +535,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       it->second.pb->setMaximum(0);
       it->second.pb->setMinimum(0);
     } else {
-      uint value = (progress.first * 100) / progress.second;
+      int value = int((progress.first * 100) / progress.second);
       it->second.pb->setValue(value);
     }
 #ifndef RT_OS_DARWIN
@@ -1089,7 +1100,7 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
       m_dct_fpb[component_id].btn->setText(tr("Installing"));
 
   } else {
-    m_dct_fpb[component_id].pb->setValue((rec * 100) / total);
+    m_dct_fpb[component_id].pb->setValue(int((rec * 100) / total));
 
     if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV)
       m_dct_fpb[component_id].btn->setText(tr("Downloading"));
@@ -1432,6 +1443,7 @@ void DlgAbout::got_provider_version_sl(QString version) {
 
 void DlgAbout::got_xquartz_version_sl(QString version) {
   if (OS_MAC != CURRENT_OS) return;
+#ifdef RT_OS_DARWIN
   ui->lbl_xquartz_version_val->setText(version);
   if (version == "undefined") {
     set_hidden_pb(IUpdaterComponent::XQUARTZ);
@@ -1441,6 +1453,9 @@ void DlgAbout::got_xquartz_version_sl(QString version) {
     ui->btn_xquartz_update->activateWindow();
   } else
     ui->btn_xquartz_update->setText(tr("Update"));
+#else
+  UNUSED_ARG(version);
+#endif
 }
 ////////////////////////////////////////////////////////////////////////////
 void DlgAbout::set_hidden_pb(const QString& component_id) {
@@ -1573,13 +1588,17 @@ void DlgAboutInitializer::do_initialization() {
       QString vagrant_libvirt = get_vagrant_provider_version();
       emit got_provider_version(vagrant_libvirt);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+      QString kvm = get_kvm_version();
+      emit got_hypervisor_version(kvm);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-    if (OS_MAC == CURRENT_OS) {
+#ifdef RT_OS_DARWIN
       QString xquartz_version = get_xquartz_version();
       emit got_xquartz_version(xquartz_version);
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
-    }
+#endif
 
     std::vector<QString> uas = {IUpdaterComponent::P2P,
                      IUpdaterComponent::TRAY,
@@ -1625,14 +1644,17 @@ void DlgAboutInitializer::do_initialization() {
     }
 
     std::vector<bool> ua;
-    for (int i = 0; i < (int) uas.size(); ++i) {
+    for (int i = 0; i < int(uas.size()); ++i) {
       ua.push_back(
-          CHubComponentsUpdater::Instance()->is_update_available(uas.at(i)));
+          CHubComponentsUpdater::Instance()->
+            is_update_available(uas.at(std::vector<QString>::size_type(i))));
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-    for (int i = 0; i < (int) uas.size(); i++) {
-        emit update_available(uas[i], ua[i]);
+    for (int i = 0; i < int(uas.size()); i++) {
+        emit update_available(
+            uas[std::vector<QString>::size_type(i)],
+             ua[std::vector<bool>::size_type(i)]);
     }
   } catch (std::exception& ex) {
     qCritical("Err in DlgAboutInitializer::do_initialization() . %s",

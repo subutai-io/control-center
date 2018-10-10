@@ -1509,7 +1509,7 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
 system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
     const QString &hash) {
-  if (hash == NULL || !is_in_swarm(hash)) return SCWE_SUCCESS;
+  if (hash == nullptr || !is_in_swarm(hash)) return SCWE_SUCCESS;
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "stop"
@@ -1741,8 +1741,8 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_WIN> >(co
       QString("\"%1\" /k \"%2 -o UserKnownHostsFile=\"%3\"\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
@@ -1812,6 +1812,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   }
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return res;
 }
@@ -1853,6 +1854,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
   args << QString("%1").arg(str_command);
   system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                                                        : SCWE_CREATE_PROCESS;
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return res;
 }
@@ -1920,8 +1922,8 @@ UNUSED_ARG(command);
       QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
@@ -1930,6 +1932,7 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
@@ -2964,12 +2967,8 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vagrant(const QStrin
   return res;
 }
 
-system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
-  // install dependency packages
-  // more info here https://github.com/vagrant-libvirt/vagrant-libvirt#vagrant-libvirt-provider
-  system_call_wrapper_install_t res;
-  res.version = "undefined";
-
+system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const QByteArray &script) {
+  system_call_res_t res;
   QString pkexec_path;
   system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
   if (scr != SCWE_SUCCESS) {
@@ -3001,9 +3000,9 @@ system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
   }
 
   QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + "vagrant_libvirt_installer.sh";
+      lst_temp[0] + QDir::separator() + file_name;
 
-  qDebug() << "Dependency installation package script path:"
+  qDebug() << "script path: "
            << tmpFilePath;
 
   QFile tmpFile(tmpFilePath);
@@ -3016,13 +3015,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
     return res;
   }
 
-  QByteArray install_script = QString(
-    "#!/bin/bash\n"
-    "apt-get build-dep ruby-libvirt\n"
-    "apt-get install qemu libvirt-bin ebtables dnsmasq\n"
-    "apt-get install libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev\n").toUtf8();
-
-  if (tmpFile.write(install_script) != install_script.size()) {
+  if (tmpFile.write(script) != script.size()) {
     QString err_msg = QObject::tr("Couldn't write install script to temp file")
                              .arg(tmpFile.errorString());
     qCritical() << err_msg;
@@ -3051,12 +3044,31 @@ system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
   args2 << sh_path << tmpFilePath;
   cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60 * 1000 * 10); // 10 min
 
+  tmpFile.remove(); // remove script from tmp directory
+
+  return cr2;
+}
+
+system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
+  // install dependency packages
+  // more info here https://github.com/vagrant-libvirt/vagrant-libvirt#vagrant-libvirt-provider
+  system_call_wrapper_install_t res;
+  QString file_name = "vagrant_libvirt_installer.sh";
+
+  QByteArray script = QString(
+    "#!/bin/bash\n"
+    "apt-get -y build-dep ruby-libvirt\n"
+    "apt-get -y install qemu libvirt-bin ebtables dnsmasq\n"
+    "apt-get -y install libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev\n").toUtf8();
+
+  system_call_res_t cr2;
+  cr2 = CSystemCallWrapper::run_script(file_name, script);
+  res.res = cr2.res;
+
   qDebug() << "Vagrant libvirt dependency package script executed: "
            << "exit code: " << cr2.exit_code
            << "output: " << cr2.out
            << "result: " << cr2.res;
-
-  tmpFile.remove();
 
   static QString plugin = "vagrant-libvirt";
   static QString command = "install";
@@ -4112,6 +4124,46 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_oracle_virtualbox(co
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_install_t CSystemCallWrapper::install_kvm(const QString& dir, const QString& file_name) {
+  system_call_wrapper_install_t res;
+  res.version = "undefined";
+
+  QString script_path = dir + QDir::separator() + file_name;
+
+  QFile file(script_path);
+
+  if (!file.open(QIODevice::ReadOnly)) {
+    qDebug() << "error openeing file: "
+             << script_path
+             << file.error();
+    res.res = SCWE_CREATE_PROCESS;
+    return res;
+  }
+
+  QTextStream instream(&file);
+  QString script = instream.readLine();
+  file.close();
+
+  system_call_res_t cr = CSystemCallWrapper::run_script("kvminstall.sh", script.toUtf8());
+  res.res = cr.res;
+
+  qDebug() << "KVM installation ouput: "
+           << cr.exit_code
+           << cr.res
+           << cr.out;
+
+  if (res.res == SCWE_SUCCESS) {
+    QString version;
+    CSystemCallWrapper::kvm_version(version);
+
+    res.version = version;
+  }
+
+  return res;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<class OS>
 system_call_wrapper_error_t install_chrome_internal(const QString &dir, const QString &file_name);
 
@@ -5988,8 +6040,8 @@ system_call_wrapper_error_t run_sshpass_in_terminal_internal<Os2Type<OS_WIN> >(c
       QString("\"%1\" /k \"%2 -o UserKnownHostsFile=%3\"").arg(cmd).arg(str_command).arg(known_hosts);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
-  BOOL cp = CreateProcess(NULL, cmd_args_lpwstr, NULL, NULL, FALSE, 0, NULL,
-                          NULL, &si, &pi);
+  BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
+                          nullptr, &si, &pi);
   if (!cp) {
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
@@ -6364,6 +6416,25 @@ QString CSystemCallWrapper::rhm_version() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+system_call_wrapper_error_t CSystemCallWrapper::kvm_version(QString &version) {
+  version = "undefined";
+  QStringList args;
+
+  args << "-W"
+       << "-f='${Version}\\n'"
+       << "qemu-kvm";
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(
+      QString("dpkg-query"), args, true, true, 97);
+
+  if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
+    QString ver = res.out[0];
+    version = ver.remove(QRegExp(".*:"));
+  }
+
+  return res.res;
+}
+////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_version(QString &version) {
   version = "undefined";
   QString cmd = CSettingsManager::Instance().p2p_path();

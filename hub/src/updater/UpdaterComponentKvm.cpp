@@ -12,40 +12,40 @@
 #include "SystemCallWrapper.h"
 #include "updater/ExecutableUpdater.h"
 #include "updater/HubComponentsUpdater.h"
-#include "updater/UpdaterComponentVMware.h"
+#include "updater/UpdaterComponentKvm.h"
 
-CUpdaterComponentVMware::CUpdaterComponentVMware() {
-  m_component_id = IUpdaterComponent::VMWARE;
+CUpdaterComponentKvm::CUpdaterComponentKvm() {
+  m_component_id = KVM;
 }
 
-CUpdaterComponentVMware::~CUpdaterComponentVMware() {}
-
-QString CUpdaterComponentVMware::download_vmware_path() {
+QString CUpdaterComponentKvm::download_script_path() {
   QStringList lst_temp =
       QStandardPaths::standardLocations(QStandardPaths::TempLocation);
   return (lst_temp.isEmpty() ? QApplication::applicationDirPath()
                              : lst_temp[0]);
 }
 
-bool CUpdaterComponentVMware::update_available_internal() {
+CUpdaterComponentKvm::~CUpdaterComponentKvm() {}
+
+bool CUpdaterComponentKvm::update_available_internal() {
   QString version;
-  CSystemCallWrapper::vmware_version(version);
+  CSystemCallWrapper::hyperv_version(version);
   return version == "undefined";
 }
 
-chue_t CUpdaterComponentVMware::install_internal() {
-  qDebug() << "Starting install vmware";
+chue_t CUpdaterComponentKvm::install_internal() {
+  qDebug() << "Starting install KVM";
 
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "<a href='https://www.vmware.com/'>VMware</a>"
-          " is used as the hypervisor.<br>"
-          "VMware will be installed on your machine.<br>"
-          "It is recommended to reboot your machine after installation VMware.<br>"
+          "KVM is used as the hypervisor.<br>"
+          "KVM (for Kernel-based Virtual Machine)\n"
+          "is a full virtualization solution for\n"
+          "Linux on x86 hardware containing virtualization\n"
+          "extensions (Intel VT or AMD-V).\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
-  msg_box->setTextFormat(Qt::RichText);
 
   QObject::connect(msg_box, &QMessageBox::finished, msg_box,
                    &QMessageBox::deleteLater);
@@ -53,9 +53,10 @@ chue_t CUpdaterComponentVMware::install_internal() {
     install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
   }
-  QString file_name = vmware_kurjun_package_name();
-  QString file_dir = download_vmware_path();
-  QString str_vmware_downloaded_path = file_dir + QDir::separator() + file_name;
+
+  QString file_name = kvm_install_script_kurjun_name();
+  QString file_dir = download_script_path();
+  QString str_script_downloaded_path = file_dir + QDir::separator() + file_name;
 
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(file_name);
@@ -68,11 +69,11 @@ chue_t CUpdaterComponentVMware::install_internal() {
   std::vector<CGorjunFileInfo>::iterator item = fi.begin();
 
   CDownloadFileManager *dm = new CDownloadFileManager(
-      item->name(), str_vmware_downloaded_path, item->size());
+      item->name(), str_script_downloaded_path, item->size());
   dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
 
   SilentInstaller *silent_installer = new SilentInstaller(this);
-  silent_installer->init(file_dir, file_name, CC_VMWARE);
+  silent_installer->init(file_dir, file_name, CC_KVM);
 
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
@@ -91,20 +92,20 @@ chue_t CUpdaterComponentVMware::install_internal() {
             }
           });
   connect(silent_installer, &SilentInstaller::outputReceived, this,
-          &CUpdaterComponentVMware::install_finished_sl);
+          &CUpdaterComponentKvm::install_finished_sl);
   connect(silent_installer, &SilentInstaller::outputReceived, dm,
           &CDownloadFileManager::deleteLater);
   dm->start_download();
   return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentVMware::update_internal() {
+chue_t CUpdaterComponentKvm::update_internal() {
   update_progress_sl(100, 100);
   update_finished_sl(true);
   return CHUE_SUCCESS;
 }
 
-chue_t CUpdaterComponentVMware::uninstall_internal() {
+chue_t CUpdaterComponentKvm::uninstall_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
@@ -116,40 +117,40 @@ chue_t CUpdaterComponentVMware::uninstall_internal() {
   }
 
   static QString empty_string = "";
+
   SilentUninstaller *silent_uninstaller = new SilentUninstaller(this);
-  silent_uninstaller->init(empty_string, empty_string, CC_VMWARE);
+  silent_uninstaller->init(empty_string, empty_string, CC_KVM);
 
   connect(silent_uninstaller, &SilentUninstaller::outputReceived, this,
-          &CUpdaterComponentVMware::uninstall_finished_sl);
+          &CUpdaterComponentKvm::uninstall_finished_sl);
 
   silent_uninstaller->startWork();
-
 
   return CHUE_SUCCESS;
 }
 
-void CUpdaterComponentVMware::update_post_action(bool success) {
+void CUpdaterComponentKvm::update_post_action(bool success) {
   UNUSED_ARG(success);
 }
 
-void CUpdaterComponentVMware::install_post_internal(bool success) {
+void CUpdaterComponentKvm::install_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
-        tr("Failed to complete VMware installation. Try again later, "
+        tr("Failed to complete KVM installation. Try again later, "
            "or install it manually."),
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("VMware has been installed."), DlgNotification::N_NO_ACTION);
+        tr("KVM has been installed."), DlgNotification::N_NO_ACTION);
 }
 
-void CUpdaterComponentVMware::uninstall_post_internal(bool success) {
+void CUpdaterComponentKvm::uninstall_post_internal(bool success) {
   if (!success)
     CNotificationObserver::Instance()->Error(
-        tr("Failed to complete VMware uninstallation. Try again later, "
+        tr("Failed to complete KVM uninstallation. Try again later, "
            "or uninstall it manually."),
         DlgNotification::N_NO_ACTION);
   else
     CNotificationObserver::Instance()->Info(
-        tr("VMware has been uninstalled."), DlgNotification::N_NO_ACTION);
+        tr("KVM has been uninstalled."), DlgNotification::N_NO_ACTION);
 }

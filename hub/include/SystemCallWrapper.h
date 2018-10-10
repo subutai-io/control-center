@@ -124,6 +124,8 @@ class CSystemCallWrapper {
   static system_call_res_t ssystem_f(QString cmd, QStringList arg,
                                      bool read_out, bool log,
                                      unsigned long timeout_sec = 30000);
+  // runs bash script
+  static system_call_res_t run_script(const QString& file_name, const QByteArray& script);
 
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();
@@ -270,6 +272,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_install_t uninstall_xquartz();
 
   static system_call_wrapper_install_t install_vagrant_libvirt();
+  static system_call_wrapper_install_t install_kvm(const QString& dir, const QString& file_name);
 
   static void run_linux_script(QStringList args);
 
@@ -344,6 +347,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_subutai_version(QString &version);
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
   static system_call_wrapper_error_t xquartz_version(QString &version);
+  static system_call_wrapper_error_t kvm_version(QString& version);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 

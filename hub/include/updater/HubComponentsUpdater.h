@@ -31,7 +31,8 @@ enum cc_component{
     CC_VMWARE,
     CC_VMWARE_UTILITY,
     CC_XQUARTZ,
-    CC_HYPERV
+    CC_HYPERV,
+    CC_KVM
 };
 
 namespace update_system {

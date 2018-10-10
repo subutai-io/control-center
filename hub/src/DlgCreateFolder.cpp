@@ -1,6 +1,9 @@
+#include <QRegularExpression>
+
 #include "DlgCreateFolder.h"
 #include "ui_DlgCreateFolder.h"
 #include "OsBranchConsts.h"
+#include <QRegularExpression>
 
 DlgCreateFolder::DlgCreateFolder(QWidget *parent) :
   QDialog(parent),

@@ -446,7 +446,7 @@ void DlgSettings::btn_ok_released() {
     {ui->le_rhip_port, ui->lbl_err_rhip_port, is_le_empty_validate, 2, empty_validator_msg},
     {ui->le_rhip_user, ui->lbl_err_rhip_user, is_le_empty_validate, 2, empty_validator_msg},
 
-    {NULL, NULL, NULL, -1, ""}};
+    {nullptr, nullptr, nullptr, -1, ""}};
 
   std::vector<field_validator_t<QLineEdit> > lst_failed_validators;
   field_validator_t<QLineEdit>* tmp = le_validators;
