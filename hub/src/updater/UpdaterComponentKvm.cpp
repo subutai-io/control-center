@@ -15,21 +15,14 @@
 #include "updater/UpdaterComponentKvm.h"
 
 CUpdaterComponentKvm::CUpdaterComponentKvm() {
-  m_component_id = KVM;
-}
-
-QString CUpdaterComponentKvm::download_script_path() {
-  QStringList lst_temp =
-      QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-  return (lst_temp.isEmpty() ? QApplication::applicationDirPath()
-                             : lst_temp[0]);
+  m_component_id = IUpdaterComponent::KVM;
 }
 
 CUpdaterComponentKvm::~CUpdaterComponentKvm() {}
 
 bool CUpdaterComponentKvm::update_available_internal() {
   QString version;
-  CSystemCallWrapper::hyperv_version(version);
+  CSystemCallWrapper::kvm_version(version);
   return version == "undefined";
 }
 
@@ -54,48 +47,13 @@ chue_t CUpdaterComponentKvm::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  QString file_name = kvm_install_script_kurjun_name();
-  QString file_dir = download_script_path();
-  QString str_script_downloaded_path = file_dir + QDir::separator() + file_name;
-
-  std::vector<CGorjunFileInfo> fi =
-      CRestWorker::Instance()->get_gorjun_file_info(file_name);
-  if (fi.empty()) {
-    qCritical("File %s isn't presented on kurjun",
-              m_component_id.toStdString().c_str());
-    install_finished_sl(false, "undefined");
-    return CHUE_NOT_ON_KURJUN;
-  }
-  std::vector<CGorjunFileInfo>::iterator item = fi.begin();
-
-  CDownloadFileManager *dm = new CDownloadFileManager(
-      item->name(), str_script_downloaded_path, item->size());
-  dm->set_link(ipfs_download_url().arg(item->id(), item->name()));
-
+  update_progress_sl(100, 100);
+  static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
-  silent_installer->init(file_dir, file_name, CC_KVM);
-
-  connect(dm, &CDownloadFileManager::download_progress_sig,
-          [this](qint64 rec, qint64 total) {
-            update_progress_sl(rec, total);
-          });
-  connect(dm, &CDownloadFileManager::finished,
-          [this, silent_installer](bool success) {
-            if (!success) {
-              silent_installer->outputReceived(success, "undefined");
-            } else {
-              this->update_progress_sl(0,0);
-              CNotificationObserver::Instance()->Info(
-                  tr("Running installation scripts might be take too long time please wait."),
-                  DlgNotification::N_NO_ACTION);
-              silent_installer->startWork();
-            }
-          });
+  silent_installer->init(empty_string, empty_string, CC_KVM);
   connect(silent_installer, &SilentInstaller::outputReceived, this,
           &CUpdaterComponentKvm::install_finished_sl);
-  connect(silent_installer, &SilentInstaller::outputReceived, dm,
-          &CDownloadFileManager::deleteLater);
-  dm->start_download();
+  silent_installer->startWork();
   return CHUE_SUCCESS;
 }
 

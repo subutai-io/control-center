@@ -21,9 +21,6 @@ class CUpdaterComponentKvm : public IUpdaterComponent {
   virtual void install_post_internal(bool success);
   virtual chue_t uninstall_internal();
   virtual void uninstall_post_internal(bool success);
-
-private:
-  QString download_script_path();
 };
 }
 #endif // UPDATERCOMPONENTKVM_H

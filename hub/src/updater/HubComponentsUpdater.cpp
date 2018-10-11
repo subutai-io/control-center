@@ -407,7 +407,7 @@ void SilentInstaller::silentInstallation(){
         res = QtConcurrent::run(CSystemCallWrapper::install_hyperv);
         break;
     case CC_KVM:
-        res = QtConcurrent::run(CSystemCallWrapper::install_kvm, m_dir, m_file_name);
+        res = QtConcurrent::run(CSystemCallWrapper::install_kvm);
         break;
     default:
         break;

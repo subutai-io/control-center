@@ -3043,6 +3043,10 @@ system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const
   QStringList args2;
   args2 << sh_path << tmpFilePath;
   cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60 * 1000 * 10); // 10 min
+  qDebug() << "Run script " << file_name
+           << cr2.exit_code
+           << cr2.res
+           << cr2.out;
 
   tmpFile.remove(); // remove script from tmp directory
 
@@ -4125,42 +4129,139 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_oracle_virtualbox(co
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-system_call_wrapper_install_t CSystemCallWrapper::install_kvm(const QString& dir, const QString& file_name) {
+system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
+  QString username = qgetenv("USER");
+  QString distribution;
+  QString file_script = "kvminstall.sh";
+  QByteArray script;
   system_call_wrapper_install_t res;
-  res.version = "undefined";
+  system_call_res_t cr;
 
-  QString script_path = dir + QDir::separator() + file_name;
+  if (username.isEmpty())
+    username = qgetenv("USERNAME");
 
-  QFile file(script_path);
+  // Get linux distribution (Debian, Ubuntu, LinuxMint)
+  QStringList args;
+  args << "-i"
+       << "-s";
 
-  if (!file.open(QIODevice::ReadOnly)) {
-    qDebug() << "error openeing file: "
-             << script_path
-             << file.error();
-    res.res = SCWE_CREATE_PROCESS;
+  cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+
+  if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+    distribution = cr.out[0];
+    distribution = distribution.trimmed().simplified();
+  } else {
+    qDebug() << "Failed get linux distribution"
+             << cr.out;
+    res.res = cr.res;
     return res;
   }
 
-  QTextStream instream(&file);
-  QString script = instream.readLine();
-  file.close();
+  if (distribution.toLower() == "debian") {
+    script = QString("#!/usr/bin/env bash \n"
+                     "codename=`lsb_release -c -s` \n"
+                     "case \"$codename\" in \n"
+                     "\"stretch\")\n"
+                       "apt install -y qemu-kvm libvirt-clients libvirt-daemon-system\n"
+                       "adduser %1 libvirt\n"
+                       "adduser %1 libvirt-qemu\n"
+                       ";;"
+                     "\"jessie\")"
+                       "apt-get -y install qemu-kvm libvirt-bin\n"
+                       "adduser %1 kvm\n"
+                       "adduser %1 libvirt\n"
+                       ";;"
+                     "*)"
+                       "echo \"Bad or unsupported codename: $codename\";"
+                       "exit 1"
+                       ";;"
+                     "esac"
+                     ).arg(username).toUtf8();
+  } else if (distribution.toLower() == "ubuntu") {  // Ubuntu
+    QString keramic = "9.10";
+    QString lucid = "10.04";
+    QString version; // ubuntu version
 
-  system_call_res_t cr = CSystemCallWrapper::run_script("kvminstall.sh", script.toUtf8());
-  res.res = cr.res;
+    // Get Ubuntu version
+    args.clear();
+    args << "-r"
+         << "-s";
+    cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+    if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+      version = cr.out[0];
+      version = version.trimmed().simplified();
+    } else {
+      res.res = cr.res;
+      qDebug() << "Failed to get ubuntu version"
+               << cr.res
+               << cr.exit_code
+               << cr.out;
+      return res;
+    }
 
-  qDebug() << "KVM installation ouput: "
-           << cr.exit_code
-           << cr.res
-           << cr.out;
-
-  if (res.res == SCWE_SUCCESS) {
-    QString version;
-    CSystemCallWrapper::kvm_version(version);
-
-    res.version = version;
+    // Install KVM
+    if (versionCompare(version.toStdString(), lucid.toStdString()) > 0) {
+      // Installing KVM for later version of Ubuntu 10.04
+      script = QString("#!/usr/bin/env bash\n"
+                       "apt-get install -y -f qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "adduser %1 libvirtd\n").arg(username).toUtf8();
+    } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
+      // Installing KVM for ealier version of Ubuntu 9.10
+      script = QString("#!/usr/bin/env bash\n"
+                       "aptitude install -y -f kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "adduser %1 kvm\n"
+                       "adduser %1 libvirtd\n").arg(username).toUtf8();
+    }
+  } else if (distribution.toLower() == "linuxmint") {  // LinuxMint
+    script = QString("#!/usr/bin/env bash\n"
+                     "apt-get install -y -f qemu-kvm libvirt-bin bridge-utils\n"
+                     "adduser %1 libvirt\n").arg(username).toUtf8();
   }
 
+  system_call_res_t cr_script = CSystemCallWrapper::run_script(file_script, script);
+  res.res = cr_script.res;
+
+  if (cr_script.exit_code == 0 && cr_script.res == SCWE_SUCCESS) {
+    QString version;
+    CSystemCallWrapper::kvm_version(version);
+    res.version = version;
+
+    return res;
+  }
+
+  qDebug() << "install kvm script failed"
+           << cr_script.res
+           << cr_script.exit_code
+           << cr_script.out;
+
   return res;
+}
+
+int CSystemCallWrapper::versionCompare(std::string v1, std::string v2) {
+  int vnum1 = 0, vnum2 = 0;
+
+  for (int i=0,j=0; (i<v1.length() || j<v2.length());) {
+    while (i < v1.length() && v1[i] != '.') {
+        vnum1 = vnum1 * 10 + (v1[i] - '0');
+        i++;
+    }
+
+    while (j < v2.length() && v2[j] != '.') {
+      vnum2 = vnum2 * 10 + (v2[j] - '0');
+      j++;
+    }
+
+    if (vnum1 > vnum2)
+      return 1;
+    if (vnum2 > vnum1)
+      return -1;
+
+    vnum1 = vnum2 = 0;
+    i++;
+    j++;
+  }
+
+  return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -272,7 +272,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_install_t uninstall_xquartz();
 
   static system_call_wrapper_install_t install_vagrant_libvirt();
-  static system_call_wrapper_install_t install_kvm(const QString& dir, const QString& file_name);
+  static system_call_wrapper_install_t install_kvm();
 
   static void run_linux_script(QStringList args);
 
@@ -348,6 +348,7 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t vagrant_vbguest_version(QString &version);
   static system_call_wrapper_error_t xquartz_version(QString &version);
   static system_call_wrapper_error_t kvm_version(QString& version);
+  static int versionCompare(std::string v1, std::string v2);
   static bool p2p_daemon_check();
   static bool x2goclient_check();
 
