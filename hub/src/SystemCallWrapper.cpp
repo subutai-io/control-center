@@ -6420,16 +6420,18 @@ system_call_wrapper_error_t CSystemCallWrapper::kvm_version(QString &version) {
   version = "undefined";
   QStringList args;
 
-  args << "-W"
-       << "-f='${Version}\\n'"
-       << "qemu-kvm";
+  args << "--version";
 
   system_call_res_t res = CSystemCallWrapper::ssystem_th(
-      QString("dpkg-query"), args, true, true, 97);
+      QString("kvm"), args, true, true, 5000);
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     QString ver = res.out[0];
-    version = ver.remove(QRegExp(".*:"));
+    QRegExp reg("(\\d\\.\\d\\.\\d)");
+
+    if (reg.indexIn(ver, 0) != -1) {
+      version = reg.cap(1);
+    }
   }
 
   return res.res;
