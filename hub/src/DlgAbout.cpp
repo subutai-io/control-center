@@ -1106,7 +1106,8 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
   } else {
     m_dct_fpb[component_id].pb->setValue(int((rec * 100) / total));
 
-    if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV)
+    if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV &&
+        provider != VagrantProvider::LIBVIRT && component_id != IUpdaterComponent::KVM)
       m_dct_fpb[component_id].btn->setText(tr("Downloading"));
   }
 }
