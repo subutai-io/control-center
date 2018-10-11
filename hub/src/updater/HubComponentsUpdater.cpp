@@ -506,6 +506,9 @@ void SilentUninstaller::silentUninstallation() {
   case CC_HYPERV:
     res = QtConcurrent::run(CSystemCallWrapper::uninstall_hyperv);
     break;
+  case CC_KVM:
+    res = QtConcurrent::run(CSystemCallWrapper::uninstall_kvm);
+    break;
   default:
     break;
   }

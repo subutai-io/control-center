@@ -4128,6 +4128,104 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_oracle_virtualbox(co
   return res;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
+  QString distribution;
+  QString file_script = "kvmuninstall.sh";
+  QByteArray script;
+  system_call_wrapper_install_t res;
+  system_call_res_t cr;
+
+  // Get linux distribution (Debian, Ubuntu, LinuxMint)
+  QStringList args;
+  args << "-i"
+       << "-s";
+
+  cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+
+  if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+    distribution = cr.out[0];
+    distribution = distribution.trimmed().simplified();
+  } else {
+    qDebug() << "Failed get linux distribution"
+             << cr.out;
+    res.res = cr.res;
+    return res;
+  }
+
+  if (distribution.toLower() == "debian") {
+    script = QString("#!/usr/bin/env bash \n"
+                     "codename=`lsb_release -c -s` \n"
+                     "case \"$codename\" in \n"
+                     "\"stretch\")\n"
+                       "apt remove -y qemu-kvm libvirt-clients libvirt-daemon-system\n"
+                       ";;"
+                     "\"jessie\")"
+                       "apt-get -y remove qemu-kvm libvirt-bin\n"
+                       ";;"
+                     "*)"
+                       "echo \"Bad or unsupported codename: $codename\";"
+                       "exit 1"
+                       ";;"
+                     "esac"
+                     ).toUtf8();
+  } else if (distribution.toLower() == "ubuntu") {  // Ubuntu
+    QString keramic = "9.10";
+    QString lucid = "10.04";
+    QString version; // ubuntu version
+
+    // Get Ubuntu version
+    args.clear();
+    args << "-r"
+         << "-s";
+    cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+    if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+      version = cr.out[0];
+      version = version.trimmed().simplified();
+    } else {
+      res.res = cr.res;
+      qDebug() << "Failed to get ubuntu version"
+               << cr.res
+               << cr.exit_code
+               << cr.out;
+      return res;
+    }
+
+    // Install KVM
+    if (versionCompare(version.toStdString(), lucid.toStdString()) > 0) {
+      // Installing KVM for later version of Ubuntu 10.04
+      script = QString("#!/usr/bin/env bash\n"
+                       "apt-get remove -y qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       ).toUtf8();
+    } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
+      // Installing KVM for ealier version of Ubuntu 9.10
+      script = QString("#!/usr/bin/env bash\n"
+                       "aptitude remove -y kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       ).toUtf8();
+    }
+  } else if (distribution.toLower() == "linuxmint") {  // LinuxMint
+    script = QString("#!/usr/bin/env bash\n"
+                     "apt-get remove -y qemu-kvm libvirt-bin bridge-utils\n"
+                     ).toUtf8();
+  }
+
+  system_call_res_t cr_script = CSystemCallWrapper::run_script(file_script, script);
+  res.res = cr_script.res;
+
+  if (cr_script.exit_code == 0 && cr_script.res == SCWE_SUCCESS) {
+    QString version;
+    CSystemCallWrapper::kvm_version(version);
+    res.version = version;
+
+    return res;
+  }
+
+  qDebug() << "uninstall kvm script failed"
+           << cr_script.res
+           << cr_script.exit_code
+           << cr_script.out;
+
+  return res;
+}
 
 system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
   QString username = qgetenv("USER");
@@ -4162,7 +4260,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                      "codename=`lsb_release -c -s` \n"
                      "case \"$codename\" in \n"
                      "\"stretch\")\n"
-                       "apt install -y qemu-kvm libvirt-clients libvirt-daemon-system\n"
+                       "apt install -y -f qemu-kvm libvirt-clients libvirt-daemon-system\n"
                        "adduser %1 libvirt\n"
                        "adduser %1 libvirt-qemu\n"
                        ";;"

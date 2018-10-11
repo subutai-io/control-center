@@ -273,6 +273,7 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_install_t install_vagrant_libvirt();
   static system_call_wrapper_install_t install_kvm();
+  static system_call_wrapper_install_t uninstall_kvm();
 
   static void run_linux_script(QStringList args);
 
