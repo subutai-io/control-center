@@ -1823,6 +1823,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   }
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return res;
 }
@@ -1864,6 +1865,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
   args << QString("%1").arg(str_command);
   system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                                                        : SCWE_CREATE_PROCESS;
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return res;
 }
@@ -1941,6 +1943,7 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
   vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
