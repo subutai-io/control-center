@@ -387,6 +387,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       this->btn_vbguest_plugin_update_released();
     } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
       this->btn_provider_vmware_update_released();
+    } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::PARALLELS) {
+      this->btn_provider_parallels_update_released();
     }
   });
   connect(ui->btn_hypervisor_update, &QPushButton::released,
