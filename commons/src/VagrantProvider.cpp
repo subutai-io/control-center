@@ -38,7 +38,7 @@ VagrantProvider* VagrantProvider::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
   static QString p_str[] = {tr("Virtualbox"), tr("VMware"),
-                            tr("Parallels"), tr("Hyper-V"),
+                            tr("Hyper-V"), tr("Parallels"),
                             tr("Libvirt")};
 
   return p_str[p];
@@ -60,7 +60,7 @@ const QString& VagrantProvider::CurrentOpenFileTitle() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   static QString p_val[] = {"virtualbox", "vmware_desktop",
-                            "parallels", "hyperv",
+                            "hyperv", "parallels",
                             "libvirt"};
   return p_val[p];
 }
@@ -158,6 +158,23 @@ QDir VagrantProvider::BasePeerDirVMware() {
   return base_peer_dir_vmware;
 }
 
+QDir VagrantProvider::BasePeerDirParallels() {
+  QString base_peer_path = CSettingsManager::Instance().parallels_vm_storage();
+
+  if (!base_peer_path.contains("Subutai-peers") &&
+      !QDir().exists(base_peer_path + QDir::separator() + "Subutai-peers")) {
+    base_peer_path = base_peer_path + QDir::separator() + "Subutai-peers";
+    QDir().mkdir(base_peer_path);
+  }
+
+  // 2. create "peer" folder.
+  QString empty;
+  QDir base_peer_dir_parallels(base_peer_path);
+  base_peer_dir_parallels.cd("Subutai-peers");
+
+  return base_peer_dir_parallels;
+}
+
 QDir VagrantProvider::BasePeerDir() {
   switch (CurrentProvider()) {
   case VIRTUALBOX:
@@ -166,6 +183,8 @@ QDir VagrantProvider::BasePeerDir() {
     return BasePeerDirVMware();
   case HYPERV:
     return BasePeerDirHyperv();
+  case PARALLELS:
+    return BasePeerDirParallels();
   default:
     return BasePeerDirVirtualbox();
   }
@@ -179,6 +198,8 @@ QString VagrantProvider::VmStorage() {
     return CSettingsManager::Instance().vmware_vm_storage();
   case VIRTUALBOX:
     return CSystemCallWrapper::get_virtualbox_vm_storage();
+  case PARALLELS:
+    return CSettingsManager::Instance().parallels_vm_storage();
   default:
     return CCommons::HomePath() + QDir::separator() + CCommons::PEER_PATH;
   }

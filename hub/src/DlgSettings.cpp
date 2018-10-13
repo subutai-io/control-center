@@ -222,7 +222,6 @@ DlgSettings::DlgSettings(QWidget* parent)
     break;
   case VagrantProvider::PARALLELS:
     ui->le_vm_storage->setText(CSettingsManager::Instance().parallels_vm_storage());
-    ui->btn_vm_storage->setEnabled(false);
     break;
   case VagrantProvider::HYPERV:
     ui->le_vm_storage->setText(CSettingsManager::Instance().hyperv_vm_storage());

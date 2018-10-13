@@ -6751,13 +6751,14 @@ system_call_wrapper_error_t CSystemCallWrapper::parallels_version(QString &versi
    QDir dir(path);
    dir.cdUp(); dir.cdUp();
    path = dir.absolutePath();
-   path += "/Info.plist";
+   path += "/version.plist";
 
    QFile info_plist(path);
    QString line;
    bool found = false;
 
    if (!info_plist.exists()) {
+     qDebug() << "Couldn't find" << path;
      version = "undefined";
 
      return SCWE_SUCCESS;
@@ -6780,6 +6781,7 @@ system_call_wrapper_error_t CSystemCallWrapper::parallels_version(QString &versi
      info_plist.close();
    }
 
+   qDebug() << "Got parallels version:" << version;
    return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
