@@ -3714,6 +3714,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QStr
   UNUSED_ARG(file_name);
   QString version;
   system_call_wrapper_install_t res_install;
+  res_install.version = "undefined";
 
   if (!QDir("/Applications/Parallels Desktop.app/").exists()) {
     qDebug() << "Can't find Parallels Desktop path: /Applications/Parallels Desktop.app";
@@ -3726,8 +3727,9 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QStr
 
   // Quit Application VMware Fusion
   args << "-e"
-       << "Tell application \"Parallels Desktop.app\" to quit";
-  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true);
+       << "tell application \"Parallels Desktop.app\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+  res_install.res = res.res;
 
   if (res.exit_code != 0) {
     qDebug() << "Failed to quit Parallels Desktop application";
@@ -3758,6 +3760,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QStr
   }
 
   if (res_install.res == SCWE_SUCCESS) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(3 * 1000));
     parallels_version(version);
     res_install.version = version;
   }
