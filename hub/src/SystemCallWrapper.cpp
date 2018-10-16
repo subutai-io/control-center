@@ -961,7 +961,7 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
   QStringList args;
   args << "global-status";
 
-  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 20000);
 
   qInfo() << "Vagrant global-status"
           << args
@@ -1974,7 +1974,7 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_box_remove(const QStri
        << "--all";
 
   system_call_wrapper_install_t res_install;
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60 * 1000 * 5);
 
   qDebug() << "Removing vagrant box: "
            << box
