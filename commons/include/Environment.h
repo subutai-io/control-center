@@ -12,6 +12,7 @@ public:
   unsigned int ramSize();
   unsigned int numCpu();
   unsigned int diskSize();
+  bool isCpuSupport(); // Checks CPU supports hardware virtualization
 };
 
 #endif // ENVIRONMENT_H

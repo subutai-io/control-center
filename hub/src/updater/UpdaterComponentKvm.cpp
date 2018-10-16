@@ -13,6 +13,7 @@
 #include "updater/ExecutableUpdater.h"
 #include "updater/HubComponentsUpdater.h"
 #include "updater/UpdaterComponentKvm.h"
+#include "Environment.h"
 
 CUpdaterComponentKvm::CUpdaterComponentKvm() {
   m_component_id = IUpdaterComponent::KVM;
@@ -45,6 +46,21 @@ chue_t CUpdaterComponentKvm::install_internal() {
   if (msg_box->exec() != QMessageBox::Yes) {
     install_finished_sl(false, "undefined");
     return CHUE_SUCCESS;
+  }
+
+  // Pre-installation checks
+  if (!Environment::Instance()->isCpuSupport()) {
+    QMessageBox *msg_box = new QMessageBox(
+        QMessageBox::Information, QObject::tr("Attention!"),
+        QObject::tr("Your CPU doesn't support hardware virtualization."),
+        QMessageBox::Ok);
+
+    QObject::connect(msg_box, &QMessageBox::finished, msg_box,
+                     &QMessageBox::deleteLater);
+    if (msg_box->exec() == QMessageBox::Ok) {
+      install_finished_sl(false, "undefined");
+      return CHUE_SUCCESS;
+    }
   }
 
   update_progress_sl(100, 100);
@@ -97,9 +113,15 @@ void CUpdaterComponentKvm::install_post_internal(bool success) {
         tr("Failed to complete KVM installation. Try again later, "
            "or install it manually."),
         DlgNotification::N_NO_ACTION);
-  else
+  else {
     CNotificationObserver::Instance()->Info(
         tr("KVM has been installed."), DlgNotification::N_NO_ACTION);
+    QMessageBox msg_box;
+    msg_box.setText("<b>You need to relogin</b> so that your user becomes "
+                    "an effective member of the libvirtd group. "
+                    "The members of this group can run virtual machines.");
+    msg_box.exec();
+  }
 }
 
 void CUpdaterComponentKvm::uninstall_post_internal(bool success) {
