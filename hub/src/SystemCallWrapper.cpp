@@ -281,7 +281,6 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
-  QMutexLocker locker(&p2p_is_busy);
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "show"; // need to change
@@ -305,7 +304,6 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::pair<QString, QString>> CSystemCallWrapper::p2p_show_interfaces() {
-  QMutexLocker locker(&p2p_is_busy);
   std::vector<std::pair<QString, QString>> swarm_lsts;
 
   if (!p2p_daemon_check()) {
@@ -340,7 +338,6 @@ std::vector<std::pair<QString, QString>> CSystemCallWrapper::p2p_show_interfaces
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<QString> CSystemCallWrapper::p2p_show() {
-  QMutexLocker locker(&p2p_is_busy);
   std::vector<QString> swarm_lsts;
 
   if (!p2p_daemon_check()) {
@@ -1463,7 +1460,6 @@ bool CSystemCallWrapper::check_peer_management_components(){
 
 system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
     const QString &hash, const QString &key, const QString &ip, int swarm_base_interface_id) {
-  QMutexLocker locker(&p2p_is_busy);
 
   if (is_in_swarm(hash)) return SCWE_SUCCESS;
 
@@ -1509,7 +1505,6 @@ system_call_wrapper_error_t CSystemCallWrapper::join_to_p2p_swarm(
 
 system_call_wrapper_error_t CSystemCallWrapper::leave_p2p_swarm(
     const QString &hash) {
-  QMutexLocker locker(&p2p_is_busy);
   if (hash == nullptr || !is_in_swarm(hash)) return SCWE_SUCCESS;
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
@@ -1612,7 +1607,6 @@ system_call_wrapper_error_t restart_p2p_service_internal<Os2Type<OS_MAC> >(
 
 system_call_wrapper_error_t CSystemCallWrapper::restart_p2p_service(
     int *res_code, restart_p2p_type type) {
-  QMutexLocker locker(&p2p_is_busy);
   return restart_p2p_service_internal<Os2Type<CURRENT_OS> >(res_code, type);
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -7236,7 +7230,6 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_plugin_version(QString &
 
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
-  QMutexLocker locker(&p2p_is_busy);
   status = "";
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
@@ -7252,7 +7245,6 @@ system_call_wrapper_error_t CSystemCallWrapper::p2p_status(QString &status) {
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::p2p_daemon_check() {
-  QMutexLocker locker(&p2p_is_busy);
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "show";
