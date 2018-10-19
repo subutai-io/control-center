@@ -8,6 +8,7 @@
 #include <vector>
 #include <QProcess>
 #include <QMutex>
+#include <QMutexLocker>
 #include "VagrantProvider.h"
 
 //give type for restart p2p
@@ -69,6 +70,7 @@ enum restart_service_error_t { RSE_SUCCESS, RSE_MANUAL };
 
 static QMutex installer_is_busy;
 static QMutex vagrant_is_busy;
+static QMutex p2p_is_busy;
 
 ////////////////////////////////////////////////////////////////////////////
 class CSystemCallThreadWrapper : public QObject {

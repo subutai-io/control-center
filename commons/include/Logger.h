@@ -3,6 +3,13 @@
 
 #include <QObject>
 #include <QFile>
+#include <QDir>
+#include <QTime>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QString>
+#include "SettingsManager.h"
+#include "OsBranchConsts.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +25,9 @@ public:
   void Init();
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
+  static const QString& LogStorage();
+  static void CloseFile();
+  QFile *m_file;
 
   /**
    * @brief Write message to file.
