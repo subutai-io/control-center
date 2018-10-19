@@ -203,7 +203,7 @@ int main(int argc, char* argv[]) {
       CTrayServer::Instance()->Init();
       TrayControlWindow::Instance()->Init();
 
-      //P2PController::Instance().init();
+      P2PController::Instance().init();
       P2PStatus_checker::Instance().update_status();
 
       result = app.exec();

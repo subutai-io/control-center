@@ -281,6 +281,7 @@ system_call_res_t CSystemCallWrapper::ssystem(const QString &cmd,
 ////////////////////////////////////////////////////////////////////////////
 
 bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
+  QMutexLocker locker(&p2p_is_busy);
   QString cmd = CSettingsManager::Instance().p2p_path();
   QStringList args;
   args << "show"; // need to change
@@ -304,6 +305,7 @@ bool CSystemCallWrapper::is_in_swarm(const QString &hash) {
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::pair<QString, QString>> CSystemCallWrapper::p2p_show_interfaces() {
+  QMutexLocker locker(&p2p_is_busy);
   std::vector<std::pair<QString, QString>> swarm_lsts;
 
   if (!p2p_daemon_check()) {
@@ -338,6 +340,7 @@ std::vector<std::pair<QString, QString>> CSystemCallWrapper::p2p_show_interfaces
 ////////////////////////////////////////////////////////////////////////////
 
 std::vector<QString> CSystemCallWrapper::p2p_show() {
+  QMutexLocker locker(&p2p_is_busy);
   std::vector<QString> swarm_lsts;
 
   if (!p2p_daemon_check()) {
