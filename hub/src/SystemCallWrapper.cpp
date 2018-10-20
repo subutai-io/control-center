@@ -1776,7 +1776,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   QString tmp;
   tmp = name;
   tmp.remove("\"");
-  QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
+  QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
                                                               CSettingsManager::Instance().vagrant_path(),
                                                               command,
                                                               tmp, *(command.split(" ").begin()));
