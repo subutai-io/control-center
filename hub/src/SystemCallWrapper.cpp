@@ -1776,7 +1776,7 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   QString tmp;
   tmp = name;
   tmp.remove("\"");
-  QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+  QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;").arg(dir,
                                                               CSettingsManager::Instance().vagrant_path(),
                                                               command,
                                                               tmp, *(command.split(" ").begin()));
@@ -1915,7 +1915,7 @@ UNUSED_ARG(command);
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
+      QString("\"%1\" /k %2").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
@@ -1928,8 +1928,9 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
-  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
-  vagrant_is_busy.unlock();
+  QTimer::singleShot(10 * 1000, []() {
+    vagrant_is_busy.unlock();
+  });
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
