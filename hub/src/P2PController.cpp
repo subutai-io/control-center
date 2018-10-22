@@ -131,15 +131,6 @@ void P2PConnector::check_status(const CEnvironment &env) {
 void P2PConnector::update_status() {
   // find if container is on your machine
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
-  std::vector<std::pair<QString, QString> > network_peers;
-  QList<QHostAddress> ip_addresses = QNetworkInterface::allAddresses();
-  qDebug() << "List of all lan peers:";
-  for (std::pair<QString, QString> local_peer :
-       CRhController::Instance()->dct_resource_hosts()) {
-    network_peers.push_back(std::make_pair(
-        CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
-    qDebug() << CCommons::GetFingerprintFromUid(local_peer.first) << " " << local_peer.second;
-  }
 
   QStringList local_containers;
   if (CSystemCallWrapper::is_desktop_peer()) {
