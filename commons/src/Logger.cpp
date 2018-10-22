@@ -9,10 +9,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::Init() {
-  //QTimer *timer = new QTimer(this);
-  //connect(timer , &QTimer::timeout, this, &Logger::deleteOldFiles);
-  //timer->start(60 * 60 * 1000);
-
   if (!QDir(LogStorage()).exists())
   {
     if(!QDir().mkdir(LogStorage())) {
@@ -21,10 +17,9 @@ void Logger::Init() {
   }
 
   if (m_file) {
-    CloseFile();
+    m_file->close();
     delete m_file;
   }
-
 
   QString file_path = QString("%1/logs_%2.txt").arg(LogStorage())
                                                .arg(QTime::currentTime().toString("HH"));
@@ -41,13 +36,9 @@ void Logger::Init() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
-void Logger::CloseFile() {
-  Logger::Instance()->m_file->close();
-}
-
 Logger::~Logger() {
   if (!m_file) return;
-  CloseFile();
+  m_file->close();
 
   delete m_file;
 }
@@ -94,21 +85,7 @@ void Logger::LoggerMessageOutput(QtMsgType type, const QMessageLogContext &conte
   QTextStream stdstream(stdout);
   stdstream << output_message;
 
-  /*
-  // log output to file
-  static QString file_path = QString("%1/logs_%2.txt").arg(LogStorage()).arg(QTime::currentTime().toString("HH"));
-
-  static QFile file(QString("%1/logs_%2.txt")
-             .arg(LogStorage())
-             .arg(QTime::currentTime().toString("HH")));
-
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
-    qDebug() << "Can't Open file: " << file.fileName();
-    return;
-  }
-  */
-
-  static QTextStream filestream(Logger::Instance()->m_file);
+  static QTextStream filestream(Logger::Instance()->file());
   filestream << output_message;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,4 +123,8 @@ const QString& Logger::LogStorage() {
         );
 
   return logs_storage;
+}
+
+QFile* Logger::file() {
+  return m_file;
 }

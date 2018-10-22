@@ -26,8 +26,7 @@ public:
   static Logger* Instance();
   static const QString& LogLevelToStr(LOG_LEVEL lt);
   static const QString& LogStorage();
-  static void CloseFile();
-  QFile *m_file;
+  QFile* file();
 
   /**
    * @brief Write message to file.
@@ -40,14 +39,10 @@ public:
 private:
   static LOG_LEVEL typeToLevel(QtMsgType type);
   virtual ~Logger();
+  QFile *m_file;
 
 private slots:
   static void deleteOldFiles();
-
-
-
 };
-
-
 
 #endif // LOGGER_H

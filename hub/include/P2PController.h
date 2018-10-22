@@ -19,19 +19,6 @@ public:
     virtual void startWork() {
       run_checker();
     }
-  /*virtual void startWork() {
-    QThread* thread = new QThread;
-    this->moveToThread(thread);
-    connect(thread, &QThread::started,
-            this, &StatusChecker::run_checker);
-    connect(this, &StatusChecker::connection_finished,
-            thread, &QThread::quit);
-    connect(thread, &QThread::finished,
-            this, &StatusChecker::deleteLater);
-    connect(thread, &QThread::finished,
-            thread, &QThread::deleteLater);
-    thread->start();
-  }*/
 private slots:
   virtual void run_checker() = 0;
 signals:
