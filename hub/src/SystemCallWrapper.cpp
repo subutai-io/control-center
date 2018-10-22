@@ -7316,6 +7316,39 @@ system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
 
   return SCWE_WHICH_CALL_FAILED;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+bool CSystemCallWrapper::is_desktop_peer() {
+#ifndef RT_OS_LINUX
+  return false;
+#endif
+  QString cmd("subutai");
+  QString empty;
+  return which(cmd, empty) == SCWE_SUCCESS;
+}
+
+
+system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringList &list) {
+  qDebug() << "Getting list of local containers";
+  list.clear();
+  QString cmd("ls");
+  QStringList args;
+  args << "ls" << "var/lib/lxc";
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 3000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to get list of local containers";
+    return SCWE_CREATE_PROCESS;
+  }
+  for (QString cur : res.out) {
+    if (cur.contains("Container")) {
+      list << cur.trimmed();
+    }
+  }
+  qDebug() << "List of local containers:" << list;
+  return SCWE_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS>

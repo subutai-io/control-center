@@ -140,26 +140,21 @@ void P2PConnector::update_status() {
         CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
     qDebug() << CCommons::GetFingerprintFromUid(local_peer.first) << " " << local_peer.second;
   }
+
+  QStringList local_containers;
+  if (CSystemCallWrapper::is_desktop_peer()) {
+    CSystemCallWrapper::local_containers_list(local_containers);
+  }
+
   for (CEnvironment env : hub_environments) {
     for (CHubContainer cont : env.containers()) {
       bool found = false;
       QString peer_id = cont.peer_id();
-      qDebug() << "Checking container's rh" << peer_id;
-      for (auto lan_peer : network_peers) {
-        if (lan_peer.first == peer_id) { // found in the same network
-          for (auto ip : ip_addresses) {
-            qDebug() << "comparing ip's of" << lan_peer.second
-                     << " " << ip.toString();
-            if (ip.toString() == lan_peer.second) {
-              qDebug() << "Found cont in the machine"
-                       << "ip: " << ip.toString();
-              found = true;
-              break;
-            }
-          }
-          if (found) break;
+      for (QString local_cont : local_containers) {
+        if (local_cont.contains(cont.name())) {
+          found = true;
+          break;
         }
-        if (found) break;
       }
       P2PController::Instance().rh_local_tbl[peer_id] = found;
     }

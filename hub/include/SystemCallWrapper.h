@@ -349,7 +349,8 @@ class CSystemCallWrapper {
   static system_call_wrapper_error_t which(const QString &prog, QString &path);
   static system_call_wrapper_error_t open(const QString &prog);
 
-
+  static bool is_desktop_peer();
+  static system_call_wrapper_error_t local_containers_list(QStringList &list);
 
   static system_call_wrapper_error_t chrome_version(QString &version);
   static system_call_wrapper_error_t firefox_version(QString &version);
