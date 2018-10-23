@@ -961,6 +961,8 @@ void DlgTransferFile::refresh_local_file_system() {
 }
 
 void DlgTransferFile::refresh_remote_file_system() {
+  static QMutex mutex;
+  QMutexLocker lock(&mutex);
 
   qDebug()
           << "Refresh remote file system"
