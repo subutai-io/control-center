@@ -668,6 +668,9 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
     QStringList seperated = s.split(",");
     if (seperated.contains("state")) {
       status = seperated.takeLast();
+      qDebug() << "FOUND vagrant status:"
+               << status.simplified();
+      break;
     }
   }
 
@@ -1915,7 +1918,7 @@ UNUSED_ARG(command);
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
+      QString("\"%1\" /k %2").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
@@ -1928,7 +1931,11 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
-  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
+  // sleep for 10 seconds until vm machine state is locked
+  QTime dieTime= QTime::currentTime().addSecs(10);
+      while (QTime::currentTime() < dieTime)
+          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
   vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
@@ -7314,6 +7321,39 @@ system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
 
   return SCWE_WHICH_CALL_FAILED;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+bool CSystemCallWrapper::is_desktop_peer() {
+#ifndef RT_OS_LINUX
+  return false;
+#endif
+  QString cmd("subutai");
+  QString empty;
+  return which(cmd, empty) == SCWE_SUCCESS;
+}
+
+
+system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringList &list) {
+  qDebug() << "Getting list of local containers";
+  list.clear();
+  QString cmd("ls");
+  QStringList args;
+  args << "ls" << "var/lib/lxc";
+  system_call_res_t res = ssystem_th(cmd, args, true, true, 3000);
+  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
+    qCritical() << "Failed to get list of local containers";
+    return SCWE_CREATE_PROCESS;
+  }
+  for (QString cur : res.out) {
+    if (cur.contains("Container")) {
+      list << cur.trimmed();
+    }
+  }
+  qDebug() << "List of local containers:" << list;
+  return SCWE_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS>

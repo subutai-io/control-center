@@ -66,6 +66,7 @@ class DlgCreatePeer : public QDialog {
                       QString cpu, QString disk, int port);
   bool check_configurations();
   bool check_machine();
+  int reserve_new_port();
 
   QRegExp m_invalid_chars;
   std::vector<requirement> m_requirements_ls;
