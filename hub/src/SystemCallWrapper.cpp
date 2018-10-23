@@ -1931,9 +1931,12 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
-  QTimer::singleShot(10 * 1000, []() {
-    vagrant_is_busy.unlock();
-  });
+  // sleep for 10 seconds until vm machine state is locked
+  QTime dieTime= QTime::currentTime().addSecs(10);
+      while (QTime::currentTime() < dieTime)
+          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+  vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
