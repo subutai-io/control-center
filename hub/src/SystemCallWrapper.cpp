@@ -7336,9 +7336,18 @@ bool CSystemCallWrapper::is_desktop_peer() {
 system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringList &list) {
   qDebug() << "Getting list of local containers";
   list.clear();
+  static QString lxc_path("/var/lib/lxc");
+
+  if (!QDir(lxc_path).exists()) {
+    qCritical() << "container directory not exist: "
+                << lxc_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
   QString cmd("ls");
   QStringList args;
-  args << "ls" << "var/lib/lxc";
+  args << lxc_path;
+
   system_call_res_t res = ssystem_th(cmd, args, true, true, 3000);
   if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
     qCritical() << "Failed to get list of local containers";
