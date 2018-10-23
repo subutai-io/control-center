@@ -131,37 +131,24 @@ void P2PConnector::check_status(const CEnvironment &env) {
 void P2PConnector::update_status() {
   // find if container is on your machine
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
-  std::vector<std::pair<QString, QString> > network_peers;
-  QList<QHostAddress> ip_addresses = QNetworkInterface::allAddresses();
-  qDebug() << "List of all lan peers:";
-  for (std::pair<QString, QString> local_peer :
-       CRhController::Instance()->dct_resource_hosts()) {
-    network_peers.push_back(std::make_pair(
-        CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
-    qDebug() << CCommons::GetFingerprintFromUid(local_peer.first) << " " << local_peer.second;
+  QStringList local_containers;
+  if (CSystemCallWrapper::is_desktop_peer()) {
+    CSystemCallWrapper::local_containers_list(local_containers);
   }
-  for (CEnvironment env : hub_environments) {
-    for (CHubContainer cont : env.containers()) {
-      bool found = false;
-      QString peer_id = cont.peer_id();
-      qDebug() << "Checking container's rh" << peer_id;
-      for (auto lan_peer : network_peers) {
-        if (lan_peer.first == peer_id) { // found in the same network
-          for (auto ip : ip_addresses) {
-            qDebug() << "comparing ip's of" << lan_peer.second
-                     << " " << ip.toString();
-            if (ip.toString() == lan_peer.second) {
-              qDebug() << "Found cont in the machine"
-                       << "ip: " << ip.toString();
-              found = true;
-              break;
-            }
+
+  if (!local_containers.empty()) {
+    for (CEnvironment env : hub_environments) {
+      for (CHubContainer cont : env.containers()) {
+        bool found = false;
+        QString peer_id = cont.peer_id();
+        for (QString local_cont : local_containers) {
+          if (local_cont.contains(cont.name())) {
+            found = true;
+            break;
           }
-          if (found) break;
         }
-        if (found) break;
+        P2PController::Instance().rh_local_tbl[peer_id] = found;
       }
-      P2PController::Instance().rh_local_tbl[peer_id] = found;
     }
   }
 

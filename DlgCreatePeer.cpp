@@ -164,9 +164,18 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
             IUpdaterComponent::SUBUTAI_BOX);
       });
 
+  requirement vms_path(
+      tr("VMs storage path is not correct"), tr("Checking VMs storage path..."),
+      tr("Unable to find virtual machines' storage location. "
+         "Make sure that VMs storage path is set correctly in Settings."),
+      DlgNotification::N_SETTINGS, []() {
+        QDir vms_dir(CSettingsManager::Instance().vm_storage());
+        return vms_dir.exists();
+      });
+
   // Default requrements
   m_requirements_ls = std::vector<requirement>{
-      vagrant, subutai_plugin};
+      vagrant, subutai_plugin, vms_path};
 
   // add provider requirements by hypervisor
   switch(VagrantProvider::Instance()->CurrentProvider()) {
@@ -363,48 +372,7 @@ bool DlgCreatePeer::check_configurations() {
   return errors_exist;
 }
 
-void DlgCreatePeer::create_button_pressed() {
-  // Check Vagrant command available:
-  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
-    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
-      QMessageBox* msg_box =
-         new QMessageBox(QMessageBox::Question, tr("Info"),
-                         tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
-                            "In order to create peer, uninstall Vagrant VMWare Desktop Provider.<br/>"
-                            "Do you want to proceed?"),
-                         QMessageBox::Yes | QMessageBox::No);
-      connect(msg_box, &QMessageBox::finished, msg_box,
-              &QMessageBox::deleteLater);
-
-      if (msg_box->exec() == QMessageBox::Yes) {
-          update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
-      }
-    }
-  }
-
-  if (check_configurations()) return;
-
-  QString dir = create_dir("subutai-peer_" + ui->le_name->text());
-  if (dir.isEmpty()) {
-    ui->lbl_err_name->setText(tr("Name already exists"));
-    ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
-    ui->lbl_err_name->show();
-    return;
-  }
-  hide_err_labels();
-  set_enabled_buttons(false);
-
-  if (!check_machine()) {
-    ui->btn_create->setEnabled(true);
-    ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
-    ui->pb_peer->setValue(0);
-    ui->pb_peer->setEnabled(false);
-    set_enabled_buttons(true);
-    QDir directory_delete(dir);
-    directory_delete.removeRecursively();
-    return;
-  }
-
+int DlgCreatePeer::reserve_new_port() {
   // Use minimum not-used port
   std::vector<int> used_ports;
   used_ports.emplace_back(9998);
@@ -429,8 +397,7 @@ void DlgCreatePeer::create_button_pressed() {
     used_ports.emplace_back(i);
   }
   sort(used_ports.begin(), used_ports.end());
-
-  for (std::vector<int>::size_type i = 0; i < used_ports.size(); i++) {
+   for (std::vector<int>::size_type i = 0; i < used_ports.size(); i++) {
     // if this is last port number in our used_port or
     // the next one is greater than current + 1,
     // current + 1 will be the minimum excluded number, hence it will be free.
@@ -439,6 +406,67 @@ void DlgCreatePeer::create_button_pressed() {
       break;
     }
   }
+   return port;
+}
+
+void DlgCreatePeer::create_button_pressed() {
+  // Check Vagrant command available:
+  if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::VMWARE_DESKTOP) {
+    if (!CCommons::IsVagrantVMwareLicenseInstalled()) {
+      QMessageBox* msg_box =
+         new QMessageBox(QMessageBox::Question, tr("Info"),
+                         tr("Vagrant VMware Desktop provider <b>license not installed.</b> "
+                            "In order to create peer, uninstall Vagrant VMWare Desktop Provider.<br/>"
+                            "Do you want to proceed?"),
+                         QMessageBox::Yes | QMessageBox::No);
+      connect(msg_box, &QMessageBox::finished, msg_box,
+              &QMessageBox::deleteLater);
+
+      if (msg_box->exec() == QMessageBox::Yes) {
+          update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
+      }
+    }
+  }
+
+  QFuture<bool> future_check_configurations = QtConcurrent::run([this]() {
+    return check_configurations();
+  });
+  future_check_configurations.waitForFinished();
+
+  if (future_check_configurations.result()) return;
+
+  QString dir = create_dir("subutai-peer_" + ui->le_name->text());
+  if (dir.isEmpty()) {
+    ui->lbl_err_name->setText(tr("Name already exists"));
+    ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
+    ui->lbl_err_name->show();
+    return;
+  }
+  hide_err_labels();
+  set_enabled_buttons(false);
+
+  QFuture<bool> future_check_machine = QtConcurrent::run([this]() {
+    return check_machine();
+  });
+  future_check_machine.waitForFinished();
+
+  if (!future_check_machine.result()) {
+    ui->btn_create->setEnabled(true);
+    ui->lbl_err_os->setStyleSheet("QLabel {color : red}");
+    ui->pb_peer->setValue(0);
+    ui->pb_peer->setEnabled(false);
+    set_enabled_buttons(true);
+    QDir directory_delete(dir);
+    directory_delete.removeRecursively();
+    return;
+  }
+
+  QFuture<int> future_reserve_new_port = QtConcurrent::run([this]() {
+    return reserve_new_port();
+  });
+  future_reserve_new_port.waitForFinished();
+
+  int port = future_reserve_new_port.result();
 
   qDebug() << "port: " << port;
   //reserve this port until vagrant gets it. Timeout is 2 minutes.
@@ -451,13 +479,13 @@ void DlgCreatePeer::create_button_pressed() {
   ui->lbl_err_os->setText(tr("Initalializing environment..."));
   InitPeer *thread_init = new InitPeer(this);
   thread_init->init(dir, ui->cmb_os->currentText());
-  thread_init->startWork();
   connect(thread_init, &InitPeer::outputReceived,
           [dir, this, port](system_call_wrapper_error_t res) {
             this->init_completed(res, dir, this->ui->le_ram->text(),
                                  this->ui->cmb_cpu->currentText(),
                                  this->ui->le_disk->text(), port);
           });
+  thread_init->startWork();
 }
 
 bool DlgCreatePeer::check_machine() {
@@ -620,8 +648,13 @@ void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_
         VagrantProvider::Instance()->CurrentVal());
   QString peer_name = ui->le_name->text(), peer_pass = ui->le_pass->text();
   CSettingsManager::Instance().set_peer_pass(peer_name, peer_pass);
-  res = CSystemCallWrapper::vagrant_command_terminal(dir_peer, vagrant_up_string,
-                                                     ui->le_name->text());
+
+  QFuture<system_call_wrapper_error_t> future_vagrant_command_terminal =
+        QtConcurrent::run(CSystemCallWrapper::vagrant_command_terminal, dir_peer,
+                          vagrant_up_string, ui->le_name->text());
+  future_vagrant_command_terminal.waitForFinished();
+  res = future_vagrant_command_terminal.result();
+
   if (res != SCWE_SUCCESS) {
     CNotificationObserver::Instance()->Error("Coudn't start  peer, sorry",
                                              DlgNotification::N_NO_ACTION);
