@@ -668,6 +668,9 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
     QStringList seperated = s.split(",");
     if (seperated.contains("state")) {
       status = seperated.takeLast();
+      qDebug() << "FOUND vagrant status:"
+               << status.simplified();
+      break;
     }
   }
 
@@ -1851,9 +1854,8 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
   args << QString("%1").arg(str_command);
   system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                                                        : SCWE_CREATE_PROCESS;
-  QTimer::singleShot(10 * 1000, []() {
-    vagrant_is_busy.unlock();
-  });
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
+  vagrant_is_busy.unlock();
   return res;
 }
 
