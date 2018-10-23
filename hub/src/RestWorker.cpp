@@ -174,7 +174,7 @@ void CRestWorker::login(const QString& login, const QString& password,
                     "application/x-www-form-urlencoded");
   QByteArray arr = send_request(
       m_network_manager, request, false, http_code, err_code, network_error,
-      query_login.toString(QUrl::FullyEncoded).toUtf8(), true);
+      query_login.toString(QUrl::FullyEncoded).toUtf8(), false);
   qDebug() << "Http code " << http_code << "Error code " << err_code
            << "Network Error " << network_error;
 
