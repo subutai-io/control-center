@@ -2234,7 +2234,8 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
   return res.res;
 }
 
-system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name) {
+
     installer_is_busy.lock();
     system_call_wrapper_install_t res;
     QString version;

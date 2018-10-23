@@ -197,21 +197,23 @@ void CSshKeysController::remove_ssh_key() {
     }
   }
 
-  if (!list_deployed.isEmpty()) {
-    text = QString("You are going to remove an SSH-key <i>%1</i>. This SSH-key "
-                   "is deployed to this environments:<br>%2Your SSH-key will be "
-                   "removed from all of the environments.<br>Do you want to "
-                   "proceed?").arg(m_current_key, list_deployed);
-  } else {
-    text = QString("You are going to remove an SSH-key <i>%1</i>. This "
-                   "SSH-key is not deployed to the environments.<br> "
-                   "Do you want to proceed?").arg(m_current_key);
-  }
-
   QMessageBox *msg = new QMessageBox(
         QMessageBox::Information, "Attention!", text,
         QMessageBox::Yes | QMessageBox::No);
   msg->setTextFormat(Qt::RichText);
+
+  if (!list_deployed.isEmpty()) {
+    msg->setText(QString("You are going to remove an SSH-key <i>%1</i>. "
+                         "Do you want to proceed?").arg(m_current_key));
+    msg->setDetailedText(QString("This SSH-key is deployed to this environments:<br>%1"
+                                 "Your SSH-key will be "
+                                 "removed from all of the environments.<br>").arg(list_deployed));
+  } else {
+    msg->setText(QString("You are going to remove an SSH-key <i>%1</i>. This "
+                         "SSH-key is not deployed to the environments.<br> "
+                         "Do you want to proceed?").arg(m_current_key));
+  }
+
   connect(msg, &QMessageBox::finished, msg, &QMessageBox::deleteLater);
 
   if (msg->exec() != QMessageBox::Yes) {
