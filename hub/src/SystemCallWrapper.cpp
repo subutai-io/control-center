@@ -516,9 +516,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
 
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
-      << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << "-i" << ssh_info.second
+      << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination_formatted);
   qDebug() << "ARGS=" << args;
@@ -546,9 +550,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 
   args << "-rp"
        << "-o StrictHostKeyChecking=no"
-       << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << "-i" << ssh_info.second
+       << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path_formatted)
        << local_destination;
   qDebug() << "ARGS=" << args;
