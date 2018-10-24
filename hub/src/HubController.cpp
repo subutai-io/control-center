@@ -413,10 +413,17 @@ void CHubController::launch_peer_page(const int peer_id) {
 
 
 system_call_wrapper_error_t CHubController::ssh_to_container_in_terminal(const CHubContainer &cont, const QString &key) {
+  if (P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
+    qDebug()
+        << "SSH container: " << cont.name()
+        << "Ip container: " << cont.ip();
+    return CSystemCallWrapper::run_sshkey_in_terminal(CSettingsManager::Instance().ssh_user(), cont.ip(), QString(""), key);
+  }
+
   CSystemCallWrapper::container_ip_and_port cip =
       CSystemCallWrapper::container_ip_from_ifconfig_analog(cont.port(), cont.ip(), cont.rh_ip());
   qDebug()
-      << "Container: " << cont.name()
+      << "SSH container: " << cont.name()
       << "Ip from ifconfig: " << cip.ip
       << "Port from ifconfig: " << cip.port;
   return CSystemCallWrapper::run_sshkey_in_terminal(CSettingsManager::Instance().ssh_user(), cip.ip, cip.port, key);

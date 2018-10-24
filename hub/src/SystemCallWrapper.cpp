@@ -1640,11 +1640,18 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
         const QString &ip,
         const QString &port,
         const QString &key) {
-  QString str_command = QString("%1 %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
+  QString str_command;
+
+  if (port.isEmpty()) {
+    str_command = QString("%1 %2@%3").arg(CSettingsManager::Instance().ssh_path())
+                                           .arg(user)
+                                           .arg(ip);
+  } else {
+    str_command = QString("%1 %2@%3 -p %4").arg(CSettingsManager::Instance().ssh_path())
+                                           .arg(user)
+                                           .arg(ip)
+                                           .arg(port);
+  }
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
