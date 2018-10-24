@@ -475,16 +475,24 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
   QString cmd
       = QString("%1").arg(CSettingsManager::Instance().ssh_path());
   QStringList args;
-  args
-       << "-o" << "StrictHostKeyChecking=no"
-       << QString("%1@%2").arg(remote_user, ip)
-       << "-p" << port
-       << "-i" << QString("%1").arg(key)
-       << QString("%1").arg(commands);
-  qDebug() << "ARGS=" << args;
+  if (port.isEmpty()) {
+    args
+         << "-o" << "StrictHostKeyChecking=no"
+         << QString("%1@%2").arg(remote_user, ip)
+         << "-i" << QString("%1").arg(key)
+         << QString("%1").arg(commands);
+  } else {
+    args
+         << "-o" << "StrictHostKeyChecking=no"
+         << QString("%1@%2").arg(remote_user, ip)
+         << "-p" << port
+         << "-i" << QString("%1").arg(key)
+         << QString("%1").arg(commands);
+  }
+  qDebug() << "Transfer file remote command ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
-  qDebug() << "ARGS of command=" << args
+  qDebug() << "Transfer file remote command" << args
            << "finished"
            << "exit code:" <<res.exit_code
            << "res" << res.res
@@ -508,9 +516,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
 
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
-      << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << "-i" << ssh_info.second
+      << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination_formatted);
   qDebug() << "ARGS=" << args;
@@ -538,9 +550,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 
   args << "-rp"
        << "-o StrictHostKeyChecking=no"
-       << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << "-i" << ssh_info.second
+       << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path_formatted)
        << local_destination;
   qDebug() << "ARGS=" << args;
@@ -2024,7 +2040,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QStrin
   QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 5);
   qDebug() << "p2p installation has finished"
            << "exit code: " << res.exit_code
            << "result code: " << res.res
