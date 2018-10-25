@@ -134,20 +134,20 @@ void P2PConnector::update_status() {
   QStringList local_containers;
   if (CSystemCallWrapper::is_desktop_peer()) {
     CSystemCallWrapper::local_containers_list(local_containers);
-  }
 
-  if (!local_containers.empty()) {
-    for (CEnvironment env : hub_environments) {
-      for (CHubContainer cont : env.containers()) {
-        bool found = false;
-        QString peer_id = cont.peer_id();
-        for (QString local_cont : local_containers) {
-          if (local_cont.contains(cont.name())) {
-            found = true;
-            break;
+    if (!local_containers.empty()) {
+      for (CEnvironment env : hub_environments) {
+        for (CHubContainer cont : env.containers()) {
+          bool found = false;
+          QString peer_id = cont.peer_id();
+          for (QString local_cont : local_containers) {
+            if (local_cont.contains(cont.name())) {
+              found = true;
+              break;
+            }
           }
+          P2PController::Instance().rh_local_tbl[peer_id] = found;
         }
-        P2PController::Instance().rh_local_tbl[peer_id] = found;
       }
     }
   }
