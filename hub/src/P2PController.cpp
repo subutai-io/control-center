@@ -141,7 +141,7 @@ void P2PConnector::update_status() {
           bool found = false;
           QString peer_id = cont.peer_id();
           for (QString local_cont : local_containers) {
-            if (local_cont.contains(cont.name())) {
+            if ((size_t)local_cont.toStdString().find(cont.name().toStdString()) >= 0) {
               found = true;
               break;
             }

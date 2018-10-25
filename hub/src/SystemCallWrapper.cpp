@@ -7371,9 +7371,11 @@ system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringLis
   }
 
   for (QFileInfo info : directory.entryInfoList()) {
-    tmp = info.fileName().toLower();
+    QString tmp = info.fileName();
     qDebug() << "local container foreach: " << info.fileName();
-    if (tmp.contains("container")) {
+    if (tmp.contains("Container"))  {
+      qDebug() << "found local container: "
+               << info.fileName();
       list << info.fileName();
     }
   }
