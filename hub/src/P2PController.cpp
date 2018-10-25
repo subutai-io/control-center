@@ -133,22 +133,48 @@ void P2PConnector::update_status() {
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
   QStringList local_containers;
   if (CSystemCallWrapper::is_desktop_peer()) {
-    CSystemCallWrapper::local_containers_list(local_containers);
+    // clear
+    local_containers.clear();
 
-    if (!local_containers.empty()) {
-      for (CEnvironment env : hub_environments) {
-        for (CHubContainer cont : env.containers()) {
-          bool found = false;
-          QString peer_id = cont.peer_id();
-          for (QString local_cont : local_containers) {
-            if ((size_t)local_cont.toStdString().find(cont.name().toStdString()) >= 0) {
-              found = true;
-              break;
-            }
-          }
-          P2PController::Instance().rh_local_tbl[peer_id] = found;
+    static QString lxc_path("/var/lib/lxc");
+    QDir directory(lxc_path);
+    QString tmp;
+
+    // check container directory
+    if (directory.exists()) {
+      for (QFileInfo info : directory.entryInfoList()) {
+        tmp = info.fileName().trimmed();
+        qDebug() << "local container foreach: " << tmp;
+        if (tmp.contains("Container"))  {
+          qDebug() << "found local container: "
+                   << tmp;
+          local_containers << tmp;
         }
       }
+
+      if (!local_containers.empty()) {
+        for (CEnvironment env : hub_environments) {
+          for (CHubContainer cont : env.containers()) {
+            bool found = false;
+            QString peer_id = cont.peer_id();
+            QString bazaar_cont = cont.name();
+
+            for (QString local_cont : local_containers) {
+              if (local_cont.toStdString().find(bazaar_cont.toStdString()) >= 0) {
+                qInfo() << "matched bazaar and local container" << local_cont;
+                found = true;
+                break;
+              }
+            }
+            P2PController::Instance().rh_local_tbl[peer_id] = found;
+          }
+        }
+      } else {
+        qInfo() << "empty local containers from lxc directory";
+      }
+    } else {
+      qCritical() << "container directory not exist: "
+                  << lxc_path;
     }
   }
 
