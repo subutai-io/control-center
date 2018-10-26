@@ -2343,7 +2343,7 @@ system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &
 
   QByteArray install_script = QString(
                                   "#!/bin/bash\n"
-                                  "dpkg -i %2")
+                                  "apt -y -f install %1")
                                   .arg(file_info)
                                   .toUtf8();
 
