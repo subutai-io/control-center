@@ -161,7 +161,11 @@ void P2PConnector::update_status() {
 
             for (QString local_cont : local_containers) {
               if (local_cont.toStdString().find(bazaar_cont.toStdString()) >= 0) {
-                qInfo() << "matched bazaar and local container" << local_cont;
+                qInfo() << "matched container "
+                        << "bazaar: "
+                        << bazaar_cont
+                        << "local: "
+                        << local_cont;
                 found = true;
                 break;
               }
