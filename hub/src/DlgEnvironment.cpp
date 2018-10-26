@@ -177,6 +177,7 @@ void DlgEnvironment::change_cont_status(const CHubContainer *cont, int status) {
   if(selected_conts.find(cont->id()) == selected_conts.end())
       return;
   QCheckBox *cont_checkbox = selected_conts[cont->id()];
+
   if (status == 0) {
     cont_checkbox->setText(tr("READY"));
     cont_checkbox->setStyleSheet("QCheckBox {color : green;}");
@@ -286,8 +287,12 @@ void DlgEnvironment::check_environment_status() {
     }
     state_all = 3;
   }
-  for (auto cont : env.containers())
-    change_cont_status(&cont, state_all);
+  for (auto cont : env.containers()) {
+    if (P2PController::Instance().is_cont_in_machine(cont.peer_id()) && env.healthy())
+      change_cont_status(&cont, 0);
+    else
+      change_cont_status(&cont, state_all);
+  }
   check_buttons();
 }
 
