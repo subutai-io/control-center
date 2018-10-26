@@ -160,7 +160,7 @@ void P2PConnector::update_status() {
             QString bazaar_cont = cont.name();
 
             for (QString local_cont : local_containers) {
-              if (local_cont.toStdString().find(bazaar_cont.toStdString()) >= 0) {
+              if (local_cont.contains(bazaar_cont)) {
                 qInfo() << "matched container "
                         << "bazaar: "
                         << bazaar_cont

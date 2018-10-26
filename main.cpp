@@ -205,9 +205,6 @@ int main(int argc, char* argv[]) {
 
       P2PController::Instance().init();
       P2PStatus_checker::Instance().update_status();
-      QStringList cont;
-      CSystemCallWrapper::local_containers_list(cont);
-      qDebug() << "LOOOOO" << cont;
 
       result = app.exec();
     } while (0);
