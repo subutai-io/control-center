@@ -2343,9 +2343,8 @@ system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &
 
   QByteArray install_script = QString(
                                   "#!/bin/bash\n"
-                                  "apt-get remove -y '^%1.*'\n"
                                   "dpkg -i %2")
-                                  .arg(p2p_package_name(), file_info)
+                                  .arg(file_info)
                                   .toUtf8();
 
   if (tmpFile.write(install_script) != install_script.size()) {
