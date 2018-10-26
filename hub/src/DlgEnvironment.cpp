@@ -304,25 +304,30 @@ void DlgEnvironment::check_buttons() {
     bool upload = true, ssh = true, desktop =  true;
     P2PController::P2P_CONNECTION_STATUS
         swarm_status = P2PController::Instance().is_swarm_connected(env);
-    bool connected_to_swarm = (env.healthy() & (swarm_status == P2PController::CONNECTION_SUCCESS));
-    if(connected_to_swarm){
-        for (CHubContainer cont : env.containers()) {
-            if(selected_conts.find(cont.id()) == selected_conts.end())
-                continue;
-            QCheckBox *current_check_box = selected_conts[cont.id()];
-            if(current_check_box->checkState() == Qt::Checked){
-              if(current_check_box->text() != "READY"){
-                  upload =  ssh = desktop = false;
-                  break;
-                }
-              if(!cont.is_desktop())
-                  desktop = false;
-              not_empty = true;
-              }
+    bool connected_to_swarm = (swarm_status == P2PController::CONNECTION_SUCCESS);
+
+    if (env.healthy()) {
+      for (CHubContainer cont : env.containers()) {
+        if (selected_conts.find(cont.id()) == selected_conts.end())
+          continue;
+
+        if (connected_to_swarm || P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
+          QCheckBox *current_check_box = selected_conts[cont.id()];
+
+          if (current_check_box->checkState() == Qt::Checked) {
+            if (current_check_box->text() != "READY") {
+                upload =  ssh = desktop = false;
+                break;
+            }
+            if (!cont.is_desktop())
+              desktop = false;
+            not_empty = true;
+          }
         }
+      }
     }
-    else{
-        upload = ssh = desktop = false;
+    else {
+      upload = ssh = desktop = false;
     }
     ui->btn_desktop_selected->setEnabled(desktop & not_empty);
     ui->btn_upload_selected->setEnabled(upload & not_empty);
