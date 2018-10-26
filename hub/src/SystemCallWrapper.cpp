@@ -7360,27 +7360,25 @@ system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringLis
   qDebug() << "Getting list of local containers";
   list.clear();
   static QString lxc_path("/var/lib/lxc");
+  QDir directory(lxc_path);
+  QString tmp;
 
-  if (!QDir(lxc_path).exists()) {
+  if (!directory.exists()) {
     qCritical() << "container directory not exist: "
                 << lxc_path;
     return SCWE_CREATE_PROCESS;
   }
 
-  QString cmd("ls");
-  QStringList args;
-  args << lxc_path;
-
-  system_call_res_t res = ssystem_th(cmd, args, true, true, 3000);
-  if (res.res != SCWE_SUCCESS || res.exit_code != 0) {
-    qCritical() << "Failed to get list of local containers";
-    return SCWE_CREATE_PROCESS;
-  }
-  for (QString cur : res.out) {
-    if (cur.contains("Container")) {
-      list << cur.trimmed();
+  for (QFileInfo info : directory.entryInfoList()) {
+    QString tmp = info.fileName();
+    qDebug() << "local container foreach: " << info.fileName();
+    if (tmp.contains("Container"))  {
+      qDebug() << "found local container: "
+               << info.fileName();
+      list << info.fileName();
     }
   }
+
   qDebug() << "List of local containers:" << list;
   return SCWE_SUCCESS;
 }
