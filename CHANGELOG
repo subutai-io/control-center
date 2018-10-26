@@ -1,5 +1,10 @@
 # Change Log
 
+## [7.2.0] 10/26/2018
+# BUG FIXES:
+* Critical bug fixed when CC could not correctly connect via SSH to local containers. #1234
+* Critical bug fixed when CC removed P2P and all dependent packages while updating P2P. #1758
+
 ## [7.2.0] 10/25/2018
 # IMPROVEMENTS:
 * Do not use P2P to SSH into containers running on this machine. #1234
