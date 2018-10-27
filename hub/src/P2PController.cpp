@@ -165,7 +165,7 @@ void P2PConnector::update_status() {
           file.close();
         } else {
           qInfo() << "not exist container hostname file: "
-                  << hostname.absoluteFilePath();
+                  << hostfile_path;
         }
       }
 
