@@ -143,11 +143,13 @@ void P2PConnector::update_status() {
     // check container directory
     if (directory.exists()) {
       for (QFileInfo info : directory.entryInfoList()) {
+        if (info.fileName() == "." || info.fileName() == "..")
+          continue;
+
         tmp = info.fileName().trimmed();
         hostfile_path = lxc_path + QDir::separator() + tmp + QDir::separator() + "rootsf/etc/hostname";
-        QFileInfo hostname(hostfile_path);
 
-        if (hostname.exists()) {
+        if (QFileInfo::exists(hostfile_path)) {
           QFile file(hostfile_path);
 
           if(!file.open(QIODevice::ReadOnly)) {
@@ -161,6 +163,9 @@ void P2PConnector::update_status() {
           qDebug() << "local container hotname found: " << line;
           local_containers << line;
           file.close();
+        } else {
+          qInfo() << "not exist container hostname file: "
+                  << hostname.absoluteFilePath();
         }
       }
 
