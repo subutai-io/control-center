@@ -147,7 +147,7 @@ void P2PConnector::update_status() {
           continue;
 
         tmp = info.fileName().trimmed();
-        hostfile_path = lxc_path + QDir::separator() + tmp + QDir::separator() + "rootsf/etc/hostname";
+        hostfile_path = lxc_path + QDir::separator() + tmp + QDir::separator() + "rootfs/etc/hostname";
 
         if (QFileInfo::exists(hostfile_path)) {
           QFile file(hostfile_path);
