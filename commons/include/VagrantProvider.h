@@ -16,8 +16,8 @@ class VagrantProvider : QObject
 Q_OBJECT
 public:
   enum PROVIDERS {VIRTUALBOX = 0, VMWARE_DESKTOP,
-                  PARALLELS, HYPERV, LIBVIRT,
-                  PROVIDER_LAST = HYPERV
+                  HYPERV, PARALLELS, LIBVIRT,
+                  PROVIDER_LAST = PARALLELS   // LAST PROVIDER PARALLELS
                  };
 
   static std::vector<int> m_provider_linux,
@@ -38,6 +38,7 @@ public:
   QDir BasePeerDirVirtualbox();
   QDir BasePeerDirVMware();
   QDir BasePeerDirHyperv();
+  QDir BasePeerDirParallels();
   static std::vector<int> List();
 
   template <class OS> static

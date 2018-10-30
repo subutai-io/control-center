@@ -138,17 +138,34 @@ void P2PConnector::update_status() {
 
     static QString lxc_path("/var/lib/lxc");
     QDir directory(lxc_path);
-    QString tmp;
+    QString tmp, hostfile_path;
 
     // check container directory
     if (directory.exists()) {
       for (QFileInfo info : directory.entryInfoList()) {
+        if (info.fileName() == "." || info.fileName() == "..")
+          continue;
+
         tmp = info.fileName().trimmed();
-        qDebug() << "local container foreach: " << tmp;
-        if (tmp.contains("Container"))  {
-          qDebug() << "found local container: "
-                   << tmp;
-          local_containers << tmp;
+        hostfile_path = lxc_path + QDir::separator() + tmp + QDir::separator() + "rootfs/etc/hostname";
+
+        if (QFileInfo::exists(hostfile_path)) {
+          QFile file(hostfile_path);
+
+          if(!file.open(QIODevice::ReadOnly)) {
+              qDebug() << "error opening file: " << file.error() << hostfile_path;
+              break;
+          }
+
+          QTextStream instream(&file);
+          QString line = instream.readLine();
+
+          qDebug() << "local container hotname found: " << line;
+          local_containers << line;
+          file.close();
+        } else {
+          qInfo() << "not exist container hostname file: "
+                  << hostfile_path;
         }
       }
 

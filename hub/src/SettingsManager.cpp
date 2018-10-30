@@ -31,6 +31,7 @@ const QString CSettingsManager::SM_P2P_PATH("P2P_Path");
 const QString CSettingsManager::SM_X2GOCLIENT_PATH("X2GOCLIENT_Path");
 const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
+const QString CSettingsManager::SM_PARALLELS_PATH("PARALLELS_Path");
 const QString CSettingsManager::SM_VMWARE_PATH("VMWARE_Path");
 const QString CSettingsManager::SM_XQUARTZ_PATH("XQUARTZ_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
@@ -56,6 +57,7 @@ const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_VMWARE_VM_STORAGE("VMware_Vm_Storage");
 const QString CSettingsManager::SM_HYPERV_VM_STORAGE("Hyperv_Vm_Storage");
+const QString CSettingsManager::SM_PARALLELS_VM_STORAGE("Parallels_Vm_Storage");
 const QString CSettingsManager::SM_VM_STORAGE("Vm_Storage");
 
 const QString CSettingsManager::SM_TRAY_GUID("Tray_Guid");
@@ -95,24 +97,24 @@ struct setting_val_t {
 };
 
 static void qvar_to_bool(const QVariant& var, void* field) {
-  *((bool*)field) = var.toBool();
+  *(static_cast<bool*>(field)) = var.toBool();
 }
 
 static void qvar_to_int(const QVariant& var, void* field) {
-  *((uint32_t*)field) = var.toUInt();
+  *(static_cast<uint32_t*>(field)) = var.toUInt();
 }
 
 static void qvar_to_str(const QVariant& var, void* field) {
   if (!var.isNull() && !var.toString().isEmpty())
-    *((QString*)field) = var.toString();
+    *(static_cast<QString*>(field)) = var.toString();
 }
 
 static void qvar_to_byte_arr(const QVariant& var, void* field) {
-  *((QByteArray*)field) = var.toByteArray();
+  *(static_cast<QByteArray*>(field)) = var.toByteArray();
 }
 
 static void qvar_to_map_string_qvariant(const QVariant& var, void* field) {
-  *((QMap<QString, QVariant>*)field) = var.toMap();
+  *(static_cast<QMap<QString, QVariant>*>(field)) = var.toMap();
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -190,6 +192,7 @@ CSettingsManager::CSettingsManager()
       m_p2p_path(default_p2p_path()),
       m_vagrant_path(default_vagrant_path()),
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
+      m_parallels_path(default_parallels_path()),
       m_vmware_path(default_vmware_path()),
       m_xquartz_path("/Applications/Utilities/XQuartz.app"),
       m_default_browser(default_default_browser()),
@@ -214,6 +217,7 @@ CSettingsManager::CSettingsManager()
       m_peers_storage(CCommons::HomePath()),
       m_vmware_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_hyperv_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
+      m_parallels_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_tray_guid(""),
       m_p2p_update_freq(UF_MIN30),
       m_tray_update_freq(UF_MIN30),
@@ -256,60 +260,62 @@ CSettingsManager::CSettingsManager()
 
   setting_val_t dct_settings_vals[] = {
       // str
-      {(void*)&m_login, SM_LOGIN, qvar_to_str},
-      {(void*)&m_p2p_path, SM_P2P_PATH, qvar_to_str},
-      {(void*)&m_vagrant_path, SM_VAGRANT_PATH, qvar_to_str},
-      {(void*)&m_oracle_virtualbox_path, SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
-      {(void*)&m_vmware_path, SM_VMWARE_PATH, qvar_to_str},
-      {(void*)&m_x2goclient, SM_X2GOCLIENT_PATH, qvar_to_str},
-      {(void*)&m_ssh_path, SM_SSH_PATH, qvar_to_str},
-      {(void*)&m_scp_path, SM_SCP_PATH, qvar_to_str},
-      {(void*)&m_ssh_user, SM_SSH_USER, qvar_to_str},
-      {(void*)&m_rh_host, SM_RH_HOST, qvar_to_str},
-      {(void*)&m_rh_pass, SM_RH_PASS, qvar_to_str},
-      {(void*)&m_rh_user, SM_RH_USER, qvar_to_str},
-      {(void*)&m_peer_pass, SM_PEER_PASS, qvar_to_str},
-      {(void*)&m_peer_finger, SM_PEER_FINGER, qvar_to_str},
-      {(void*)&m_logs_storage, SM_LOGS_STORAGE, qvar_to_str},
-      {(void*)&m_ssh_keys_storage, SM_SSH_KEYS_STORAGE, qvar_to_str},
-      {(void*)&m_peers_storage, SM_PEERS_STORAGE, qvar_to_str},
-      {(void*)&m_vmware_vm_storage, SM_VMWARE_VM_STORAGE, qvar_to_str},
-      {(void*)&m_hyperv_vm_storage, SM_HYPERV_VM_STORAGE, qvar_to_str},
-      {(void*)&m_vm_storage, SM_VM_STORAGE, qvar_to_str},
-      {(void*)&m_tray_guid, SM_TRAY_GUID, qvar_to_str},
-      {(void*)&m_terminal_cmd, SM_TERMINAL_CMD, qvar_to_str},
-      {(void*)&m_terminal_arg, SM_TERMINAL_ARG, qvar_to_str},
-      {(void*)&m_ssh_keygen_cmd, SM_SSH_KEYGEN_CMD, qvar_to_str},
-      {(void*)&m_chrome_path, SM_CHROME_PATH, qvar_to_str},
-      {(void*)&m_firefox_path, SM_FIREFOX_PATH, qvar_to_str},
-      {(void*)&m_subutai_cmd, SM_SUBUTAI_CMD, qvar_to_str},
-      {(void*)&m_default_browser, SM_DEFAULT_BROWSER, qvar_to_str},
-      {(void*)&m_default_chrome_profile, SM_DEFAULT_CHROME_PROFILE, qvar_to_str},
-      {(void*)&m_default_firefox_profile, SM_DEFAULT_FIREFOX_PROFILE, qvar_to_str},
+      {static_cast<void*>(&m_login), SM_LOGIN, qvar_to_str},
+      {static_cast<void*>(&m_p2p_path), SM_P2P_PATH, qvar_to_str},
+      {static_cast<void*>(&m_vagrant_path), SM_VAGRANT_PATH, qvar_to_str},
+      {static_cast<void*>(&m_oracle_virtualbox_path), SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
+      {static_cast<void*>(&m_parallels_path), SM_PARALLELS_PATH, qvar_to_str},
+      {static_cast<void*>(&m_vmware_path), SM_VMWARE_PATH, qvar_to_str},
+      {static_cast<void*>(&m_x2goclient), SM_X2GOCLIENT_PATH, qvar_to_str},
+      {static_cast<void*>(&m_ssh_path), SM_SSH_PATH, qvar_to_str},
+      {static_cast<void*>(&m_scp_path), SM_SCP_PATH, qvar_to_str},
+      {static_cast<void*>(&m_ssh_user), SM_SSH_USER, qvar_to_str},
+      {static_cast<void*>(&m_rh_host), SM_RH_HOST, qvar_to_str},
+      {static_cast<void*>(&m_rh_pass), SM_RH_PASS, qvar_to_str},
+      {static_cast<void*>(&m_rh_user), SM_RH_USER, qvar_to_str},
+      {static_cast<void*>(&m_peer_pass), SM_PEER_PASS, qvar_to_str},
+      {static_cast<void*>(&m_peer_finger), SM_PEER_FINGER, qvar_to_str},
+      {static_cast<void*>(&m_logs_storage), SM_LOGS_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_ssh_keys_storage), SM_SSH_KEYS_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_peers_storage), SM_PEERS_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_vmware_vm_storage), SM_VMWARE_VM_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_hyperv_vm_storage), SM_HYPERV_VM_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_parallels_vm_storage), SM_PARALLELS_VM_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_vm_storage), SM_VM_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_tray_guid), SM_TRAY_GUID, qvar_to_str},
+      {static_cast<void*>(&m_terminal_cmd), SM_TERMINAL_CMD, qvar_to_str},
+      {static_cast<void*>(&m_terminal_arg), SM_TERMINAL_ARG, qvar_to_str},
+      {static_cast<void*>(&m_ssh_keygen_cmd), SM_SSH_KEYGEN_CMD, qvar_to_str},
+      {static_cast<void*>(&m_chrome_path), SM_CHROME_PATH, qvar_to_str},
+      {static_cast<void*>(&m_firefox_path), SM_FIREFOX_PATH, qvar_to_str},
+      {static_cast<void*>(&m_subutai_cmd), SM_SUBUTAI_CMD, qvar_to_str},
+      {static_cast<void*>(&m_default_browser), SM_DEFAULT_BROWSER, qvar_to_str},
+      {static_cast<void*>(&m_default_chrome_profile), SM_DEFAULT_CHROME_PROFILE, qvar_to_str},
+      {static_cast<void*>(&m_default_firefox_profile), SM_DEFAULT_FIREFOX_PROFILE, qvar_to_str},
 
       // bool
-      {(void*)&m_remember_me, SM_REMEMBER_ME, qvar_to_bool},
-      {(void*)&m_p2p_autoupdate, SM_P2P_AUTOUPDATE, qvar_to_bool},
-      {(void*)&m_tray_autoupdate, SM_TRAY_AUTOUPDATE, qvar_to_bool},
-      {(void*)&m_use_animations, SM_USE_ANIMATIONS, qvar_to_bool},
-      {(void*)&m_autostart, SM_AUTOSTART, qvar_to_bool},
+      {static_cast<void*>(&m_remember_me), SM_REMEMBER_ME, qvar_to_bool},
+      {static_cast<void*>(&m_p2p_autoupdate), SM_P2P_AUTOUPDATE, qvar_to_bool},
+      {static_cast<void*>(&m_tray_autoupdate), SM_TRAY_AUTOUPDATE, qvar_to_bool},
+      {static_cast<void*>(&m_use_animations), SM_USE_ANIMATIONS, qvar_to_bool},
+      {static_cast<void*>(&m_autostart), SM_AUTOSTART, qvar_to_bool},
 
       // uint
-      {(void*)&m_p2p_update_freq, SM_P2P_UPDATE_FREQ, qvar_to_int},
-      {(void*)&m_rh_port, SM_RH_PORT, qvar_to_int},
-      {(void*)&m_tray_update_freq, SM_TRAY_UPDATE_FREQ, qvar_to_int},
-      {(void*)&m_notifications_level, SM_NOTIFICATIONS_LEVEL, qvar_to_int},
-      {(void*)&m_logs_level, SM_LOGS_LEVEL, qvar_to_int},
-      {(void*)&m_vagrant_provider, SM_VAGRANT_PROVIDER, qvar_to_int},
-      {(void*)&m_tray_skin, SM_TRAY_SKIN, qvar_to_int},
-      {(void*)&m_preferred_notifications_place,
+      {static_cast<void*>(&m_p2p_update_freq), SM_P2P_UPDATE_FREQ, qvar_to_int},
+      {static_cast<void*>(&m_rh_port), SM_RH_PORT, qvar_to_int},
+      {static_cast<void*>(&m_tray_update_freq), SM_TRAY_UPDATE_FREQ, qvar_to_int},
+      {static_cast<void*>(&m_notifications_level), SM_NOTIFICATIONS_LEVEL, qvar_to_int},
+      {static_cast<void*>(&m_logs_level), SM_LOGS_LEVEL, qvar_to_int},
+      {static_cast<void*>(&m_vagrant_provider), SM_VAGRANT_PROVIDER, qvar_to_int},
+      {static_cast<void*>(&m_tray_skin), SM_TRAY_SKIN, qvar_to_int},
+      {static_cast<void*>(&m_preferred_notifications_place),
        SM_PREFERRED_NOTIFICATIONS_PLACE, qvar_to_int},
-      {(void*)&m_locale, SM_LOCALE, qvar_to_int},
+      {static_cast<void*>(&m_locale), SM_LOCALE, qvar_to_int},
       // bytearr
-      {(void*)&m_password, SM_PASSWORD, qvar_to_byte_arr},
+      {static_cast<void*>(&m_password), SM_PASSWORD, qvar_to_byte_arr},
 
       // QMap<QString, QVariant>
-      {(void*)&m_dct_notification_ignore, SM_DCT_NOTIFICATIONS_IGNORE,
+      {static_cast<void*>(&m_dct_notification_ignore), SM_DCT_NOTIFICATIONS_IGNORE,
        qvar_to_map_string_qvariant},
 
       // end
@@ -480,7 +486,7 @@ void CSettingsManager::set_password(const QString& password) {
   QCryptographicHash hash(QCryptographicHash::Sha1);
   hash.addData(ba);
   QByteArray ip = hash.result();
-  char rc = (char)(qrand() % 0xff);
+  char rc = char(qrand() % 0xff);
   ba = rc + ip + ba;
 
   int lc = 0;
@@ -488,7 +494,7 @@ void CSettingsManager::set_password(const QString& password) {
   uchar* key = tmp_uuid.data4;
   int cnt = ba.length();
   for (int pos = 0; pos < cnt; ++pos) {
-    ba[pos] = ba.at(pos) ^ key[pos % 8] ^ lc;
+    ba[pos] = char(ba.at(pos) ^ key[pos % 8] ^ lc);
     lc = ba.at(pos);
   }
 
@@ -503,12 +509,12 @@ void CSettingsManager::set_password(const QString& password) {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSettingsManager::set_logs_level(int logs_level) {
-  m_logs_level = logs_level;
+  m_logs_level = uint32_t(logs_level);
   m_settings.setValue(SM_LOGS_LEVEL, m_logs_level);
 }
 
 void CSettingsManager::set_vagrant_provider(int provider) {
-  m_vagrant_provider = provider;
+  m_vagrant_provider = uint32_t(provider);
   m_settings.setValue(SM_VAGRANT_PROVIDER, m_vagrant_provider);
 }
 
@@ -525,13 +531,13 @@ void CSettingsManager::set_peers_storage(const QString &peers_storage) {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSettingsManager::set_p2p_update_freq(int fr) {
-  m_p2p_update_freq = (update_freq_t)fr % UF_LAST;
-  m_settings.setValue(SM_P2P_UPDATE_FREQ, (int8_t)m_p2p_update_freq);
+  m_p2p_update_freq = update_freq_t(fr) % UF_LAST;
+  m_settings.setValue(SM_P2P_UPDATE_FREQ, int8_t(m_p2p_update_freq));
   update_system::CHubComponentsUpdater::Instance()->set_p2p_update_freq();
 }
 void CSettingsManager::set_tray_update_freq(int fr) {
-  m_tray_update_freq = (update_freq_t)fr % UF_LAST;
-  m_settings.setValue(SM_TRAY_UPDATE_FREQ, (int8_t)m_tray_update_freq);
+  m_tray_update_freq = update_freq_t(fr) % UF_LAST;
+  m_settings.setValue(SM_TRAY_UPDATE_FREQ, int8_t(m_tray_update_freq));
   update_system::CHubComponentsUpdater::Instance()->set_tray_update_freq();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -631,6 +637,8 @@ const QString& CSettingsManager::current_hypervisor_path() {
     return oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_path();
+  case VagrantProvider::PARALLELS:
+    return parallels_path();
   default:
     return oracle_virtualbox_path();
   }
@@ -640,6 +648,12 @@ void CSettingsManager::set_oracle_virtualbox_path(QString virtualbox_path){
     QString sl = QFile::symLinkTarget(virtualbox_path);
     m_oracle_virtualbox_path = sl == "" ? virtualbox_path : sl;
     m_settings.setValue(SM_ORACLE_VIRTUALBOX_PATH, m_oracle_virtualbox_path);
+}
+
+void CSettingsManager::set_parallels_path(QString parallels_path) {
+  QString sl = QFile::symLinkTarget(parallels_path);
+  m_parallels_path = sl == "" ? parallels_path : sl;
+  m_settings.setValue(SM_PARALLELS_PATH, m_parallels_path);
 }
 
 void CSettingsManager::set_vmware_path(QString vmware_path) {
@@ -656,6 +670,9 @@ void CSettingsManager::set_hypervisor_path(QString fr) {
   case VagrantProvider::VMWARE_DESKTOP:
     set_vmware_path(fr);
     break;
+  case VagrantProvider::PARALLELS:
+    set_parallels_path(fr);
+    break;
   default:
     set_oracle_virtualbox_path(fr);
     break;
@@ -669,8 +686,8 @@ void CSettingsManager::set_x2goclient_path(QString x2goclient_path) {
 }
 
 void CSettingsManager::set_locale(const int locale) {
-  if (m_locale != (uint32_t)locale) {
-    m_locale = locale;
+  if (m_locale != uint32_t(locale)) {
+    m_locale = uint32_t(locale);
     m_settings.setValue(SM_LOCALE, m_locale);
 
     QMessageBox* msg_box =
@@ -687,7 +704,7 @@ void CSettingsManager::set_locale(const int locale) {
 void CSettingsManager::set_tray_skin(const uint32_t tray_skin) {
   m_tray_skin = tray_skin;
   m_settings.setValue(SM_TRAY_SKIN, m_tray_skin);
-  TraySkinController::Instance().set_tray_skin((TraySkinController::TRAY_SKINS) tray_skin);
+  TraySkinController::Instance().set_tray_skin(TraySkinController::TRAY_SKINS(tray_skin));
 }
 void CSettingsManager::set_rh_pass(const QString &id, const QString &pass) {
   m_rh_passes[id] = pass;
@@ -705,7 +722,7 @@ void CSettingsManager::set_rh_host(const QString &id, const QString &host) {
 }
 
 void CSettingsManager::set_rh_port(const QString &id, const qint16 &port) {
-  m_rh_ports[id] = port;
+  m_rh_ports[id] = quint16(port);
   m_settings.setValue(SM_RH_PORT.arg(id), port);
 }
 
@@ -741,39 +758,39 @@ quint16 CSettingsManager::rh_port(const QString &id)  {
   if (m_rh_ports.find(id) == m_rh_ports.end()) {
     if (m_settings.value(SM_RH_PORT.arg(id)).isNull())
       return 0;
-    m_rh_ports[id] = m_settings.value(SM_RH_PORT.arg(id)).toInt();
+    m_rh_ports[id] = quint16(m_settings.value(SM_RH_PORT.arg(id)).toInt());
   }
   return m_rh_ports[id];
 }
 
 
 void CSettingsManager::set_peer_pass(const QString &peer_name, const QString &pass){
-    m_peer_passes[peer_name] = pass;
-    m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
+  m_peer_passes[peer_name] = pass;
+  m_settings.setValue(SM_PEER_PASS.arg(peer_name), pass);
 }
 
 void CSettingsManager::set_peer_finger(const QString &peer_name, const QString &finger){
-    m_peer_fingers[peer_name] = finger;
-    m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
-    qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
+  m_peer_fingers[peer_name] = finger;
+  m_settings.setValue(SM_PEER_FINGER.arg(peer_name), finger);
+  qDebug() << "changed fingerprint of" << peer_name << "to" << m_peer_fingers[peer_name];
 }
 
 const QString& CSettingsManager::peer_pass(const QString &peer_name){
-    if(m_peer_passes.find(peer_name) == m_peer_passes.end()){
-        if(m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
-    }
-    return m_peer_passes[peer_name];
+  if (m_peer_passes.find(peer_name) == m_peer_passes.end()) {
+    if (m_settings.value(SM_PEER_PASS.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_passes[peer_name] = m_settings.value(SM_PEER_PASS.arg(peer_name)).toString();
+  }
+  return m_peer_passes[peer_name];
 }
 
 const QString& CSettingsManager::peer_finger(const QString &peer_name){
-    if(m_peer_fingers.find(peer_name) == m_peer_fingers.end()){
-        if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
-            return EMPTY_STRING;
-        m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
-    }
-    return m_peer_fingers[peer_name];
+  if (m_peer_fingers.find(peer_name) == m_peer_fingers.end()) {
+    if(m_settings.value(SM_PEER_FINGER.arg(peer_name)).isNull())
+        return EMPTY_STRING;
+    m_peer_fingers[peer_name] = m_settings.value(SM_PEER_FINGER.arg(peer_name)).toString();
+  }
+  return m_peer_fingers[peer_name];
 }
 
 void CSettingsManager::set_branch(const QString &branch){
@@ -819,4 +836,5 @@ SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 SET_FIELD_DEF(vm_storage, SM_VM_STORAGE, QString&)
 SET_FIELD_DEF(vmware_vm_storage, SM_VMWARE_VM_STORAGE, QString&)
 SET_FIELD_DEF(hyperv_vm_storage, SM_HYPERV_VM_STORAGE, QString&)
+SET_FIELD_DEF(parallels_vm_storage, SM_PARALLELS_VM_STORAGE, QString&)
 #undef SET_FIELD_DEF

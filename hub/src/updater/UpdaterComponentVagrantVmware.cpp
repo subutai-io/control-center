@@ -39,7 +39,7 @@ chue_t CUpdaterComponentVAGRANT_VMWARE::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant VMware Desktop provider manage VMware machines."
+          "The Vagrant VMware Desktop provider manage VMware virtual machines."
           " The Vagrant VMware Desktop provider is a commercial product provided by HashiCorp "
           "and require the <b>purchase of a license to operate</b>. To purchase a license, "
           "please <a href=\"https://www.vagrantup.com/vmware#buy-now\">visit</a> the Vagrant VMware Desktop provider page. "
@@ -54,7 +54,7 @@ chue_t CUpdaterComponentVAGRANT_VMWARE::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  update_progress_sl(50, 100);  // imitation of progress bar :D, todo implement
+  update_progress_sl(0, 0);
   static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(empty_string, empty_string, CC_VAGRANT_VMWARE_DESKTOP);

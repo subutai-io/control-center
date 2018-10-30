@@ -89,6 +89,15 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
                 IUpdaterComponent::HYPERV);
         });
 
+  requirement parallels(
+        tr("Parallels is not ready"), tr("Checking Parallels..."),
+        tr("Parallels is not reaady. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::PARALLELS);
+        });
+
   // Vagrant VMware Utility
   requirement vagrant_vmware_utility(
         tr("Vagrant VMware Utility is not ready"), tr("Checking Vagrant VMware Utility..."),
@@ -184,6 +193,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     m_requirements_ls.push_back(vbguest_plugin);
     break;
   case VagrantProvider::PARALLELS:
+    m_requirements_ls.push_back(parallels);
     m_requirements_ls.push_back(parallels_provider);
     break;
   case VagrantProvider::VMWARE_DESKTOP:
