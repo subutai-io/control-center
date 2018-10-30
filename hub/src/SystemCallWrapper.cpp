@@ -1073,9 +1073,10 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
 }
 //////////////////////////////////////////////////////////////////////
 QStringList CSystemCallWrapper::list_interfaces() {
-  QStringList empty;
+  static QStringList empty;
   static QStringList hyperv; // It gets one time when application launched.
   static QStringList virtualbox;
+  static QStringList parallels;
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
@@ -1085,13 +1086,16 @@ QStringList CSystemCallWrapper::list_interfaces() {
     return virtualbox;
   //case VagrantProvider::LIBVIRT:
   //  return libvirt_interfaces();
+  case VagrantProvider::PARALLELS:
+    if (parallels.empty())
+      parallels = parallels_interfaces();
+
+    return parallels;
   case VagrantProvider::HYPERV:
     if (hyperv.empty())
       hyperv = hyperv_interfaces();
 
     return hyperv;
-  //case VagrantProvider::PARALLELS:
-  //  return parallels_interfaces();
   default:
     return empty;
   }
@@ -1104,50 +1108,28 @@ QStringList CSystemCallWrapper::parallels_interfaces() {
 
   QStringList interfaces;
   QString cmd = "prlctl";
-  QString empty;
+  QString path;
 
   system_call_wrapper_error_t cr;
 
-  if ((cr = CSystemCallWrapper::which(cmd, empty)) != SCWE_SUCCESS) {
+  if ((cr = CSystemCallWrapper::which(cmd, path)) != SCWE_SUCCESS) {
     installer_is_busy.unlock();
     return interfaces;
   }
+
+  // assign cmd full path
+  cmd = path;
 
   QStringList args;
   args << "server"
        << "info"
        << "--json";
 
-  qDebug() << cmd
+  qDebug() << "Parallels interface command:"
+           << cmd
            << args;
 
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60000);
-
-  //QString output ="{\r\n    \"ID\": \"57bf3726-def4-43d4-a32f-cc0e8e357e16\",\r\n    \"Hostname\": \"127.0.0.1\",\r\n    \"Version\": \"Desktop 13.3.0-43321\",\r\n    \"OS\": \"Mac OS X 10.13.4(17E199)\",\r\n    \"Started as service\": \"off\",\r\n    \"VM home\": \"\\\/Users\\\/admin\\\/Parallels\",\r\n    \"Memory limit\": {\r\n        \"mode\": \"auto\"\r\n    },\r\n    \"Minimal security level\": \"low\",\r\n    \"Manage settings for new users\": \"allow\",\r\n    \"CEP mechanism\": \"off\",\r\n    \"Default encryption plugin\": \"<parallels-default-plugin>\",\r\n    \"Verbose log\": \"off\",\r\n    \"Allow mobile clients\": \"off\",\r\n    \"Proxy connection state\": \"disconnected\",\r\n    \"Direct connection\": \"off\",\r\n    \"Log rotation\": \"on\",\r\n    \"Advanced security mode\": \"off\",\r\n    \"External device auto connect\": \"ask\",\r\n    \"Proxy manager URL\": \"https:\\\/\\\/pax-manager.myparallels.com\\\/xmlrpc\\\/rpc.do\",\r\n    \"Web portal domain\": \"parallels.com\",\r\n    \"Host ID\": \"\",\r\n    \"Allow attach screenshots\": \"on\",\r\n    \"Custom password protection\": \"off\",\r\n    \"License\": {\r\n        \"state\": \"valid\",\r\n        \"key\": \"078-43914-64601-23907-20564-38467\",\r\n        \"restricted\": \"false\"\r\n    },\r\n    \"Hardware Id\": \"{d16e8ca5-3b60-5bbe-aff4-5ba1012dd0cc}\",\r\n    \"Signed In\": \"yes\",\r\n    \"Hardware info\": {\r\n        \"\/dev\/disk0\": {\r\n            \"name\": \"APPLE HDD ST1000DM003 (disk0)\",\r\n            \"type\": \"hdd\"\r\n        },\r\n        \"\/dev\/disk0s1\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s2\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s3\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"en0\": {\r\n            \"name\": \"Ethernet\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en1\": {\r\n            \"name\": \"Wi-Fi\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"p2p0\": {\r\n            \"name\": \"p2p0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"awdl0\": {\r\n            \"name\": \"awdl0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en2\": {\r\n            \"name\": \"en2\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en3\": {\r\n            \"name\": \"en3\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic0\": {\r\n            \"name\": \"vnic0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic1\": {\r\n            \"name\": \"vnic1\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"\/dev\/cu.Bluetooth-Incoming-Port\": {\r\n            \"name\": \"\\\/dev\\\/cu.Bluetooth-Incoming-Port\",\r\n            \"type\": \"serial\"\r\n        }\r\n    }\r\n}";
-  QString output;
-
-  for (auto s : res.out) {
-    output += s;
-  }
-
-  QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-  QJsonObject data = doc.object();
-  QJsonObject hardware_info = data["Hardware info"].toObject();
-
-  qDebug() << hardware_info;
-
-  QStringList keys = hardware_info.keys();
-  for(int i = 0; i < keys.count(); ++i){
-      QString key = keys.at(i);
-      QString name, type;
-      QJsonObject obj = hardware_info[key].toObject();
-
-      if (obj["type"].toString() == "net") {
-        interfaces.push_back(key);
-        qDebug() << "interface: "
-                 << key;
-      }
-  }
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000*3*60);
 
   qDebug() << "Listing parallels interfaces result:"
            << "exit code: "
@@ -1155,7 +1137,40 @@ QStringList CSystemCallWrapper::parallels_interfaces() {
            << "result: "
            << res.res
            << "output:"
-           << output;
+           << res.out;
+
+  //QString output ="{\r\n    \"ID\": \"57bf3726-def4-43d4-a32f-cc0e8e357e16\",\r\n    \"Hostname\": \"127.0.0.1\",\r\n    \"Version\": \"Desktop 13.3.0-43321\",\r\n    \"OS\": \"Mac OS X 10.13.4(17E199)\",\r\n    \"Started as service\": \"off\",\r\n    \"VM home\": \"\\\/Users\\\/admin\\\/Parallels\",\r\n    \"Memory limit\": {\r\n        \"mode\": \"auto\"\r\n    },\r\n    \"Minimal security level\": \"low\",\r\n    \"Manage settings for new users\": \"allow\",\r\n    \"CEP mechanism\": \"off\",\r\n    \"Default encryption plugin\": \"<parallels-default-plugin>\",\r\n    \"Verbose log\": \"off\",\r\n    \"Allow mobile clients\": \"off\",\r\n    \"Proxy connection state\": \"disconnected\",\r\n    \"Direct connection\": \"off\",\r\n    \"Log rotation\": \"on\",\r\n    \"Advanced security mode\": \"off\",\r\n    \"External device auto connect\": \"ask\",\r\n    \"Proxy manager URL\": \"https:\\\/\\\/pax-manager.myparallels.com\\\/xmlrpc\\\/rpc.do\",\r\n    \"Web portal domain\": \"parallels.com\",\r\n    \"Host ID\": \"\",\r\n    \"Allow attach screenshots\": \"on\",\r\n    \"Custom password protection\": \"off\",\r\n    \"License\": {\r\n        \"state\": \"valid\",\r\n        \"key\": \"078-43914-64601-23907-20564-38467\",\r\n        \"restricted\": \"false\"\r\n    },\r\n    \"Hardware Id\": \"{d16e8ca5-3b60-5bbe-aff4-5ba1012dd0cc}\",\r\n    \"Signed In\": \"yes\",\r\n    \"Hardware info\": {\r\n        \"\/dev\/disk0\": {\r\n            \"name\": \"APPLE HDD ST1000DM003 (disk0)\",\r\n            \"type\": \"hdd\"\r\n        },\r\n        \"\/dev\/disk0s1\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s2\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"\/dev\/disk0s3\": {\r\n            \"name\": \"\",\r\n            \"type\": \"hdd-part\"\r\n        },\r\n        \"en0\": {\r\n            \"name\": \"Ethernet\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en1\": {\r\n            \"name\": \"Wi-Fi\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"p2p0\": {\r\n            \"name\": \"p2p0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"awdl0\": {\r\n            \"name\": \"awdl0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en2\": {\r\n            \"name\": \"en2\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"en3\": {\r\n            \"name\": \"en3\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic0\": {\r\n            \"name\": \"vnic0\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"vnic1\": {\r\n            \"name\": \"vnic1\",\r\n            \"type\": \"net\"\r\n        },\r\n        \"\/dev\/cu.Bluetooth-Incoming-Port\": {\r\n            \"name\": \"\\\/dev\\\/cu.Bluetooth-Incoming-Port\",\r\n            \"type\": \"serial\"\r\n        }\r\n    }\r\n}";
+  if (!res.out.empty()) {
+    QString output;
+
+    for (auto s : res.out) {
+      output += s;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
+    QJsonObject data = doc.object();
+    QJsonObject hardware_info = data["Hardware info"].toObject();
+    QString vm_storage = data["VM home"].toString();
+
+    if (vm_storage != "") {
+      CSettingsManager::Instance().set_parallels_vm_storage(vm_storage);
+    }
+
+    qDebug() << hardware_info;
+
+    QStringList keys = hardware_info.keys();
+    for(int i = 0; i < keys.count(); ++i){
+        QString key = keys.at(i);
+        QString name, type;
+        QJsonObject obj = hardware_info[key].toObject();
+
+        if (obj["type"].toString() == "net") {
+          interfaces.push_back(key);
+          qDebug() << "interface: "
+                   << key;
+        }
+    }
+  }
 
   if (res.exit_code != 0 || res.res != SCWE_SUCCESS)
       return interfaces;
@@ -3013,6 +3028,7 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_plugin(const QString &
        << name;
 
   system_call_res_t res_t = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 1000 * 60 * 10); // 10 minutes timeout
+
   qDebug() << QString("Vagrant plugin %1 %2 is finished.")
               .arg(command)
               .arg(name)
@@ -3673,6 +3689,114 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vmware(const QString
   installer_is_busy.unlock();
 
   return res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 INSTALLATION Parallels Desktop                                     ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+system_call_wrapper_install_t CSystemCallWrapper::install_parallels(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  qDebug() << "Installation Parallels Desktop"
+           << dir
+           << file_name;
+
+  QString cmd("osascript");
+  QStringList args;
+  QString version;
+  QString file_path  = dir + QDir::separator() + file_name;
+
+  args << "-e"
+       << QString("do shell script \"hdiutil attach %1; "
+                  "cp -R /Volumes/Parallels\\\\ Desktop\\\\ 14/Parallels\\\\ Desktop.app/ /Applications/Parallels\\\\ Desktop.app/; "
+                  "open -a Parallels\\\\ Desktop.app;\" with administrator privileges").arg(file_path);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  97);
+  system_call_wrapper_install_t res_install;
+  res_install.res = res.res;
+
+  if (res.res != SCWE_SUCCESS && res.exit_code != 0) {
+    qCritical() << "Failed installation Parallels Desktop: "
+                << res.res
+                << " exit code: "
+                << res.exit_code
+                << res.out;
+
+    res_install.res = SCWE_CREATE_PROCESS;
+    return res_install;
+  }
+
+  if (res_install.res == SCWE_SUCCESS) {
+    parallels_version(version);
+    res_install.version = version;
+  }
+
+  installer_is_busy.unlock();
+  return res_install;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                 UNINSTALLATION Parallels Desktop                                     ///
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+system_call_wrapper_install_t CSystemCallWrapper::uninstall_parallels(const QString &dir, const QString &file_name) {
+  installer_is_busy.lock();
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  QString version;
+  system_call_wrapper_install_t res_install;
+  res_install.version = "undefined";
+
+  if (!QDir("/Applications/Parallels Desktop.app/").exists()) {
+    qDebug() << "Can't find Parallels Desktop path: /Applications/Parallels Desktop.app";
+    res_install.res = SCWE_CREATE_PROCESS;
+    return res_install;
+  }
+
+  QString cmd("osascript");
+  QStringList args;
+
+  // Quit Application VMware Fusion
+  args << "-e"
+       << "tell application \"Parallels Desktop.app\" to quit";
+  system_call_res_t res = CSystemCallWrapper::ssystem(cmd, args, true, true, 10000);
+  res_install.res = res.res;
+
+  if (res.exit_code != 0) {
+    qDebug() << "Failed to quit Parallels Desktop application";
+    res_install.res = SCWE_COMMAND_FAILED;
+    return res_install;
+  }
+
+  args.clear();
+
+  // Clean Parallels Desktop folders
+  args << "-e"
+       << QString("do shell script \"%1\" "
+                  "with administrator privileges")
+          .arg("rm -rf /Applications/Parallels\\\\ Desktop.app/; ");
+
+  qDebug() << "Uninstallation Parallels Desktop"
+           << args;
+
+  system_call_res_t rs = CSystemCallWrapper::ssystem_th(cmd, args, true, true);
+  qDebug() << "parallels uninstall finished: "
+           << rs.exit_code
+           << rs.out
+           << rs.res;
+
+  if (rs.exit_code != 0) {
+    res_install.res = SCWE_COMMAND_FAILED;
+    return res_install;
+  }
+
+  if (res_install.res == SCWE_SUCCESS) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(3 * 1000));
+    parallels_version(version);
+    res_install.version = version;
+  }
+
+  installer_is_busy.unlock();
+  return res_install;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class OS>
@@ -6653,6 +6777,45 @@ system_call_wrapper_error_t vmware_version_internal<Os2Type<OS_LINUX> >(
 
 system_call_wrapper_error_t CSystemCallWrapper::vmware_version(QString &version) {
   return vmware_version_internal<Os2Type<CURRENT_OS> >(version);
+}
+
+system_call_wrapper_error_t CSystemCallWrapper::parallels_version(QString &version) {
+  QString path = CSettingsManager::Instance().parallels_path();
+   QDir dir(path);
+   dir.cdUp(); dir.cdUp();
+   path = dir.absolutePath();
+   path += "/version.plist";
+
+   QFile info_plist(path);
+   QString line;
+   bool found = false;
+
+   if (!info_plist.exists()) {
+     qDebug() << "Couldn't find" << path;
+     version = "undefined";
+
+     return SCWE_SUCCESS;
+   }
+
+   if (info_plist.open(QIODevice::ReadOnly | QIODevice::Text)) {
+       QTextStream stream(&info_plist);
+       while (!stream.atEnd()) {
+         line = stream.readLine();
+         line = line.simplified();
+         line.remove(QRegExp("[<]([/]?[a-z]+)[>]"));
+         if (found) {
+             version = line;
+             break;
+         }
+         else if (line == "CFBundleShortVersionString") {
+             found = true;
+         }
+     }
+     info_plist.close();
+   }
+
+   qDebug() << "Got parallels version:" << version;
+   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 

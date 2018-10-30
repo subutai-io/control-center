@@ -39,8 +39,7 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant Parallels provider sets up peer parameters, like disk size "
-          "and RAM.\n"
+          "The Vagrant Parallel provider manage Parallels virtual machines."
           "The Vagrant Parallels provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
@@ -52,7 +51,7 @@ chue_t CUpdaterComponentVAGRANT_PARALLELS::install_internal() {
     return CHUE_SUCCESS;
   }
 
-  update_progress_sl(50, 100);  // imitation of progress bar :D, todo implement
+  update_progress_sl(0, 0);
   static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(empty_string, empty_string, CC_VAGRANT_PARALLELS);
