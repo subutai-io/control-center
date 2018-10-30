@@ -693,19 +693,21 @@ void DlgPeer::rh_stop() {
   enabled_peer_buttons(false);
   static QString stop_command = "halt";
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-  ui->btn_start_stop->setText(tr("Trying to stop this peer, please wait."));
+  ui->btn_start_stop->setText(tr("Stopping..."));
   thread_init->init(rh_dir, stop_command, rh_name);
   emit peer_modified(rh_name);
   thread_init->startWork();
+
+  CNotificationObserver::Instance()->Info(
+      tr("The process to stop peer %1 has started. "
+         "Do not close this terminal until processing "
+         "has completed.")
+          .arg(ui->le_name->text()),
+      DlgNotification::N_NO_ACTION);
+
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              CNotificationObserver::Instance()->Info(
-                  tr("The process to stop peer %1 has started. "
-                     "Do not close this terminal until processing "
-                     "has completed.")
-                      .arg(this->ui->le_name->text()),
-                  DlgNotification::N_NO_ACTION);
               this->close();
             } else {
               CNotificationObserver::Instance()->Error(
@@ -732,19 +734,21 @@ void DlgPeer::rh_start() {
     }
   }
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-  ui->btn_start_stop->setText(tr("Trying to launch this peer, please wait."));
+  ui->btn_start_stop->setText(tr("Starting..."));
   thread_init->init(rh_dir, up_command, rh_name);
   thread_init->startWork();
+
+  CNotificationObserver::Instance()->Info(
+      tr("The process to launch peer %1 has started. "
+         "Do not close this terminal until processing "
+         "has completed.")
+          .arg(this->ui->le_name->text()),
+      DlgNotification::N_NO_ACTION);
+
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
               emit peer_modified(this->rh_name);
-              CNotificationObserver::Instance()->Info(
-                  tr("The process to launch peer %1 has started. "
-                     "Do not close this terminal until processing "
-                     "has completed.")
-                      .arg(this->ui->le_name->text()),
-                  DlgNotification::N_NO_ACTION);
               this->close();
             } else {
               CNotificationObserver::Instance()->Error(
@@ -814,18 +818,20 @@ void DlgPeer::rh_destroy_sl() {
   }
   static QString delete_command = "destroy -f";
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-  ui->btn_destroy->setText(tr("Trying to destroy this peer, please wait."));
+  ui->btn_destroy->setText(tr("Destroying..."));
   thread_init->init(rh_dir, delete_command, rh_name);
   thread_init->startWork();
+
+  CNotificationObserver::Instance()->Info(
+      tr("The process to destroy peer %1 has started. Do not close "
+         "this terminal until "
+         "processing has completed.")
+          .arg(rh_name),
+      DlgNotification::N_NO_ACTION);
+
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              CNotificationObserver::Instance()->Info(
-                  tr("The process to destroy peer %1 has started. Do not close "
-                     "this terminal until "
-                     "processing has completed.")
-                      .arg(rh_name),
-                  DlgNotification::N_NO_ACTION);
               this->close();
             } else {
               CNotificationObserver::Instance()->Error(
@@ -857,19 +863,21 @@ void DlgPeer::rh_reload_sl() {
     }
   }
   CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
-  ui->btn_reload->setText(tr("Trying to reload this peer, please wait."));
+  ui->btn_reload->setText(tr("Reloading..."));
   thread_init->init(rh_dir, reload_command, rh_name);
   thread_init->startWork();
+
+  CNotificationObserver::Instance()->Info(
+      tr("The process to reload peer %1 has started. Do not close "
+         "this terminal "
+         "until processing has completed.")
+          .arg(rh_name),
+      DlgNotification::N_NO_ACTION);
+
   emit peer_modified(this->rh_name);
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              CNotificationObserver::Instance()->Info(
-                  tr("The process to reload peer %1 has started. Do not close "
-                     "this terminal "
-                     "until processing has completed.")
-                      .arg(rh_name),
-                  DlgNotification::N_NO_ACTION);
               this->close();
             } else {
               CNotificationObserver::Instance()->Error(

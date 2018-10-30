@@ -238,8 +238,8 @@ CSettingsManager::CSettingsManager()
       m_chrome_path(default_chrome_path()),
       m_firefox_path(default_firefox_path()),
       m_subutai_cmd(subutai_command()) {
-  static const char* FOLDERS_TO_CREATE[] = {".ssh", nullptr};
-  QString* fields[] = {&m_ssh_keys_storage, nullptr};
+  static const char* FOLDERS_TO_CREATE[] = {".ssh", "VirtualBox VMs", nullptr};
+  QString* fields[] = {&m_ssh_keys_storage, &m_empty, nullptr};
 
   QStringList lst_home =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation);

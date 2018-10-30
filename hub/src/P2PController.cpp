@@ -131,37 +131,71 @@ void P2PConnector::check_status(const CEnvironment &env) {
 void P2PConnector::update_status() {
   // find if container is on your machine
   std::vector<CEnvironment> hub_environments = CHubController::Instance().lst_environments();
-  std::vector<std::pair<QString, QString> > network_peers;
-  QList<QHostAddress> ip_addresses = QNetworkInterface::allAddresses();
-  qDebug() << "List of all lan peers:";
-  for (std::pair<QString, QString> local_peer :
-       CRhController::Instance()->dct_resource_hosts()) {
-    network_peers.push_back(std::make_pair(
-        CCommons::GetFingerprintFromUid(local_peer.first), local_peer.second));
-    qDebug() << CCommons::GetFingerprintFromUid(local_peer.first) << " " << local_peer.second;
-  }
-  for (CEnvironment env : hub_environments) {
-    for (CHubContainer cont : env.containers()) {
-      bool found = false;
-      QString peer_id = cont.peer_id();
-      qDebug() << "Checking container's rh" << peer_id;
-      for (auto lan_peer : network_peers) {
-        if (lan_peer.first == peer_id) { // found in the same network
-          for (auto ip : ip_addresses) {
-            qDebug() << "comparing ip's of" << lan_peer.second
-                     << " " << ip.toString();
-            if (ip.toString() == lan_peer.second) {
-              qDebug() << "Found cont in the machine"
-                       << "ip: " << ip.toString();
-              found = true;
+  QStringList local_containers;
+  if (CSystemCallWrapper::is_desktop_peer()) {
+    // clear
+    local_containers.clear();
+
+    static QString lxc_path("/var/lib/lxc");
+    QDir directory(lxc_path);
+    QString tmp, hostfile_path;
+
+    // check container directory
+    if (directory.exists()) {
+      for (QFileInfo info : directory.entryInfoList()) {
+        if (info.fileName() == "." || info.fileName() == "..")
+          continue;
+
+        tmp = info.fileName().trimmed();
+        hostfile_path = lxc_path + QDir::separator() + tmp + QDir::separator() + "rootfs/etc/hostname";
+
+        if (QFileInfo::exists(hostfile_path)) {
+          QFile file(hostfile_path);
+
+          if(!file.open(QIODevice::ReadOnly)) {
+              qDebug() << "error opening file: " << file.error() << hostfile_path;
               break;
-            }
           }
-          if (found) break;
+
+          QTextStream instream(&file);
+          QString line = instream.readLine();
+
+          qDebug() << "local container hotname found: " << line;
+          local_containers << line;
+          file.close();
+        } else {
+          qInfo() << "not exist container hostname file: "
+                  << hostfile_path;
         }
-        if (found) break;
       }
-      P2PController::Instance().rh_local_tbl[peer_id] = found;
+
+      if (!local_containers.empty()) {
+        for (CEnvironment env : hub_environments) {
+          for (CHubContainer cont : env.containers()) {
+            bool found = false;
+            QString peer_id = cont.peer_id();
+            QString bazaar_cont = cont.name();
+
+            for (QString local_cont : local_containers) {
+              if (local_cont.contains(bazaar_cont)) {
+                qInfo() << "matched container "
+                        << "bazaar: "
+                        << bazaar_cont
+                        << "local: "
+                        << local_cont;
+                found = true;
+                break;
+              }
+            }
+            P2PController::Instance().rh_local_tbl[peer_id] = found;
+          }
+        }
+      } else {
+        qInfo() << "empty local containers from lxc directory";
+      }
+    } else {
+      qCritical() << "container directory not exist: "
+                  << lxc_path;
     }
   }
 
@@ -387,5 +421,5 @@ void P2PStatus_checker::update_status(){
         if(!CSystemCallWrapper::p2p_daemon_check())
            emit p2p_status(P2P_READY);
         else emit p2p_status(P2P_RUNNING);
-    QTimer::singleShot(5000, this, &P2PStatus_checker::update_status);
+    QTimer::singleShot(60*1000*2, this, &P2PStatus_checker::update_status); // every two minutes checks p2p
 }

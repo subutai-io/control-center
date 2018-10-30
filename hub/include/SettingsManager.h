@@ -161,6 +161,7 @@ class CSettingsManager : public QObject {
   QString m_chrome_path;
   QString m_firefox_path;
   QString m_subutai_cmd;
+  QString m_empty;
 
   void init_password();
 
