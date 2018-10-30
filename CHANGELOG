@@ -1,4 +1,48 @@
 # Change Log
+## [7.2.2] 10/27/2018
+# BUG FIXES:
+* Critical bug fixed when CC could not correctly connect via SSH to local containers.
+
+## [7.2.1] 10/26/2018
+# BUG FIXES:
+* Critical bug fixed when CC could not correctly connect via SSH to local containers. #1234
+* Critical bug fixed when CC removed P2P and all dependent packages while updating P2P. #1758
+
+## [7.2.0] 10/25/2018
+# IMPROVEMENTS:
+* Do not use P2P to SSH into containers running on this machine. #1234
+* Component installation fails when internet connection gets lost. #862
+* Isolate components' version checks in other threads. #1622
+* Update P2P using deb-package (Linux OS). #1651
+* Display installation progress of components on corresponding butons. #1649
+* Minimize Control Center windows correctly (Windows OS). #1666
+* Give unique port numbers to peers. #1663
+* Search for all peers created via Vagrant. #1676
+* Unregister peer fails if there are environments on this peer. #1714
+# BUG FIXES:
+* E2E plugin installation on Firefox. #921
+* Environments list gets disabled after sleep mode on MacOS. #1298
+* QNetwork-related Control Center crash. #1086
+* Progress bars in Components window get stuck. #1335
+* Changing default hypervisor in Settings breaks UI of Components window. #1590 #1604
+* Absence of Vagrant VMware Utility license makes Vagrant commands unavailable, causing freezes and crashes of CC. #1563
+* Get correct product code of Vagrant (Windows OS). #1617
+* Provide correctly formatted paths in Vagrant .yml config files. #1599
+* X2Go Client fails to get access to the Mate container when there are multiple environments. #1655
+* Unregister peer window gets stuck. #1486 #1639
+* Different sizes of buttons in Components window UI. #1672
+* Peer registration fails. #1602
+* Rename 'Start on login' in Settings. #1579
+* Huge gaps in Components window UI (Mac OS). #1589
+# FEATURES:
+* Use new CDN rest-points. #1571
+* Remove SSH-keys via SSH-keys Manager. #1446
+* Remove files or folders via File Transfer. #716
+* Create folders via File Transfer. #625
+* Change default VMs storage folder.
+* Change current hypervisor(provider) in Settings. #1373
+* VMware as a hypervisor. #1530 #1442 #1540 #1440 #1491 #1597 #1609 #1444
+* Hyper-V as a hypervisor. #1644 #1700 #1689 #1675
 
 ## [7.1.5] 8/01/2018
 # IMPROVEMENTS:

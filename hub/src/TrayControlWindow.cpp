@@ -508,7 +508,8 @@ void TrayControlWindow::logout() {
     lstActiveDialogs[i] = j->second;
 
   // close active dialogs
-  while (i--) lstActiveDialogs[i]->close();
+  if (i > 0)
+    while (i--) lstActiveDialogs[i]->close();
 
   CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();
@@ -542,16 +543,21 @@ void TrayControlWindow::upload_to_container_triggered(
   flags |= Qt::WindowMaximizeButtonHint;
   flags |= Qt::WindowCloseButtonHint;
   dlg_transfer_file->setWindowFlags(flags);
-  CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(
-          cont.port(), cont.ip(), cont.rh_ip());
 
   QString ssh_key = CHubController::Instance().get_env_key(env.id());
-  QString ip = cip.ip;
-  QString port = cip.port;
   QString username = CSettingsManager::Instance().ssh_user();
 
-  dlg_transfer_file->addIPPort(ip, port);
+  if (P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
+    dlg_transfer_file->addIPPort(cont.ip(), QString(""));
+  } else {
+    CSystemCallWrapper::container_ip_and_port cip =
+        CSystemCallWrapper::container_ip_from_ifconfig_analog(
+            cont.port(), cont.ip(), cont.rh_ip());
+
+    dlg_transfer_file->addIPPort(cip.ip, cip.port);
+  }
+
+
   dlg_transfer_file->addSSHKey(ssh_key);
   dlg_transfer_file->addUser(username);
   m_last_generated_tranferfile_dlg = dlg_transfer_file;

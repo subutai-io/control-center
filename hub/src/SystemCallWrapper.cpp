@@ -475,16 +475,24 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::send_com
   QString cmd
       = QString("%1").arg(CSettingsManager::Instance().ssh_path());
   QStringList args;
-  args
-       << "-o" << "StrictHostKeyChecking=no"
-       << QString("%1@%2").arg(remote_user, ip)
-       << "-p" << port
-       << "-i" << QString("%1").arg(key)
-       << QString("%1").arg(commands);
-  qDebug() << "ARGS=" << args;
+  if (port.isEmpty()) {
+    args
+         << "-o" << "StrictHostKeyChecking=no"
+         << QString("%1@%2").arg(remote_user, ip)
+         << "-i" << QString("%1").arg(key)
+         << QString("%1").arg(commands);
+  } else {
+    args
+         << "-o" << "StrictHostKeyChecking=no"
+         << QString("%1@%2").arg(remote_user, ip)
+         << "-p" << port
+         << "-i" << QString("%1").arg(key)
+         << QString("%1").arg(commands);
+  }
+  qDebug() << "Transfer file remote command ARGS=" << args;
 
   system_call_res_t res = ssystem_th(cmd, args, true, true, 10000);
-  qDebug() << "ARGS of command=" << args
+  qDebug() << "Transfer file remote command" << args
            << "finished"
            << "exit code:" <<res.exit_code
            << "res" << res.res
@@ -508,9 +516,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::upload_f
 
   args<< "-rp"
       << "-o StrictHostKeyChecking=no"
-      << "-P" << ssh_info.first
       << "-S" << CSettingsManager::Instance().ssh_path()
-      << "-i" << ssh_info.second
+      << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
       << file_path
       << QString("%1@%2:%3").arg(remote_user, ip, destination_formatted);
   qDebug() << "ARGS=" << args;
@@ -538,9 +550,13 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::download
 
   args << "-rp"
        << "-o StrictHostKeyChecking=no"
-       << "-P" << ssh_info.first
        << "-S" << CSettingsManager::Instance().ssh_path()
-       << "-i" << ssh_info.second
+       << "-i" << ssh_info.second;
+
+  if (!ssh_info.first.isEmpty())
+    args << "-P" << ssh_info.first;
+
+  args
        << QString("%1@%2:%3").arg(remote_user, ip, remote_file_path_formatted)
        << local_destination;
   qDebug() << "ARGS=" << args;
@@ -668,6 +684,9 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
     QStringList seperated = s.split(",");
     if (seperated.contains("state")) {
       status = seperated.takeLast();
+      qDebug() << "FOUND vagrant status:"
+               << status.simplified();
+      break;
     }
   }
 
@@ -961,7 +980,7 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
   QStringList args;
   args << "global-status";
 
-  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t global_status = ssystem_th(cmd, args, true, true, 20000);
 
   qInfo() << "Vagrant global-status"
           << args
@@ -1652,11 +1671,18 @@ system_call_wrapper_error_t run_sshkey_in_terminal_internal<Os2Type<OS_LINUX> >(
         const QString &ip,
         const QString &port,
         const QString &key) {
-  QString str_command = QString("%1 %2@%3 -p %4")
-                            .arg(CSettingsManager::Instance().ssh_path())
-                            .arg(user)
-                            .arg(ip)
-                            .arg(port);
+  QString str_command;
+
+  if (port.isEmpty()) {
+    str_command = QString("%1 %2@%3").arg(CSettingsManager::Instance().ssh_path())
+                                           .arg(user)
+                                           .arg(ip);
+  } else {
+    str_command = QString("%1 %2@%3 -p %4").arg(CSettingsManager::Instance().ssh_path())
+                                           .arg(user)
+                                           .arg(ip)
+                                           .arg(port);
+  }
 
   if (!key.isEmpty()) {
     qInfo() << QString("Using %1 ssh key").arg(key);
@@ -1930,7 +1956,7 @@ UNUSED_ARG(command);
   STARTUPINFO si = {0};
   PROCESS_INFORMATION pi = {0};
   QString cmd_args =
-      QString("\"%1\" /k \"%2\"").arg(cmd).arg(str_command);
+      QString("\"%1\" /k %2").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
   BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
@@ -1943,7 +1969,11 @@ UNUSED_ARG(command);
     return SCWE_CREATE_PROCESS;
   }
 #endif
-  std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
+  // sleep for 10 seconds until vm machine state is locked
+  QTime dieTime= QTime::currentTime().addSecs(10);
+      while (QTime::currentTime() < dieTime)
+          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
   vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
@@ -1989,7 +2019,7 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_box_remove(const QStri
        << "--all";
 
   system_call_wrapper_install_t res_install;
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60 * 1000 * 5);
 
   qDebug() << "Removing vagrant box: "
            << box
@@ -2025,7 +2055,7 @@ system_call_wrapper_error_t install_p2p_internal<Os2Type <OS_MAC> >(const QStrin
   QString file_path  = dir + QDir::separator() + file_name;
   args << "-e"
        << QString("do shell script \"installer -pkg %1 -target /\" with administrator privileges").arg(file_path);
-  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 3);
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true,  1000 * 60 * 5);
   qDebug() << "p2p installation has finished"
            << "exit code: " << res.exit_code
            << "result code: " << res.res
@@ -2249,7 +2279,8 @@ system_call_wrapper_error_t uninstall_p2p_internal<Os2Type <OS_WIN> >(const QStr
   return res.res;
 }
 
-system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name){
+system_call_wrapper_install_t CSystemCallWrapper::install_p2p(const QString &dir, const QString &file_name) {
+
     installer_is_busy.lock();
     system_call_wrapper_install_t res;
     QString version;
@@ -2327,9 +2358,8 @@ system_call_wrapper_error_t CSystemCallWrapper::update_p2p_linux(const QString &
 
   QByteArray install_script = QString(
                                   "#!/bin/bash\n"
-                                  "apt-get remove -y '^%1.*'\n"
-                                  "dpkg -i %2")
-                                  .arg(p2p_package_name(), file_info)
+                                  "apt -y -f install %1")
+                                  .arg(file_info)
                                   .toUtf8();
 
   if (tmpFile.write(install_script) != install_script.size()) {
@@ -7476,6 +7506,46 @@ system_call_wrapper_error_t CSystemCallWrapper::open(const QString &prog) {
 
   return SCWE_WHICH_CALL_FAILED;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+bool CSystemCallWrapper::is_desktop_peer() {
+#ifndef RT_OS_LINUX
+  return false;
+#endif
+  QString cmd("subutai");
+  QString empty;
+  return which(cmd, empty) == SCWE_SUCCESS;
+}
+
+
+system_call_wrapper_error_t CSystemCallWrapper::local_containers_list(QStringList &list) {
+  qDebug() << "Getting list of local containers";
+  list.clear();
+  static QString lxc_path("/var/lib/lxc");
+  QDir directory(lxc_path);
+  QString tmp;
+
+  if (!directory.exists()) {
+    qCritical() << "container directory not exist: "
+                << lxc_path;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  for (QFileInfo info : directory.entryInfoList()) {
+    QString tmp = info.fileName();
+    qDebug() << "local container foreach: " << info.fileName();
+    if (tmp.contains("Container"))  {
+      qDebug() << "found local container: "
+               << info.fileName();
+      list << info.fileName();
+    }
+  }
+
+  qDebug() << "List of local containers:" << list;
+  return SCWE_SUCCESS;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS>

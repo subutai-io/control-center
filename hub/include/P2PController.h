@@ -8,24 +8,17 @@
 #include "updater/HubComponentsUpdater.h"
 #include <QtConcurrent/QtConcurrent>
 #include "NotificationObserver.h"
+#include "InternalCriticalSection.h"
+#include "Locker.h"
+
 using namespace update_system;
 class StatusChecker : public QObject {
   Q_OBJECT
 public:
     StatusChecker(QObject *parent = nullptr) : QObject (parent){}
-  virtual void startWork() {
-    QThread* thread = new QThread;
-    this->moveToThread(thread);
-    connect(thread, &QThread::started,
-            this, &StatusChecker::run_checker);
-    connect(this, &StatusChecker::connection_finished,
-            thread, &QThread::quit);
-    connect(thread, &QThread::finished,
-            this, &StatusChecker::deleteLater);
-    connect(thread, &QThread::finished,
-            thread, &QThread::deleteLater);
-    thread->start();
-  }
+    virtual void startWork() {
+      run_checker();
+    }
 private slots:
   virtual void run_checker() = 0;
 signals:
@@ -59,9 +52,6 @@ private slots:
   }
 };
 
-
-
-
 class SwarmConnector : public StatusChecker
 {
   Q_OBJECT
@@ -83,8 +73,6 @@ private slots:
   }
 };
 
-
-
 class SwarmLeaver : public StatusChecker
 {
   Q_OBJECT
@@ -104,9 +92,6 @@ private slots:
     });
   }
 };
-
-#include "InternalCriticalSection.h"
-#include "Locker.h"
 
 class P2PConnector : public QObject {
   Q_OBJECT
