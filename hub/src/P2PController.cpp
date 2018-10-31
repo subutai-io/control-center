@@ -415,11 +415,16 @@ ssh_desktop_launch_error_t P2PController::is_ready_sdle(const CEnvironment& env,
 void P2PStatus_checker::update_status(){
     qDebug()
             <<"updating p2p status";
-    if(!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path()))
-        emit p2p_status(P2P_FAIL);
-    else
-        if(!CSystemCallWrapper::p2p_daemon_check())
-           emit p2p_status(P2P_READY);
-        else emit p2p_status(P2P_RUNNING);
-    QTimer::singleShot(30*1000, this, &P2PStatus_checker::update_status); // every two minutes checks p2p
+    if(!CCommons::IsApplicationLaunchable(CSettingsManager::Instance().p2p_path())) {
+      emit p2p_status(P2P_FAIL);
+      QTimer::singleShot(5*1000, this, &P2PStatus_checker::update_status);
+    } else {
+      if (!CSystemCallWrapper::p2p_daemon_check()) {
+        emit p2p_status(P2P_READY);
+        QTimer::singleShot(5*1000, this, &P2PStatus_checker::update_status);
+      } else {
+        emit p2p_status(P2P_RUNNING);
+        QTimer::singleShot(30*1000, this, &P2PStatus_checker::update_status);
+      }
+    }
 }
