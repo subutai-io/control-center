@@ -590,7 +590,10 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
                                               tr("Unable to launch an SSH terminal due to a system call failure. "
                                                  "Try restarting your device before relaunching an SSH terminal."),
                                               tr("Cannot SSH to the environment without a deployed SSH key. "
-                                                 "To generate and deploy an SSH key, go to the menu > SSH-keys management.")};
+                                                 "To generate and deploy an SSH key, go to the menu > SSH-keys management."),
+                                              tr("Cannot file transfer to the environment without a deployed SSH key. "
+                                                "To generate and deploy an SSH key, go to the menu > SSH-keys management.")
+                                              };
   return lst_err_str[err %  SDLE_LAST_ERR];
 }
 

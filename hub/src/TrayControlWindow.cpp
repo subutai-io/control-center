@@ -535,6 +535,16 @@ void TrayControlWindow::login_success() {
 
 void TrayControlWindow::upload_to_container_triggered(
     const CEnvironment &env, const CHubContainer &cont) {
+  QString ssh_key = CHubController::Instance().get_env_key(env.id());
+  QString username = CSettingsManager::Instance().ssh_user();
+
+  if (ssh_key.isEmpty()) {
+    CNotificationObserver::Error(
+        CHubController::ssh_desktop_launch_err_to_str(SDLE_NO_KEY_FILE_TANSFER_DEPLOYED),
+        DlgNotification::N_NO_ACTION);
+    return;
+  }
+
   // generate_transferfile_dlg();
   DlgTransferFile *dlg_transfer_file = new DlgTransferFile(this);
   Qt::WindowFlags flags = 0;
@@ -543,9 +553,6 @@ void TrayControlWindow::upload_to_container_triggered(
   flags |= Qt::WindowMaximizeButtonHint;
   flags |= Qt::WindowCloseButtonHint;
   dlg_transfer_file->setWindowFlags(flags);
-
-  QString ssh_key = CHubController::Instance().get_env_key(env.id());
-  QString username = CSettingsManager::Instance().ssh_user();
 
   if (P2PController::Instance().is_cont_in_machine(cont.peer_id())) {
     dlg_transfer_file->addIPPort(cont.ip(), QString(""));
