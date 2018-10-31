@@ -900,14 +900,14 @@ void TrayControlWindow::my_peers_updated_sl() {
     CNotificationObserver::Instance()->Info(
         tr("%1 %2 online")
             .arg(msgOnline, msgOnline.contains(", ") ? "are" : "is"),
-        DlgNotification::N_GO_TO_HUB);
+        DlgNotification::N_GO_TO_HUB_PEER);
   }
   if (!msgOffline.isEmpty()) {
     msgOffline.remove(0, 2);
     CNotificationObserver::Instance()->Info(
         tr("%1 %2 offline")
             .arg(msgOffline, msgOffline.contains(", ") ? "are" : "is"),
-        DlgNotification::N_GO_TO_HUB);
+        DlgNotification::N_GO_TO_HUB_PEER);
   }
   if (!msgDisconnected.isEmpty()) {
     msgDisconnected.remove(0, 2);
@@ -915,7 +915,7 @@ void TrayControlWindow::my_peers_updated_sl() {
         tr("%1 %2 disconnected")
             .arg(msgDisconnected,
                  msgDisconnected.contains(", ") ? "are" : "is"),
-        DlgNotification::N_GO_TO_HUB);
+        DlgNotification::N_GO_TO_HUB_PEER);
   }
   in_peer_slot = false;
 }

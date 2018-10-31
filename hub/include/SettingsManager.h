@@ -28,6 +28,7 @@ class CSettingsManager : public QObject {
   static const QString SM_LOCALE;
   static const QString SM_VAGRANT_PATH;
   static const QString SM_ORACLE_VIRTUALBOX_PATH;
+  static const QString SM_PARALLELS_PATH;
   static const QString SM_VMWARE_PATH;
   static const QString SM_KVM_PATH;
   static const QString SM_XQUARTZ_PATH;
@@ -49,6 +50,7 @@ class CSettingsManager : public QObject {
   static const QString SM_VMWARE_VM_STORAGE;
   static const QString SM_KVM_VM_STORAGE;
   static const QString SM_HYPERV_VM_STORAGE;
+  static const QString SM_PARALLELS_VM_STORAGE;
   static const QString SM_VM_STORAGE;
 
   static const QString SM_TRAY_GUID;
@@ -94,6 +96,7 @@ class CSettingsManager : public QObject {
   QString m_p2p_path;
   QString m_vagrant_path;
   QString m_oracle_virtualbox_path;
+  QString m_parallels_path;
   QString m_vmware_path;
   QString m_kvm_path;
   QString m_xquartz_path;
@@ -122,6 +125,7 @@ class CSettingsManager : public QObject {
   QString m_vmware_vm_storage;
   QString m_kvm_vm_storage;
   QString m_hyperv_vm_storage;
+  QString m_parallels_vm_storage;
   QString m_vm_storage;
   QString m_tray_guid;
 
@@ -221,6 +225,7 @@ class CSettingsManager : public QObject {
   const QString& ssh_user() const { return m_ssh_user; }
   const QString& vagrant_path() const { return m_vagrant_path; }
   const QString& oracle_virtualbox_path() const { return m_oracle_virtualbox_path; }
+  const QString& parallels_path() const { return m_parallels_path; }
   const QString& vmware_path() const { return m_vmware_path; }
   const QString& kvm_path() const { return m_kvm_path; }
   const QString& xquartz_path() const { return  m_xquartz_path; }
@@ -250,14 +255,15 @@ class CSettingsManager : public QObject {
   const QString& vmware_vm_storage() const { return m_vmware_vm_storage; }
   const QString& kvm_vm_storage() const { return m_kvm_vm_storage; }
   const QString& hyperv_vm_storage() const { return m_hyperv_vm_storage; }
+  const QString& parallels_vm_storage() const { return m_parallels_vm_storage; }
   const QString& vm_storage() const { return m_vm_storage; }
   const QString& tray_guid() const { return m_tray_guid; }
 
   update_freq_t p2p_update_freq() const {
-    return (update_freq_t)m_p2p_update_freq;
+    return update_freq_t(m_p2p_update_freq);
   }
   update_freq_t tray_update_freq() const {
-    return (update_freq_t)m_tray_update_freq;
+    return update_freq_t(m_tray_update_freq);
   }
   bool p2p_autoupdate() const { return m_p2p_autoupdate; }
   bool tray_autoupdate() const { return m_tray_autoupdate; }
@@ -306,6 +312,7 @@ class CSettingsManager : public QObject {
   void set_vagrant_path(QString fr);
   void set_x2goclient_path(QString fr);
   void set_oracle_virtualbox_path(QString fr);
+  void set_parallels_path(QString fr);
   void set_hypervisor_path(QString fr);
   void set_vmware_path(QString fr);
   void set_kvm_path(QString fr);
@@ -369,6 +376,7 @@ class CSettingsManager : public QObject {
   SET_FIELD_DECL(vmware_vm_storage, QString&)
   SET_FIELD_DECL(kvm_vm_storage, QString&)
   SET_FIELD_DECL(hyperv_vm_storage, QString&)
+  SET_FIELD_DECL(parallels_vm_storage, QString&)
   SET_FIELD_DECL(vm_storage, QString&)
 #undef SET_FIELD_DECL
 

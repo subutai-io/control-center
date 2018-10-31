@@ -11,7 +11,7 @@ std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALB
                                                      };
 // For Darwin providers
 std::vector<int> VagrantProvider::m_provider_darwin = { VagrantProvider::VIRTUALBOX,
-                                                      //  VagrantProvider::PARALLELS,
+                                                        VagrantProvider::PARALLELS,
                                                         VagrantProvider::VMWARE_DESKTOP
                                                       };
 // For Windows providers
@@ -38,9 +38,9 @@ VagrantProvider* VagrantProvider::Instance() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
   static QString p_str[] = {tr("Virtualbox"), tr("VMware"),
-                            tr("Hyper-V"), tr("Libvirt"),
-                            tr("Parallels")};
-
+                            tr("Hyper-V"), tr("Parallels"),
+                            tr("Libvirt"),
+                            };
   return p_str[p];
 }
 
@@ -51,8 +51,9 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
 }
 
 const QString& VagrantProvider::CurrentOpenFileTitle() {
-  static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox command")},
-                                                 {VMWARE_DESKTOP, tr("VMware command")},
+  static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox Command")},
+                                                 {VMWARE_DESKTOP, tr("VMware Command")},
+                                                 {PARALLELS, tr("Parallels Command")},
                                                  {LIBVIRT, tr("KVM command")}
                                                 };
   return p_title[CurrentProvider()];
@@ -60,8 +61,9 @@ const QString& VagrantProvider::CurrentOpenFileTitle() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   static QString p_val[] = {"virtualbox", "vmware_desktop",
-                            "hyperv", "libvirt",
-                            "parallels"};
+                            "hyperv", "parallels",
+                            "libvirt",
+                            };
   return p_val[p];
 }
 
@@ -90,7 +92,7 @@ QString VagrantProvider::CurrentName() {
 VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::VIRTUALBOX;
 
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
     provider = (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider();
   }
 
@@ -100,7 +102,7 @@ VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
 QString VagrantProvider::CurrentStr() {
   QString provider = VagrantProvider::ProviderToStr(VagrantProvider::VIRTUALBOX);
 
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
+  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
     provider = VagrantProvider::ProviderToStr(
              (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
   }
@@ -158,6 +160,23 @@ QDir VagrantProvider::BasePeerDirVMware() {
   return base_peer_dir_vmware;
 }
 
+QDir VagrantProvider::BasePeerDirParallels() {
+  QString base_peer_path = CSettingsManager::Instance().parallels_vm_storage();
+
+  if (!base_peer_path.contains("Subutai-peers") &&
+      !QDir().exists(base_peer_path + QDir::separator() + "Subutai-peers")) {
+    base_peer_path = base_peer_path + QDir::separator() + "Subutai-peers";
+    QDir().mkdir(base_peer_path);
+  }
+
+  // 2. create "peer" folder.
+  QString empty;
+  QDir base_peer_dir_parallels(base_peer_path);
+  base_peer_dir_parallels.cd("Subutai-peers");
+
+  return base_peer_dir_parallels;
+}
+
 QDir VagrantProvider::BasePeerDir() {
   switch (CurrentProvider()) {
   case VIRTUALBOX:
@@ -166,6 +185,8 @@ QDir VagrantProvider::BasePeerDir() {
     return BasePeerDirVMware();
   case HYPERV:
     return BasePeerDirHyperv();
+  case PARALLELS:
+    return BasePeerDirParallels();
   default:
     return BasePeerDirVirtualbox();
   }
@@ -179,6 +200,8 @@ QString VagrantProvider::VmStorage() {
     return CSettingsManager::Instance().vmware_vm_storage();
   case VIRTUALBOX:
     return CSystemCallWrapper::get_virtualbox_vm_storage();
+  case PARALLELS:
+    return CSettingsManager::Instance().parallels_vm_storage();
   default:
     return CCommons::HomePath() + QDir::separator() + CCommons::PEER_PATH;
   }

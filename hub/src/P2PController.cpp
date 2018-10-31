@@ -421,5 +421,5 @@ void P2PStatus_checker::update_status(){
         if(!CSystemCallWrapper::p2p_daemon_check())
            emit p2p_status(P2P_READY);
         else emit p2p_status(P2P_RUNNING);
-    QTimer::singleShot(60*1000*2, this, &P2PStatus_checker::update_status); // every two minutes checks p2p
+    QTimer::singleShot(30*1000, this, &P2PStatus_checker::update_status); // every two minutes checks p2p
 }

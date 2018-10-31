@@ -206,6 +206,23 @@ kvm_install_script_kurjun_name() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+template<class OS> const QString& parallels_kurjun_package_name_temp_internal();
+
+#define parallels_kurjun_package_name_def(OS_TYPE, STRING) \
+  template<> \
+  const QString& parallels_kurjun_package_name_temp_internal<Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+parallels_kurjun_package_name_def(OS_MAC,    "parallels-desktop-osx.dmg")
+
+const QString &
+parallels_kurjun_package_name() {
+    return parallels_kurjun_package_name_temp_internal<Os2Type<OS_MAC> >();
+}
+////////////////////////////////////////////////////////////////////////////
+
 template<class OS> const QString& vmware_utility_kurjun_package_name_temp_internal();
 
 #define vmware_utility_kurjun_package_name_def(OS_TYPE, STRING) \
@@ -883,6 +900,12 @@ const QString& default_kvm_path() {
 }
 ////////////////////////////////////////////////////////////////////////////
 
+const QString & default_parallels_path() {
+  static QString parallels("/Applications/Parallels Desktop.app/Contents/MacOs/prlctl");
+  return parallels;
+}
+////////////////////////////////////////////////////////////////////////////
+
 // Gives default hypervisor path by Vagrant Provider
 const QString & default_hypervisor_path() {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
@@ -890,6 +913,8 @@ const QString & default_hypervisor_path() {
     return default_oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return default_vmware_path();
+  case VagrantProvider::PARALLELS:
+    return default_parallels_path();
   default:
     return default_oracle_virtualbox_path();
   }
@@ -1037,6 +1062,12 @@ hub_site() {
     return hub_site_temp_internal<Branch2Type<BT_MASTER> > ();
   else
     return hub_site_temp_internal<Branch2Type<BT_DEV> > ();
+}
+
+const QString &
+hub_peer_site() {
+  static QString peer = hub_site() + "/peers";
+  return peer;
 }
 ////////////////////////////////////////////////////////////////////////////
 
