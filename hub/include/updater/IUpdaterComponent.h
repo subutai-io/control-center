@@ -66,6 +66,7 @@ class IUpdaterComponent : public QObject {
   static const QString VAGRANT_VBGUEST;
   static const QString SUBUTAI_BOX;
   static const QString XQUARTZ; // only mac
+  static const QString KVM;
 
   bool is_in_progress() { return m_in_progress; }
   std::pair<quint64, quint64> last_pb_value;

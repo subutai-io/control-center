@@ -3,6 +3,8 @@
 #include "SystemCallWrapper.h"
 #include <QStorageInfo>
 #include <thread>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 #ifdef RT_OS_LINUX
 #include <sys/sysinfo.h>
@@ -101,4 +103,27 @@ unsigned int Environment::diskSize() {
   qDebug() << "size:" << storage.bytesTotal()/1024/1024/1024 << "GB";
   qDebug() << "availableSize:" << storage.bytesAvailable()/1024/1024/1024 << "GB";
   return storage.bytesTotal()/1024/1024/1024;
+}
+
+// only for linux
+bool Environment::isCpuSupport() {
+  // egrep -c '(vmx|svm)' /proc/cpuinfo
+  // output "0" it means that your CPU doesn't support hardware virtualization.
+  // ouput "1" or more it does - but you still need to make sure that virtualization is enabled in the BIOS.
+  QString cmd("cat");
+  QStringList args;
+  args << "/proc/cpuinfo";
+  CSystemCallWrapper::which("cmd", cmd);
+
+  system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 5000);
+
+  if (res.exit_code == 0 && !res.out.empty() && res.res == SCWE_SUCCESS) {
+    for (QString str : res.out) {
+      if (str.contains("vmx") || str.contains("svm")) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

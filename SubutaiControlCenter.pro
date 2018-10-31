@@ -80,8 +80,9 @@ SOURCES += \
     hub/src/updater/UpdaterComponentVagrantVMwareUtility.cpp \
     hub/src/updater/UpdaterComponentXQuartz.cpp \
     hub/src/updater/UpdaterComponentHyperv.cpp \
-    hub/src/updater/UpdaterComponentParallels.cpp \
-    hub/src/DlgCreateFolder.cpp
+    hub/src/DlgCreateFolder.cpp \
+    hub/src/updater/UpdaterComponentKvm.cpp \
+    hub/src/updater/UpdaterComponentParallels.cpp
 
 
 
@@ -147,8 +148,9 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentVagrantVMwareUtility.h \
     hub/include/updater/UpdaterComponentXQuartz.h \
     hub/include/updater/UpdaterComponentHyperv.h \
-    hub/include/updater/UpdaterComponentParallels.h \
-    hub/include/DlgCreateFolder.h
+    hub/include/DlgCreateFolder.h \
+    hub/include/updater/UpdaterComponentKvm.h \
+    hub/include/updater/UpdaterComponentParallels.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

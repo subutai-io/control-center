@@ -55,7 +55,7 @@ chue_t CUpdaterComponentVMware::install_internal() {
   }
   QString file_name = vmware_kurjun_package_name();
   QString file_dir = download_vmware_path();
-  QString str_vmware_downloaded_path = file_dir + "/" + file_name;
+  QString str_vmware_downloaded_path = file_dir + QDir::separator() + file_name;
 
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(file_name);

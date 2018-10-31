@@ -33,6 +33,7 @@ const QString CSettingsManager::SM_VAGRANT_PATH("VAGRANT_Path");
 const QString CSettingsManager::SM_ORACLE_VIRTUALBOX_PATH("ORACLE_VIRTUALBOX_Path");
 const QString CSettingsManager::SM_PARALLELS_PATH("PARALLELS_Path");
 const QString CSettingsManager::SM_VMWARE_PATH("VMWARE_Path");
+const QString CSettingsManager::SM_KVM_PATH("KVM_Path");
 const QString CSettingsManager::SM_XQUARTZ_PATH("XQUARTZ_Path");
 const QString CSettingsManager::SM_DEFAULT_BROWSER("Default_Browser");
 const QString CSettingsManager::SM_DEFAULT_CHROME_PROFILE("Default_Chrome_Profile");
@@ -56,6 +57,7 @@ const QString CSettingsManager::SM_LOGS_STORAGE("Rh_Logs_Storage");
 const QString CSettingsManager::SM_SSH_KEYS_STORAGE("Rh_Ssh_Keys_Storage");
 const QString CSettingsManager::SM_PEERS_STORAGE("Rh_Peers_Storage");
 const QString CSettingsManager::SM_VMWARE_VM_STORAGE("VMware_Vm_Storage");
+const QString CSettingsManager::SM_KVM_VM_STORAGE("KVM_Vm_Storage");
 const QString CSettingsManager::SM_HYPERV_VM_STORAGE("Hyperv_Vm_Storage");
 const QString CSettingsManager::SM_PARALLELS_VM_STORAGE("Parallels_Vm_Storage");
 const QString CSettingsManager::SM_VM_STORAGE("Vm_Storage");
@@ -194,6 +196,7 @@ CSettingsManager::CSettingsManager()
       m_oracle_virtualbox_path(default_oracle_virtualbox_path()),
       m_parallels_path(default_parallels_path()),
       m_vmware_path(default_vmware_path()),
+      m_kvm_path(default_kvm_path()),
       m_xquartz_path("/Applications/Utilities/XQuartz.app"),
       m_default_browser(default_default_browser()),
       m_default_chrome_profile(default_default_chrome_profile()),
@@ -216,6 +219,7 @@ CSettingsManager::CSettingsManager()
       m_ssh_keys_storage(QApplication::applicationDirPath()),
       m_peers_storage(CCommons::HomePath()),
       m_vmware_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
+      m_kvm_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_hyperv_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_parallels_vm_storage(CCommons::HomePath() + QDir::separator() + QString("Subutai-peers")),
       m_tray_guid(""),
@@ -266,6 +270,7 @@ CSettingsManager::CSettingsManager()
       {static_cast<void*>(&m_oracle_virtualbox_path), SM_ORACLE_VIRTUALBOX_PATH, qvar_to_str},
       {static_cast<void*>(&m_parallels_path), SM_PARALLELS_PATH, qvar_to_str},
       {static_cast<void*>(&m_vmware_path), SM_VMWARE_PATH, qvar_to_str},
+      {static_cast<void*>(&m_kvm_path), SM_KVM_PATH, qvar_to_str},
       {static_cast<void*>(&m_x2goclient), SM_X2GOCLIENT_PATH, qvar_to_str},
       {static_cast<void*>(&m_ssh_path), SM_SSH_PATH, qvar_to_str},
       {static_cast<void*>(&m_scp_path), SM_SCP_PATH, qvar_to_str},
@@ -279,6 +284,7 @@ CSettingsManager::CSettingsManager()
       {static_cast<void*>(&m_ssh_keys_storage), SM_SSH_KEYS_STORAGE, qvar_to_str},
       {static_cast<void*>(&m_peers_storage), SM_PEERS_STORAGE, qvar_to_str},
       {static_cast<void*>(&m_vmware_vm_storage), SM_VMWARE_VM_STORAGE, qvar_to_str},
+      {static_cast<void*>(&m_kvm_vm_storage), SM_KVM_VM_STORAGE, qvar_to_str},
       {static_cast<void*>(&m_hyperv_vm_storage), SM_HYPERV_VM_STORAGE, qvar_to_str},
       {static_cast<void*>(&m_parallels_vm_storage), SM_PARALLELS_VM_STORAGE, qvar_to_str},
       {static_cast<void*>(&m_vm_storage), SM_VM_STORAGE, qvar_to_str},
@@ -637,6 +643,8 @@ const QString& CSettingsManager::current_hypervisor_path() {
     return oracle_virtualbox_path();
   case VagrantProvider::VMWARE_DESKTOP:
     return vmware_path();
+  case VagrantProvider::LIBVIRT:
+    return kvm_path();
   case VagrantProvider::PARALLELS:
     return parallels_path();
   default:
@@ -662,6 +670,12 @@ void CSettingsManager::set_vmware_path(QString vmware_path) {
   m_settings.setValue(SM_VMWARE_PATH, m_vmware_path);
 }
 
+void CSettingsManager::set_kvm_path(QString fr) {
+  QString sl = QFile::symLinkTarget(fr);
+  m_kvm_path = sl == "" ? fr : sl;
+  m_settings.setValue(SM_KVM_PATH, m_kvm_path);
+}
+
 void CSettingsManager::set_hypervisor_path(QString fr) {
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
@@ -669,6 +683,9 @@ void CSettingsManager::set_hypervisor_path(QString fr) {
     break;
   case VagrantProvider::VMWARE_DESKTOP:
     set_vmware_path(fr);
+    break;
+  case VagrantProvider::LIBVIRT:
+    set_kvm_path(fr);
     break;
   case VagrantProvider::PARALLELS:
     set_parallels_path(fr);
@@ -835,6 +852,7 @@ SET_FIELD_DEF(firefox_path, SM_FIREFOX_PATH, QString&)
 SET_FIELD_DEF(xquartz_path, SM_XQUARTZ_PATH, QString&)
 SET_FIELD_DEF(vm_storage, SM_VM_STORAGE, QString&)
 SET_FIELD_DEF(vmware_vm_storage, SM_VMWARE_VM_STORAGE, QString&)
+SET_FIELD_DEF(kvm_vm_storage, SM_KVM_VM_STORAGE, QString&)
 SET_FIELD_DEF(hyperv_vm_storage, SM_HYPERV_VM_STORAGE, QString&)
 SET_FIELD_DEF(parallels_vm_storage, SM_PARALLELS_VM_STORAGE, QString&)
 #undef SET_FIELD_DEF

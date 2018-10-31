@@ -50,7 +50,8 @@ DlgNotification::DlgNotification(
       int rse_err;
       CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STARTED_P2P);
     }},
-  {"Uninstall", []() { update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP); }}
+  {"Uninstall", []() { update_system::CHubComponentsUpdater::Instance()->uninstall(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP); }},
+  {"Peer", []() { CHubController::Instance().launch_browser(hub_peer_site()); }}
   };
 
   if (action_type == N_NO_ACTION)

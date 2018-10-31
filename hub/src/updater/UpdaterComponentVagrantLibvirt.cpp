@@ -39,8 +39,8 @@ chue_t CUpdaterComponentVAGRANT_LIBVIRT::install_internal() {
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
       QObject::tr(
-          "The Vagrant Libvirt provider sets up peer parameters, like disk size "
-          "and RAM.\n"
+          "This is a Vagrant plugin that adds an Libvirt provider to Vagrant, "
+          "allowing Vagrant to control and provision machines via Libvirt toolkit.\n"
           "The Vagrant Libvirt provider will be installed on your machine.\n"
           "Do you want to proceed?"),
       QMessageBox::Yes | QMessageBox::No);
@@ -63,7 +63,7 @@ chue_t CUpdaterComponentVAGRANT_LIBVIRT::install_internal() {
 }
 
 chue_t CUpdaterComponentVAGRANT_LIBVIRT::update_internal() {
-  update_progress_sl(50, 100);
+  update_progress_sl(100, 100);
   static QString empty_string = "";
 
   SilentUpdater *silent_updater = new SilentUpdater(this);
