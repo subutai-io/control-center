@@ -792,8 +792,8 @@ QNetworkReply* CRestWorker::download_gorjun_file(const QString& file_name,
 
 QNetworkReply* CRestWorker::download_file(const QUrl& url) {
   QNetworkRequest req(url);
-  req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
-                   QNetworkRequest::AlwaysNetwork);
+  //req.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
+  //                 QNetworkRequest::AlwaysNetwork);
   QNetworkReply* reply = m_network_manager->get(req);
   reply->ignoreSslErrors();
   return reply;
@@ -846,13 +846,14 @@ std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
 void CRestWorker::add_sshkey_to_environments(
     const QString& key_name, const QString& key,
     const std::vector<QString>& lst_environments) {
+  QString ssh_key_md5 = CCommons::FileMd5(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + key_name);
   static const QString str_url(hub_post_url().arg("environments/ssh-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
   for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
     arr_environments.push_back(QJsonValue(*i));
 
-  obj["key_name"] = key_name;
+  obj["key_name"] = ssh_key_md5 + key_name;
   obj["sshKey"] = QJsonValue(key);
   obj["environments"] = arr_environments;
 
@@ -888,13 +889,14 @@ void CRestWorker::add_sshkey_to_environments(
 void CRestWorker::remove_sshkey_from_environments(
     const QString& key_name, const QString& key,
     const std::vector<QString>& lst_environments) {
+  QString ssh_key_md5 = CCommons::FileMd5(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + key_name);
   static const QString str_url(hub_post_url().arg("environments/remove-keys"));
   QJsonObject obj;
   QJsonArray arr_environments;
   for (auto i = lst_environments.begin(); i != lst_environments.end(); ++i)
     arr_environments.push_back(QJsonValue(*i));
 
-  obj["key_name"] = key_name;
+  obj["key_name"] = ssh_key_md5 + key_name;
   obj["sshKey"] = QJsonValue(key);
   obj["environments"] = arr_environments;
 
