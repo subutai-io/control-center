@@ -198,6 +198,12 @@ const QString &
 vmware_kurjun_package_name() {
     return vmware_kurjun_package_name_temp_internal<Os2Type<CURRENT_OS> >();
 }
+
+const QString&
+kvm_install_script_kurjun_name() {
+  static QString script = "kvm_install.sh";
+  return script;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 template<class OS> const QString& parallels_kurjun_package_name_temp_internal();
@@ -888,6 +894,10 @@ const QString & default_vmware_path() {
     return default_vmware_path_temp_internal<Os2Type<CURRENT_OS > >();
 }
 
+const QString& default_kvm_path() {
+  static QString kvm_path = "/usr/bin/kvm";
+  return kvm_path;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 const QString & default_parallels_path() {
@@ -1052,6 +1062,12 @@ hub_site() {
     return hub_site_temp_internal<Branch2Type<BT_MASTER> > ();
   else
     return hub_site_temp_internal<Branch2Type<BT_DEV> > ();
+}
+
+const QString &
+hub_peer_site() {
+  static QString peer = hub_site() + "/peers";
+  return peer;
 }
 ////////////////////////////////////////////////////////////////////////////
 

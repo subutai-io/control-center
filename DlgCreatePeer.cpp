@@ -82,11 +82,21 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   // Hyper-V Hypervisor
   requirement hyperv(
         tr("Hyper-V is not ready"), tr("Checking Hyper-V..."),
-        tr("Hyper-V is not reaady. You should install it from "
+        tr("Hyper-V is not ready. You should install it from "
            "Components"),
         DlgNotification::N_ABOUT, []() {
           return !CHubComponentsUpdater::Instance()->is_update_available(
                 IUpdaterComponent::HYPERV);
+        });
+
+  // KVM Hypervisor
+  requirement kvm(
+        tr("KVM is not ready"), tr("Checking KVM..."),
+        tr("KVM is not ready. You should install it from "
+           "Components"),
+        DlgNotification::N_ABOUT, []() {
+          return !CHubComponentsUpdater::Instance()->is_update_available(
+                IUpdaterComponent::KVM);
         });
 
   requirement parallels(
@@ -209,6 +219,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
     break;
   case VagrantProvider::LIBVIRT:
     m_requirements_ls.push_back(libvirt_provider);
+    m_requirements_ls.push_back(kvm);
 
     if (bridges.size() == 0) {
       ui->lbl_bridge->hide();

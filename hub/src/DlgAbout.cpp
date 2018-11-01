@@ -20,6 +20,12 @@ QString get_p2p_version() {
   return p2p_version;
 }
 
+QString get_kvm_version() {
+  QString version;
+  CSystemCallWrapper::kvm_version(version);
+  return version;
+}
+
 QString get_x2go_version() {
   QString x2go_version = "";
   CSystemCallWrapper::x2go_version(x2go_version);
@@ -147,11 +153,12 @@ void DlgAbout::set_visible_provider_plugin(bool value) {
 
 void DlgAbout::set_visible_libvirt() {
   // Vagrant libvirt provider vagrant-libvirt
-  ui->lbl_hypervisor->setText("Libvirt");
+  ui->lbl_hypervisor->setText("KVM");
   ui->lbl_hypervisor_version->setText("undefined");
-  ui->lbl_hypervisor_icon->setToolTip(tr(""));
+  ui->lbl_hypervisor_icon->setToolTip(tr("<nobr>KVM is hypervisor for<br>"
+                                         "managing virtual machine environments"));
 
-  ui->lbl_provider_plugin->setText("Vagrant Libvirt Desktop");
+  ui->lbl_provider_plugin->setText("Vagrant Libvirt");
   ui->lbl_provider_plugin_version->setText("undefined");
   ui->lbl_provider_plugin_icon->setToolTip(tr(""));
 
@@ -248,9 +255,9 @@ void DlgAbout::set_hidden_providers() {
   case VagrantProvider::VMWARE_DESKTOP:
     set_visible_vmware();
     break;
-  //case VagrantProvider::LIBVIRT:
-  //  set_visible_libvirt(true);
-  // break;
+  case VagrantProvider::LIBVIRT:
+    set_visible_libvirt();
+    break;
   case VagrantProvider::HYPERV:
     set_visible_hyperv();
     break;
@@ -387,6 +394,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
       this->btn_vbguest_plugin_update_released();
     } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::VMWARE_DESKTOP) {
       this->btn_provider_vmware_update_released();
+    } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::LIBVIRT) {
+      this->btn_provider_libvirt_updates_released();
     } else if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::PARALLELS) {
       this->btn_provider_parallels_update_released();
     }
@@ -525,6 +534,11 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     ui->lbl_provider_plugin_version, ui->pb_provider_plugin,
     ui->cb_provider_plugin, ui->btn_provider_plugin_update,
     get_vagrant_provider_version
+  };
+
+  m_dct_fpb[IUpdaterComponent::KVM] = {
+    ui->lbl_hypervisor_version, ui->pb_hypervisor, ui->cb_hypervisor,
+    ui->btn_hypervisor_update, get_kvm_version
   };
 
   // hide providers and add provider to components dictionary
@@ -947,10 +961,14 @@ void DlgAbout::btn_hypervisor_update_released() {
   case VagrantProvider::HYPERV:
     component_id = IUpdaterComponent::HYPERV;
     break;
+  case VagrantProvider::LIBVIRT:
+    component_id = IUpdaterComponent::KVM;
+    break;
   case VagrantProvider::PARALLELS:
     component_id = IUpdaterComponent::PARALLELS;
     break;
   default:
+    component_id = IUpdaterComponent::ORACLE_VIRTUALBOX;
     break;
   }
 
@@ -1003,7 +1021,7 @@ void DlgAbout::btn_uninstall_components() {
     IUpdaterComponent::HYPERV,
     IUpdaterComponent::ORACLE_VIRTUALBOX,
     IUpdaterComponent::VMWARE,
-    //IUpdaterComponent::LIBVIRT,
+    IUpdaterComponent::KVM,
     //IUpdaterComponent::PARALLELS
   };
   QStringList browsers = {
@@ -1038,8 +1056,7 @@ void DlgAbout::btn_uninstall_components() {
     current_hypervisor_id = IUpdaterComponent::VMWARE;
     current_provider_plugin_id = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
   } else if (current_hypervisor_id == "libvirt") {
-    current_hypervisor_id = //IUpdaterComponent::ORACLE_VIRTUALBOX;
-                            "LIBVIRT";
+    current_hypervisor_id = IUpdaterComponent::KVM;
     current_provider_plugin_id = IUpdaterComponent::VAGRANT_LIBVIRT;
   } else if (current_hypervisor_id == "parallels") {
     current_hypervisor_id = //IUpdaterComponent::ORACLE_VIRTUALBOX;
@@ -1108,7 +1125,8 @@ void DlgAbout::download_progress(const QString& component_id, qint64 rec,
   } else {
     m_dct_fpb[component_id].pb->setValue(int((rec * 100) / total));
 
-    if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV)
+    if (provider != VagrantProvider::HYPERV && component_id != IUpdaterComponent::HYPERV &&
+        provider != VagrantProvider::LIBVIRT && component_id != IUpdaterComponent::KVM)
       m_dct_fpb[component_id].btn->setText(tr("Downloading"));
   }
 }
@@ -1364,13 +1382,23 @@ void DlgAbout::got_subutai_box_version_sl(QString version) {
 
 void DlgAbout::got_hypervisor_version_sl(QString version) {
   QString component_id;
-  VagrantProvider::PROVIDERS provider = VagrantProvider::Instance()->CurrentProvider();
-  if (VagrantProvider::HYPERV == provider) {
+
+  switch (VagrantProvider::Instance()->CurrentProvider()) {
+  case VagrantProvider::HYPERV:
     component_id = IUpdaterComponent::HYPERV;
-  } else if (VagrantProvider::VMWARE_DESKTOP == provider) {
+    break;
+  case VagrantProvider::VMWARE_DESKTOP:
     component_id = IUpdaterComponent::VMWARE;
-  } else {
+    break;
+  case VagrantProvider::LIBVIRT:
+    component_id = IUpdaterComponent::KVM;
+    break;
+  case VagrantProvider::PARALLELS:
     component_id = IUpdaterComponent::PARALLELS;
+    break;
+  default:
+    component_id = IUpdaterComponent::ORACLE_VIRTUALBOX;
+    break;
   }
 
   if (this->m_dct_fpb.find(component_id) != this->m_dct_fpb.end()) {
@@ -1420,9 +1448,9 @@ void DlgAbout::got_provider_version_sl(QString version) {
   case VagrantProvider::VMWARE_DESKTOP:
     COMPONENT_KEY = IUpdaterComponent::VAGRANT_VMWARE_DESKTOP;
     break;
-  //case VagrantProvider::LIBVIRT:
-  //  COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
-  //  break;
+  case VagrantProvider::LIBVIRT:
+    COMPONENT_KEY = IUpdaterComponent::VAGRANT_LIBVIRT;
+    break;
   default:
     break;
   }
@@ -1594,6 +1622,17 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
+    if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::LIBVIRT) {
+      QString vagrant_libvirt = get_vagrant_provider_version();
+      emit got_provider_version(vagrant_libvirt);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+
+      QString kvm = get_kvm_version();
+      emit got_hypervisor_version(kvm);
+      emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
+    }
+
+#ifdef RT_OS_DARWIN 
     if (provider == VagrantProvider::PARALLELS) {
       QString provider_parallels = get_vagrant_provider_version();
       emit got_provider_version(provider_parallels);
@@ -1604,7 +1643,6 @@ void DlgAboutInitializer::do_initialization() {
       emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
     }
 
-#ifdef RT_OS_DARWIN
     QString xquartz_version = get_xquartz_version();
     emit got_xquartz_version(xquartz_version);
     emit init_progress(++initialized_component_count, COMPONENTS_COUNT);
@@ -1642,9 +1680,10 @@ void DlgAboutInitializer::do_initialization() {
       uas.push_back(IUpdaterComponent::VAGRANT_VMWARE_DESKTOP);
       uas.push_back(IUpdaterComponent::VMWARE_UTILITY);
       break;
-    //case VagrantProvider::LIBVIRT:
-    //  uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
-    //  break;
+    case VagrantProvider::LIBVIRT:
+      uas.push_back(IUpdaterComponent::KVM);
+      uas.push_back(IUpdaterComponent::VAGRANT_LIBVIRT);
+      break;
     case VagrantProvider::HYPERV:
       uas.push_back(IUpdaterComponent::HYPERV);
       break;

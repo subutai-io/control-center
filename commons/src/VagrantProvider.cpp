@@ -6,7 +6,7 @@
 
 // For Linux providers
 std::vector<int> VagrantProvider::m_provider_linux = { VagrantProvider::VIRTUALBOX,
-                                                     //  VagrantProvider::LIBVIRT,
+                                                       VagrantProvider::LIBVIRT,
                                                        VagrantProvider::VMWARE_DESKTOP
                                                      };
 // For Darwin providers
@@ -39,8 +39,8 @@ VagrantProvider* VagrantProvider::Instance() {
 const QString& VagrantProvider::ProviderToStr(PROVIDERS p) {
   static QString p_str[] = {tr("Virtualbox"), tr("VMware"),
                             tr("Hyper-V"), tr("Parallels"),
-                            tr("Libvirt")};
-
+                            tr("Libvirt"),
+                            };
   return p_str[p];
 }
 
@@ -53,7 +53,8 @@ const QString& VagrantProvider::ProviderToName(PROVIDERS p) {
 const QString& VagrantProvider::CurrentOpenFileTitle() {
   static std::map<PROVIDERS, QString> p_title = {{VIRTUALBOX, tr("VirtualBox Command")},
                                                  {VMWARE_DESKTOP, tr("VMware Command")},
-                                                 {PARALLELS, tr("Parallels Command")}
+                                                 {PARALLELS, tr("Parallels Command")},
+                                                 {LIBVIRT, tr("KVM command")}
                                                 };
   return p_title[CurrentProvider()];
 }
@@ -61,7 +62,8 @@ const QString& VagrantProvider::CurrentOpenFileTitle() {
 const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
   static QString p_val[] = {"virtualbox", "vmware_desktop",
                             "hyperv", "parallels",
-                            "libvirt"};
+                            "libvirt",
+                            };
   return p_val[p];
 }
 
