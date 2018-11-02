@@ -583,6 +583,7 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
   ui->label_2->setFixedWidth(100);
 #endif
   this->adjustSize();
+  this->ui->btn_close->setDefault(true);
 
   check_for_versions_and_updates();
 }
