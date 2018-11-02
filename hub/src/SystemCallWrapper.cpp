@@ -6780,7 +6780,7 @@ system_call_wrapper_error_t CSystemCallWrapper::kvm_version(QString &version) {
 
   if (res.res == SCWE_SUCCESS && res.exit_code == 0 && !res.out.empty()) {
     QString ver = res.out[0];
-    QRegExp reg("(\\d\\.\\d\\.\\d)");
+    QRegExp reg("(\\d+\\.\\d+\\.\\d+)");
 
     if (reg.indexIn(ver, 0) != -1) {
       version = reg.cap(1);
