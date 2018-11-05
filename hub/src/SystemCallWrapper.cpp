@@ -4307,6 +4307,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
   }
 
   if (distribution.toLower() == "debian") {
+    qDebug() << "KVM uninstalling on debian";
     script = QString("#!/usr/bin/env bash \n"
                      "codename=`lsb_release -c -s` \n"
                      "case \"$codename\" in \n"
@@ -4323,6 +4324,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
                      "esac"
                      ).toUtf8();
   } else if (distribution.toLower() == "ubuntu") {  // Ubuntu
+    qDebug() << "KVM uninstalling on ubuntu";
     QString keramic = "9.10";
     QString lucid = "10.04";
     QString version; // ubuntu version
@@ -4337,7 +4339,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
       version = version.trimmed().simplified();
     } else {
       res.res = cr.res;
-      qDebug() << "Failed to get ubuntu version"
+      qDebug() << "KVM Failed to get ubuntu version"
                << cr.res
                << cr.exit_code
                << cr.out;
@@ -4346,17 +4348,20 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
 
     // Install KVM
     if (versionCompare(version.toStdString(), lucid.toStdString()) > 0) {
-      // Installing KVM for later version of Ubuntu 10.04
+      // Unstalling KVM for later version of Ubuntu 10.04
+      qDebug() << "Unstalling KVM for later version of Ubuntu 10.04";
       script = QString("#!/usr/bin/env bash\n"
                        "apt-get remove -y qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
                        ).toUtf8();
     } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
-      // Installing KVM for ealier version of Ubuntu 9.10
+      // Unstalling KVM for ealier version of Ubuntu 9.10
+      qDebug() << "Unstalling KVM for ealier version of Ubuntu 9.10";
       script = QString("#!/usr/bin/env bash\n"
                        "aptitude remove -y kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
                        ).toUtf8();
     }
   } else if (distribution.toLower() == "linuxmint") {  // LinuxMint
+    qDebug() << "KVM uninstalling on linuxmint";
     script = QString("#!/usr/bin/env bash\n"
                      "apt-get remove -y qemu-kvm libvirt-bin bridge-utils\n"
                      ).toUtf8();
@@ -4373,7 +4378,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_kvm() {
     return res;
   }
 
-  qDebug() << "uninstall kvm script failed"
+  qDebug() << "KVM uninstall kvm script failed"
            << cr_script.res
            << cr_script.exit_code
            << cr_script.out;
@@ -4402,24 +4407,39 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
   if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
     distribution = cr.out[0];
     distribution = distribution.trimmed().simplified();
+    qDebug() << "KVM installation on "
+             << distribution
+             << " username: "
+             << username;
   } else {
-    qDebug() << "Failed get linux distribution"
+    qDebug() << "KVM failed get linux distribution"
              << cr.out;
     res.res = cr.res;
     return res;
   }
 
   if (distribution.toLower() == "debian") {
+    qDebug() << "KVM install on debian";
     script = QString("#!/usr/bin/env bash \n"
                      "codename=`lsb_release -c -s` \n"
                      "case \"$codename\" in \n"
                      "\"stretch\")\n"
                        "apt install -y -f qemu-kvm libvirt-clients libvirt-daemon-system\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 libvirt\n"
                        "adduser %1 libvirt-qemu\n"
                        ";;"
                      "\"jessie\")"
                        "apt-get -y install qemu-kvm libvirt-bin\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirt\n"
                        ";;"
@@ -4444,7 +4464,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
       version = version.trimmed().simplified();
     } else {
       res.res = cr.res;
-      qDebug() << "Failed to get ubuntu version"
+      qDebug() << "KVM Failed to get ubuntu version"
                << cr.res
                << cr.exit_code
                << cr.out;
@@ -4453,20 +4473,38 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
 
     // Install KVM
     if (versionCompare(version.toStdString(), lucid.toStdString()) > 0) {
+      qDebug() << "KVM installing KVM for later version of Ubuntu 10.04";
       // Installing KVM for later version of Ubuntu 10.04
       script = QString("#!/usr/bin/env bash\n"
                        "apt-get install -y -f qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
     } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
+      qDebug() << "KVM installing KVM for ealier version of Ubuntu 9.10";
       // Installing KVM for ealier version of Ubuntu 9.10
       script = QString("#!/usr/bin/env bash\n"
                        "aptitude install -y -f kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "aptitude install -y -f\n"
+                       "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
     }
   } else if (distribution.toLower() == "linuxmint") {  // LinuxMint
+    qDebug() << "KVM installing linuxmint";
     script = QString("#!/usr/bin/env bash\n"
                      "apt-get install -y -f qemu-kvm libvirt-bin bridge-utils\n"
+                     "if [ $? -gt 0 ]\n"
+                     "then\n"
+                     "dpkg --configure -a\n"
+                     "apt-get install -y -f\n"
+                     "fi\n"
                      "adduser %1 libvirt\n").arg(username).toUtf8();
   }
 
@@ -4481,7 +4519,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
     return res;
   }
 
-  qDebug() << "install kvm script failed"
+  qDebug() << "KVM install kvm script failed"
            << cr_script.res
            << cr_script.exit_code
            << cr_script.out;

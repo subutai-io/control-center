@@ -63,7 +63,7 @@ chue_t CUpdaterComponentKvm::install_internal() {
     }
   }
 
-  update_progress_sl(100, 100);
+  update_progress_sl(0, 0);
   static QString empty_string = "";
   SilentInstaller *silent_installer = new SilentInstaller(this);
   silent_installer->init(empty_string, empty_string, CC_KVM);

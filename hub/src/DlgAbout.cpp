@@ -1023,7 +1023,7 @@ void DlgAbout::btn_uninstall_components() {
     IUpdaterComponent::ORACLE_VIRTUALBOX,
     IUpdaterComponent::VMWARE,
     IUpdaterComponent::KVM,
-    //IUpdaterComponent::PARALLELS
+    IUpdaterComponent::PARALLELS
   };
   QStringList browsers = {
     IUpdaterComponent::CHROME,
@@ -1060,8 +1060,7 @@ void DlgAbout::btn_uninstall_components() {
     current_hypervisor_id = IUpdaterComponent::KVM;
     current_provider_plugin_id = IUpdaterComponent::VAGRANT_LIBVIRT;
   } else if (current_hypervisor_id == "parallels") {
-    current_hypervisor_id = //IUpdaterComponent::ORACLE_VIRTUALBOX;
-                            "PARALLELS";
+    current_hypervisor_id = IUpdaterComponent::PARALLELS;
     current_provider_plugin_id = IUpdaterComponent::VAGRANT_PARALLELS;
   }
 
