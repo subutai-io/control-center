@@ -4491,7 +4491,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                        "if [ $? -gt 0 ]\n"
                        "then\n"
                        "dpkg --configure -a\n"
-                       "apt-get install -y -f\n"
+                       "aptitude install -y -f\n"
                        "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
