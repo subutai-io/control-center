@@ -4429,6 +4429,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                        "then\n"
                        "dpkg --configure -a\n"
                        "apt-get install -y -f\n"
+                       "apt install -y -f qemu-kvm libvirt-clients libvirt-daemon-system\n" // if installation fails, install dependency package and try again
                        "fi\n"
                        "adduser %1 libvirt\n"
                        "adduser %1 libvirt-qemu\n"
@@ -4439,6 +4440,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                        "then\n"
                        "dpkg --configure -a\n"
                        "apt-get install -y -f\n"
+                       "apt-get -y install qemu-kvm libvirt-bin\n"
                        "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirt\n"
@@ -4481,6 +4483,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                        "then\n"
                        "dpkg --configure -a\n"
                        "apt-get install -y -f\n"
+                       "apt-get install -y -f qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
                        "fi\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
     } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
@@ -4492,6 +4495,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                        "then\n"
                        "dpkg --configure -a\n"
                        "aptitude install -y -f\n"
+                       "aptitude install -y -f kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
                        "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
@@ -4504,6 +4508,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                      "then\n"
                      "dpkg --configure -a\n"
                      "apt-get install -y -f\n"
+                     "apt-get install -y -f qemu-kvm libvirt-bin bridge-utils\n"
                      "fi\n"
                      "adduser %1 libvirt\n").arg(username).toUtf8();
   }
