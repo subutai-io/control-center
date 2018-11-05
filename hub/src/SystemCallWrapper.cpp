@@ -4420,11 +4420,21 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
                      "case \"$codename\" in \n"
                      "\"stretch\")\n"
                        "apt install -y -f qemu-kvm libvirt-clients libvirt-daemon-system\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 libvirt\n"
                        "adduser %1 libvirt-qemu\n"
                        ";;"
                      "\"jessie\")"
                        "apt-get -y install qemu-kvm libvirt-bin\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirt\n"
                        ";;"
@@ -4462,12 +4472,22 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
       // Installing KVM for later version of Ubuntu 10.04
       script = QString("#!/usr/bin/env bash\n"
                        "apt-get install -y -f qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
     } else if (versionCompare(keramic.toStdString(), version.toStdString()) > 0) {
       qDebug() << "KVM installing KVM for ealier version of Ubuntu 9.10";
       // Installing KVM for ealier version of Ubuntu 9.10
       script = QString("#!/usr/bin/env bash\n"
                        "aptitude install -y -f kvm libvirt-bin ubuntu-vm-builder bridge-utils\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "fi\n"
                        "adduser %1 kvm\n"
                        "adduser %1 libvirtd\n").arg(username).toUtf8();
     }
@@ -4475,6 +4495,11 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
     qDebug() << "KVM installing linuxmint";
     script = QString("#!/usr/bin/env bash\n"
                      "apt-get install -y -f qemu-kvm libvirt-bin bridge-utils\n"
+                     "if [ $? -gt 0 ]\n"
+                     "then\n"
+                     "dpkg --configure -a\n"
+                     "apt-get install -y -f\n"
+                     "fi\n"
                      "adduser %1 libvirt\n").arg(username).toUtf8();
   }
 
