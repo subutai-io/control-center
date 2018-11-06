@@ -68,31 +68,23 @@ const QString& VagrantProvider::ProviderToVal(PROVIDERS p) {
 }
 
 QString VagrantProvider::CurrentVal() {
-  QString provider = VagrantProvider::ProviderToVal(VagrantProvider::VIRTUALBOX);
-
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
-    provider = VagrantProvider::ProviderToVal(
-             (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
-  }
+  QString provider = VagrantProvider::ProviderToVal(VagrantProvider::CurrentProvider());
 
   return provider;
 }
 
 QString VagrantProvider::CurrentName() {
-  QString provider = VagrantProvider::ProviderToName(VagrantProvider::VIRTUALBOX);
-
-  if (VagrantProvider::PROVIDER_LAST >= CSettingsManager::Instance().vagrant_provider()) {
-    provider = VagrantProvider::ProviderToName(
-             (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
-  }
+  QString provider = VagrantProvider::ProviderToName(VagrantProvider::CurrentProvider());
 
   return provider;
 }
 
 VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::VIRTUALBOX;
+  std::vector<int> providers = VagrantProvider::List(); // list of providers by os
 
-  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
+  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider() &&
+      std::find(providers.begin(), providers.end(), (int)CSettingsManager::Instance().vagrant_provider()) != providers.end()) {
     provider = (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider();
   }
 
@@ -100,12 +92,7 @@ VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
 }
 
 QString VagrantProvider::CurrentStr() {
-  QString provider = VagrantProvider::ProviderToStr(VagrantProvider::VIRTUALBOX);
-
-  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider()) {
-    provider = VagrantProvider::ProviderToStr(
-             (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider());
-  }
+  QString provider = VagrantProvider::ProviderToStr(VagrantProvider::CurrentProvider());
 
   return provider;
 }
