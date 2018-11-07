@@ -8,7 +8,7 @@
 # BUG FIXES:
 * Fixed bug with button color in the components dialog. #1750
 * Fixed bug with showing incorrect hypervisor name in components dialog.
-# Fixed bug with silly naming of SSH keys. #1769
+* Fixed bug with silly naming of SSH keys. #1769
 # FEATURES:
 * Installation vagrant plugin providers. #1395
 * Added Parallels as a hypervisor. #1564
