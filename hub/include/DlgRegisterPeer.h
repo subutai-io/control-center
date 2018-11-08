@@ -25,9 +25,9 @@ signals:
     void register_finished();
 private:
     Ui::DlgRegisterPeer *ui;
-    QString ip_addr;
+    QString m_ip_addr;
     QString m_url_management;
-    QString peer_name;
+    QString m_peer_name;
     QAction *m_show_password_action;
 
     bool check_errors(const int &err_code,

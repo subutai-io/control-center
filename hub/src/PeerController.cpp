@@ -352,16 +352,10 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
   } else if (type == P_PORT) {
     qDebug() << "Got ip of " << name << "ip:" << output;
     if (!output.isEmpty() && output != "undefined") {
-      QString url_management;
+      QString url_management = "localhost:" + output;
 
-      switch(VagrantProvider::Instance()->CurrentProvider()) {
-      case VagrantProvider::HYPERV:
+      if (VagrantProvider::Instance()->UseIp())
         url_management = output + ":8443";
-        break;
-      default:
-        url_management = "localhost:" + output;
-        break;
-      }
 
       // get finger
       CRestWorker::Instance()->peer_finger(url_management, P_FINGER, name, dir);

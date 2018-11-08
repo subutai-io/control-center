@@ -32,6 +32,7 @@ public:
   static QString CurrentVal();
   static QString CurrentStr();
   static PROVIDERS CurrentProvider();
+  static bool UseIp();
   static QString CurrentName();
   static QString VmStorage();
   QDir BasePeerDir();

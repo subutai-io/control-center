@@ -918,9 +918,8 @@ system_call_wrapper_error_t CSystemCallWrapper::set_virtualbox_vm_storage(const 
 QString CSystemCallWrapper::vagrant_port(const QString &dir) {
   QString port_or_ip_address = "_CONSOLE_PORT";
 
-  if (VagrantProvider::Instance()->CurrentProvider()
-      == VagrantProvider::HYPERV) {
-    port_or_ip_address = "_IP_HYPERV";
+  if (VagrantProvider::Instance()->UseIp()) {
+    port_or_ip_address = "_IP_PEER";
   }
 
   QDir peer_dir(dir);
