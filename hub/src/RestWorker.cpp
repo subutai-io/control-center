@@ -235,7 +235,7 @@ bool CRestWorker::peer_update_management(const QString &port){
           << " provider: " << VagrantProvider::Instance()->CurrentVal();
   QString port_or_ip;
 
-  if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+  if (VagrantProvider::Instance()->UseIp()) {
     port_or_ip = QString("%1:8443").arg(port);
   } else{
     port_or_ip = QString("localhost:%1").arg(port);

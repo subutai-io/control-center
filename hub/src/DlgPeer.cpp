@@ -182,7 +182,7 @@ void DlgPeer::addMachinePeer(CLocalPeer peer) {
   if (peer.ip() != "undefined" && !peer.ip().isEmpty() &&
       peer.ip() != "loading") {
     ssh_ip = peer.ip();
-    if (VagrantProvider::HYPERV == VagrantProvider::Instance()->CurrentProvider()) {
+    if (VagrantProvider::Instance()->UseIp()) {
       ui->label->setText(tr("IP:"));
     } else {
       ui->label->setText(tr("Host port:"));
@@ -386,7 +386,7 @@ void DlgPeer::launch_console_sl() {
   QString console_address =
       advanced ? "https://localhost:%1" : "https://%1:8443";
 
-  if (VagrantProvider::Instance()->CurrentProvider() == VagrantProvider::HYPERV) {
+  if (VagrantProvider::Instance()->UseIp()) {
     console_address = "https://%1:8443";
   }
 
