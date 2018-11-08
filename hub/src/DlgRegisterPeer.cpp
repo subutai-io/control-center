@@ -43,15 +43,15 @@ DlgRegisterPeer::DlgRegisterPeer(QWidget *parent) :
 
 DlgRegisterPeer::~DlgRegisterPeer()
 {
-    dialog_used[ip_addr.toInt() - 9999] = 0;
+    dialog_used[m_ip_addr.toInt() - 9999] = 0;
     delete ui;
 }
 
 void DlgRegisterPeer::registerPeer() {
-    dialog_running[ip_addr.toInt() - 9999] = 1;
+    dialog_running[m_ip_addr.toInt() - 9999] = 1;
     qInfo()
             << "Register button pressed: "
-            << ip_addr;
+            << m_ip_addr;
     ui->lbl_info->setVisible(false);
     if (ui->lne_peername->text().isEmpty()) {
         ui->lne_peername->setFocus();
@@ -89,23 +89,23 @@ void DlgRegisterPeer::registerPeer() {
             << "Http code " << http_code
             << "Error code " << err_code
             << "Network Error " << network_error;
-    if(!dialog_used[ip_addr.toInt() - 9999]) return;
+    if(!dialog_used[m_ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error, QString(""));
     if(kill_me){
         CRestWorker::Instance()->peer_register(m_url_management, token,
                                                CHubController::Instance().current_email(), CHubController::Instance().current_pass(),
                                                peer_name, peer_scope,
                                                err_code, http_code, network_error, body);
-        if(!dialog_used[ip_addr.toInt() - 9999]) return;
+        if(!dialog_used[m_ip_addr.toInt() - 9999]) return;
         bool kill_me = check_errors(err_code, http_code, network_error, body);
         if (kill_me){
             CHubController::Instance().force_refresh();
             emit register_finished();
-            dialog_running[ip_addr.toInt() - 9999] = 0;
+            dialog_running[m_ip_addr.toInt() - 9999] = 0;
             this->close();
         }
     }
-    dialog_running[ip_addr.toInt() - 9999] = 0;
+    dialog_running[m_ip_addr.toInt() - 9999] = 0;
     ui->btn_cancel->setEnabled(true);
     ui->btn_register->setEnabled(true);
     ui->lne_password->setEnabled(true);
@@ -115,10 +115,10 @@ void DlgRegisterPeer::registerPeer() {
 }
 
 void DlgRegisterPeer::unregisterPeer(){
-    dialog_running[ip_addr.toInt() - 9999] = 1;
+    dialog_running[m_ip_addr.toInt() - 9999] = 1;
     qInfo()
             << "Unregister button pressed: "
-            << ip_addr;
+            << m_ip_addr;
 
     const QString login=ui->lne_username->text();
     const QString password=ui->lne_password->text();
@@ -139,20 +139,20 @@ void DlgRegisterPeer::unregisterPeer(){
             << "Error code " << err_code
             << "Network Error " << network_error;
 
-    if(!dialog_used[ip_addr.toInt() - 9999]) return;
+    if(!dialog_used[m_ip_addr.toInt() - 9999]) return;
     bool kill_me = check_errors(err_code, http_code, network_error, body);
     if(kill_me){
         CRestWorker::Instance()->peer_unregister(m_url_management, token, err_code, http_code, network_error, body);
-        if(!dialog_used[ip_addr.toInt() - 9999]) return;
+        if(!dialog_used[m_ip_addr.toInt() - 9999]) return;
         kill_me = check_errors(err_code, http_code, network_error, body);
         if (kill_me){
-            dialog_running[ip_addr.toInt() - 9999] = 0;
+            dialog_running[m_ip_addr.toInt() - 9999] = 0;
             CHubController::Instance().force_refresh();
             emit register_finished();
             this->close();
         }
     }
-    dialog_running[ip_addr.toInt() - 9999] = 0;
+    dialog_running[m_ip_addr.toInt() - 9999] = 0;
     ui->btn_cancel->setEnabled(true);
     ui->btn_unregister->setEnabled(true);
     ui->lne_password->setEnabled(true);
@@ -162,7 +162,7 @@ void DlgRegisterPeer::unregisterPeer(){
 void DlgRegisterPeer::setUnregistrationMode(){
     qInfo()
         << "Unregister peer dialog created: "
-        << ip_addr;
+        << m_ip_addr;
 
     ui->btn_register->hide();
     ui->btn_unregister->show();
@@ -186,7 +186,7 @@ void DlgRegisterPeer::setUnregistrationMode(){
 void DlgRegisterPeer::setRegistrationMode(){
     qInfo()
         << "Register peer dialog created: "
-        << ip_addr;
+        << m_ip_addr;
 
     ui->btn_unregister->hide();
     ui->btn_register->show();
@@ -242,22 +242,22 @@ bool DlgRegisterPeer::check_errors(const int &err_code,
 void DlgRegisterPeer::init(const QString local_ip,
                            const QString name) {
   QStringList ip_split;
-  ip_addr = local_ip.toStdString().c_str();
-  peer_name = name.toStdString().c_str();
-  ui->lne_password->setText(CSettingsManager::Instance().peer_pass(peer_name));
-  ui->lne_peername->setText(this->peer_name);
+  int index;
+  m_ip_addr = local_ip.toStdString().c_str();
+  m_peer_name = name.toStdString().c_str();
+  ui->lne_password->setText(CSettingsManager::Instance().peer_pass(m_peer_name));
+  ui->lne_peername->setText(this->m_peer_name);
 
-  switch(VagrantProvider::Instance()->CurrentProvider()) {
-  case VagrantProvider::HYPERV:
-    m_url_management = ip_addr + ":8443";
-    ip_split = ip_addr.split(".");
-    ip_addr = ip_split.takeLast();
-    ip_addr = ip_addr.toInt() + 9999;
-    break;
-  default:
-    m_url_management = "localhost:" + ip_addr;
-    break;
+  m_url_management = "localhost:" + m_ip_addr;
+  index = m_ip_addr.toInt();
+
+  if (VagrantProvider::Instance()->UseIp()) {
+    m_url_management = m_ip_addr + ":8443";
+    ip_split = m_ip_addr.split(".");
+    m_ip_addr = ip_split.takeLast();
+    index = m_ip_addr.toInt() + 9999;
   }
+  m_ip_addr = QString::number(index);
 
-  dialog_used[ip_addr.toInt() - 9999] = 1;
+  dialog_used[index - 9999] = 1;
 }

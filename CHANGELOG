@@ -1,4 +1,20 @@
 # Change Log
+## [7.3.0] 11/07/2018
+# IMPROVEMENTS:
+* Pre-Installation checklist of KVM. #1727
+* P2P status timer.
+* Checking the ssh-keys of a container before opening the file transfer dialog. #1753
+* Transfer link in a peer notification window was improved. #1762
+# BUG FIXES:
+* Fixed bug with button color in the components dialog. #1750
+* Fixed bug with showing incorrect hypervisor name in components dialog.
+* Fixed bug with silly naming of SSH keys. #1769
+# FEATURES:
+* Installation vagrant plugin providers. #1395
+* Added Parallels as a hypervisor. #1564
+* Added KVM as a hypervisor. #1726 #1724
+* Ability to get bridge interfaces list by Hypervisor command. #1384
+
 ## [7.2.2] 10/27/2018
 # BUG FIXES:
 * Critical bug fixed when CC could not correctly connect via SSH to local containers.

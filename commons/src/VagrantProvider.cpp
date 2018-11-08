@@ -91,6 +91,15 @@ VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
   return provider;
 }
 
+bool VagrantProvider::UseIp() {
+  PROVIDERS provider = CurrentProvider();
+
+  if (provider == HYPERV || provider == LIBVIRT)
+    return true;
+
+  return false;
+}
+
 QString VagrantProvider::CurrentStr() {
   QString provider = VagrantProvider::ProviderToStr(VagrantProvider::CurrentProvider());
 
