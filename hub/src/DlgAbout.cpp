@@ -1736,6 +1736,7 @@ void DlgAbout::install_finished(const QString& component_id, bool success, const
     if (m_dct_fpb[component_id].cb != nullptr) {
       m_dct_fpb[component_id].btn->setHidden(true);
       m_dct_fpb[component_id].cb->setChecked(false);
+      m_dct_fpb[component_id].cb->setEnabled(true);
       m_dct_fpb[component_id].cb->setVisible(true);
     }
   } else {
