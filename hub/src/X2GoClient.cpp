@@ -1,5 +1,6 @@
 #include "X2GoClient.h"
 #include "HubController.h"
+#include "P2PController.h"
 
 QString X2GoClient::x2goclient_config_path() {
   static const QString config_file = "x2goclient_session.ini";
@@ -64,28 +65,37 @@ X2GoClient::X2GoClient(QObject *parent) :
 }
 
 void X2GoClient::add_session(const CHubContainer *cont, QString username, QString key) {
-  CSystemCallWrapper::container_ip_and_port cip =
-      CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
-  qDebug()
-      << "Container: " << cont->name()
-      << "Ip from ifconfig: " << cip.ip
-      << "Port from ifconfig: " << cip.port;
-  qDebug() << "Adding a session file with following parameters: \n"
-
-           << "Name: " << cont->name() << "\n"
-           << "Host: " << cip.ip << "\n"
-           << "Port: " << cip.port << "\n"
-           << "User: " << username << "\n"
-           << "Key: " << key << "\n"
-           << "Destop Env: " << cont->desk_env();
-
 
   m_settings.beginGroup(cont->id());
 
+  if (P2PController::Instance().is_cont_in_machine(cont->peer_id())) {
+    qDebug() << "X2GO local container: "
+             << cont->name()
+             << cont->ip();
+
+    m_settings.setValue("host", cont->ip());
+  } else {
+    CSystemCallWrapper::container_ip_and_port cip =
+        CSystemCallWrapper::container_ip_from_ifconfig_analog(cont->port(), cont->ip(), cont->rh_ip());
+    qDebug()
+        << "X2Go remote container: " << cont->name()
+        << "Ip from ifconfig: " << cip.ip
+        << "Port from ifconfig: " << cip.port;
+    qDebug() << "X2GO adding a session file with following parameters: \n"
+
+             << "Name: " << cont->name() << "\n"
+             << "Host: " << cip.ip << "\n"
+             << "Port: " << cip.port << "\n"
+             << "User: " << username << "\n"
+             << "Key: " << key << "\n"
+             << "Destop Env: " << cont->desk_env();
+    m_settings.setValue("host", cip.ip);
+    m_settings.setValue("sshport", cip.port);
+
+  }
+
   // dynamic parameters
   m_settings.setValue("name", cont->name());
-  m_settings.setValue("host", cip.ip);
-  m_settings.setValue("sshport", cip.port);
   m_settings.setValue("user", username);
   m_settings.setValue("key", key);
 
