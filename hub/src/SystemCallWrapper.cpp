@@ -2470,92 +2470,33 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + QDir::separator() + file_name;
-    QString pkexec_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
-    if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      return SCWE_WHICH_CALL_FAILED;
-    }
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  static QString script_name = "x2goinstall.sh";
+  QByteArray install_script = QString(
+                                  "#!/bin/bash\n"
+                                  "apt-get install --yes x2goclient\n"
+                                  "if [ $? -gt 0 ]\n"
+                                  "then\n"
+                                  "dpkg --configure -a\n"
+                                  "apt-get install -y -f\n"
+                                  "apt-get install --yes x2goclient\n"
+                                  "fi\n"
+                                  ).toUtf8();
 
-    QString sh_path;
-    scr = CSystemCallWrapper::which("sh", sh_path);
-    if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
-        qCritical() << err_msg;
-        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-        return SCWE_WHICH_CALL_FAILED;
-    }
+  system_call_res_t res = CSystemCallWrapper::run_script(script_name, install_script);
 
-    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  qDebug() << "installation of x2goclient finished "
+           << "error code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
 
-    if (lst_temp.empty()) {
-      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    return SCWE_CREATE_PROCESS;
+  }
 
-    QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "x2go_installer.sh";
-
-    qDebug() << tmpFilePath;
-
-    QFile tmpFile(tmpFilePath);
-    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                        .arg(tmpFile.errorString());
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    QByteArray install_script = QString(
-                                    "#!/bin/bash\n"
-                                    "apt-get install --yes x2goclient")
-                                    .arg(file_info)
-                                    .toUtf8();
-
-    if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                               .arg(tmpFile.errorString());
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    tmpFile.close();  // save
-
-    if (!QFile::setPermissions(
-            tmpFilePath,
-            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    system_call_res_t cr2;
-    QStringList args2;
-    args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem(QString("pkexec"), args2, false, true, 60000);
-    tmpFile.remove();
-
-    qDebug()
-            <<"installation of x2goclient finished "
-           <<"error code: "<<cr2.exit_code
-          <<"output: "<<cr2.out;
-
-    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      return SCWE_CREATE_PROCESS;
-    }
-
-    return SCWE_SUCCESS;
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_install_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
@@ -3101,7 +3042,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
   // install dependency packages
   // more info here https://github.com/vagrant-libvirt/vagrant-libvirt#vagrant-libvirt-provider
   system_call_wrapper_install_t res;
-  QString file_name = "vagrant_libvirt_installer.sh";
+  static QString file_name = "vagrant_libvirt_installer.sh";
 
   QByteArray script = QString(
     "#!/bin/bash\n"
