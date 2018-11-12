@@ -3011,6 +3011,57 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vagrant(const QStrin
   return res;
 }
 
+QString CSystemCallWrapper::write_script(const QString& file_name, const QByteArray &script) {
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  QString empty;
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + file_name;
+
+  qDebug() << "write script path: "
+           << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  if (tmpFile.write(script) != script.size()) {
+    QString err_msg = QObject::tr("Couldn't write script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to install script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  return tmpFilePath;
+}
+
 system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const QByteArray &script) {
   system_call_res_t res;
   QString pkexec_path;
@@ -3033,55 +3084,17 @@ system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const
       return res;
   }
 
-  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  QString tmpFilePath = CSystemCallWrapper::write_script(file_name, script);
 
-  if (lst_temp.empty()) {
-    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+  if (tmpFilePath.isEmpty()) {
     res.res = SCWE_CREATE_PROCESS;
     return res;
   }
-
-  QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + file_name;
 
   qDebug() << "script path: "
            << tmpFilePath;
 
   QFile tmpFile(tmpFilePath);
-  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                      .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
-
-  if (tmpFile.write(script) != script.size()) {
-    QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                             .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
-
-  tmpFile.close();  // save
-
-  if (!QFile::setPermissions(
-          tmpFilePath,
-          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-    QString err_msg = QObject::tr("Couldn't set exe permission to install script file");
-    qCritical() << err_msg;
-    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
 
   system_call_res_t cr2;
   QStringList args2;
