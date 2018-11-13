@@ -1820,12 +1820,12 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   QString tmp;
   tmp = name;
   tmp.remove("\"");
-  QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+  QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;\n").arg(dir,
                                                               CSettingsManager::Instance().vagrant_path(),
                                                               command,
                                                               tmp, *(command.split(" ").begin()));
   if (command == "reload") {
-    str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
+    str_command += QString("%1 provision 2>> %3_%2; \n").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
   }
 
   str_command += QString("echo finished > %1_finished; "
@@ -1834,22 +1834,49 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                          "echo 'Press any key to finish:'; "
                          "read -s -n 1; exit").arg(*(command.split(" ").begin()), tmp);
 
-  QString cmd;
+  QByteArray apple_script;
+  QByteArray bash_script = QString(
+    "#!/bin/bash\n"
+    "%1").arg(str_command).toUtf8();
 
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  QStringList args;
-  qInfo("Launch command : %s", str_command.toStdString().c_str());
-  if (cmd == "iTerm") {
-  args << "-e" << QString("Tell application \"%1\"").arg(cmd)
-       << "-e" << "activate"
-       << "-e" << "tell current window"
-       << "-e" << "create window with default profile"
-       << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
-       << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
-  } else {
-    args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
-              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  QString bash_script_path = CSystemCallWrapper::write_script("vagrant_script.sh", bash_script);
+
+  if (bash_script_path.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
   }
+
+  QString cmd = CSettingsManager::Instance().terminal_cmd();
+
+  qInfo("Vagrant launch command : %s", str_command.toStdString().c_str());
+
+  if (cmd == "iTerm") {
+    apple_script = QString("Tell application \"iTerm\"\n"
+                           "activate\n"
+                           "tell current window\n"
+                           "create window with default profile\n"
+                           "tell current session\n"
+                           "write text \"%1\"\n"
+                           "end tell\n"
+                           "end tell\n"
+                           "end tell\n").arg(bash_script_path).toUtf8();
+  } else {
+    apple_script = QString("tell application \"Terminal\"\n"
+                           "activate\n"
+                           "do script \"%1\"\n"
+                           "end tell\n").arg(bash_script_path).toUtf8();
+  }
+
+  QString apple_script_path = CSystemCallWrapper::write_script("apple_script.scpt", apple_script);
+  QStringList args;
+
+  if (apple_script_path.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args << apple_script_path;
+  qInfo() << "Vagrant luanch apple script:"
+          << args;
+
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
@@ -3029,6 +3056,11 @@ QString CSystemCallWrapper::write_script(const QString& file_name, const QByteAr
            << tmpFilePath;
 
   QFile tmpFile(tmpFilePath);
+
+  // If script file exist, should remove
+  if (tmpFile.exists())
+    tmpFile.remove();
+
   if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
     QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
                       .arg(tmpFile.errorString());
