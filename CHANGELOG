@@ -1,4 +1,9 @@
 # Change Log
+## [7.3.1] 11/13/2018
+# BUG FIXES:
+* Fixed bug with remote desktop to local container.
+* Fixed bug with ControlCenter not being able to access into PeerOs. #1792
+
 ## [7.3.0] 11/07/2018
 # IMPROVEMENTS:
 * Pre-Installation checklist of KVM. #1727
