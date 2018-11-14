@@ -7,6 +7,18 @@
 
 class QTimer;
 
+struct SshKey {
+  QString file_name;
+  QString path;
+  QString content;
+};
+
+struct Envs {
+  QString id;
+  QString name;
+  std::vector<SshKey> keys;
+};
+
 class CSshKeysController : public QObject {
   Q_OBJECT
  private:
@@ -24,6 +36,8 @@ class CSshKeysController : public QObject {
   int32_t m_cols;
   key_environment_matrix m_original_ke_matrix;
   key_environment_matrix m_current_ke_matrix;
+  std::vector<Envs> m_envs; // list of environments
+  std::vector<SshKey> m_keys; // list of ssh keys
 
   QTimer* m_refresh_files_timer;
 

@@ -82,7 +82,8 @@ SOURCES += \
     hub/src/updater/UpdaterComponentHyperv.cpp \
     hub/src/DlgCreateFolder.cpp \
     hub/src/updater/UpdaterComponentKvm.cpp \
-    hub/src/updater/UpdaterComponentParallels.cpp
+    hub/src/updater/UpdaterComponentParallels.cpp \
+    hub/src/SshKeyController.cpp
 
 
 
@@ -150,7 +151,8 @@ HEADERS  += \
     hub/include/updater/UpdaterComponentHyperv.h \
     hub/include/DlgCreateFolder.h \
     hub/include/updater/UpdaterComponentKvm.h \
-    hub/include/updater/UpdaterComponentParallels.h
+    hub/include/updater/UpdaterComponentParallels.h \
+    hub/include/SshKeyController.h
 
 TRANSLATIONS = SubutaiControlCenter_en_US.ts \
                SubutaiControlCenter_ru_RU.ts \

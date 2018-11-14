@@ -18,7 +18,7 @@ class DlgGenerateSshKey : public QDialog
   Q_OBJECT
 
 public:
-  explicit DlgGenerateSshKey(QWidget *parent = 0);
+  explicit DlgGenerateSshKey(QWidget *parent = nullptr);
   ~DlgGenerateSshKey();
 
 private:

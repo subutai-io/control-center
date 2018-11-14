@@ -38,8 +38,10 @@ CSshKeysController::~CSshKeysController() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSshKeysController::refresh_key_files() {
+  m_keys.clear();
   QStringList lst_key_content;
   QStringList lst_key_files;
+  SshKey ssh_key;
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -70,6 +72,10 @@ void CSshKeysController::refresh_key_files() {
       QByteArray arr_content = key_file.readAll();
       arr_content.truncate(arr_content.size() - 1);  // hack for hub
       lst_key_content.push_back(QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]")));
+
+      ssh_key.file_name = *i;
+      ssh_key.content = QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]"));
+      m_keys.push_back(ssh_key);
     }
     key_file.close();
   }
@@ -101,8 +107,8 @@ void CSshKeysController::rebuild_bit_matrix() {
 
   QStringList lst_key_content = m_lst_key_content;
   std::vector<CEnvironment> lst_he = m_lst_healthy_environments;
-  rows = (uint32_t)lst_he.size();
-  cols = lst_key_content.size();
+  rows = static_cast<uint32_t>(lst_he.size());
+  cols = static_cast<uint32_t>(lst_key_content.size());
 
   tmpMatrix.reserve(rows);
   tmpMatrix.resize(rows);
@@ -122,7 +128,7 @@ void CSshKeysController::rebuild_bit_matrix() {
                                m_original_ke_matrix.end());
     std::copy(m_current_ke_matrix.begin(), m_current_ke_matrix.end(),
               std::back_inserter(m_original_ke_matrix));
-    m_rows = rows;
+    m_rows = static_cast<int32_t>(rows);
     m_cols = cols;
     m_lst_all_selected.clear();
     m_lst_all_selected.reserve(m_cols);
@@ -307,7 +313,7 @@ void CSshKeysController::send_data_to_hub() {
     m_lst_healthy_environments = lst_to_leave;
   }
   int part = 0;
-  int total = (int)(dct_to_send.size() + dct_to_remove.size());
+  int total = static_cast<int>(dct_to_send.size() + dct_to_remove.size());
   for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
     CRestWorker::Instance()->add_sshkey_to_environments(
         i->second.first, i->first, i->second.second);
