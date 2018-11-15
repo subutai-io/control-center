@@ -38,10 +38,8 @@ CSshKeysController::~CSshKeysController() {
 ////////////////////////////////////////////////////////////////////////////
 
 void CSshKeysController::refresh_key_files() {
-  m_keys.clear();
   QStringList lst_key_content;
   QStringList lst_key_files;
-  SshKey ssh_key;
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -72,10 +70,6 @@ void CSshKeysController::refresh_key_files() {
       QByteArray arr_content = key_file.readAll();
       arr_content.truncate(arr_content.size() - 1);  // hack for hub
       lst_key_content.push_back(QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]")));
-
-      ssh_key.file_name = *i;
-      ssh_key.content = QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]"));
-      m_keys.push_back(ssh_key);
     }
     key_file.close();
   }

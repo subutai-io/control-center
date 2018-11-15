@@ -30,6 +30,7 @@
 #include "libssh2/include/LibsshController.h"
 #include "ui_TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
+#include "SshKeyController.h"
 
 using namespace update_system;
 
@@ -89,7 +90,8 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
   p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
   CPeerController::Instance()->init();
-  CSshKeysController::Instance();
+  //CSshKeysController::Instance();
+  SshKeyController::Instance();
 
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
           this, &TrayControlWindow::notification_received);
