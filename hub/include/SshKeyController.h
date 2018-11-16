@@ -15,6 +15,7 @@ struct SshKey {
   QString path;
   QString content;
   QString md5;
+  QStringList env_ids;
 };
 
 // Saves environment ssh keys
@@ -37,6 +38,12 @@ public:
   void refresh_healthy_envs();
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
+  std::vector<SshKey> list_keys() {  return m_keys;  }
+  std::map<QString, QString> list_healthy_envs() { return m_lst_healthy_environments; }
+
+  bool key_exist_in_env(size_t index, QString env_id) {
+    return m_keys[index].env_ids.contains(env_id);
+  }
 
   static SshKeyController& Instance() {
     static SshKeyController instance;
@@ -44,9 +51,15 @@ public:
   }
 
 private:
+  // ssh keys list
   std::vector<SshKey> m_keys;
-  std::map<QString, Envs> m_envs; // save exist ssh keys in environment(checked with bazaar)
-  std::vector<CEnvironment> m_lst_healthy_environments;
+
+  // key: environment id, value: Struct Envs.
+  // saves checked ssh keys of environment(checked with bazaar)
+  std::map<QString, Envs> m_envs;
+
+  // key: env id, value: env name.
+  std::map<QString, QString> m_lst_healthy_environments;
   QTimer *m_timer;
 
   SshKeyController();

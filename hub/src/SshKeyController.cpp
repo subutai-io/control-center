@@ -6,8 +6,11 @@
 #include <QFileDialog>
 
 SshKeyController::SshKeyController() {
-  m_lst_healthy_environments =
-      CHubController::Instance().lst_healthy_environments();
+  // clean healthy environmtns list
+  m_lst_healthy_environments.clear();
+  for (auto env : CHubController::Instance().lst_healthy_environments()) {
+    m_lst_healthy_environments[env.id()] = env.name();
+  }
 
   m_timer = new QTimer;
   m_timer->setInterval(5000);
@@ -74,7 +77,7 @@ void SshKeyController::refresh_key_files() {
 
   m_mutex.unlock();
 
-  // todo synchronization with bazaar  
+  // synchronization with bazaar
   QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
@@ -85,8 +88,11 @@ void SshKeyController::environments_updated_sl(int code) {
 }
 
 void SshKeyController::refresh_healthy_envs() {
-  m_lst_healthy_environments =
-      CHubController::Instance().lst_healthy_environments();
+  // clean healthy environments list
+  m_lst_healthy_environments.clear();
+  for (auto env : CHubController::Instance().lst_healthy_environments()) {
+    m_lst_healthy_environments[env.id()] = env.name();
+  }
 
   // Todo synchronization with bazaar
   QtConcurrent::run(this, &SshKeyController::check_environment_keys);
@@ -102,23 +108,36 @@ void SshKeyController::check_environment_keys() {
     lst_ssh_key_contents << key.content;
   }
 
+  // clean up old environment list in m_envs
+  if (!m_envs.empty() && (m_envs.size() != m_lst_healthy_environments.size())) {
+    for (auto env : m_envs) {
+      // not found environment(checked with bazaar) in current healthy environment list(updated)
+      if (m_lst_healthy_environments.find(env.first) == m_lst_healthy_environments.end()) {
+        m_envs.erase(env.first); // delete
+      }
+    }
+  }
+
   for (auto env : m_lst_healthy_environments) {
     uint8_t exist = 1;
     // found environment
-    if (m_envs.find(env.id()) != m_envs.end()) {
+    if (m_envs.find(env.first) != m_envs.end()) {
       uint8_t index = 0;
       for (auto content : lst_ssh_key_contents) {
         // found ssh keys in "m_envs"
-        if (std::find(m_envs[env.id()].lst_ssh_contents.begin(),
-                      m_envs[env.id()].lst_ssh_contents.end(),
-                      content) != m_envs[env.id()].lst_ssh_contents.end()) {
+        if (std::find(m_envs[env.first].lst_ssh_contents.begin(),
+                      m_envs[env.first].lst_ssh_contents.end(),
+                      content) != m_envs[env.first].lst_ssh_contents.end()) {
           // check ssh key exist in machine
           SshKey key = m_keys[index];
           QFileInfo file(key.path);
 
           if (!file.exists()) {
-            m_envs[env.id()].lst_ssh_contents.erase(
-                  m_envs[env.id()].lst_ssh_contents.begin() + index); // delete ssh key if not exist in machine
+            m_envs[env.first].lst_ssh_contents.erase(
+                  m_envs[env.first].lst_ssh_contents.begin() + index); // delete ssh key if not exist in machine
+          } else {
+            m_keys[index].env_ids << env.first;
+            m_keys[index].env_ids.removeDuplicates();
           }
         }
 
@@ -127,8 +146,8 @@ void SshKeyController::check_environment_keys() {
     } else {
       std::vector<uint8_t> response;
       Envs tmp_env_with_keys;
-      tmp_env_with_keys.id = env.id();
-      tmp_env_with_keys.name = env.name();
+      tmp_env_with_keys.id = env.first;
+      tmp_env_with_keys.name = env.second;
 
       response = CRestWorker::Instance()->is_sshkeys_in_environment(lst_ssh_key_contents,
                                                                     tmp_env_with_keys.id);
@@ -139,6 +158,9 @@ void SshKeyController::check_environment_keys() {
           if (i == exist) {
             tmp_env_with_keys.keys.push_back(m_keys[index]);
             tmp_env_with_keys.lst_ssh_contents.push_back(m_keys[index].content);
+            // save env id to m_keys(ssh keys list)
+            m_keys[index].env_ids << tmp_env_with_keys.id;
+            m_keys[index].env_ids.removeDuplicates();
             index = index + 1;
           }
         }
@@ -148,7 +170,17 @@ void SshKeyController::check_environment_keys() {
     }
   }
 
-  // TODO clean "m_envs" map
+  qDebug() << "------------------------------------";
+  for (auto env : m_envs) {
+    qDebug() << "ENV: "
+             << env.second.name;
+    for (auto key : env.second.keys) {
+      qDebug() << "KEYS: "
+               << key.file_name;
+    }
+  }
+  qDebug() << "------------------------------------";
+
   emit finished_check_environment_keys();
   m_mutex.unlock();
 }

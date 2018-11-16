@@ -20,6 +20,7 @@
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
 #include "SshKeysController.h"
+#include "SshKeyController.h"
 #include "RhController.h"
 
 DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
@@ -40,7 +41,17 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(ui->btn_generate_new_key, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_generate_released);
 
-  connect(ui->btn_remove_key, &QPushButton::released,
+  //connect(&SshKeyController::Instance(), &SshKeyController::key_files_lst_updated,
+  //        this, &DlgGenerateSshKey::keys_updated_slot);
+
+  connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
+          this, &DlgGenerateSshKey::lstv_keys_current_changed);
+
+  rebuild_keys_model();
+  rebuild_environments_model();
+  set_environments_checked_flag();
+
+  /*connect(ui->btn_remove_key, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_remove_released);
 
   connect(ui->btn_send_to_hub, &QPushButton::released,
@@ -54,7 +65,10 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(m_model_environments, &QStandardItemModel::itemChanged,
           this, &DlgGenerateSshKey::environments_item_changed);
+  connect(&SshKeyController::Instance(), &SshKeyController::key_files_lst_updated,
+          this, &DlgGenerateSshKey::keys_updated_slot);*/
 
+  /*
   connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
           this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
 
@@ -77,6 +91,7 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
     ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
           m_model_keys->index(0, 0), QItemSelectionModel::Select);
   }
+  */
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -90,8 +105,10 @@ void
 DlgGenerateSshKey::set_environments_checked_flag() {
   for (int r = 0; r < m_model_environments->rowCount(); ++r) {
     QStandardItem* item = m_model_environments->item(r);
+    QString env_id = item->data(Qt::UserRole + 1).toString();
     Qt::CheckState st =
-        CSshKeysController::Instance().get_key_environments_bit(r) ? Qt::Checked : Qt::Unchecked;
+        SshKeyController::Instance().key_exist_in_env(
+          static_cast<size_t>(0), env_id) ? Qt::Checked : Qt::Unchecked;
     item->setCheckState(st);
   }
 }
@@ -100,9 +117,10 @@ DlgGenerateSshKey::set_environments_checked_flag() {
 void
 DlgGenerateSshKey::rebuild_environments_model() {
   m_model_environments->clear();
-  std::vector<CEnvironment> tmp = CSshKeysController::Instance().lst_healthy_environments();
+  std::map<QString, QString> tmp = SshKeyController::Instance().list_healthy_envs();
   for (auto i : tmp) {
-    QStandardItem* nitem = new QStandardItem(i.name());
+    QStandardItem* nitem = new QStandardItem(i.second);
+    nitem->setData(QVariant::fromValue(i.first));
     nitem->setCheckable(true);
     nitem->setCheckState(Qt::Unchecked);
     nitem->setEditable(false);
@@ -114,13 +132,13 @@ DlgGenerateSshKey::rebuild_environments_model() {
 void
 DlgGenerateSshKey::rebuild_keys_model() {
   m_model_keys->clear();
-  for (auto i : CSshKeysController::Instance().lst_key_files()) {
-    QStandardItem* item = new QStandardItem(i);
+  for (auto i : SshKeyController::Instance().list_keys()) {
+    QStandardItem* item = new QStandardItem(i.file_name);
     item->setEditable(false);
     m_model_keys->appendRow(item);
   }
 
-  if (m_model_keys->rowCount() && CSshKeysController::Instance().has_current_key()) {
+  if (m_model_keys->rowCount()) {
     ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
           m_model_keys->index(0, 0), QItemSelectionModel::Select);
   }
@@ -135,9 +153,13 @@ void DlgGenerateSshKey::btn_generate_released() {
           "Please add rights or change SSH-keys storage in settings."), DlgNotification::N_SETTINGS);
     return;
   }
+  SshKeyController::Instance().generate_keys(this);
+  SshKeyController::Instance().refresh_key_files();
+  rebuild_keys_model();
+  /*
   CSshKeysController::Instance().generate_new_ssh_key(this);
   CSshKeysController::Instance().refresh_key_files();
-  rebuild_keys_model();
+  rebuild_keys_model();*/
 }
 
 ////////////////////////////////////////////////////////////////////////////
