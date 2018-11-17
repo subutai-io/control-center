@@ -1820,12 +1820,12 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   QString tmp;
   tmp = name;
   tmp.remove("\"");
-  QString str_command = QString("cd %1; %2 %3 2> %4_%5;").arg(dir,
+  QString str_command = QString("cd \"%1\"; %2 %3 2> %4_%5;\n").arg(dir,
                                                               CSettingsManager::Instance().vagrant_path(),
                                                               command,
                                                               tmp, *(command.split(" ").begin()));
   if (command == "reload") {
-    str_command += QString("%1 provision 2>> %3_%2; ").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
+    str_command += QString("%1 provision 2>> %3_%2; \n").arg(CSettingsManager::Instance().vagrant_path(), command, tmp);
   }
 
   str_command += QString("echo finished > %1_finished; "
@@ -1834,22 +1834,49 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
                          "echo 'Press any key to finish:'; "
                          "read -s -n 1; exit").arg(*(command.split(" ").begin()), tmp);
 
-  QString cmd;
+  QByteArray apple_script;
+  QByteArray bash_script = QString(
+    "#!/bin/bash\n"
+    "%1").arg(str_command).toUtf8();
 
-  cmd = CSettingsManager::Instance().terminal_cmd();
-  QStringList args;
-  qInfo("Launch command : %s", str_command.toStdString().c_str());
-  if (cmd == "iTerm") {
-  args << "-e" << QString("Tell application \"%1\"").arg(cmd)
-       << "-e" << "activate"
-       << "-e" << "tell current window"
-       << "-e" << "create window with default profile"
-       << "-e" << "tell current session" << "-e" << QString("write text \"%1\"").arg(str_command)
-       << "-e" << "end tell" << "-e" << "end tell" << "-e" << "end tell";
-  } else {
-    args << "-e" << QString("Tell application \"%1\" to %2 \"%3\"")
-              .arg(cmd, CSettingsManager::Instance().terminal_arg(), str_command);
+  QString bash_script_path = CSystemCallWrapper::write_script("vagrant_script.sh", bash_script);
+
+  if (bash_script_path.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
   }
+
+  QString cmd = CSettingsManager::Instance().terminal_cmd();
+
+  qInfo("Vagrant launch command : %s", str_command.toStdString().c_str());
+
+  if (cmd == "iTerm") {
+    apple_script = QString("Tell application \"iTerm\"\n"
+                           "activate\n"
+                           "tell current window\n"
+                           "create window with default profile\n"
+                           "tell current session\n"
+                           "write text \"%1\"\n"
+                           "end tell\n"
+                           "end tell\n"
+                           "end tell\n").arg(bash_script_path).toUtf8();
+  } else {
+    apple_script = QString("tell application \"Terminal\"\n"
+                           "activate\n"
+                           "do script \"%1\"\n"
+                           "end tell\n").arg(bash_script_path).toUtf8();
+  }
+
+  QString apple_script_path = CSystemCallWrapper::write_script("apple_script.scpt", apple_script);
+  QStringList args;
+
+  if (apple_script_path.isEmpty()) {
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args << apple_script_path;
+  qInfo() << "Vagrant luanch apple script:"
+          << args;
+
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
@@ -2470,92 +2497,33 @@ system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_WIN> >(const QStri
 
 template<>
 system_call_wrapper_error_t install_x2go_internal<Os2Type <OS_LINUX> >(const QString &dir, const QString &file_name) {
-    QString file_info = dir + QDir::separator() + file_name;
-    QString pkexec_path;
-    system_call_wrapper_error_t scr = CSystemCallWrapper::which("pkexec", pkexec_path);
-    if (scr != SCWE_SUCCESS) {
-      QString err_msg = QObject::tr("Unable to find pkexec command. You may reinstall the Control Center or reinstall the PolicyKit.");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-      return SCWE_WHICH_CALL_FAILED;
-    }
+  UNUSED_ARG(dir);
+  UNUSED_ARG(file_name);
+  static QString script_name = "x2goinstall.sh";
+  QByteArray install_script = QString(
+                                  "#!/bin/bash\n"
+                                  "apt-get install --yes x2goclient\n"
+                                  "if [ $? -gt 0 ]\n"
+                                  "then\n"
+                                  "dpkg --configure -a\n"
+                                  "apt-get install -y -f\n"
+                                  "apt-get install --yes x2goclient\n"
+                                  "fi\n"
+                                  ).toUtf8();
 
-    QString sh_path;
-    scr = CSystemCallWrapper::which("sh", sh_path);
-    if (scr != SCWE_SUCCESS) {
-        QString err_msg = QObject::tr("Unable to find sh command. Make sure that the command exists on your system or reinstall Linux.");
-        qCritical() << err_msg;
-        CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-        return SCWE_WHICH_CALL_FAILED;
-    }
+  system_call_res_t res = CSystemCallWrapper::run_script(script_name, install_script);
 
-    QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  qDebug() << "installation of x2goclient finished "
+           << "error code: "
+           << res.exit_code
+           << "output: "
+           << res.out;
 
-    if (lst_temp.empty()) {
-      QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
+  if (res.exit_code != 0 || res.res != SCWE_SUCCESS) {
+    return SCWE_CREATE_PROCESS;
+  }
 
-    QString tmpFilePath =
-        lst_temp[0] + QDir::separator() + "x2go_installer.sh";
-
-    qDebug() << tmpFilePath;
-
-    QFile tmpFile(tmpFilePath);
-    if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-      QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                        .arg(tmpFile.errorString());
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    QByteArray install_script = QString(
-                                    "#!/bin/bash\n"
-                                    "apt-get install --yes x2goclient")
-                                    .arg(file_info)
-                                    .toUtf8();
-
-    if (tmpFile.write(install_script) != install_script.size()) {
-      QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                               .arg(tmpFile.errorString());
-      qCritical() << err_msg;
-      CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    tmpFile.close();  // save
-
-    if (!QFile::setPermissions(
-            tmpFilePath,
-            QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-                QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-                QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-                QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-      QString err_msg = QObject::tr("Couldn't set exe permission to reload script file");
-      qCritical() << err_msg;
-      CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-      return SCWE_CREATE_PROCESS;
-    }
-
-    system_call_res_t cr2;
-    QStringList args2;
-    args2 << sh_path << tmpFilePath;
-    cr2 = CSystemCallWrapper::ssystem(QString("pkexec"), args2, false, true, 60000);
-    tmpFile.remove();
-
-    qDebug()
-            <<"installation of x2goclient finished "
-           <<"error code: "<<cr2.exit_code
-          <<"output: "<<cr2.out;
-
-    if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
-      return SCWE_CREATE_PROCESS;
-    }
-
-    return SCWE_SUCCESS;
+  return SCWE_SUCCESS;
 }
 
 system_call_wrapper_install_t CSystemCallWrapper::install_x2go(const QString &dir, const QString &file_name) {
@@ -3011,6 +2979,62 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_vagrant(const QStrin
   return res;
 }
 
+QString CSystemCallWrapper::write_script(const QString& file_name, const QByteArray &script) {
+  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  QString empty;
+
+  if (lst_temp.empty()) {
+    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  QString tmpFilePath =
+      lst_temp[0] + QDir::separator() + file_name;
+
+  qDebug() << "write script path: "
+           << tmpFilePath;
+
+  QFile tmpFile(tmpFilePath);
+
+  // If script file exist, should remove
+  if (tmpFile.exists())
+    tmpFile.remove();
+
+  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
+    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
+                      .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  if (tmpFile.write(script) != script.size()) {
+    QString err_msg = QObject::tr("Couldn't write script to temp file")
+                             .arg(tmpFile.errorString());
+    qCritical() << err_msg;
+    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  tmpFile.close();  // save
+
+  if (!QFile::setPermissions(
+          tmpFilePath,
+          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
+              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
+              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
+    QString err_msg = QObject::tr("Couldn't set exe permission to install script file");
+    qCritical() << err_msg;
+    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
+    return empty;
+  }
+
+  return tmpFilePath;
+}
+
 system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const QByteArray &script) {
   system_call_res_t res;
   QString pkexec_path;
@@ -3033,55 +3057,17 @@ system_call_res_t CSystemCallWrapper::run_script(const QString &file_name, const
       return res;
   }
 
-  QStringList lst_temp = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+  QString tmpFilePath = CSystemCallWrapper::write_script(file_name, script);
 
-  if (lst_temp.empty()) {
-    QString err_msg = QObject::tr("Unable to get the standard temporary location. Verify that your file system is setup correctly and fix any issues.");
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+  if (tmpFilePath.isEmpty()) {
     res.res = SCWE_CREATE_PROCESS;
     return res;
   }
-
-  QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + file_name;
 
   qDebug() << "script path: "
            << tmpFilePath;
 
   QFile tmpFile(tmpFilePath);
-  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                      .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
-
-  if (tmpFile.write(script) != script.size()) {
-    QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                             .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
-
-  tmpFile.close();  // save
-
-  if (!QFile::setPermissions(
-          tmpFilePath,
-          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-    QString err_msg = QObject::tr("Couldn't set exe permission to install script file");
-    qCritical() << err_msg;
-    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-    res.res = SCWE_CREATE_PROCESS;
-    return res;
-  }
 
   system_call_res_t cr2;
   QStringList args2;
@@ -3101,7 +3087,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_vagrant_libvirt() {
   // install dependency packages
   // more info here https://github.com/vagrant-libvirt/vagrant-libvirt#vagrant-libvirt-provider
   system_call_wrapper_install_t res;
-  QString file_name = "vagrant_libvirt_installer.sh";
+  static QString file_name = "vagrant_libvirt_installer.sh";
 
   QByteArray script = QString(
     "#!/bin/bash\n"

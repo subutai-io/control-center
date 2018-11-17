@@ -128,6 +128,8 @@ class CSystemCallWrapper {
                                      unsigned long timeout_sec = 30000);
   // runs bash script
   static system_call_res_t run_script(const QString& file_name, const QByteArray& script);
+  // write script to file and return path of script or empty string path
+  static QString write_script(const QString& file_name, const QByteArray& script);
 
   static bool is_in_swarm(const QString &hash);
   static std::vector<QString> p2p_show();
