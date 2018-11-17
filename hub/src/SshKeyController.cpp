@@ -32,6 +32,7 @@ SshKeyController::~SshKeyController() {
 
 void SshKeyController::refresh_key_files() {
   m_mutex.lock();
+  qDebug() << "SSH check timer";
 
   m_keys.clear();
 
@@ -82,8 +83,7 @@ void SshKeyController::refresh_key_files() {
 }
 
 void SshKeyController::environments_updated_sl(int code) {
-  if (code == CHubController::RER_NO_DIFF) return;
-
+  UNUSED_ARG(code);
   refresh_healthy_envs();
 }
 
@@ -110,10 +110,15 @@ void SshKeyController::check_environment_keys() {
 
   // clean up old environment list in m_envs
   if (!m_envs.empty() && (m_envs.size() != m_lst_healthy_environments.size())) {
-    for (auto env : m_envs) {
+    std::map<QString, Envs> tmp = m_envs;
+
+    for (auto env : tmp) {
       // not found environment(checked with bazaar) in current healthy environment list(updated)
       if (m_lst_healthy_environments.find(env.first) == m_lst_healthy_environments.end()) {
         m_envs.erase(env.first); // delete
+        qDebug() << "SSH clean m_env"
+                 << env.second.name
+                 << env.second.id;
       }
     }
   }
