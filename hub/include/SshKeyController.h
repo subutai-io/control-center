@@ -9,6 +9,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <map>
+#include "RestWorker.h"
 
 struct SshKey {
   QString file_name;
@@ -28,18 +29,18 @@ struct Envs {
   std::vector<SshKey> keys;
 };
 
-static QMutex m_mutex;
-
 class SshKeyController : public QObject {
 Q_OBJECT
 public:
 
+  std::vector<uint8_t> check_key(QStringList key_contents, QString env_id);
   void refresh_key_files();
   void refresh_healthy_envs();
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {  return m_keys;  }
   std::map<QString, QString> list_healthy_envs() { return m_lst_healthy_environments; }
+  void refresh_key_files_timer();
 
   bool key_exist_in_env(size_t index, QString env_id) {
     return m_keys[index].env_ids.contains(env_id);
@@ -60,14 +61,14 @@ private:
 
   // key: env id, value: env name.
   std::map<QString, QString> m_lst_healthy_environments;
-  QTimer *m_timer;
+  //QTimer *m_timer;
+  QMutex m_mutex;
 
   SshKeyController();
   ~SshKeyController();
 
 private slots:
   void environments_updated_sl(int code);
-  void refresh_key_files_timer_sl();
 
 signals:
   void key_files_lst_updated();

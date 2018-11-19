@@ -4,6 +4,8 @@
 #include "RestWorker.h"
 #include "NotificationObserver.h"
 #include <QFileDialog>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 SshKeyController::SshKeyController() {
   // clean healthy environmtns list
@@ -12,22 +14,23 @@ SshKeyController::SshKeyController() {
     m_lst_healthy_environments[env.id()] = env.name();
   }
 
-  m_timer = new QTimer;
-  m_timer->setInterval(5000);
+  //m_timer = new QTimer;
+  //m_timer->setInterval(5000);
 
   // refresh ssh keys list
-  refresh_key_files();
+  //refresh_key_files();
 
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &SshKeyController::environments_updated_sl);
-  connect(m_timer, &QTimer::timeout,
-          this, &SshKeyController::refresh_key_files_timer_sl);
-  m_timer->start();
+  //connect(m_timer, &QTimer::timeout,
+  //        this, &SshKeyController::refresh_key_files_timer_sl);
+  //m_timer->start();
+  refresh_key_files_timer();
 }
 
 SshKeyController::~SshKeyController() {
-  if (m_timer)
-    m_timer->deleteLater();
+  //if (m_timer)
+  //  m_timer->deleteLater();
 }
 
 void SshKeyController::refresh_key_files() {
@@ -74,12 +77,14 @@ void SshKeyController::refresh_key_files() {
     }
     key_file.close();
   }
-  emit key_files_lst_updated();
 
   m_mutex.unlock();
+  emit key_files_lst_updated();
 
   // synchronization with bazaar
-  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  qDebug() << "CHECK ENVIRONMENT KEYS func called ";
+  check_environment_keys();
+  //QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -95,18 +100,14 @@ void SshKeyController::refresh_healthy_envs() {
   }
 
   // Todo synchronization with bazaar
-  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  check_environment_keys();
+  //QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
-static SynchroPrimitives::CriticalSection csRbm;
 void SshKeyController::check_environment_keys() {
   m_mutex.lock();
 
-  QStringList lst_ssh_key_contents;
-
-  for (auto key : m_keys) {
-    lst_ssh_key_contents << key.content;
-  }
+  qDebug() << "CHECK ENV KEYS";
 
   // clean up old environment list in m_envs
   if (!m_envs.empty() && (m_envs.size() != m_lst_healthy_environments.size())) {
@@ -128,16 +129,19 @@ void SshKeyController::check_environment_keys() {
     // found environment
     if (m_envs.find(env.first) != m_envs.end()) {
       uint8_t index = 0;
-      for (auto content : lst_ssh_key_contents) {
+      for (auto ssh : m_keys) {
         // found ssh keys in "m_envs"
         if (std::find(m_envs[env.first].lst_ssh_contents.begin(),
                       m_envs[env.first].lst_ssh_contents.end(),
-                      content) != m_envs[env.first].lst_ssh_contents.end()) {
-          // check ssh key exist in machine
+                      ssh.content) != m_envs[env.first].lst_ssh_contents.end()) {
+          // check ssh key file exist in machine
           SshKey key = m_keys[index];
           QFileInfo file(key.path);
 
           if (!file.exists()) {
+            qDebug() << "Exist ssh key in environment, "
+                     << "file not found"
+                     << "";
             m_envs[env.first].lst_ssh_contents.erase(
                   m_envs[env.first].lst_ssh_contents.begin() + index); // delete ssh key if not exist in machine
           } else {
@@ -149,29 +153,38 @@ void SshKeyController::check_environment_keys() {
         index = index + 1;
       }
     } else {
+      QStringList tmp_ssh_key_contents;
+
+      for (auto ssh : m_keys) {
+        tmp_ssh_key_contents << ssh.content;
+      }
+
       std::vector<uint8_t> response;
       Envs tmp_env_with_keys;
       tmp_env_with_keys.id = env.first;
       tmp_env_with_keys.name = env.second;
 
-      response = CRestWorker::Instance()->is_sshkeys_in_environment(lst_ssh_key_contents,
-                                                                    tmp_env_with_keys.id);
-      {
-        SynchroPrimitives::Locker lock(&csRbm);
-        uint8_t index = 0;
-        for (auto i : response) {
-          if (i == exist) {
-            tmp_env_with_keys.keys.push_back(m_keys[index]);
-            tmp_env_with_keys.lst_ssh_contents.push_back(m_keys[index].content);
-            // save env id to m_keys(ssh keys list)
-            m_keys[index].env_ids << tmp_env_with_keys.id;
-            m_keys[index].env_ids.removeDuplicates();
-            index = index + 1;
-          }
+      QFuture<std::vector<uint8_t>> future = QtConcurrent::run(this,
+                                                               &SshKeyController::check_key,
+                                                               tmp_ssh_key_contents,
+                                                               tmp_env_with_keys.id);
+      future.waitForFinished();
+      response = future.result();
+      //response = CRestWorker::Instance()->is_sshkeys_in_environment(tmp_ssh_key_contents,
+      //                                                              tmp_env_with_keys.id);
+      uint8_t index = 0;
+      for (auto i : response) {
+        if (i == exist) {
+          tmp_env_with_keys.keys.push_back(m_keys[index]);
+          tmp_env_with_keys.lst_ssh_contents.push_back(m_keys[index].content);
+          // save env id to m_keys(ssh keys list)
+          m_keys[index].env_ids << tmp_env_with_keys.id;
+          m_keys[index].env_ids.removeDuplicates();
         }
-
-        m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
+        index = index + 1;
       }
+
+      m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
     }
   }
 
@@ -186,12 +199,18 @@ void SshKeyController::check_environment_keys() {
   }
   qDebug() << "------------------------------------";
 
-  emit finished_check_environment_keys();
   m_mutex.unlock();
+  emit finished_check_environment_keys();
 }
 
-void SshKeyController::refresh_key_files_timer_sl() {
+std::vector<uint8_t> SshKeyController::check_key(QStringList key_contents, QString env_id) {
+  return CRestWorker::Instance()->is_sshkeys_in_environment(key_contents,
+                                                            env_id);
+}
+
+void SshKeyController::refresh_key_files_timer() {
   refresh_key_files();
+  QTimer::singleShot(5000, this, &SshKeyController::refresh_key_files_timer);
 }
 
 void SshKeyController::generate_keys(QWidget* parent) {
