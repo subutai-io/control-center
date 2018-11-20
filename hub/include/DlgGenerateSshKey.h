@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QModelIndex>
 #include <QMutex>
+#include <map>
 
 namespace Ui {
   class DlgGenerateSshKey;
@@ -26,6 +27,11 @@ private:
   QStandardItemModel* m_model_environments;
   QStandardItemModel* m_model_keys;
   bool m_change_everything_on_all_select;
+  int m_current_key_index;
+  // saves checked or unchecked environments
+  // key: ssh key index, value: checked or unchecked
+  std::map<int, bool> m_all_checked_envs;
+
 
   void set_environments_checked_flag();
   void rebuild_environments_model();

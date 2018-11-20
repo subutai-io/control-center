@@ -34,6 +34,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   m_model_environments  = new QStandardItemModel(this);
   m_model_keys          = new QStandardItemModel(this);
 
+  // Current ssh key selected index
+  m_current_key_index = 0;
+
   ui->lstv_environments->setModel(m_model_environments);
   ui->lstv_sshkeys->setModel(m_model_keys);
   ui->pb_send_to_hub->setVisible(false);
@@ -46,6 +49,9 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
           this, &DlgGenerateSshKey::lstv_keys_current_changed);
+
+  connect(ui->chk_select_all, &QCheckBox::stateChanged,
+          this, &DlgGenerateSshKey::chk_select_all_checked_changed);
 
   rebuild_keys_model();
   rebuild_environments_model();
@@ -103,14 +109,38 @@ DlgGenerateSshKey::~DlgGenerateSshKey() {
 
 void
 DlgGenerateSshKey::set_environments_checked_flag() {
+  int count = 0;
+  bool select_all_envs = false;
+  bool tmp;
+
+  if (m_all_checked_envs.find(m_current_key_index) != m_all_checked_envs.end()) {
+    select_all_envs = true;
+  }
+
   for (int r = 0; r < m_model_environments->rowCount(); ++r) {
     QStandardItem* item = m_model_environments->item(r);
-    QString env_id = item->data(Qt::UserRole + 1).toString();
-    Qt::CheckState st =
-        SshKeyController::Instance().key_exist_in_env(
-          static_cast<size_t>(0), env_id) ? Qt::Checked : Qt::Unchecked;
+    Qt::CheckState st;
+
+    if (select_all_envs) {
+      st = m_all_checked_envs[m_current_key_index] ?
+            Qt::Checked : Qt::Unchecked;
+    } else {
+      QString env_id = item->data(Qt::UserRole + 1).toString();
+      tmp = SshKeyController::Instance().key_exist_in_env(
+            static_cast<size_t>(m_current_key_index), env_id);
+      st = tmp ? Qt::Checked : Qt::Unchecked;
+    }
+
     item->setCheckState(st);
+
+    if (st == Qt::Checked)
+      count++;
   }
+
+  if (count == m_model_environments->rowCount())
+    ui->chk_select_all->setCheckState(Qt::Checked);
+  else
+    ui->chk_select_all->setCheckState(Qt::Unchecked);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -187,15 +217,22 @@ DlgGenerateSshKey::btn_send_to_hub_released() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex ix0,
-                                             QModelIndex ix1) {
-  UNUSED_ARG(ix1);
-  UNUSED_ARG(ix0);
-  CSshKeysController::Instance().set_current_key(
+DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex current,
+                                             QModelIndex previous) {
+  UNUSED_ARG(previous);
+
+
+
+  //QStandardItem* item = m_model_keys->item(current.row());
+  m_current_key_index = current.row();
+  set_environments_checked_flag();
+
+  /*CSshKeysController::Instance().set_current_key(
         ui->lstv_sshkeys->currentIndex().data().toString());
   set_environments_checked_flag();
   ui->chk_select_all->setChecked(
         CSshKeysController::Instance().current_key_is_allselected());
+ */
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -216,16 +253,21 @@ DlgGenerateSshKey::ssh_key_send_finished_sl() {
 
 void
 DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
-  if (!m_change_everything_on_all_select) return;
+  m_all_checked_envs[m_current_key_index] = (Qt::Checked == st);
 
-  CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked);
   set_environments_checked_flag();
+
+  //QModelItem
+  //if (!m_change_everything_on_all_select) return;
+
+  //CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked);
+  //set_environments_checked_flag();
 }
 
 void
 DlgGenerateSshKey::matrix_updated_slot() {
   rebuild_environments_model();
-  set_environments_checked_flag();
+  //set_environments_checked_flag();
   ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed() && (ui->pb_send_to_hub->maximum() - ui->pb_send_to_hub->value()) % ui->pb_send_to_hub->maximum() == 0);
 }
 ////////////////////////////////////////////////////////////////////////////

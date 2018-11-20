@@ -8,29 +8,21 @@
 #include <QtConcurrent/QtConcurrent>
 
 SshKeyController::SshKeyController() {
-  // clean healthy environmtns list
+  // clean healthy environments list
   m_lst_healthy_environments.clear();
   for (auto env : CHubController::Instance().lst_healthy_environments()) {
     m_lst_healthy_environments[env.id()] = env.name();
   }
 
-  //m_timer = new QTimer;
-  //m_timer->setInterval(5000);
-
-  // refresh ssh keys list
-  //refresh_key_files();
-
   connect(&CHubController::Instance(), &CHubController::environments_updated,
           this, &SshKeyController::environments_updated_sl);
-  //connect(m_timer, &QTimer::timeout,
-  //        this, &SshKeyController::refresh_key_files_timer_sl);
-  //m_timer->start();
+
   refresh_key_files_timer();
 }
 
 SshKeyController::~SshKeyController() {
-  //if (m_timer)
-  //  m_timer->deleteLater();
+  m_keys.clear();
+  m_envs.clear();
 }
 
 void SshKeyController::refresh_key_files() {
@@ -84,7 +76,6 @@ void SshKeyController::refresh_key_files() {
   // synchronization with bazaar
   qDebug() << "CHECK ENVIRONMENT KEYS func called ";
   check_environment_keys();
-  //QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -99,11 +90,12 @@ void SshKeyController::refresh_healthy_envs() {
     m_lst_healthy_environments[env.id()] = env.name();
   }
 
-  // Todo synchronization with bazaar
   check_environment_keys();
-  //QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
+/*
+
+*/
 void SshKeyController::check_environment_keys() {
   m_mutex.lock();
 
@@ -126,7 +118,7 @@ void SshKeyController::check_environment_keys() {
 
   for (auto env : m_lst_healthy_environments) {
     uint8_t exist = 1;
-    // found environment
+    // found environment in "m_envs"
     if (m_envs.find(env.first) != m_envs.end()) {
       uint8_t index = 0;
       for (auto ssh : m_keys) {
@@ -170,8 +162,7 @@ void SshKeyController::check_environment_keys() {
                                                                tmp_env_with_keys.id);
       future.waitForFinished();
       response = future.result();
-      //response = CRestWorker::Instance()->is_sshkeys_in_environment(tmp_ssh_key_contents,
-      //                                                              tmp_env_with_keys.id);
+
       uint8_t index = 0;
       for (auto i : response) {
         if (i == exist) {
@@ -197,7 +188,15 @@ void SshKeyController::check_environment_keys() {
                << key.file_name;
     }
   }
+  for (auto key : m_keys) {
+    if (!key.env_ids.empty()) {
+      qDebug() << "SSH KEY HAS ENV IDS"
+               << key.file_name
+               << key.env_ids;
+    }
+  }
   qDebug() << "------------------------------------";
+
 
   m_mutex.unlock();
   emit finished_check_environment_keys();

@@ -40,9 +40,14 @@ public:
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {  return m_keys;  }
   std::map<QString, QString> list_healthy_envs() { return m_lst_healthy_environments; }
+
+  /* every 5 secs, update ssh key list
+   * updates variable "m_envs"
+  */
   void refresh_key_files_timer();
 
   bool key_exist_in_env(size_t index, QString env_id) {
+    QMutexLocker lock(&m_mutex);
     return m_keys[index].env_ids.contains(env_id);
   }
 
@@ -61,7 +66,6 @@ private:
 
   // key: env id, value: env name.
   std::map<QString, QString> m_lst_healthy_environments;
-  //QTimer *m_timer;
   QMutex m_mutex;
 
   SshKeyController();
