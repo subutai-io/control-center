@@ -33,13 +33,25 @@ class SshKeyController : public QObject {
 Q_OBJECT
 public:
 
-  std::vector<uint8_t> check_key(QStringList key_contents, QString env_id);
+  std::vector<uint8_t> check_key_rest(QStringList key_contents,
+                                      QString env_id);
+
+  void remove_key_rest(const QString &file_name,
+                       const QString &content,
+                       const QStringList &env_ids);
+
   void refresh_key_files();
   void refresh_healthy_envs();
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
-  std::vector<SshKey> list_keys() {  return m_keys;  }
-  std::map<QString, QString> list_healthy_envs() { return m_lst_healthy_environments; }
+  std::vector<SshKey> list_keys() {
+    QMutexLocker lock(&m_mutex);
+    return m_keys;
+  }
+  std::map<QString, QString> list_healthy_envs() {
+    QMutexLocker lock(&m_mutex);
+    return m_lst_healthy_environments;
+  }
 
   /* every 5 secs, update ssh key list
    * updates variable "m_envs"
@@ -50,6 +62,8 @@ public:
     QMutexLocker lock(&m_mutex);
     return m_keys[index].env_ids.contains(env_id);
   }
+
+  void remove_key(const QString& file_name);
 
   static SshKeyController& Instance() {
     static SshKeyController instance;
@@ -75,8 +89,8 @@ private slots:
   void environments_updated_sl(int code);
 
 signals:
-  void key_files_lst_updated();
   void finished_check_environment_keys();
+  void progress_ssh_key_rest(int current, int total);
 };
 
 #endif // SSHKEYCONTROLLER_H

@@ -315,8 +315,8 @@ void CSshKeysController::send_data_to_hub() {
   }
 
   for (auto i = dct_to_remove.begin(); i != dct_to_remove.end(); ++i) {
-    CRestWorker::Instance()->remove_sshkey_from_environments(
-        i->second.first, i->first, i->second.second);
+    //CRestWorker::Instance()->remove_sshkey_from_environments(
+   //     i->second.first, i->first, i->second.second);
     emit ssh_key_send_progress(++part, total);
   }
 

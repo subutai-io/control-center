@@ -48,7 +48,7 @@ private slots:
   void ssh_key_send_progress_sl(int part, int total);
   void ssh_key_send_finished_sl();
 
-  void chk_select_all_checked_changed(int st);
+  void chk_select_all_checked_changed(bool is_checked);
 
   void matrix_updated_slot();
   void keys_updated_slot();

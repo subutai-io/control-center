@@ -888,7 +888,7 @@ void CRestWorker::add_sshkey_to_environments(
 
 void CRestWorker::remove_sshkey_from_environments(
     const QString& key_name, const QString& key,
-    const std::vector<QString>& lst_environments) {
+    const QStringList& lst_environments) {
   QString ssh_key_md5 = CCommons::FileMd5(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + key_name);
   static const QString str_url(hub_post_url().arg("environments/remove-keys"));
   QJsonObject obj;

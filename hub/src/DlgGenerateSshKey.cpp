@@ -44,14 +44,20 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(ui->btn_generate_new_key, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_generate_released);
 
-  //connect(&SshKeyController::Instance(), &SshKeyController::key_files_lst_updated,
-  //        this, &DlgGenerateSshKey::keys_updated_slot);
+  connect(&SshKeyController::Instance(), &SshKeyController::finished_check_environment_keys,
+          this, &DlgGenerateSshKey::keys_updated_slot);
 
   connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
           this, &DlgGenerateSshKey::lstv_keys_current_changed);
 
-  connect(ui->chk_select_all, &QCheckBox::stateChanged,
+  connect(ui->chk_select_all, &QCheckBox::clicked,
           this, &DlgGenerateSshKey::chk_select_all_checked_changed);
+
+  connect(ui->btn_remove_key, &QPushButton::released,
+            this, &DlgGenerateSshKey::btn_remove_released);
+
+  connect(&SshKeyController::Instance(), &SshKeyController::progress_ssh_key_rest,
+          this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
 
   rebuild_keys_model();
   rebuild_environments_model();
@@ -71,8 +77,7 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(m_model_environments, &QStandardItemModel::itemChanged,
           this, &DlgGenerateSshKey::environments_item_changed);
-  connect(&SshKeyController::Instance(), &SshKeyController::key_files_lst_updated,
-          this, &DlgGenerateSshKey::keys_updated_slot);*/
+  */
 
   /*
   connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
@@ -117,6 +122,9 @@ DlgGenerateSshKey::set_environments_checked_flag() {
     select_all_envs = true;
   }
 
+  if (m_model_keys->rowCount() == 0)
+    return;
+
   for (int r = 0; r < m_model_environments->rowCount(); ++r) {
     QStandardItem* item = m_model_environments->item(r);
     Qt::CheckState st;
@@ -125,9 +133,19 @@ DlgGenerateSshKey::set_environments_checked_flag() {
       st = m_all_checked_envs[m_current_key_index] ?
             Qt::Checked : Qt::Unchecked;
     } else {
-      QString env_id = item->data(Qt::UserRole + 1).toString();
-      tmp = SshKeyController::Instance().key_exist_in_env(
-            static_cast<size_t>(m_current_key_index), env_id);
+      QStandardItem* key = m_model_keys->item(m_current_key_index);
+      QVariant key_data = key->data(Qt::UserRole + 1);
+      QVariant env_data = item->data(Qt::UserRole + 1);
+      QStringList env_ids;
+      QString env_id;
+
+      if (!key_data.isNull())
+        env_ids = key_data.toStringList();
+
+      if (!env_data.isNull())
+        env_id = env_data.toString();
+
+      tmp = env_ids.contains(env_id);
       st = tmp ? Qt::Checked : Qt::Unchecked;
     }
 
@@ -163,14 +181,21 @@ void
 DlgGenerateSshKey::rebuild_keys_model() {
   m_model_keys->clear();
   for (auto i : SshKeyController::Instance().list_keys()) {
+    // set environment ids to ssh key model
+    QVariant v(i.env_ids);
     QStandardItem* item = new QStandardItem(i.file_name);
+    item->setData(v);
     item->setEditable(false);
     m_model_keys->appendRow(item);
   }
 
   if (m_model_keys->rowCount()) {
-    ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
-          m_model_keys->index(0, 0), QItemSelectionModel::Select);
+    if (m_current_key_index == 0)
+      ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
+           m_model_keys->index(0, 0), QItemSelectionModel::Select);
+    else
+      ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
+           m_model_keys->index(m_current_key_index, 0), QItemSelectionModel::Select);
   }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -185,23 +210,47 @@ void DlgGenerateSshKey::btn_generate_released() {
   }
   SshKeyController::Instance().generate_keys(this);
   SshKeyController::Instance().refresh_key_files();
-  rebuild_keys_model();
-  /*
-  CSshKeysController::Instance().generate_new_ssh_key(this);
-  CSshKeysController::Instance().refresh_key_files();
-  rebuild_keys_model();*/
+  //rebuild_keys_model();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgGenerateSshKey::btn_remove_released() {
-  ui->btn_remove_key->setEnabled(false);
-  ui->btn_generate_new_key->setEnabled(false);
-  CSshKeysController::Instance().remove_ssh_key();
-  CSshKeysController::Instance().refresh_key_files();
-  rebuild_keys_model();
-  ui->btn_remove_key->setEnabled(true);
-  ui->btn_generate_new_key->setEnabled(true);
+  if (m_model_keys->rowCount() > 0) {
+    QMessageBox *msg = new QMessageBox(
+          QMessageBox::Information, "Attention!", "",
+          QMessageBox::Yes | QMessageBox::No);
+    msg->setTextFormat(Qt::RichText);
+
+    QStandardItem *key = m_model_keys->item(m_current_key_index);
+    QString file_name = key->text();
+    QStringList env_ids = key->data().toStringList();
+    QString tmp;
+    std::map<QString, QString> lst_envs =
+        SshKeyController::Instance().list_healthy_envs();
+
+    if (env_ids.size() > 0 && (lst_envs.size() == static_cast<size_t>(m_model_environments->rowCount()))) {
+      for (auto i : env_ids)
+        tmp += "<i>" + lst_envs[i] + "</i><br/>";
+
+      msg->setText(QString("You are going to remove an SSH-key <i>%1</i>. "
+                           "Do you want to proceed?").arg(file_name));
+      msg->setDetailedText(QString("This SSH-key is deployed to this environments:<br>%1"
+                                   "Your SSH-key will be "
+                                   "removed from all of the environments.<br>").arg(tmp));
+    } else {
+      msg->setText(QString("You are going to remove an SSH-key <i>%1</i>. This "
+                           "SSH-key is not deployed to the environments.<br> "
+                           "Do you want to proceed?").arg(file_name));
+    }
+
+    connect(msg, &QMessageBox::finished, msg, &QMessageBox::deleteLater);
+    if (msg->exec() != QMessageBox::Yes) {
+      return;
+    }
+    ui->pb_send_to_hub->setVisible(true);
+    SshKeyController::Instance().remove_key(file_name);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -221,18 +270,8 @@ DlgGenerateSshKey::lstv_keys_current_changed(QModelIndex current,
                                              QModelIndex previous) {
   UNUSED_ARG(previous);
 
-
-
-  //QStandardItem* item = m_model_keys->item(current.row());
   m_current_key_index = current.row();
   set_environments_checked_flag();
-
-  /*CSshKeysController::Instance().set_current_key(
-        ui->lstv_sshkeys->currentIndex().data().toString());
-  set_environments_checked_flag();
-  ui->chk_select_all->setChecked(
-        CSshKeysController::Instance().current_key_is_allselected());
- */
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -252,16 +291,10 @@ DlgGenerateSshKey::ssh_key_send_finished_sl() {
 ////////////////////////////////////////////////////////////////////////////
 
 void
-DlgGenerateSshKey::chk_select_all_checked_changed(int st) {
-  m_all_checked_envs[m_current_key_index] = (Qt::Checked == st);
+DlgGenerateSshKey::chk_select_all_checked_changed(bool is_checked) {
+  m_all_checked_envs[m_current_key_index] = is_checked;
 
   set_environments_checked_flag();
-
-  //QModelItem
-  //if (!m_change_everything_on_all_select) return;
-
-  //CSshKeysController::Instance().set_current_key_allselected(st == Qt::Checked);
-  //set_environments_checked_flag();
 }
 
 void
@@ -274,8 +307,17 @@ DlgGenerateSshKey::matrix_updated_slot() {
 
 void
 DlgGenerateSshKey::keys_updated_slot() {
+  // if ssh key list change,
+  // clean "m_all_checked_envs" and set "m_current_key_index" 0
+  if (SshKeyController::Instance().list_keys().size()
+      != static_cast<size_t>(m_model_keys->rowCount())) {
+    m_all_checked_envs.clear();
+    m_current_key_index = 0;
+  }
+
   rebuild_keys_model();
   rebuild_environments_model();
+  set_environments_checked_flag();
 }
 ////////////////////////////////////////////////////////////////////////////
 
