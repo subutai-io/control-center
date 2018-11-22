@@ -29,7 +29,7 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   m_change_everything_on_all_select(true)
 {
   ui->setupUi(this);
-  ui->btn_send_to_hub->setEnabled(false);
+  //ui->btn_send_to_hub->setEnabled(false);
 
   m_model_environments  = new QStandardItemModel(this);
   m_model_keys          = new QStandardItemModel(this);
@@ -58,6 +58,12 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
 
   connect(&SshKeyController::Instance(), &SshKeyController::progress_ssh_key_rest,
           this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
+
+  connect(m_model_environments, &QStandardItemModel::itemChanged,
+          this, &DlgGenerateSshKey::environments_item_changed);
+
+  connect(ui->btn_send_to_hub, &QPushButton::released,
+          this, &DlgGenerateSshKey::btn_send_to_hub_released);
 
   rebuild_keys_model();
   rebuild_environments_model();
@@ -115,12 +121,9 @@ DlgGenerateSshKey::~DlgGenerateSshKey() {
 void
 DlgGenerateSshKey::set_environments_checked_flag() {
   int count = 0;
-  bool select_all_envs = false;
   bool tmp;
-
-  if (m_all_checked_envs.find(m_current_key_index) != m_all_checked_envs.end()) {
-    select_all_envs = true;
-  }
+  QString env_id; // get env id from environment model
+  QStringList env_ids; // get env ids from key model
 
   if (m_model_keys->rowCount() == 0)
     return;
@@ -128,22 +131,21 @@ DlgGenerateSshKey::set_environments_checked_flag() {
   for (int r = 0; r < m_model_environments->rowCount(); ++r) {
     QStandardItem* item = m_model_environments->item(r);
     Qt::CheckState st;
+    QVariant env_data = item->data(Qt::UserRole + 1);
+    env_id = ""; // empty
 
-    if (select_all_envs) {
-      st = m_all_checked_envs[m_current_key_index] ?
+    if (!env_data.isNull())
+      env_id = env_data.toString();
+
+    if (m_all_state_envs[m_current_key_index].states.find(env_id) != m_all_state_envs[m_current_key_index].states.end()) {
+      st = m_all_state_envs[m_current_key_index].states[env_id] ?
             Qt::Checked : Qt::Unchecked;
     } else {
       QStandardItem* key = m_model_keys->item(m_current_key_index);
       QVariant key_data = key->data(Qt::UserRole + 1);
-      QVariant env_data = item->data(Qt::UserRole + 1);
-      QStringList env_ids;
-      QString env_id;
 
       if (!key_data.isNull())
         env_ids = key_data.toStringList();
-
-      if (!env_data.isNull())
-        env_id = env_data.toString();
 
       tmp = env_ids.contains(env_id);
       st = tmp ? Qt::Checked : Qt::Unchecked;
@@ -210,7 +212,6 @@ void DlgGenerateSshKey::btn_generate_released() {
   }
   SshKeyController::Instance().generate_keys(this);
   SshKeyController::Instance().refresh_key_files();
-  //rebuild_keys_model();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -249,7 +250,9 @@ void DlgGenerateSshKey::btn_remove_released() {
       return;
     }
     ui->pb_send_to_hub->setVisible(true);
-    SshKeyController::Instance().remove_key(file_name);
+    //SshKeyController::Instance().remove_key(file_name);
+    QtConcurrent::run(&SshKeyController::Instance(),
+                      &SshKeyController::remove_key, file_name);
   }
 }
 
@@ -260,8 +263,9 @@ DlgGenerateSshKey::btn_send_to_hub_released() {
   ui->btn_send_to_hub->setEnabled(false);
   ui->pb_send_to_hub->setVisible(true);             
   ui->pb_send_to_hub->setValue(1);
-  QtConcurrent::run(&CSshKeysController::Instance(),
-                    &CSshKeysController::send_data_to_hub);
+  //SshKeyController::Instance().upload_key(m_all_state_envs);
+  QtConcurrent::run(&SshKeyController::Instance(),
+                    &SshKeyController::upload_key, m_all_state_envs);
 }
 ////////////////////////////////////////////////////////////////////////////
 
@@ -292,9 +296,10 @@ DlgGenerateSshKey::ssh_key_send_finished_sl() {
 
 void
 DlgGenerateSshKey::chk_select_all_checked_changed(bool is_checked) {
-  m_all_checked_envs[m_current_key_index] = is_checked;
-
-  set_environments_checked_flag();
+  for (int r = 0; r < m_model_environments->rowCount(); ++r) {
+    QStandardItem* item = m_model_environments->item(r);
+    item->setCheckState(is_checked ? Qt::Checked : Qt::Unchecked);
+  }
 }
 
 void
@@ -308,10 +313,10 @@ DlgGenerateSshKey::matrix_updated_slot() {
 void
 DlgGenerateSshKey::keys_updated_slot() {
   // if ssh key list change,
-  // clean "m_all_checked_envs" and set "m_current_key_index" 0
+  // clean "m_all_state_envs" and set "m_current_key_index" 0
   if (SshKeyController::Instance().list_keys().size()
       != static_cast<size_t>(m_model_keys->rowCount())) {
-    m_all_checked_envs.clear();
+    m_all_state_envs.clear();
     m_current_key_index = 0;
   }
 
@@ -323,11 +328,13 @@ DlgGenerateSshKey::keys_updated_slot() {
 
 void
 DlgGenerateSshKey::environments_item_changed(QStandardItem *item) {
-  CSshKeysController::Instance().set_key_environments_bit(item->index().row(),
-      item->checkState() == Qt::Checked);
-  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed() && (ui->pb_send_to_hub->maximum() - ui->pb_send_to_hub->value()) % ui->pb_send_to_hub->maximum() == 0);
-  m_change_everything_on_all_select = false;
-  ui->chk_select_all->setChecked(CSshKeysController::Instance().current_key_is_allselected());
-  m_change_everything_on_all_select = true;
+  if (m_model_keys->rowCount() == 0)
+    return;
+
+  QString env_id;
+  env_id = item->data(Qt::UserRole+1).toString();
+
+  m_all_state_envs[m_current_key_index].states[env_id] =
+      (item->checkState() == Qt::Checked);
 }
 ////////////////////////////////////////////////////////////////////////////

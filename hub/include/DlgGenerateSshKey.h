@@ -14,6 +14,11 @@ class QStandardItemModel;
 class QStandardItem;
 class QListView;
 
+struct EnvsSelectState {
+  // environment id, state checked or unchecked
+  std::map<QString, bool> states;
+};
+
 class DlgGenerateSshKey : public QDialog
 {
   Q_OBJECT
@@ -30,8 +35,7 @@ private:
   int m_current_key_index;
   // saves checked or unchecked environments
   // key: ssh key index, value: checked or unchecked
-  std::map<int, bool> m_all_checked_envs;
-
+  std::map<int, EnvsSelectState> m_all_state_envs;
 
   void set_environments_checked_flag();
   void rebuild_environments_model();

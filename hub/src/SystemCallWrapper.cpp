@@ -4520,7 +4520,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
 int CSystemCallWrapper::versionCompare(std::string v1, std::string v2) {
   int vnum1 = 0, vnum2 = 0;
 
-  for (int i=0,j=0; (i<v1.length() || j<v2.length());) {
+  for (size_t i = 0, j = 0; (i < v1.size() || j < v2.size());) {
     while (i < v1.length() && v1[i] != '.') {
         vnum1 = vnum1 * 10 + (v1[i] - '0');
         i++;

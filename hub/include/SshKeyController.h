@@ -10,13 +10,14 @@
 #include <QMutexLocker>
 #include <map>
 #include "RestWorker.h"
+#include "DlgGenerateSshKey.h"
 
 struct SshKey {
   QString file_name;
   QString path;
   QString content;
   QString md5;
-  QStringList env_ids;
+  QStringList env_ids; // Ssh key has many environments
 };
 
 // Saves environment ssh keys
@@ -35,21 +36,16 @@ public:
 
   std::vector<uint8_t> check_key_rest(QStringList key_contents,
                                       QString env_id);
-
-  void remove_key_rest(const QString &file_name,
-                       const QString &content,
-                       const QStringList &env_ids);
-
   void refresh_key_files();
   void refresh_healthy_envs();
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {
-    QMutexLocker lock(&m_mutex);
+    //QMutexLocker lock(&m_mutex);
     return m_keys;
   }
   std::map<QString, QString> list_healthy_envs() {
-    QMutexLocker lock(&m_mutex);
+    //QMutexLocker lock(&m_mutex);
     return m_lst_healthy_environments;
   }
 
@@ -59,11 +55,14 @@ public:
   void refresh_key_files_timer();
 
   bool key_exist_in_env(size_t index, QString env_id) {
-    QMutexLocker lock(&m_mutex);
+    //QMutexLocker lock(&m_mutex);
     return m_keys[index].env_ids.contains(env_id);
   }
 
   void remove_key(const QString& file_name);
+  // key: index of ssh key (m_keys)
+  // value: struct with EnvsSelectState
+  void upload_key(std::map<int, EnvsSelectState> key_with_selected_envs);
 
   static SshKeyController& Instance() {
     static SshKeyController instance;

@@ -845,7 +845,7 @@ std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
 
 void CRestWorker::add_sshkey_to_environments(
     const QString& key_name, const QString& key,
-    const std::vector<QString>& lst_environments) {
+    const QStringList& lst_environments) {
   QString ssh_key_md5 = CCommons::FileMd5(CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + key_name);
   static const QString str_url(hub_post_url().arg("environments/ssh-keys"));
   QJsonObject obj;
@@ -865,7 +865,7 @@ void CRestWorker::add_sshkey_to_environments(
 
   int http_status_code, err_code, network_error;
   send_request(m_network_manager, req, false,
-               http_status_code, err_code, network_error, doc_serialized, false);
+               http_status_code, err_code, network_error, doc_serialized, true);
   qDebug() << "finished to add ssh keys"
            << "json doc: " << doc
            << "http code" << http_status_code

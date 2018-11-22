@@ -194,8 +194,8 @@ public:
                                               const QString& env);
 
   void add_sshkey_to_environments(const QString &key_name,
-                                  const QString& key,
-                                  const std::vector<QString>& lst_environments);
+                                  const QString &key,
+                                  const QStringList &lst_environments);
 
   void remove_sshkey_from_environments(const QString &key_name,
                                        const QString &key,

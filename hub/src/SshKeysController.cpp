@@ -309,8 +309,8 @@ void CSshKeysController::send_data_to_hub() {
   int part = 0;
   int total = static_cast<int>(dct_to_send.size() + dct_to_remove.size());
   for (auto i = dct_to_send.begin(); i != dct_to_send.end(); ++i) {
-    CRestWorker::Instance()->add_sshkey_to_environments(
-        i->second.first, i->first, i->second.second);
+    //CRestWorker::Instance()->add_sshkey_to_environments(
+    //    i->second.first, i->first, i->second.second);
     emit ssh_key_send_progress(++part, total);
   }
 
