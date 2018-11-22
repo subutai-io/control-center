@@ -10,7 +10,6 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "SettingsManager.h"
-#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayWebSocketServer.h"
 #include "P2PController.h"

@@ -19,7 +19,6 @@
 #include "HubController.h"
 #include "SettingsManager.h"
 #include "NotificationObserver.h"
-#include "SshKeysController.h"
 #include "SshKeyController.h"
 #include "RhController.h"
 

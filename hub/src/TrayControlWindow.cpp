@@ -24,7 +24,6 @@
 #include "RestWorker.h"
 #include "RhController.h"
 #include "SettingsManager.h"
-#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "libssh2/include/LibsshController.h"
