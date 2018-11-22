@@ -41,11 +41,9 @@ public:
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {
-    //QMutexLocker lock(&m_mutex);
     return m_keys;
   }
   std::map<QString, QString> list_healthy_envs() {
-    //QMutexLocker lock(&m_mutex);
     return m_lst_healthy_environments;
   }
 
@@ -55,8 +53,16 @@ public:
   void refresh_key_files_timer();
 
   bool key_exist_in_env(size_t index, QString env_id) {
-    //QMutexLocker lock(&m_mutex);
     return m_keys[index].env_ids.contains(env_id);
+  }
+
+  std::vector<SshKey> keys_in_environment(const QString& env_id) {
+    std::vector<SshKey> empty;
+
+    if (m_envs.find(env_id) != m_envs.end())
+      empty = m_envs[env_id].keys;
+
+    return empty;
   }
 
   void remove_key(const QString& file_name);
@@ -88,6 +94,7 @@ private slots:
   void environments_updated_sl(int code);
 
 signals:
+  void ssh_key_send_finished();
   void finished_check_environment_keys();
   void progress_ssh_key_rest(int current, int total);
 };

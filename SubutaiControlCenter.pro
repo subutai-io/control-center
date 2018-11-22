@@ -41,7 +41,6 @@ SOURCES += \
     hub/src/updater/UpdaterComponentTray.cpp \
     hub/src/updater/IUpdaterComponent.cpp \
     libssh2/src/LibsshController.cpp \
-    hub/src/SshKeysController.cpp \
     commons/src/OsBranchConsts.cpp \
     hub/src/SsdpController.cpp \
     hub/src/RhController.cpp \
@@ -110,7 +109,6 @@ HEADERS  += \
     commons/include/Locker.h \
     commons/include/Commons.h \
     libssh2/include/LibsshController.h \
-    hub/include/SshKeysController.h \
     commons/include/OsBranchConsts.h \
     hub/include/SsdpController.h \
     hub/include/RhController.h \

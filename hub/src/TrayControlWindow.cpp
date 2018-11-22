@@ -90,7 +90,6 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
   p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
   CPeerController::Instance()->init();
-  //CSshKeysController::Instance();
   SshKeyController::Instance();
 
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,

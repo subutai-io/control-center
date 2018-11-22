@@ -279,6 +279,8 @@ void SshKeyController::remove_key(const QString& file_name) {
       break;
     }
   }
+
+  emit ssh_key_send_finished();
   m_mutex.unlock();
   refresh_key_files();
 }
@@ -314,6 +316,7 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
     emit progress_ssh_key_rest(state.first + 1, total);
   }
 
+  emit ssh_key_send_finished();
   m_mutex.unlock();
   refresh_key_files();
 }

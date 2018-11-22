@@ -65,55 +65,16 @@ DlgGenerateSshKey::DlgGenerateSshKey(QWidget *parent) :
   connect(ui->btn_send_to_hub, &QPushButton::released,
           this, &DlgGenerateSshKey::btn_send_to_hub_released);
 
-  rebuild_keys_model();
-  rebuild_environments_model();
-  set_environments_checked_flag();
-
-  /*connect(ui->btn_remove_key, &QPushButton::released,
-          this, &DlgGenerateSshKey::btn_remove_released);
-
-  connect(ui->btn_send_to_hub, &QPushButton::released,
-          this, &DlgGenerateSshKey::btn_send_to_hub_released); 
-
-  connect(ui->lstv_sshkeys->selectionModel(), &QItemSelectionModel::currentChanged,
-          this, &DlgGenerateSshKey::lstv_keys_current_changed);
-
-  connect(ui->chk_select_all, &QCheckBox::stateChanged,
-          this, &DlgGenerateSshKey::chk_select_all_checked_changed);
-
-  connect(m_model_environments, &QStandardItemModel::itemChanged,
-          this, &DlgGenerateSshKey::environments_item_changed);
-  */
-
-  /*
-  connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_progress,
-          this, &DlgGenerateSshKey::ssh_key_send_progress_sl);
-
-  connect(&CSshKeysController::Instance(), &CSshKeysController::ssh_key_send_finished,
+  connect(&SshKeyController::Instance(), &SshKeyController::ssh_key_send_finished,
           this, &DlgGenerateSshKey::ssh_key_send_finished_sl);
 
-  connect(&CSshKeysController::Instance(), &CSshKeysController::matrix_updated,
-          this, &DlgGenerateSshKey::matrix_updated_slot);
-
-  connect(&CSshKeysController::Instance(), &CSshKeysController::key_files_changed,
-          this, &DlgGenerateSshKey::keys_updated_slot);
-
-  CSshKeysController::Instance().refresh_key_files();  
-  CSshKeysController::Instance().refresh_healthy_environments();
   rebuild_keys_model();
   rebuild_environments_model();
   set_environments_checked_flag();
-
-  if (m_model_keys->rowCount() && CSshKeysController::Instance().has_current_key()) {
-    ui->lstv_sshkeys->selectionModel()->setCurrentIndex(
-          m_model_keys->index(0, 0), QItemSelectionModel::Select);
-  }
-  */
 }
 ////////////////////////////////////////////////////////////////////////////
 
 DlgGenerateSshKey::~DlgGenerateSshKey() {
-  CSshKeysController::Instance().reset_matrix_current();
   delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -288,7 +249,7 @@ DlgGenerateSshKey::ssh_key_send_progress_sl(int part, int total) {
 
 void
 DlgGenerateSshKey::ssh_key_send_finished_sl() {
-  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed());
+  ui->btn_send_to_hub->setEnabled(true);
   ui->pb_send_to_hub->setMaximum(100);
   ui->pb_send_to_hub->setValue(ui->pb_send_to_hub->maximum());
 }
@@ -300,13 +261,6 @@ DlgGenerateSshKey::chk_select_all_checked_changed(bool is_checked) {
     QStandardItem* item = m_model_environments->item(r);
     item->setCheckState(is_checked ? Qt::Checked : Qt::Unchecked);
   }
-}
-
-void
-DlgGenerateSshKey::matrix_updated_slot() {
-  rebuild_environments_model();
-  //set_environments_checked_flag();
-  ui->btn_send_to_hub->setEnabled(CSshKeysController::Instance().something_changed() && (ui->pb_send_to_hub->maximum() - ui->pb_send_to_hub->value()) % ui->pb_send_to_hub->maximum() == 0);
 }
 ////////////////////////////////////////////////////////////////////////////
 
