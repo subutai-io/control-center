@@ -28,6 +28,11 @@ SshKeyController::~SshKeyController() {
 
 void SshKeyController::refresh_key_files() {
   m_mutex.lock();
+  int old_size = -1;
+
+  if (!m_keys.empty())
+    old_size = static_cast<int>(m_keys.size());
+
   m_keys.clear();
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
@@ -71,9 +76,9 @@ void SshKeyController::refresh_key_files() {
 
   m_mutex.unlock();
 
-  // synchronization with bazaar
-  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
-  //check_environment_keys();
+  // synchronization with bazaar (timer will run if ssh key list updated)
+  if (!m_keys.empty() &&  (old_size == -1 || (old_size != static_cast<int>(m_keys.size()))))
+    QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -163,34 +168,6 @@ void SshKeyController::check_environment_keys() {
       }
 
       m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
-
-      /*QFuture<std::vector<uint8_t>> future = QtConcurrent::run(this,
-                                                               &SshKeyController::check_key_rest,
-                                                               tmp_ssh_key_contents,
-                                                               env.first);
-      QFutureWatcher<std::vector<uint8_t>> *watcher = new QFutureWatcher<std::vector<uint8_t>>(this);
-
-      watcher->setFuture(future);
-      connect(watcher, &QFutureWatcher<std::vector<uint8_t>>::finished, [this, exist, env, future]() {
-        uint8_t index = 0;
-        std::vector<uint8_t> response = future.result();
-        Envs tmp_env_with_keys;
-        tmp_env_with_keys.id = env.first;
-        tmp_env_with_keys.name = env.second;
-
-        for (auto i : response) {
-          if (i == exist) {
-            tmp_env_with_keys.keys.push_back(m_keys[index]);
-            tmp_env_with_keys.lst_ssh_contents.push_back(m_keys[index].content);
-            // save env id to m_keys(ssh keys list)
-            m_keys[index].env_ids << tmp_env_with_keys.id;
-            m_keys[index].env_ids.removeDuplicates();
-          }
-          index = index + 1;
-        }
-
-        m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
-      });*/
     }
   }
 
@@ -270,7 +247,6 @@ void SshKeyController::generate_keys(QWidget* parent) {
 }
 
 void SshKeyController::remove_key(const QString& file_name) {
-  //m_mutex.lock();
   m_upload_remove.lock();
   std::vector<SshKey> tmp = m_keys;
   for (auto key : tmp) {
@@ -305,13 +281,11 @@ void SshKeyController::remove_key(const QString& file_name) {
   }
 
   emit ssh_key_send_finished();
-  //m_mutex.unlock();
   m_upload_remove.unlock();
   refresh_key_files();
 }
 
 void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_selected_envs) {
-  //m_mutex.lock();
   m_upload_remove.lock();
   std::vector<SshKey> tmp = m_keys;
   qDebug() << "UPLOAD KEYS";
@@ -349,7 +323,6 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
   }
 
   emit ssh_key_send_finished();
-  //m_mutex.unlock();
   m_upload_remove.unlock();
   refresh_key_files();
 }
