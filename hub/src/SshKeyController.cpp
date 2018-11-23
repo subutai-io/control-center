@@ -257,9 +257,7 @@ void SshKeyController::remove_key(const QString& file_name) {
       // remove key in environments
       if (key.env_ids.size() > 0) {
 
-        int total = key.env_ids.size();
-
-        emit progress_ssh_key_rest(0, total);
+        emit progress_ssh_key_rest(1, 2);
         CRestWorker::Instance()->remove_sshkey_from_environments(key.file_name,
                                                                  key.content,
                                                                  key.env_ids);
@@ -269,14 +267,14 @@ void SshKeyController::remove_key(const QString& file_name) {
           key_file_private.remove();
         }
 
-        emit progress_ssh_key_rest(total, total);
+        emit progress_ssh_key_rest(2, 2);
       } else {
 
         if (key_file_pub.exists()) {
           key_file_pub.remove();
           key_file_private.remove();
         }
-        emit progress_ssh_key_rest(1, 1);
+        emit progress_ssh_key_rest(100, 100);
       }
       break;
     }
@@ -291,6 +289,7 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
   m_mutex.lock();
   qDebug() << "UPLOAD KEYS";
   int total = static_cast<int>(key_with_selected_envs.size());
+  int count = 1;
 
   for (auto state : key_with_selected_envs) {
     SshKey key;
@@ -310,12 +309,13 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
     qDebug() << "UPLOAD ENV ids"
              << env_ids;
 
+    emit progress_ssh_key_rest(count++, total);
+
     if (!env_ids.empty()) {
       CRestWorker::Instance()->add_sshkey_to_environments(key.file_name,
                                                           key.content,
                                                           env_ids);
     }
-    emit progress_ssh_key_rest(state.first + 1, total);
 
     // clean up m_envs
     for (auto env_id : env_ids) {
