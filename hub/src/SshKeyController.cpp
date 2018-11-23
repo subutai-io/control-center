@@ -72,7 +72,8 @@ void SshKeyController::refresh_key_files() {
   m_mutex.unlock();
 
   // synchronization with bazaar
-  check_environment_keys();
+  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  //check_environment_keys();
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -87,7 +88,7 @@ void SshKeyController::refresh_healthy_envs() {
     m_lst_healthy_environments[env.id()] = env.name();
   }
 
-  check_environment_keys();
+  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::check_environment_keys() {
@@ -143,11 +144,32 @@ void SshKeyController::check_environment_keys() {
         tmp_ssh_key_contents << ssh.content;
       }
 
-      QFutureWatcher<std::vector<uint8_t>> *watcher = new QFutureWatcher<std::vector<uint8_t>>(this);
-      QFuture<std::vector<uint8_t>> future = QtConcurrent::run(this,
+      uint8_t index = 0;
+      std::vector<uint8_t> response = CRestWorker::Instance()->is_sshkeys_in_environment(tmp_ssh_key_contents,
+                                                                                         env.first);
+      Envs tmp_env_with_keys;
+      tmp_env_with_keys.id = env.first;
+      tmp_env_with_keys.name = env.second;
+
+      for (auto i : response) {
+        if (i == exist) {
+          tmp_env_with_keys.keys.push_back(m_keys[index]);
+          tmp_env_with_keys.lst_ssh_contents.push_back(m_keys[index].content);
+          // save env id to m_keys(ssh keys list)
+          m_keys[index].env_ids << tmp_env_with_keys.id;
+          m_keys[index].env_ids.removeDuplicates();
+        }
+        index = index + 1;
+      }
+
+      m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
+
+      /*QFuture<std::vector<uint8_t>> future = QtConcurrent::run(this,
                                                                &SshKeyController::check_key_rest,
                                                                tmp_ssh_key_contents,
                                                                env.first);
+      QFutureWatcher<std::vector<uint8_t>> *watcher = new QFutureWatcher<std::vector<uint8_t>>(this);
+
       watcher->setFuture(future);
       connect(watcher, &QFutureWatcher<std::vector<uint8_t>>::finished, [this, exist, env, future]() {
         uint8_t index = 0;
@@ -168,7 +190,7 @@ void SshKeyController::check_environment_keys() {
         }
 
         m_envs[tmp_env_with_keys.id] = tmp_env_with_keys;
-      });
+      });*/
     }
   }
 
