@@ -85,7 +85,8 @@ private:
 
   // key: env id, value: env name.
   std::map<QString, QString> m_lst_healthy_environments;
-  QMutex m_mutex;
+  QMutex m_mutex; // mutex for check ssh keys with bazaar
+  QMutex m_timer_mutex;
 
   SshKeyController();
   ~SshKeyController();

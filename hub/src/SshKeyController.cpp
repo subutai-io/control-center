@@ -201,8 +201,10 @@ std::vector<uint8_t> SshKeyController::check_key_rest(QStringList key_contents, 
 }
 
 void SshKeyController::refresh_key_files_timer() {
+  m_timer_mutex.lock();
   refresh_key_files();
   QTimer::singleShot(5000, this, &SshKeyController::refresh_key_files_timer);
+  m_timer_mutex.unlock();
 }
 
 void SshKeyController::generate_keys(QWidget* parent) {
