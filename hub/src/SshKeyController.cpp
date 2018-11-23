@@ -316,6 +316,11 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
                                                           env_ids);
     }
     emit progress_ssh_key_rest(state.first + 1, total);
+
+    // clean up m_envs
+    for (auto env_id : env_ids) {
+      m_envs.erase(env_id);
+    }
   }
 
   emit ssh_key_send_finished();
