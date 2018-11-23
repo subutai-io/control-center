@@ -248,8 +248,10 @@ void SshKeyController::generate_keys(QWidget* parent) {
 }
 
 void SshKeyController::remove_key(const QString& file_name) {
-  m_mutex.lock();
-  for (auto key : m_keys) {
+  //m_mutex.lock();
+  m_upload_remove.lock();
+  std::vector<SshKey> tmp = m_keys;
+  for (auto key : tmp) {
     if (key.file_name == file_name) {
       QFile key_file_pub(key.path);
       QFile key_file_private(key.path.remove(".pub"));
@@ -281,12 +283,15 @@ void SshKeyController::remove_key(const QString& file_name) {
   }
 
   emit ssh_key_send_finished();
-  m_mutex.unlock();
+  //m_mutex.unlock();
+  m_upload_remove.unlock();
   refresh_key_files();
 }
 
 void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_selected_envs) {
-  m_mutex.lock();
+  //m_mutex.lock();
+  m_upload_remove.lock();
+  std::vector<SshKey> tmp = m_keys;
   qDebug() << "UPLOAD KEYS";
   int total = static_cast<int>(key_with_selected_envs.size());
   int count = 1;
@@ -295,8 +300,8 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
     SshKey key;
     size_t index = static_cast<size_t>(state.first);
 
-    if (m_keys.size() > index)
-      key = m_keys.at(index);
+    if (tmp.size() > index)
+      key = tmp.at(index);
 
     QStringList env_ids;
 
@@ -318,12 +323,21 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
     }
 
     // clean up m_envs
-    for (auto env_id : env_ids) {
-      m_envs.erase(env_id);
-    }
+    clean_environment_list(env_ids);
   }
 
   emit ssh_key_send_finished();
-  m_mutex.unlock();
+  //m_mutex.unlock();
+  m_upload_remove.unlock();
   refresh_key_files();
+}
+
+void SshKeyController::clean_environment_list(const QStringList& env_ids) {
+  m_mutex.lock();
+
+  for (auto env_id : env_ids) {
+    m_envs.erase(env_id);
+  }
+
+  m_mutex.unlock();
 }

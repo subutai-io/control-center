@@ -38,6 +38,7 @@ public:
                                       QString env_id);
   void refresh_key_files();
   void refresh_healthy_envs();
+  void clean_environment_list(const QStringList& env_ids);
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {
@@ -87,6 +88,7 @@ private:
   std::map<QString, QString> m_lst_healthy_environments;
   QMutex m_mutex; // mutex for check ssh keys with bazaar
   QMutex m_timer_mutex;
+  QMutex m_upload_remove;
 
   SshKeyController();
   ~SshKeyController();
