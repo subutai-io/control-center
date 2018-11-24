@@ -8,6 +8,34 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMessageBox>
 
+Worker::Worker(const QString &file_name,
+               const QString &content,
+               const QStringList &env_ids) {
+  m_file_name = file_name;
+  m_content = content;
+  m_env_ids = env_ids;
+}
+
+Worker::~Worker() {
+}
+
+void Worker::upload() { // Process. Start processing data.
+  // allocate resources using new here
+  qDebug("SSH upload worker running.");
+  CRestWorker::Instance()->add_sshkey_to_environments(m_file_name,
+                                                      m_content,
+                                                      m_env_ids);
+  emit finished();
+}
+
+void Worker::remove() {
+  qDebug("SSH remove worker running.");
+  CRestWorker::Instance()->remove_sshkey_from_environments(m_file_name,
+                                                           m_content,
+                                                           m_env_ids);
+  emit finished();
+}
+
 SshKeyController::SshKeyController() {
   // clean healthy environments list
   m_lst_healthy_environments.clear();
@@ -27,7 +55,7 @@ SshKeyController::~SshKeyController() {
 }
 
 void SshKeyController::refresh_key_files() {
-  m_mutex.lock();
+  QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
   std::vector<SshKey> tmp;
   int old_size = -1;
 
@@ -73,8 +101,6 @@ void SshKeyController::refresh_key_files() {
     key_file.close();
   }
 
-  m_mutex.unlock();
-
   // synchronization with bazaar (timer will run if ssh key list updated)
   if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
     m_keys = tmp;
@@ -98,7 +124,7 @@ void SshKeyController::refresh_healthy_envs() {
 }
 
 void SshKeyController::check_environment_keys() {
-  m_mutex.lock();
+  QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
 
   // clean up old environment list in m_envs
   if (!m_envs.empty() && (m_envs.size() != m_lst_healthy_environments.size())) {
@@ -191,7 +217,6 @@ void SshKeyController::check_environment_keys() {
   }
   qDebug() << "------------------------------------";
 
-  m_mutex.unlock();
   emit finished_check_environment_keys();
 }
 
@@ -201,10 +226,9 @@ std::vector<uint8_t> SshKeyController::check_key_rest(QStringList key_contents, 
 }
 
 void SshKeyController::refresh_key_files_timer() {
-  m_timer_mutex.lock();
+  QMutexLocker locker(&m_timer_mutex);  // Locks the mutex and unlocks when locker exits the scope
   refresh_key_files();
   QTimer::singleShot(5000, this, &SshKeyController::refresh_key_files_timer);
-  m_timer_mutex.unlock();
 }
 
 void SshKeyController::generate_keys(QWidget* parent) {
@@ -251,26 +275,41 @@ void SshKeyController::remove_key(const QString& file_name) {
   std::vector<SshKey> tmp = m_keys;
   for (auto key : tmp) {
     if (key.file_name == file_name) {
-      QFile key_file_pub(key.path);
-      QFile key_file_private(key.path.remove(".pub"));
 
       // remove key in environments
       if (key.env_ids.size() > 0) {
         qDebug() << "SSH removing key from bazaar";
 
         emit progress_ssh_key_rest(1, 2);
-        CRestWorker::Instance()->remove_sshkey_from_environments(key.file_name,
-                                                                 key.content,
-                                                                 key.env_ids);
-        // delete key
-        if (key_file_pub.exists()) {
-          key_file_pub.remove();
-          key_file_private.remove();
-        }
 
-        emit progress_ssh_key_rest(2, 2);
+        QThread* thread = new QThread;
+        Worker* worker = new Worker(key.file_name,
+                                    key.content,
+                                    key.env_ids);
+        worker->moveToThread(thread);
+        connect(thread, SIGNAL (started()), worker, SLOT (remove()));
+        connect(worker, &Worker::finished, [this, key] () {
+          QString file_path = key.path;
+          QFile key_file_pub(file_path);
+          QFile key_file_private(file_path.remove(".pub"));
+
+          // delete key
+          if (key_file_pub.exists()) {
+            key_file_pub.remove();
+            key_file_private.remove();
+          }
+
+          emit this->progress_ssh_key_rest(2, 2);
+        });
+        connect(worker, SIGNAL (finished()), thread, SLOT (quit()));
+        connect(worker, SIGNAL (finished()), worker, SLOT (deleteLater()));
+        connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+        thread->start();
+
       } else {
         qDebug() << "SSH removing key from machine";
+        QFile key_file_pub(key.path);
+        QFile key_file_private(key.path.remove(".pub"));
 
         if (key_file_pub.exists()) {
           key_file_pub.remove();
@@ -313,26 +352,32 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
     emit progress_ssh_key_rest(count++, total);
 
     if (!env_ids.empty()) {
-      CRestWorker::Instance()->add_sshkey_to_environments(key.file_name,
-                                                          key.content,
-                                                          env_ids);
-    }
 
-    // clean up m_envs
-    clean_environment_list(env_ids);
+      QThread* thread = new QThread;
+      Worker* worker = new Worker(key.file_name,
+                                  key.content,
+                                  env_ids);
+      worker->moveToThread(thread);
+      connect(thread, SIGNAL (started()), worker, SLOT (upload()));
+      connect(worker, &Worker::finished, [env_ids, this]() {
+        // clean up m_envs
+        this->clean_environment_list(env_ids);
+      });
+      connect(worker, SIGNAL (finished()), thread, SLOT (quit()));
+      connect(worker, SIGNAL (finished()), worker, SLOT (deleteLater()));
+      connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+      thread->start();
+    }
   }
 
   emit ssh_key_send_finished();
-  m_upload_remove.unlock();
   refresh_key_files();
 }
 
 void SshKeyController::clean_environment_list(const QStringList& env_ids) {
-  m_mutex.lock();
+  QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
 
   for (auto env_id : env_ids) {
     m_envs.erase(env_id);
   }
-
-  m_mutex.unlock();
 }

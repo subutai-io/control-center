@@ -30,6 +30,28 @@ struct Envs {
   std::vector<SshKey> keys;
 };
 
+class Worker : public QObject {
+Q_OBJECT
+public:
+  Worker(const QString &file_name,
+         const QString &content,
+         const QStringList &env_ids);
+  ~Worker();
+
+public slots:
+  void upload(); // calls REST endpoint for upload ssh keys
+  void remove(); // calls REST endpoint for remove ssh keys
+
+signals:
+  void finished();
+  void error(QString err);
+
+private:
+  QString m_file_name;
+  QString m_content;
+  QStringList m_env_ids;
+};
+
 class SshKeyController : public QObject {
 Q_OBJECT
 public:

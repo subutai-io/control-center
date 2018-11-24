@@ -210,9 +210,9 @@ void DlgGenerateSshKey::btn_remove_released() {
       return;
     }
     ui->pb_send_to_hub->setVisible(true);
-    //SshKeyController::Instance().remove_key(file_name);
-    QtConcurrent::run(&SshKeyController::Instance(),
-                      &SshKeyController::remove_key, file_name);
+    SshKeyController::Instance().remove_key(file_name);
+    //QtConcurrent::run(&SshKeyController::Instance(),
+    //                  &SshKeyController::remove_key, file_name);
   }
 }
 
@@ -223,9 +223,9 @@ DlgGenerateSshKey::btn_send_to_hub_released() {
   ui->btn_send_to_hub->setEnabled(false);
   ui->pb_send_to_hub->setVisible(true);             
   ui->pb_send_to_hub->setValue(1);
-  //SshKeyController::Instance().upload_key(m_all_state_envs);
-  QtConcurrent::run(&SshKeyController::Instance(),
-                    &SshKeyController::upload_key, m_all_state_envs);
+  SshKeyController::Instance().upload_key(m_all_state_envs);
+  //QtConcurrent::run(&SshKeyController::Instance(),
+  //                  &SshKeyController::upload_key, m_all_state_envs);
 }
 ////////////////////////////////////////////////////////////////////////////
 
