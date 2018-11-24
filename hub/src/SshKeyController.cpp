@@ -28,12 +28,11 @@ SshKeyController::~SshKeyController() {
 
 void SshKeyController::refresh_key_files() {
   m_mutex.lock();
+  std::vector<SshKey> tmp;
   int old_size = -1;
 
   if (!m_keys.empty())
     old_size = static_cast<int>(m_keys.size());
-
-  m_keys.clear();
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -69,7 +68,7 @@ void SshKeyController::refresh_key_files() {
       key.file_name = *i;
       key.content = QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]"));
       key.path = dir.absolutePath() + QDir::separator() + (*i);
-      m_keys.push_back(key);
+      tmp.push_back(key);
     }
     key_file.close();
   }
@@ -77,8 +76,10 @@ void SshKeyController::refresh_key_files() {
   m_mutex.unlock();
 
   // synchronization with bazaar (timer will run if ssh key list updated)
-  if (!m_keys.empty() &&  (old_size == -1 || (old_size != static_cast<int>(m_keys.size()))))
+  if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
+    m_keys = tmp;
     QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  }
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -247,7 +248,6 @@ void SshKeyController::generate_keys(QWidget* parent) {
 }
 
 void SshKeyController::remove_key(const QString& file_name) {
-  m_upload_remove.lock();
   std::vector<SshKey> tmp = m_keys;
   for (auto key : tmp) {
     if (key.file_name == file_name) {
@@ -256,6 +256,7 @@ void SshKeyController::remove_key(const QString& file_name) {
 
       // remove key in environments
       if (key.env_ids.size() > 0) {
+        qDebug() << "SSH removing key from bazaar";
 
         emit progress_ssh_key_rest(1, 2);
         CRestWorker::Instance()->remove_sshkey_from_environments(key.file_name,
@@ -269,6 +270,7 @@ void SshKeyController::remove_key(const QString& file_name) {
 
         emit progress_ssh_key_rest(2, 2);
       } else {
+        qDebug() << "SSH removing key from machine";
 
         if (key_file_pub.exists()) {
           key_file_pub.remove();
@@ -281,12 +283,10 @@ void SshKeyController::remove_key(const QString& file_name) {
   }
 
   emit ssh_key_send_finished();
-  m_upload_remove.unlock();
   refresh_key_files();
 }
 
 void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_selected_envs) {
-  m_upload_remove.lock();
   std::vector<SshKey> tmp = m_keys;
   qDebug() << "UPLOAD KEYS";
   int total = static_cast<int>(key_with_selected_envs.size());
