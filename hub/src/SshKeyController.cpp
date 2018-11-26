@@ -49,6 +49,7 @@ SshKeyController::SshKeyController() {
           this, &SshKeyController::environments_updated_sl);
 
   refresh_key_files_timer();
+  check_key_with_envs();
 }
 
 SshKeyController::~SshKeyController() {
@@ -106,8 +107,15 @@ void SshKeyController::refresh_key_files() {
   // synchronization with bazaar (timer will run if ssh key list updated)
   if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
     m_keys = tmp;
-    QtConcurrent::run(this, &SshKeyController::check_environment_keys);
   }
+
+  emit finished_check_environment_keys();
+}
+
+void SshKeyController::check_key_with_envs() {
+  QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
+
+  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -230,6 +238,7 @@ void SshKeyController::refresh_key_files_timer() {
   refresh_key_files();
   QTimer::singleShot(5000, this, &SshKeyController::refresh_key_files_timer);
 }
+
 
 void SshKeyController::generate_keys(QWidget* parent) {
   QString str_file = QFileDialog::getSaveFileName(
@@ -371,7 +380,7 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
   }
 
   emit ssh_key_send_finished();
-  refresh_key_files();
+  check_key_with_envs();
 }
 
 void SshKeyController::clean_environment_list(const QStringList& env_ids) {

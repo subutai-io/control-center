@@ -58,7 +58,7 @@ public:
 
   std::vector<uint8_t> check_key_rest(QStringList key_contents,
                                       QString env_id);
-  void refresh_key_files();
+  void check_key_with_envs();
   void refresh_healthy_envs();
   void clean_environment_list(const QStringList& env_ids);
   void check_environment_keys(); // check keys exist in environment
@@ -74,6 +74,7 @@ public:
    * updates variable "m_envs"
   */
   void refresh_key_files_timer();
+  void refresh_key_files();
 
   bool key_exist_in_env(size_t index, QString env_id) {
     return m_keys[index].env_ids.contains(env_id);
