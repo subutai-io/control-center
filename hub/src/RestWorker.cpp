@@ -272,7 +272,7 @@ void CRestWorker::peer_unregister(const QString& url_management, const QString& 
   qInfo() << tr("Unregistering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://%1/rest/v1/hub/unregister?sptoken=%2")
+      QString("https://%1/rest/v1/bazaar/unregister?sptoken=%2")
           .arg(url_management, token));
 
   QUrl url_login(str_url);
@@ -297,7 +297,7 @@ void CRestWorker::peer_register(const QString& url_management, const QString& to
   qInfo() << tr("Registering peer %1").arg(url_management);
 
   const QString str_url(
-      QString("https://%1/rest/v1/hub/register?sptoken=%2")
+      QString("https://%1/rest/v1/bazaar/register?sptoken=%2")
           .arg(url_management, token));
   QUrl url_login(str_url);
   QUrlQuery query;
