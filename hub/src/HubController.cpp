@@ -602,7 +602,8 @@ const QString CHubController::get_env_key(const QString &env_id) {
   std::vector<SshKey> keys = SshKeyController::Instance().keys_in_environment(env_id);
 
   if (keys.size() > 0) {
-    key_path = keys.at(0).path;
+    QFileInfo fi(keys.at(0).path);
+    key_path = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + fi.baseName();
   }
 
   return key_path;

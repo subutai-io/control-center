@@ -6555,6 +6555,10 @@ system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_LINUX> >(
         << "--debug"
         << "--thinclient";
 
+    qDebug() << "X2GOCLIENT launch cmd: "
+             << cmd
+             << lst_args;
+
     return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
                                               : SCWE_SSH_LAUNCH_FAILED;
 }

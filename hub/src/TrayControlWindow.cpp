@@ -628,6 +628,16 @@ void TrayControlWindow::desktop_to_container_triggered(
         DlgNotification::N_ABOUT);
     return;
   }
+  QString key = CHubController::Instance().get_env_key(env.id());
+
+  if (key.isEmpty()) {
+    CNotificationObserver::Error(
+        tr("Can't SSH to container. Err : %1")
+            .arg(CHubController::ssh_desktop_launch_err_to_str(SDLE_NO_KEY_DEPLOYED)),
+        DlgNotification::N_NO_ACTION);
+    return;
+  }
+
   if (OS_MAC == CURRENT_OS) {
     QString xquartz_version;
     CSystemCallWrapper::xquartz_version(xquartz_version);

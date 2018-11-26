@@ -204,7 +204,7 @@ void SshKeyController::check_environment_keys() {
 
   for (auto env : m_envs) {
     for (auto key : env.second.keys) {
-      qInfo() << "ENV: "
+      qInfo() << "SSH ENV: "
               << env.second.name
               << "HAS KEYS: "
               << key.file_name;
@@ -329,7 +329,6 @@ void SshKeyController::remove_key(const QString& file_name) {
 
 void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_selected_envs) {
   std::vector<SshKey> tmp = m_keys;
-  qDebug() << "UPLOAD KEYS";
   int total = static_cast<int>(key_with_selected_envs.size());
   int count = 1;
 
@@ -348,7 +347,8 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
         env_ids << st.first;
     }
 
-    qDebug() << "UPLOAD ENV ids"
+    qDebug() << "SSH UPLOAD ENV ids:"
+             << key.file_name
              << env_ids;
 
     emit progress_ssh_key_rest(count++, total);
