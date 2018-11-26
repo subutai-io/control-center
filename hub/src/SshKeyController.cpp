@@ -380,7 +380,7 @@ void SshKeyController::clean_environment_list(const QStringList& env_ids) {
   for (auto env_id : env_ids) {
     m_envs.erase(env_id);
     m_lst_healthy_environments.erase(env_id);
-    qDebug() << "CLEAAAAAAN"
+    qDebug() << "SSH clean env id from lists: "
              << env_id;
   }
   emit finished_check_environment_keys();
