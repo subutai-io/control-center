@@ -202,24 +202,22 @@ void SshKeyController::check_environment_keys() {
     }
   }
 
-  qDebug() << "------------------------------------";
   for (auto env : m_envs) {
-    qDebug() << "ENV: "
-             << env.second.name;
     for (auto key : env.second.keys) {
-      qDebug() << "KEYS: "
-               << key.file_name;
+      qInfo() << "ENV: "
+              << env.second.name
+              << "HAS KEYS: "
+              << key.file_name;
     }
   }
   for (auto key : m_keys) {
     if (!key.env_ids.empty()) {
-      qDebug() << "SSH KEY HAS ENV IDS"
+      qInfo() << "SSH KEY has env ids"
                << key.file_name
                << key.path
                << key.env_ids;
     }
   }
-  qDebug() << "------------------------------------";
 
   emit finished_check_environment_keys();
 }
