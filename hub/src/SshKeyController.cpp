@@ -25,6 +25,8 @@ void Worker::upload() { // Process. Start processing data.
   CRestWorker::Instance()->add_sshkey_to_environments(m_file_name,
                                                       m_content,
                                                       m_env_ids);
+  // update environments list
+  CRestWorker::Instance()->update_environments();
   emit finished();
 }
 
@@ -33,6 +35,8 @@ void Worker::remove() {
   CRestWorker::Instance()->remove_sshkey_from_environments(m_file_name,
                                                            m_content,
                                                            m_env_ids);
+  // update environments list
+  CRestWorker::Instance()->update_environments();
   emit finished();
 }
 
