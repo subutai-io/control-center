@@ -207,6 +207,7 @@ bool DlgRegisterPeer::check_errors(const int &err_code,
                                    const int &http_code,
                                    const int &network_error,
                                    const QString &body) {
+  UNUSED_ARG(network_error);
   switch (err_code) {
     case RE_SUCCESS:
       return true;

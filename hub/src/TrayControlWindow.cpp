@@ -24,12 +24,12 @@
 #include "RestWorker.h"
 #include "RhController.h"
 #include "SettingsManager.h"
-#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayControlWindow.h"
 #include "libssh2/include/LibsshController.h"
 #include "ui_TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
+#include "SshKeyController.h"
 
 using namespace update_system;
 
@@ -89,7 +89,7 @@ TrayControlWindow::TrayControlWindow(QWidget *parent)
   p2p_current_status = P2PStatus_checker::P2P_LOADING;
 
   CPeerController::Instance()->init();
-  CSshKeysController::Instance();
+  SshKeyController::Instance();
 
   connect(CNotificationObserver::Instance(), &CNotificationObserver::notify,
           this, &TrayControlWindow::notification_received);
@@ -628,6 +628,16 @@ void TrayControlWindow::desktop_to_container_triggered(
         DlgNotification::N_ABOUT);
     return;
   }
+  QString key = CHubController::Instance().get_env_key(env.id());
+
+  if (key.isEmpty()) {
+    CNotificationObserver::Error(
+        tr("Can't SSH to container. Err : %1")
+            .arg(CHubController::ssh_desktop_launch_err_to_str(SDLE_NO_KEY_DEPLOYED)),
+        DlgNotification::N_NO_ACTION);
+    return;
+  }
+
   if (OS_MAC == CURRENT_OS) {
     QString xquartz_version;
     CSystemCallWrapper::xquartz_version(xquartz_version);

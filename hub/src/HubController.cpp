@@ -10,11 +10,11 @@
 #include "OsBranchConsts.h"
 #include "RestWorker.h"
 #include "SettingsManager.h"
-#include "SshKeysController.h"
 #include "SystemCallWrapper.h"
 #include "TrayWebSocketServer.h"
 #include "P2PController.h"
 #include "X2GoClient.h"
+#include "SshKeyController.h"
 
 static const QString undefined_balance(QObject::tr("Undefined balance"));
 static volatile int UPDATED_COMPONENTS_COUNT = 2;
@@ -598,14 +598,15 @@ const QString &CHubController::ssh_desktop_launch_err_to_str(int err) {
 }
 
 const QString CHubController::get_env_key(const QString &env_id) {
-  QString key = "";
-  QStringList keys_in_env = CSshKeysController::Instance().keys_in_environment(env_id);
-  if (!keys_in_env.empty()) {
-    QString str_file = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + keys_in_env[0];
-    QFileInfo fi(str_file);
-    key = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + fi.baseName();
+  QString key_path = "";
+  std::vector<SshKey> keys = SshKeyController::Instance().keys_in_environment(env_id);
+
+  if (keys.size() > 0) {
+    QFileInfo fi(keys.at(0).path);
+    key_path = CSettingsManager::Instance().ssh_keys_storage() + QDir::separator() + fi.baseName();
   }
-  return key;
+
+  return key_path;
 }
 
 std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_id(const QString &env_id,
