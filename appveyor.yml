@@ -21,7 +21,7 @@ install:
   - nuget install secure-file -ExcludeVersion
   - secure-file\tools\secure-file -decrypt C:\SRC\control-center\appveyor.tar.gz.enc -secret %decrypt_key%
 build_script:
-  - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz https://cdn.subutai.io:8338/kurjun/rest/raw/download?name=libs.tar.gz && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
+  - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
   - C:\msys64\usr\bin\bash -lc "tar -xf /C/SRC/control-center/appveyor.tar.gz -C /C/SRC/control-center"
   - cmd: build_win.bat
 deploy_script:
