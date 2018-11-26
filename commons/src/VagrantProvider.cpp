@@ -81,16 +81,20 @@ QString VagrantProvider::CurrentName() {
 
 VagrantProvider::PROVIDERS VagrantProvider::CurrentProvider() {
   VagrantProvider::PROVIDERS provider = VagrantProvider::VIRTUALBOX;
+  VagrantProvider::PROVIDERS current = static_cast<VagrantProvider::PROVIDERS>(
+        CSettingsManager::Instance().vagrant_provider());
   std::vector<int> providers = VagrantProvider::List(); // list of providers by os
 
-  if (VagrantProvider::PROVIDER_LAST >= (int)CSettingsManager::Instance().vagrant_provider() &&
-      std::find(providers.begin(), providers.end(), (int)CSettingsManager::Instance().vagrant_provider()) != providers.end()) {
-    provider = (VagrantProvider::PROVIDERS)CSettingsManager::Instance().vagrant_provider();
+  if (VagrantProvider::PROVIDER_LAST >= current &&
+      std::find(providers.begin(), providers.end(), current) != providers.end()) {
+    provider = current;
   }
 
   return provider;
 }
 
+// check which provider will use port of peer
+// CC uses port of peer(hyperv, libvirt)
 bool VagrantProvider::UseIp() {
   PROVIDERS provider = CurrentProvider();
 

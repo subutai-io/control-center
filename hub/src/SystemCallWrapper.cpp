@@ -4520,7 +4520,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_kvm() {
 int CSystemCallWrapper::versionCompare(std::string v1, std::string v2) {
   int vnum1 = 0, vnum2 = 0;
 
-  for (int i=0,j=0; (i<v1.length() || j<v2.length());) {
+  for (size_t i = 0, j = 0; (i < v1.size() || j < v2.size());) {
     while (i < v1.length() && v1[i] != '.') {
         vnum1 = vnum1 * 10 + (v1[i] - '0');
         i++;
@@ -6554,6 +6554,10 @@ system_call_wrapper_error_t run_x2goclient_session_internal<Os2Type<OS_LINUX> >(
         << "--no-menu"
         << "--debug"
         << "--thinclient";
+
+    qDebug() << "X2GOCLIENT launch cmd: "
+             << cmd
+             << lst_args;
 
     return QProcess::startDetached(cmd, lst_args) ? SCWE_SUCCESS
                                               : SCWE_SSH_LAUNCH_FAILED;
