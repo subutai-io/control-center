@@ -49,6 +49,7 @@ SshKeyController::SshKeyController() {
           this, &SshKeyController::environments_updated_sl);
 
   refresh_key_files_timer();
+  check_key_with_envs();
 }
 
 SshKeyController::~SshKeyController() {
@@ -99,15 +100,31 @@ void SshKeyController::refresh_key_files() {
       key.content = QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]"));
       key.path = dir.absolutePath() + QDir::separator() + (*i);
       tmp.push_back(key);
+
+      std::vector<SshKey>::iterator it;
+      it = std::find_if(m_keys.begin(), m_keys.end(),
+                        find_content(key.content));
+
+      if (it == m_keys.end()) {
+        m_keys.push_back(key);
+      }
+
     }
     key_file.close();
   }
 
   // synchronization with bazaar (timer will run if ssh key list updated)
-  if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
-    m_keys = tmp;
-    QtConcurrent::run(this, &SshKeyController::check_environment_keys);
-  }
+  //if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
+  //  m_keys = tmp;
+  //}
+
+  emit finished_check_environment_keys();
+}
+
+void SshKeyController::check_key_with_envs() {
+  QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
+
+  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -135,7 +152,8 @@ void SshKeyController::check_environment_keys() {
     for (auto env : tmp) {
       // not found environment(checked with bazaar) in current healthy environment list(updated)
       if (m_lst_healthy_environments.find(env.first) == m_lst_healthy_environments.end()) {
-        m_envs.erase(env.first); // delete
+        if (m_envs.find(env.first) != m_envs.end())
+          m_envs.erase(env.first); // delete
         qDebug() << "SSH clean m_env"
                  << env.second.name
                  << env.second.id;
@@ -231,6 +249,7 @@ void SshKeyController::refresh_key_files_timer() {
   QTimer::singleShot(5000, this, &SshKeyController::refresh_key_files_timer);
 }
 
+
 void SshKeyController::generate_keys(QWidget* parent) {
   QString str_file = QFileDialog::getSaveFileName(
       parent, tr("After generating the SSH key pair, you must not change the path to the SSH folder."),
@@ -293,6 +312,8 @@ void SshKeyController::remove_key(const QString& file_name) {
           QFile key_file_pub(file_path);
           QFile key_file_private(file_path.remove(".pub"));
 
+          this->clean_keys_list(key.content);
+
           // delete key
           if (key_file_pub.exists()) {
             key_file_pub.remove();
@@ -312,6 +333,7 @@ void SshKeyController::remove_key(const QString& file_name) {
         QFile key_file_private(key.path.remove(".pub"));
 
         if (key_file_pub.exists()) {
+          clean_keys_list(key.content);
           key_file_pub.remove();
           key_file_private.remove();
         }
@@ -371,17 +393,34 @@ void SshKeyController::upload_key(std::map<int, EnvsSelectState> key_with_select
   }
 
   emit ssh_key_send_finished();
-  refresh_key_files();
+  check_key_with_envs();
 }
 
 void SshKeyController::clean_environment_list(const QStringList& env_ids) {
   QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
 
   for (auto env_id : env_ids) {
-    m_envs.erase(env_id);
-    m_lst_healthy_environments.erase(env_id);
-    qDebug() << "SSH clean env id from lists: "
-             << env_id;
+    if (m_envs.find(env_id) != m_envs.end()) {
+      m_envs.erase(env_id);
+      qDebug() << "SSH clean env id from lists: "
+               << env_id;
+    }
+
+    if (m_lst_healthy_environments.find(env_id) != m_lst_healthy_environments.end())
+      m_lst_healthy_environments.erase(env_id);
+  }
+  emit finished_check_environment_keys();
+}
+
+void SshKeyController::clean_keys_list(QString content) {
+  QMutexLocker locker(&m_mutex);
+
+  std::vector<SshKey>::iterator it;
+  it = std::find_if(m_keys.begin(), m_keys.end(),
+                    find_content(content));
+
+  if (it != m_keys.end()) {
+    m_keys.erase(it);
   }
   emit finished_check_environment_keys();
 }
