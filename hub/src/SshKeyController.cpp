@@ -152,7 +152,8 @@ void SshKeyController::check_environment_keys() {
     for (auto env : tmp) {
       // not found environment(checked with bazaar) in current healthy environment list(updated)
       if (m_lst_healthy_environments.find(env.first) == m_lst_healthy_environments.end()) {
-        m_envs.erase(env.first); // delete
+        if (m_envs.find(env.first) != m_envs.end())
+          m_envs.erase(env.first); // delete
         qDebug() << "SSH clean m_env"
                  << env.second.name
                  << env.second.id;
@@ -399,10 +400,14 @@ void SshKeyController::clean_environment_list(const QStringList& env_ids) {
   QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
 
   for (auto env_id : env_ids) {
-    m_envs.erase(env_id);
-    m_lst_healthy_environments.erase(env_id);
-    qDebug() << "SSH clean env id from lists: "
-             << env_id;
+    if (m_envs.find(env_id) != m_envs.end()) {
+      m_envs.erase(env_id);
+      qDebug() << "SSH clean env id from lists: "
+               << env_id;
+    }
+
+    if (m_lst_healthy_environments.find(env_id) != m_lst_healthy_environments.end())
+      m_lst_healthy_environments.erase(env_id);
   }
   emit finished_check_environment_keys();
 }
