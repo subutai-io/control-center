@@ -20,6 +20,16 @@ struct SshKey {
   QStringList env_ids; // Ssh key has many environments
 };
 
+struct find_content : std::unary_function<SshKey, bool> {
+  QString content;
+
+  find_content(QString cont):content(cont) {}
+
+  bool operator()(SshKey const& key) const {
+    return key.content == content;
+  }
+};
+
 // Saves environment ssh keys
 // one to many
 // Environment has many ssh keys
@@ -61,6 +71,7 @@ public:
   void check_key_with_envs();
   void refresh_healthy_envs();
   void clean_environment_list(const QStringList& env_ids);
+  void clean_keys_list(QString content);
   void check_environment_keys(); // check keys exist in environment
   void generate_keys(QWidget* parent);
   std::vector<SshKey> list_keys() {

@@ -100,14 +100,23 @@ void SshKeyController::refresh_key_files() {
       key.content = QString(arr_content).remove(QRegExp("[\\n\\t\\r\\v\\f]"));
       key.path = dir.absolutePath() + QDir::separator() + (*i);
       tmp.push_back(key);
+
+      std::vector<SshKey>::iterator it;
+      it = std::find_if(m_keys.begin(), m_keys.end(),
+                        find_content(key.content));
+
+      if (it == m_keys.end()) {
+        m_keys.push_back(key);
+      }
+
     }
     key_file.close();
   }
 
   // synchronization with bazaar (timer will run if ssh key list updated)
-  if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
-    m_keys = tmp;
-  }
+  //if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
+  //  m_keys = tmp;
+  //}
 
   emit finished_check_environment_keys();
 }
@@ -302,6 +311,8 @@ void SshKeyController::remove_key(const QString& file_name) {
           QFile key_file_pub(file_path);
           QFile key_file_private(file_path.remove(".pub"));
 
+          this->clean_keys_list(key.content);
+
           // delete key
           if (key_file_pub.exists()) {
             key_file_pub.remove();
@@ -321,6 +332,7 @@ void SshKeyController::remove_key(const QString& file_name) {
         QFile key_file_private(key.path.remove(".pub"));
 
         if (key_file_pub.exists()) {
+          clean_keys_list(key.content);
           key_file_pub.remove();
           key_file_private.remove();
         }
@@ -391,6 +403,19 @@ void SshKeyController::clean_environment_list(const QStringList& env_ids) {
     m_lst_healthy_environments.erase(env_id);
     qDebug() << "SSH clean env id from lists: "
              << env_id;
+  }
+  emit finished_check_environment_keys();
+}
+
+void SshKeyController::clean_keys_list(QString content) {
+  QMutexLocker locker(&m_mutex);
+
+  std::vector<SshKey>::iterator it;
+  it = std::find_if(m_keys.begin(), m_keys.end(),
+                    find_content(content));
+
+  if (it != m_keys.end()) {
+    m_keys.erase(it);
   }
   emit finished_check_environment_keys();
 }
