@@ -131,6 +131,7 @@ class CPeerController : public QObject {
 
   void init();
   void refresh();
+  void force_refresh(); // force updates peer list and bridge interfaces
   void parse_peer_info(peer_info_t type, const QString &name,
                        const QString &dir, const QString &output);
 
@@ -386,7 +387,8 @@ class ReloadPeer : public QObject {
 class UpdateVMInformation : public QObject {
   Q_OBJECT
  public:
-  UpdateVMInformation(QObject *parent = nullptr) : QObject(parent) {}
+  UpdateVMInformation(QObject *parent = nullptr) : QObject(parent), m_force_update(false) {}
+
   void startWork() {
     QThread *thread = new QThread();
     connect(thread, &QThread::started, this,
@@ -398,11 +400,12 @@ class UpdateVMInformation : public QObject {
     this->moveToThread(thread);
     thread->start();
   }
+
   void execute_remote_command() {
     QFutureWatcher<std::pair<QStringList, system_call_res_t> > *watcher =
         new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
     QFuture<std::pair<QStringList, system_call_res_t> > res =
-        QtConcurrent::run(CSystemCallWrapper::vagrant_update_information);
+        QtConcurrent::run(CSystemCallWrapper::vagrant_update_information, m_force_update);
     watcher->setFuture(res);
     connect(
         watcher,
@@ -411,8 +414,16 @@ class UpdateVMInformation : public QObject {
     connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
         watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }
+
+  void set_force_update(bool force_update) {
+    m_force_update = force_update;
+  }
+
  signals:
   void outputReceived(std::pair<QStringList, system_call_res_t> res);
+
+private:
+  bool m_force_update;
 };
 
 // updates rh and management of peer

@@ -969,11 +969,11 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir) {
   return port;
 }
 
-std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information() {
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(bool force_update) {
   vagrant_is_busy.lock();
   qDebug() << "Starting to update information related to peer management";
 
-  QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CSystemCallWrapper::list_interfaces(force_update);
 
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
@@ -1071,7 +1071,7 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
   return give_write_permissions_internal<Os2Type<CURRENT_OS> >(dir);
 }
 //////////////////////////////////////////////////////////////////////
-QStringList CSystemCallWrapper::list_interfaces() {
+QStringList CSystemCallWrapper::list_interfaces(bool force_update) {
   static QStringList empty;
   static QStringList hyperv; // It gets one time when application launched.
   static QStringList virtualbox;
@@ -1080,22 +1080,22 @@ QStringList CSystemCallWrapper::list_interfaces() {
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
-    if (virtualbox.empty())
+    if (force_update || virtualbox.empty())
       virtualbox = virtualbox_interfaces();
 
     return virtualbox;
   case VagrantProvider::LIBVIRT:
-    if (libvirt.empty())
+    if (force_update || libvirt.empty())
       libvirt = libvirt_interfaces();
 
     return libvirt;
   case VagrantProvider::PARALLELS:
-    if (parallels.empty())
+    if (force_update || parallels.empty())
       parallels = parallels_interfaces();
 
     return parallels;
   case VagrantProvider::HYPERV:
-    if (hyperv.empty())
+    if (force_update || hyperv.empty())
       hyperv = hyperv_interfaces();
 
     return hyperv;
