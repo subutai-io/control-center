@@ -191,7 +191,7 @@ class CSystemCallWrapper {
   static QString vagrant_ip(const QString &dir);
   static QString vagrant_port(const QString &dir);
   static system_call_wrapper_error_t vagrant_update_peeros(const QString &port, const QString &peer_name);
-  static std::pair<QStringList, system_call_res_t> vagrant_update_information();
+  static std::pair<QStringList, system_call_res_t> vagrant_update_information(bool force_update);
   static QString get_virtualbox_vm_storage();
   static QString get_parallels_vm_storage();
   static system_call_wrapper_error_t set_virtualbox_vm_storage(const QString &dir);
@@ -216,7 +216,7 @@ class CSystemCallWrapper {
 
   static system_call_wrapper_error_t give_write_permissions(const QString &dir);
 
-  static QStringList list_interfaces();
+  static QStringList list_interfaces(bool force_update);
 
   static QStringList virtualbox_interfaces();
 

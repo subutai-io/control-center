@@ -33,7 +33,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
   // Check existing peers
-  CPeerController::Instance()->refresh();
+  CPeerController::Instance()->force_refresh();
   // Bridge interfaces
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
