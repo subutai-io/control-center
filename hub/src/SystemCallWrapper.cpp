@@ -5357,10 +5357,33 @@ system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_LINUX>>(const 
 
   system_call_res_t scr;
   QStringList args;
-  args << "apt-get"
-       << "remove"
-       << "-y"
-       << "firefox";
+  args << "-i"
+       << "-s";
+
+  system_call_res_t cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+  QString distribution;
+
+  if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+    distribution = cr.out[0];
+    distribution = distribution.trimmed().simplified();
+  } else {
+    qDebug() << "Firefox uninstallation, failed get linux distribution"
+             << cr.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args.clear();
+  if (distribution.toLower() == "debian") {
+    args << "apt-get"
+         << "remove"
+         << "-y"
+         << "firefox-esr";
+  } else {
+    args << "apt-get"
+         << "remove"
+         << "-y"
+         << "firefox";
+  }
 
   scr = CSystemCallWrapper::ssystem_th(pkexec_path, args, false, true, 60000);
   qDebug() << "Uninstallation of Firefox finished: "
