@@ -461,6 +461,7 @@ void DlgCreatePeer::create_button_pressed() {
     ui->lbl_err_name->setText(tr("Name already exists"));
     ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_name->show();
+    ui->btn_create->setEnabled(true);
     return;
   }
   hide_err_labels();
@@ -561,6 +562,7 @@ QString DlgCreatePeer::peer_dir(const QString &peer_folder) {
   tmp = peer_dir;
 
   if (tmp.cd(peer_folder)) {
+    ui->btn_create->setEnabled(false); // diable create button
     QString status = CSystemCallWrapper::vagrant_status(tmp.absolutePath());
     if (status == "not_created")
       tmp.removeRecursively();

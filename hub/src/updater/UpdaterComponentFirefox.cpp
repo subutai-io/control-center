@@ -74,15 +74,10 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   silent_installer->init(file_dir, file_name, CC_FIREFOX);
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
-            qDebug() << "FIREFOX update progress"
-                     << rec
-                     << "total: "
-                     << total;
             update_progress_sl(rec, total);
           });
   connect(dm, &CDownloadFileManager::finished,
           [this, silent_installer](bool success) {
-            qDebug() << "FIREFOX DOWNLOAD FINISHED" << success;
             if (!success) {
               silent_installer->outputReceived(success, "undefined");
             } else {
