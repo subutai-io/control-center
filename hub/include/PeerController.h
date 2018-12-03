@@ -145,6 +145,16 @@ class CPeerController : public QObject {
 
   QStringList get_bridgedifs() { return bridged_interfaces; }
   system_call_res_t get_global_status() { return vagrant_global_status; }
+
+  // checks peer name in vagrant global-status peer list
+  bool is_this_peer(const QString& name) {
+    for (auto i : vagrant_global_status.out){
+      if (i.contains(name))
+        return true;
+    }
+    return false;
+  }
+
   const QString &status_description(const QString &status);
   const QString &provision_step_description(const int &step);
   int getProvisionStep(const QString &dir);

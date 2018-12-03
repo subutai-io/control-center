@@ -64,7 +64,7 @@ CHubComponentsUpdater::CHubComponentsUpdater() {
 
   IUpdaterComponent* ucs[] = {uc_tray, uc_p2p,
                               uc_x2go, uc_vagrant, uc_oracle_virtualbox,
-                              uc_chrome, uc_e2e, uc_vagrant_subutai,
+                              uc_chrome, uc_firefox, uc_e2e, uc_vagrant_subutai,
                               uc_vagrant_vbguest, uc_subutai_box, uc_vagrant_parallels,
                               uc_vagrant_libvirt, uc_vagrant_vmware, uc_hypervisor_vmware,
                               uc_vagrant_vmware_utility, uc_xquartz, uc_hyperv, uc_parallels,
