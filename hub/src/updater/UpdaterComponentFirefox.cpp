@@ -15,7 +15,7 @@
 #include "updater/UpdaterComponentFirefox.h"
 
 CUpdaterComponentFIREFOX::CUpdaterComponentFIREFOX() {
-  m_component_id = FIREFOX;
+  m_component_id = IUpdaterComponent::FIREFOX;
 }
 
 CUpdaterComponentFIREFOX::~CUpdaterComponentFIREFOX() {}
@@ -38,7 +38,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
 
   QMessageBox *msg_box = new QMessageBox(
       QMessageBox::Information, QObject::tr("Attention!"),
-      QObject::tr("<a href='https://mozilla.org/ru/firefox/new/'>Firefox</a>"
+      QObject::tr("<a href='https://www.mozilla.org/en-US/firefox/new/'>Firefox</a>"
                   " is used as the default browser.<br>"
                   "Firefox will be installed on your machine.<br>"
                   "Do you want to proceed?"),
@@ -54,7 +54,7 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
 
   QString file_name = firefox_kurjun_package_name();
   QString file_dir = download_firefox_path();
-  QString str_downloaded_path = file_dir + "/" + file_name;
+  QString str_downloaded_path = file_dir + QDir::separator() + file_name;
 
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(file_name);
@@ -74,13 +74,14 @@ chue_t CUpdaterComponentFIREFOX::install_internal() {
   silent_installer->init(file_dir, file_name, CC_FIREFOX);
   connect(dm, &CDownloadFileManager::download_progress_sig,
           [this](qint64 rec, qint64 total) {
-            update_progress_sl(rec, total + (total / 5));
+            update_progress_sl(rec, total);
           });
   connect(dm, &CDownloadFileManager::finished,
-          [silent_installer](bool success) {
+          [this, silent_installer](bool success) {
             if (!success) {
               silent_installer->outputReceived(success, "undefined");
             } else {
+              this->update_progress_sl(0, 0);
               CNotificationObserver::Instance()->Info(
                   tr("Running installation scripts."),
                   DlgNotification::N_NO_ACTION);
