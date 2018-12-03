@@ -556,10 +556,17 @@ QString DlgCreatePeer::peer_dir(const QString &peer_folder) {
 
   // 1. create "peer" folder.
   QString empty;
-  QDir peer_dir = VagrantProvider::Instance()->BasePeerDir();
+  QDir peer_dir, tmp;
+  peer_dir = VagrantProvider::Instance()->BasePeerDir();
+  tmp = peer_dir;
+
+  if (tmp.cd(peer_folder)) {
+    QString status = CSystemCallWrapper::vagrant_status(tmp.absolutePath());
+    if (status == "not_created")
+      tmp.removeRecursively();
+  }
 
   if (!peer_dir.mkdir(peer_folder)) {
-    if (CPeerController::Instance()->is_this_peer(peer_folder))
       return empty;
   }
   peer_dir.cd(peer_folder);
