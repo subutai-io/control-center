@@ -33,7 +33,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
       m_password_confirm_state(0),
       ui(new Ui::DlgCreatePeer) {
   // Check existing peers
-  CPeerController::Instance()->refresh();
+  CPeerController::Instance()->force_refresh();
   // Bridge interfaces
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   // ui
@@ -461,6 +461,7 @@ void DlgCreatePeer::create_button_pressed() {
     ui->lbl_err_name->setText(tr("Name already exists"));
     ui->lbl_err_name->setStyleSheet("QLabel {color : red}");
     ui->lbl_err_name->show();
+    ui->btn_create->setEnabled(true);
     return;
   }
   hide_err_labels();
@@ -551,26 +552,24 @@ void DlgCreatePeer::hide_err_labels() {
   ui->lbl_err_os->hide();
 }
 
-// Create peer directory in home path on Virtualbox
-QString DlgCreatePeer::virtualbox_dir(const QString &name) {
-  QString new_dir = "";
-  QDir current_local_dir = VagrantProvider::Instance()->BasePeerDir();
-
-  if (!current_local_dir.mkdir(name)) return new_dir;
-  current_local_dir.cd(name);
-
-  return current_local_dir.absolutePath();
-}
-
-// Create peer directory by VM storage path on VMware, Hyper-V
-QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
+// Create peer directory by VM storage path
+QString DlgCreatePeer::peer_dir(const QString &peer_folder) {
 
   // 1. create "peer" folder.
   QString empty;
-  QDir peer_dir = VagrantProvider::Instance()->BasePeerDir();
+  QDir peer_dir, tmp;
+  peer_dir = VagrantProvider::Instance()->BasePeerDir();
+  tmp = peer_dir;
+
+  if (tmp.cd(peer_folder)) {
+    ui->btn_create->setEnabled(false); // diable create button
+    QString status = CSystemCallWrapper::vagrant_status(tmp.absolutePath());
+    if (status == "not_created")
+      tmp.removeRecursively();
+  }
 
   if (!peer_dir.mkdir(peer_folder)) {
-    return empty;
+      return empty;
   }
   peer_dir.cd(peer_folder);
 
@@ -579,16 +578,7 @@ QString DlgCreatePeer::vmware_dir(const QString &peer_folder) {
 
 // for peers, empty if that peer dir exists
 QString DlgCreatePeer::create_dir(const QString &peer_folder) {
-  switch (VagrantProvider::Instance()->CurrentProvider()) {
-  case VagrantProvider::VIRTUALBOX:
-    return virtualbox_dir(peer_folder);
-  case VagrantProvider::VMWARE_DESKTOP:
-    return vmware_dir(peer_folder);
-  case VagrantProvider::HYPERV:
-    return vmware_dir(peer_folder);
-  default:
-    return virtualbox_dir(peer_folder);
-  }
+  return peer_dir(peer_folder);
 }
 
 void DlgCreatePeer::init_completed(system_call_wrapper_error_t res, QString dir_peer,

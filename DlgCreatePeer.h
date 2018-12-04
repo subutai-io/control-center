@@ -41,11 +41,10 @@ class DlgCreatePeer : public QDialog {
   Q_OBJECT
 
  public:
-  explicit DlgCreatePeer(QWidget *parent = 0);
+  explicit DlgCreatePeer(QWidget *parent = nullptr);
   ~DlgCreatePeer();
   QString create_dir(const QString &name);
-  QString virtualbox_dir(const QString &name);
-  QString vmware_dir(const QString &name);
+  QString peer_dir(const QString &name);
   enum pass_err {
     PASS_EMPTY = 0,  // when empty password
     PASS_SMALL,      // when too small

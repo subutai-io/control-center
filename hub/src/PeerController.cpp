@@ -38,6 +38,19 @@ void CPeerController::refresh() {
           });
 }
 
+void CPeerController::force_refresh() {
+  if (number_threads != 0) return;
+  UpdateVMInformation *update_thread = new UpdateVMInformation(this);
+  update_thread->set_force_update(true);
+  update_thread->startWork();
+  connect(update_thread, &UpdateVMInformation::outputReceived,
+          [this](std::pair<QStringList, system_call_res_t> res) {
+            this->bridged_interfaces = res.first;
+            this->vagrant_global_status = res.second;
+            this->search_local();
+          });
+}
+
 const QString &CPeerController::status_description(const QString &status) {
   static std::map<QString, QString> dct_desp = {
 

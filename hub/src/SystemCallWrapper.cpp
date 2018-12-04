@@ -969,11 +969,11 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir) {
   return port;
 }
 
-std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information() {
+std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(bool force_update) {
   vagrant_is_busy.lock();
   qDebug() << "Starting to update information related to peer management";
 
-  QStringList bridges = CSystemCallWrapper::list_interfaces();
+  QStringList bridges = CSystemCallWrapper::list_interfaces(force_update);
 
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
@@ -1071,7 +1071,7 @@ system_call_wrapper_error_t CSystemCallWrapper::give_write_permissions(const QSt
   return give_write_permissions_internal<Os2Type<CURRENT_OS> >(dir);
 }
 //////////////////////////////////////////////////////////////////////
-QStringList CSystemCallWrapper::list_interfaces() {
+QStringList CSystemCallWrapper::list_interfaces(bool force_update) {
   static QStringList empty;
   static QStringList hyperv; // It gets one time when application launched.
   static QStringList virtualbox;
@@ -1080,22 +1080,22 @@ QStringList CSystemCallWrapper::list_interfaces() {
 
   switch (VagrantProvider::Instance()->CurrentProvider()) {
   case VagrantProvider::VIRTUALBOX:
-    if (virtualbox.empty())
+    if (force_update || virtualbox.empty())
       virtualbox = virtualbox_interfaces();
 
     return virtualbox;
   case VagrantProvider::LIBVIRT:
-    if (libvirt.empty())
+    if (force_update || libvirt.empty())
       libvirt = libvirt_interfaces();
 
     return libvirt;
   case VagrantProvider::PARALLELS:
-    if (parallels.empty())
+    if (force_update || parallels.empty())
       parallels = parallels_interfaces();
 
     return parallels;
   case VagrantProvider::HYPERV:
-    if (hyperv.empty())
+    if (force_update || hyperv.empty())
       hyperv = hyperv_interfaces();
 
     return hyperv;
@@ -5212,103 +5212,58 @@ system_call_wrapper_error_t install_firefox_internal(const QString &dir, const Q
 
 template<>
 system_call_wrapper_error_t install_firefox_internal<Os2Type<OS_LINUX>>(const QString &dir, const QString &file_name) {
-  QString file_info =  dir + QDir::separator() + file_name;
-  QString pkexec_path;
-  system_call_wrapper_error_t scr =
-      CSystemCallWrapper::which("pkexec", pkexec_path);
-  if (scr != SCWE_SUCCESS) {
-    QString err_msg = QObject::tr(
-          "Unable to find pkexec command. You may reinstall "
-          "the Control Center or reinstall the PolicyKit.");
-    qCritical() << err_msg;
-    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-    return SCWE_WHICH_CALL_FAILED;
-  }
+  QString distribution;
+  static QString script = "firefox_installer.sh";
 
-  QString sh_path;
-  scr = CSystemCallWrapper::which("sh", sh_path);
-  if (scr != SCWE_SUCCESS) {
-    QString err_msg = QObject::tr(
-          "Unable to find sh command. Make sure that the "
-          "command exists on your system or reinstall Linux.");
-    qCritical() << err_msg;
-    CNotificationObserver::Error(err_msg, DlgNotification::N_NO_ACTION);
-    return SCWE_WHICH_CALL_FAILED;
-  }
+  QByteArray install_script;
+  system_call_res_t cr;
 
-  QStringList lst_temp =
-      QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-  if (lst_temp.empty()) {
-    QString err_msg = QObject::tr(
-          "Unable to get the standard temporary location. Verify that "
-          "your file system is setup correctly and fix any issues.");
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
+  // Get linux distribution (Debian, Ubuntu, LinuxMint)
+  QStringList args;
+  args << "-i"
+       << "-s";
+
+  cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+
+  if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+    distribution = cr.out[0];
+    distribution = distribution.trimmed().simplified();
+  } else {
+    qDebug() << "Firefox installation, failed get linux distribution"
+             << cr.out;
     return SCWE_CREATE_PROCESS;
   }
 
-  QString tmpFilePath =
-      lst_temp[0] + QDir::separator() + "firefox_installer.sh";
-  qDebug() << tmpFilePath;
-  QFile tmpFile(tmpFilePath);
-  if (!tmpFile.open(QFile::Truncate | QFile::ReadWrite)) {
-    QString err_msg = QObject::tr("Couldn't create install script temp file. %1")
-                      .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
+  if (distribution.toLower() == "debian") {
+    qDebug() << "Fifox install on debian";
+    install_script = QString("#!/usr/bin/env bash \n"
+                       "apt install -y -f firefox-esr\n"
+                       "if [ $? -gt 0 ]\n"
+                       "then\n"
+                       "dpkg --configure -a\n"
+                       "apt-get install -y -f\n"
+                       "apt-get update --fix-missing"
+                       "apt-get install -y -f firefox-esr\n" // if installation fails, install dependency package and try again
+                       "fi\n"
+                     ).toUtf8();
+  } else {
+    QString file_info =  dir + QDir::separator() + file_name;
+    install_script = QString(
+                       "#!/bin/bash\n"
+                       "dpkg -i %1;"
+                       "if test $? -gt 0\n"
+                       "then\n"
+                       "dpkg --remove --force-remove-reinstreq %2\n"
+                       "apt-get install -y -f;\n"
+                       "dpkg -i %1;"
+                       "else\n"
+                       "rm %1\n"
+                       "fi")
+                      .arg(file_info)
+                      .toUtf8();
   }
 
-  QByteArray install_script = QString(
-                                  "#!/bin/bash\n"
-                                  "dpkg -i %1;"
-                                  "if test $? -gt 0\n"
-                                  "then\n"
-                                  "dpkg --remove --force-remove-reinstreq %2\n"
-                                  "apt-get install -y -f;\n"
-                                  "dpkg -i %1;"
-                                  "else\n"
-                                  "rm %1\n"
-                                  "fi")
-                                  .arg(file_info)
-                                  .toUtf8();
-
-  if (tmpFile.write(install_script) != install_script.size()) {
-    QString err_msg = QObject::tr("Couldn't write install script to temp file")
-                             .arg(tmpFile.errorString());
-    qCritical() << err_msg;
-    CNotificationObserver::Info(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  tmpFile.close();
-
-  if (!QFile::setPermissions(
-          tmpFilePath,
-              QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner |
-              QFile::ReadUser | QFile::WriteUser | QFile::ExeUser |
-              QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
-              QFile::ReadOther | QFile::WriteOther | QFile::ExeOther)) {
-    QString err_msg =
-        QObject::tr("Couldn't set exe permission to reload script file");
-    qCritical() << err_msg;
-    CNotificationObserver::Error(err_msg, DlgNotification::N_SETTINGS);
-    return SCWE_CREATE_PROCESS;
-  }
-
-  system_call_res_t cr2;
-  QStringList args2;
-  args2 << sh_path << tmpFilePath;
-  qDebug() << "Firefox installation started"
-           << "pkexec_path:" << pkexec_path
-           << "args2:" << args2;
-
-  cr2 = CSystemCallWrapper::ssystem_th(pkexec_path, args2, true, true, 60000);
-  qDebug() << "Chrome installation finished"
-           << "exit code:" << cr2.exit_code
-           << "result code:" << cr2.res
-           << "output:" << cr2.out;
-  tmpFile.remove();
+  system_call_res_t cr2 = CSystemCallWrapper::run_script(script, install_script);;
 
   if (cr2.exit_code != 0 || cr2.res != SCWE_SUCCESS) {
     QString err_msg = QObject::tr("Couldn't install firefox err = %1")
@@ -5402,13 +5357,36 @@ system_call_wrapper_error_t uninstall_firefox_internal<Os2Type<OS_LINUX>>(const 
 
   system_call_res_t scr;
   QStringList args;
-  args << "apt-get"
-       << "remove"
-       << "-y"
-       << "firefox";
+  args << "-i"
+       << "-s";
+
+  system_call_res_t cr = CSystemCallWrapper::ssystem_th("lsb_release", args, true, true, 5000);
+  QString distribution;
+
+  if (cr.exit_code == 0 && cr.res == SCWE_SUCCESS && !cr.out.empty()) {
+    distribution = cr.out[0];
+    distribution = distribution.trimmed().simplified();
+  } else {
+    qDebug() << "Firefox uninstallation, failed get linux distribution"
+             << cr.out;
+    return SCWE_CREATE_PROCESS;
+  }
+
+  args.clear();
+  if (distribution.toLower() == "debian") {
+    args << "apt-get"
+         << "remove"
+         << "-y"
+         << "firefox-esr";
+  } else {
+    args << "apt-get"
+         << "remove"
+         << "-y"
+         << "firefox";
+  }
 
   scr = CSystemCallWrapper::ssystem_th(pkexec_path, args, false, true, 60000);
-  qDebug() << "Uninstallation of Google Chrome finished: "
+  qDebug() << "Uninstallation of Firefox finished: "
            << "exit code:" << scr.exit_code
            << "output:" << scr.out;
   if (scr.exit_code != 0 || scr.exit_code != SCWE_SUCCESS) {
