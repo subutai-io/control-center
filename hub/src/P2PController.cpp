@@ -336,16 +336,10 @@ P2PController::P2PController() {
    QThread* thread = new QThread(this);
    connector->moveToThread(thread);
 
-   connect(thread, &QThread::started,
-           connector, &P2PConnector::update_status);
-
-   connect(qApp, &QCoreApplication::aboutToQuit,
-           thread, &QThread::quit);
-
-   connect(thread, &QThread::finished,
-           connector, &P2PConnector::deleteLater);
-   connect(thread, &QThread::finished,
-           thread, &QThread::deleteLater);
+   connect(thread, SIGNAL (started()), connector, SLOT (update_status()));
+   connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), thread, SLOT (quit()));
+   connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), connector, SLOT (deleteLater()));
+   connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
 
    QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
@@ -398,7 +392,7 @@ QString P2PController::p2p_connection_status_to_str(P2P_CONNECTION_STATUS status
                            "Can't join to swarm with environment",
                            "Handshaking with container"
                           };
-  return str[(size_t) status];
+  return str[static_cast<size_t>(status)];
 }
 
 ssh_desktop_launch_error_t P2PController::is_ready_sdle(const CEnvironment& env, const CHubContainer& cont) {
@@ -408,7 +402,7 @@ ssh_desktop_launch_error_t P2PController::is_ready_sdle(const CEnvironment& env,
     SDLE_JOIN_TO_SWARM_FAILED,
     SDLE_CONT_NOT_READY,
   };
-  return res[(size_t) ret];
+  return res[static_cast<size_t>(ret)];
 }
 
 //p2p status updater
