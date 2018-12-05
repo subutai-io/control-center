@@ -8752,42 +8752,43 @@ bool CSystemCallWrapper::is_host_reachable(const QString &host){
   return res.res == SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-int CProcessHandler::generate_hash(){
+int CProcessHandler::generate_hash() {
   while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
     m_hash_counter++; m_hash_counter %= 1000;
   }
   return m_hash_counter;
 }
-int CProcessHandler::sum_proc(){
-    return m_proc_table.size();
+
+int CProcessHandler::sum_proc() {
+  return static_cast<int>(m_proc_table.size());
 }
-int CProcessHandler::start_proc(QProcess &proc){
-    m_proc_mutex.lock();
+
+int CProcessHandler::start_proc(QProcess &proc) {
+    QMutexLocker locker(&m_proc_mutex);
     int hash = generate_hash();
     qDebug () << "Started a new proc with hash:" << hash;
     qDebug () << "Total number of procs: " << m_proc_table.size();
     m_proc_table[hash] = &proc;
-    m_proc_mutex.unlock();
     return hash;
 }
-void CProcessHandler::end_proc(const int &hash){
-    m_proc_mutex.lock();
-    if ( m_proc_table.find(hash) != m_proc_table.end() )
-        m_proc_table.erase( m_proc_table.find(hash) );
-    m_proc_mutex.unlock();
+
+void CProcessHandler::end_proc(const int &hash) {
+  QMutexLocker locker(&m_proc_mutex);
+  if ( m_proc_table.find(hash) != m_proc_table.end() )
+    m_proc_table.erase( m_proc_table.find(hash) );
 }
-void CProcessHandler::clear_proc(){
-    m_proc_mutex.lock();
-    auto it = m_proc_table.begin();
-    while (it != m_proc_table.end()){
-        if (it->second != nullptr) {
-            it->second->terminate();
+
+void CProcessHandler::clear_proc() {
+  QMutexLocker locker(&m_proc_mutex);
+  auto it = m_proc_table.begin();
+  while (it != m_proc_table.end()) {
+    if (it->second != nullptr) {
+        it->second->terminate();
 #ifdef RT_OS_WINDOWS
-            it->second->kill();
+        it->second->kill();
 #endif
-        }
-        it++;
     }
-    m_proc_mutex.unlock();
+    it++;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////
