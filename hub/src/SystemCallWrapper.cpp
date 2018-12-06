@@ -2509,8 +2509,13 @@ system_call_wrapper_install_t CSystemCallWrapper::install_x2go(const QString &di
     system_call_wrapper_install_t res;
     res.res = install_x2go_internal<Os2Type <CURRENT_OS> >(dir, file_name);
 
+    qDebug() << "X2GOCLIENT install "
+             << res.res;
+
     if (res.res == SCWE_SUCCESS) {
       x2go_version(version);
+      qDebug() << "X2GOCLIENT version"
+               << version;
       res.version = version;
     }
 
@@ -6212,6 +6217,7 @@ system_call_wrapper_install_t CSystemCallWrapper::install_xquartz(const QString 
   res.res = res_t.res;
 
   if (res.res == SCWE_SUCCESS) {
+    //std::this_thread::sleep_for(std::chrono::milliseconds(5 * 1000));
     xquartz_version(version);
     res.version = version;
   }
@@ -6825,19 +6831,22 @@ system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_LINUX> > (QString
 
 template<>
 system_call_wrapper_error_t x2go_version_internal <Os2Type <OS_MAC> > (QString &version){
-  //mdls -name kMDItemVersion /Applications/x2goclient.app/
+  //defaults read /Applications/Utilities/XQuartz.app/Contents/Info CFBundleVersion
   version = "undefined";
-  qDebug() << "getting x2go version";
-  QString cmd = "mdls";
+  QString cmd = "defaults";
   QStringList args;
-  args << "-name"
-       << "kMDItemVersion"
-       << "/Applications/x2goclient.app/";
+  args << "read"
+       << "/Applications/x2goclient.app/Contents/Info"
+       << "CFBundleVersion";
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+   qDebug() << "getting x2go version"
+            << res.res
+            << res.out
+            << res.exit_code;
   if (res.exit_code != 0 || res.out.length() != 1) {
     return SCWE_CREATE_PROCESS;
   }
-  version = res.out[0].remove("kMDItemVersion = ").remove("\"");
+  version = res.out[0];
   return res.res;
 }
 
@@ -7730,19 +7739,23 @@ system_call_wrapper_error_t CSystemCallWrapper::subutai_e2e_version(QString &ver
 }
 ////////////////////////////////////////////////////////////////////////////
 system_call_wrapper_error_t CSystemCallWrapper::xquartz_version(QString &version){
-  //mdls -name kMDItemVersion /Applications/Utilities/XQuartz.app/
+  //defaults read /Applications/Utilities/XQuartz.app/Contents/Info CFBundleVersion
   version = "undefined";
-  qDebug() << "getting xquartz version";
-  QString cmd = "mdls";
+  QString cmd = "defaults";
   QStringList args;
-  args << "-name"
-       << "kMDItemVersion"
-       << "/Applications/Utilities/XQuartz.app/";
+  args << "read"
+       << "/Applications/Utilities/XQuartz.app/Contents/Info"
+       << "CFBundleVersion";
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 10000);
+  qDebug() << "getting xquartz version"
+           << res.res
+           << res.exit_code
+           << res.out;
+
   if (res.exit_code != 0 || res.out.length() != 1) {
     return SCWE_CREATE_PROCESS;
   }
-  version = res.out[0].remove("kMDItemVersion = ").remove("\"");
+  version = res.out[0];
   return res.res;
 }
 ////////////////////////////////////////////////////////////////////////////
