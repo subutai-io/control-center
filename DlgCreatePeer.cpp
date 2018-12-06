@@ -299,6 +299,18 @@ DlgCreatePeer::pass_err DlgCreatePeer::check_pass(QString pass) {
 bool DlgCreatePeer::check_configurations() {
   qDebug() << "Check conf RAM: "
            << Environment::Instance()->ramSize();
+  // check if new peer dir exist
+  QString peer_folder = "subutai-peer_" + ui->le_name->text();
+  QDir peer_dir;
+  peer_dir = VagrantProvider::Instance()->BasePeerDir();
+
+  if (peer_dir.cd(peer_folder)) {
+    QString status = CSystemCallWrapper::vagrant_status(peer_dir.absolutePath());
+    if (status == "not_created")
+      peer_dir.removeRecursively();
+  }
+  // end check
+
   QString ram = ui->le_ram->text();
   QString disk = ui->le_disk->text();
   QString password1 = ui->le_pass->text();
@@ -557,16 +569,8 @@ QString DlgCreatePeer::peer_dir(const QString &peer_folder) {
 
   // 1. create "peer" folder.
   QString empty;
-  QDir peer_dir, tmp;
+  QDir peer_dir;
   peer_dir = VagrantProvider::Instance()->BasePeerDir();
-  tmp = peer_dir;
-
-  if (tmp.cd(peer_folder)) {
-    ui->btn_create->setEnabled(false); // diable create button
-    QString status = CSystemCallWrapper::vagrant_status(tmp.absolutePath());
-    if (status == "not_created")
-      tmp.removeRecursively();
-  }
 
   if (!peer_dir.mkdir(peer_folder)) {
       return empty;

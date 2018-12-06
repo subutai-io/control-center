@@ -653,7 +653,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_update_peeros(const QStr
 }
 
 QString CSystemCallWrapper::vagrant_status(const QString &dir) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   qDebug() << "get vagrant status of" << dir;
 
   system_call_res_t res;
@@ -676,7 +676,6 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
            << args;
 
   if(res.res != SCWE_SUCCESS || res.exit_code != 0) {
-    vagrant_is_busy.unlock();
     return status;
   }
 
@@ -690,12 +689,11 @@ QString CSystemCallWrapper::vagrant_status(const QString &dir) {
     }
   }
 
-  vagrant_is_busy.unlock();
   return status.simplified();
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
   args << "set_working_directory"
@@ -711,16 +709,14 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_halt(const QString &dir)
            << res.res;
 
   if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
-  vagrant_is_busy.unlock();
   return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &dir) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
   args
@@ -740,16 +736,14 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_reload(const QString &di
           <<res.res;
 
   if(res.res == SCWE_SUCCESS && res.exit_code != 0) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
-  vagrant_is_busy.unlock();
   return res.res;
 }
 
 system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &dir) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
   args << "set_working_directory"
@@ -771,23 +765,20 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_destroy(const QString &d
            << res.out;
 
   if(res.exit_code !=0 || res.res != SCWE_SUCCESS) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
   QDir dir_path(dir);
 
   if(dir_path.removeRecursively()) {
-    vagrant_is_busy.unlock();
     return SCWE_SUCCESS;
   }
 
-  vagrant_is_busy.unlock();
   return SCWE_CREATE_PROCESS;
 }
 
 std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_up(const QString &dir) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   QString cmd = CSettingsManager::Instance().vagrant_path();
   QStringList args;
   args
@@ -810,7 +801,6 @@ std::pair<system_call_wrapper_error_t, QStringList> CSystemCallWrapper::vagrant_
   if(res.res == SCWE_SUCCESS && res.exit_code != 0)
       res.res = SCWE_CREATE_PROCESS;
 
-  vagrant_is_busy.unlock();
   return std::make_pair(res.res, res.out);
 }
 
@@ -970,7 +960,7 @@ QString CSystemCallWrapper::vagrant_port(const QString &dir) {
 }
 
 std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_information(bool force_update) {
-  vagrant_is_busy.lock();
+  QMutexLocker locker(&vagrant_is_busy);
   qDebug() << "Starting to update information related to peer management";
 
   QStringList bridges = CSystemCallWrapper::list_interfaces(force_update);
@@ -1028,7 +1018,6 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
     }
   }
 
-  vagrant_is_busy.unlock();
   return std::make_pair(bridges, global_status);
 }
 //////////////////////////////////////////////////////////////////////
@@ -1810,9 +1799,7 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
                                                                                  const QString &name) {
-  vagrant_is_busy.lock();
   if(command.isEmpty()) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
@@ -1880,7 +1867,6 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
-  vagrant_is_busy.unlock();
   return res;
 }
 
@@ -1888,9 +1874,7 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name) {
-  vagrant_is_busy.lock();
   if (command.isEmpty()) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
@@ -1911,7 +1895,6 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
     system_call_wrapper_error_t tmp_res;
     if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
         SCWE_SUCCESS) {
-      vagrant_is_busy.unlock();
       return tmp_res;
     }
   }
@@ -1922,7 +1905,6 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
   system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                                                        : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
-  vagrant_is_busy.unlock();
   return res;
 }
 
@@ -1930,14 +1912,12 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name) {
-  vagrant_is_busy.lock();
 UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
 #ifdef RT_OS_WINDOWS
 
   if (command.isEmpty()) {
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 
@@ -1977,7 +1957,6 @@ UNUSED_ARG(command);
     system_call_wrapper_error_t tmp_res;
     if ((tmp_res = CSystemCallWrapper::which(CSettingsManager::Instance().terminal_cmd(), cmd)) !=
         SCWE_SUCCESS) {
-      vagrant_is_busy.unlock();
       return tmp_res;
     }
   }
@@ -1995,7 +1974,6 @@ UNUSED_ARG(command);
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
         GetLastError());
-    vagrant_is_busy.unlock();
     return SCWE_CREATE_PROCESS;
   }
 #endif
@@ -2004,7 +1982,6 @@ UNUSED_ARG(command);
       while (QTime::currentTime() < dieTime)
           QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
-  vagrant_is_busy.unlock();
   return SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -8771,42 +8748,43 @@ bool CSystemCallWrapper::is_host_reachable(const QString &host){
   return res.res == SCWE_SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
-int CProcessHandler::generate_hash(){
+int CProcessHandler::generate_hash() {
   while(m_proc_table[(m_hash_counter) % 1000] != nullptr) {
     m_hash_counter++; m_hash_counter %= 1000;
   }
   return m_hash_counter;
 }
-int CProcessHandler::sum_proc(){
-    return m_proc_table.size();
+
+int CProcessHandler::sum_proc() {
+  return static_cast<int>(m_proc_table.size());
 }
-int CProcessHandler::start_proc(QProcess &proc){
-    m_proc_mutex.lock();
+
+int CProcessHandler::start_proc(QProcess &proc) {
+    QMutexLocker locker(&m_proc_mutex);
     int hash = generate_hash();
     qDebug () << "Started a new proc with hash:" << hash;
     qDebug () << "Total number of procs: " << m_proc_table.size();
     m_proc_table[hash] = &proc;
-    m_proc_mutex.unlock();
     return hash;
 }
-void CProcessHandler::end_proc(const int &hash){
-    m_proc_mutex.lock();
-    if ( m_proc_table.find(hash) != m_proc_table.end() )
-        m_proc_table.erase( m_proc_table.find(hash) );
-    m_proc_mutex.unlock();
+
+void CProcessHandler::end_proc(const int &hash) {
+  QMutexLocker locker(&m_proc_mutex);
+  if ( m_proc_table.find(hash) != m_proc_table.end() )
+    m_proc_table.erase( m_proc_table.find(hash) );
 }
-void CProcessHandler::clear_proc(){
-    m_proc_mutex.lock();
-    auto it = m_proc_table.begin();
-    while (it != m_proc_table.end()){
-        if (it->second != nullptr) {
-            it->second->terminate();
+
+void CProcessHandler::clear_proc() {
+  QMutexLocker locker(&m_proc_mutex);
+  auto it = m_proc_table.begin();
+  while (it != m_proc_table.end()) {
+    if (it->second != nullptr) {
+        it->second->terminate();
 #ifdef RT_OS_WINDOWS
-            it->second->kill();
+        it->second->kill();
 #endif
-        }
-        it++;
     }
-    m_proc_mutex.unlock();
+    it++;
+  }
 }
 ////////////////////////////////////////////////////////////////////////////

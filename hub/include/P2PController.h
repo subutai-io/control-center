@@ -1,7 +1,6 @@
 #ifndef P2PCONTROLLER_H
 #define P2PCONTROLLER_H
 #include <set>
-
 #include <QObject>
 #include "SystemCallWrapper.h"
 #include "HubController.h"
@@ -10,6 +9,7 @@
 #include "NotificationObserver.h"
 #include "InternalCriticalSection.h"
 #include "Locker.h"
+#include "RestContainers.h"
 
 using namespace update_system;
 class StatusChecker : public QObject {
@@ -132,7 +132,6 @@ private:
  void check_rh(const CEnvironment& env, const CHubContainer &cont);
 
 };
-#include "RestContainers.h"
 
 class P2PController : public QObject
 {
