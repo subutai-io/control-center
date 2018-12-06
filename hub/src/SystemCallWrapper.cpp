@@ -1799,7 +1799,6 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > (const QString &dir,
                                                                                  const QString &command,
                                                                                  const QString &name) {
-  QMutexLocker locker(&vagrant_is_busy);
   if(command.isEmpty()) {
     return SCWE_CREATE_PROCESS;
   }
@@ -1875,8 +1874,6 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name) {
-  QMutexLocker locker(&vagrant_is_busy);
-
   if (command.isEmpty()) {
     return SCWE_CREATE_PROCESS;
   }
@@ -1915,7 +1912,6 @@ template<>
 system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_WIN> >(const QString &dir,
                                                                                   const QString &command,
                                                                                   const QString &name) {
-  QMutexLocker locker(&vagrant_is_busy);
 UNUSED_ARG(name);
 UNUSED_ARG(dir);
 UNUSED_ARG(command);
