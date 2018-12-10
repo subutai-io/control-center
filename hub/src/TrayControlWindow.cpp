@@ -508,8 +508,9 @@ void TrayControlWindow::logout() {
     lstActiveDialogs[i] = j->second;
 
   // close active dialogs
-  if (i > 0)
-    while (i--) lstActiveDialogs[i]->close();
+  for (auto dialog : lstActiveDialogs) {
+    dialog->close();
+  }
 
   CHubController::Instance().logout();
   this->m_sys_tray_icon->hide();

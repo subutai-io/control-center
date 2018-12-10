@@ -339,6 +339,7 @@ P2PController::P2PController() {
    connect(thread, SIGNAL (started()), connector, SLOT (update_status()));
    connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), thread, SLOT (quit()));
    connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), connector, SLOT (deleteLater()));
+   connect(thread, SIGNAL (finished()),	connector, SLOT (deleteLater()));
    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
 
    QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
