@@ -167,7 +167,7 @@ class CPeerController : public QObject {
   }
 
   bool is_running_command(QString dir) {
-    const bool found = checking_statutes.find(dir) != checking_statutes.end();
+    const bool found = running_commands.find(dir) != running_commands.end();
 
     if  (found)
       return true;
