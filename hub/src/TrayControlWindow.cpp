@@ -1503,7 +1503,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
     }
     connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
-    if (iter->second) {
+    if (iter->second != nullptr) {
       iter->second->show();
       iter->second->activateWindow();
       iter->second->raise();
