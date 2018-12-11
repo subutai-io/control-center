@@ -352,7 +352,7 @@ void CRestWorker::peer_finger(const QString& url_management,
   connect(reply, &QNetworkReply::finished,
           reply, &QNetworkReply::deleteLater);
 
-  connect(reply, &QNetworkReply::finished, [reply, type, name, dir](){
+  connect(reply, &QNetworkReply::finished, [reply, type, name, dir, url_management](){
     qDebug() << "Is reply null " << (reply == nullptr);
     if (reply == nullptr) {
       return;
@@ -366,6 +366,13 @@ void CRestWorker::peer_finger(const QString& url_management,
     } catch (...) {
       finger = "undefined";
     }
+    qDebug() << "Response getting fingerprint "
+             << url_management
+             << "code: "
+             << http_code;
+    if (http_code != 200) // if Status ok (200)
+      finger = "undefined";
+
     CPeerController::Instance()->parse_peer_info(type, name, dir, finger);
   });
 }

@@ -167,6 +167,8 @@ void CPeerController::search_local() {
     for (QString s : this->vagrant_global_status.out) {
       QFileInfo fi(s);
       QDir dir(s);
+      qDebug() << "Get peer info "
+               << fi.fileName();
       get_peer_info(fi, dir);
     }
 
@@ -302,12 +304,13 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
     dir.cd(fi.fileName());
 
   // stop get_peer_info (return) if vagrant is executig vagrant commands like reload, up, halt, destroy
-  if (status_type == peer_info_t::P_STATUS && is_running_command(QDir::toNativeSeparators(dir.absolutePath())))
+  if (status_type == peer_info_t::P_STATUS && is_running_command(QDir::toNativeSeparators(dir.absolutePath()))) {
     return;
+  }
 
   // get status of peer
-  if (status_type == peer_info_t::P_STATUS)
-    insert_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
+  qDebug() << "GETTING PEER INFO"
+           << peer_name;
 
   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
   number_threads++;
