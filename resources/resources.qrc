@@ -31,9 +31,6 @@
         <file>GOOD.png</file>
         <file>OK.png</file>
         <file>local-network.png</file>
-        <file>local_hub.png</file>
-        <file>loading.png</file>
-        <file>running.png</file>
         <file>waiting.png</file>
         <file>stopped.png</file>
         <file>uploading.png</file>
@@ -84,6 +81,9 @@
         <file>create_folder_big.png</file>
         <file>create_folder_small.png</file>
         <file>get_switches.ps1</file>
+        <file>local_hub.png</file>
+        <file>loading.png</file>
+        <file>running.png</file>
     </qresource>
     <qresource prefix="/">
         <file>check_box.png</file>

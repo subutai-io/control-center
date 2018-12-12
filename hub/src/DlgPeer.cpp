@@ -363,7 +363,7 @@ void DlgPeer::updateUI() {
       } else if (rh_status == "not_created") {
         ui->btn_reload->setEnabled(false);
         ui->btn_start_stop->setEnabled(false);
-      } else if (rh_status == "poweroff") {
+      } else if (rh_status == "poweroff" || rh_status == "shutoff") {
         ui->btn_reload->setEnabled(false);
         ui->btn_start_stop->setText(tr("Start peer"));
         ui->btn_start_stop->setToolTip(tr("Start your peer"));

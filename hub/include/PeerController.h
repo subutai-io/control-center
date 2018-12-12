@@ -87,22 +87,6 @@ class CPeerController : public QObject {
   std::set<QString> checking_statutes;
   std::set<QString> running_commands; // vagrant reload, up, halt, destroy
 
-  void insert_checking_status(QString dir) {
-    qInfo() << "Vagrant status Locked peer state: "
-             << dir;
-    checking_statutes.insert(dir);
-  }
-
-  void remove_checking_status(QString dir) {
-    std::set<QString>::iterator ite;
-    ite = checking_statutes.find(dir);
-    if (ite != checking_statutes.end()) {
-      checking_statutes.erase(ite);
-      qInfo() << "Vagrant status Unlocked peer state: "
-               << dir;
-    }
-  }
-
   void search_local();
   void check_logs();
   QString get_error_messages(QDir peer_dir, QString command);
@@ -114,6 +98,7 @@ class CPeerController : public QObject {
   int number_threads;                       // to emit signal when all finished
   QString get_pr_step_fi(QFile &p_file); // get provision step from file
   bool is_provision_running(QDir peer_dir);
+  QMutex m_locker; // for checking_status and running_commands
 
  public:
   enum peer_info_t {
@@ -151,12 +136,14 @@ class CPeerController : public QObject {
   int getProvisionStep(const QString &dir);
 
   void insert_running_command(QString dir) {
+    QMutexLocker lock(&m_locker);
     qInfo() << "Vagrant command Locked peer state: "
              << dir;
-    running_commands.insert(dir);
+    running_commands.emplace(dir);
   }
 
   void remove_running_command(QString dir) {
+    QMutexLocker lock(&m_locker);
     std::set<QString>::iterator ite;
     ite = running_commands.find(dir);
     if (ite != running_commands.end()) {
@@ -167,7 +154,7 @@ class CPeerController : public QObject {
   }
 
   bool is_running_command(QString dir) {
-    const bool found = running_commands.find(dir) != running_commands.end();
+    bool found = running_commands.find(dir) != running_commands.end();
 
     if  (found)
       return true;
@@ -175,8 +162,26 @@ class CPeerController : public QObject {
     return false;
   }
 
+  void insert_checking_status(QString dir) {
+    QMutexLocker locker(&m_locker);
+    qInfo() << "Vagrant status Locked peer state: "
+             << dir;
+    checking_statutes.emplace(dir);
+  }
+
+  void remove_checking_status(QString dir) {
+    QMutexLocker lock(&m_locker);
+    std::set<QString>::iterator ite;
+    ite = checking_statutes.find(dir);
+    if (ite != checking_statutes.end()) {
+      checking_statutes.erase(ite);
+      qInfo() << "Vagrant status Unlocked peer state: "
+               << dir;
+    }
+  }
+
   bool is_checking_status(QString dir) {
-    const bool found = checking_statutes.find(dir) != checking_statutes.end();
+    bool found = checking_statutes.find(dir) != checking_statutes.end();
 
     if (found)
       return true;
@@ -220,6 +225,7 @@ class GetPeerInfo : public QObject {
     QFuture<QString> res;
     switch (action) {
       case 0:
+        CPeerController::Instance()->insert_checking_status(QDir::toNativeSeparators(arg));
         res = QtConcurrent::run(CSystemCallWrapper::vagrant_status, arg);
         break;
       case 1:
@@ -300,14 +306,12 @@ class CommandPeerTerminal : public QObject {
   }
 
   void execute_remote_command() {
-    CPeerController::Instance()->insert_running_command(directory);
     QFutureWatcher<system_call_wrapper_error_t> *watcher =
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res = QtConcurrent::run(
         CSystemCallWrapper::vagrant_command_terminal, directory, command, QString("\"%1\"").arg(name));
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res]() {
-      CPeerController::Instance()->remove_running_command(this->directory);
       emit this->outputReceived(res);
     });
     connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
