@@ -1864,9 +1864,11 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_MAC> > 
   qInfo() << "Vagrant luanch apple script:"
           << args;
 
+  CPeerController::Instance()->insert_running_command(dir);
   system_call_wrapper_error_t res = QProcess::startDetached(QString("osascript"), args) ? SCWE_SUCCESS
                                                                                         : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
+  CPeerController::Instance()->remove_running_command(dir);
   return res;
 }
 
@@ -1902,9 +1904,11 @@ system_call_wrapper_error_t vagrant_command_terminal_internal<Os2Type<OS_LINUX> 
   QStringList args = CSettingsManager::Instance().terminal_arg().split(
                        QRegularExpression("\\s"));
   args << QString("%1").arg(str_command);
+  CPeerController::Instance()->insert_running_command(dir);
   system_call_wrapper_error_t res = QProcess::startDetached(cmd, args) ? SCWE_SUCCESS
                                                                        : SCWE_CREATE_PROCESS;
   std::this_thread::sleep_for(std::chrono::milliseconds(10 * 1000));
+  CPeerController::Instance()->remove_running_command(dir);
   return res;
 }
 
@@ -1968,9 +1972,11 @@ UNUSED_ARG(command);
       QString("\"%1\" /k %2").arg(cmd).arg(str_command);
   LPWSTR cmd_args_lpwstr = (LPWSTR)cmd_args.utf16();
   si.cb = sizeof(si);
+  CPeerController::Instance()->insert_running_command(dir);
   BOOL cp = CreateProcess(nullptr, cmd_args_lpwstr, nullptr, nullptr, FALSE, 0, nullptr,
                           nullptr, &si, &pi);
   if (!cp) {
+    CPeerController::Instance()->remove_running_command(dir);
     qCritical(
         "Failed to create process %s. Err : %d", cmd.toStdString().c_str(),
         GetLastError());
@@ -1981,6 +1987,7 @@ UNUSED_ARG(command);
   QTime dieTime= QTime::currentTime().addSecs(10);
       while (QTime::currentTime() < dieTime)
           QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  CPeerController::Instance()->remove_running_command(dir);
 
   return SCWE_SUCCESS;
 }
