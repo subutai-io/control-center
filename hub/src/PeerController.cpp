@@ -73,6 +73,9 @@ const QString &CPeerController::status_description(const QString &status) {
       {"poweroff", tr("The Peer is powered off. To restart the Peer, simply "
                       "press 'start'")},
 
+      {"shutoff", tr("The Peer is powered off. To restart the Peer, simply "
+                      "press 'start'")},
+
       {"not_created", tr("The VM for the Peer is not created yet. \n"
                          "If you have started the installation process, please "
                          "wait for it to finish")},

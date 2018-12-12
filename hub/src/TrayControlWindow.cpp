@@ -942,6 +942,7 @@ void TrayControlWindow::my_peers_updated_sl() {
 
 void TrayControlWindow::got_peer_info_sl(CPeerController::peer_info_t type, QString name, QString dir,
                                          QString output) {
+  qDebug() << "UPDATE PEER ICON";
   in_peer_slot = true;
   static QString new_updated = "new";
   static int minus_one = -1;
@@ -1099,7 +1100,9 @@ void TrayControlWindow::peer_update_peeros_sl(const QString peer_fingerprint) {
 // local peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CLocalPeer &peer_info) {
-  qDebug() << "update peer button information wih local peer";
+  qDebug() << "update peer button information wih local peer"
+           << peer_id
+           << peer_info.fingerprint();
   if (my_peers_button_table.find(peer_id) == my_peers_button_table.end()) {
     my_peer_button *new_peer_button =
         new my_peer_button(peer_id, peer_info.name());
@@ -1132,7 +1135,8 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
 // hub peer
 void TrayControlWindow::update_peer_button(const QString &peer_id,
                                            const CMyPeerInfo &peer_info) {
-  qDebug() << "update peer button information wih hub peer";
+  qDebug() << "update peer button information wih hub peer"
+           << peer_id;
   if (my_peers_button_table.find(peer_id) == my_peers_button_table.end()) {
     my_peer_button *new_peer_button =
         new my_peer_button(peer_id, peer_info.name());
@@ -1154,7 +1158,8 @@ void TrayControlWindow::update_peer_button(const QString &peer_id,
 // lan peer
 void TrayControlWindow::update_peer_button(
     const QString &peer_id, const std::pair<QString, QString> &peer_info) {
-  qDebug() << "update peer button information wih network peer(rh)";
+  qDebug() << "update peer button information wih network peer(rh)"
+           << peer_id;
   if (my_peers_button_table.find(peer_id) == my_peers_button_table.end()) {
     my_peer_button *new_peer_button =
         new my_peer_button(peer_id, peer_info.second);
@@ -1280,7 +1285,15 @@ void TrayControlWindow::delete_peer_button_info(const QString &peer_id,
   }
   update_peer_icon(peer_id);
   if (peer_backup_name != peer_id && type == 0) {
-    CSettingsManager::Instance().set_peer_finger(peer_local_backup_name, "");
+    bool hub_peer_not_found = hub_peers_table.find(peer_id) == hub_peers_table.end();
+
+    if (hub_peer_not_found) {
+      qDebug() << "CLEAN PEER FINGERPRINT"
+               << peer_backup_name
+               << peer_local_backup_name
+               << peer_id;
+      CSettingsManager::Instance().set_peer_finger(peer_local_backup_name, "");
+    }
   }
 }
 
@@ -1503,7 +1516,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
     }
     connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
-    if (iter->second != nullptr) {
+    if (iter->second != nullptr && !iter->second->isVisible()) {
       iter->second->show();
       iter->second->activateWindow();
       iter->second->raise();
