@@ -1188,18 +1188,17 @@ void TrayControlWindow::update_peer_icon(const QString &peer_id) {
   static QIcon map_icons[2][3][4] = {
       {
           // no network peer(rh)
-          {unknown_icon, local_network_icon, local_machine_off_icon,
-           unknown_icon},  // no hub peer
-          {online_icon, local_hub, local_machine_off_icon,
-           unknown_icon},  // online hub peer
-          {offline_icon, local_hub, local_machine_off_icon,
-           unknown_icon},  // offline hub peer
+          { unknown_icon, local_network_icon, local_machine_off_icon, unknown_icon },  // no hub peer
+          { online_icon, local_hub, local_machine_off_icon, unknown_icon           },  // online hub peer
+          { offline_icon, local_hub, local_machine_off_icon, unknown_icon          },  // offline hub peer
       },
-      {// found network peer(rh)
-       {local_network_icon, local_network_icon, local_machine_off_icon,
-        unknown_icon},
-       {local_hub, local_hub, local_machine_off_icon, unknown_icon},
-       {local_hub, local_network_icon, local_machine_off_icon}}};
+      {
+          // found network peer(rh)
+         { local_network_icon, local_network_icon, local_machine_off_icon, unknown_icon },
+         { local_hub, local_hub, local_machine_off_icon, unknown_icon                   },
+         { local_hub, local_network_icon, local_machine_off_icon                        }
+      }
+  };
   my_peer_button *peer_button = my_peers_button_table[peer_id];
   if (peer_button == nullptr) {
     return;
@@ -1516,7 +1515,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
     }
     connect(dlg, &QDialog::finished, this, &TrayControlWindow::dialog_closed);
   } else {
-    if (iter->second != nullptr && !iter->second->isVisible()) {
+    if (iter->second != nullptr) {
       iter->second->show();
       iter->second->activateWindow();
       iter->second->raise();
