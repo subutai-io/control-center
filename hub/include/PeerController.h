@@ -98,7 +98,6 @@ class CPeerController : public QObject {
   int number_threads;                       // to emit signal when all finished
   QString get_pr_step_fi(QFile &p_file); // get provision step from file
   bool is_provision_running(QDir peer_dir);
-  QMutex m_locker; // for checking_status and running_commands
 
  public:
   enum peer_info_t {
@@ -136,14 +135,12 @@ class CPeerController : public QObject {
   int getProvisionStep(const QString &dir);
 
   void insert_running_command(QString dir) {
-    QMutexLocker lock(&m_locker);
     qInfo() << "Vagrant command Locked peer state: "
              << dir;
     running_commands.emplace(dir);
   }
 
   void remove_running_command(QString dir) {
-    QMutexLocker lock(&m_locker);
     std::set<QString>::iterator ite;
     ite = running_commands.find(dir);
     if (ite != running_commands.end()) {
@@ -163,14 +160,12 @@ class CPeerController : public QObject {
   }
 
   void insert_checking_status(QString dir) {
-    QMutexLocker locker(&m_locker);
     qInfo() << "Vagrant status Locked peer state: "
              << dir;
     checking_statutes.emplace(dir);
   }
 
   void remove_checking_status(QString dir) {
-    QMutexLocker lock(&m_locker);
     std::set<QString>::iterator ite;
     ite = checking_statutes.find(dir);
     if (ite != checking_statutes.end()) {
