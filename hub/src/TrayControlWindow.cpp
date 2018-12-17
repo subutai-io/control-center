@@ -189,12 +189,12 @@ void TrayControlWindow::save_current_pid(){
 ////////////////////////////////////////////////////////////////////////////
 void TrayControlWindow::check_components() {
   if (!is_e2e_avaibale()) {
-    CNotificationObserver::Error(tr("Subutai E2E plugin is not installed. It's "
+    CNotificationObserver::Error(tr("Subutai E2E Plugin is not installed. It's "
                                     "recommended to install it"),
                                  DlgNotification::N_ABOUT);
   }
   if (!is_p2p_avaibale()) {
-    CNotificationObserver::Error(tr("P2P is not installed. You can't manage "
+    CNotificationObserver::Error(tr("P2P is not installed. You cannot manage "
                                     "your cloud environments without P2P."),
                                  DlgNotification::N_ABOUT);
   }
@@ -240,7 +240,7 @@ void TrayControlWindow::create_tray_actions() {
       new QAction(QIcon(":/hub/hub-new.png"), tr("Go to Bazaar"), this);
   connect(m_act_launch_Hub, &QAction::triggered, this,
           &TrayControlWindow::launch_Hub);
-  m_act_launch_Hub->setToolTip(tr("Will go to main Website"));
+  m_act_launch_Hub->setToolTip(tr("Opens the main page of Bazaar"));
 
   m_act_balance = new QAction(QIcon(":/hub/wallet-new.png"),
                               CHubController::Instance().balance(), this);
@@ -251,15 +251,15 @@ void TrayControlWindow::create_tray_actions() {
   m_act_about = new QAction(QIcon(":/hub/components-new.png"), tr("Components"), this);
   connect(m_act_about, &QAction::triggered, this,
           &TrayControlWindow::show_about);
-  m_act_about->setToolTip(tr("Information about CC"));
+  m_act_about->setToolTip(tr("Information about Control Center Components"));
 
   m_act_help = new QAction(QIcon(":/hub/help-new.png"), tr("Help"), this);
   connect(m_act_help, &QAction::triggered,
           [] { CHubController::Instance().launch_help_page(); });
-  m_act_help->setToolTip(tr("Help"));
+  m_act_help->setToolTip(tr("Control Center guidelines"));
 
   m_act_ssh_keys_management =
-      new QAction(QIcon(":/hub/ssh-keys-new.png"), tr("SSH-keys management"), this);
+      new QAction(QIcon(":/hub/ssh-keys-new.png"), tr("SSH Key Manager"), this);
   connect(m_act_ssh_keys_management, &QAction::triggered, this,
           &TrayControlWindow::ssh_key_generate_triggered);
   m_act_ssh_keys_management->setToolTip(tr("Generate and Deploy SSH keys"));
@@ -270,10 +270,10 @@ void TrayControlWindow::create_tray_actions() {
 
   m_act_notifications_history =
       new QAction(QIcon(":hub/notifications-new.png"),
-                  tr("Notifications history"), this);
+                  tr("Notification History"), this);
   connect(m_act_notifications_history, &QAction::triggered, this,
           &TrayControlWindow::show_notifications_triggered);
-  m_act_notifications_history->setToolTip(tr("Show notification history"));
+  m_act_notifications_history->setToolTip(tr("Show Notification History"));
 
   m_act_create_peer =
       new QAction(QIcon(":hub/create-peer-new.png"), tr("Create Peer"), this);
@@ -606,7 +606,7 @@ void TrayControlWindow::ssh_to_rh_finished_sl(const QString &peer_fingerprint,
           DlgNotification::N_NO_ACTION);
     else
       CNotificationObserver::Info(
-          tr("Can't run terminal to SSH into peer. Error code: %1")
+          tr("Cannot run terminal to SSH into the peer. Error code: %1")
               .arg(CSystemCallWrapper::scwe_error_to_str(res)),
           DlgNotification::N_NO_ACTION);
   }
@@ -683,14 +683,14 @@ void TrayControlWindow::launch_Hub() {
 
 /* p2p start */
 void TrayControlWindow::launch_p2p() {
-  qDebug() << "p2p start is pressed";
+  qDebug() << "P2P start is pressed";
   int rse_err;
   CSystemCallWrapper::restart_p2p_service(&rse_err, restart_p2p_type::STOPPED_P2P);
   if (rse_err == 0)
       CNotificationObserver::Instance()->Info(tr("Please wait while P2P Daemon is being launched."), DlgNotification::N_NO_ACTION);
   else
-      CNotificationObserver::Error(QObject::tr("Can't launch p2p daemon. "
-                                           "Either change the path setting in Settings or install the daemon if it is not installed. "
+      CNotificationObserver::Error(QObject::tr("Cannot launch P2P Daemon. "
+                                           "Either change the path setting in Settings or install the Daemon if it is not installed. "
                                            "You can get the %1 daemon from <a href=\"%2\">here</a>.").
                                   arg(current_branch_name_with_changes()).arg(p2p_package_url()), DlgNotification::N_SETTINGS);
   emit P2PStatus_checker::Instance().p2p_status(P2PStatus_checker::P2P_LOADING);
@@ -725,7 +725,7 @@ void TrayControlWindow::balance_updated_sl() {
 ////////////////////////////////////////////////////////////////////////////
 
 void TrayControlWindow::environments_updated_sl(int rr) {
-  qDebug() << "Updating environments list"
+  qDebug() << "Updating Environment List"
            << "Result: " << rr;
 
   m_hub_menu->setEnabled(false); // MacOS Qt bug.
@@ -1314,15 +1314,15 @@ void TrayControlWindow::update_p2p_status_sl(
   static QIcon p2p_waiting(":/hub/waiting");
   static QIcon p2p_fail(":/hub/stopped");
   static QIcon p2p_loading(":/hub/loading");
-  qDebug() << "p2p updater got signal and try to update status";
+  qDebug() << "P2P updater got signal and try to update status";
   if (P2PStatus_checker::Instance().get_status() ==
       P2PStatus_checker::P2P_INSTALLING) {
-    m_p2p_menu->setTitle(tr("P2P is installing"));
+    m_p2p_menu->setTitle(tr("P2P is being installed"));
     m_p2p_menu->setIcon(p2p_loading);
     return;
   } else if (P2PStatus_checker::Instance().get_status() ==
              P2PStatus_checker::P2P_UNINSTALLING) {
-    m_p2p_menu->setTitle(tr("P2P is uninstalling"));
+    m_p2p_menu->setTitle(tr("P2P is being uninstalled"));
     m_p2p_menu->setIcon(p2p_loading);
     return;
   }
@@ -1346,7 +1346,7 @@ void TrayControlWindow::update_p2p_status_sl(
             QObject::tr("P2P is not installed. You can't connect to the "
                         "environments without P2P."),
             DlgNotification::N_INSTALL_P2P);
-      m_p2p_menu->setTitle(tr("Can't launch P2P"));
+      m_p2p_menu->setTitle(tr("Cannot launch P2P"));
       m_p2p_menu->setIcon(p2p_fail);
       m_p2p_menu->clear();
       m_p2p_menu->addAction(m_act_p2p_install);
@@ -1445,10 +1445,10 @@ void TrayControlWindow::launch_ss() {
     CRestWorker::Instance()->check_if_ss_console_is_ready(tmp);
   } else {
     qCritical(
-        "Can't get RH IP address. Err : %s",
+        "Cannot get RH IP address. Err : %s",
         CLibsshController::run_libssh2_error_to_str((run_libssh2_error_t)ec));
     CNotificationObserver::Info(
-        tr("Can't get RH IP address. Error : %1")
+        tr("Cannot get RH IP address. Error : %1")
             .arg(CLibsshController::run_libssh2_error_to_str(
                 (run_libssh2_error_t)ec)),
         DlgNotification::N_NO_ACTION);
@@ -1460,7 +1460,7 @@ void TrayControlWindow::show_dialog(QDialog *(*pf_dlg_create)(QWidget *),
                                     const QString &title) {
   std::map<QString, QDialog *>::iterator iter =
       m_dct_active_dialogs.find(title);
-  qDebug() << "Poping up the dialog with title: " << title;
+  qDebug() << "Popping up the dialog with title: " << title;
   if (iter == m_dct_active_dialogs.end()) {
     QDialog *dlg = pf_dlg_create(this);
     dlg->setWindowTitle(title);
@@ -1567,7 +1567,7 @@ void TrayControlWindow::show_create_dialog() {
 
     switch (provider) {
     case VagrantProvider::VIRTUALBOX:
-      CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
+      CNotificationObserver::Error(tr("The Peer Manager is not yet ready. Please try again later."), DlgNotification::N_NO_ACTION);
       return;
     //case VagrantProvider::PARALLELS:
     //  CNotificationObserver::Error(tr("The Peer Manager is not yet ready for use. Please try again later."), DlgNotification::N_NO_ACTION);
@@ -1605,7 +1605,7 @@ QDialog *create_notifications_dialog(QWidget *p) {
   return dlg;
 }
 void TrayControlWindow::show_notifications_triggered() {
-  show_dialog(create_notifications_dialog, tr("Notifications history"));
+  show_dialog(create_notifications_dialog, tr("Notification History"));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1675,7 +1675,7 @@ void TrayControlWindow::ssh_to_container_finished(const CEnvironment &env,
   UNUSED_ARG(cont);
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
-        tr("Can't SSH to container. Err : %1")
+        tr("Cannot SSH to container. Err : %1")
             .arg(CHubController::ssh_desktop_launch_err_to_str(result)),
         DlgNotification::N_NO_ACTION);
   }
@@ -1699,7 +1699,7 @@ void TrayControlWindow::desktop_to_container_finished(const CEnvironment &env,
   qDebug() << "Result " << result;
   if (result != SDLE_SUCCESS) {
     CNotificationObserver::Error(
-        tr("Can't desktop to container. Err : %1")
+        tr("Cannot desktop to container. Err : %1")
             .arg(CHubController::ssh_desktop_launch_err_to_str(result)),
         DlgNotification::N_NO_ACTION);
   }
