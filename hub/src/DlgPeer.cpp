@@ -641,8 +641,7 @@ void DlgPeer::hidePeer() {
   ui->btn_update_peer->hide();
 
   ui->lbl_update_peeros->setText(
-      tr("This peer is not in your machine. "
-         "Specific functions are available only for peers in your machine."));
+      tr("Peer functions are available only if a peer is in your machine"));
 }
 
 void DlgPeer::removeEnvs() {
