@@ -113,6 +113,7 @@ public:
 private:
   // ssh keys list
   std::vector<SshKey> m_keys;
+  QThreadPool *m_pool;
 
   // key: environment id, value: Struct Envs.
   // saves checked ssh keys of environment(checked with bazaar)

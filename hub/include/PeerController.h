@@ -78,6 +78,7 @@ class CPeerController : public QObject {
  private:
   CPeerController(QObject *parent = nullptr);
   virtual ~CPeerController();
+  bool m_stop_thread;
 
   QTimer m_refresh_timer;
   QTimer m_logs_timer;
@@ -113,6 +114,7 @@ class CPeerController : public QObject {
     return &inst;
   }
 
+  bool get_stop_thread() { return this->m_stop_thread; }
   void init();
   void refresh();
   void force_refresh(); // force updates peer list and bridge interfaces
@@ -205,6 +207,11 @@ class GetPeerInfo : public QObject {
   }
 
   void startWork() {
+    if (CPeerController::Instance()->get_stop_thread()) {
+      qDebug() << "STOP THREAD";
+      return;
+    }
+
     QThread *thread = new QThread();
     connect(thread, &QThread::started, this,
             &GetPeerInfo::execute_remote_command);
@@ -216,6 +223,13 @@ class GetPeerInfo : public QObject {
   }
 
   void execute_remote_command() {
+    qDebug() << "GETPEERINFO"
+             << CPeerController::Instance()->get_stop_thread();
+    if (CPeerController::Instance()->get_stop_thread()) {
+      qDebug() << "QUIT APPLICATION STOP THREAD";
+      return;
+    }
+
     QFutureWatcher<QString> *watcher = new QFutureWatcher<QString>(this);
     QFuture<QString> res;
     switch (action) {
@@ -232,6 +246,11 @@ class GetPeerInfo : public QObject {
     watcher->setFuture(res);
     CPeerController::peer_info_t lala = action;
     connect(watcher, &QFutureWatcher<QString>::finished, [this, res, lala]() {
+      if (CPeerController::Instance()->get_stop_thread()) {
+        qDebug() << "QUIT APPLICATION STOP THREAD";
+        return;
+      }
+
       emit this->outputReceived(lala, res.result());
     });
   }
@@ -406,6 +425,14 @@ class UpdateVMInformation : public QObject {
   }
 
   void execute_remote_command() {
+    qDebug() << "GETPEERINFO"
+             << CPeerController::Instance()->get_stop_thread();
+
+    if (CPeerController::Instance()->get_stop_thread()) {
+      qDebug() << "QUIT APPLICATION STOP THREAD";
+      return;
+    }
+
     QFutureWatcher<std::pair<QStringList, system_call_res_t> > *watcher =
         new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
     QFuture<std::pair<QStringList, system_call_res_t> > res =
@@ -414,7 +441,13 @@ class UpdateVMInformation : public QObject {
     connect(
         watcher,
         &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
-        [this, res]() { emit this->outputReceived(res); });
+        [this, res]() {
+      if (CPeerController::Instance()->get_stop_thread()) {
+        qDebug() << "QUIT APPLICATION STOP THREAD";
+        return;
+      }
+      emit this->outputReceived(res);
+    });
     connect(watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
         watcher, &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::deleteLater);
   }

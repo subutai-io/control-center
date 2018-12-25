@@ -818,6 +818,11 @@ const QString& CRestWorker::rest_err_to_str(rest_error_t err) {
 
 std::vector<uint8_t> CRestWorker::is_sshkeys_in_environment(
     const QStringList& keys, const QString& env) {
+  if (CPeerController::Instance()->get_stop_thread()) {
+    qDebug() << "STOP CHECK SSH KEY REST";
+    std::vector<uint8_t> empty;
+    return empty;
+  }
   qDebug() << "checking keys in " << env;
   static const QString str_url(hub_post_url().arg("environments/check-key"));
   std::vector<uint8_t> lst_res;

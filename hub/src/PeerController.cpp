@@ -15,12 +15,18 @@ CPeerController::CPeerController(QObject *parent) : QObject(parent) {}
 CPeerController::~CPeerController() {}
 
 void CPeerController::init() {
+  m_stop_thread = false;
   m_refresh_timer.setInterval(13 * 1000);  // each 13 seconds update peer list
   m_logs_timer.setInterval(3 * 1000);     // 3 seconds update peer list
   number_threads = 0;
   connect(&m_refresh_timer, &QTimer::timeout, this,
           &CPeerController::refresh_timer_timeout);
   connect(&m_logs_timer, &QTimer::timeout, this, &CPeerController::check_logs);
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [this](){
+    this->m_stop_thread = true;
+    qDebug() << "APPLICATION STOP THREAD SET";
+  });
+
   m_refresh_timer.start();
   m_logs_timer.start();
   refresh();
