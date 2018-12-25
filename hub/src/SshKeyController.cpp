@@ -39,6 +39,9 @@ void Worker::remove() {
 }
 
 SshKeyController::SshKeyController() {
+  m_pool = new QThreadPool;
+  m_pool->setMaxThreadCount(1);
+
   // clean healthy environments list
   m_lst_healthy_environments.clear();
   for (auto env : CHubController::Instance().lst_healthy_environments()) {
@@ -55,6 +58,9 @@ SshKeyController::SshKeyController() {
 SshKeyController::~SshKeyController() {
   m_keys.clear();
   m_envs.clear();
+  m_pool->waitForDone();
+  m_pool->clear();
+  delete m_pool;
 }
 
 void SshKeyController::refresh_key_files() {
@@ -124,7 +130,7 @@ void SshKeyController::refresh_key_files() {
 void SshKeyController::check_key_with_envs() {
   QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
 
-  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  QtConcurrent::run(m_pool, this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::environments_updated_sl(int code) {
@@ -139,7 +145,7 @@ void SshKeyController::refresh_healthy_envs() {
     m_lst_healthy_environments[env.id()] = env.name();
   }
 
-  QtConcurrent::run(this, &SshKeyController::check_environment_keys);
+  QtConcurrent::run(m_pool, this, &SshKeyController::check_environment_keys);
 }
 
 void SshKeyController::check_environment_keys() {

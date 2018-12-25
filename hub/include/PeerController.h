@@ -207,6 +207,11 @@ class GetPeerInfo : public QObject {
   }
 
   void startWork() {
+    if (CPeerController::Instance()->get_stop_thread()) {
+      qDebug() << "STOP THREAD";
+      return;
+    }
+
     QThread *thread = new QThread();
     connect(thread, &QThread::started, this,
             &GetPeerInfo::execute_remote_command);
