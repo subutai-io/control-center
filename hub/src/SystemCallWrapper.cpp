@@ -2030,7 +2030,8 @@ system_call_wrapper_install_t CSystemCallWrapper::vagrant_box_remove(const QStri
        << box
        << "--provider"
        << provider
-       << "--all";
+       << "--all"
+       << "--force";
 
   system_call_wrapper_install_t res_install;
   system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 60 * 1000 * 5);

@@ -35,20 +35,24 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   ui->lbl_update_peeros->setWordWrap(true);
   ui->lbl_env_info->setWordWrap(true);
 
-  ui->le_user->setReadOnly(true);
-  ui->le_pass->setReadOnly(true);
-  ui->lbl_ip->setReadOnly(true);
-  ui->lbl_port->setReadOnly(true);
+  ui->le_user->setDisabled(true);
+  ui->le_pass->setDisabled(true);
+  ui->lbl_ip->setDisabled(true);
+  ui->lbl_port->setDisabled(true);
 
   ui->cmb_bridge->setEnabled(false);
-  ui->le_ram->setReadOnly(true);
-  ui->le_disk->setReadOnly(true);
-  ui->le_cpu->setReadOnly(true);
+  ui->le_ram->setDisabled(true);
+  ui->le_disk->setDisabled(true);
+  ui->le_cpu->setDisabled(true);
+  ui->le_name->setDisabled(true);
 
   ui->lbl_port->setValidator(new QIntValidator(1, 200000, this));;
   ui->le_cpu->setValidator(new QIntValidator(1, 16, this));
   ui->le_ram->setValidator(new QIntValidator(1, 100000, this));
   ui->le_disk->setValidator(new QIntValidator(1, 100000, this));
+
+  //set read only LineEdit
+  ui->le_name->setReadOnly(true);
 
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
   ui->cmb_bridge->addItems(bridges);
@@ -57,10 +61,10 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
   connect(CRhController::Instance(), &CRhController::ssh_to_rh_finished, this,
           &DlgPeer::ssh_to_rh_finished_sl);
   connect(ui->change_ssh, &QCheckBox::toggled, [this](bool checked) {
-    ui->le_pass->setReadOnly(!checked);
-    ui->le_user->setReadOnly(!checked);
-    ui->lbl_port->setReadOnly(!checked);
-    ui->lbl_ip->setReadOnly(!checked);
+    ui->le_pass->setDisabled(!checked);
+    ui->le_user->setDisabled(!checked);
+    ui->lbl_port->setDisabled(!checked);
+    ui->lbl_ip->setDisabled(!checked);
     if (checked == false) {
       this->configs();
     }});
@@ -76,9 +80,10 @@ DlgPeer::DlgPeer(QWidget *parent, QString peer_id)
           &DlgPeer::rh_update_sl);
   connect(ui->btn_ssh_peer, &QPushButton::clicked, this, &DlgPeer::rh_ssh_sl);
   connect(ui->change_configure, &QCheckBox::toggled, [this](bool checked) {
-    ui->le_cpu->setReadOnly(!checked);
-    ui->le_ram->setReadOnly(!checked);
-    ui->le_disk->setReadOnly(!checked);
+    ui->le_cpu->setDisabled(!checked);
+    ui->le_ram->setDisabled(!checked);
+    ui->le_disk->setDisabled(!checked);
+    ui->le_name->setDisabled(!checked);
     if (VagrantProvider::Instance()->CurrentProvider() != VagrantProvider::HYPERV)
       ui->cmb_bridge->setEnabled(checked);
     if (checked == false) {
