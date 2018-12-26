@@ -736,6 +736,18 @@ void DlgAbout::check_for_versions_and_updates() {
 ////////////////////////////////////////////////////////////////////////////
 
 void DlgAbout::btn_tray_update_released() {
+  for (auto c : m_dct_fpb) {
+    if ((c.first != IUpdaterComponent::TRAY) && CHubComponentsUpdater::Instance()->is_in_progress(c.first)) {
+      QMessageBox msgBox;
+      msgBox.setIcon(QMessageBox::Information);
+      msgBox.setText("Subutai Control Center update is not allowed while other "
+                     "components are being downloaded, installed, uninstalled or updated.");
+      msgBox.exec();
+
+      return;
+    }
+  }
+
   ui->pb_tray->setHidden(false);
   ui->btn_tray_update->setEnabled(false);
   CHubComponentsUpdater::Instance()->force_update(IUpdaterComponent::TRAY);
