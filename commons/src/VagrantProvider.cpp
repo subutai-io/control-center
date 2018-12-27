@@ -143,6 +143,23 @@ QDir VagrantProvider::BasePeerDirHyperv() {
   return base_peer_dir_hyperv;
 }
 
+QDir VagrantProvider::BasePeerDirKvm() {
+  QString base_peer_path = CSettingsManager::Instance().kvm_vm_storage();
+
+  if (!base_peer_path.contains("Subutai-peers") &&
+      !QDir().exists(base_peer_path + QDir::separator() + "Subutai-peers")) {
+    base_peer_path = base_peer_path + QDir::separator() + "Subutai-peers";
+    QDir().mkdir(base_peer_path);
+  }
+
+  // 2. create "peer" folder.
+  QString empty;
+  QDir base_peer_dir_kvm(base_peer_path);
+  base_peer_dir_kvm.cd("Subutai-peers");
+
+  return base_peer_dir_kvm;
+}
+
 QDir VagrantProvider::BasePeerDirVMware() {
   QString base_peer_path = CSettingsManager::Instance().vmware_vm_storage();
 
@@ -187,8 +204,8 @@ QDir VagrantProvider::BasePeerDir() {
     return BasePeerDirHyperv();
   case PARALLELS:
     return BasePeerDirParallels();
-  default:
-    return BasePeerDirVirtualbox();
+  case LIBVIRT:
+    return BasePeerDirKvm();
   }
 }
 
@@ -202,8 +219,8 @@ QString VagrantProvider::VmStorage() {
     return CSystemCallWrapper::get_virtualbox_vm_storage();
   case PARALLELS:
     return CSettingsManager::Instance().parallels_vm_storage();
-  default:
-    return CCommons::HomePath() + QDir::separator() + CCommons::PEER_PATH;
+  case LIBVIRT:
+    return CSettingsManager::Instance().kvm_vm_storage();
   }
 }
 
