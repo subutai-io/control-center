@@ -363,6 +363,7 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
   // get ip of peer
   if (type == P_STATUS) {
     qDebug() << "Got status of " << name << "status:" << output;
+
     GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
     if (output != "running") {
       qCritical() << "not working peer" << name;
