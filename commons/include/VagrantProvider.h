@@ -39,6 +39,7 @@ public:
   QDir BasePeerDirVirtualbox();
   QDir BasePeerDirVMware();
   QDir BasePeerDirHyperv();
+  QDir BasePeerDirKvm();
   QDir BasePeerDirParallels();
   static std::vector<int> List();
 
