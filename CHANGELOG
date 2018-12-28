@@ -1,4 +1,16 @@
 # Change Log
+## [7.3.3] 12/28/2018
+# IMPROVEMENTS:
+* Capitalization issues throughout Control Center were fixed #1569
+* Text Fields were improved #1570
+* Check peer exist via vagrant commands while creating a peer #1814
+# BUG FIXES:
+* After reboot of system, the cc was not visible #1770
+* Unability to uninstall Chrome and Browser was fixed #1833
+* ControlCenter does not allow to update itself, if a process is running #1837
+* KVM peer storage directory added to settings #1844
+* CC does not react to the clicks #1829
+
 ## [7.3.2] 12/14/2018
 # IMPROVEMENTS:
 * Refactored SSH-key management #1803
