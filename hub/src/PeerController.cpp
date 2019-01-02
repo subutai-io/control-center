@@ -37,10 +37,11 @@ void CPeerController::refresh() {
   UpdateVMInformation *update_thread = new UpdateVMInformation(this);
   update_thread->startWork();
   connect(update_thread, &UpdateVMInformation::outputReceived,
-          [this](std::pair<QStringList, system_call_res_t> res) {
+          [this, update_thread](std::pair<QStringList, system_call_res_t> res) {
             this->bridged_interfaces = res.first;
             this->vagrant_global_status = res.second;
             this->search_local();
+            update_thread->deleteLater(); // delete object
           });
 }
 
@@ -50,10 +51,11 @@ void CPeerController::force_refresh() {
   update_thread->set_force_update(true);
   update_thread->startWork();
   connect(update_thread, &UpdateVMInformation::outputReceived,
-          [this](std::pair<QStringList, system_call_res_t> res) {
+          [this, update_thread](std::pair<QStringList, system_call_res_t> res) {
             this->bridged_interfaces = res.first;
             this->vagrant_global_status = res.second;
             this->search_local();
+            update_thread->deleteLater();
           });
 }
 
@@ -326,11 +328,12 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
   thread_for_status->init(dir.absolutePath(), status_type);
   thread_for_status->startWork();
   connect(thread_for_status, &GetPeerInfo::outputReceived,
-          [dir, peer_name, this](peer_info_t type, QString res) {
+          [dir, peer_name, this, thread_for_status](peer_info_t type, QString res) {
             if (type == CPeerController::P_STATUS)
               CPeerController::Instance()->remove_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
 
             this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
+            thread_for_status->deleteLater();
           });
   return;
 }
@@ -373,8 +376,9 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
       number_threads++;
       thread_for_ip->startWork();
       connect(thread_for_ip, &GetPeerInfo::outputReceived,
-              [dir, name, this](peer_info_t type, QString res) {
+              [dir, name, this, thread_for_ip](peer_info_t type, QString res) {
                 this->parse_peer_info(type, name, dir, res);
+                thread_for_ip->deleteLater();
               });
     }
   } else if (type == P_PORT) {
