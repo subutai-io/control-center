@@ -41,7 +41,7 @@ void CPeerController::refresh() {
             this->bridged_interfaces = res.first;
             this->vagrant_global_status = res.second;
             this->search_local();
-            update_thread->deleteLater(); // delete object
+            delete update_thread; // delete object
           });
 }
 
@@ -55,7 +55,7 @@ void CPeerController::force_refresh() {
             this->bridged_interfaces = res.first;
             this->vagrant_global_status = res.second;
             this->search_local();
-            update_thread->deleteLater();
+            delete update_thread;
           });
 }
 
@@ -333,7 +333,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
               CPeerController::Instance()->remove_checking_status(QDir::toNativeSeparators(dir.absolutePath()));
 
             this->parse_peer_info(type, peer_name, dir.absolutePath(), res);
-            thread_for_status->deleteLater();
+            delete thread_for_status;
           });
   return;
 }
@@ -378,7 +378,7 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
       connect(thread_for_ip, &GetPeerInfo::outputReceived,
               [dir, name, this, thread_for_ip](peer_info_t type, QString res) {
                 this->parse_peer_info(type, name, dir, res);
-                thread_for_ip->deleteLater();
+                delete thread_for_ip;
               });
     }
   } else if (type == P_PORT) {

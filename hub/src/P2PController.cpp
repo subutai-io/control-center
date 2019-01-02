@@ -43,7 +43,7 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
     else
       this->connected_envs.erase(env.hash());
 
-    swarm_connector->deleteLater();
+    delete swarm_connector;
   });
 
   swarm_connector->startWork();
@@ -70,7 +70,7 @@ void P2PConnector::leave_swarm(const QString &hash) {
     SynchroPrimitives::Locker lock(&P2PConnector::m_env_critical);
     this->connected_envs.erase(hash);
 
-    swarm_leaver->deleteLater();
+    delete swarm_leaver;
   });
 
   swarm_leaver->startWork();
@@ -114,7 +114,7 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
     else
       this->connected_conts.erase(std::make_pair(env.hash(), cont.id()));
 
-    rh_checker->deleteLater();
+    delete rh_checker;
   });
 
   rh_checker->startWork();
