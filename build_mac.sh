@@ -1,4 +1,6 @@
 #!/bin/bash
+wget -nv -O /Users/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
+wget -nv -O /Users/dev/Qt5.9.2.tar.gz 'http://62.138.0.225/ipfs/QmcefrkUMyjpK8E6C1h44voqDAkFz1YjkrxMEt9ys11RWZ/Qt5.9.2.tar.gz' && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
 QTBINPATH=/Users/dev/Qt5.9.2/5.9.2/clang_64/bin/
 BRANCH=$1
 TRAYDIR=/Users/travis/build/subutai-io/control-center/
