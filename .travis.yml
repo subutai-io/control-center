@@ -61,8 +61,8 @@ matrix:
 
     script:
     - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
+    - wget -O /Users/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - travis_wait 30 wget -O /Users/dev/Qt5.9.2.tar.gz 'https://bazaar.subutai.io/rest/v1/cdn/raw?name=Qt5.9.2.tar.gz&latest&download' && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
-    - wget -nv -O /Users/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - "/Users/travis/build/subutai-io/control-center/upload_app.sh $TRAVIS_BRANCH"
     - ls subutai_control_center_bin
