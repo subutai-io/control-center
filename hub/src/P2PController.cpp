@@ -22,7 +22,7 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
              .arg(env.hash());
 
   SwarmConnector *swarm_connector = new SwarmConnector(env);
-  connect(swarm_connector, &SwarmConnector::connection_finished, [this, env](system_call_wrapper_error_t res) {
+  connect(swarm_connector, &SwarmConnector::connection_finished, [this, env, swarm_connector](system_call_wrapper_error_t res) {
     if (res == SCWE_SUCCESS) {
       qInfo() << QString("Joined to swarm [env_name: %1, env_id: %2, swarm_hash: %3]")
                  .arg(env.name())
@@ -42,6 +42,8 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
       this->connected_envs.insert(env.hash());
     else
       this->connected_envs.erase(env.hash());
+
+    delete swarm_connector;
   });
 
   swarm_connector->startWork();
@@ -54,7 +56,7 @@ void P2PConnector::leave_swarm(const QString &hash) {
 
   SwarmLeaver *swarm_leaver = new SwarmLeaver(hash);
 
-  connect(swarm_leaver, &SwarmLeaver::connection_finished, [this, hash](system_call_wrapper_error_t res) {
+  connect(swarm_leaver, &SwarmLeaver::connection_finished, [this, hash, swarm_leaver](system_call_wrapper_error_t res) {
     if (res == SCWE_SUCCESS) {
       qInfo() << QString("Left the swarm [swarm_hash: %1]")
                  .arg(hash);
@@ -67,6 +69,8 @@ void P2PConnector::leave_swarm(const QString &hash) {
 
     SynchroPrimitives::Locker lock(&P2PConnector::m_env_critical);
     this->connected_envs.erase(hash);
+
+    delete swarm_leaver;
   });
 
   swarm_leaver->startWork();
@@ -86,7 +90,7 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
 
   RHStatusChecker *rh_checker = new RHStatusChecker(env, cont);
 
-  connect(rh_checker, &RHStatusChecker::connection_finished, [this, env, cont](system_call_wrapper_error_t res) {
+  connect(rh_checker, &RHStatusChecker::connection_finished, [this, env, cont, rh_checker](system_call_wrapper_error_t res) {
     if (res == SCWE_SUCCESS) {
       qInfo() << QString("Successfully handshaked with container [cont_name: %1, cont_id: %2] and env: [env_name: %3, env_id: %4, swarm_hash: %5]")
                  .arg(cont.name())
@@ -109,6 +113,8 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
       this->connected_conts.insert(std::make_pair(env.hash(), cont.id()));
     else
       this->connected_conts.erase(std::make_pair(env.hash(), cont.id()));
+
+    delete rh_checker;
   });
 
   rh_checker->startWork();
