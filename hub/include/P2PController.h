@@ -49,6 +49,7 @@ private slots:
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
@@ -70,6 +71,7 @@ private slots:
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
@@ -90,6 +92,7 @@ private slots:
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
