@@ -12,12 +12,18 @@
 
 CPeerController::CPeerController(QObject *parent) : QObject(parent) {}
 
-CPeerController::~CPeerController() {}
+CPeerController::~CPeerController() {
+  m_pool->waitForDone();
+  m_pool->clear();
+  delete m_pool;
+}
 
 void CPeerController::init() {
+  m_pool = new QThreadPool(this);
+  m_pool->setMaxThreadCount(1);
   m_stop_thread = false;
   m_refresh_timer.setInterval(13 * 1000);  // each 13 seconds update peer list
-  m_logs_timer.setInterval(3 * 1000);     // 3 seconds update peer list
+  m_logs_timer.setInterval(7 * 1000);     // 3 seconds update peer list
   number_threads = 0;
   connect(&m_refresh_timer, &QTimer::timeout, this,
           &CPeerController::refresh_timer_timeout);
@@ -35,7 +41,7 @@ void CPeerController::init() {
 void CPeerController::refresh() {
   if (number_threads != 0) return;
   UpdateVMInformation *update_thread = new UpdateVMInformation(this);
-  update_thread->startWork();
+  update_thread->startWork(m_pool);
   connect(update_thread, &UpdateVMInformation::outputReceived,
           [this, update_thread](std::pair<QStringList, system_call_res_t> res) {
             this->bridged_interfaces = res.first;
@@ -49,7 +55,7 @@ void CPeerController::force_refresh() {
   if (number_threads != 0) return;
   UpdateVMInformation *update_thread = new UpdateVMInformation(this);
   update_thread->set_force_update(true);
-  update_thread->startWork();
+  update_thread->startWork(m_pool);
   connect(update_thread, &UpdateVMInformation::outputReceived,
           [this, update_thread](std::pair<QStringList, system_call_res_t> res) {
             this->bridged_interfaces = res.first;
@@ -326,7 +332,7 @@ void CPeerController::get_peer_info(const QFileInfo &fi, QDir dir) {
   GetPeerInfo *thread_for_status = new GetPeerInfo(this);
   number_threads++;
   thread_for_status->init(dir.absolutePath(), status_type);
-  thread_for_status->startWork();
+  thread_for_status->startWork(m_pool);
   connect(thread_for_status, &GetPeerInfo::outputReceived,
           [dir, peer_name, this, thread_for_status](peer_info_t type, QString res) {
             if (type == CPeerController::P_STATUS)
@@ -367,14 +373,14 @@ void CPeerController::parse_peer_info(peer_info_t type, const QString &name,
   if (type == P_STATUS) {
     qDebug() << "Got status of " << name << "status:" << output;
 
-    GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
     if (output != "running") {
       qCritical() << "not working peer" << name;
     } else {
+      GetPeerInfo *thread_for_ip = new GetPeerInfo(this);
       peer_info_t ip_type = P_PORT;
       thread_for_ip->init(dir, ip_type);
       number_threads++;
-      thread_for_ip->startWork();
+      thread_for_ip->startWork(m_pool);
       connect(thread_for_ip, &GetPeerInfo::outputReceived,
               [dir, name, this, thread_for_ip](peer_info_t type, QString res) {
                 this->parse_peer_info(type, name, dir, res);

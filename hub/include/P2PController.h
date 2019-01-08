@@ -16,11 +16,11 @@ class StatusChecker : public QObject {
   Q_OBJECT
 public:
     StatusChecker(QObject *parent = nullptr) : QObject (parent){}
-    virtual void startWork() {
-      run_checker();
+    virtual void startWork(QThreadPool *pool) {
+      run_checker(pool);
     }
-private slots:
-  virtual void run_checker() = 0;
+private:
+  virtual void run_checker(QThreadPool *pool) = 0;
 signals:
   void connection_finished(system_call_wrapper_error_t res);
 
@@ -37,11 +37,11 @@ public:
   CHubContainer cont;
   RHStatusChecker(const CEnvironment &_env, const CHubContainer &_cont) : StatusChecker(), env(_env), cont(_cont) {}
 
-private slots:
-  void run_checker() {
+private:
+  void run_checker(QThreadPool *pool) {
 
     QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
+        QtConcurrent::run(pool, CSystemCallWrapper::check_container_state, env.hash(), cont.rh_ip());
 
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
@@ -49,6 +49,7 @@ private slots:
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
@@ -59,10 +60,10 @@ class SwarmConnector : public StatusChecker
   CEnvironment env;
   SwarmConnector(const CEnvironment &_env) : StatusChecker(), env(_env) {}
 
-private slots:
-  void run_checker() {
+private:
+  void run_checker(QThreadPool *pool) {
     QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
+        QtConcurrent::run(pool, CSystemCallWrapper::join_to_p2p_swarm, env.hash(), env.key(),
                           QString("dhcp"), env.base_interface_id());
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
@@ -70,6 +71,7 @@ private slots:
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
@@ -80,16 +82,17 @@ class SwarmLeaver : public StatusChecker
   QString hash;
   SwarmLeaver(const QString &_hash) : StatusChecker(), hash(_hash) {}
 
-private slots:
-  void run_checker() {
+private:
+  void run_checker(QThreadPool *pool) {
     QFuture<system_call_wrapper_error_t> res =
-        QtConcurrent::run(CSystemCallWrapper::leave_p2p_swarm, hash);
+        QtConcurrent::run(pool, CSystemCallWrapper::leave_p2p_swarm, hash);
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
     watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
+    connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
   }
 };
 
@@ -99,6 +102,10 @@ public:
  bool env_connected(const QString& env_hash) const {
    SynchroPrimitives::Locker lock(&m_env_critical);
    return connected_envs.find(env_hash) != connected_envs.end();
+ }
+
+ void set_pool(QThreadPool *pool) {
+   this->m_pool = pool;
  }
 
  bool cont_connected(const QString env_hash, const QString& cont_id) const {
@@ -112,6 +119,7 @@ public slots:
  void update_status();
 
 private:
+ QThreadPool *m_pool;
  std::set< std::pair<QString, QString> > connected_conts; // Connected container. Pair of environment id and container id.
  std::set< QString > connected_envs; // Joined to swarm environment. Id of env is stored
  std::map<int, QString> interface_ids; // Pair of interface id and swarm hash
@@ -181,6 +189,7 @@ private slots:
 private:
   P2PConnector *connector;
   std::vector<CP2PInstance> m_p2p_instances;
+  QThreadPool *m_pool;
 
 };
 

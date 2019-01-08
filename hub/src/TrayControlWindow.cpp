@@ -30,6 +30,7 @@
 #include "ui_TrayControlWindow.h"
 #include "updater/HubComponentsUpdater.h"
 #include "SshKeyController.h"
+#include "DlgTransferFile.h"
 
 using namespace update_system;
 
@@ -532,7 +533,6 @@ void TrayControlWindow::login_success() {
 }
 
 ////////////////////////////////////////////////////////////////////////////
-#include "DlgTransferFile.h"
 
 void TrayControlWindow::upload_to_container_triggered(
     const CEnvironment &env, const CHubContainer &cont) {
