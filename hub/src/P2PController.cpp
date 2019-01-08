@@ -46,7 +46,7 @@ void P2PConnector::join_swarm(const CEnvironment &env) {
     delete swarm_connector;
   });
 
-  swarm_connector->startWork();
+  swarm_connector->startWork(m_pool);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void P2PConnector::leave_swarm(const QString &hash) {
     delete swarm_leaver;
   });
 
-  swarm_leaver->startWork();
+  swarm_leaver->startWork(m_pool);
 }
 
 
@@ -117,7 +117,7 @@ void P2PConnector::check_rh(const CEnvironment &env, const CHubContainer &cont) 
     delete rh_checker;
   });
 
-  rh_checker->startWork();
+  rh_checker->startWork(m_pool);
 }
 
 
@@ -338,19 +338,12 @@ void P2PConnector::update_status() {
 P2PController::P2PController() {
    qDebug() << "P2P controller is initialized";
 
-   connector = new P2PConnector();
-   QThread* thread = new QThread(this);
-   connector->moveToThread(thread);
+   m_pool = new QThreadPool(this);
+   m_pool->setMaxThreadCount(1);
+   connector = new P2PConnector;
+   connector->set_pool(m_pool);
 
-   connect(thread, SIGNAL (started()), connector, SLOT (update_status()));
-   connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), thread, SLOT (quit()));
-   connect(QCoreApplication::instance(), SIGNAL (aboutToQuit()), connector, SLOT (deleteLater()));
-   connect(thread, SIGNAL (finished()),	connector, SLOT (deleteLater()));
-   connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
-
-   QTimer::singleShot(5000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
-     thread->start();
-   });
+   QTimer::singleShot(5000, connector, SLOT(update_status()));
 }
 
 
