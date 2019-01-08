@@ -66,10 +66,6 @@ SshKeyController::~SshKeyController() {
 void SshKeyController::refresh_key_files() {
   QMutexLocker locker(&m_mutex);  // Locks the mutex and unlocks when locker exits the scope
   std::vector<SshKey> tmp;
-  int old_size = -1;
-
-  if (!m_keys.empty())
-    old_size = static_cast<int>(m_keys.size());
 
   QDir dir(CSettingsManager::Instance().ssh_keys_storage());
   if (!dir.exists()) {
@@ -118,11 +114,6 @@ void SshKeyController::refresh_key_files() {
     }
     key_file.close();
   }
-
-  // synchronization with bazaar (timer will run if ssh key list updated)
-  //if (!tmp.empty() &&  (old_size == -1 || (old_size != static_cast<int>(tmp.size())))) {
-  //  m_keys = tmp;
-  //}
 
   emit finished_check_environment_keys();
 }

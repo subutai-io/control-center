@@ -348,7 +348,7 @@ P2PController::P2PController() {
    connect(thread, SIGNAL (finished()),	connector, SLOT (deleteLater()));
    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
 
-   QTimer::singleShot(4000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
+   QTimer::singleShot(5000, [thread](){ // Chance that the connection with hub is established after 5 sec is high
      thread->start();
    });
 }
