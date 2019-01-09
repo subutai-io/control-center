@@ -706,6 +706,7 @@ void DlgTransferFile::file_local_selected(const QModelIndex &index) {
 }
 
 void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
+  ui->remote_file_system->setEnabled(false);
   if (index.row() < 0 || index.row() >= (int)remote_files.size())
     return;
 
@@ -722,6 +723,7 @@ void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
     file_to_transfer.setTransferFileStatus(FILE_TO_DOWNLOAD);
     file_transfer_field_add_file(file_to_transfer, false);
   }
+  ui->remote_file_system->setEnabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
