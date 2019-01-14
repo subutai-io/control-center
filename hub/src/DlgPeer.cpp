@@ -117,11 +117,15 @@ void DlgPeer::set_enabled_vagrant_commands(bool state) {
 }
 
 void DlgPeer::updatePeer() {
+  bool peer_destroyed =
+      !CPeerController::Instance()->get_global_status().out.contains(rh_dir);
+
   if (TrayControlWindow::Instance()->my_peers_button_table.find(
           peer_fingerprint) ==
       TrayControlWindow::Instance()->my_peers_button_table.end()) {
     qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
-    this->close();
+    if (peer_destroyed)
+      this->close();
     return;
   } else {
 
@@ -129,9 +133,11 @@ void DlgPeer::updatePeer() {
         TrayControlWindow::Instance()->my_peers_button_table[peer_fingerprint];
     if (peer_info == nullptr) {
       qCritical() << "Opened dialog for removed peer: " << peer_fingerprint;
-      this->close();
+      if (peer_destroyed)
+        this->close();
       return;
     }
+
     std::vector<CLocalPeer> local_peer_info;
     if (peer_info->m_local_peer != nullptr) {
       local_peer_info.push_back(*(peer_info->m_local_peer));
@@ -712,7 +718,7 @@ void DlgPeer::rh_stop() {
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              this->close();
+              //this->close();
             } else {
               CNotificationObserver::Instance()->Error(
                   tr("Failed to stop this peer \"%1\". "
@@ -753,7 +759,7 @@ void DlgPeer::rh_start() {
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
               emit peer_modified(this->rh_name);
-              this->close();
+              //this->close();
             } else {
               CNotificationObserver::Instance()->Error(
                   tr("Failed to launch this peer \"%1\". "
@@ -882,7 +888,8 @@ void DlgPeer::rh_reload_sl() {
   connect(thread_init, &CommandPeerTerminal::outputReceived,
           [this](system_call_wrapper_error_t res) {
             if (res == SCWE_SUCCESS) {
-              this->close();
+              //this->close();
+              ui->btn_reload->setText("Reload");
             } else {
               CNotificationObserver::Instance()->Error(
                   tr("Failed to reload peer \"%1\". Check the stability of "
