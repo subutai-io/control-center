@@ -1002,7 +1002,7 @@ std::pair<QStringList, system_call_res_t> CSystemCallWrapper::vagrant_update_inf
 
     if (p_provider == VagrantProvider::Instance()->CurrentVal() && QDir(p_directory).exists() &&
         generated_file.exists()) {
-      global_status.out.append(p_directory);
+      global_status.out.append(QDir::toNativeSeparators(p_directory));
       qDebug() << "Vagrant found local peers: "
                << VagrantProvider::Instance()->CurrentVal()
                << " ID: "
