@@ -119,6 +119,10 @@ void DlgPeer::set_enabled_vagrant_commands(bool state) {
 void DlgPeer::updatePeer() {
   bool peer_destroyed =
       !CPeerController::Instance()->get_global_status().out.contains(rh_dir);
+  QString tmp = CSettingsManager::Instance().peer_finger(peer_fingerprint);
+
+  if (!tmp.isEmpty())
+    peer_fingerprint = tmp;
 
   if (TrayControlWindow::Instance()->my_peers_button_table.find(
           peer_fingerprint) ==
