@@ -13,7 +13,7 @@
 CPeerController::CPeerController(QObject *parent) : QObject(parent) {}
 
 CPeerController::~CPeerController() {
-  m_pool->waitForDone();
+  //m_pool->waitForDone();
   m_pool->clear();
   delete m_pool;
 }

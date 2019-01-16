@@ -26,6 +26,7 @@ private:
   static void handle_current_user(const QString& msg, QWebSocket* pClient);
   static void handle_ss_ip(const QString& msg, QWebSocket* pClient);  
   static void handle_ssh(const QString& msg, QWebSocket* pClient);
+  static void handle_ssh_cc(const QString& msg, QWebSocket* pClient); // ssh from SubutaiControlCenter
   static void handle_desktop(const QString& msg, QWebSocket* pClient);
   static void handle_wrong_command(const QString& msg, QWebSocket* pClient);
 

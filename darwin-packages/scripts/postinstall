@@ -10,3 +10,4 @@ mkdir -p /usr/local/share/subutai/etc
 mkdir -p /usr/local/share/subutai/resources
 chown -R $USER /usr/local/bin
 chown -R $USER /usr/local/share/subutai
+ln -s /Applications/SubutaiControlCenter.app/Contents/MacOS/SubutaiControlCenter /usr/local/bin/SubutaiControlCenter
