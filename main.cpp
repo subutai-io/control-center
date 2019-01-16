@@ -26,6 +26,8 @@
 #include "PeerController.h"
 #include "RhController.h"
 #include "SystemCallWrapper.h"
+#include "echoclient.h"
+#include <QTcpSocket>
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -93,8 +95,33 @@ int main(int argc, char* argv[]) {
   app_mode.setValueName("mode");
   app_mode.setDefaultValue("undefined");
   cmd_parser.addOption(app_mode);
+  // ssh
+  QCommandLineOption app_ssh("ssh");
+  app_ssh.setDescription("SSH to container. Please spceify env_name:cont_name");
+  app_ssh.setValueName("env_name:con_name");
+  app_ssh.setDefaultValue("undefined");
+  cmd_parser.addOption(app_ssh);
   // process app
   cmd_parser.process(app);
+
+  // validate env_name:cont_name
+  QString env_cont_name = cmd_parser.value(app_ssh);
+  if (env_cont_name != "undefined") {
+    QStringList env_cont = env_cont_name.split(":");
+
+    if (env_cont.length() < 2) {
+      std::cout << "\nPlease provide <env_name:cont_name>\n\n";
+      return 0;
+    }
+    QString env_name, cont_name;
+    env_name = env_cont.first().simplified();
+    cont_name = env_cont.last().simplified();
+
+    EchoClient client(QUrl(QStringLiteral("ws://localhost:9998")), true, env_name, cont_name);
+    QObject::connect(&client, &EchoClient::closed, &app, &QCoreApplication::quit);
+
+    return app.exec();
+  }
 
   QString branch = cmd_parser.value(app_mode);
   if (branch != "undefined") { //if user specified branch

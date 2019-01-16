@@ -96,6 +96,22 @@ CTrayServer::handle_ssh(const QString &msg,
   }  
   CHubController::Instance().ssh_to_container_from_hub(args[1], args[2], (void*)pClient);
 }
+
+void
+CTrayServer::handle_ssh_cc(const QString &msg,
+                             QWebSocket *pClient) {
+  int index_of = msg.indexOf("cmd:ssh");
+  QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
+  if (args.count() != 3) {
+    QString response = QString("code:%1%%%error==%2%%%success==%3")
+                       .arg(SDLE_LAST_ERR+1)
+                       .arg(QString("Wrong command \"%1\"").arg(msg))
+                       .arg("");
+    pClient->sendTextMessage(response);
+    return;
+  }
+  CHubController::Instance().ssh_to_container_from_cc(args[1], args[2], (void*)pClient);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void
@@ -147,6 +163,7 @@ CTrayServer::process_text_msg(QString msg) {
     {"cmd:ss_ip", handle_ss_ip},
     {"cmd:ssh", handle_ssh},
     {"cmd:desktop", handle_desktop},
+    {"cmd:cc", handle_ssh_cc},
     {nullptr, handle_wrong_command}
   };
 
