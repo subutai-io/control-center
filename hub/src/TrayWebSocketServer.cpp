@@ -100,7 +100,7 @@ CTrayServer::handle_ssh(const QString &msg,
 void
 CTrayServer::handle_ssh_cc(const QString &msg,
                              QWebSocket *pClient) {
-  int index_of = msg.indexOf("cmd:ssh");
+  int index_of = msg.indexOf("cmd:cc");
   QStringList args = msg.mid(index_of - 1 + 7, -1).split("%%%");
   if (args.count() != 3) {
     QString response = QString("code:%1%%%error==%2%%%success==%3")

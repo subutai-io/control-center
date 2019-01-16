@@ -3,7 +3,6 @@
 
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
-#include <QTcpSocket>
 
 class EchoClient : public QObject
 {

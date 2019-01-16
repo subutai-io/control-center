@@ -27,7 +27,6 @@
 #include "RhController.h"
 #include "SystemCallWrapper.h"
 #include "echoclient.h"
-#include <QTcpSocket>
 
 
 ////////////////////////////////////////////////////////////////////////////
