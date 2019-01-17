@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
   cmd_parser.addOption(app_mode);
   // ssh
   QCommandLineOption app_ssh("ssh");
-  app_ssh.setDescription("SSH to container. Please spceify env_name:cont_name");
+  app_ssh.setDescription("SSH to container. Please specify env_name:cont_name");
   app_ssh.setValueName("env_name:con_name");
   app_ssh.setDefaultValue("undefined");
   cmd_parser.addOption(app_ssh);
