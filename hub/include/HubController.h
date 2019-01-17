@@ -72,6 +72,7 @@ public:
   void ssh_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
   void desktop_to_container_from_tray(const CEnvironment &env, const CHubContainer &cont);
   void ssh_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
+  void ssh_to_container_from_cc(const QString &env_id, const QString &cont_id, void *additional_data);
   void desktop_to_container_from_hub(const QString &env_id, const QString &cont_id, void *additional_data);
   const QString get_env_key(const QString &env_id);
 
@@ -127,7 +128,9 @@ public:
    */
 
   std::pair<CEnvironment*, const CHubContainer*> find_container_by_id(const QString& env_id,
-                            const QString& cont_id);
+                                                                      const QString& cont_id);
+  std::pair<CEnvironment*, const CHubContainer*> find_container_by_name(const QString& env_name,
+                                                                        const QString& cont_name);
   /**
    * @brief remote desktop connection
    */

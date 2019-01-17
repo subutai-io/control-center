@@ -208,7 +208,6 @@ private slots:
   void ssh_to_rh_finished_sl(const QString &peer_fingerprint, system_call_wrapper_error_t res, int libssh_exit_code);
 
   void upload_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
-  void ssh_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
   void desktop_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
 
   void ssh_key_generate_triggered();
@@ -228,6 +227,7 @@ private slots:
   /*p2p slots*/
   void update_p2p_status_sl(P2PStatus_checker::P2P_STATUS status);
 public slots:
+  void ssh_to_container_triggered(const CEnvironment &env, const CHubContainer &cont);
   void tray_icon_is_activated_sl(QSystemTrayIcon::ActivationReason reason);
   void got_peer_info_sl(CPeerController::peer_info_t type,
                         QString name,

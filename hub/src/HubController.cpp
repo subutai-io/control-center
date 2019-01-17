@@ -492,6 +492,25 @@ void CHubController::ssh_to_container_from_hub(const QString &env_id, const QStr
   }
 }
 
+void CHubController::ssh_to_container_from_cc(const QString &env_name, const QString &cont_name, void *additional_data) {
+  CEnvironment *env = nullptr;
+  const CHubContainer *cont = nullptr;
+  std::pair<CEnvironment*, const CHubContainer*> res = find_container_by_name(env_name, cont_name);
+  env = res.first;
+  cont = res.second;
+  if (env == nullptr) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_ENV_NOT_FOUND, additional_data);
+  }
+  else
+  if (cont == nullptr) {
+    emit ssh_to_container_from_hub_finished(*env, *cont, SDLE_CONT_NOT_FOUND, additional_data);
+  }
+  else {
+    ssh_desktop_launch_error_t res = ssh_to_container(*env, *cont);
+    emit ssh_to_container_from_hub_finished(*env, *cont, res, additional_data);
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 /*
     DESKTOP INTO CONTAINER SECTION
@@ -641,3 +660,34 @@ std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by
   return std::make_pair(env, cont);
 }
 
+std::pair<CEnvironment*, const CHubContainer*> CHubController::find_container_by_name(const QString &env_name,
+                                          const QString &cont_name) {
+  CEnvironment *env = nullptr;
+  const CHubContainer *cont = nullptr;
+  qDebug()
+      << "Environment NAME: " << env_name
+      << "Container NAME: " << cont_name;
+
+  {
+    SynchroPrimitives::Locker lock(&m_refresh_cs);
+    for (auto i = m_lst_environments.begin(); i != m_lst_environments.end(); ++i) {
+      if (i->name() != env_name) continue;
+      env = &(*i);
+      break;
+    }
+    if (env == nullptr) {
+      return std::make_pair(nullptr, nullptr);
+    }
+
+    for (auto j = env->containers().begin(); j != env->containers().end(); ++j) {
+      if (j->name() != cont_name) continue;
+      cont = &(*j);
+      break;
+    }
+
+    if (cont == nullptr) {
+      return std::make_pair(env, nullptr);
+    }
+  }
+  return std::make_pair(env, cont);
+}
