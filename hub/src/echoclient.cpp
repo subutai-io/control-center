@@ -18,8 +18,17 @@ EchoClient::EchoClient(const QUrl &url, bool debug,
 
   QObject::connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
   QObject::connect(&m_webSocket, &QWebSocket::disconnected, [this]() {
-    if (m_debug)
-      qDebug() << "\nPlease launch SubutaiControlCenter, then try to ssh to the container!\n";
+    emit this->closed();
+  });
+
+  QObject::connect(&m_webSocket, static_cast<void(QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
+      [=](QAbstractSocket::SocketError error) {
+    qDebug() << "Error: "
+             << m_webSocket.errorString();
+    emit this->closed();
+  });
+
+  QTimer::singleShot(3000, [this]() {
     emit this->closed();
   });
 

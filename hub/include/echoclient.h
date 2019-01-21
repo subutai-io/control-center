@@ -13,10 +13,10 @@ public:
                       const QString &cont_name = "",
                       QObject *parent = nullptr);
 
-Q_SIGNALS:
+signals:
   void closed();
 
-private Q_SLOTS:
+private slots:
   void onConnected();
   void onTextMessageReceived(QString message);
 
