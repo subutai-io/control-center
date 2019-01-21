@@ -17,7 +17,21 @@ EchoClient::EchoClient(const QUrl &url, bool debug,
     qDebug() << "\nSSH to container...";
 
   QObject::connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
-  QObject::connect(&m_webSocket, &QWebSocket::disconnected, this, &EchoClient::closed);
+  QObject::connect(&m_webSocket, &QWebSocket::disconnected, [this]() {
+    emit this->closed();
+  });
+
+  QObject::connect(&m_webSocket, static_cast<void(QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
+      [=](QAbstractSocket::SocketError error) {
+    qDebug() << "Error: "
+             << m_webSocket.errorString();
+    emit this->closed();
+  });
+
+  QTimer::singleShot(3000, [this]() {
+    emit this->closed();
+  });
+
   m_webSocket.open(QUrl(url));
 }
 
