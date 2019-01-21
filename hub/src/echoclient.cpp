@@ -17,7 +17,12 @@ EchoClient::EchoClient(const QUrl &url, bool debug,
     qDebug() << "\nSSH to container...";
 
   QObject::connect(&m_webSocket, &QWebSocket::connected, this, &EchoClient::onConnected);
-  QObject::connect(&m_webSocket, &QWebSocket::disconnected, this, &EchoClient::closed);
+  QObject::connect(&m_webSocket, &QWebSocket::disconnected, [this]() {
+    if (m_debug)
+      qDebug() << "\nPlease launch SubutaiControlCenter, then try to ssh to the container!\n";
+    emit this->closed();
+  });
+
   m_webSocket.open(QUrl(url));
 }
 
