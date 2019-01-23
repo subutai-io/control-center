@@ -21,6 +21,7 @@
 #include "TraySkinController.h"
 #include "VagrantProvider.h"
 #include "PeerController.h"
+#include "TrayControlWindow.h"
 
 static void fill_log_level_combobox(QComboBox* cb) {
   for (int i = 0; i <= Logger::LOG_DISABLED; ++i)
@@ -564,6 +565,57 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().set_tray_skin(ui->cb_tray_skin->currentIndex());
 
   CSettingsManager::Instance().set_locale(ui->cb_locale->currentIndex());
+
+  VagrantProvider::PROVIDERS provider = static_cast<VagrantProvider::PROVIDERS>(
+        ui->cb_vagrant_provider->currentData().toInt());
+  // provider changed
+  if (VagrantProvider::Instance()->CurrentProvider() != provider) {
+    std::map<QString, QString> peers_running;
+    QString tmp = "";
+
+    for(auto peer:TrayControlWindow::Instance()->machine_peers_table) {
+      if (peer.second.status() == "running") {
+       peers_running[peer.second.name()] = peer.second.dir();
+       tmp += peer.second.name() + " is " + peer.second.status() + ", ";
+      }
+    }
+    if (peers_running.size() > 0) {
+      QMessageBox* msg_box =
+         new QMessageBox(QMessageBox::Question, tr("Info"),
+                         tr("You have running a peer(s), Do you want to turn off the peer(s) in order to change the Vagrant Provider?"),
+                         QMessageBox::Yes | QMessageBox::No);
+      msg_box->setDetailedText(tmp);
+      connect(msg_box, &QMessageBox::finished, msg_box,
+              &QMessageBox::deleteLater);
+      int result = msg_box->exec();
+      if (result == QMessageBox::Yes) {
+          //TODO implement turn off the peers
+        for (auto p:peers_running) {
+          CommandPeerTerminal *thread_init = new CommandPeerTerminal(this);
+          thread_init->init(p.second, "halt", p.first);
+          thread_init->startWork();
+
+          connect(thread_init, &CommandPeerTerminal::outputReceived,
+                  [p](system_call_wrapper_error_t res) {
+                    if (res == SCWE_SUCCESS) {
+                      //this->close();
+                    } else {
+                      CNotificationObserver::Instance()->Error(
+                          tr("Failed to stop this peer \"%1\". "
+                             "Check the stability of your Internet connection first, "
+                             "before trying again.")
+                              .arg(p.second),
+                          DlgNotification::N_NO_ACTION);
+                    }
+                  });
+        }
+      } else if(result == QMessageBox::No) {
+        ui->cb_vagrant_provider->setCurrentText(VagrantProvider::Instance()->CurrentStr());
+      }
+      return;
+    }
+  }
+
   CSettingsManager::Instance().set_vagrant_provider(ui->cb_vagrant_provider->currentData().toInt());
 
   CSettingsManager::Instance().set_terminal_cmd(ui->le_terminal_cmd->text());
@@ -578,7 +630,7 @@ void DlgSettings::btn_ok_released() {
   CSettingsManager::Instance().save_all();
 
   // Update peer info and interfaces list
-  CPeerController::Instance()->refresh();
+  //CPeerController::Instance()->refresh();
 
   this->close();
 }
