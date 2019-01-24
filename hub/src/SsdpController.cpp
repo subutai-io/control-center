@@ -135,7 +135,7 @@ CSsdpController::CSsdpController(QObject *parent) :
   }
 
   m_socket = new QUdpSocket(this);
-  m_socket->bind(QHostAddress::AnyIPv4, SSDP_PORT, QUdpSocket::ShareAddress);
+  m_socket->bind(QHostAddress::Any, SSDP_PORT, QUdpSocket::ShareAddress);
   m_socket->joinMulticastGroup(m_group_address);
   set_ttl(2);
   send_search();
