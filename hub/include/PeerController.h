@@ -80,7 +80,6 @@ class CPeerController : public QObject {
   virtual ~CPeerController();
   bool m_stop_thread;
 
-  QTimer m_refresh_timer;
   QTimer m_logs_timer;
   QThreadPool *m_pool;
   // Saves peer checking status by peer directory
@@ -238,7 +237,6 @@ class GetPeerInfo : public QObject {
         break;
     }
     watcher->setFuture(res);
-    watcher->waitForFinished();
     CPeerController::peer_info_t lala = action;
     connect(watcher, &QFutureWatcher<QString>::finished, [this, res, lala]() {
       if (CPeerController::Instance()->get_stop_thread()) {
@@ -426,7 +424,6 @@ class UpdateVMInformation : public QObject {
     QFuture<std::pair<QStringList, system_call_res_t> > res =
         QtConcurrent::run(pool, CSystemCallWrapper::vagrant_update_information, m_force_update);
     watcher->setFuture(res);
-    watcher->waitForFinished();
     connect(
         watcher,
         &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
