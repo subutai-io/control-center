@@ -635,11 +635,11 @@ const std::pair<QStringList, QStringList>& chrome_profiles(){
   profiles.first.clear();
   profiles.second.clear();
   QString path = chrome_profiles_internal<Os2Type<CURRENT_OS>>();
+  QFile jsonFile(path);
 
   qDebug() << "Got chrome profiles directory:" << path;
 
-  if (path != "empty") {
-    QFile jsonFile(path);
+  if (jsonFile.exists() && path != "empty") {
     jsonFile.open(QFile::ReadOnly);
     QJsonObject obj = QJsonDocument().fromJson(jsonFile.readAll()).object();
 
@@ -725,7 +725,7 @@ const std::pair<QStringList, QStringList> &firefox_profiles() {
 
   QFile ini_file(ini_path);
 
-  if (ini_file.open(QIODevice::ReadOnly)) {
+  if (ini_file.exists() && ini_file.open(QIODevice::ReadOnly)) {
     QTextStream stream(&ini_file);
 
     while (!stream.atEnd()) {

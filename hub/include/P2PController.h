@@ -68,6 +68,7 @@ private:
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
     watcher->setFuture(res);
+    watcher->waitForFinished();
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
@@ -89,6 +90,7 @@ private:
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
     watcher->setFuture(res);
+    watcher->waitForFinished();
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
