@@ -379,8 +379,8 @@ void PostUpdater::post_update(){
     QFutureWatcher<system_call_wrapper_error_t> *watcher
         = new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t>  res = QtConcurrent::run(CSystemCallWrapper::p2p_post_update);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res](){
       emit this->output_received(res.result() == SCWE_SUCCESS);
     });
+    watcher->setFuture(res);
 }

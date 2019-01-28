@@ -36,6 +36,7 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   CPeerController::Instance()->force_refresh();
   // Bridge interfaces
   QStringList bridges = CPeerController::Instance()->get_bridgedifs();
+
   // ui
   ui->setupUi(this);
   ui->le_disk->setText("100");
@@ -230,9 +231,14 @@ DlgCreatePeer::DlgCreatePeer(QWidget *parent)
   case VagrantProvider::HYPERV:
     m_requirements_ls.push_back(hyperv);
 
-    if (bridges.size() <= 1) {
+    if (bridges.size() == 0) {
       ui->lbl_bridge->hide();
       ui->cmb_bridge->hide();
+    } else {
+      int index = ui->cmb_bridge->findData("vagrant-subutai");
+      if (index != -1) {
+        ui->cmb_bridge->setCurrentIndex(index);
+      }
     }
     break;
   default:

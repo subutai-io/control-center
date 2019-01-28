@@ -236,7 +236,7 @@ class GetPeerInfo : public QObject {
       default:
         break;
     }
-    watcher->setFuture(res);
+
     CPeerController::peer_info_t lala = action;
     connect(watcher, &QFutureWatcher<QString>::finished, [this, res, lala]() {
       if (CPeerController::Instance()->get_stop_thread()) {
@@ -247,6 +247,7 @@ class GetPeerInfo : public QObject {
       emit this->outputReceived(lala, res.result());
     });
     connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(CPeerController::peer_info_t action, QString res);
@@ -276,11 +277,11 @@ class StopPeer : public QObject {
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::vagrant_halt, directory);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
     connect(watcher, SIGNAL(finished()),
             watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -318,12 +319,12 @@ class CommandPeerTerminal : public QObject {
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res = QtConcurrent::run(
         CSystemCallWrapper::vagrant_command_terminal, directory, command, QString("\"%1\"").arg(name));
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished, [this, res]() {
       emit this->outputReceived(res);
     });
     connect(watcher, SIGNAL(finished()),
         watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -354,11 +355,11 @@ class DestroyPeer : public QObject {
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::vagrant_destroy, directory);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
     connect(watcher, SIGNAL(finished()),
         watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -389,11 +390,11 @@ class ReloadPeer : public QObject {
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::vagrant_reload, directory);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
     connect(watcher, SIGNAL(finished()),
         watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
@@ -423,7 +424,6 @@ class UpdateVMInformation : public QObject {
         new QFutureWatcher<std::pair<QStringList, system_call_res_t> >(this);
     QFuture<std::pair<QStringList, system_call_res_t> > res =
         QtConcurrent::run(pool, CSystemCallWrapper::vagrant_update_information, m_force_update);
-    watcher->setFuture(res);
     connect(
         watcher,
         &QFutureWatcher<std::pair<QStringList, system_call_res_t> >::finished,
@@ -436,6 +436,7 @@ class UpdateVMInformation : public QObject {
     });
     connect(watcher, SIGNAL(finished()),
         watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
 
   void set_force_update(bool force_update) {
@@ -476,11 +477,11 @@ public:
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res = QtConcurrent::run(
         CSystemCallWrapper::vagrant_update_peeros, m_peer_port, m_peer_name);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res); });
     connect(watcher, SIGNAL(finished()),
             watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
 
  private:

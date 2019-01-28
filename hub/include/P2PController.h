@@ -45,11 +45,11 @@ private:
 
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
     connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
 };
 
@@ -67,11 +67,11 @@ private:
                           QString("dhcp"), env.base_interface_id());
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
     connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
 };
 
@@ -88,11 +88,11 @@ private:
         QtConcurrent::run(pool, CSystemCallWrapper::leave_p2p_swarm, hash);
     QFutureWatcher<system_call_wrapper_error_t> *watcher
             = new QFutureWatcher<system_call_wrapper_error_t>(this);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,[this, res](){
         emit this->connection_finished(res.result());
     });
     connect(watcher, SIGNAL(finished()), watcher, SLOT(deleteLater()));
+    watcher->setFuture(res);
   }
 };
 

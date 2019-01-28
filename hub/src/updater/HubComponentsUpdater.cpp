@@ -420,12 +420,12 @@ void SilentInstaller::silentInstallation(){
     default:
         break;
     }
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res]() {
       qDebug() << "SilentInstaller output received version: "
                << res.result().version;
       emit this->outputReceived(res.result().res == SCWE_SUCCESS, res.result().version);
     });
+    watcher->setFuture(res);
 }
 
 ///////* class uninstalls cc components in silent mode *///////////
@@ -524,11 +524,10 @@ void SilentUninstaller::silentUninstallation() {
     break;
   }
 
-  watcher->setFuture(res);
-
   connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res]() {
     emit this->outputReceived(res.result().res == SCWE_SUCCESS, res.result().version);
   });
+  watcher->setFuture(res);
 }
 
 ///////* class updates cc components in silent mode *///////////
@@ -587,9 +586,8 @@ void SilentUpdater::silentUpdate() {
       break;
     }
 
-    watcher->setFuture(res);
-
     connect(watcher, &QFutureWatcher<system_call_wrapper_install_t>::finished, [this, res](){
       emit this->outputReceived(res.result().res == SCWE_SUCCESS);
     });
+    watcher->setFuture(res);
 }
