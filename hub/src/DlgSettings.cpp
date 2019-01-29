@@ -582,7 +582,7 @@ void DlgSettings::btn_ok_released() {
     if (peers_running.size() > 0) {
       QMessageBox* msg_box =
          new QMessageBox(QMessageBox::Question, tr("Info"),
-                         tr("You have running a peer(s), Do you want to turn off the peer(s) in order to change the Vagrant Provider?"),
+                         tr("There are running peer(s) in your system. Do you want to turn them off in order to change the Vagrant Provider?"),
                          QMessageBox::Yes | QMessageBox::No);
       msg_box->setDetailedText(tmp);
       connect(msg_box, &QMessageBox::finished, msg_box,
