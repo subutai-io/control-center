@@ -1006,8 +1006,8 @@ void HostChecker::silentChecker(){
         = new QFutureWatcher<bool>(this);
     QFuture<bool> res
         = QtConcurrent::run(CSystemCallWrapper::is_host_reachable, m_host);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<bool>::finished, [this, res](){
       emit this->outputReceived(res.result());
     });
+    watcher->setFuture(res);
 }

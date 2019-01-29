@@ -22,20 +22,16 @@ void CPeerController::init() {
   m_pool = new QThreadPool(this);
   m_pool->setMaxThreadCount(1);
   m_stop_thread = false;
-  m_refresh_timer.setInterval(13 * 1000);  // each 13 seconds update peer list
-  m_logs_timer.setInterval(7 * 1000);     // 3 seconds update peer list
+  m_logs_timer.setInterval(7 * 1000);     // 7 seconds check peer logs
   number_threads = 0;
-  connect(&m_refresh_timer, &QTimer::timeout, this,
-          &CPeerController::refresh_timer_timeout);
+  QTimer::singleShot(2000, this, &CPeerController::refresh_timer_timeout);
   connect(&m_logs_timer, &QTimer::timeout, this, &CPeerController::check_logs);
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [this](){
     this->m_stop_thread = true;
     qDebug() << "APPLICATION STOP THREAD SET";
   });
 
-  m_refresh_timer.start();
   m_logs_timer.start();
-  refresh();
 }
 
 void CPeerController::refresh() {
@@ -159,7 +155,10 @@ const QString &CPeerController::provision_step_description(const int &step) {
   }
 }
 
-void CPeerController::refresh_timer_timeout() { refresh(); }
+void CPeerController::refresh_timer_timeout() {
+  refresh();
+  QTimer::singleShot(13000, this, &CPeerController::refresh_timer_timeout);
+}
 
 void CPeerController::search_local() {
   if (this->vagrant_global_status.out.empty()) {
@@ -224,11 +223,12 @@ void CPeerController::check_logs() {
             if (file_name[0] == "destroy") {
               deleted_flag = true;
             }
-            CNotificationObserver::Info(
-                tr("Peer %1 has finished to \"%2\" successfully.")
-                    .arg(peer_name, file_name[0]),
-                DlgNotification::N_NO_ACTION);
-          } else
+            if (file_name[0] != "ssh") // do not show ssh message
+              CNotificationObserver::Info(
+                  tr("Peer %1 has finished to \"%2\" successfully.")
+                      .arg(peer_name, file_name[0]),
+                  DlgNotification::N_NO_ACTION);
+          } else if (file_name[0] != "ssh") // do not show ssh message
             CNotificationObserver::Info(
                 tr("Peer %1 has finished to \"%2\" with following messages:\n "
                    "%3")

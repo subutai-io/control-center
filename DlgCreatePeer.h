@@ -100,9 +100,9 @@ class InitPeer : public QObject {
         new QFutureWatcher<system_call_wrapper_error_t>(this);
     QFuture<system_call_wrapper_error_t> res =
         QtConcurrent::run(CSystemCallWrapper::vagrant_init, directory, OS);
-    watcher->setFuture(res);
     connect(watcher, &QFutureWatcher<system_call_wrapper_error_t>::finished,
             [this, res]() { emit this->outputReceived(res.result()); });
+    watcher->setFuture(res);
   }
  signals:
   void outputReceived(system_call_wrapper_error_t res);
