@@ -24,7 +24,7 @@ void CPeerController::init() {
   m_stop_thread = false;
   m_logs_timer.setInterval(7 * 1000);     // 7 seconds check peer logs
   number_threads = 0;
-  QTimer::singleShot(3000, this, &CPeerController::refresh_timer_timeout);
+  QTimer::singleShot(2000, this, &CPeerController::refresh_timer_timeout);
   connect(&m_logs_timer, &QTimer::timeout, this, &CPeerController::check_logs);
   connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [this](){
     this->m_stop_thread = true;
@@ -32,7 +32,6 @@ void CPeerController::init() {
   });
 
   m_logs_timer.start();
-  refresh();
 }
 
 void CPeerController::refresh() {
@@ -224,11 +223,12 @@ void CPeerController::check_logs() {
             if (file_name[0] == "destroy") {
               deleted_flag = true;
             }
-            CNotificationObserver::Info(
-                tr("Peer %1 has finished to \"%2\" successfully.")
-                    .arg(peer_name, file_name[0]),
-                DlgNotification::N_NO_ACTION);
-          } else
+            if (file_name[0] != "ssh") // do not show ssh message
+              CNotificationObserver::Info(
+                  tr("Peer %1 has finished to \"%2\" successfully.")
+                      .arg(peer_name, file_name[0]),
+                  DlgNotification::N_NO_ACTION);
+          } else if (file_name[0] != "ssh") // do not show ssh message
             CNotificationObserver::Info(
                 tr("Peer %1 has finished to \"%2\" with following messages:\n "
                    "%3")
