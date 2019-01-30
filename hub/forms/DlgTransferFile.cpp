@@ -216,6 +216,7 @@ void DlgTransferFile::file_was_dropped(const QString &file_path) {
 }
 
 void DlgTransferFile::set_buttons_enabled(bool enabled) {
+  ui->remote_file_system->setEnabled(enabled);
   ui->btn_clear_files->setEnabled(enabled);
   ui->btn_start_transfer->setEnabled(enabled);
 
@@ -706,7 +707,7 @@ void DlgTransferFile::file_local_selected(const QModelIndex &index) {
 }
 
 void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
-  ui->remote_file_system->setEnabled(false);
+  set_buttons_enabled(false);
   if (index.row() < 0 || index.row() >= (int)remote_files.size())
     return;
 
@@ -723,7 +724,6 @@ void DlgTransferFile::file_remote_selected(const QModelIndex &index) {
     file_to_transfer.setTransferFileStatus(FILE_TO_DOWNLOAD);
     file_transfer_field_add_file(file_to_transfer, false);
   }
-  ui->remote_file_system->setEnabled(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
