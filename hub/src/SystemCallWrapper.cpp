@@ -6104,7 +6104,7 @@ system_call_wrapper_install_t CSystemCallWrapper::uninstall_e2e() {
 
   if (res.res == SCWE_SUCCESS && current_browser == "Chrome") {
     chrome_last_session();
-    QTime dieTime = QTime::currentTime().addSecs(2);
+    QTime dieTime = QTime::currentTime().addSecs(5);
     while (QTime::currentTime() < dieTime) {
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
