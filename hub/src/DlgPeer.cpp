@@ -620,6 +620,10 @@ void DlgPeer::regDlgClosed() {
 }
 
 void DlgPeer::hideSSH() {
+  // if peer is vagrant peer then do not hide
+  if (CPeerController::Instance()->get_global_status().out.contains(rh_dir))
+    return;
+
   ui->gr_ssh->hide();
   ui->label->hide();
   ui->label_3->hide();
@@ -634,6 +638,10 @@ void DlgPeer::hideSSH() {
 }
 
 void DlgPeer::hidePeer() {
+  // if peer is vagrant peer then do not hide
+  if (CPeerController::Instance()->get_global_status().out.contains(rh_dir))
+    return;
+
   ui->lbl_name->hide();
   ui->le_name->hide();
   ui->lbl_bridge->hide();
