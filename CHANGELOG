@@ -1,4 +1,16 @@
 # Change Log
+## [7.3.4] 02/05/2019
+# IMPROVEMENTS:
+* Peer dialog should not be closed after peer commands #1863
+* Providers switch show peer info #1877
+* CC consuming more memory RAM by the time #1839
+# BUG FIXES:
+* the peer located on the same host ... well not seen as a local peer #1873
+* Control Center shows wrong path in file transfer #1737
+* CC did not notify about ssh key is not deployed #1884
+# FEATURES:
+* Added new ssh command to cc CLI #1864
+
 ## [7.3.3] 12/28/2018
 # IMPROVEMENTS:
 * Capitalization issues throughout Control Center were fixed #1569
