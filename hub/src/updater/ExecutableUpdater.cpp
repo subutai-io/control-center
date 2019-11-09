@@ -46,6 +46,10 @@ CExecutableUpdater::replace_executables(bool was_successful_downloaded) {
   CSystemCallWrapper::give_write_permissions(dir);
 
   do {    
+    if (!src.exists()) {
+        qCritical("Source file is missins at %s", m_src_file_str.toStdString().c_str());
+        break;
+    }
     if (dst.exists()) {
       QFile ftmp(tmp);
       if (ftmp.exists() && !ftmp.remove()) {
