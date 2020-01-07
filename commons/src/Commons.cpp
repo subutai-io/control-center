@@ -22,10 +22,10 @@ CCommons::FileMd5(const QString &file_path) {
   QString hash = QCryptographicHash::hash(f.readAll(), QCryptographicHash::Md5).toHex().constData();
 
   qDebug()
-          <<"Asking md5 of"
-          <<f.fileName()
-          <<"and result is:"
-          <<hash;
+          << "Asking md5 of"
+          << f.fileName()
+          << "and result is:"
+          << hash;
   f.close();
   return hash;
 }
