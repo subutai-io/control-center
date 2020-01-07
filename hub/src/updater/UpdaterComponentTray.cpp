@@ -57,9 +57,9 @@ CUpdaterComponentTray::update_internal() {
   CExecutableUpdater *eu = new CExecutableUpdater(str_tray_download_path,
                                                   str_tray_path);
 
-  if (item->md5_sum() == CCommons::FileMd5(str_tray_download_path)) {
-    qInfo("Already have new version of tray in %s",
-                  str_tray_download_path.toStdString().c_str());
+  if (item->md5_sum() != "" && item->md5_sum() == CCommons::FileMd5(str_tray_download_path)) {
+    qInfo("Already have new version of tray in %s [%s]",
+                  str_tray_download_path.toStdString().c_str(), item->md5_sum());
     this->update_progress_sl(100, 100);
     connect(eu, &CExecutableUpdater::finished,
             this, &CUpdaterComponentTray::update_finished_sl);

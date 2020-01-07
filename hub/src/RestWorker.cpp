@@ -663,12 +663,10 @@ std::vector<CGorjunFileInfo> CRestWorker::get_gorjun_file_info(
     obj.insert("filename", json_obj["filename"]);
     dbg << QString("filename=%1").arg(json_obj["filename"].toString());
 
-    QJsonObject tmp_obj = json_obj["raw_details"].toArray().begin()->toObject();
-
-    obj.insert("md5", tmp_obj["md5"]);
-    dbg << QString("md5=%1").arg(tmp_obj["md5"].toString());
-    obj.insert("size", tmp_obj["size"]);
-    dbg << QString("size=%1").arg(tmp_obj["size"].toInt());
+    obj.insert("md5", json_obj["md5"]);
+    dbg << QString("md5=%1").arg(json_obj["md5"].toString());
+    obj.insert("size", json_obj["size"]);
+    dbg << QString("size=%1").arg(json_obj["size"].toInt());
 
     qDebug() << "Parsed json doc:" << dbg;
     lst_res.emplace_back(CGorjunFileInfo(obj));
