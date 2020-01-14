@@ -1,8 +1,8 @@
-
-def causes = currentBuild.getBuildCauses()
-for (cause in causes) {
-    notifyBuild(cause)
-}
+notifyBuild('Testing')
+//def causes = currentBuild.getBuildCauses()
+//for (cause in causes) {
+//    notifyBuild(cause)
+//}
 
 
 def notifyBuild(String buildStatus = 'STARTED', String details = '') {
