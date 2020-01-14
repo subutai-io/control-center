@@ -1,4 +1,5 @@
 notifyBuild('Testing #2')
+echo 'Testing output'
 //def causes = currentBuild.getBuildCauses()
 //notifyBuild('Causes', causes)
 
