@@ -1,6 +1,6 @@
 notifyBuild('Testing #2')
-def causes = currentBuild.getBuildCauses()
-notifyBuild('Causes', causes)
+//def causes = currentBuild.getBuildCauses()
+//notifyBuild('Causes', causes)
 
 
 def notifyBuild(String buildStatus = 'STARTED', String details = '') {
