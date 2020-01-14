@@ -1,0 +1,35 @@
+notifyBuild('CC BUILD')
+
+def notifyBuild(String buildStatus = 'STARTED', String details = '') {
+  // build status of null means successful
+  buildStatus = buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"  	
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'  
+  } else if (buildStatus == 'INFO') {
+    color = 'GREY'
+    colorCode = '#555555'
+    summary = "${subject}: ${details}"
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+	summary = "${subject} (${env.BUILD_URL})${details}"
+  }
+  // Get token
+  //def slackToken = getSlackToken('p2p-bots')
+  // Send notifications
+  //slackSend (color: colorCode, message: summary, teamDomain: 'optdyn', token: "${slackToken}")
+  def mattermost_rest = "https://mm.optdyn.com/hooks/bixecqjzujg498nyqp9kw8myja"
+  mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#p2p-bots", endpoint: "${mattermost_rest}" )
+}
