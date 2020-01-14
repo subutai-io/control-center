@@ -2,7 +2,7 @@ notifyBuild('Testing #2')
 def causes = currentBuild.getBuildCauses()
 //notifyBuild('Causes', causes)
 for (cause in causes) {
-    if (cause isntanceof Cause.UserIdCause) {
+    if (cause instanceof Cause.UserIdCause) {
         echo cause.getUserName()
     }
 }
