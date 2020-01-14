@@ -1,8 +1,9 @@
-if ( currentBuild.rawBuild.getCauses()[0].toString().contains('UserIdCause') ){
-    notifyBuild('Manual CC Build')
-} else {
-    notifyBuild('Automatic CC Build')
+
+def causes = currentBuild.getBuildCauses()
+for (cause in causes) {
+    notifyBuild(cause)
 }
+
 
 def notifyBuild(String buildStatus = 'STARTED', String details = '') {
   // build status of null means successful
