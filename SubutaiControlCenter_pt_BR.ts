@@ -842,6 +842,11 @@ If you have started the installation process, please wait for it to finish</sour
         <translation>Debian Stretch</translation>
     </message>
     <message>
+        <location filename="DlgCreatePeer.ui" line="188"/>
+        <source>Debian Stretch</source>
+        <translation>Debian Stretch</translation>
+    </message>
+    <message>
         <source>Ubuntu Xenial</source>
         <translation type="vanished">Ubuntu Xenial</translation>
     </message>

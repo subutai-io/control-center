@@ -579,6 +579,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
         << "init";
     if (box == "Debian Stretch")
         CURRENT_BRANCH == BT_PROD ? args << "subutai/stretch" : args << "subutai/stretch-master";
+    else if (box == "Debian Buster")
+        CURRENT_BRANCH == BT_PROD ? args << "subutai/buster" : args << "subutai/buster-master";
     else args << "subutai/xenial";
 
 
