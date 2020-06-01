@@ -1,5 +1,6 @@
 notifyBuildDetails = ""
 
+/*
 try {
     switch (env.BRANCH_NAME) {
         case ~/master/: 
@@ -25,6 +26,7 @@ try {
     // Success or failure, always send notifications
     notifyBuild(currentBuild.result, notifyBuildDetails)
 }
+*/
 
 def notifyBuild(String buildStatus = 'STARTED', String details = '') {
     // build status of null means successful
