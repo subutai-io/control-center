@@ -1,14 +1,12 @@
-#!groovy
-
 notifyBuildDetails = ""
 
 try {
     switch (env.BRANCH_NAME) {
         case ~/master/: 
-            branch = "master"
-                break;
+            branch = "master";
+            break;
         default: 
-            branch = "dev"
+            branch = "dev";
     }
     notifyBuild('STARTED')
 
@@ -17,35 +15,9 @@ try {
                 sh """
                     wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
                     wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
-
-                    """
+                    """;
             }
         }
-
-    /*
-       node("debian") {
-       stage("Start build Debian")
-
-       notifyBuildDetails = "\nFailed on Stage - Start build"
-       checkout scm
-
-       sh """
-       ./build_deb.sh ${branch}
-       """
-
-       stage("Upload")
-
-       notifyBuildDetails = "\nFailed on Stage - Upload"
-
-       sh """
-       cd /home/builder/deb_repo
-       touch uploading_agent
-       scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${branch}/
-       ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${branch} agent
-       """
-       }
-     */
-
 } catch (e) { 
     currentBuild.result = "FAILED"
         throw e
@@ -75,6 +47,6 @@ def notifyBuild(String buildStatus = 'STARTED', String details = '') {
                 colorCode = '#FF0000'
                 summary = "${subject} (${env.BUILD_URL})${details}"
         }
-    def mattermost_rest = "https://mm.subutai.io/hooks/k1ujhg8xwigupxjzqbwzpgdp3h"
-        mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#sysnet-bots", endpoint: "${mattermost_rest}" )
+    def mattermost_rest = "https://mm.subutai.io/hooks/k1ujhg8xwigupxjzqbwzpgdp3h";
+    mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#sysnet-bots", endpoint: "${mattermost_rest}" )
 }
