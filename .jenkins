@@ -17,9 +17,12 @@ try {
     node("debian") {
         stage("Debian Build") {
             sh """
+                mkdir -p $HOME/qt_static
                 mkdir -p $HOME/build/subutai-io/control-center
-                wget --no-check-certificate -nv -O $HOME/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf $HOME/qt_static.tar.gz -C $HOME
-                wget --no-check-certificate -nv -O $HOME/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
+                wget --no-check-certificate -nv -O $HOME/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download'
+                wget --no-check-certificate -nv -O $HOME/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download'
+                tar -xf $HOME/qt_static.tar.gz -C $HOME/qt_static
+                tar -xf $HOME/build/subutai-io/control-center/libs.tar.gz
                 """;
         }
     }
