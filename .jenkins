@@ -3,6 +3,8 @@
 notifyBuildDetails = ""
 ipfs_user = "jenkins@optimal-dynamics.com"
 fingerprint = "877B586E74F170BC4CF6ECABB971E2AC63D23DC9"
+maintainer="Jenkins Admin"
+maintainer_email="jenkins@subut.ai"
 
 try {
     switch (env.BRANCH_NAME) {
@@ -22,9 +24,7 @@ try {
     node("debian") {
         stage("Preparing Debian Build") {
             sh """
-                export MAINTAINER="Jenkins Admin"
                 export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
-                export MAINTAINER_EMAIL="jenkins@subut.ai"
                 export TRAYDIR=/tmp/jenkins_slave/workspace/tag.builders/tray_linux.subutai-io.tag
                 export QTBINPATH=/home/builder/qt_static/bin/
                 export tray_version="$(git describe --abbrev=0 --tags)"
@@ -38,7 +38,7 @@ try {
 
                 cd $workspace
                 qmake --version
-                ./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
+                ./generate_changelog --maintainer="${maintainer}" --maintainer-email="${maintainer_email}"
                 PKGNAME="subutai-control-center.deb"
 
                 nproc_count="$(nproc)"
