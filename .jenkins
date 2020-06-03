@@ -1,3 +1,5 @@
+#!groovy
+
 notifyBuildDetails = ""
 
 try {
@@ -5,19 +7,21 @@ try {
         case ~/master/: 
             branch = "master";
             break;
+        case ~/jenkins-dev/:
+            branch = "dev";
+            break;
         default: 
             branch = "dev";
     }
-    notifyBuild('STARTED')
-
-        node("debian") {
-            stage("Debian Build") {
-                sh """
-                    wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
-                    wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
-                    """;
-            }
+    notifyBuild('STARTED', 'Using branch ' + env.BRANCH_NAME);
+    node("debian") {
+        stage("Debian Build") {
+            sh """
+                wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
+                wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
+                """;
         }
+    }
 } catch (e) { 
     currentBuild.result = "FAILED"
         throw e
