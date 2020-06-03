@@ -43,9 +43,6 @@ try {
                 qmake --version
                 ./generate_changelog --maintainer="${maintainer}" --maintainer-email="${maintainer_email}"
                 PKGNAME="subutai-control-center.deb"
-
-                nproc_count="$(nproc)"
-                core_number=$((nproc_count*2+1))
                 """;
         }
 
