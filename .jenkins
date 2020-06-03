@@ -1,60 +1,155 @@
 #!groovy
 
 notifyBuildDetails = ""
+ipfs_user = "jenkins@optimal-dynamics.com"
+fingerprint = "877B586E74F170BC4CF6ECABB971E2AC63D23DC9"
 
 try {
     switch (env.BRANCH_NAME) {
         case ~/master/: 
             branch = "master";
+            ipfs_url = "https://masterbazaar.subutai.io";
             break;
         case ~/jenkins-dev/:
             branch = "dev";
+            ipfs_url = "https://devbazaar.subutai.io";
             break;
         default: 
             branch = "dev";
+            ipfs_url = "https://devbazaar.subutai.io";
     }
     notifyBuild('STARTED', 'Using branch ' + env.BRANCH_NAME);
     node("debian") {
-        stage("Debian Build") {
+        stage("Preparing Debian Build") {
             sh """
-                mkdir -p $HOME/qt_static
-                mkdir -p $HOME/build/subutai-io/control-center
-                wget --no-check-certificate -nv -O $HOME/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download'
-                wget --no-check-certificate -nv -O $HOME/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download'
-                tar -xf $HOME/qt_static.tar.gz -C $HOME/qt_static
-                tar -xf $HOME/build/subutai-io/control-center/libs.tar.gz
+                export MAINTAINER="Jenkins Admin"
+                export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
+                export MAINTAINER_EMAIL="jenkins@subut.ai"
+                export TRAYDIR=/tmp/jenkins_slave/workspace/tag.builders/tray_linux.subutai-io.tag
+                export QTBINPATH=/home/builder/qt_static/bin/
+                export tray_version="$(git describe --abbrev=0 --tags)"
+                export PATH=$QTBINPATH:$PATH
+                export BRANCH=HEAD
+                export workspace="$(pwd)"
+                echo $workspace
+                pwd
+                rm -rf /home/builder/build_prod/
+                mkdir /home/builder/build_prod
+
+                cd $workspace
+                qmake --version
+                ./generate_changelog --maintainer="$MAINTAINER" --maintainer-email="$MAINTAINER_EMAIL"
+                PKGNAME="subutai-control-center.deb"
+
+                nproc_count="$(nproc)"
+                core_number=$((nproc_count*2+1))
+                subutai_control_center_bin="subutai_control_center_bin"
                 """;
         }
-    }
-} catch (e) { 
-    currentBuild.result = "FAILED"
-        throw e
-} finally {
-    // Success or failure, always send notifications
-    notifyBuild(currentBuild.result, notifyBuildDetails)
-}
 
-def notifyBuild(String buildStatus = 'STARTED', String details = '') {
-    // build status of null means successful
-    buildStatus = buildStatus ?: 'SUCCESSFUL'
-        // Default values
-        def colorName = 'RED'
-        def colorCode = '#FF0000'
-        def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-        def summary = "${subject} (${env.BUILD_URL})"
+        stage("Building") {
+            sh """
+                if [ -d "$subutai_control_center_bin" ]; then
+                    echo "Try to remove subutai_control_center_bin"
+                        rm -rf subutai_control_center_bin
+                        fi
+                        """;
 
-        // Override default values based on build status
-        if (buildStatus == 'STARTED') {
-            color = 'YELLOW'
+            sh """
+                mkdir subutai_control_center_bin
+                cd subutai_control_center_bin
+                lrelease ../SubutaiControlCenter.pro
+                qmake ../SubutaiControlCenter.pro -r -spec linux-g++
+                make -j$core_number
+                rm *.o *.cpp *.h
+                mv ../*.qm .
+                       cd ../
+                       """;
+
+                       sh """
+                       cd deb-packages/deb-packages-internal
+                       ./clear.sh
+                       ./pack_debian.sh
+                       cd ../..
+
+                       cd /home/builder/build_prod
+                       pwd
+                       cp $workspace/deb-packages/*.deb .
+                       cp $workspace/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
+
+                       mv *.deb subutai-control-center.deb
+                       mv subutai-control-center SubutaiControlCenter
+                       """;
+                       }
+
+                       stage("Uploading") {
+
+                       sh """
+                       filename=/home/builder/build_prod/subutai-control-center.deb
+
+                       ipfs_authId="$(curl -s ${ipfs_url}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+                       echo "Auth id obtained and signed $ipfs_authId"
+
+                       ipfs_sign="$(echo ${ipfs_authId} | gpg --clearsign -u ${ipfs_user})"
+                       ipfs_token="$(curl -s --data-urlencode "request=${ipfs_sign}"  ${ipfs_url}/rest/v1/cdn/token)"
+                       echo "Token obtained $ipfs_token"
+
+                       echo "Uploading file..."
+                       upl_msg="$(curl -sk -H "token: ${ipfs_token}" -Ffile=@$filename -Ftoken=${ipfs_token} -X POST "${ipfs_url}/rest/v1/cdn/uploadRaw")"
+                       echo "$upl_msg"
+
+                       filename=/home/builder/build_prod/SubutaiControlCenter
+
+                       ipfs_authId="$(curl -s ${ipfs_url}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+                       echo "Auth id obtained and signed $ipfs_authId"
+
+                       ipfs_sign="$(echo ${ipfs_authId} | gpg --clearsign -u ${ipfs_user})"
+                       ipfs_token="$(curl -s --data-urlencode "request=${ipfs_sign}"  ${ipfs_url}/rest/v1/cdn/token)"
+                       echo "Token obtained $ipfs_token"
+
+                       echo "Uploading file..."
+                       upl_msg="$(curl -sk -H "token: ${ipfs_token}" -Ffile=@$filename -Ftoken=${ipfs_token} -X POST "${ipfs_url}/rest/v1/cdn/uploadRaw")"
+                       echo "$upl_msg"
+
+                       cd /home/builder/deb_repo
+                       rm *
+                       cp /home/builder/build_prod/subutai-control-center.deb subutai-control-center_${cc_version}.deb
+                       touch uploading_agent
+                       scp subutai*.deb dak@debup.subutai.io:incoming/prod/
+                       ssh dak@debup.subutai.io sh /var/reprepro/scripts/scan-incoming.sh prod cc
+                       """;
+
+                       } // --stage
+                       } // --node
+                       } catch (e) { 
+                       currentBuild.result = "FAILED"
+                       throw e
+                       } finally {
+                // Success or failure, always send notifications
+                notifyBuild(currentBuild.result, notifyBuildDetails)
+                }
+
+                def notifyBuild(String buildStatus = 'STARTED', String details = '') {
+                // build status of null means successful
+                buildStatus = buildStatus ?: 'SUCCESSFUL'
+                // Default values
+                def colorName = 'RED'
+                def colorCode = '#FF0000'
+                def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+                def summary = "${subject} (${env.BUILD_URL})"
+
+                // Override default values based on build status
+                if (buildStatus == 'STARTED') {
+                color = 'YELLOW'
                 colorCode = '#FFFF00'  
-        } else if (buildStatus == 'SUCCESSFUL') {
-            color = 'GREEN'
+                } else if (buildStatus == 'SUCCESSFUL') {
+                color = 'GREEN'
                 colorCode = '#00FF00'
         } else {
             color = 'RED'
                 colorCode = '#FF0000'
                 summary = "${subject} (${env.BUILD_URL})${details}"
         }
-    def mattermost_rest = "https://mm.subutai.io/hooks/k1ujhg8xwigupxjzqbwzpgdp3h";
-    mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#sysnet-bots", endpoint: "${mattermost_rest}" )
-}
+        def mattermost_rest = "https://mm.subutai.io/hooks/k1ujhg8xwigupxjzqbwzpgdp3h";
+        mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#sysnet-bots", endpoint: "${mattermost_rest}" )
+        }
