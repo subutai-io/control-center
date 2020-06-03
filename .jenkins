@@ -1,10 +1,10 @@
 #!groovy
 
-notifyBuildDetails = ""
-ipfs_user = "jenkins@optimal-dynamics.com"
-fingerprint = "877B586E74F170BC4CF6ECABB971E2AC63D23DC9"
-maintainer="Jenkins Admin"
-maintainer_email="jenkins@subut.ai"
+notifyBuildDetails = "";
+ipfs_user = "jenkins@optimal-dynamics.com";
+fingerprint = "877B586E74F170BC4CF6ECABB971E2AC63D23DC9";
+maintainer="Jenkins Admin";
+maintainer_email="jenkins@subut.ai";
 
 try {
     switch (env.BRANCH_NAME) {
@@ -20,7 +20,9 @@ try {
             branch = "dev";
             ipfs_url = "https://devbazaar.subutai.io";
     }
-    notifyBuild('STARTED', 'Using branch ' + env.BRANCH_NAME);
+
+    //notifyBuild('STARTED', "Using branch " + env.BRANCH_NAME);
+
     node("debian") {
         stage("Preparing Debian Build") {
             sh """
