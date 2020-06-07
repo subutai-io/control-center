@@ -10,36 +10,6 @@ BINARY_EXT=""
 USER=jenkins
 EMAIL=jenkins@subut.ai
 
-upload_cdn (){
-    echo "Obtaining auth id..."
-
-    curl -k "$2/auth/token?user=$USER" -o /tmp/filetosign
-    rm -rf /tmp/filetosign.asc
-    gpg --armor -u $EMAIL --clearsign /tmp/filetosign
-
-    SIGNED_AUTH_ID=$(cat /tmp/filetosign.asc)
-
-    echo "Auth id obtained and signed\\n$SIGNED_AUTH_ID"
-
-    TOKEN=$(curl -k -s -Fmessage="$SIGNED_AUTH_ID" -Fuser=$USER "$2/auth/token")
-
-    echo "Token obtained $TOKEN"
-
-    echo "Uploading file..."
-
-    ID=$(curl -sk -H "token: $TOKEN" -Ffile=@$1 -Fversion=$3 -Ftoken=$TOKEN "$2/raw/upload")
-
-    echo "File uploaded with ID $ID"
-    echo "URL: $2"
-    echo "VERSION: $3"
-    echo "Signing file..."
-
-    SIGN=$(echo $ID | gpg --clearsign --no-tty -u $EMAIL)
-
-    curl -ks -Ftoken="$TOKEN" -Fsignature="$SIGN" "$2/auth/sign"
-
-    echo -e "\\nCompleted"
-}
 upload_ipfs (){
     filename=$1
     user="jenkins@optimal-dynamics.com"
@@ -52,7 +22,8 @@ upload_ipfs (){
             id=${id_src:10:46}
         }       
 
-    json=`curl -k -s -X GET '${cdnHost}/rest/v1/cdn/raw?name=$filename&latest'`
+    echo "Requesting ${cdnHost}/rest/v1/cdn/raw?name=$filename&latest"
+    json=`curl -k -s -X GET "${cdnHost}/rest/v1/cdn/raw?name=$filename&latest"`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"
