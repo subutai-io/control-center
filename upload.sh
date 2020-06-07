@@ -28,11 +28,11 @@ upload_ipfs (){
     extract_id
     echo "Previous file ID is $id"
 
-    authId="$(curl -s ${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
-    echo "Auth id obtained and signed $authId"
+    authId=`curl -s "${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint}"`
+    echo "Auth id obtained and signed: $authId"
 
     sign="$(echo ${authId} | gpg --clearsign -u ${user})"
-    token="$(curl -s --data-urlencode "request=${sign}"  ${cdnHost}/rest/v1/cdn/token)"
+    token=`curl -s --data-urlencode "request=${sign}" "${cdnHost}/rest/v1/cdn/token"`
     echo "Token obtained $token"
 
     echo "Uploading file..."
