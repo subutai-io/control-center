@@ -24,30 +24,20 @@ upload_ipfs (){
             id=${id_src:10:46}
         }       
 
-    echo "Requesting ${cdnHost}/rest/v1/cdn/raw?name=$filename&latest"
-    json=`curl -k -s -X GET "${cdnHost}/rest/v1/cdn/raw?name=$filename&latest"`
+    json=`curl -k -s -X GET ${cdnHost}/rest/v1/cdn/raw?name=$filename&latest`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"
 
-    authId=`curl -s $cdnHost/rest/v1/cdn/token\?fingerprint\=$fingerprint`
-    echo "Auth id obtained and signed: $authId"
-    if [ -z $authId ]; then
-        echo "Empty authID"
-        exit 2
-    fi
+    authId="$(curl -s ${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint})"
+    echo "Auth id obtained and signed $authId"
 
-    gpg --list-keys
-    sign=`echo $authId | gpg --clearsign -u $user`
-    token=`curl -s --data-urlencode "request=$sign" "$cdnHost/rest/v1/cdn/token"`
-    if [ -z $token ]; then
-        echo "Empty token"
-        exit 2
-    fi
+    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
+    token="$(curl -s --data-urlencode "request=${sign}"  ${cdnHost}/rest/v1/cdn/token)"
     echo "Token obtained $token"
 
     echo "Uploading file..."
-    upl_msg=$(curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw")
+    upl_msg="$(curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw")"
     echo "$upl_msg"
 
     echo "Removing previous"
