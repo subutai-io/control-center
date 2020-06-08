@@ -63,7 +63,11 @@ else
   exit 1 
 fi
 
-cd /home/travis/build/subutai-io/control-center/subutai_control_center_bin
-cp /home/travis/build/subutai-io/control-center/deb-packages/*.deb /home/travis/build/subutai-io/control-center/subutai_control_center_bin/$PKGNAME
-cp /home/travis/build/subutai-io/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
+wd=./
+if [ ! -z "$TRAVIS" ]; then
+    wd = /home/travis/build/subutai-io/control-center
+fi
+cd $wd/subutai_control_center_bin
+cp $wd/deb-packages/*.deb $wd/subutai_control_center_bin/$PKGNAME
+cp $wd/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
 mv subutai-control-center SubutaiControlCenter

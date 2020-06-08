@@ -1,3 +1,5 @@
+#!groovy
+
 notifyBuildDetails = ""
 
 try {
@@ -14,7 +16,7 @@ try {
             stage("Debian Build") {
                 checkout scm
                 sh """
-                    ./build_linux.sh
+                    ./build_deb.sh ${branch}
                     """;
             }
         }
