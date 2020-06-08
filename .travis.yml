@@ -10,8 +10,7 @@ env:
 matrix:
   include:
   - os: linux
-    if: branch = master || branch = dev
-    dist: trusty
+    dist: bionic 
     sudo: required
     before_install:
     - openssl aes-256-cbc -k "$decrypt_keys" -in /home/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /home/travis/build/subutai-io/control-center/travis.tar.gz -d
