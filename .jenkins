@@ -19,6 +19,20 @@ try {
                     ./build_deb.sh ${branch}
                     """;
             }
+
+            stage("Upload") {
+
+		        notifyBuildDetails = "\nFailed on Stage - Upload"
+
+		        sh """
+		            cd /home/builder/deb_repo
+		            touch uploading_agent
+		            scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${branch}/
+		            ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${branch} agent
+
+                    ./upload.sh dev
+		        """
+            }
         }
 } catch (e) { 
     currentBuild.result = "FAILED"
