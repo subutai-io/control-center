@@ -34,6 +34,7 @@ upload_ipfs (){
     echo "Auth id obtained and signed: $authId"
 
     sign=`echo ${authId} | gpg --clearsign -u ${user}`
+    echo $authId | gpg --clearsign -u $user
     token=`curl -s --data-urlencode "request=${sign}" "${cdnHost}/rest/v1/cdn/token"`
     echo "Token obtained $token"
 
