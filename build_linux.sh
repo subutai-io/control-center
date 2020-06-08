@@ -1,12 +1,12 @@
 #!/bin/bash
 
-QTBINPATH=/home/builder/qt_static/bin
+QTBINPATH=$HOME/qt_static/bin
 BRANCH=$1
-TRAYDIR=/home/travis/build/subutai-io/control-center
+TRAYDIR=$HOME/build/subutai-io/control-center
 MAINTAINER="Jenkins Admin"
 MAINTAINER_EMAIL="jenkins@subut.ai"
 PROD_URL=https://cdn.subutai.io:8338/kurjun/rest
-#QTBINPATH=/home/travis/build/subutai-io/qt_static/bin/:$QTBINPATH
+#QTBINPATH=$HOME/build/subutai-io/qt_static/bin/:$QTBINPATH
 export PATH=$QTBINPATH:$PATH
 qmake --version
 git checkout -- .
@@ -63,8 +63,8 @@ else
   exit 1 
 fi
 
-cd /home/travis/build/subutai-io/control-center/subutai_control_center_bin
-cp /home/travis/build/subutai-io/control-center/deb-packages/*.deb /home/travis/build/subutai-io/control-center/subutai_control_center_bin/$PKGNAME
-cp /home/travis/build/subutai-io/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
+cd $HOME/build/subutai-io/control-center/subutai_control_center_bin
+cp $HOME/build/subutai-io/control-center/deb-packages/*.deb $HOME/build/subutai-io/control-center/subutai_control_center_bin/$PKGNAME
+cp $HOME/build/subutai-io/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
 mv subutai-control-center SubutaiControlCenter
 
