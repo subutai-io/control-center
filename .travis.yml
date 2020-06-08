@@ -1,8 +1,8 @@
 language: cpp
 branches:
   only:
-  - master
-  - dev
+  - master-dev
+  - dev-dev
   - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 env:
   global:

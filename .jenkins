@@ -13,7 +13,7 @@ try {
         node("debian") {
             stage("Debian Build") {
                 sh """
-                    ./build_linux.sh
+                    /bin/bash build_linux.sh
                     """;
             }
         }
