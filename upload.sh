@@ -30,7 +30,7 @@ upload_ipfs (){
     extract_id
     echo "Previous file ID is $id"
 
-    authId="$(curl -s $cdnHost/rest/v1/cdn/token\?fingerprint\=$fingerprint)"
+    authId=`curl -s $cdnHost/rest/v1/cdn/token\?fingerprint\=$fingerprint`
     echo "Auth id obtained and signed: $authId"
     if [ -z $authId ]; then
         echo "Empty authID"
@@ -38,7 +38,7 @@ upload_ipfs (){
     fi
 
     gpg --list-keys
-    sign=$(echo ${authId} | gpg --clearsign -u ${user})
+    sign=`echo $authId | gpg --clearsign -u $user`
     token=`curl -s --data-urlencode "request=$sign" "$cdnHost/rest/v1/cdn/token"`
     if [ -z $token ]; then
         echo "Empty token"
