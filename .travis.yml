@@ -17,9 +17,9 @@ jobs:
     - gpg --allow-secret-key-import --import /home/travis/build/subutai-io/control-center/jenkins-optdyn && rm -f /home/travis/build/subutai-io/control-center/jenkins-optdyn
     - LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH
-    - apt-add-repository --yes ppa:ubuntu-toolchain-r/test
-    - apt-get update
-    - apt-get install gcc-4.9 g++-4.9 libicu52 devscripts libssh2-1-dev libxi-dev libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf ca-certificates
+    - sudo apt-add-repository --yes ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update
+    - sudo apt-get install gcc-4.9 g++-4.9 libicu52 devscripts libssh2-1-dev libxi-dev libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf ca-certificates
     script:
     - mkdir -p /home/builder/ && chmod 777 /home/builder/
     - wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
