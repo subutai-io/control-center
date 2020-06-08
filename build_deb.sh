@@ -2,13 +2,13 @@ BRANCH=$1
 export MAINTAINER="Jenkins Admin"
 export MAINTAINER_EMAIL="jenkins@subut.ai"
 #export TRAYDIR=/tmp/jenkins_slave/workspace/tag.builders/tray_linux.subutai-io.tag
-export QTBINPATH=$HOME/qt_static/bin/
+export QTBINPATH=/home/builder/qt_static/bin/
 export PATH=$QTBINPATH:$PATH
 export cc_version="$(git describe --abbrev=0 --tags)+$(date +%Y%m%d%H%M%S)"
 export workspace="$(pwd)"
 echo $workspace
-rm -rf $HOME/deb_repo/
-mkdir $HOME/deb_repo
+rm -rf /home/builder/deb_repo/
+mkdir /home/builder/deb_repo
 
 cd $workspace
 qmake --version
@@ -50,7 +50,7 @@ cd deb-packages/deb-packages-internal
 ./pack_debian.sh 
 cd ../..
 
-cd $HOME/deb_repo
+cd /home/builder/deb_repo
 ls
 cp $workspace/deb-packages/*.deb .
 cp $workspace/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
