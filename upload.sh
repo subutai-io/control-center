@@ -1,3 +1,5 @@
+#!/bin/bash
+
 BRANCH=$1
 VERSION=$(cat version)
 OS=$(uname)
@@ -31,7 +33,7 @@ upload_ipfs (){
     authId=`curl -s "${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint}"`
     echo "Auth id obtained and signed: $authId"
 
-    sign="$(echo ${authId} | gpg --clearsign -u ${user})"
+    sign=`echo ${authId} | gpg --clearsign -u ${user}`
     token=`curl -s --data-urlencode "request=${sign}" "${cdnHost}/rest/v1/cdn/token"`
     echo "Token obtained $token"
 
