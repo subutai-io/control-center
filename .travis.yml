@@ -2,7 +2,7 @@ language: cpp
 branches:
   only:
   - master-dev
-  - dev-dev
+  - dev
   - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 env:
   global:
