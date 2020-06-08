@@ -12,8 +12,9 @@ try {
 
         node("debian") {
             stage("Debian Build") {
+                checkout scm
                 sh """
-                    /bin/bash build_linux.sh
+                    ./build_linux.sh
                     """;
             }
         }
