@@ -66,12 +66,12 @@ matrix:
     - ls subutai_control_center_bin
     deploy:
     - provider: script
-      script: bash upload.sh $TRAVIS_BRANCH
+      script: /bin/bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: dev
     - provider: script
-      script: bash upload.sh $TRAVIS_BRANCH
+      script: /bin/bash upload.sh $TRAVIS_BRANCH
       skip_cleanup: true
       on:
         branch: master

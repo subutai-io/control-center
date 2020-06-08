@@ -30,16 +30,15 @@ upload_ipfs (){
     extract_id
     echo "Previous file ID is $id"
 
-    authId=`curl -s "${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint}"`
+    authId=$(curl -s "${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint}")
     echo "Auth id obtained and signed: $authId"
 
-    sign=`echo ${authId} | gpg --clearsign -u ${user}`
-    echo $authId | gpg --clearsign -u $user
+    sign=$(echo ${authId} | gpg --clearsign -u ${user})
     token=`curl -s --data-urlencode "request=$sign" "$cdnHost/rest/v1/cdn/token"`
     echo "Token obtained $token"
 
     echo "Uploading file..."
-    upl_msg="$(curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw")"
+    upl_msg=$(curl -sk -H "token: ${token}" -Ffile=@$filename -Ftoken=${token} -X POST "${cdnHost}/rest/v1/cdn/uploadRaw")
     echo "$upl_msg"
 
     echo "Removing previous"
