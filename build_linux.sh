@@ -69,5 +69,7 @@ if [ ! -z "$TRAVIS" ]; then
 fi
 cd $wd/subutai_control_center_bin
 cp $wd/deb-packages/*.deb $wd/subutai_control_center_bin/$PKGNAME
+cp $wd/deb-packages/*.deb /tmp/$PKGNAME
 cp $wd/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center .
+cp $wd/control-center/deb-packages/deb-packages-internal/debian/SubutaiControlCenter/bin/subutai-control-center /tmp/SubutaiControlCenter
 mv subutai-control-center SubutaiControlCenter
