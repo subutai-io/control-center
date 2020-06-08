@@ -30,7 +30,7 @@ upload_ipfs (){
     extract_id
     echo "Previous file ID is $id"
 
-    authId=$(curl -s "${cdnHost}/rest/v1/cdn/token?fingerprint=${fingerprint}")
+    authId=$(curl -s $cdnHost/rest/v1/cdn/token?fingerprint=$fingerprint)
     echo "Auth id obtained and signed: $authId"
     if [ -z $authId ]; then
         echo "Empty authID"
