@@ -24,7 +24,7 @@ upload_ipfs (){
             id=${id_src:10:46}
         }       
 
-    json=`curl -k -s -X GET ${cdnHost}/rest/v1/cdn/raw?name=$filename&latest`
+    json=`curl -k -s -X GET "${cdnHost}/rest/v1/cdn/raw?name=$filename&latest"`
     echo "Received: $json"
     extract_id
     echo "Previous file ID is $id"
