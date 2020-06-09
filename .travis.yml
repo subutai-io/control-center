@@ -39,7 +39,7 @@ matrix:
     deploy:
     - provider: script
       #script: sudo bash upload.sh $TRAVIS_BRANCH
-      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=/tmp/subutai-control-center-dev.deb
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.deb
       skip_cleanup: true
       on:
         branch: dev
