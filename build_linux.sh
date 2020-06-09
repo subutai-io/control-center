@@ -65,7 +65,7 @@ fi
 
 wd=./
 if [ ! -z "$TRAVIS" ]; then
-    wd = /home/travis/build/subutai-io/control-center
+    wd=$HOME/build/subutai-io/control-center
 fi
 cd $wd/subutai_control_center_bin
 cp $wd/deb-packages/*.deb $wd/subutai_control_center_bin/$PKGNAME
