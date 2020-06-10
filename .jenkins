@@ -25,6 +25,7 @@ try {
 		        notifyBuildDetails = "\nFailed on Stage - Upload"
 
 		        sh """
+                    rm -rf /tmp/subutai-devops
                     git clone https://github.com/subutai-io/devops.git /tmp/subutai-devops
                     pip3 install requests python-gnupg subutai-bazaar
                     python3 /tmp/subutai-devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.deb
