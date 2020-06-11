@@ -3,6 +3,7 @@ branches:
   only:
   - master-dev
   - dev-dev
+  - devops
   - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 env:
   global:
