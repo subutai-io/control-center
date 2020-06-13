@@ -2,6 +2,7 @@ version: "{build}"
 branches:
   only:
   - dev
+  - devops
   - master
 skip_branch_with_pr: true
 
