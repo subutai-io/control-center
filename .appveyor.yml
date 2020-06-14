@@ -11,10 +11,10 @@ clone_folder: c:\SRC\control-center
 
 environment:
   matrix:
-  - TOXENV: py36
   - QT: C:\Qt\5.10.1\msvc2017_64
     PLATFORM: amd64
     COMPILER: msvc
+    TOXENV: py36
   decrypt_key:
     secure: Tltl7p3aLMTyXRsy3msl5g==
 
