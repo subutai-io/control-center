@@ -11,6 +11,7 @@ clone_folder: c:\SRC\control-center
 
 environment:
   matrix:
+  - TOXENV: py36
   - QT: C:\Qt\5.10.1\msvc2017_64
     PLATFORM: amd64
     COMPILER: msvc
@@ -20,6 +21,7 @@ environment:
 install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
   - nuget install secure-file -ExcludeVersion
+  - pip3 install subutai-bazaar
 build_script:
   - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
   - cmd: build_win.bat
