@@ -16,14 +16,24 @@ environment:
     COMPILER: msvc
     TOXENV: py36
     PYTHON: "C:\\Python36-x64"
-  decrypt_key:
-    secure: Tltl7p3aLMTyXRsy3msl5g==
+    BASH: "C:\\msys64\\usr\\bin\\bash"
+  cck:
+    secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
+  ccs:
+    secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
 
 install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
   - nuget install secure-file -ExcludeVersion
-  - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
   - git clone https://github.com/subutai-io/devops.git C:\devops
+  - secure-file\tools\secure-file -decrypt C:\devops\cc.tar.gz.enc -secret %cck% -salt %ccs%
+  - "%BASH%" -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
+  - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
 build_script:
   - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
   - cmd: build_win.bat
+deploy_script:
+  - "%BASH%" -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@subut.ai.gpg"
+  - "%BASH%" -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.gpg"
+  - "%BASH%" -lc "cd /C/devops && rm -f *.gpg"
+
