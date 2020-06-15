@@ -20,11 +20,10 @@ environment:
     COMPILER: msvc
     TOXENV: py36
     PYTHON: "C:\\Python36-x64"
-    BASH: "C:\\msys64\\usr\\bin\\bash"
 
 install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
-  - nuget install secure-file -ExcludeVersion
+    #  - nuget install secure-file
   - git clone https://github.com/subutai-io/devops.git C:\devops
   - C:\msys64\usr\bin\bash -lc "ls -l /C/devops && cp /C/devops/cc.tar.gz.enc /C/SRC/control-center && ls -l /C/SRC/control-center | grep cc"
   - cmd: secure-file\tools\secure-file -decrypt C:\SRC\control-center\cc.tar.gz.enc -secret %decrypt_key% -salt %decrypt_salt% -out C:\SRC\control-center\cc.tar.gz
