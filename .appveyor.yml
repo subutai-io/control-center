@@ -34,6 +34,6 @@ build_script:
   - cmd: build_win.bat
 deploy_script:
   - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@subut.ai.gpg"
-  - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.gpg"
+  - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.com.gpg"
   - C:\msys64\usr\bin\bash -lc "cd /C/devops && rm -f *.gpg"
 
