@@ -26,6 +26,7 @@ install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
   - nuget install secure-file -ExcludeVersion
   - git clone https://github.com/subutai-io/devops.git C:\devops
+  - C:\msys64\usr\bin\bash -lc "ls -l /C/devops"
   - cmd: secure-file\tools\secure-file -decrypt C:\devops\cc.tar.gz.enc -secret %cck% -salt %ccs%
   - C:\msys64\usr\bin\bash -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
   - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
