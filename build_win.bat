@@ -72,8 +72,14 @@ cd C:\SRC\SubutaiTraySetup\
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.com" SubutaiControlCenterSetup.sln /Rebuild Release
 dir C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\
 
+signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f C:\devops\signing.p12 /a C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi
+
 if "%APPVEYOR_REPO_BRANCH%" == "dev" (
   copy "C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi" "C:\SRC\control-center\subutai_control_center_bin\subutai-control-center-dev.msi"  
+)
+
+if "%APPVEYOR_REPO_BRANCH%" == "devops" (
+  copy "C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi" "C:\SRC\control-center\subutai_control_center_bin\subutai-control-center-devops.msi"  
 )
 
 if "%APPVEYOR_REPO_BRANCH%" == "master" (
