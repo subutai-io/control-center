@@ -27,13 +27,13 @@ install:
   - nuget install secure-file -ExcludeVersion
   - git clone https://github.com/subutai-io/devops.git C:\devops
   - secure-file\tools\secure-file -decrypt C:\devops\cc.tar.gz.enc -secret %cck% -salt %ccs%
-  - "%BASH%" -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
+  - C:\msys64\usr\bin\bash -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
   - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
 build_script:
   - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
   - cmd: build_win.bat
 deploy_script:
-  - "%BASH%" -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@subut.ai.gpg"
-  - "%BASH%" -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.gpg"
-  - "%BASH%" -lc "cd /C/devops && rm -f *.gpg"
+  - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@subut.ai.gpg"
+  - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.gpg"
+  - C:\msys64\usr\bin\bash -lc "cd /C/devops && rm -f *.gpg"
 
