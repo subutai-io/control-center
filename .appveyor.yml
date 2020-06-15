@@ -17,16 +17,16 @@ environment:
     TOXENV: py36
     PYTHON: "C:\\Python36-x64"
     BASH: "C:\\msys64\\usr\\bin\\bash"
-  cck:
-    secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
-  ccs:
-    secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
+    cck:
+      secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
+    ccs:
+      secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
 
 install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
   - nuget install secure-file -ExcludeVersion
   - git clone https://github.com/subutai-io/devops.git C:\devops
-  - secure-file\tools\secure-file -decrypt C:\devops\cc.tar.gz.enc -secret %cck%
+  - secure-file\tools\secure-file -decrypt C:\devops\cc.tar.gz.enc -secret %cck% -salt %ccs%
   - C:\msys64\usr\bin\bash -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
   - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
 build_script:
