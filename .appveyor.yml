@@ -10,6 +10,10 @@ image: Visual Studio 2017
 clone_folder: c:\SRC\control-center
 
 environment:
+  cck:
+    secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
+  ccs:
+    secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
   matrix:
   - QT: C:\Qt\5.10.1\msvc2017_64
     PLATFORM: amd64
@@ -17,10 +21,6 @@ environment:
     TOXENV: py36
     PYTHON: "C:\\Python36-x64"
     BASH: "C:\\msys64\\usr\\bin\\bash"
-    cck:
-      secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
-    ccs:
-      secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
 
 install:
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
