@@ -22,6 +22,7 @@ environment:
     PYTHON: "C:\\Python36-x64"
 
 install:
+  - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
   - set PATH=%PATH%;%QT%\bin\;C:\Qt\Tools\QtCreator\bin\;
     #  - nuget install secure-file
   - git clone https://github.com/subutai-io/devops.git C:\devops
