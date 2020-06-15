@@ -51,7 +51,7 @@ del *.h
 
 del *.moc
 
-signtool.exe sign /tr http://timestamp.digicert.com /td/ sha256 /fd sha256 /f C:\devops\signing.p12 /a SubutaiControlCenter.exe
+signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f C:\devops\signing.p12 /a SubutaiControlCenter.exe
 
 windeployqt --release --no-translations --compiler-runtime SubutaiControlCenter.exe
 

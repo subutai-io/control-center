@@ -33,7 +33,9 @@ build_script:
   - C:\msys64\usr\bin\bash -lc "wget -nv -O /C/SRC/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf /C/SRC/control-center/libs.tar.gz -C /C/SRC/control-center"
   - cmd: build_win.bat
 deploy_script:
+  - C:\msys64\usr\bin\bash -lc "cp /C/SRC/control-center/SubutaiControlCenter.exe /C/SRC/SubutaiControlCenter-devops.exe"
   - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@subut.ai.gpg"
   - C:\msys64\usr\bin\bash -lc "cd /C/devops && gpg --allow-secret-key-import --import jenkins@optimal-dynamics.com.gpg"
   - C:\msys64\usr\bin\bash -lc "cd /C/devops && rm -f *.gpg"
+  - "%PYTHON% C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\SubutaiControlCenter-devops.exe"
 
