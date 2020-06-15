@@ -27,7 +27,7 @@ install:
   - nuget install secure-file -ExcludeVersion
   - git clone https://github.com/subutai-io/devops.git C:\devops
   - C:\msys64\usr\bin\bash -lc "ls -l /C/devops && cp /C/devops/cc.tar.gz.enc /C/SRC/control-center"
-  - cmd: secure-file\tools\secure-file -decrypt C:\SRC\control-center\cc.tar.gz.enc -secret %dp_key% -salt %dp_salt% -out C:\SRC\control-center\cc.tar.gz
+  - cmd: secure-file\tools\secure-file -decrypt C:\SRC\control-center\cc.tar.gz.enc -secret %decrypt_key% -salt %decrypt_salt% -out C:\SRC\control-center\cc.tar.gz
   - C:\msys64\usr\bin\bash -lc "tar -xf /C/devops/cc.tar.gz -C /C/devops"
   - "%PYTHON%\\python.exe -m pip install requests python-gnupg subutai-bazaar"
 build_script:
