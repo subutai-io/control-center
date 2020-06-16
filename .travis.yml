@@ -54,9 +54,6 @@ matrix:
       skip_cleanup: true
       on:
         tags: true
-  - os: windows
-    script: 
-      - build.bat
   - os: osx
     osx_image: xcode9
     before_install:
