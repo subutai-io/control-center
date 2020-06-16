@@ -44,6 +44,6 @@ deploy_script:
   - gpg.exe --list-keys
   - cmd: >-
     if "%APPVEYOR_REPO_BRANCH%" == "devops" {
-      %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\SubutaiControlCenter-devops.exe
-      %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\control-center\\subutai_control_center_bin\\subutai-control-center-devops.msi
+      "%PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\SubutaiControlCenter-devops.exe"
+      "%PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\control-center\\subutai_control_center_bin\\subutai-control-center-devops.msi"
     }
