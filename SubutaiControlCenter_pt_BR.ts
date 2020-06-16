@@ -838,13 +838,13 @@ If you have started the installation process, please wait for it to finish</sour
     </message>
     <message>
         <location filename="DlgCreatePeer.ui" line="188"/>
-        <source>Debian Stretch</source>
-        <translation>Debian Stretch</translation>
+        <source>Debian Buster</source>
+        <translation>Debian Buster</translation>
     </message>
     <message>
         <location filename="DlgCreatePeer.ui" line="188"/>
-        <source>Debian Stretch</source>
-        <translation>Debian Stretch</translation>
+        <source>Debian Buster</source>
+        <translation>Debian Buster</translation>
     </message>
     <message>
         <source>Ubuntu Xenial</source>

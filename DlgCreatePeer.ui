@@ -177,9 +177,6 @@
       <property name="text">
        <string>Debian Buster</string>
       </property>
-      <property name="text">
-       <string>Debian Stretch</string>
-      </property>
      </item>
     </widget>
    </item>

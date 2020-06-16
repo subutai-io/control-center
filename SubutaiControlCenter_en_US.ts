@@ -633,7 +633,7 @@ If you have started the installation process, please wait for it to finish</sour
     </message>
     <message>
         <location filename="DlgCreatePeer.ui" line="188"/>
-        <source>Debian Stretch</source>
+        <source>Debian Buster</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
