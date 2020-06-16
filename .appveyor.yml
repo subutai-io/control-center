@@ -44,7 +44,7 @@ deploy_script:
   - gpg.exe --list-keys
   - ps: |
       if ("$env:APPVEYOR_REPO_BRANCH" -eq "devops") {
-        &"C:\Python36-x64\python.exe C:\devops\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\SRC\SubutaiControlCenter-devops.exe"
+        & "C:\Python36-x64\python.exe" "C:\devops\upload.py" "--user=jenkins@optimal-dynamics.com" "--fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9" "--file=C:\SRC\SubutaiControlCenter-devops.exe"
       } elseif ("$env:APPVEYOR_REPO_BRANCH" -eq "dev") {
         Exec-External {& $env.PYTHON\python.exe C:\devops\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\SRC\SubutaiControlCenter-devops.exe}
       } elseif ("$env:APPVEYOR_REPO_BRANCH" -eq "master") {
