@@ -81,8 +81,8 @@ matrix:
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-optdyn
     - git clone https://github.com/subutai-io/devops.git /tmp/devops
     install:
-      - brew install python3.6
-      - pyenv global 3.6
+      - brew install python3
+      - pyenv global 3.7
       - python -m pip install requests python-gnupg subutai-bazaar
     script:
     - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
