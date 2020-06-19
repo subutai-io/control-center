@@ -81,9 +81,9 @@ matrix:
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-optdyn
     - git clone https://github.com/subutai-io/devops.git /tmp/devops
     install:
-      - brew install python3
-      - pyenv global 3.7
-      - python -m pip install requests python-gnupg subutai-bazaar
+      #      - brew install python3
+        #      - pyenv global 3.7
+      - python3 -m pip install requests python-gnupg subutai-bazaar
     script:
     - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
     - wget --no-check-certificate -nv -O /Users/dev/Qt5.9.2.tar.gz 'https://bazaar.subutai.io/rest/v1/cdn/raw?name=Qt5.9.2.tar.gz&latest&download' && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
