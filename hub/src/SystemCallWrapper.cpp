@@ -1446,6 +1446,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
          << "add" << box
          << "--provider" << VagrantProvider::Instance()->CurrentVal()
          << box_dir
+         << "--insecure"
          << "--force";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug () << "finished addding box:" << box
