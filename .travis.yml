@@ -37,9 +37,7 @@ matrix:
     - wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - sudo /home/travis/build/subutai-io/control-center/./build_linux.sh $TRAVIS_BRANCH
     - ls subutai_control_center_bin
-    - if [ $TRAVIS_BRANCH == "dev" ]; then
-        cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-dev
-      fi
+    - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-dev ; fi
     deploy:
     - provider: script
       script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.deb --host=devbazaar.subutai.io
