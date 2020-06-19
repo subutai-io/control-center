@@ -91,8 +91,8 @@ matrix:
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - "/Users/travis/build/subutai-io/control-center/upload_app.sh $TRAVIS_BRANCH"
     - ls subutai_control_center_bin
-    - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-dev_osx ; fi
-    - if [ $TRAVIS_BRANCH == "master" ]; then cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-master_osx; fi
+    - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-dev_osx ; fi
+    - if [ $TRAVIS_BRANCH == "master" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-master_osx; fi
     deploy:
     - provider: script
       script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.pkg --host=devbazaar.subutai.io
