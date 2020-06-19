@@ -71,7 +71,7 @@ matrix:
       on:
         tags: true
   - os: osx
-    osx_image: xcode9
+    osx_image: xcode11.2
     before_install:
     - openssl aes-256-cbc -k "$decrypt_keys" -in /Users/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /Users/travis/build/subutai-io/control-center/travis.tar.gz -d
     - tar -xf travis.tar.gz -C /Users/travis/build/subutai-io/control-center/
@@ -81,7 +81,7 @@ matrix:
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-optdyn
     - git clone https://github.com/subutai-io/devops.git /tmp/devops
     install:
-      - pyenv global 3.6
+      #      - pyenv global 3.6
       - pip install requests python-gnupg subutai-bazaar
     script:
     - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
