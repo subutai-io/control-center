@@ -3,6 +3,7 @@ branches:
   only:
   - master
   - dev
+  - devops
   - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 env:
   global:
@@ -10,8 +11,7 @@ env:
 matrix:
   include:
   - os: linux
-    if: branch = master || branch = dev
-    dist: trusty
+    dist: trusty 
     sudo: required
     before_install:
     - openssl aes-256-cbc -k "$decrypt_keys" -in /home/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /home/travis/build/subutai-io/control-center/travis.tar.gz -d
@@ -22,35 +22,56 @@ matrix:
       && rm -f /home/travis/build/subutai-io/control-center/jenkins-optdyn
     - LD_LIBRARY_PATH=/usr/local/lib64/:$LD_LIBRARY_PATH
     - export LD_LIBRARY_PATH
+    - git clone https://github.com/subutai-io/devops.git /tmp/devops
     - sudo apt-add-repository --yes ppa:ubuntu-toolchain-r/test
     - sudo apt-get update
     - sudo apt-get install gcc-4.9 g++-4.9 libicu52 devscripts libssh2-1-dev libxi-dev
       libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev
       libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf
+    install:
+      - pyenv global 3.6
+      - pip install requests python-gnupg subutai-bazaar
     script:
     - sudo mkdir -p /home/builder/ && sudo chmod 777 /home/builder/
-    - wget -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
-    - wget -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
+    - wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_static.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
+    - wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - sudo /home/travis/build/subutai-io/control-center/./build_linux.sh $TRAVIS_BRANCH
-    - ls subutai_control_center_bin
+    - ls subutai_control_center_bin && sudo chmod 777 subutai_control_center_bin
+    - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-dev ; fi
+    - if [ $TRAVIS_BRANCH == "master" ]; then cp subutai_control_center_bin/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter-master; fi
     deploy:
     - provider: script
-      script: sudo bash upload.sh $TRAVIS_BRANCH
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.deb --host=devbazaar.subutai.io
       skip_cleanup: true
       on:
         branch: dev
     - provider: script
-      script: sudo bash upload.sh $TRAVIS_BRANCH
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter-dev --host=devbazaar.subutai.io
+      skip_cleanup: true
+      on:
+        branch: dev
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-master.deb --host=masterbazaar.subutai.io
       skip_cleanup: true
       on:
         branch: master
     - provider: script
-      script: sudo bash upload.sh HEAD
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter-master --host=masterbazaar.subutai.io
+      skip_cleanup: true
+      on:
+        branch: master 
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter
+      skip_cleanup: true
+      on:
+        tags: true
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center.deb
       skip_cleanup: true
       on:
         tags: true
   - os: osx
-    osx_image: xcode9
+    osx_image: xcode11.2
     before_install:
     - openssl aes-256-cbc -k "$decrypt_keys" -in /Users/travis/build/subutai-io/control-center/travis.tar.gz.enc -out /Users/travis/build/subutai-io/control-center/travis.tar.gz -d
     - tar -xf travis.tar.gz -C /Users/travis/build/subutai-io/control-center/
@@ -58,26 +79,48 @@ matrix:
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-subutai
     - gpg --allow-secret-key-import --import /Users/travis/build/subutai-io/control-center/jenkins-optdyn
       && rm -f /Users/travis/build/subutai-io/control-center/jenkins-optdyn
+    - git clone https://github.com/subutai-io/devops.git /tmp/devops
+    install:
+      #      - brew install python3
+        #      - pyenv global 3.7
+      - python3 -m pip install requests python-gnupg subutai-bazaar
     script:
     - sudo mkdir /Users/dev/ && sudo chmod 777 /Users/dev/
-    - wget -nv -O /Users/dev/Qt5.9.2.tar.gz 'https://bazaar.subutai.io/rest/v1/cdn/raw?name=Qt5.9.2.tar.gz&latest&download' && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
-    - wget -nv -O /Users/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
+    - wget --no-check-certificate -nv -O /Users/dev/Qt5.9.2.tar.gz 'https://bazaar.subutai.io/rest/v1/cdn/raw?name=Qt5.9.2.tar.gz&latest&download' && tar -xf /Users/dev/Qt5.9.2.tar.gz -C /Users/dev
+    - wget --no-check-certificate -nv -O /Users/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - "/Users/travis/build/subutai-io/control-center/upload_app.sh $TRAVIS_BRANCH"
-    - ls subutai_control_center_bin
+    - ls subutai_control_center_bin && sudo chmod 777 subutai_control_center_bin
+    - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-dev_osx ; fi
+    - if [ $TRAVIS_BRANCH == "master" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-master_osx; fi
     deploy:
     - provider: script
-      script: sudo bash upload.sh $TRAVIS_BRANCH
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.pkg --host=devbazaar.subutai.io
       skip_cleanup: true
       on:
         branch: dev
     - provider: script
-      script: sudo bash upload.sh $TRAVIS_BRANCH
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter-dev_osx --host=devbazaar.subutai.io
+      skip_cleanup: true
+      on:
+        branch: dev
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-master.pkg --host=masterbazaar.subutai.io
       skip_cleanup: true
       on:
         branch: master
     - provider: script
-      script: sudo bash upload.sh HEAD
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter-master_osx --host=masterbazaar.subutai.io
+      skip_cleanup: true
+      on:
+        branch: master 
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/SubutaiControlCenter_osx
+      skip_cleanup: true
+      on:
+        tags: true
+    - provider: script
+      script: python3 /tmp/devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center.pkg
       skip_cleanup: true
       on:
         tags: true

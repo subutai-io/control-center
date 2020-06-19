@@ -577,8 +577,8 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_init(const QString &dir,
         << "set_working_directory"
         << dir
         << "init";
-    if (box == "Debian Stretch")
-        CURRENT_BRANCH == BT_PROD ? args << "subutai/stretch" : args << "subutai/stretch-master";
+    if (box == "Debian Buster")
+        CURRENT_BRANCH == BT_PROD ? args << "subutai/buster" : args << "subutai/buster-master";
     else args << "subutai/xenial";
 
 
@@ -1446,6 +1446,7 @@ system_call_wrapper_error_t CSystemCallWrapper::vagrant_add_box(const QString &b
          << "add" << box
          << "--provider" << VagrantProvider::Instance()->CurrentVal()
          << box_dir
+         << "--insecure"
          << "--force";
     system_call_res_t res = CSystemCallWrapper::ssystem_th(cmd, args, true, true, 97);
     qDebug () << "finished addding box:" << box

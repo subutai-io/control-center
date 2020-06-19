@@ -1,0 +1,71 @@
+#!groovy
+
+notifyBuildDetails = ""
+
+try {
+    switch (env.BRANCH_NAME) {
+        case ~/master/: 
+            branch = "master";
+            break;
+        default: 
+            branch = "dev";
+    }
+    notifyBuild('STARTED')
+
+        node("deb") {
+            stage("Debian Build") {
+                checkout scm
+                sh """
+                    ./build_deb.sh ${branch}
+                    """;
+            }
+
+            stage("Upload") {
+
+		        notifyBuildDetails = "\nFailed on Stage - Upload"
+
+		        sh """
+                    rm -rf /tmp/subutai-devops
+                    git clone https://github.com/subutai-io/devops.git /tmp/subutai-devops
+                    /usr/bin/pip3 install requests python-gnupg subutai-bazaar
+                    python3 /tmp/subutai-devops/upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=subutai_control_center_bin/subutai-control-center-dev.deb
+
+		            cd /home/builder/deb_repo
+		            touch uploading_agent
+		            scp uploading_agent subutai*.deb dak@deb.subutai.io:incoming/${branch}/
+		            ssh dak@deb.subutai.io sh /var/reprepro/scripts/scan-incoming.sh ${branch} agent
+		        """
+            }
+        }
+} catch (e) { 
+    currentBuild.result = "FAILED"
+        throw e
+} finally {
+    // Success or failure, always send notifications
+    notifyBuild(currentBuild.result, notifyBuildDetails)
+}
+
+def notifyBuild(String buildStatus = 'STARTED', String details = '') {
+    // build status of null means successful
+    buildStatus = buildStatus ?: 'SUCCESSFUL'
+        // Default values
+        def colorName = 'RED'
+        def colorCode = '#FF0000'
+        def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+        def summary = "${subject} (${env.BUILD_URL})"
+
+        // Override default values based on build status
+        if (buildStatus == 'STARTED') {
+            color = 'YELLOW'
+                colorCode = '#FFFF00'  
+        } else if (buildStatus == 'SUCCESSFUL') {
+            color = 'GREEN'
+                colorCode = '#00FF00'
+        } else {
+            color = 'RED'
+                colorCode = '#FF0000'
+                summary = "${subject} (${env.BUILD_URL})${details}"
+        }
+    def mattermost_rest = "https://mm.subutai.io/hooks/k1ujhg8xwigupxjzqbwzpgdp3h";
+    mattermostSend(color: colorCode, icon: "https://jenkins.io/images/logos/jenkins/jenkins.png", message: summary, channel: "#sysnet-bots", endpoint: "${mattermost_rest}" )
+}

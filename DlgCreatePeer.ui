@@ -175,7 +175,7 @@
     <widget class="QComboBox" name="cmb_os">
      <item>
       <property name="text">
-       <string>Debian Stretch</string>
+       <string>Debian Buster</string>
       </property>
      </item>
     </widget>
