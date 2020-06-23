@@ -74,7 +74,6 @@ matrix:
     - tar -xf travis.tar.gz -C /Users/travis/build/subutai-io/control-center/
     - gpg --allow-secret-key-import --import /Users/travis/build/subutai-io/control-center/jenkins@subut.ai.gpg
     - gpg --allow-secret-key-import --import /Users/travis/build/subutai-io/control-center/jenkins@optimal-dynamics.com.gpg
-    - rm /Users/travis/build/subutai-io/control-center/*.gpg && rm /Users/travis/build/subutai-io/control-center/*.p12
     install:
       - python3 -m pip install requests python-gnupg subutai-bazaar
     script:
@@ -88,6 +87,7 @@ matrix:
     - security import /Users/travis/build/subutai-io/control-center/installer.p12 -k build.keychain -P $MACOS_SECRET -T /usr/bin/codesign 2>&1 >/dev/null
     - "security set-key-partition-list -S apple-tool:,apple,codesign: -s -k travis build.keychain"
     - security find-identity -v -p codesigning
+    - rm /Users/travis/build/subutai-io/control-center/*.gpg && rm /Users/travis/build/subutai-io/control-center/*.p12
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - sudo /Users/travis/build/subutai-io/control-center/./pack_mac.sh $TRAVIS_BRANCH
     - "/Users/travis/build/subutai-io/control-center/upload_app.sh $TRAVIS_BRANCH"
