@@ -1,4 +1,8 @@
 # Change Log
+## [7.3.8] 24/06/2020
+# IMROVEMENTS:
+* Debian Buster peer creation support
+
 ## [7.3.7] 01/11/2020
 # BUG FIXES:
 * Fixed build issues on some Qt versions
