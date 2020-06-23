@@ -51,7 +51,7 @@ del *.h
 
 del *.moc
 
-signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f C:\devops\signing.p12 /a SubutaiControlCenter.exe
+signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f C:\devops\subutai.pfx /p subutai /a SubutaiControlCenter.exe
 
 windeployqt --release --no-translations --compiler-runtime SubutaiControlCenter.exe
 
@@ -72,7 +72,7 @@ cd C:\SRC\SubutaiTraySetup\
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.com" SubutaiControlCenterSetup.sln /Rebuild Release
 dir C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\
 
-signtool.exe sign /tr http://timestamp.digicert.com /d "Subutai Control Center Installer" /td sha256 /fd sha256 /f C:\devops\signing.p12 /a C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi
+signtool.exe sign /tr http://timestamp.digicert.com /d "Subutai Control Center Installer" /td sha256 /fd sha256 /f C:\devops\subutai.pfx /p subutai /a C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi
 
 signtool.exe verify C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi
 

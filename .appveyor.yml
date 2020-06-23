@@ -13,7 +13,7 @@ environment:
   decrypt_key:
     secure: NBsr6b52BdT084Ca0vMPLbmP/mILkLvErsxw1k0YOrM=
   decrypt_salt:
-    secure: VLUkq6lj7FP9R/QvSo5IKUPhFVonyJ45UOeUsbwxTD0QW0mz9wEkTsOc/YiWac+XrRdP7dYW7IOFbpcJJ7lU6w==
+    secure: F6X/w9XCHBi5Bq7iRXtdakP4moLjARHEEWW5Z/UHc+Gb+3P95+dIaPU2L6NIYHTxBctX1D/oqLANCq94gSyCMg==
   matrix:
   - QT: C:\Qt\5.10.1\msvc2017_64
     PLATFORM: amd64
