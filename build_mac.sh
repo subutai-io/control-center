@@ -35,8 +35,7 @@ macdeployqt subutai_control_center_bin/SubutaiControlCenter.app
 cd subutai_control_center_bin/SubutaiControlCenter.app/Contents/MacOS/
 cp ../../../*.qm .
 #source ../../../../after_build_step_mac_os 
-security default-keychain -s build.keychain
-codesign -s YM8SD62476 --deep ./SubutaiControlCenter
+codesign -s YM8SD62476 --keychain build.keychain --deep ./SubutaiControlCenter
 cp SubutaiControlCenter SubutaiControlCenter_osx
 cp SubutaiControlCenter_osx ../../../.
 
@@ -67,6 +66,5 @@ rm -rf flat
 rm -rf root
 
 ./pack.sh ../subutai_control_center_bin/SubutaiControlCenter.app $BRANCH
-security default-keychain -s build.keychain
-productsign --sign YM8SD62476 $PKGNAME $PKGNAME_S
+productsign --sign YM8SD62476 --keychain build.keychain $PKGNAME $PKGNAME_S
 mv $PKGNAME_S ../subutai_control_center_bin/
