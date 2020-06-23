@@ -79,7 +79,7 @@ matrix:
     - security unlock-keychain -p travis build.keychain
     - security import /Users/travis/build/subutai-io/control-center/application.p12 -k build.keychain -P $MACOS_SECRET -T /usr/bin/codesign 2>&1 >/dev/null
     - security import /Users/travis/build/subutai-io/control-center/installer.p12 -k build.keychain -P $MACOS_SECRET -T /usr/bin/codesign 2>&1 >/dev/null
-    - security set-key-partition-list -S apple-tool:,apple,codesign: -s -k travis build.keychain
+    - security set-key-partition-list -S apple-tool:,apple: -s -k travis build.keychain
     - security find-identity -v -p codesigning
     - rm /Users/travis/build/subutai-io/control-center/*.gpg && rm /Users/travis/build/subutai-io/control-center/*.p12
     install:
