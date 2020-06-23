@@ -90,8 +90,8 @@ matrix:
     - rm /Users/travis/build/subutai-io/control-center/*.gpg && rm /Users/travis/build/subutai-io/control-center/*.p12
     - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
     - sudo /Users/travis/build/subutai-io/control-center/./pack_mac.sh $TRAVIS_BRANCH
-    - "/Users/travis/build/subutai-io/control-center/upload_app.sh $TRAVIS_BRANCH"
     - ls subutai_control_center_bin && sudo chmod 777 subutai_control_center_bin
+    - cp subutai_control_center_bin/SubutaiControlCenter.app/MacOS/Contents/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter_osx
     - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-dev_osx ; fi
     - if [ $TRAVIS_BRANCH == "master" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-master_osx; fi
     deploy:
