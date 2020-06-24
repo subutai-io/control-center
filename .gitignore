@@ -4,6 +4,7 @@
 *.save
 *.autosave
 *.swp
+*.tar.gz
 bin/*
 subutai_tray_bin/
 subutai_control_center_bin/

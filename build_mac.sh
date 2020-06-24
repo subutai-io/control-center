@@ -35,30 +35,3 @@ macdeployqt subutai_control_center_bin/SubutaiControlCenter.app
 cd subutai_control_center_bin/SubutaiControlCenter.app/Contents/MacOS/
 cp ../../../*.qm .
 #source ../../../../after_build_step_mac_os 
-cp SubutaiControlCenter SubutaiControlCenter_osx
-cp SubutaiControlCenter_osx ../../../.
-
-cd $TRAYDIR
-
-PKGNAME="subutai-control-center.pkg"
-case $BRANCH in
-	dev)
-		PKGNAME="subutai-control-center-dev.pkg"
-		;;
-	master)
-		PKGNAME="subutai-control-center-master.pkg"
-		;;
-	head)
-		PKGNAME="subutai-control-center.pkg"   
-    	;;
-    HEAD)
-		PKGNAME="subutai-control-center.pkg"
-    	;;  
-esac
-
-cd darwin-packages/
-rm -rf flat
-rm -rf root
-
-./pack.sh ../subutai_control_center_bin/SubutaiControlCenter.app $BRANCH
-mv $PKGNAME ../subutai_control_center_bin/
