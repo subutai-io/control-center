@@ -7,10 +7,10 @@ echo "$BRANCH"
 
 export PATH=$QTBINPATH:$PATH
 
-git checkout -- .
-git pull
-git checkout $BRANCH
-git pull origin $BRANCH
+#git checkout -- .
+#git pull
+#git checkout $BRANCH
+#git pull origin $BRANCH
 
 mkdir -p /usr/local/opt/libssh2/lib/
 mkdir -p /usr/local/lib/
