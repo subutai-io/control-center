@@ -96,3 +96,7 @@ if "%APPVEYOR_REPO_BRANCH%" == "head" (
 if "%APPVEYOR_REPO_BRANCH%" == "HEAD" (
   copy "C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi" "C:\SRC\control-center\subutai_control_center_bin\subutai-control-center.msi"  
 )
+
+if "%APPVEYOR_REPO_TAG%" == "true" (
+  copy "C:\SRC\SubutaiTraySetup\SubutaiTraySetup\Release\SubutaiControlCenter.msi" "C:\SRC\control-center\subutai_control_center_bin\subutai-control-center.msi"  
+)

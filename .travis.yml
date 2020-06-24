@@ -88,8 +88,10 @@ matrix:
     - "security set-key-partition-list -S apple-tool:,apple,codesign: -s -k travis build.keychain"
     - security find-identity -v -p codesigning
     - rm /Users/travis/build/subutai-io/control-center/*.gpg && rm /Users/travis/build/subutai-io/control-center/*.p12
-    - sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH
-    - sudo /Users/travis/build/subutai-io/control-center/./pack_mac.sh $TRAVIS_BRANCH
+    - if [ "$TRAVIS_TAG" == "" ] then; sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh $TRAVIS_BRANCH ; fi
+    - if [ "$TRAVIS_TAG" == "" ] then; sudo /Users/travis/build/subutai-io/control-center/./pack_mac.sh $TRAVIS_BRANCH ; fi
+    - if [ "$TRAVIS_TAG" != "" ] then; sudo /Users/travis/build/subutai-io/control-center/./build_mac.sh HEAD; fi
+    - if [ "$TRAVIS_TAG" != "" ] then; sudo /Users/travis/build/subutai-io/control-center/./pack_mac.sh HEAD; fi
     - ls subutai_control_center_bin && ls subutai_control_center_bin/SubutaiControlCenter.app/Contents && sudo chmod 777 subutai_control_center_bin
     - cp subutai_control_center_bin/SubutaiControlCenter.app/Contents/MacOS/SubutaiControlCenter subutai_control_center_bin/SubutaiControlCenter_osx
     - if [ $TRAVIS_BRANCH == "dev" ]; then cp subutai_control_center_bin/SubutaiControlCenter_osx subutai_control_center_bin/SubutaiControlCenter-dev_osx ; fi
