@@ -55,3 +55,8 @@ deploy_script:
       %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\SubutaiControlCenter-master.exe --host=masterbazaar.subutai.io
       %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\control-center\\subutai_control_center_bin\\subutai-control-center-master.msi --host=masterbazaar.subutai.io
     )
+  - if "%APPVEYOR_REPO_TAG%" == "true" (
+      %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\SubutaiControlCenter.exe
+      %PYTHON%\\python.exe C:\\devops\\upload.py --user=jenkins@optimal-dynamics.com --fingerprint=877B586E74F170BC4CF6ECABB971E2AC63D23DC9 --file=C:\\SRC\\control-center\\subutai_control_center_bin\\subutai-control-center.msi
+    )
+  
