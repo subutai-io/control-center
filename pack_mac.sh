@@ -9,7 +9,8 @@ cp SubutaiControlCenter_osx ../../../.
 
 cd $TRAYDIR
 
-PKGNAME="subutai-control-center.pkg"
+PKGNAME="subutai-control-center-unsigned.pkg"
+PKGNAME_S="subutai-control-center.pkg"
 case $BRANCH in
 	dev)
 		PKGNAME="subutai-control-center-dev-unsigned.pkg"
@@ -19,14 +20,6 @@ case $BRANCH in
 		PKGNAME="subutai-control-center-master-unsigned.pkg"
 		PKGNAME_S="subutai-control-center-master.pkg"
 		;;
-	head)
-		PKGNAME="subutai-control-center-unsigned.pkg"   
-		PKGNAME_S="subutai-control-center.pkg"
-    	;;
-    HEAD)
-		PKGNAME="subutai-control-center.pkg"
-		PKGNAME_S="subutai-control-center.pkg"
-    	;;  
 esac
 
 cd darwin-packages/
