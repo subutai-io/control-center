@@ -1,0 +1,20 @@
+[
+    {
+        "component": "control-center",
+        "version": "6.8.12",
+        "filenames": {
+            "linux": "subutai-control-center.deb",
+            "windows": "subutai-control-center.msi",
+            "osx": "subutai-control-center.pkg"
+        }
+    },
+    {
+        "component": "p2p",
+        "version": "6.8.12",
+        "filenames": {
+            "linux": "subutai-p2p.deb",
+            "windows": "subutai-p2p.msi",
+            "osx": "subutai-p2p.pkg"
+        }
+    }
+]
