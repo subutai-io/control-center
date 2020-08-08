@@ -6,6 +6,13 @@
 #include <QStringList>
 
 #define UNUSED_ARG(x) ((void)x)
+#define UNKNOWN_VERSION "unknown"
+
+struct RemoteFileMeta {
+    QString filename;
+    QString version;
+    int build;
+};
 
 
 ////////////////////////////////////////////////////////////////////////////

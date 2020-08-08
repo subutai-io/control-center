@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QString>
 #include "updater/UpdaterComponentTray.h"
 #include "updater/ExecutableUpdater.h"
 #include "RestWorker.h"
@@ -28,6 +29,14 @@ CUpdaterComponentTray::~CUpdaterComponentTray() {
 
 bool
 CUpdaterComponentTray::update_available_internal() {
+    // New version
+    
+    auto next_version = CRestWorker::Instance()->get_next_cc_version();
+    if (next_version == UNKNOWN_VERSION) return false;
+    return next_version != TRAY_VERSION; 
+
+    // Old version
+
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(tray_kurjun_file_name());
   if (fi.empty()) return false;
