@@ -14,6 +14,7 @@
 #include "updater/HubComponentsUpdater.h"
 #include "OsBranchConsts.h"
 #include "P2PController.h"
+#include "DlgAbout.h"
 
 using namespace update_system;
 
@@ -61,6 +62,16 @@ CUpdaterComponentP2P::download_p2p_path() {
 
 bool
 CUpdaterComponentP2P::update_available_internal() {
+
+    auto next_version = CRestWorker::Instance()->get_next_p2p_version();
+    if (next_version == UNKNOWN_VERSION) return false;
+    QString p2p_version = "";
+    CSystemCallWrapper::p2p_version(p2p_version);
+    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+    qDebug() << "Current p2p version: " << p2p_version;
+    qDebug() << "Next p2p version: " << next_version;
+    return next_version != p2p_version; 
+
   std::vector<CGorjunFileInfo> fi =
       CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_file_name());
   if (fi.empty()) return false;

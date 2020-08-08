@@ -11,6 +11,10 @@ subutai_control_center_bin/
 libssh_app_bin/
 .DS_Store
 build
+components-meta
+
+#vim
+.ycm*
 
 # Debian
 *.docs

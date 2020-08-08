@@ -29,7 +29,7 @@ struct atomic_locker {
 ////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief The IUpdaterComponent interface for all ipdatable components
+ * @brief The IUpdaterComponent interface for all updatable components
  */
 class IUpdaterComponent : public QObject {
   Q_OBJECT

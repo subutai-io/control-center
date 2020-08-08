@@ -1438,3 +1438,8 @@ const QString& ipfs_download_url() {
 const QString& components_meta_file() {
   return components_meta_file_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
 }
+
+const QString& components_meta_extension() {
+    static QString ext = "-comp-meta.json";
+    return ext;
+}

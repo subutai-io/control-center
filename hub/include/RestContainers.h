@@ -214,6 +214,27 @@ public:
   }
 };
 ////////////////////////////////////////////////////////////////////////////
+class CComponentMetaFile {
+    private:
+        int m_format;
+        QString m_filename;
+        QString m_version;
+        int m_build;
+    public:
+        explicit CComponentMetaFile(const QJsonObject& obj) {
+            m_format = obj["format"].toInt();
+            m_filename = obj["filename"].toString();
+            m_version = obj["version"].toString();
+            m_build = obj["build"].toInt();
+        }
+        ~CComponentMetaFile() {}
+
+        int format() const { return m_format; }
+        const QString& filename() const { return m_filename; }
+        const QString& version() const { return m_version; }
+        int build() const { return m_build; }
+};
+////////////////////////////////////////////////////////////////////////////
 
 typedef enum report_type {
   RT_HEALTH = 0, RT_ERROR

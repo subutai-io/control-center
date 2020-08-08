@@ -9,6 +9,7 @@
 #include "OsBranchConsts.h"
 #include "SettingsManager.h"
 #include "SystemCallWrapper.h"
+#include "RestWorker.h"
 #include "ui_DlgAbout.h"
 #include "updater/HubComponentsUpdater.h"
 
@@ -357,6 +358,8 @@ DlgAbout::DlgAbout(QWidget* parent) : QDialog(parent), ui(new Ui::DlgAbout) {
     (*i)->setWordWrap(true);
   }
 
+
+
   // connect
   connect(ui->btn_p2p_update, &QPushButton::released, this,
           &DlgAbout::btn_p2p_update_released);
@@ -661,6 +664,19 @@ DlgAbout::~DlgAbout() { delete ui; }
 void DlgAbout::check_for_versions_and_updates() {
   // There are 2 steps of initialization: version checking and update checking
   // see DlgAboutInitializer::do_initialization() for more details
+    std::vector<CComponentMetaFile> cc_meta = CRestWorker::Instance()->download_remote_file_meta(tray_kurjun_file_name());
+    if (!cc_meta.empty())
+    {
+        std::vector<CComponentMetaFile>::iterator cc_it = cc_meta.begin();
+        CRestWorker::Instance()->set_next_cc_version(cc_it->version());
+    }
+    std::vector<CComponentMetaFile> p2p_meta = CRestWorker::Instance()->download_remote_file_meta(p2p_kurjun_file_name());
+    if (!p2p_meta.empty())
+    {
+        std::vector<CComponentMetaFile>::iterator p2p_it = p2p_meta.begin();
+        CRestWorker::Instance()->set_next_p2p_version(p2p_it->version());
+    }
+    
   int cur_components_count = DlgAboutInitializer::COMPONENTS_COUNT - 1; // -1 for CC version check
   QString current_hypervisor = VagrantProvider::Instance()->CurrentVal();
   QString current_browser = CSettingsManager::Instance().default_browser();
