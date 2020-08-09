@@ -174,6 +174,7 @@ public:
 
   std::vector<CGorjunFileInfo> get_gorjun_file_info(const QString& file_name, QString link = "");
 
+  std::vector<CComponentMetaFile> download_remote_file_meta(const QString& file_name);
 
   QString get_vagrant_plugin_cloud_version(const QString& plugin_name);
 
@@ -200,6 +201,14 @@ public:
   void remove_sshkey_from_environments(const QString &key_name,
                                        const QString &key,
                                        const QStringList &lst_environments);
+public:
+  void set_next_cc_version(const QString& version);
+  void set_next_p2p_version(const QString& version);
+  const QString& get_next_cc_version() const;
+  const QString& get_next_p2p_version() const;
+private:
+  QString next_cc_version;
+  QString next_p2p_version;
 };
 
 #endif // CRESTWORKER_H

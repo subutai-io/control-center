@@ -129,4 +129,7 @@ void current_os_info(std::vector<std::pair<QString, QString> >& v);
 const QString& subutai_e2e_id(const QString& current_browser);
 const QString& set_application_branch(QString branch = "undefined");
 const QString& ipfs_download_url();
+
+const QString& components_meta_file();
+const QString& components_meta_extension();
 #endif // OSBRANCHCONSTS_H

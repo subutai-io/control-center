@@ -34,10 +34,18 @@ static std::map<QString, QString> virtual_package_codename = {
 
 template<class BR, class OS> const QString& p2p_kurjun_file_name_temp_internal();
 template<class BR, class OS> const QString& p2p_package_name_temp_internal();
+template<class BR, class OS> const QString& components_meta_file_internal();
 
 #define p2p_kurjun_file_name_def(BT_TYPE, OS_TYPE, STRING) \
   template<> \
   const QString& p2p_kurjun_file_name_temp_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
+    static QString res(STRING); \
+    return res; \
+  }
+
+#define components_meta_file_def(BT_TYPE, OS_TYPE, STRING) \
+  template<> \
+  const QString& components_meta_file_internal<Branch2Type<BT_TYPE>, Os2Type<OS_TYPE> >() { \
     static QString res(STRING); \
     return res; \
   }
@@ -48,6 +56,16 @@ template<class BR, class OS> const QString& p2p_package_name_temp_internal();
     static QString res(STRING); \
     return res; \
   }
+
+components_meta_file_def(BT_MASTER,     OS_LINUX,   "components-meta-master.json")
+components_meta_file_def(BT_MASTER,     OS_MAC,   "components-meta-master.json")
+components_meta_file_def(BT_MASTER,     OS_WIN,   "components-meta-master.json")
+components_meta_file_def(BT_DEV,        OS_LINUX,   "components-meta-dev.json")
+components_meta_file_def(BT_DEV,        OS_MAC,   "components-meta-dev.json")
+components_meta_file_def(BT_DEV,        OS_WIN,   "components-meta-dev.json")
+components_meta_file_def(BT_PROD,       OS_LINUX,   "components-meta.json")
+components_meta_file_def(BT_PROD,       OS_MAC,   "components-meta.json")
+components_meta_file_def(BT_PROD,       OS_WIN,   "components-meta.json")
 
 p2p_kurjun_file_name_def(BT_MASTER,     OS_LINUX,   "p2p-master")
 p2p_kurjun_file_name_def(BT_MASTER,     OS_MAC,     "p2p-master_osx")
@@ -1415,4 +1433,13 @@ const QString& ipfs_download_url() {
   static const QString ipfs_url("https://ipfs.subutai.io/ipfs/%1/%2");
 
   return ipfs_url;
+}
+
+const QString& components_meta_file() {
+  return components_meta_file_internal<Branch2Type<CURRENT_BRANCH>, Os2Type<CURRENT_OS> >();
+}
+
+const QString& components_meta_extension() {
+    static QString ext = "-comp-meta.json";
+    return ext;
 }
