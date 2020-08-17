@@ -676,6 +676,12 @@ void DlgAbout::check_for_versions_and_updates() {
         std::vector<CComponentMetaFile>::iterator p2p_it = p2p_meta.begin();
         CRestWorker::Instance()->set_next_p2p_version(p2p_it->version());
     }
+    std::vector<CComponentMetaFile> vagrant_meta = CRestWorker::Instance()->download_remote_file_meta(vagrant_kurjun_package_name());
+    if (!vagrant_meta.empty())
+    {
+        std::vector<CComponentMetaFile>::iterator vagrant_it = vagrant_meta.begin();
+        CRestWorker::Instance()->set_next_vagrant_version(vagrant_it->version());
+    }
     
   int cur_components_count = DlgAboutInitializer::COMPONENTS_COUNT - 1; // -1 for CC version check
   QString current_hypervisor = VagrantProvider::Instance()->CurrentVal();

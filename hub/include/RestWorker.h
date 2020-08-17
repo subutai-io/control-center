@@ -204,11 +204,14 @@ public:
 public:
   void set_next_cc_version(const QString& version);
   void set_next_p2p_version(const QString& version);
+  void set_next_vagrant_version(const QString& version);
   const QString& get_next_cc_version() const;
   const QString& get_next_p2p_version() const;
+  const QString& get_next_vagrant_version() const;
 private:
   QString next_cc_version;
   QString next_p2p_version;
+  QString next_vagrant_version;
 };
 
 #endif // CRESTWORKER_H

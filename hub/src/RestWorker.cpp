@@ -1154,6 +1154,11 @@ void CRestWorker::set_next_p2p_version(const QString& version)
     next_p2p_version = version;
 }
 
+void CRestWorker::set_next_vagrant_version(const QString& version)
+{
+    next_vagrant_version = version;
+}
+
 const QString& CRestWorker::get_next_cc_version() const 
 {
     return next_cc_version;
@@ -1162,6 +1167,11 @@ const QString& CRestWorker::get_next_cc_version() const
 const QString& CRestWorker::get_next_p2p_version() const 
 {
     return next_p2p_version;
+}
+
+const QString& CRestWorker::get_next_vagrant_version() const 
+{
+    return next_vagrant_version;
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,8 @@
 # Change Log
+## [7.3.10] 08/18/2020
+# IMPROVEMENTS:
+* Fixed check for a new version of vagrant package
+
 ## [7.3.9] 08/09/2020
 # IMPROVEMENTS:
 * New update mechanism for Control Center and it's components 
