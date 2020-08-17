@@ -62,28 +62,11 @@ CUpdaterComponentP2P::download_p2p_path() {
 
 bool
 CUpdaterComponentP2P::update_available_internal() {
-
     auto next_version = CRestWorker::Instance()->get_next_p2p_version();
     if (next_version == UNKNOWN_VERSION) return false;
-    QString p2p_version = "";
+    QString p2p_version;
     CSystemCallWrapper::p2p_version(p2p_version);
-    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-    qDebug() << "Current p2p version: " << p2p_version;
-    qDebug() << "Next p2p version: " << next_version;
     return next_version != p2p_version; 
-
-  std::vector<CGorjunFileInfo> fi =
-      CRestWorker::Instance()->get_gorjun_file_info(p2p_kurjun_file_name());
-  if (fi.empty()) return false;
-  QString str_p2p_path = p2p_path();
-  if (str_p2p_path == P2P) return false;
-  QString md5_current = CCommons::FileMd5(str_p2p_path);
-  QString md5_kurjun = fi[0].md5_sum();
-  qDebug()
-          <<"Checking for p2p update"
-          <<"md5_current: "<<md5_current
-          <<"md5_kurjun: "<<md5_kurjun;
-  return md5_current != md5_kurjun;
 }
 ////////////////////////////////////////////////////////////////////////////
 

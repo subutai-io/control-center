@@ -28,9 +28,11 @@ QString CUpdaterComponentVAGRANT::download_vagrant_path() {
 }
 
 bool CUpdaterComponentVAGRANT::update_available_internal() {
+    auto next_version = CRestWorker::Instance()->get_next_vagrant_version();
+    if (next_version == UNKNOWN_VERSION) return false;
   QString version;
   CSystemCallWrapper::vagrant_version(version);
-  return version == "undefined";
+  return version != next_version;
 }
 
 chue_t CUpdaterComponentVAGRANT::install_internal() {
