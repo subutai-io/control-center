@@ -8,7 +8,7 @@ branches:
 matrix:
   include:
   - os: linux
-    dist: bionic
+    dist: focal
     sudo: required
     before_install:
     - git clone https://github.com/subutai-io/devops.git /tmp/devops
