@@ -8,7 +8,7 @@ branches:
 matrix:
   include:
   - os: linux
-    dist: focal
+    dist: bionic
     sudo: required
     before_install:
     - git clone https://github.com/subutai-io/devops.git /tmp/devops
@@ -26,7 +26,7 @@ matrix:
       '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
       flex bison gperf libicu-dev libxslt-dev ruby
       libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev gperf bison nodejs
-    - sudo apt-get install build-essential libicu66 devscripts libssh2-1-dev libxi-dev
+    - sudo apt-get install build-essential libicu60 devscripts libssh2-1-dev libxi-dev
       libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev
       libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dev dh-autoreconf
     install:
