@@ -29,6 +29,7 @@ matrix:
     - sudo apt-get install build-essential libicu60 devscripts libssh2-1-dev libxi-dev
       libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev
       libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dev dh-autoreconf
+      fakeroot
     install:
       - pyenv global 3.7
       - pip install requests python-gnupg subutai-bazaar
