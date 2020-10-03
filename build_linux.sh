@@ -1,6 +1,6 @@
 #!/bin/bash
 
-QTBINPATH=/home/builder/qt_static/bin
+QTBINPATH=/home/subutai/qt_static/bin
 BRANCH=$1
 TRAYDIR=/home/travis/build/subutai-io/control-center
 MAINTAINER="Jenkins Admin"
