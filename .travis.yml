@@ -21,15 +21,20 @@ matrix:
     - export LD_LIBRARY_PATH
     - sudo apt-add-repository --yes ppa:ubuntu-toolchain-r/test
     - sudo apt-get update
-    - sudo apt-get install gcc-4.9 g++-4.9 libicu52 devscripts libssh2-1-dev libxi-dev
+    - sudo apt-get build-dep qt5-default
+    - sudo apt-get install libxcb-xinerama0-dev build-essential perl python git
+      '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+      flex bison gperf libicu-dev libxslt-dev ruby
+      libxcursor-dev libxcomposite-dev libxdamage-dev libxrandr-dev libxtst-dev libxss-dev libdbus-1-dev libevent-dev libfontconfig1-dev libcap-dev libpulse-dev libudev-dev libpci-dev libnss3-dev libasound2-dev libegl1-mesa-dev gperf bison nodejs
+    - sudo apt-get install build-essential libicu60 devscripts libssh2-1-dev libxi-dev
       libxcb-xkb-dev libxrender-dev libxcb-image0-dev libxcb-render-util0-dev libxcb-icccm4-dev
-      libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dbus-1-dev dh-autoreconf
+      libxcb-keysyms1-dev libxcb-xinerama0-dev libdconf-dev dh-autoreconf fakeroot
     install:
-      - pyenv global 3.6
+      - pyenv global 3.7
       - pip install requests python-gnupg subutai-bazaar
     script:
-    - sudo mkdir -p /home/builder/ && sudo chmod 777 /home/builder/
-    - wget --no-check-certificate -nv -O /home/builder/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_5.12.tar.gz&latest&download' && tar -xf /home/builder/qt_static.tar.gz -C /home/builder/
+    - sudo mkdir -p /home/subutai/ && sudo chmod 777 /home/subutai/
+    - wget --no-check-certificate -nv -O /home/subutai/qt_static.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=qt_5.12.tar.gz&latest&download' && tar -xf /home/subutai/qt_static.tar.gz -C /home/subutai/
     - wget --no-check-certificate -nv -O /home/travis/build/subutai-io/control-center/libs.tar.gz 'https://masterbazaar.subutai.io/rest/v1/cdn/raw?name=libs.tar.gz&latest&download' && tar -xf libs.tar.gz
     - sudo /home/travis/build/subutai-io/control-center/./build_linux.sh $TRAVIS_BRANCH
     - ls subutai_control_center_bin && sudo chmod 777 subutai_control_center_bin
