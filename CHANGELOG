@@ -1,4 +1,9 @@
 # Change Log
+## [7.3.12] 10/05/2020
+# IMPROVEMENTS:
+* Now using libssl1 in Ubuntu as a dependency
+* Switched to Qt 5.12 on Linux
+
 ## [7.3.11] 09/21/2020
 # IMPROVEMENTS:
 * Added support of newer libssl version on Debian and Ubuntu #1938
