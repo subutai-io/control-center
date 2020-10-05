@@ -17,5 +17,6 @@ Depends: policykit-1,
          libxcb-randr0,
          libxcb-render-util0,
          libxcb-xinerama0,
-         libxcb-xkb1
+         libxcb-xkb1,
+         libxcb-xinput0
 Description: Subutai Control Center Application
